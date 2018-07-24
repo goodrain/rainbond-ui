@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'dev') {
   // baseUrl = '/api';
   baseUrl = 'http://dev.goodrain.org';
 } else if (process.env.NODE_ENV === 'production') {
-  baseUrl = '';
+  baseUrl = `http://${process.env.CONSOLE_HOST}:${process.env.CONSOLE_PORT}` || '';
 }
 
 imageUploadUrl = `${baseUrl}/console/files/upload`;
