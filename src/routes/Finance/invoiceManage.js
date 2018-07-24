@@ -134,11 +134,11 @@ export default class Index extends PureComponent {
           title: "首页",
           href: `/`
         }, {
-          title: "财务中心",
-          href: ``
+          title: "企业中心",
+          href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`,
         }, {
           title: "发票管理",
-          href: ``
+          href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/invoiceManage`,
         }]}
         content={pageHeaderContent}
       >

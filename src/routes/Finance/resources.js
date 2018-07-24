@@ -213,7 +213,7 @@ export default class BasicList extends PureComponent {
             href: '/',
           },
           {
-            title: '财务中心',
+            title: '企业中心',
             href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`,
           },
           {

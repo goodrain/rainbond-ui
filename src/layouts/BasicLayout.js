@@ -148,7 +148,7 @@ class BasicLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
-    let title = `${rainbondInfo.title} | 应用一键部署`;
+    let title = rainbondInfo.title || 'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - ${title}`;
     }

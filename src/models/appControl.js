@@ -893,7 +893,6 @@ export default {
       const response = yield call(getMembers, payload);
       if (response) {
         yield put({ type: 'saveMember', payload: response.list });
-        console.log(response);
       }
     },
     *fetchpermsMember({

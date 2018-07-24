@@ -1,8 +1,6 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
-
 .activitiesList {
-  padding: 0 24px 8px 24px;
   .username {
     color: @text-color;
   }
@@ -71,7 +69,7 @@
       right: 0;
       width: 1px;
       height: 40px;
-      content: '';
+      content: "";
     }
     &:last-child {
       padding-right: 0;
@@ -81,8 +79,10 @@
     }
   }
   .extraBtns {
-     margin-top: 35px;
-     button {margin:0 5px}
+    margin-top: 35px;
+    button {
+      margin: 0 5px;
+    }
   }
 }
 
@@ -100,7 +100,7 @@
       max-width: 100px;
       vertical-align: top;
       margin-left: 12px;
-      transition: all .3s;
+      transition: all 0.3s;
       display: inline-block;
       .textOverflow();
     }
@@ -145,7 +145,7 @@
     overflow: hidden;
     font-size: 12px;
     height: 20px;
-     text-align:right;
+    text-align: right;
     line-height: 20px;
     .textOverflow();
     a {
@@ -159,17 +159,22 @@
     }
     .datetime {
       color: @disabled-color;
-      display:block;
-     
+      display: block;
+      float: right;
     }
   }
 }
 
-.datetime {
+.eventStatus {
   color: @disabled-color;
 }
 
-@media screen and (max-width: @screen-xl)  and (min-width: @screen-lg) {
+.datetime {
+  color: @disabled-color;
+  float: right;
+}
+
+@media screen and (max-width: @screen-xl) and (min-width: @screen-lg) {
   .activeCard {
     margin-bottom: 24px;
   }
@@ -236,8 +241,6 @@
     }
   }
 }
-
-
 
 .tableList {
   .tableListOperator {

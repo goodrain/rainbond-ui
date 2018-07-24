@@ -38,10 +38,11 @@ export default {
       if (response) {
         yield put({
           type: 'saveEvents',
-          payload: response.list,
+          payload: response,
         });
-
-        callback && callback(response.list);
+        if (callback) {
+          callback(response);
+        }
       }
     },
     * fetchOverview({ payload }, { call, put }) {
@@ -93,7 +94,7 @@ export default {
     saveEvents(state, { payload }) {
       return {
         ...state,
-        events: payload,
+        events: payload.list,
       };
     },
     saveOverviewInfo(state, { payload }) {

@@ -48,7 +48,7 @@ const menuData = function () {
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`,
     },
     {
-      name: '财务中心',
+      name: '企业中心',
       icon: 'red-envelope',
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`,
     },
