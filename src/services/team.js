@@ -228,6 +228,13 @@ export async function getTeamRegionOverview(body = {
   return request(config.baseUrl + `/console/teams/${body.team_name}/overview`, {showLoading: false});
 }
 
+export async function getTeamAppOverview(body = {
+  team_name,
+  region_name
+}){
+  return request(config.baseUrl + `/console/teams/${body.team_name}/size`, {showLoading: false});
+}
+
 /*
 	获取团队在某个数据数据中心下的所有应用
 */

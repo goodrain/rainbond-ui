@@ -14,7 +14,7 @@ By integrating best practices of Kubernetes based containers management, Service
 
 Choose Rainbond for the same reasons disruptive companies do: it serve as a easy-to-use cloud native application delivery platform that offers agile development, efficient operation and lean management experience.
 
-Usage(Must install (rainbond-console)[https://github.com/goodrain/rainbond-console.git])
+Usage(Must install [rainbond-console](https://github.com/goodrain/rainbond-console.git))
 
 ```
 $ git clone https://github.com/goodrain/rainbond-ui.git --depth=1

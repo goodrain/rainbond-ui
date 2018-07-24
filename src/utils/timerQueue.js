@@ -5,38 +5,38 @@
 import Queue from './queue';
 
 function TimerQueue(option) {
-    option = option || {};
-    this.queue = new Queue();
-    this.timer = null;
-    this.isStarted = false;
-    this.interval = option.interval || 50;
-    this.onExecute = option.onExecute || util.noop;
+  option = option || {};
+  this.queue = new Queue();
+  this.timer = null;
+  this.isStarted = false;
+  this.interval = option.interval || 50;
+  this.onExecute = option.onExecute || util.noop;
 }
 TimerQueue.prototype = {
-    add: function (data) {
-        this.queue.push(data)
-        if (!this.isStarted) {
-            this.start();
-        }
-    },
-    start: function () {
-        var self = this;
-        this.isStarted = true;
-        this.timer = setInterval(function () {
-            if (!self.queue.empty()) {
-                self.execute();
-            } else {
-                self.stop();
-            }
-        }, this.interval)
-    },
-    stop: function () {
-        this.isStarted = false;
-        clearInterval(this.timer);
-    },
-    execute: function () {
-        this.onExecute(this.queue.shift());
+  add(data) {
+    this.queue.push(data);
+    if (!this.isStarted) {
+      this.start();
     }
-}
+  },
+  start() {
+    const self = this;
+    this.isStarted = true;
+    this.timer = setInterval(() => {
+      if (!self.queue.empty()) {
+        self.execute();
+      } else {
+        self.stop();
+      }
+    }, this.interval);
+  },
+  stop() {
+    this.isStarted = false;
+    clearInterval(this.timer);
+  },
+  execute() {
+    this.onExecute(this.queue.shift());
+  },
+};
 
 export default TimerQueue;

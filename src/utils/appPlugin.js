@@ -3,13 +3,12 @@
 */
 
 export default {
-	//是否启用
-	isStart: function(bean) {
-		return bean.plugin_status === 1;
-	},
-	//是否停用
-	isStop: function(bean) {
-		return bean.plugin_status === 0;
-	}
-
-}
+  // 是否启用
+  isStart(bean) {
+    return bean.plugin_status === 1;
+  },
+  // 是否停用
+  isStop(bean) {
+    return bean.plugin_status === 0;
+  },
+};

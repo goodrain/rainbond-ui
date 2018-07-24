@@ -1,30 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Link, Switch, Route, routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Tooltip,
-  Select,
-  Input,
-  Modal,
-  message,
-  Divider,
-} from 'antd';
+import { Link } from 'dva/router';
+import { Row, Col, Card, Button } from 'antd';
 import globalUtil from '../../utils/global';
 import Echars from '../Echars';
 import styles from './index.less';
-import sourceUtil from '../../utils/source-unit';
 
 @connect(
-  ({ user, global }) => ({ groups: global.groups }),
+  ({ global }) => ({ groups: global.groups }),
   null,
   null,
   { withRef: true },
@@ -39,7 +22,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.getRegionResource();
   }
-  // 获取某个数据中心的资源详情  // 新-- 数据中心列表
+  // 获取某个数据中心的资源详情
   getRegionResource() {
     this.props.dispatch({
       type: 'global/getRegionSource',
@@ -67,9 +50,8 @@ export default class Index extends PureComponent {
             const warningColor = '#f5222d';
             const blackColor = 'rgba(0,0,0,0.1)';
             return (
-              <Col span={24} style={{ marginBottom: 16 }}>
+              <Col span={8} style={{ marginBottom: 16 }}>
                 <Card>
-                  <h2>{order.alias}</h2>
                   <p style={{ color: hasDate ? normalColor : warningColor, marginBottom: 32 }}>
                     {!hasDate ? (
                       '未包月'
@@ -78,7 +60,7 @@ export default class Index extends PureComponent {
                     )}
                   </p>
                   <Row>
-                    <Col span="12">
+                    <Col span="4">
                       <h3>内存</h3>
                       <div id={`${order.name}-memory`} style={{ width: '100%', height: '160px' }}>
                         <Echars
@@ -94,7 +76,7 @@ export default class Index extends PureComponent {
                             ],
                             series: [
                               {
-                                name: '访问来源',
+                                name: '内存使用量',
                                 type: 'pie',
                                 radius: ['75%', '85%'],
                                 avoidLabelOverlap: false,
@@ -137,37 +119,8 @@ export default class Index extends PureComponent {
                           }}
                         />
                       </div>
-                      <p>
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>当前使用量</span>
-                          <br />
-                          {sourceUtil.unit(order.memory.used, 'MB')}
-                        </span>
-
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>当前包月量</span>
-                          <br />
-                          {sourceUtil.unit(order.memory.limit, 'MB')}
-                        </span>
-
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>
-                            按需计费{' '}
-                            <Tooltip title="举例： 当前使用10G， 当前包月5G，则10G-5G=5G为按需计费的量">
-                              <Icon type="info" />
-                            </Tooltip>
-                          </span>
-                          <br />
-                          {sourceUtil.unit(
-                            order.memory.limit < order.memory.used
-                              ? order.memory.used - order.memory.limit
-                              : 0,
-                            'MB',
-                          )}
-                        </span>
-                      </p>
                     </Col>
-                    <Col span="12">
+                    <Col span="4">
                       <h3>磁盘</h3>
                       <div id={`${order.name}-disk`} style={{ width: '100%', height: '160px' }}>
                         <Echars
@@ -183,7 +136,7 @@ export default class Index extends PureComponent {
                             ],
                             series: [
                               {
-                                name: '访问来源',
+                                name: '磁盘使用量',
                                 type: 'pie',
                                 radius: ['75%', '85%'],
                                 avoidLabelOverlap: false,
@@ -227,35 +180,6 @@ export default class Index extends PureComponent {
                           }}
                         />
                       </div>
-                      <p>
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>已使用</span>
-                          <br />
-                          {sourceUtil.unit(order.disk.used, 'GB')}
-                        </span>
-
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>已包月</span>
-                          <br />
-                          {sourceUtil.unit(order.disk.limit, 'GB')}
-                        </span>
-
-                        <span className={styles.usedAndLimit}>
-                          <span className={styles.tit}>
-                            按需计费{' '}
-                            <Tooltip title="举例： 当前使用10G， 当前包月5G，则10G-5G=5G为按需计费的量">
-                              <Icon type="info" />
-                            </Tooltip>
-                          </span>
-                          <br />
-                          {sourceUtil.unit(
-                            order.disk.limit < order.disk.used
-                              ? order.disk.used - order.disk.limit
-                              : 0,
-                            'GB',
-                          )}
-                        </span>
-                      </p>
                     </Col>
                   </Row>
                   <p style={{ paddingTop: 24 }}>
