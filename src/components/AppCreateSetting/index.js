@@ -1030,13 +1030,13 @@ class Mnt extends PureComponent {
     const {volumes} = this.state;
     const columns = [
       {
-        title: '持久化名称',
+        title: '存储名称',
         dataIndex: 'volume_name'
       }, {
-        title: '持久化目录',
+        title: '存储目录',
         dataIndex: 'volume_path'
       }, {
-        title: '持久化类型',
+        title: '存储类型',
         dataIndex: 'volume_type'
       }, {
         title: '操作',
@@ -1054,7 +1054,7 @@ class Mnt extends PureComponent {
       <Fragment>
         <Card style={{
           marginBottom: 16
-        }} title={"持久化设置"}>
+        }} title={"存储设置"}>
           <Table pagination={false} dataSource={volumes} columns={columns}/>
           <div
             style={{
@@ -1062,26 +1062,26 @@ class Mnt extends PureComponent {
             textAlign: 'right'
           }}>
             <Button onClick={this.handleAddVar}><Icon type="plus"/>
-              添加持久化</Button>
+              添加存储</Button>
           </div>
         </Card>
         <Card style={{
           marginBottom: 16
-        }} title={"文件存储"}>
+        }} title={"共享存储"}>
           <Table
             pagination={false}
             columns={[
             {
-              title: '本地持久化目录',
+              title: '本地存储目录',
               dataIndex: 'local_vol_path'
             }, {
-              title: '目标持久化名称',
+              title: '目标存储名称',
               dataIndex: 'dep_vol_name'
             }, {
-              title: '目标持久化目录',
+              title: '目标存储目录',
               dataIndex: 'dep_vol_path'
             }, {
-              title: '目标持久化类型',
+              title: '目标存储类型',
               dataIndex: 'dep_vol_type'
             }, {
               title: '目标所属应用',
@@ -1114,7 +1114,7 @@ class Mnt extends PureComponent {
             textAlign: 'right'
           }}>
             <Button onClick={this.showAddRelation}><Icon type="plus"/>
-              挂载目录</Button>
+              挂载共享存储</Button>
           </div>
         </Card>
         {this.state.showAddVar && <AddOrEditVolume
@@ -1131,8 +1131,8 @@ class Mnt extends PureComponent {
           onCancel={this.cancelDeleteMnt}
           onOk={this.handleDeleteMnt}/>}
         {this.state.toDeleteVolume && <ConfirmModal
-          title="删除持久化目录"
-          desc="确定要删除此持久化目录吗?"
+          title="删除存储目录"
+          desc="确定要删除此存储目录吗?"
           onCancel={this.onCancelDeleteVolume}
           onOk={this.handleDeleteVolume}/>}
       </Fragment>

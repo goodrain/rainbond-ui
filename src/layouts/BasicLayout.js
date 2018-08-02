@@ -1,33 +1,34 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification, Modal, Button } from 'antd';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'dva';
-import { Route, Redirect, Switch, routerRedux } from 'dva/router';
-import { ContainerQuery } from 'react-container-query';
-import classNames from 'classnames';
-import { enquireScreen } from 'enquire-js';
-import GlobalHeader from '../components/GlobalHeader';
-import SiderMenu from '../components/SiderMenu';
-import NotFound from '../routes/Exception/404';
-import { getRoutes } from '../utils/utils';
-import userUtil from '../utils/user';
-import globalUtil from '../utils/global';
-import cookie from '../utils/cookie';
-import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menu';
-import logo from '../../public/logo-icon-35.png';
-import OpenRegion from '../components/OpenRegion';
-import CreateTeam from '../components/CreateTeam';
-import Loading from '../components/Loading';
-import ChangePassword from '../components/ChangePassword';
-import AuthCompany from '../components/AuthCompany';
+import React, { Fragment } from "react";
+import PropTypes from "prop-types";
+import { Layout, Icon, message, notification } from "antd";
+import DocumentTitle from "react-document-title";
+import { connect } from "dva";
+import { Route, Redirect, Switch, routerRedux } from "dva/router";
+import { ContainerQuery } from "react-container-query";
+import classNames from "classnames";
+import { enquireScreen } from "enquire-js";
+import GlobalHeader from "../components/GlobalHeader";
+import SiderMenu from "../components/SiderMenu";
+import NotFound from "../routes/Exception/404";
+import { getRoutes } from "../utils/utils";
+import userUtil from "../utils/user";
+import globalUtil from "../utils/global";
+import cookie from "../utils/cookie";
+import Authorized from "../utils/Authorized";
+import { getMenuData } from "../common/menu";
+import logo from "../../public/logo-icon-35.png";
+import OpenRegion from "../components/OpenRegion";
+import CreateTeam from "../components/CreateTeam";
+import JoinTeam from "../components/JoinTeam";
+import Loading from "../components/Loading";
+import ChangePassword from "../components/ChangePassword";
+import AuthCompany from "../components/AuthCompany";
 
-import CheckUserInfo from './CheckUserInfo';
-import InitTeamAndRegionData from './InitTeamAndRegionData';
-import PayTip from './PayTip';
-import PayMoneyTip from './PayMoneyTip';
-import Meiqia from './Meiqia';
+import CheckUserInfo from "./CheckUserInfo";
+import InitTeamAndRegionData from "./InitTeamAndRegionData";
+import PayTip from "./PayTip";
+import PayMoneyTip from "./PayMoneyTip";
+import Meiqia from "./Meiqia";
 
 const { Content } = Layout;
 const { AuthorizedRoute } = Authorized;
@@ -49,22 +50,22 @@ const getRedirect = (item) => {
 getMenuData().forEach(getRedirect);
 
 const query = {
-  'screen-xs': {
+  "screen-xs": {
     maxWidth: 575,
   },
-  'screen-sm': {
+  "screen-sm": {
     minWidth: 576,
     maxWidth: 767,
   },
-  'screen-md': {
+  "screen-md": {
     minWidth: 768,
     maxWidth: 991,
   },
-  'screen-lg': {
+  "screen-lg": {
     minWidth: 992,
     maxWidth: 1199,
   },
-  'screen-xl': {
+  "screen-xl": {
     minWidth: 1200,
   },
 };
@@ -86,6 +87,7 @@ class BasicLayout extends React.PureComponent {
     isInit: false,
     openRegion: false,
     createTeam: false,
+    joinTeam: false,
     showChangePassword: false,
     showWelcomeCreateTeam: false,
     canCancelOpenRegion: true,
@@ -110,18 +112,34 @@ class BasicLayout extends React.PureComponent {
   };
   handleCreateTeam = (values) => {
     this.props.dispatch({
-      type: 'teamControl/createTeam',
+      type: "teamControl/createTeam",
       payload: values,
       callback: () => {
-        notification.success({ message: '添加成功' });
+        notification.success({ message: "添加成功" });
         this.cancelCreateTeam();
-        this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.props.dispatch({ type: "user/fetchCurrent" });
+      },
+    });
+  };
+  onJoinTeam = () => {
+    this.setState({ joinTeam: true });
+  };
+  cancelJoinTeam = () => {
+    this.setState({ joinTeam: false });
+  };
+  handleJoinTeam = (values) => {
+    this.props.dispatch({
+      type: "global/joinTeam",
+      payload: values,
+      callback: () => {
+        notification.success({ message: "申请成功，请等待审核" });
+        this.cancelJoinTeam();
       },
     });
   };
   getChildContext() {
     const {
-      location, routerData, currTeam, currRegion,
+      location, routerData,
     } = this.props;
     return { location, breadcrumbNameMap: routerData };
   }
@@ -129,17 +147,17 @@ class BasicLayout extends React.PureComponent {
   fetchUserInfo = () => {
     // 获取用户信息、保存团队和数据中心信息
     this.props.dispatch({
-      type: 'user/fetchCurrent',
-      callback: (user) => {
-        const load = document.querySelector('#load');
+      type: "user/fetchCurrent",
+      callback: () => {
+        const load = document.querySelector("#load");
         if (load) {
-          load.style.display = 'none';
+          load.style.display = "none";
         }
       },
       handleError: (res) => {
         if (res && (res.status === 403 || res.status === 404)) {
-          cookie.remove('token');
-          cookie.remove('token', { domain: '' });
+          cookie.remove("token");
+          cookie.remove("token", { domain: "" });
           location.reload();
         }
       },
@@ -148,7 +166,9 @@ class BasicLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
-    let title = rainbondInfo.title || 'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
+    let title =
+      rainbondInfo.title ||
+      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - ${title}`;
     }
@@ -158,43 +178,47 @@ class BasicLayout extends React.PureComponent {
     // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
     const urlParams = new URL(window.location.href);
 
-    const redirect = urlParams.searchParams.get('redirect');
+    const redirect = urlParams.searchParams.get("redirect");
     // Remove the parameters in the url
     if (redirect) {
-      urlParams.searchParams.delete('redirect');
-      window.history.replaceState(null, 'redirect', urlParams.href);
+      urlParams.searchParams.delete("redirect");
+      window.history.replaceState(null, "redirect", urlParams.href);
     } else {
-      return '/index';
+      return "/index";
     }
     return redirect;
   };
   handleMenuCollapse = (collapsed) => {
-    this.props.dispatch({ type: 'global/changeLayoutCollapsed', payload: collapsed });
+    this.props.dispatch({ type: "global/changeLayoutCollapsed", payload: collapsed });
   };
   handleNoticeClear = (type) => {
     message.success(`清空了${type}`);
-    this.props.dispatch({ type: 'global/clearNotices', payload: type });
+    this.props.dispatch({ type: "global/clearNotices", payload: type });
   };
   handleMenuClick = ({ key }) => {
-    if (key === 'cpw') {
+    if (key === "cpw") {
       this.showChangePass();
     }
-    if (key === 'logout') {
-      this.props.dispatch({ type: 'user/logout' });
+    if (key === "logout") {
+      this.props.dispatch({ type: "user/logout" });
     }
   };
   handleNoticeVisibleChange = (visible) => {
     if (visible) {
-      this.props.dispatch({ type: 'global/fetchNotices' });
+      this.props.dispatch({ type: "global/fetchNotices" });
     }
   };
   handleTeamClick = ({ key }) => {
-    if (key === 'createTeam') {
+    if (key === "createTeam") {
       this.onCreateTeam();
       return;
     }
+    if (key === "joinTeam") {
+      this.onJoinTeam();
+      return;
+    }
 
-    cookie.set('team', key);
+    cookie.set("team", key);
     const currentUser = this.props.currentUser;
     let currRegionName = globalUtil.getCurrRegionName();
     const currTeam = userUtil.getTeamByTeamName(currentUser, key);
@@ -202,7 +226,7 @@ class BasicLayout extends React.PureComponent {
     if (currTeam) {
       const regions = currTeam.region || [];
       if (!regions.length) {
-        notification.warning({ message: '该团队下无可用数据中心!' });
+        notification.warning({ message: "该团队下无可用数据中心!" });
         return;
       }
       const selectRegion = regions.filter(item => item.team_region_name === currRegionName)[0];
@@ -216,7 +240,7 @@ class BasicLayout extends React.PureComponent {
   };
 
   handleRegionClick = ({ key }) => {
-    if (key === 'openRegion') {
+    if (key === "openRegion") {
       this.onOpenRegion();
       return;
     }
@@ -231,12 +255,12 @@ class BasicLayout extends React.PureComponent {
   };
   handleChangePass = (vals) => {
     this.props.dispatch({
-      type: 'user/changePass',
+      type: "user/changePass",
       payload: {
         ...vals,
       },
       callback: () => {
-        notification.success({ message: '修改成功，请重新登录' });
+        notification.success({ message: "修改成功，请重新登录" });
       },
     });
   };
@@ -251,16 +275,16 @@ class BasicLayout extends React.PureComponent {
   handleOpenRegion = (regions) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/openRegion',
+      type: "teamControl/openRegion",
       payload: {
         team_name,
-        region_names: regions.join(','),
+        region_names: regions.join(","),
       },
-      callback: (data) => {
-        notification.success({ message: '开通成功' });
+      callback: () => {
+        notification.success({ message: "开通成功" });
         this.cancelOpenRegion();
         this.props.dispatch({
-          type: 'user/fetchCurrent',
+          type: "user/fetchCurrent",
           callback: () => {
             this.props.dispatch(routerRedux.replace(`/team/${team_name}/region/${regions[0]}/index`));
           },
@@ -278,7 +302,6 @@ class BasicLayout extends React.PureComponent {
       match,
       location,
       notifyCount,
-      isPubCloud,
       currTeam,
       currRegion,
       groups,
@@ -292,7 +315,7 @@ class BasicLayout extends React.PureComponent {
       let isRegionMaintain = false;
       if (hasRegion) {
         region = userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
-        isRegionMaintain = region.region_status === '3' && !userUtil.isSystemAdmin(currentUser);
+        isRegionMaintain = region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
       }
 
       const renderContent = () => {
@@ -311,9 +334,9 @@ class BasicLayout extends React.PureComponent {
         // 数据中心维护中
         if (isRegionMaintain) {
           return (
-            <div style={{ textAlign: 'center', padding: '50px 0' }}>
+            <div style={{ textAlign: "center", padding: "50px 0" }}>
               <Icon style={{ fontSize: 50, marginBottom: 32 }} type="warning" />
-              <h1 style={{ fontSize: 50, color: 'rgba(0, 0, 0, 0.65)', marginBottom: 8 }}>
+              <h1 style={{ fontSize: 50, color: "rgba(0, 0, 0, 0.65)", marginBottom: 8 }}>
                 数据中心维护中
               </h1>
               <p>请稍后访问当前数据中心</p>
@@ -381,8 +404,8 @@ class BasicLayout extends React.PureComponent {
             />
             <Content
               style={{
-                margin: '24px 24px 0',
-                height: '100%',
+                margin: "24px 24px 0",
+                height: "100%",
               }}
             >
               {renderContent()}
@@ -414,6 +437,9 @@ class BasicLayout extends React.PureComponent {
         {this.state.createTeam && (
           <CreateTeam onOk={this.handleCreateTeam} onCancel={this.cancelCreateTeam} />
         )}
+        {this.state.joinTeam && (
+          <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
+        )}
         {this.state.showChangePassword && (
           <ChangePassword onOk={this.handleChangePass} onCancel={this.cancelChangePass} />
         )}
@@ -438,7 +464,7 @@ export default connect(({ user, global, loading }) => ({
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
   groups: global.groups,
-  fetchingNotices: loading.effects['global/fetchNotices'],
+  fetchingNotices: loading.effects["global/fetchNotices"],
   notices: global.notices,
   currTeam: globalUtil.getCurrTeamName(),
   currRegion: globalUtil.getCurrRegionName(),

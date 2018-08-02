@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { RouteProps } from 'react-router';
+import * as React from '_@types_react@16.4.6@@types/react';
+import { RouteProps } from '_@types_react-router@4.0.29@@types/react-router';
 
 type authorityFN = () => string;
 

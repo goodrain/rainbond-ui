@@ -17,11 +17,13 @@ import {
   removeRole,
   createRole,
   getRoles,
-} from '../services/team';
-import cookie from '../utils/cookie';
+  getJoinTeamUsers,
+  setJoinTeamUsers,
+} from "../services/team";
+import cookie from "../utils/cookie";
 
 export default {
-  namespace: 'teamControl',
+  namespace: "teamControl",
   state: {
     // 成员
     members: [],
@@ -31,6 +33,12 @@ export default {
     regions: [],
   },
   effects: {
+    * getJoinTeamUsers({ payload, callback }, { call, put }) {
+      const response = yield call(getJoinTeamUsers, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     * getRoles({ payload, callback }, { call, put }) {
       const response = yield call(getRoles, payload);
       if (response) {
@@ -88,7 +96,7 @@ export default {
     * fetchAllPerm({ payload, callback }, { call, put }) {
       const response = yield call(getAllPerms);
       if (response && !response.status) {
-        yield put({ type: 'savePerm', payload: response.list });
+        yield put({ type: "savePerm", payload: response.list });
       }
     },
     * delMember({ payload, callback }, { call, put }) {
@@ -127,7 +135,7 @@ export default {
     * fetchRegions({ payload, callback }, { call, put }) {
       const response = yield call(getRegions, payload);
       if (response && !response.status) {
-        yield put({ type: 'saveRegions', payload: response.list });
+        yield put({ type: "saveRegions", payload: response.list });
         callback && callback();
       }
     },
@@ -141,6 +149,13 @@ export default {
     // 获取某个数据中心的key
     * getRegionKey({ payload, callback }, { call, put }) {
       const response = yield call(getRegionKey, payload);
+      if (response) {
+        callback && callback(response.bean);
+      }
+    },
+    // 获取某个数据中心的key
+    * setJoinTeamUsers({ payload, callback }, { call, put }) {
+      const response = yield call(setJoinTeamUsers, payload);
       if (response) {
         callback && callback(response.bean);
       }

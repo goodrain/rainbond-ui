@@ -1,23 +1,23 @@
-import React, { PureComponent } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import { Row, Col, Card, List, Avatar, Button, Icon, Modal, Form, Pagination } from 'antd';
-import TeamMemberTable from '../../components/TeamMemberTable';
-import TeamRoleTable from '../../components/TeamRoleTable';
-import ConfirmModal from '../../components/ConfirmModal';
-import AddMember from '../../components/AddMember';
-import AddRole from '../../components/AddRole';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from './index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import OpenRegion from '../../components/OpenRegion';
-import cookie from '../../utils/cookie';
-import { routerRedux } from 'dva/router';
-import ScrollerX from '../../components/ScrollerX';
-import MoveTeam from './move_team';
+import React, { PureComponent, Fragment } from "react";
+import moment from "moment";
+import { connect } from "dva";
+import { Link } from "dva/router";
+import { Row, Col, Card, List, Avatar, Button, Icon, Popconfirm, Form, Table } from "antd";
+import TeamMemberTable from "../../components/TeamMemberTable";
+import TeamRoleTable from "../../components/TeamRoleTable";
+import ConfirmModal from "../../components/ConfirmModal";
+import AddMember from "../../components/AddMember";
+import AddRole from "../../components/AddRole";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import styles from "./index.less";
+import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
+import teamUtil from "../../utils/team";
+import OpenRegion from "../../components/OpenRegion";
+import cookie from "../../utils/cookie";
+import { routerRedux } from "dva/router";
+import ScrollerX from "../../components/ScrollerX";
+import MoveTeam from "./move_team";
 
 const FormItem = Form.Item;
 
@@ -26,8 +26,8 @@ const FormItem = Form.Item;
 }) => ({
   currUser: user.currentUser,
   teamControl,
-  projectLoading: loading.effects['project/fetchNotice'],
-  activitiesLoading: loading.effects['activities/fetchList'],
+  projectLoading: loading.effects["project/fetchNotice"],
+  activitiesLoading: loading.effects["activities/fetchList"],
   regions: teamControl.regions,
 }))
 export default class Index extends PureComponent {
@@ -58,7 +58,8 @@ export default class Index extends PureComponent {
       showAddRole: false,
       deleteRole: null,
       editRole: null,
-      scope: params.type || 'event',
+      scope: params.type || "event",
+      joinUsers: [],
     };
   }
   getParam() {
@@ -68,15 +69,30 @@ export default class Index extends PureComponent {
     this.loadEvents();
     this.loadMembers();
     this.loadRoles();
-    this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
+    this.props.dispatch({ type: "teamControl/fetchAllPerm" });
     this.fetchRegions();
+    this.loadJoinUsers();
+  }
+  loadJoinUsers = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: "teamControl/getJoinTeamUsers",
+      payload: {
+        team_name: teamName,
+      },
+      callback: (data) => {
+        this.setState({
+          joinUsers: data.list || [],
+        });
+      },
+    });
   }
   loadRoles = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     dispatch({
-      type: 'teamControl/getRoles',
+      type: "teamControl/getRoles",
       payload: {
         team_name,
         page_size: this.state.rolePageSize,
@@ -93,7 +109,7 @@ export default class Index extends PureComponent {
   loadEvents = () => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'index/fetchEvents',
+      type: "index/fetchEvents",
       payload: {
         team_name: teamName,
         page_size: this.state.eventPageSize,
@@ -112,7 +128,7 @@ export default class Index extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     dispatch({
-      type: 'teamControl/fetchMember',
+      type: "teamControl/fetchMember",
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -132,7 +148,7 @@ export default class Index extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
 
     dispatch({
-      type: 'teamControl/fetchRegions',
+      type: "teamControl/fetchRegions",
       payload: {
         team_name: teamName,
       },
@@ -160,7 +176,7 @@ export default class Index extends PureComponent {
   handleAddRole = (values) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/createRole',
+      type: "teamControl/createRole",
       payload: {
         team_name,
         ...values,
@@ -180,13 +196,13 @@ export default class Index extends PureComponent {
   handleExitTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/exitTeam',
+      type: "teamControl/exitTeam",
       payload: {
         team_name,
       },
       callback: () => {
-        cookie.remove('team');
-        cookie.remove('region_name');
+        cookie.remove("team");
+        cookie.remove("region_name");
         this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
         location.reload();
       },
@@ -201,13 +217,13 @@ export default class Index extends PureComponent {
   handleEditName = (data) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/editTeamAlias',
+      type: "teamControl/editTeamAlias",
       payload: {
         team_name,
         ...data,
       },
       callback: () => {
-        this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.props.dispatch({ type: "user/fetchCurrent" });
         this.hideEditName();
       },
     });
@@ -215,23 +231,23 @@ export default class Index extends PureComponent {
   handleDelTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/delTeam',
+      type: "teamControl/delTeam",
       payload: {
         team_name,
       },
       callback: () => {
-        location.hash = '/index';
+        location.hash = "/index";
         location.reload();
       },
     });
   };
   handleAddMember = (values) => {
     this.props.dispatch({
-      type: 'teamControl/addMember',
+      type: "teamControl/addMember",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        user_ids: values.user_ids.map(item => item.key).join(','),
-        role_ids: values.role_ids.join(','),
+        user_ids: values.user_ids.map(item => item.key).join(","),
+        role_ids: values.role_ids.join(","),
       },
       callback: () => {
         this.loadMembers();
@@ -248,7 +264,7 @@ export default class Index extends PureComponent {
   handleDelMember = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/delMember',
+      type: "teamControl/delMember",
       payload: {
         team_name,
         user_ids: this.state.toDeleteMember.user_id,
@@ -269,11 +285,11 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const toEditMember = this.state.toEditAction;
     this.props.dispatch({
-      type: 'teamControl/editMember',
+      type: "teamControl/editMember",
       payload: {
         team_name,
         user_id: toEditMember.user_id,
-        role_ids: data.role_ids.join(','),
+        role_ids: data.role_ids.join(","),
       },
       callback: () => {
         this.loadMembers();
@@ -290,7 +306,7 @@ export default class Index extends PureComponent {
   handleMoveTeam = ({ identity }) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/moveTeam',
+      type: "teamControl/moveTeam",
       payload: {
         team_name,
         user_name: this.state.toMoveTeam.user_name,
@@ -310,14 +326,14 @@ export default class Index extends PureComponent {
   handleOpenRegion = (regions) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/openRegion',
+      type: "teamControl/openRegion",
       payload: {
         team_name,
-        region_names: regions.join(','),
+        region_names: regions.join(","),
       },
       callback: () => {
         this.fetchRegions();
-        this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.props.dispatch({ type: "user/fetchCurrent" });
       },
     });
   };
@@ -357,7 +373,7 @@ export default class Index extends PureComponent {
   handleEditRole = (values) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/editRole',
+      type: "teamControl/editRole",
       payload: {
         team_name,
         role_id: this.state.editRole.role_id,
@@ -378,7 +394,7 @@ export default class Index extends PureComponent {
   handleDelRole = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'teamControl/removeRole',
+      type: "teamControl/removeRole",
       payload: {
         team_name,
         role_id: this.state.deleteRole.role_id,
@@ -395,6 +411,34 @@ export default class Index extends PureComponent {
   handleTabChange = (key) => {
     this.setState({ scope: key });
   };
+  handleRefused = (data) => {
+    const team_name = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: "teamControl/setJoinTeamUsers",
+      payload: {
+        team_name,
+        user_id: data.user_id,
+        action: false,
+      },
+      callback: () => {
+        this.loadJoinUsers();
+      },
+    });
+  }
+  handleJoin = (data) => {
+    const team_name = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: "teamControl/setJoinTeamUsers",
+      payload: {
+        team_name,
+        user_id: data.user_id,
+        action: true,
+      },
+      callback: () => {
+        this.loadJoinUsers();
+      },
+    });
+  }
   renderActivities() {
     const list = this.state.events || [];
 
@@ -402,8 +446,8 @@ export default class Index extends PureComponent {
       return (
         <p
           style={{
-            textAlign: 'center',
-            color: 'ccc',
+            textAlign: "center",
+            color: "ccc",
             paddingTop: 20,
           }}
         >
@@ -413,10 +457,10 @@ export default class Index extends PureComponent {
     }
 
     const statusCNMap = {
-      '': '进行中',
-      complete: '完成',
-      failure: '失败',
-      timeout: '超时',
+      "": "进行中",
+      complete: "完成",
+      failure: "失败",
+      timeout: "超时",
     };
 
     return list.map((item) => {
@@ -424,7 +468,7 @@ export default class Index extends PureComponent {
         item.service_alias
       }/overview`;
       return (
-        <List.Item key={item.id}>
+        <List.Item key={item.ID}>
           <List.Item.Meta
             title={
               <span>
@@ -433,14 +477,14 @@ export default class Index extends PureComponent {
                 <Link to={linkTo}>
                   {item.service_cname}
                 </Link>应用<span>
-                  {statusCNMap[item.final_status] ? `${statusCNMap[item.final_status]}` : ''}
-                </span>
+                  {statusCNMap[item.final_status] ? `${statusCNMap[item.final_status]}` : ""}
+                         </span>
               </span>
             }
             description={
               <span className={styles.datetime} title={item.updatedAt}>
-                {' '}
-                {moment(item.start_time).fromNow()}{' '}
+                {" "}
+                {moment(item.start_time).fromNow()}{" "}
               </span>
             }
           />
@@ -460,14 +504,14 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          <Avatar size="large" src={require('../../../public/images/team-icon.png')} />
+          <Avatar size="large" src={require("../../../public/images/team-icon.png")} />
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
-            {team.team_alias}{' '}
+            {team.team_alias}{" "}
             {teamUtil.canEditTeamName(team) && <Icon onClick={this.showEditName} type="edit" />}
           </div>
-          <div>创建于 {moment(team.create_time).format('YYYY-MM-DD')}</div>
+          <div>创建于 {moment(team.create_time).format("YYYY-MM-DD")}</div>
         </div>
       </div>
     );
@@ -483,8 +527,8 @@ export default class Index extends PureComponent {
               onClick={this.showDelTeam}
               type="dashed"
             >
-              {' '}
-              删除团队{' '}
+              {" "}
+              删除团队{" "}
             </Button>
           }
         </div>
@@ -501,8 +545,8 @@ export default class Index extends PureComponent {
         extra={
           teamUtil.canAddRegion(team) ? (
             <a href="javascript:;" onClick={this.onOpenRegion}>
-              {' '}
-              开通数据中心{' '}
+              {" "}
+              开通数据中心{" "}
             </a>
           ) : null
         }
@@ -512,7 +556,7 @@ export default class Index extends PureComponent {
         }}
       >
         {(regions || []).map(item => (
-          <Card.Grid className={styles.projectGrid} key={item.id}>
+          <Card.Grid className={styles.projectGrid} key={item.ID}>
             <Card
               bodyStyle={{
                 padding: 0,
@@ -526,11 +570,11 @@ export default class Index extends PureComponent {
                     <a href="javascript:;">{item.region_alisa}</a>
                   </div>
                 }
-                description={item.desc || '-'}
+                description={item.desc || "-"}
               />
               <div className={styles.projectItemContent}>
                 <span className={styles.datetime}>
-                  开通于 {moment(item.create_time).format('YYYY年-MM月-DD日')}
+                  开通于 {moment(item.create_time).format("YYYY年-MM月-DD日")}
                 </span>
               </div>
             </Card>
@@ -539,14 +583,14 @@ export default class Index extends PureComponent {
         {!regions || !regions.length ? (
           <p
             style={{
-              textAlign: 'center',
+              textAlign: "center",
               paddingTop: 20,
             }}
           >
             暂无数据中心
           </p>
         ) : (
-          ''
+          ""
         )}
       </Card>
     );
@@ -660,26 +704,49 @@ export default class Index extends PureComponent {
             }}
             bordered={false}
             title="以下用户申请加入团队"
-          />
+          >
+            <Table
+              pagination={false}
+              dataSource={this.state.joinUsers || []}
+              columns={[{
+            title: "用户",
+            dataIndex: "user_name",
+          }, {
+            title: "申请时间",
+            dataIndex: "apply_time",
+          }, {
+            title: "操作",
+            dataIndex: "",
+            render: (v, data) => (data.is_pass == 0 && (<Fragment>
+              <Popconfirm title="确定要通过用户加入么?" onConfirm={() => { this.handleJoin(data); }}>
+                <a href="javascript:;">通过</a>
+              </Popconfirm>
+              <Popconfirm title="确定要拒绝用户么?" onConfirm={() => { this.handleRefused(data); }}>
+                <a style={{ marginLeft: 6}} href="javascript:;">拒绝</a>
+              </Popconfirm>
+            </Fragment>)),
+          }]}
+            />
+          </Card>
         </Col>
       </Row>
     );
     const tabList = [
       {
-        key: 'event',
-        tab: '团队动态',
+        key: "event",
+        tab: "团队动态",
       },
       {
-        key: 'member',
-        tab: '成员',
+        key: "member",
+        tab: "成员",
       },
       {
-        key: 'datecenter',
-        tab: '数据中心',
+        key: "datecenter",
+        tab: "数据中心",
       },
       {
-        key: 'role',
-        tab: '角色',
+        key: "role",
+        tab: "角色",
       },
     ];
 
@@ -690,10 +757,10 @@ export default class Index extends PureComponent {
         content={pageHeaderContent}
         extraContent={extraContent}
       >
-        {this.state.scope === 'datecenter' && datacenterCar}
-        {this.state.scope === 'member' && memberCar}
-        {this.state.scope === 'role' && roleCar}
-        {this.state.scope === 'event' && eventCar}
+        {this.state.scope === "datecenter" && datacenterCar}
+        {this.state.scope === "member" && memberCar}
+        {this.state.scope === "role" && roleCar}
+        {this.state.scope === "event" && eventCar}
 
         {this.state.showEditName && (
           <MoveTeam

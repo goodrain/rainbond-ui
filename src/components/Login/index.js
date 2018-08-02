@@ -1,21 +1,19 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Form, Tabs } from 'antd';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import classNames from 'classnames';
-import LoginItem from './LoginItem';
-import LoginTab from './LoginTab';
-import LoginSubmit from './LoginSubmit';
-import styles from './index.less';
-
-
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { Form, Tabs } from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import classNames from "classnames";
+import LoginItem from "./LoginItem";
+import LoginTab from "./LoginTab";
+import LoginSubmit from "./LoginSubmit";
+import styles from "./index.less";
 
 @Form.create()
 class Login extends Component {
   static defaultProps = {
-    className: '',
-    defaultActiveKey: '',
+    className: "",
+    defaultActiveKey: "",
     onTabChange: () => {},
     onSubmit: () => {},
   };
@@ -35,12 +33,6 @@ class Login extends Component {
     tabs: [],
     active: {},
   };
-  componentWillMount() {
-     const rainbondInfo = this.props.rainbondInfo;
-     if(rainbondInfo && !rainbondInfo.is_user_register){
-        this.props.dispatch(routerRedux.replace('/user/register'))
-     }
-  }
   getChildContext() {
     return {
       tabUtil: {
@@ -69,22 +61,27 @@ class Login extends Component {
       },
     };
   }
+  componentWillMount() {
+    const rainbondInfo = this.props.rainbondInfo;
+    // first user, to register admin
+    if (rainbondInfo && !rainbondInfo.is_user_register) {
+      this.props.dispatch(routerRedux.replace("/user/register"));
+    }
+  }
   onSwitch = (type) => {
     this.setState({
       type,
     });
     this.props.onTabChange(type);
-  }
+  };
   handleSubmit = (e) => {
     e.preventDefault();
     const { active, type } = this.state;
     const activeFileds = active[type];
-    this.props.form.validateFields(activeFileds, { force: true },
-      (err, values) => {
-        this.props.onSubmit(err, values);
-      }
-    );
-  }
+    this.props.form.validateFields(activeFileds, { force: true }, (err, values) => {
+      this.props.onSubmit(err, values);
+    });
+  };
   render() {
     const { className, children } = this.props;
     const { type, tabs } = this.state;
@@ -101,21 +98,21 @@ class Login extends Component {
     return (
       <div className={classNames(className, styles.login)}>
         <Form onSubmit={this.handleSubmit}>
-          {
-            tabs.length ? (
-              <div>
-                <Tabs
-                  animated={false}
-                  className={styles.tabs}
-                  activeKey={type}
-                  onChange={this.onSwitch}
-                >
-                  {TabChildren}
-                </Tabs>
-                {otherChildren}
-              </div>
-            ) : children
-          }
+          {tabs.length ? (
+            <div>
+              <Tabs
+                animated={false}
+                className={styles.tabs}
+                activeKey={type}
+                onChange={this.onSwitch}
+              >
+                {TabChildren}
+              </Tabs>
+              {otherChildren}
+            </div>
+          ) : (
+            children
+          )}
         </Form>
       </div>
     );
@@ -128,8 +125,6 @@ Object.keys(LoginItem).forEach((item) => {
   Login[item] = LoginItem[item];
 });
 
-export default connect(({global}) => {
-  return ({
-      rainbondInfo: global.rainbondInfo
-  })
-})(Login);
+export default connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo,
+}))(Login);

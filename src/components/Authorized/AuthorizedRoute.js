@@ -1,20 +1,11 @@
-import React from 'react';
-import {Route, Redirect} from 'react-router-dom';
-import Authorized from './Authorized';
-import {connect} from 'dva';
-
-class PublicLogin extends React.Component {
-  componentWillMount() {
-    var href = `https://sso.goodrain.com/#/login/${encodeURIComponent(location.href)}`;
-    location.href = href;
-  }
-  componentDidMount() {}
-  render() {
-    return null;
-  }
-}
+import React from "react";
+import { Route, Redirect } from "dva/router";
+import { connect } from "dva";
+import Authorized from "./Authorized";
+import PublicLogin from "./PublicLogin";
 
 class AuthorizedRoute extends React.Component {
+  // not login
   getNoMatch() {
     const {
       isPubCloud,
@@ -25,52 +16,51 @@ class AuthorizedRoute extends React.Component {
       rainbondInfo,
       ...rest
     } = this.props;
-
-    if (redirectPath === '/user/login') {
-
+    if (redirectPath === "/user/login") {
       if (rainbondInfo && rainbondInfo.is_public) {
-        return < PublicLogin />
-    } else {
-
-      return <Route
-        {...rest}
-        render={() => <Redirect to={{
-        pathname: redirectPath
-      }}/>}/>
+        return <PublicLogin />;
+      }
+      return (
+        <Route
+          {...rest}
+          render={() => (
+            <Redirect
+              to={{
+                pathname: redirectPath,
+              }}
+            />
+          )}
+        />
+      );
     }
-  } else {
-
-    return <Route
-      {...rest}
-      render={() => <Redirect to={{
-      pathname: redirectPath
-    }}/>}/>
-  }
-
-}
-render() {
-  const {
-    component: Component,
-    logined,
-    render,
-    authority,
-    redirectPath,
-    rainbondInfo,
-    ...rest
-  } = this.props;
-
-  return (
-    <Authorized authority={authority} logined={logined} noMatch={this.getNoMatch()}>
+    return (
       <Route
         {...rest}
-        render={props => (Component
-        ? <Component {...props}/>
-        : render(props))}/>
-    </Authorized>
-  );
+        render={() => (
+          <Redirect
+            to={{
+              pathname: redirectPath,
+            }}
+          />
+        )}
+      />
+    );
+  }
+  render() {
+    const {
+      component: Component,
+      logined,
+      render,
+      authority,
+      redirectPath,
+      rainbondInfo,
+      ...rest
+    } = this.props;
+    return (
+      <Authorized authority={authority} logined={logined} noMatch={this.getNoMatch()}>
+        <Route {...rest} render={props => (Component ? <Component {...props} /> : render(props))} />
+      </Authorized>
+    );
+  }
 }
-}
-
-export default connect(({global}) => {
-return ({rainbondInfo: global.rainbondInfo})
-})(AuthorizedRoute);
+export default connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))(AuthorizedRoute);

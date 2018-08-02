@@ -27,11 +27,18 @@ import {
   buyPurchase,
   getPayHistory,
   getAllRegionFee,
-} from '../services/api';
-import { getTeamRegionGroups } from '../services/team';
+  getAllTeams,
+  joinTeam,
+  getJoinTeam,
+  setRegist,
+  getRegist,
+  getEnterpriseInfo,
+  getEnterpriseTeams,
+} from "../services/api";
+import { getTeamRegionGroups } from "../services/team";
 
 export default {
-  namespace: 'global',
+  namespace: "global",
 
   state: {
     collapsed: false,
@@ -40,8 +47,8 @@ export default {
     isPubCloud: null,
     // 当前团队和数据中心的群组
     groups: null,
-    currTeam: '',
-    currRegion: '',
+    currTeam: "",
+    currRegion: "",
     // 云帮平台信息
     rainbondInfo: null,
     apploadingnum: 0,
@@ -49,9 +56,30 @@ export default {
     payTip: false,
     noMoneyTip: false,
     showAuthCompany: false,
+    // enterprise info
+    enterprise: null,
+    isRegist: false,
   },
 
   effects: {
+    * getAllTeams({ payload, callback }, { call, put }) {
+      const data = yield call(getAllTeams, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * joinTeam({ payload, callback }, { call, put }) {
+      const data = yield call(joinTeam, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getJoinTeams({ payload, callback }, { call, put }) {
+      const data = yield call(getJoinTeam, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
     * getAllRegionFee({ payload, callback }, { call, put }) {
       const data = yield call(getAllRegionFee, payload);
       if (data && callback) {
@@ -203,7 +231,7 @@ export default {
     * fetchRainbondInfo({ callback }, { call, put }) {
       const data = yield call(getRainbondInfo);
       if (data) {
-        yield put({ type: 'saveRainBondInfo', payload: data.bean });
+        yield put({ type: "saveRainBondInfo", payload: data.bean });
         setTimeout(() => {
           callback && callback();
         });
@@ -212,25 +240,25 @@ export default {
     * fetchIsPublic(_, { call, put }) {
       const data = yield call(isPubCloud);
       yield put({
-        type: 'saveIsPubCloud',
+        type: "saveIsPubCloud",
         payload: !!data.bean.is_public,
       });
     },
     * fetchNotices(_, { call, put }) {
       const data = yield call(queryNotices);
-      yield put({ type: 'saveNotices', payload: data });
-      yield put({ type: 'user/changeNotifyCount', payload: data.length });
+      yield put({ type: "saveNotices", payload: data });
+      yield put({ type: "user/changeNotifyCount", payload: data.length });
     },
     * clearNotices({ payload }, { put, select }) {
-      yield put({ type: 'saveClearedNotices', payload });
+      yield put({ type: "saveClearedNotices", payload });
       const count = yield select(state => state.global.notices.length);
-      yield put({ type: 'user/changeNotifyCount', payload: count });
+      yield put({ type: "user/changeNotifyCount", payload: count });
     },
     * fetchGroups({ payload, callback }, { put, call }) {
       const response = yield call(getTeamRegionGroups, payload);
       if (response) {
         yield put({
-          type: 'saveGroups',
+          type: "saveGroups",
           payload: response.list || [],
         });
         setTimeout(() => {
@@ -242,6 +270,42 @@ export default {
       const response = yield call(bindGithub, payload);
       if (response) {
         callback && callback();
+      }
+    },
+    * putIsRegist({ payload, callback }, { put, call }) {
+      const response = yield call(setRegist, payload);
+      if (response) {
+        callback && callback();
+        yield put({
+          type: "saveIsRegist",
+          payload: payload.isRegist,
+        });
+      }
+    },
+    * getIsRegist({ payload, callback }, { put, call }) {
+      const response = yield call(getRegist, payload);
+      if (response) {
+        callback && callback();
+        yield put({
+          type: "saveIsRegist",
+          payload: response.bean.is_regist,
+        });
+      }
+    },
+    * getEnterpriseInfo({ payload, callback }, { put, call }) {
+      const response = yield call(getEnterpriseInfo, payload);
+      if (response) {
+        callback && callback();
+        yield put({
+          type: "saveEnterpriseInfo",
+          payload: response.bean,
+        });
+      }
+    },
+    * getEnterpriseTeams({ payload, callback }, { put, call }) {
+      const response = yield call(getEnterpriseTeams, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
   },
@@ -337,14 +401,26 @@ export default {
         showAuthCompany: false,
       };
     },
+    saveIsRegist(state, { payload }) {
+      return {
+        ...state,
+        isRegist: payload,
+      };
+    },
+    saveEnterpriseInfo(state, { payload }) {
+      return {
+        ...state,
+        enterprise: payload,
+      };
+    },
   },
 
   subscriptions: {
     setup({ history }) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({ pathname, search }) => {
-        if (typeof window.ga !== 'undefined') {
-          window.ga('send', 'pageview', pathname + search);
+        if (typeof window.ga !== "undefined") {
+          window.ga("send", "pageview", pathname + search);
         }
       });
     },

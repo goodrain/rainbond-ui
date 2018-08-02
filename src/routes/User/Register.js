@@ -1,46 +1,41 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
-import styles from './Register.less';
-import config from '../../config/config';
+import React, { Component } from "react";
+import { connect } from "dva";
+import { routerRedux, Link } from "dva/router";
+import { Form, Input, Button, Row, Col, Progress } from "antd";
+import styles from "./Register.less";
+import config from "../../config/config";
 
 const FormItem = Form.Item;
-const { Option } = Select;
-const InputGroup = Input.Group;
-
-const passwordStatusMap = {
-  ok: <div className={styles.success}>强度：强</div>,
-  pass: <div className={styles.warning}>强度：中</div>,
-  poor: <div className={styles.error}>强度：太短</div>,
-};
 
 const passwordProgressMap = {
-  ok: 'success',
-  pass: 'normal',
-  poor: 'exception',
+  ok: "success",
+  pass: "normal",
+  poor: "exception",
 };
 
-@connect(({ user, loading }) => ({
+@connect(({ user, loading, global }) => ({
   register: user.register,
-  submitting: loading.effects['user/register'],
+  rainbondInfo: global.rainbondInfo,
+  submitting: loading.effects["user/register"],
 }))
 @Form.create()
 export default class Register extends Component {
+  // first user, to register admin
   state = {
     count: 0,
     confirmDirty: false,
     visible: false,
-    help: '',
-    prefix: '86',
+    help: "",
+    prefix: "86",
     time: Date.now(),
+    firstRegist: this.props.rainbondInfo && this.props.rainbondInfo.is_user_register,
   };
 
   componentWillReceiveProps(nextProps) {
-    const account = this.props.form.getFieldValue('user_name');
+    const account = this.props.form.getFieldValue("user_name");
     if (nextProps.register) {
       this.props.dispatch(routerRedux.push({
-        pathname: '/user/register-result',
+        pathname: "/user/register-result",
         state: {
           account,
         },
@@ -66,14 +61,14 @@ export default class Register extends Component {
 
   getPasswordStatus = () => {
     const { form } = this.props;
-    const value = form.getFieldValue('password');
+    const value = form.getFieldValue("password");
     if (value && value.length > 9) {
-      return 'ok';
+      return "ok";
     }
     if (value && value.length > 5) {
-      return 'pass';
+      return "pass";
     }
-    return 'poor';
+    return "poor";
   };
 
   handleSubmit = (e) => {
@@ -85,7 +80,7 @@ export default class Register extends Component {
       (err, values) => {
         if (!err) {
           this.props.dispatch({
-            type: 'user/register',
+            type: "user/register",
             payload: {
               ...values,
             },
@@ -107,8 +102,8 @@ export default class Register extends Component {
 
   checkConfirm = (rule, value, callback) => {
     const { form } = this.props;
-    if (value && value !== form.getFieldValue('password')) {
-      callback('两次输入的密码不匹配!');
+    if (value && value !== form.getFieldValue("password")) {
+      callback("两次输入的密码不匹配!");
     } else {
       callback();
     }
@@ -117,23 +112,27 @@ export default class Register extends Component {
   checkPassword = (rule, value, callback) => {
     if (!value) {
       this.setState({
-        help: '请输入密码！',
+        help: "请输入密码！",
         visible: !!value,
       });
-      callback('error');
+      callback("error");
     } else {
-      this.setState({ help: '' });
+      this.setState({ help: "" });
       if (!this.state.visible) {
         this.setState({
           visible: !!value,
         });
       }
-      if (value.length < 6) {
-        callback('error');
+      if (value.length < 8) {
+        this.setState({
+          help: "密码不能少于8位！",
+          visible: !!value,
+        });
+        callback("error");
       } else {
         const { form } = this.props;
         if (value && this.state.confirmDirty) {
-          form.validateFields(['confirm'], { force: true });
+          form.validateFields(["confirm"], { force: true });
         }
         callback();
       }
@@ -146,7 +145,7 @@ export default class Register extends Component {
 
   renderPasswordProgress = () => {
     const { form } = this.props;
-    const value = form.getFieldValue('password');
+    const value = form.getFieldValue("password");
     const passwordStatus = this.getPasswordStatus();
     return value && value.length ? (
       <div className={styles[`progress-${passwordStatus}`]}>
@@ -160,7 +159,7 @@ export default class Register extends Component {
       </div>
     ) : null;
   };
-  changeTime = (time) => {
+  changeTime = () => {
     this.setState({
       time: Date.now(),
     });
@@ -168,37 +167,48 @@ export default class Register extends Component {
   render() {
     const { form, submitting } = this.props;
     const { getFieldDecorator } = form;
-    const { count, prefix } = this.state;
     return (
       <div className={styles.main}>
-        <h3>注册</h3>
+        <h3>{this.state.firstRegist ? "管理员注册" : "用户注册"}</h3>
         <Form onSubmit={this.handleSubmit}>
+          {this.state.firstRegist && (
+            <FormItem>
+              {getFieldDecorator("enterprise_name", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入企业名称",
+                  },
+                ],
+              })(<Input size="large" placeholder="企业名称" />)}
+            </FormItem>
+          )}
           <FormItem>
-            {getFieldDecorator('user_name', {
+            {getFieldDecorator("user_name", {
               rules: [
                 {
                   required: true,
-                  message: '请输入用户名！',
+                  message: "请输入用户名！",
                 },
               ],
             })(<Input size="large" placeholder="用户名" />)}
           </FormItem>
           <FormItem>
-            {getFieldDecorator('email', {
+            {getFieldDecorator("email", {
               rules: [
                 {
                   required: true,
-                  message: '请输入邮箱地址！',
+                  message: "请输入邮箱地址！",
                 },
                 {
-                  type: 'email',
-                  message: '邮箱地址格式错误！',
+                  type: "email",
+                  message: "邮箱地址格式错误！",
                 },
               ],
             })(<Input size="large" placeholder="邮箱" />)}
           </FormItem>
           <FormItem help={this.state.help}>
-            {getFieldDecorator('password', {
+            {getFieldDecorator("password", {
               rules: [
                 {
                   validator: this.checkPassword,
@@ -207,11 +217,11 @@ export default class Register extends Component {
             })(<Input size="large" type="password" placeholder="至少8位，区分大小写" />)}
           </FormItem>
           <FormItem>
-            {getFieldDecorator('password_repeat', {
+            {getFieldDecorator("password_repeat", {
               rules: [
                 {
                   required: true,
-                  message: '请确认密码！',
+                  message: "请确认密码！",
                 },
                 {
                   validator: this.checkConfirm,
@@ -222,11 +232,11 @@ export default class Register extends Component {
           <FormItem>
             <Row gutter={8}>
               <Col span={16}>
-                {getFieldDecorator('captcha_code', {
+                {getFieldDecorator("captcha_code", {
                   rules: [
                     {
                       required: true,
-                      message: '请输入验证码！',
+                      message: "请输入验证码！",
                     },
                   ],
                 })(<Input size="large" placeholder="验证码" />)}
@@ -236,7 +246,7 @@ export default class Register extends Component {
                   onClick={this.changeTime}
                   src={`${config.baseUrl}/console/captcha?_=${this.state.time}`}
                   style={{
-                    width: '100%',
+                    width: "100%",
                     height: 40,
                   }}
                 />
@@ -251,11 +261,13 @@ export default class Register extends Component {
               type="primary"
               htmlType="submit"
             >
-              注册
+              {this.state.firstRegist ? "管理员注册" : "注册"}
             </Button>
-            <Link className={styles.login} to="/user/login">
-              使用已有账户登录
-            </Link>
+            {!this.state.firstRegist && (
+              <Link className={styles.login} to="/user/login">
+                使用已有账户登录
+              </Link>
+            )}
           </FormItem>
         </Form>
       </div>

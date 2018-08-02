@@ -1,4 +1,4 @@
-let Domain = 'goodrain.com';
+let Domain = "goodrain.com";
 const cookie = {
   get: function getCookie(name) {
     let arr,
@@ -10,8 +10,8 @@ const cookie = {
     const Days = option.days != void 0 ? option.days : 30;
     const exp = new Date();
     exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
-    const domain = option.domain ? `;domain=${option.domain}` : '';
-    const path = option.path != void 0 ? `;path=${option.path}` : ';path=/';
+    const domain = option.domain ? `;domain=${option.domain}` : "";
+    const path = option.path != void 0 ? `;path=${option.path}` : ";path=/";
     const cookie = `${name}=${escape(value)};expires=${exp.toGMTString()}${domain}${path}`;
     document.cookie = cookie;
   },
@@ -20,7 +20,7 @@ const cookie = {
     exp.setTime(exp.getTime() - 1);
     const cval = this.get(name);
     const domain = option.domain !== void 0 ? `;domain=${option.domain}` : `;domain=${Domain}`;
-    const path = option.path != void 0 ? `;path=${option.path}` : ';path=/';
+    const path = option.path != void 0 ? `;path=${option.path}` : ";path=/";
 
     if (cval != null) {
       const v = `${name}=${cval};expires=${exp.toGMTString()}${domain}${path}`;

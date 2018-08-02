@@ -23,11 +23,11 @@ const links = [
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
   },
   {
-    title: '好雨代码仓库',
+    title: 'Gitlab仓库',
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
   },
   {
-    title: 'github项目',
+    title: 'Github项目',
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
   },
   {

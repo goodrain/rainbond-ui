@@ -1,60 +1,110 @@
-import React, { PureComponent } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import { Link } from 'dva/router';
-import { Card, Row, Col, DatePicker } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from '../List/BasicList.less';
-import globalUtil from '../../utils/global';
-import InvoiceEcharts from '../../components/InvoiceEcharts';
-import PayHistory from '../../components/PayHistory';
-import ConsumeDetail from '../../components/ConsumeDetail';
-import userUtil from '../../utils/user';
+import React, { PureComponent } from "react";
+import moment from "moment";
+import { connect } from "dva";
+import { routerRedux, Link } from "dva/router";
+import { Card, Row, Col, DatePicker, notification, Button, Radio } from "antd";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import styles from "../List/BasicList.less";
+import globalUtil from "../../utils/global";
+import InvoiceEcharts from "../../components/InvoiceEcharts";
+import PayHistory from "../../components/PayHistory";
+import ConsumeDetail from "../../components/ConsumeDetail";
+import TeamListTable from "../../components/tables/TeamListTable";
+import userUtil from "../../utils/user";
+import teamUtil from "../../utils/team";
+import ScrollerX from "../../components/ScrollerX";
+import CreateTeam from "../../components/CreateTeam";
+import rainbond from "../../utils/rainbond";
+import DescriptionList from "../../components/DescriptionList";
 
-@connect(({ user, list, loading }) => ({
+const { Description } = DescriptionList;
+const RadioGroup = Radio.Group;
+
+@connect(({
+  user, list, loading, global,
+}) => ({
   user: user.currentUser,
   list,
   loading: loading.models.list,
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
+  isRegist: global.isRegist,
 }))
 export default class BasicList extends PureComponent {
   constructor(props) {
     super(props);
     const params = this.getParam();
+    const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
+    const { user } = this.props;
+    const adminer = (userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user));
     this.state = {
-      date: moment(new Date().getTime()).format('YYYY-MM-DD'),
+      date: moment(new Date().getTime()).format("YYYY-MM-DD"),
       companyInfo: {},
-      disk: {},
-      memory: {},
       list: [],
       datalist: [],
       showPayHistory: false,
       showConsumeDetail: false,
-      scope: params.type || 'finance',
+      isPublic,
+      scope: params.type || this.getDefaultScope(),
+      teamList: [],
+      teamsPage: 1,
+      teamsPageSize: 8,
+      showAddTeam: false,
+      adminer: adminer,
     };
+  }
+  componentDidMount() {
+    if (this.state.scope === "finance") {
+      this.getCompanyInfo();
+    }
+    this.props.dispatch({
+      type: "global/getIsRegist",
+      callback: () => {
+      },
+    });
+    this.props.dispatch({
+      type: "global/getEnterpriseInfo",
+      callback: () => {
+      },
+    });
+    this.loadTeams();
+  }
+  onDelTeam = (teamName) => {
+    this.props.dispatch({
+      type: "teamControl/delTeam",
+      payload: {
+        team_name: teamName,
+      },
+      callback: () => {
+        this.loadTeams();
+      },
+    });
+  };
+  onAddTeam = () => {
+    this.setState({ showAddTeam: true });
+  };
+  onRegistChange = (e) => {
+    this.props.dispatch({
+      type: "global/putIsRegist",
+      payload: {
+        isRegist: e.target.value,
+      },
+      callback: () => {
+      },
+    });
+  };
+  getDefaultScope() {
+    if (this.props.rainbondInfo && this.props.rainbondInfo.is_public) {
+      return "finance";
+    }
+    return "manage";
   }
   getParam() {
     return this.props.match.params;
   }
-  // 获取某个数据中心的资源详情  // 新-- 数据中心列表
-  getRegionResource() {
-    this.props.dispatch({
-      type: 'global/getRegionSource',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.user.enterprise_id,
-        //  region: globalUtil.getCurrRegionName()
-        region: '',
-      },
-      callback: (data) => {
-        this.setState({ datalist: data.list });
-      },
-    });
-  }
-  // 获取企业信息 //新-- 企业信息
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: 'global/getCompanyInfo',
+      type: "global/getCompanyInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.user.enterprise_id,
@@ -67,7 +117,7 @@ export default class BasicList extends PureComponent {
   // 获取某数据中心下某一天的资源费用数据
   getRegionOneDayMoney = () => {
     this.props.dispatch({
-      type: 'global/getRegionOneDayMoney',
+      type: "global/getRegionOneDayMoney",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.user.enterprise_id,
@@ -79,9 +129,20 @@ export default class BasicList extends PureComponent {
       },
     });
   };
-  componentDidMount() {
-    this.getCompanyInfo();
-  }
+  handleCreateTeam = (values) => {
+    this.props.dispatch({
+      type: "teamControl/createTeam",
+      payload: values,
+      callback: () => {
+        notification.success({ message: "添加成功" });
+        this.cancelCreateTeam();
+        this.props.dispatch({ type: "user/fetchCurrent" });
+      },
+    });
+  };
+  cancelCreateTeam = () => {
+    this.setState({ showAddTeam: false });
+  };
   showConsumeDetail = () => {
     this.setState({ showConsumeDetail: true });
   };
@@ -102,10 +163,35 @@ export default class BasicList extends PureComponent {
       this.getRegionOneDayMoney();
     });
   };
+  hanldePageChange = (page) => {
+    this.setState(
+      {
+        teamsPage: page,
+      },
+      () => {
+        this.loadTeams();
+      },
+    );
+  };
+  loadTeams = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "global/getEnterpriseTeams",
+      payload: {
+        enterprise_id: this.props.user.enterprise_id,
+        page_size: this.state.teamsPageSize,
+        page: this.state.teamsPage,
+      },
+      callback: (data) => {
+        this.setState({
+          teamList: data.list || [],
+          teamsTotal: data.total,
+        });
+      },
+    });
+  };
+
   finance = () => {
-    const { loading } = this.props;
-    const list = this.state.list || [];
-    const datalist = this.state.datalist;
     const companyInfo = this.state.companyInfo || {};
 
     const Info = ({ title, value, bordered }) => (
@@ -121,23 +207,23 @@ export default class BasicList extends PureComponent {
         <DatePicker
           onChange={this.handleDateChange}
           allowClear={false}
-          defaultValue={moment(this.state.date, 'YYYY-MM-DD')}
+          defaultValue={moment(this.state.date, "YYYY-MM-DD")}
         />
       </div>
     );
     return (
       <div className={styles.standardList}>
-        {this.state.showPayHistory && (<PayHistory onCancel={this.hidePayHistory} />)}
-        {this.state.showConsumeDetail && (<ConsumeDetail onCancel={this.hideConsumeDetail} />)}
+        {this.state.showPayHistory && <PayHistory onCancel={this.hidePayHistory} />}
+        {this.state.showConsumeDetail && <ConsumeDetail onCancel={this.hideConsumeDetail} />}
         <Card bordered={false}>
           <Row>
             <Col sm={8} xs={24}>
               <Info title="企业账户" value={`${companyInfo.balance || 0}元`} bordered />
-              <p style={{ textAlign: 'center' }}>
+              <p style={{ textAlign: "center" }}>
                 <a
                   target="_blank"
                   href="https://www.goodrain.com/spa/#/personalCenter/my/recharge"
-                  style={{ paddingRight: '10px' }}
+                  style={{ paddingRight: "10px" }}
                 >
                   充值
                 </a>
@@ -160,11 +246,11 @@ export default class BasicList extends PureComponent {
                 title="本月账单"
                 value={`消耗${companyInfo.cost || 0}元 / 充值${companyInfo.recharge || 0} 元`}
               />
-              <p style={{ textAlign: 'center' }}>
+              <p style={{ textAlign: "center" }}>
                 <a
                   href="javascript:;"
                   onClick={this.showConsumeDetail}
-                  style={{ paddingRight: '10px' }}
+                  style={{ paddingRight: "10px" }}
                 >
                   消耗明细
                 </a>
@@ -179,24 +265,115 @@ export default class BasicList extends PureComponent {
       </div>
     );
   };
-  manage = () => <Card />;
+  handelUnderstand = () => {
+    console.log("hello");
+  };
+  handelObtain = () => {
+    console.log("hello");
+  };
+  manage = () => {
+    const pagination = {
+      current: this.state.teamsPage,
+      pageSize: this.state.teamsPageSize,
+      total: this.state.teamsTotal,
+      onChange: (v) => {
+        this.hanldePageChange(v);
+      },
+    };
+    return (
+      <div>
+        <Card
+          style={{
+            marginBottom: 24,
+          }}
+          bodyStyle={{
+            paddingTop: 12,
+          }}
+          bordered={false}
+          title="企业信息"
+        >
+          <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
+            <Description term="企业名称">
+              {this.props.enterprise && this.props.enterprise.enterprise_alias}
+            </Description>
+            <Description term="创建时间">
+              {this.props.enterprise && this.props.enterprise.create_time}
+            </Description>
+            <Description term="平台版本">
+              {this.props.rainbondInfo.version || "V3.7.0-rc"}
+              <Button style={{ marginLeft: 16 }} onClick={this.handelUnderstand}>
+                了解企业版
+              </Button>
+              <Button style={{ marginLeft: 16 }} onClick={this.handelObtain}>
+                获取开源支持
+              </Button>
+            </Description>
+          </DescriptionList>
+        </Card>
+        {this.state.adminer && (
+          <div>
+            <Card
+            style={{
+            marginBottom: 24,
+          }}
+            bodyStyle={{
+            paddingTop: 12,
+          }}
+            bordered={false}
+            title="平台设置"
+          >
+            <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
+            <Description term="用户注册">
+              <RadioGroup onChange={this.onRegistChange} value={this.props.isRegist}>
+                <Radio value>允许注册</Radio>
+                <Radio value={false}>禁止注册</Radio>
+              </RadioGroup>
+            </Description>
+          </DescriptionList>
+          </Card>
+            <Card
+          style={{
+            marginBottom: 24,
+          }}
+          bodyStyle={{
+            paddingTop: 12,
+          }}
+          bordered={false}
+          title="企业团队列表"
+          extra={
+            <a href="javascript:;" onClick={this.onAddTeam}>
+              添加团队
+            </a>
+          }
+        >
+          <ScrollerX sm={600}>
+            <TeamListTable
+              pagination={pagination}
+              onDelete={this.onDelTeam}
+              onChange={this.onChange}
+              list={this.state.teamList}
+            />
+          </ScrollerX>
+        </Card>
+          </div>
+        )}
+
+      </div>
+    );
+  };
 
   renderContent = () => {
     const { user } = this.props;
-    const { loading, isChecked } = this.state;
-
+    if (this.state.scope === "manage") {
+      return this.manage();
+    }
     // 不是系统管理员
     if (!userUtil.isSystemAdmin(user) && !userUtil.isCompanyAdmin(user)) {
       this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
       return null;
     }
-
-    if (this.state.scope === 'finance') {
+    if (this.state.scope === "finance") {
       return this.finance();
-    }
-
-    if (this.state.scope === 'manage') {
-      return this.manage();
     }
   };
 
@@ -204,21 +381,29 @@ export default class BasicList extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
-          <div>企业管理员管理中心</div>
+          <div>企业管理员可以设置平台信息，管理企业下的团队</div>
         </div>
       </div>
     );
 
-    const tabList = [
+    let tabList = [
       {
-        key: 'finance',
-        tab: '财务',
-      },
-      {
-        key: 'manage',
-        tab: '管理',
+        key: "manage",
+        tab: "管理",
       },
     ];
+    if (this.state.isPublic) {
+      tabList = [
+        {
+          key: "finance",
+          tab: "财务",
+        },
+        {
+          key: "manage",
+          tab: "管理",
+        },
+      ];
+    }
 
     return (
       <PageHeaderLayout
@@ -228,6 +413,9 @@ export default class BasicList extends PureComponent {
         content={pageHeaderContent}
       >
         {this.renderContent()}
+        {this.state.showAddTeam && (
+          <CreateTeam onOk={this.handleCreateTeam} onCancel={this.cancelCreateTeam} />
+        )}
       </PageHeaderLayout>
     );
   }

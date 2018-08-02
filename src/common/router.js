@@ -1,17 +1,17 @@
-import { createElement } from 'react';
-import dynamic from 'dva/dynamic';
-import pathToRegexp from 'path-to-regexp';
-import { getMenuData } from './menu';
+import { createElement } from "react";
+import dynamic from "dva/dynamic";
+import pathToRegexp from "path-to-regexp";
+import { getMenuData } from "./menu";
 
 let routerDataCache;
 
 const modelNotExisted = (app, model) =>
-  !app._models.some(({ namespace }) => namespace === model.substring(model.lastIndexOf('/') + 1));
+  !app._models.some(({ namespace }) => namespace === model.substring(model.lastIndexOf("/") + 1));
 
 // wrapper of dynamic
 const dynamicWrapper = (app, models, component) => {
   // () => require('module') transformed by babel-plugin-dynamic-import-node-sync
-  if (component.toString().indexOf('.then(') < 0) {
+  if (component.toString().indexOf(".then(") < 0) {
     models.forEach((model) => {
       if (modelNotExisted(app, model)) {
         // eslint-disable-next-line
@@ -72,129 +72,135 @@ function getFlatMenuData(menus) {
 
 export const getRouterData = (app) => {
   const routerConfig = {
-    '/': {
+    "/": {
       component: dynamicWrapper(
         app,
-        ['user', 'appControl', 'createApp', 'teamControl', 'plugin', 'region'],
-        () => import('../layouts/BasicLayout'),
+        ["user", "appControl", "createApp", "teamControl", "plugin", "region"],
+        () => import("../layouts/BasicLayout"),
       ),
     },
-    '/team/:team/region/:region/source/:type?/:name?': {
-      component: dynamicWrapper(app, ['index'], () => import('../routes/Source/Index')),
+    "/team/:team/region/:region/source/:type?/:name?": {
+      component: dynamicWrapper(app, ["index"], () => import("../routes/Source/Index")),
     },
-    '/team/:team/region/:region/finance': {
-      component: dynamicWrapper(app, ['index'], () => import('../routes/Finance/index')),
+    "/team/:team/region/:region/finance": {
+      component: dynamicWrapper(app, ["index"], () => import("../routes/Finance")),
     },
-    '/team/:team/region/:region/invoiceManage': {
-      component: dynamicWrapper(app, ['invoice'], () => import('../routes/Finance/invoiceManage')),
+    "/team/:team/region/:region/invoiceManage": {
+      component: dynamicWrapper(app, ["invoice"], () => import("../routes/Finance/invoiceManage")),
     },
-    '/team/:team/region/:region/applyinvoice': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/invoice')),
+    "/team/:team/region/:region/applyinvoice": {
+      component: dynamicWrapper(app, [], () => import("../routes/Finance/invoice")),
     },
-    '/team/:team/region/:region/info': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/invoice-info')),
+    "/team/:team/region/:region/info": {
+      component: dynamicWrapper(app, [], () => import("../routes/Finance/invoice-info")),
     },
-    '/team/:team/region/:region/resources/buy/:regionName': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/resources')),
+    "/team/:team/region/:region/resources/buy/:regionName": {
+      component: dynamicWrapper(app, [], () => import("../routes/Finance/resources")),
     },
-    '/team/:team/region/:region/index': {
-      component: dynamicWrapper(app, ['index'], () => import('../routes/Index/Index')),
+    "/team/:team/region/:region/index": {
+      component: dynamicWrapper(app, ["index"], () => import("../routes/Index/Index")),
     },
-    '/team/:team/region/:region/message': {
-      component: dynamicWrapper(app, ['index'], () => import('../routes/Message/Index')),
+    "/team/:team/region/:region/message": {
+      component: dynamicWrapper(app, ["index"], () => import("../routes/Message/Index")),
     },
-    '/team/:team/region/:region/team': {
-      component: dynamicWrapper(app, ['teamControl'], () => import('../routes/Team/index')),
+    "/team/:team/region/:region/team": {
+      component: dynamicWrapper(app, ["teamControl"], () => import("../routes/Team")),
     },
-    '/team/:team/region/:region/groups/backup/:groupId/': {
-      component: dynamicWrapper(app, ['groupControl'], () => import('../routes/Group/Backup')),
-      title: '备份管理',
+    "/team/:team/region/:region/groups/backup/:groupId/": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/Backup")),
+      title: "备份管理",
     },
-    '/team/:team/region/:region/groups/:groupId': {
-      component: dynamicWrapper(app, ['groupControl'], () => import('../routes/Group/Index')),
+    "/team/:team/region/:region/groups/:groupId": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/Index")),
     },
 
-    '/team/:team/region/:region/groups/share/one/:groupId/:shareId': {
-      component: dynamicWrapper(app, ['groupControl'], () => import('../routes/Group/AppShare')),
+    "/team/:team/region/:region/groups/share/one/:groupId/:shareId": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/AppShare")),
     },
-    '/team/:team/region/:region/groups/share/two/:groupId/:shareId': {
-      component: dynamicWrapper(app, ['groupControl'], () =>
-        import('../routes/Group/AppShareLoading')),
+    "/team/:team/region/:region/groups/share/two/:groupId/:shareId": {
+      component: dynamicWrapper(app, ["groupControl"], () =>
+        import("../routes/Group/AppShareLoading")),
     },
-    '/team/:team/region/:region/groups/share/three/:groupId:ShareId': {
-      component: dynamicWrapper(app, ['groupControl'], () =>
-        import('../routes/Group/AppShareFinish')),
+    "/team/:team/region/:region/groups/share/three/:groupId:ShareId": {
+      component: dynamicWrapper(app, ["groupControl"], () =>
+        import("../routes/Group/AppShareFinish")),
     },
-    '/team/:team/region/:region/app/:appAlias/:type?': {
-      component: dynamicWrapper(app, ['appDetail', 'appControl'], () =>
-        import('../routes/App/index')),
+    "/team/:team/region/:region/app/:appAlias/:type?": {
+      component: dynamicWrapper(app, ["appDetail", "appControl"], () =>
+        import("../routes/App")),
     },
-    '/team/:team/region/:region/create/code/:type?/:code?': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/code')),
+    "/team/:team/region/:region/create/code/:type?/:code?": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/code")),
     },
-    '/team/:team/region/:region/create/market/:keyword?': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/market')),
+    "/team/:team/region/:region/create/market/:keyword?": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/market")),
     },
-    '/team/:team/region/:region/myplugns/:pluginId?': {
-      component: dynamicWrapper(app, [], () => import('../routes/Plugin/index')),
+    "/team/:team/region/:region/myplugns/:pluginId?": {
+      component: dynamicWrapper(app, [], () => import("../routes/Plugin")),
     },
-    '/team/:team/region/:region/shareplugin/step-one/:pluginId/:shareId': {
-      component: dynamicWrapper(app, [], () => import('../routes/Plugin/share-stepone')),
+    "/team/:team/region/:region/shareplugin/step-one/:pluginId/:shareId": {
+      component: dynamicWrapper(app, [], () => import("../routes/Plugin/share-stepone")),
     },
-    '/team/:team/region/:region/shareplugin/step-two/:pluginId/:shareId': {
-      component: dynamicWrapper(app, [], () => import('../routes/Plugin/share-steptwo')),
+    "/team/:team/region/:region/shareplugin/step-two/:pluginId/:shareId": {
+      component: dynamicWrapper(app, [], () => import("../routes/Plugin/share-steptwo")),
     },
-    '/team/:team/region/:region/create-plugin': {
-      component: dynamicWrapper(app, [], () => import('../routes/Plugin/Create')),
+    "/team/:team/region/:region/create-plugin": {
+      component: dynamicWrapper(app, [], () => import("../routes/Plugin/Create")),
     },
-    '/team/:team/region/:region/create/create-check/:appAlias': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/create-check')),
+    "/team/:team/region/:region/create/create-check/:appAlias": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/create-check")),
     },
-    '/team/:team/region/:region/create/create-compose-check/:groupId/:composeId': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/create-compose-check')),
+    "/team/:team/region/:region/create/create-compose-check/:groupId/:composeId": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/create-compose-check")),
     },
-    '/team/:team/region/:region/create/image/:type?/:image?': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/image')),
-      name: '',
+    "/team/:team/region/:region/create/image/:type?/:image?": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/image")),
+      name: "",
     },
-    '/team/:team/region/:region/create/create-setting/:appAlias': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/create-setting')),
+    "/team/:team/region/:region/create/create-setting/:appAlias": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/create-setting")),
     },
-    '/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId': {
-      component: dynamicWrapper(app, [], () => import('../routes/Create/create-compose-setting')),
+    "/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/create-compose-setting")),
     },
-    '/team/:team/region/:region/result/success': {
-      component: dynamicWrapper(app, [], () => import('../routes/Result/Success')),
+    "/team/:team/region/:region/result/success": {
+      component: dynamicWrapper(app, [], () => import("../routes/Result/Success")),
     },
-    '/result/fail': {
-      component: dynamicWrapper(app, [], () => import('../routes/Result/Error')),
+    "/result/fail": {
+      component: dynamicWrapper(app, [], () => import("../routes/Result/Error")),
     },
-    '/team/:team/region/:region/exception/403': {
-      component: dynamicWrapper(app, [], () => import('../routes/Exception/403')),
+    "/team/:team/region/:region/exception/403": {
+      component: dynamicWrapper(app, [], () => import("../routes/Exception/403")),
     },
-    '/team/:team/region/:region/exception/404': {
-      component: dynamicWrapper(app, [], () => import('../routes/Exception/404')),
+    "/team/:team/region/:region/exception/404": {
+      component: dynamicWrapper(app, [], () => import("../routes/Exception/404")),
     },
-    '/team/:team/region/:region/exception/500': {
-      component: dynamicWrapper(app, [], () => import('../routes/Exception/500')),
+    "/team/:team/region/:region/exception/500": {
+      component: dynamicWrapper(app, [], () => import("../routes/Exception/500")),
     },
-    '/exception/trigger': {
-      component: dynamicWrapper(app, ['error'], () =>
-        import('../routes/Exception/triggerException')),
+    "/exception/trigger": {
+      component: dynamicWrapper(app, ["error"], () =>
+        import("../routes/Exception/triggerException")),
     },
-    '/user': {
-      component: dynamicWrapper(app, ['user'], () => import('../layouts/UserLayout')),
+    "/user": {
+      component: dynamicWrapper(app, ["user"], () => import("../layouts/UserLayout")),
     },
-    '/user/login': {
-      component: dynamicWrapper(app, ['user'], () => import('../routes/User/Login')),
-      name: '登录',
+    "_/user/login": {
+      component: dynamicWrapper(app, ["user"], () => import("../routes/User/Login")),
+      name: "登录",
     },
-    '/user/register': {
-      component: dynamicWrapper(app, ['user'], () => import('../routes/User/Register')),
-      name: '注册',
+    get "/user/login"() {
+      return this["_/user/login"];
     },
-    '/user/register-result': {
-      component: dynamicWrapper(app, [], () => import('../routes/User/RegisterResult')),
+    set "/user/login"(value) {
+      this["_/user/login"] = value;
+    },
+    "/user/register": {
+      component: dynamicWrapper(app, ["user"], () => import("../routes/User/Register")),
+      name: "注册",
+    },
+    "/user/register-result": {
+      component: dynamicWrapper(app, [], () => import("../routes/User/RegisterResult")),
     },
     // '/user/:id': {   component: dynamicWrapper(app, [], () =>
     // import('../routes/User/SomeComponent')), },

@@ -1,22 +1,22 @@
-import cookie from './cookie';
-import globalUtil from './global';
-import teamUtil from './team';
-import regionUtil from './region';
+import cookie from "./cookie";
+import globalUtil from "./global";
+import teamUtil from "./team";
+import regionUtil from "./region";
 
 const userUtil = {
   isLogin() {
-    return !!cookie.get('token');
+    return !!cookie.get("token");
   },
   getDefaultTeamName(bean) {
     const dTeam = this.getDefaultTeam(bean);
     if (dTeam) {
       return dTeam.team_name;
     }
-    return '';
+    return "";
   },
   getDefaultTeam(bean) {
     // 先判断自己的，如果有自己的团队，则返回
-    let team = (bean.teams || []).filter(team => team.role_name_list.indexOf('owner') > -1 || bean.user_id === team.creater)[0];
+    let team = (bean.teams || []).filter(team => team.role_name_list.indexOf("owner") > -1 || bean.user_id === team.creater)[0];
     // 也有可能他没有自己的团队，比如移交给别人了
     if (!team) {
       team = bean.teams[0];
@@ -28,7 +28,7 @@ const userUtil = {
     if (dTeam && dTeam.region.length) {
       return dTeam.region[0].team_region_name;
     }
-    return '';
+    return "";
   },
   getTeamByTeamName(user, currTeamName) {
     const currTeam = user.teams.filter(item => item.team_name === currTeamName)[0];
@@ -67,7 +67,7 @@ const userUtil = {
         return regionUtil.getEventWebSocketUrl(region);
       }
     }
-    return '';
+    return "";
   },
 };
 export default userUtil;

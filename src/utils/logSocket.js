@@ -44,7 +44,7 @@ LogSocket.prototype = {
       const data = JSON.parse(evt.data);
 
       // 判断是否最后一步
-      if (data.step == 'callback' || data.step == 'last') {
+      if (data.step === 'callback' || data.step === 'last') {
         this.webSocket.close();
         if (data.status === 'success') {
           this.onSuccess(data);
