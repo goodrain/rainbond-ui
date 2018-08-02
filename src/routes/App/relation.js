@@ -134,13 +134,13 @@ class AddVarModal extends PureComponent {
               rules: [
                 { required: true, message: "请输入变量名称" },
                 {
-                  pattern: /^[A-Z][A-Z0-9_]*$/,
-                  message: "格式不正确， /^[A-Z][A-Z0-9_]*$/",
+                  pattern: /^[A-Za-z][A-Z0-9a-z_]*$/,
+                  message: "格式不正确， /^[A-Za-z][A-Z0-9a-z_]*$/",
                 },
               ],
             })(<Input
               disabled={!!data.attr_name}
-              placeholder="请输入变量名称 格式/^[A-Z][A-Z0-9_]*$/"
+              placeholder="请输入变量名称 格式/^[A-Za-z][A-Z0-9a-z_]*$/"
             />)}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">

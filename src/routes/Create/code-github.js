@@ -1,22 +1,22 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { Link, Switch, Route, routerRedux } from 'dva/router';
-import { Row, Col, Card, Form, Button, Icon, Menu, Dropdown, notification } from 'antd';
-import rainbondUtil from '../../utils/rainbond';
-import globalUtil from '../../utils/global';
-import { getGithubInfo } from '../../services/team';
-import CodeGithubForm from '../../components/CodeGithubForm';
-import styles from './Index.less';
+import React, { PureComponent } from "react";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import { Card, Button } from "antd";
+import rainbondUtil from "../../utils/rainbond";
+import globalUtil from "../../utils/global";
+import { getGithubInfo } from "../../services/team";
+import CodeGithubForm from "../../components/CodeGithubForm";
+import styles from "./Index.less";
 
-@connect(({ user, global }) => ({}))
+@connect(() => ({}))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       // 是否绑定了github仓库
-      is_auth: '',
+      is_auth: "",
       // 绑定github的地址
-      auth_url: '',
+      auth_url: "",
       // 代码分支及版本信息
       codeList: [],
     };
@@ -48,10 +48,10 @@ export default class Index extends PureComponent {
   handleSubmit = (value) => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'createApp/createAppByCode',
+      type: "createApp/createAppByCode",
       payload: {
         team_name: teamName,
-        code_from: 'github',
+        code_from: "github",
         ...value,
       },
       callback: (data) => {
@@ -69,12 +69,12 @@ export default class Index extends PureComponent {
           {!is_auth ? (
             <div
               style={{
-                textAlign: 'center',
-                padding: '100px 0',
+                textAlign: "center",
+                padding: "100px 0",
                 fontSize: 14,
               }}
             >
-              尚未绑定github仓库
+              尚未绑定Github账号
               <Button
                 onClick={this.toAuth}
                 style={{

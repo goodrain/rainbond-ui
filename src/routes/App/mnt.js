@@ -319,7 +319,7 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={<span> 文件存储 </span>}>
+        <Card title={<span> 共享其他应用存储 </span>}>
           <ScrollerX sm={850}>
             <Table
               pagination={false}

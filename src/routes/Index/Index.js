@@ -1,49 +1,55 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import { Row, Col, Card, List, Avatar, Form, Input, Select, Button, Icon, Tooltip } from 'antd';
-import IndexTable from '../../components/IndexTable';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import EditableLinkGroup from '../../components/EditableLinkGroup';
-import ScrollerX from '../../components/ScrollerX';
+import React, { PureComponent, Fragment } from "react";
+import moment from "moment";
+import { connect } from "dva";
+import { Link } from "dva/router";
+import { Row, Col, Card, List, Avatar, Form, Input, Select, Button, Icon, Tooltip } from "antd";
+import IndexTable from "../../components/IndexTable";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import EditableLinkGroup from "../../components/EditableLinkGroup";
+import ScrollerX from "../../components/ScrollerX";
 
-import { Radar } from '../../components/Charts';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import sourceUtil from '../../utils/source-unit';
+import styles from "./Index.less";
+import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
+import sourceUtil from "../../utils/source-unit";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 const links = [
   {
-    title: '自定义源码',
+    title: "自定义源码",
+    icontype: "code",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
   },
   {
-    title: 'Gitlab仓库',
+    title: "Gitlab仓库",
+    icontype: "gitlab",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
   },
   {
-    title: 'Github项目',
+    title: "Github项目",
+    icontype: "github",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
   },
   {
-    title: '指定镜像',
+    title: "指定镜像",
+    icontype: "laptop",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`,
   },
   {
-    title: 'DockerRun命令',
+    title: "DockerRun命令",
+    icontype: "laptop",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`,
   },
   {
-    title: 'Dockercompose',
+    title: "Dockercompose",
+    icontype: "laptop",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`,
   },
   {
-    title: '从应用市场安装',
+    title: "从应用市场安装",
+    icontype: "appstore-o",
     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`,
   },
 ];
@@ -53,8 +59,8 @@ const links = [
   index,
   events: index.events,
   pagination: index.pagination,
-  projectLoading: loading.effects['project/fetchNotice'],
-  activitiesLoading: loading.effects['activities/fetchList'],
+  projectLoading: loading.effects["project/fetchNotice"],
+  activitiesLoading: loading.effects["activities/fetchList"],
   loading,
 }))
 @Form.create()
@@ -86,13 +92,13 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const region = userUtil.hasTeamAndRegion(this.props.currUser, team_name, region_name);
     if (region) {
-      return region.region_scope === 'public';
+      return region.region_scope === "public";
     }
     return false;
   }
   getRegionResource() {
     this.props.dispatch({
-      type: 'global/getRegionSource',
+      type: "global/getRegionSource",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
@@ -105,7 +111,7 @@ export default class Index extends PureComponent {
   }
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: 'global/getCompanyInfo',
+      type: "global/getCompanyInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
@@ -120,7 +126,7 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     dispatch({
-      type: 'index/fetchOverview',
+      type: "index/fetchOverview",
       payload: {
         team_name,
         region_name,
@@ -130,7 +136,7 @@ export default class Index extends PureComponent {
   loadEvents = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: 'index/fetchEvents',
+      type: "index/fetchEvents",
       payload: {
         team_name,
       },
@@ -143,8 +149,8 @@ export default class Index extends PureComponent {
 
     const pagination = index.pagination;
     let searchKey = {
-      searchKey: '',
-      service_status: '',
+      searchKey: "",
+      service_status: "",
     };
     // 获取搜索信息
     form.validateFields((err, fieldsValue) => {
@@ -156,12 +162,12 @@ export default class Index extends PureComponent {
       region_name,
       page: index.pagination.currentPage,
       page_size: index.pagination.pageSize,
-      order: (index.pagination.order || '').replace('end', ''),
+      order: (index.pagination.order || "").replace("end", ""),
       fields: index.pagination.fields,
       ...searchKey,
     };
 
-    dispatch({ type: 'index/fetchApps', payload });
+    dispatch({ type: "index/fetchApps", payload });
   };
   componentWillUnmount() {
     clearInterval(this.timer);
@@ -170,20 +176,20 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     const status = [
       {
-        value: 'all',
-        text: '全部',
+        value: "all",
+        text: "全部",
       },
       {
-        value: 'running',
-        text: '运行中',
+        value: "running",
+        text: "运行中",
       },
       {
-        value: 'closed',
-        text: '已关闭',
+        value: "closed",
+        text: "已关闭",
       },
       {
-        value: 'abnormal',
-        text: '运行异常',
+        value: "abnormal",
+        text: "运行异常",
       },
     ];
     return (
@@ -203,14 +209,14 @@ export default class Index extends PureComponent {
         >
           <Col md={8} sm={24}>
             <FormItem label="应用名称">
-              {getFieldDecorator('query_key')(<Input placeholder="请输入" />)}
+              {getFieldDecorator("query_key")(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="应用状态">
-              {getFieldDecorator('service_status', { initialValue: 'all' })(<Select placeholder="请选择">
+              {getFieldDecorator("service_status", { initialValue: "all" })(<Select placeholder="请选择">
                 {status.map(item => <Option value={item.value}>{item.text}</Option>)}
-              </Select>)}
+                                                                            </Select>)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -236,7 +242,7 @@ export default class Index extends PureComponent {
     const { form, dispatch } = this.props;
     form.resetFields();
     dispatch({
-      type: 'index/savePage',
+      type: "index/savePage",
       payload: {
         currentPage: 1,
       },
@@ -250,7 +256,7 @@ export default class Index extends PureComponent {
     this.loadApps();
     const { dispatch } = this.props;
     dispatch({
-      type: 'index/savePage',
+      type: "index/savePage",
       payload: {
         currentPage: 1,
       },
@@ -262,12 +268,12 @@ export default class Index extends PureComponent {
   handleListChange = (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'index/savePage',
+      type: "index/savePage",
       payload: {
         currentPage: pagination.current,
         pageSize: pagination.pageSize,
-        order: sorter.field ? sorter.order : '',
-        fields: sorter.field ? sorter.field : '',
+        order: sorter.field ? sorter.order : "",
+        fields: sorter.field ? sorter.field : "",
       },
     });
     setTimeout(() => {
@@ -281,8 +287,8 @@ export default class Index extends PureComponent {
       return (
         <p
           style={{
-            textAlign: 'center',
-            color: 'ccc',
+            textAlign: "center",
+            color: "ccc",
             paddingTop: 20,
           }}
         >
@@ -292,10 +298,10 @@ export default class Index extends PureComponent {
     }
 
     const statusCNMap = {
-      '': '进行中',
-      complete: '完成',
-      failure: '失败',
-      timeout: '超时',
+      "": "进行中",
+      complete: "完成",
+      failure: "失败",
+      timeout: "超时",
     };
 
     return list.map((item) => {
@@ -312,14 +318,14 @@ export default class Index extends PureComponent {
                 <Link to={linkTo} className={styles.event}>
                   {item.service_cname}
                 </Link>应用<span className={styles.datetime}>
-                  {statusCNMap[item.final_status] ? `(${statusCNMap[item.final_status]})` : ''}
-                </span>
+                  {statusCNMap[item.final_status] ? `(${statusCNMap[item.final_status]})` : ""}
+                         </span>
               </span>
             }
             description={
               <span className={styles.datetime} title={item.updatedAt}>
-                {' '}
-                {moment(item.start_time).fromNow()}{' '}
+                {" "}
+                {moment(item.start_time).fromNow()}{" "}
               </span>
             }
           />
@@ -337,11 +343,11 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          <Avatar size="large" src={require('../../../public/images/team-icon.png')} />
+          <Avatar size="large" src={require("../../../public/images/team-icon.png")} />
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>{team.team_alias}</div>
-          <div>创建于 {moment(team.create_time).format('YYYY-MM-DD')}</div>
+          <div>创建于 {moment(team.create_time).format("YYYY-MM-DD")}</div>
         </div>
       </div>
     );
@@ -371,11 +377,11 @@ export default class Index extends PureComponent {
               <p>已使用内存</p>
               <Tooltip
                 title={`总计：${this.state.memory.limit || 0} 过期时间：${this.state.memory
-                  .expire_date || '-'}`}
+                  .expire_date || "-"}`}
               >
                 <p>{`${sourceUtil.unit(
                   index.overviewInfo.team_service_memory_count || 0,
-                  'MB',
+                  "MB",
                 )}`}
                 </p>
               </Tooltip>
@@ -384,9 +390,9 @@ export default class Index extends PureComponent {
               <p>已使用磁盘</p>
               <Tooltip
                 title={`总计：${this.state.disk.limit || 0} 过期时间：${this.state.disk
-                  .expire_date || '-'}`}
+                  .expire_date || "-"}`}
               >
-                <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, 'MB')}`}</p>
+                <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}</p>
               </Tooltip>
             </div>
           </Fragment>
@@ -394,11 +400,11 @@ export default class Index extends PureComponent {
           <Fragment>
             <div className={styles.statItem}>
               <p>已使用内存</p>
-              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, 'MB')}`}</p>
+              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}</p>
             </div>
             <div className={styles.statItem}>
               <p>已使用磁盘</p>
-              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, 'MB')}`}</p>
+              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}</p>
             </div>
           </Fragment>
         )}
@@ -409,8 +415,8 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={[
           {
-            title: '首页',
-            href: '/',
+            title: "首页",
+            href: "/",
           },
         ]}
         content={pageHeaderContent}
