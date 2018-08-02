@@ -16,6 +16,7 @@ const passwordProgressMap = {
 @connect(({ user, loading, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
+  isRegist: global.isRegist,
   submitting: loading.effects["user/register"],
 }))
 @Form.create()
@@ -28,7 +29,7 @@ export default class Register extends Component {
     help: "",
     prefix: "86",
     time: Date.now(),
-    firstRegist: this.props.rainbondInfo && this.props.rainbondInfo.is_user_register,
+    firstRegist: this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register,
   };
 
   componentWillReceiveProps(nextProps) {
@@ -165,6 +166,10 @@ export default class Register extends Component {
     });
   };
   render() {
+    if (!this.props.isRegist) {
+      this.props.dispatch(routerRedux.replace("/user/login"));
+      return null;
+    }
     const { form, submitting } = this.props;
     const { getFieldDecorator } = form;
     return (

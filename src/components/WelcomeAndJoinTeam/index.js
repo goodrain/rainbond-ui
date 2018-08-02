@@ -40,7 +40,7 @@ export default class Index extends PureComponent {
       payload: { user_id: this.props.currUser.user_id },
       callback: (data) => {
         this.setState({ joinTeams: data.list });
-        if (data.list) {
+        if (data.list && data.list.length > 0) {
           this.setState({ current: 1 });
         }
       },

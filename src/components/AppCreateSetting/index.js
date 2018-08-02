@@ -27,7 +27,8 @@ import {
   getRelationedApp,
   getUnRelationedApp,
   addRelationedApp,
-  removeRelationedApp
+  removeRelationedApp,
+  batchAddRelationedApp,
 } from '../../services/app';
 import EditPortAlias from '../../components/EditPortAlias';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -1173,10 +1174,10 @@ class Relation extends PureComponent {
     this.setState({showAddRelation: false})
   }
   handleSubmitAddRelation = (ids) => {
-    addRelationedApp({
+    batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appDetail.service.service_alias,
-      dep_service_id: ids[0]
+      dep_service_ids: ids
     }).then((data) => {
       if (data) {
         this.loadRelationedApp();

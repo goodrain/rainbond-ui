@@ -457,9 +457,13 @@ export async function getEnterpriseInfo(body = {}) {
 }
 
 /* 查询企业信息 */
-export async function getEnterpriseTeams(body = {}) {
+export async function getEnterpriseTeams(body = {page_num,page_size}) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
     method: "get",
+    params: {
+      page_num: body.page_num,
+      page_size: body.page_size,
+    },
   });
 }
 

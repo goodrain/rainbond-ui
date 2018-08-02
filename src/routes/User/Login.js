@@ -9,12 +9,18 @@ const {
   Tab, UserName, Password, Submit,
 } = Login;
 
-@connect(({ loading }) => ({ login:{}, submitting: loading.effects["user/login"] }))
+@connect(({ loading, global }) => ({
+  login: {},
+  isRegist: global.isRegist,
+  submitting: loading.effects["user/login"],
+}))
 export default class LoginPage extends Component {
   state = {
     type: "account",
     autoLogin: true,
   };
+
+  componentDidMount() {}
 
   onTabChange = (type) => {
     this.setState({ type });
@@ -67,9 +73,11 @@ export default class LoginPage extends Component {
           </div>
           <Submit loading={submitting}>登录</Submit>
           <div className={styles.other}>
-            <Link className={styles.register} to="/user/register">
-              注册账户
-            </Link>
+            {this.props.isRegist && (
+              <Link className={styles.register} to="/user/register">
+                注册账户
+              </Link>
+            )}
           </div>
         </Login>
       </div>

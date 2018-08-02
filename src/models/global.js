@@ -339,6 +339,7 @@ export default {
       return {
         ...state,
         rainbondInfo: payload,
+        isRegist: payload.is_regist,
       };
     },
     saveIsPubCloud(state, { payload }) {

@@ -21,11 +21,18 @@ class TeamListTable extends PureComponent {
     const columns = [
       {
         title: "团队名称",
-        dataIndex: "tenant_alias",
+        dataIndex: "team_alias",
       },
       {
         title: "拥有人",
-        dataIndex: "tenant_name",
+        dataIndex: "owner",
+        render(val) {
+          return <span>{val}</span>;
+        },
+      },
+      {
+        title: "创建时间",
+        dataIndex: "create_time",
         render(val) {
           return <span>{val}</span>;
         },
@@ -46,7 +53,7 @@ class TeamListTable extends PureComponent {
               <a
                 href="javascript:;"
                 onClick={() => {
-                  onDelete(data.tenant_name);
+                  onDelete(data.team_name);
                 }}
               >
                 删除

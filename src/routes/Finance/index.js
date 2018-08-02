@@ -36,7 +36,7 @@ export default class BasicList extends PureComponent {
     const params = this.getParam();
     const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
     const { user } = this.props;
-    const adminer = (userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user));
+    const adminer = userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       date: moment(new Date().getTime()).format("YYYY-MM-DD"),
       companyInfo: {},
@@ -50,7 +50,7 @@ export default class BasicList extends PureComponent {
       teamsPage: 1,
       teamsPageSize: 8,
       showAddTeam: false,
-      adminer: adminer,
+      adminer,
     };
   }
   componentDidMount() {
@@ -59,13 +59,11 @@ export default class BasicList extends PureComponent {
     }
     this.props.dispatch({
       type: "global/getIsRegist",
-      callback: () => {
-      },
+      callback: () => {},
     });
     this.props.dispatch({
       type: "global/getEnterpriseInfo",
-      callback: () => {
-      },
+      callback: () => {},
     });
     this.loadTeams();
   }
@@ -89,8 +87,7 @@ export default class BasicList extends PureComponent {
       payload: {
         isRegist: e.target.value,
       },
-      callback: () => {
-      },
+      callback: () => {},
     });
   };
   getDefaultScope() {
@@ -180,7 +177,7 @@ export default class BasicList extends PureComponent {
       payload: {
         enterprise_id: this.props.user.enterprise_id,
         page_size: this.state.teamsPageSize,
-        page: this.state.teamsPage,
+        page_num: this.state.teamsPage,
       },
       callback: (data) => {
         this.setState({
@@ -266,10 +263,35 @@ export default class BasicList extends PureComponent {
     );
   };
   handelUnderstand = () => {
-    console.log("hello");
+    window.open("https://www.rainbond.com/docs/stable/support/rainbond-enterprise-support.html");
   };
   handelObtain = () => {
-    console.log("hello");
+    window.open("https://www.rainbond.com/docs/stable/support/rainbond-opensource-support.html");
+  };
+  getSettingShow = () => {
+    if (!this.props.is_public) {
+      return (
+        <Card
+          style={{
+            marginBottom: 24,
+          }}
+          bodyStyle={{
+            paddingTop: 12,
+          }}
+          bordered={false}
+          title="平台设置"
+        >
+          <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
+            <Description term="用户注册">
+              <RadioGroup onChange={this.onRegistChange} value={this.props.isRegist}>
+                <Radio value>允许注册</Radio>
+                <Radio value={false}>禁止注册</Radio>
+              </RadioGroup>
+            </Description>
+          </DescriptionList>
+        </Card>
+      );
+    }
   };
   manage = () => {
     const pagination = {
@@ -301,8 +323,8 @@ export default class BasicList extends PureComponent {
             </Description>
             <Description term="平台版本">
               {this.props.rainbondInfo.version || "V3.7.0-rc"}
-              <Button style={{ marginLeft: 16 }} onClick={this.handelUnderstand}>
-                了解企业版
+              <Button type="primary" style={{ marginLeft: 16 }} onClick={this.handelUnderstand}>
+                了解企业解决方案
               </Button>
               <Button style={{ marginLeft: 16 }} onClick={this.handelObtain}>
                 获取开源支持
@@ -312,52 +334,33 @@ export default class BasicList extends PureComponent {
         </Card>
         {this.state.adminer && (
           <div>
+            {this.getSettingShow()}
             <Card
-            style={{
-            marginBottom: 24,
-          }}
-            bodyStyle={{
-            paddingTop: 12,
-          }}
-            bordered={false}
-            title="平台设置"
-          >
-            <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
-            <Description term="用户注册">
-              <RadioGroup onChange={this.onRegistChange} value={this.props.isRegist}>
-                <Radio value>允许注册</Radio>
-                <Radio value={false}>禁止注册</Radio>
-              </RadioGroup>
-            </Description>
-          </DescriptionList>
-          </Card>
-            <Card
-          style={{
-            marginBottom: 24,
-          }}
-          bodyStyle={{
-            paddingTop: 12,
-          }}
-          bordered={false}
-          title="企业团队列表"
-          extra={
-            <a href="javascript:;" onClick={this.onAddTeam}>
-              添加团队
-            </a>
-          }
-        >
-          <ScrollerX sm={600}>
-            <TeamListTable
-              pagination={pagination}
-              onDelete={this.onDelTeam}
-              onChange={this.onChange}
-              list={this.state.teamList}
-            />
-          </ScrollerX>
-        </Card>
+              style={{
+                marginBottom: 24,
+              }}
+              bodyStyle={{
+                paddingTop: 12,
+              }}
+              bordered={false}
+              title="企业团队列表"
+              extra={
+                <a href="javascript:;" onClick={this.onAddTeam}>
+                  添加团队
+                </a>
+              }
+            >
+              <ScrollerX sm={600}>
+                <TeamListTable
+                  pagination={pagination}
+                  onDelete={this.onDelTeam}
+                  onChange={this.onChange}
+                  list={this.state.teamList}
+                />
+              </ScrollerX>
+            </Card>
           </div>
         )}
-
       </div>
     );
   };
