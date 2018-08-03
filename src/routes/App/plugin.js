@@ -630,12 +630,13 @@ export default class Index extends PureComponent {
   renderUnInstalled = () => {
     const unInstalledList = this.state.unInstalledList;
     const loading = this.state.unInstalledList === null;
-    console.log(!unInstalledList.length)
+    console.log(!unInstalledList.length);
     if (!unInstalledList.length) {
       return (
         <center>
           暂无可用插件{" "}
-          <Link style={{marginTop: 32}}
+          <Link
+            style={{ marginTop: 32 }}
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`}
           >
             去安装
