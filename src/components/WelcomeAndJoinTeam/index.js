@@ -54,6 +54,7 @@ export default class Index extends PureComponent {
         payload: { team_name: this.state.selectedTeam },
         callback: () => {
           this.props.onOk && this.props.onOk();
+          this.getJoinTeams();
         },
       });
     }

@@ -137,7 +137,7 @@ export default class Index extends PureComponent {
             <Option value="http://code.goodrain.com/demo/java-spring-boot-demo.git">
                 Java SpringBoot Demo
             </Option>
-            <Option value="https://github.com/goodrain-apps/dotnet-demo.git">.NetCore Demo</Option>
+            <Option value="http://code.goodrain.com/demo/netcore-demo.git">.NetCore Demo</Option>
           </Select>)}
         </Form.Item>
         <Form.Item

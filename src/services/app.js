@@ -1850,3 +1850,23 @@ export async function SubPort(body = {
     },
   );
 }
+
+/*
+   修改自动构建API秘钥
+*/
+export async function putAutoDeploySecret(body = {
+  team_name,
+  service_alias,
+  secret_key
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/updatekey`,
+    {
+      method: 'put',
+      data: {
+        secret_key: body.secret_key,
+      },
+    },
+  );
+}

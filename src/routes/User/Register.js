@@ -178,7 +178,7 @@ export default class Register extends Component {
         <Form onSubmit={this.handleSubmit}>
           {this.state.firstRegist && (
             <FormItem>
-              {getFieldDecorator("enterprise_name", {
+              {getFieldDecorator("enter_name", {
                 rules: [
                   {
                     required: true,
