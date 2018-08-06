@@ -293,7 +293,7 @@ export default class Index extends PureComponent {
                 {
                   title: "操作",
                   dataIndex: "action",
-                  render: (data) => (
+                  render: (v, data) => (
                     <a
                       onClick={() => {
                           this.onDeleteVolume(data);
@@ -369,7 +369,7 @@ export default class Index extends PureComponent {
                 {
                   title: "操作",
                   dataIndex: "action",
-                  render: (data) => (
+                  render: (v, data) => (
                     <a
                       onClick={() => {
                           this.onDeleteMnt(data);

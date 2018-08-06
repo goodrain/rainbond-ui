@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Table } from "antd";
+import { Table, Popconfirm } from "antd";
 
 class TeamListTable extends PureComponent {
   state = {
@@ -50,14 +50,14 @@ class TeamListTable extends PureComponent {
         render(val, data) {
           return (
             <div>
-              <a
-                href="javascript:;"
-                onClick={() => {
+              <Popconfirm
+                title="确定要删除此团队么?"
+                onConfirm={() => {
                   onDelete(data.team_name);
                 }}
               >
-                删除
-              </a>
+                <a href="javascript:;">删除</a>
+              </Popconfirm>
             </div>
           );
         },

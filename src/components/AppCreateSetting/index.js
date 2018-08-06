@@ -986,6 +986,7 @@ class Mnt extends PureComponent {
     this.setState({toDeleteMnt: mnt})
   }
   onDeleteVolume = (data) => {
+    console.log(data)
     this.setState({toDeleteVolume: data})
   }
   onCancelDeleteVolume = () => {
@@ -1045,7 +1046,7 @@ class Mnt extends PureComponent {
         render: (val, data) => {
           return <a
             onClick={() => {
-            this.onDeleteVolume(data)
+              this.onDeleteVolume(data)
           }}
             href="javascript:;">删除</a>
         }

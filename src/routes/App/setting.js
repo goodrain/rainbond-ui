@@ -979,7 +979,6 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         this.setState({ members: data.list });
-        console.log(data.list);
       },
     });
   };
@@ -1429,7 +1428,7 @@ export default class Index extends PureComponent {
                 {
                   title: "操作",
                   dataIndex: "action",
-                  render: (data) => (
+                  render: (v, data) => (
                     <Fragment>
                       <a
                         href="javascript:;"
@@ -1481,7 +1480,7 @@ export default class Index extends PureComponent {
               {
                 title: "监测类型",
                 dataIndex: "type",
-                render: (index) => {
+                render: (v, data, index) => {
                   if (index === 0) {
                     return "启动时检测";
                   }
@@ -1493,7 +1492,7 @@ export default class Index extends PureComponent {
               {
                 title: "状态",
                 dataIndex: "status",
-                render: (data, index) => {
+                render: (v, data, index) => {
                   if (index === 0) {
                     if (appProbeUtil.isStartProbeUsed(data)) {
                       if (appProbeUtil.isStartProbeStart(data)) {
@@ -1517,7 +1516,7 @@ export default class Index extends PureComponent {
               {
                 title: "操作",
                 dataIndex: "action",
-                render: (data, index) => {
+                render: (v, data, index) => {
                   if (index === 0) {
                     if (appProbeUtil.isStartProbeUsed(data)) {
                       return (
@@ -1684,7 +1683,7 @@ export default class Index extends PureComponent {
                 {
                   title: "操作",
                   dataIndex: "action",
-                  render: (data) => {
+                  render: (v, data) => {
                     if (!appUtil.canManageAppMember(this.props.appDetail)) return null;
 
                     return (
