@@ -36,7 +36,8 @@ class ConfirmModal extends PureComponent{
       type: 'teamControl/fetchMember',
       payload: {
          team_name: team_name,
-         region_name: region_name
+         region_name: region_name,
+         page_size: 200,
       }
     })
    }
