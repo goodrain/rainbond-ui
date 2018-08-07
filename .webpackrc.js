@@ -25,7 +25,7 @@ export default {
     },
     production: {
       html: {
-        filename: "./static/index.html", //
+        filename: "../../pythonWork/rainbond-console/www/templates/index.html", //
         template: "./src/index.ejs",
       },
       publicPath: "../../pythonWork/rainbond-console/www/static/dists", //

@@ -315,8 +315,8 @@ export async function getNewestEvent(body = {
     method: "get",
     params: {
       team_name: body.team_name,
-      page: body.page || 1,
-      page_size: body.page_size || 6,
+      page: body.page,
+      page_size: body.page_size,
     },
   });
 }

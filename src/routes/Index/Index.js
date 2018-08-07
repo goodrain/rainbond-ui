@@ -139,6 +139,8 @@ export default class Index extends PureComponent {
       type: "index/fetchEvents",
       payload: {
         team_name,
+        page: 1,
+        page_size: 8,
       },
     });
   };

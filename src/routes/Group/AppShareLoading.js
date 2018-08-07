@@ -151,7 +151,7 @@ class ShareEvent extends React.Component {
         }}
       >
         <h4>
-          {(data.type == "plugin") ? "插件名称:" : "应用名称:"}{data.service_name}
+          {(data.type == "plugin") ? `插件名称:${data.plugin_name}` : `应用名称:${data.service_name}`}
           {this.renderStatus()}
         </h4>
         <div>{eventId && <LogProcress socketUrl={this.socketUrl} eventId={eventId} />}</div>
