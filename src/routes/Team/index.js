@@ -339,9 +339,7 @@ export default class Index extends PureComponent {
   };
   hanldeEventPageChange = (page) => {
     this.setState(
-      {
-        page,
-      },
+      { eventPage: page },
       () => {
         this.loadEvents();
       },
@@ -722,7 +720,7 @@ export default class Index extends PureComponent {
                 <a href="javascript:;">通过</a>
               </Popconfirm>
               <Popconfirm title="确定要拒绝用户么?" onConfirm={() => { this.handleRefused(data); }}>
-                <a style={{ marginLeft: 6}} href="javascript:;">拒绝</a>
+                <a style={{ marginLeft: 6 }} href="javascript:;">拒绝</a>
               </Popconfirm>
             </Fragment>)),
           }]}
