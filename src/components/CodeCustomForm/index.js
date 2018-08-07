@@ -115,7 +115,10 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
+      if (err) {
+        console.log(err)
+        return;
+      }
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
@@ -124,20 +127,34 @@ export default class Index extends PureComponent {
     const { groups } = this.props;
     const { showUsernameAndPass, showKey } = this.state;
     const gitUrl = getFieldValue('git_url');
-    const isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || '');
+    const serverType = getFieldValue('server_type');
+    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || '');
+    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi
+    if (serverType == "svn") {
+       isHttp = true
+       urlCheck = /^(svn:\/\/).+$/gi
+    }
     const isSSH = !isHttp;
-
     const data = this.props.data || {};
     const showSubmitBtn = this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
     const showCreateGroup =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
+    const prefixSelector = getFieldDecorator('server_type', {
+      initialValue: data.server_type || this.state.codeType,
+    })(<Select style={{ width: 100 }}>
+      <Option value="git">Git</Option>
+      <Option value="svn">Svn</Option>
+    </Select>)
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [{ required: true, message: '要创建的应用还没有名字' }],
+              rules: [
+                { required: true, message: '要创建的应用还没有名字' },
+                { min: 4, message: '应用名称必须大于4位' },
+              ],
             })(<Input placeholder="请为创建的应用起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="应用组">
@@ -153,27 +170,15 @@ export default class Index extends PureComponent {
             {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
-            <Input.Group compact>
-              {getFieldDecorator('server_type', {
-                initialValue: data.server_type || this.state.codeType,
-              })(<Select style={{ width: 100 }}>
-                <Option value="git">Git</Option>
-                <Option value="svn">Svn</Option>
-              </Select>)}
-
               {getFieldDecorator('git_url', {
                 initialValue: data.git_url || '',
                 rules: [
                   { required: true, message: '请输入仓库地址' },
-                  // { pattern: /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi, message: '仓库地址不正确' }
-                  {
-                    pattern: /^(.+@.+\.git)|^(svn:\/\/.+)|([^@]+\.git(\?.+)?)|([^@]+\.svn(\?.+)?)$/gi,
-                    message: '仓库地址不合法',
-                  },
+                  { pattern: urlCheck, message: '仓库地址不合法' }
                 ],
-              })(<Input style={{ width: 'calc(100% - 100px)' }} placeholder="请输入仓库地址" />)}
-            </Input.Group>
-            {gitUrl && isSSH ? (
+              })(<Input addonBefore={prefixSelector} placeholder="请输入仓库地址" />)}
+          </Form.Item>
+          {gitUrl && isSSH ? (
               <div style={{ textAlign: 'right' }}>
                 这是一个私有仓库?{' '}
                 <a
@@ -203,7 +208,6 @@ export default class Index extends PureComponent {
             ) : (
               ''
             )}
-          </Form.Item>
           <Form.Item
             style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
             {...formItemLayout}
