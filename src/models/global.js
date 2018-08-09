@@ -233,7 +233,7 @@ export default {
       if (data) {
         yield put({ type: "saveRainBondInfo", payload: data.bean });
         setTimeout(() => {
-          callback && callback();
+          callback && callback(data.bean);
         });
       }
     },

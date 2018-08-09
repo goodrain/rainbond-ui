@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { connect } from "dva";
 
 class Index extends React.PureComponent {
@@ -11,11 +12,22 @@ class Index extends React.PureComponent {
   componentDidMount() {
     this.props.dispatch({
       type: "global/fetchRainbondInfo",
-      callback: () => {
+      callback: (info) => {
         this.setState({ inited: true });
+        this.putLog(info.eid || "");
       },
     });
   }
+  putLog = (eid) => {
+    const defaultOptions = {
+      credentials: "same-origin",
+    };
+    defaultOptions.url = "https://log.rainbond.com/log";
+    defaultOptions.method = "post";
+    defaultOptions.data = JSON.stringify({ url: window.location.href, eid });
+    defaultOptions.credentials = "same-origin";
+    axios(defaultOptions);
+  };
   render() {
     const { rainbondInfo } = this.props;
 

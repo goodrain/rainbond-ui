@@ -1,9 +1,9 @@
-import React, { PureComponent, Fragment } from 'react';
-import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip } from 'antd';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import DescriptionList from '../../components/DescriptionList';
-import globalUtil from '../../utils/global';
+import React, { PureComponent, Fragment } from "react";
+import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip } from "antd";
+import { connect } from "dva";
+import { Link } from "dva/router";
+import DescriptionList from "../../components/DescriptionList";
+import globalUtil from "../../utils/global";
 
 const { Description } = DescriptionList;
 
@@ -31,13 +31,13 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     this.mount = false;
-    this.props.dispatch({ type: 'appControl/clearVisitInfo' });
+    this.props.dispatch({ type: "appControl/clearVisitInfo" });
   }
   fetchVisitInfo = () => {
     if (!this.mount) return;
     const appAlias = this.props.app_alias;
     this.props.dispatch({
-      type: 'appControl/fetchVisitInfo',
+      type: "appControl/fetchVisitInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
@@ -94,7 +94,7 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: 'center',
+                textAlign: "center",
                 fontSize: 16,
               }}
             >
@@ -103,7 +103,7 @@ export default class Index extends PureComponent {
                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
               >
                 配置端口
-              </Link>
+                          </Link>
             </div>
           </Modal>
         )}
@@ -142,7 +142,7 @@ export default class Index extends PureComponent {
             >
               <div
                 style={{
-                  textAlign: 'center',
+                  textAlign: "center",
                   fontSize: 16,
                 }}
               >
@@ -151,7 +151,7 @@ export default class Index extends PureComponent {
                   to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
                 >
                   打开
-                                    </Link>
+                </Link>
               </div>
             </Modal>
           )}
@@ -191,7 +191,7 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: 'center',
+                textAlign: "center",
                 fontSize: 16,
               }}
             >
@@ -200,7 +200,7 @@ export default class Index extends PureComponent {
                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
               >
                 配置
-                         </Link>
+              </Link>
             </div>
           </Modal>
         )}
@@ -229,7 +229,7 @@ export default class Index extends PureComponent {
           >
             {res.map((item, i) => {
               let connect_info = item.connect_info || [];
-              connect_info = connect_info.filter((d, i) => d.attr_name.indexOf('_PORT') === -1 && d.attr_name.indexOf('_HOST') === -1);
+              connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
               return (
                 <Card
                   type="inner"
@@ -239,12 +239,12 @@ export default class Index extends PureComponent {
                   title={this.renderNoHttpOuterTitle(item)}
                 >
                   {!item.connect_info.length ? (
-                    '-'
+                    "-"
                   ) : (
                     <Fragment>
                       <table
                         style={{
-                          width: '100%',
+                          width: "100%",
                         }}
                       >
                         <thead>
@@ -257,8 +257,8 @@ export default class Index extends PureComponent {
                         <tbody>
                           {connect_info.map((item) => {
                             if (
-                              item.attr_name.indexOf('_PORT') > -1 ||
-                              item.attr_name.indexOf('_HOST') > -1
+                              item.attr_name.indexOf("_PORT") > -1 ||
+                              item.attr_name.indexOf("_HOST") > -1
                             ) {
                               return null;
                             }
@@ -275,7 +275,7 @@ export default class Index extends PureComponent {
                               <td
                                 colSpan="3"
                                 style={{
-                                  textAlign: 'center',
+                                  textAlign: "center",
                                 }}
                               >
                                 暂无数据
@@ -321,26 +321,26 @@ export default class Index extends PureComponent {
           title={renderTitle(item)}
         >
           {!item.connect_info.length ? (
-            '-'
+            "-"
           ) : (
             <Fragment>
               <table
                 style={{
-                  width: '100%',
+                  width: "100%",
                 }}
               >
                 <thead>
                   <tr>
                     <th
                       style={{
-                        width: '33%',
+                        width: "33%",
                       }}
                     >
                       变量名
                     </th>
                     <th
                       style={{
-                        width: '33%',
+                        width: "33%",
                       }}
                     >
                       变量值
@@ -361,7 +361,7 @@ export default class Index extends PureComponent {
                       <td
                         colSpan="3"
                         style={{
-                          textAlign: 'center',
+                          textAlign: "center",
                         }}
                       >
                         暂无数据
@@ -395,7 +395,7 @@ export default class Index extends PureComponent {
               }}
               message="其他应用依赖此应用后来访问"
               type="info"
-            />{' '}
+            />{" "}
             {res.map((item, i) => renderCard(item, i))}
           </Modal>
         )}
@@ -408,18 +408,18 @@ export default class Index extends PureComponent {
     if (!visitInfo) {
       return null;
     }
-    if (visitInfo.access_type === 'no_port') {
+    if (visitInfo.access_type == "no_port") {
       return this.renderNoPort(visitInfo);
     }
 
-    if (visitInfo.access_type === 'http_port') {
+    if (visitInfo.access_type === "http_port") {
       return this.renderHttpPort(visitInfo);
     }
 
-    if (visitInfo.access_type === 'not_http_outer') {
+    if (visitInfo.access_type === "not_http_outer") {
       return this.renderNofHttpOuter(visitInfo);
     }
-    if (visitInfo.access_type === 'not_http_inner') {
+    if (visitInfo.access_type === "not_http_inner" || visitInfo.access_type === "http_inner") {
       return this.renderNotHttpInner(visitInfo);
     }
     return null;
