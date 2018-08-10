@@ -21,9 +21,9 @@ export default class ChangeBuildSource extends PureComponent {
       showKey: false,
       gitUrl: this.props.buildSource.git_url,
       serverType: this.props.buildSource.server_type,
-      isUserPass: this.isUserPass(this.props.buildSource),
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
+      isUserPass: true,
     };
   }
   componentDidMount() {
@@ -37,15 +37,19 @@ export default class ChangeBuildSource extends PureComponent {
     }
     return /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
   }
-  isUserPass = (buildSource) => {
-    if (buildSource.server_type == "svn") {
+  isUserPass = () => {
+    if (this.state.serverType == "svn") {
       return true;
     }
-    return /^(http:\/\/|https:\/\/)/.test(buildSource.git_url || "");
-  }
+    if (this.state.showImage) {
+      return true;
+    }
+    return /^(http:\/\/|https:\/\/)/.test(this.state.gitUrl || "");
+  };
   changeServerType = (value) => {
     this.setState({ serverType: value });
-  }
+    this.setState({ isUserPass: this.isUserPass() });
+  };
   checkURL = (rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
     if (urlCheck.test(value)) {
@@ -53,7 +57,11 @@ export default class ChangeBuildSource extends PureComponent {
     } else {
       callback("非法仓库地址");
     }
-  }
+  };
+  changeURL = (value) => {
+    this.setState({ gitUrl: value });
+    this.setState({ isUserPass: this.isUserPass() });
+  };
   loadBranch() {
     getCodeBranch({
       team_name: globalUtil.getCurrTeamName(),
@@ -117,7 +125,7 @@ export default class ChangeBuildSource extends PureComponent {
     })(<Select onChange={this.changeServerType} style={{ width: 100 }}>
       <Option value="git">Git</Option>
       <Option value="svn">Svn</Option>
-       </Select>);
+    </Select>);
     let codeVersion = this.state.buildSource.code_version;
     let versionType = "branch";
     if (codeVersion && codeVersion.indexOf("tag:") == 0) {
@@ -129,7 +137,7 @@ export default class ChangeBuildSource extends PureComponent {
     })(<Select style={{ width: 100 }}>
       <Option value="branch">分支</Option>
       <Option value="tag">Tag</Option>
-       </Select>);
+    </Select>);
     if (this.state.showCode) {
       getFieldDecorator("service_source", { initialValue: "source_code" });
     }
@@ -173,7 +181,11 @@ export default class ChangeBuildSource extends PureComponent {
                   { required: true, message: "请输入仓库地址" },
                   { validator: this.checkURL, message: "仓库地址不合法" },
                 ],
-              })(<Input addonBefore={prefixSelector} placeholder="请输入仓库地址" />)}
+              })(<Input
+                onChange={this.changeURL}
+                addonBefore={prefixSelector}
+                placeholder="请输入仓库地址"
+              />)}
             </Form.Item>
           )}
           {this.state.showCode && (
@@ -234,71 +246,9 @@ export default class ChangeBuildSource extends PureComponent {
             })(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
           </Form.Item>
         </Form>
-        {this.state.showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />}
+        {this.state.showKey &&
+          !this.state.isUserPass && <ShowRegionKey onCancel={this.hideShowKey} />}
       </Modal>
     );
   }
 }
-
-//   if (!isCustomCode) {
-//     return (
-//       <FormItem {...formItemLayout} label="代码分支">
-//         {getFieldDecorator("branch", {
-//           initialValue: this.state.curr || "",
-//           rules: [
-//             {
-//               required: true,
-//               message: "请选择分支",
-//             },
-//           ],
-//         })(<Select
-//           style={{
-//               width: 200,
-//             }}
-//         >
-//           {branch.map(item => <Option value={item}>{item}</Option>)}
-//            </Select>)}
-
-//         <Button
-//           onClick={this.handleSubmit}
-//           style={{
-//             marginLeft: 10,
-//           }}
-//           type="primary"
-//         >
-//           确定
-//         </Button>
-//       </FormItem>
-//     );
-//   }
-
-//   return (
-
-//     <FormItem {...formItemLayout} label="代码分支">
-//       {getFieldDecorator("branch", {
-//         initialValue: this.state.curr || "",
-//         rules: [
-//           {
-//             required: true,
-//             message: "请输入分支",
-//           },
-//         ],
-//       })(<Input
-//         type="text"
-//         style={{
-//             width: 200,
-//           }}
-//       />)}
-//       <Button
-//         onClick={this.handleSubmit}
-//         style={{
-//           marginLeft: 10,
-//         }}
-//         type="primary"
-//       >
-//         确定
-//       </Button>
-//     </FormItem>
-//   );
-// }
-// }
