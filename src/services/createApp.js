@@ -1,20 +1,20 @@
-import { stringify } from 'qs';
-import request from '../utils/request';
-import config from '../config/config';
+import { stringify } from "qs";
+import request from "../utils/request";
+import config from "../config/config";
 
 /*
    源码创建应用
 */
 export async function createAppByCode(body = { team_name }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
-    method: 'post',
+    method: "post",
     data: {
       group_id: body.group_id,
       code_from: body.code_from,
       service_cname: body.service_cname,
       git_url: body.git_url,
       // 好雨git应用id
-      git_project_id: body.git_project_id || '',
+      git_project_id: body.git_project_id || "",
       code_version: body.code_version,
       username: body.username,
       password: body.password,
@@ -28,10 +28,10 @@ export async function createAppByCode(body = { team_name }) {
 */
 export async function createAppByCompose(body = { team_name, group_name, yaml_content }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`, {
-    method: 'post',
+    method: "post",
     data: {
       group_name: body.group_name,
-      image_type: 'docker_image',
+      image_type: "docker_image",
       yaml_content: body.yaml_content,
     },
   });
@@ -48,12 +48,14 @@ export async function createAppByDockerrun(body = {
   image_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_run`, {
-    method: 'post',
+    method: "post",
     data: {
       group_id: body.group_id,
       docker_cmd: body.docker_cmd,
       service_cname: body.service_cname,
       image_type: body.image_type,
+      user_name: body.user_name,
+      password: body.password,
     },
   });
 }
@@ -63,7 +65,7 @@ export async function createAppByDockerrun(body = {
 */
 export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
-    method: 'post',
+    method: "post",
     handleError,
   });
 }
@@ -73,7 +75,7 @@ export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
 */
 export function getCreateCheckResult(body = { team_name, app_alias, check_uuid }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
-    method: 'get',
+    method: "get",
     params: {
       check_uuid: body.check_uuid,
     },
@@ -87,7 +89,7 @@ export function getCreateComposeCheckInfo(body = { team_name, group_id, group_id
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
-      method: 'post',
+      method: "post",
       data: {
         compose_id: body.compose_id,
       },
@@ -107,7 +109,7 @@ export function getCreateComposeCheckResult(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
-      method: 'get',
+      method: "get",
       params: {
         check_uuid: body.check_uuid,
         compose_id: body.compose_id,
@@ -121,7 +123,7 @@ export function getCreateComposeCheckResult(body = {
 */
 export function buildApp(body = { team_name, app_alias }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`, {
-    method: 'post',
+    method: "post",
   });
 }
 
@@ -135,7 +137,7 @@ export function getCodeBranchs(body = {
   type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/code_repo/branchs`, {
-    method: 'post',
+    method: "post",
     data: {
       type: body.type,
       service_code_clone_url: body.git_url,
@@ -151,7 +153,7 @@ export function getCheckuuid(body = { team_name, app_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/get_check_uuid`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -163,7 +165,7 @@ export function getComposeCheckuuid(body = { team_name, group_id, compose_id }) 
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/get_check_uuid`,
     {
-      method: 'get',
+      method: "get",
       params: {
         compose_id: body.compose_id,
       },
@@ -176,7 +178,7 @@ export function getComposeCheckuuid(body = { team_name, group_id, compose_id }) 
 */
 export function getMarketApp(body = {}) {
   return request(`${config.baseUrl}/console/apps`, {
-    method: 'get',
+    method: "get",
     params: body,
   });
 }
@@ -186,7 +188,7 @@ export function getMarketApp(body = {}) {
 */
 export async function installApp(body = { team_name, group_id, app_id }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
-    method: 'post',
+    method: "post",
     data: {
       group_id: body.group_id,
       app_id: body.app_id,
@@ -201,7 +203,7 @@ export async function getAppsByComposeId(body = { team_name, compose_id }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/services`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -213,7 +215,7 @@ export async function getComposeByComposeId(body = { team_name, compose_id }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -224,7 +226,7 @@ export async function getComposeByComposeId(body = { team_name, compose_id }) {
 export function queryExport(body = { team_name, app_id }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/export`, {
-    method: 'get',
+    method: "get",
     params: {
       app_id: body.app_id,
     },
@@ -237,7 +239,7 @@ export function queryExport(body = { team_name, app_id }) {
 export function appExport(body = { team_name, app_id, format }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/export`, {
-    method: 'post',
+    method: "post",
     data: {
       app_id: body.app_id,
       format: body.format,
@@ -254,7 +256,7 @@ export async function getExport(body = { team_name, app_id, format }) {
       body.app_id
     }&format=${body.format}`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -265,7 +267,7 @@ export async function getExport(body = { team_name, app_id, format }) {
 export function uploadApp(body = { team_name }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/upload`, {
-    method: 'post',
+    method: "post",
   });
 }
 
@@ -282,7 +284,7 @@ export function importApp(body = {
   const team_name = body.team_name;
   const event_id = body.event_id;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`, {
-    method: 'post',
+    method: "post",
     data: {
       event_id: body.event_id,
       file_name: body.file_name,
@@ -299,7 +301,7 @@ export function queryImportApp(body = { team_name, event_id }) {
   const team_name = body.team_name;
   const event_id = body.event_id;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -310,7 +312,7 @@ export function queryImportApp(body = { team_name, event_id }) {
 export function importDir(body = { team_name }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/import/dir`, {
-    method: 'post',
+    method: "post",
   });
 }
 
@@ -321,7 +323,7 @@ export function importDir(body = { team_name }) {
 export function queryImportDirApp(body = { team_name, event_id }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/import/dir`, {
-    method: 'get',
+    method: "get",
     params: {
       event_id: body.event_id,
     },
@@ -335,6 +337,6 @@ export function queryImportDirApp(body = { team_name, event_id }) {
 export function queryImportingApp(body = { team_name }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/import/importing-apps`, {
-    method: 'get',
+    method: "get",
   });
 }

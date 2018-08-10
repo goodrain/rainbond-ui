@@ -4,6 +4,7 @@ import { connect } from "dva";
 import { getCodeBranch } from "../../../services/app";
 import globalUtil from "../../../utils/global";
 import appUtil from "../../../utils/app";
+import ShowRegionKey from "../../../components/ShowRegionKey";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -18,11 +19,39 @@ export default class ChangeBuildSource extends PureComponent {
       buildSource: this.props.buildSource || null,
       showUsernameAndPass: false,
       showKey: false,
+      gitUrl: this.props.buildSource.git_url,
+      serverType: this.props.buildSource.server_type,
+      isUserPass: this.isUserPass(this.props.buildSource),
+      showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
+      showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
     };
   }
   componentDidMount() {
     if (appUtil.isCodeAppByBuildSource(this.state.buildSource)) {
       this.loadBranch();
+    }
+  }
+  getUrlCheck() {
+    if (this.state.serverType == "svn") {
+      return /^(svn:\/\/).+$/gi;
+    }
+    return /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
+  }
+  isUserPass = (buildSource) => {
+    if (buildSource.server_type == "svn") {
+      return true;
+    }
+    return /^(http:\/\/|https:\/\/)/.test(buildSource.git_url || "");
+  }
+  changeServerType = (value) => {
+    this.setState({ serverType: value });
+  }
+  checkURL = (rule, value, callback) => {
+    const urlCheck = this.getUrlCheck();
+    if (urlCheck.test(value)) {
+      callback();
+    } else {
+      callback("非法仓库地址");
     }
   }
   loadBranch() {
@@ -58,9 +87,13 @@ export default class ChangeBuildSource extends PureComponent {
       });
     });
   };
+  hideShowKey = () => {
+    this.setState({ showKey: false });
+  };
   render() {
     const { title, onCancel } = this.props;
     const branch = this.state.branch;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -79,27 +112,15 @@ export default class ChangeBuildSource extends PureComponent {
         },
       },
     };
-    const { showUsernameAndPass, showKey } = this.state;
-    const isCustomCode = this.props.isCreateFromCustomCode;
-    const { getFieldDecorator, setFieldsValue } = this.props.form;
-    const gitUrl = this.state.buildSource.git_url;
-    const serverType = this.state.buildSource.service_type || "git";
-    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
-    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
-    if (serverType == "svn") {
-      isHttp = true;
-      urlCheck = /^(svn:\/\/).+$/gi;
-    }
-    const isSSH = !isHttp;
     const prefixSelector = getFieldDecorator("server_type", {
-      initialValue: serverType,
-    })(<Select style={{ width: 100 }}>
+      initialValue: this.state.buildSource.server_type,
+    })(<Select onChange={this.changeServerType} style={{ width: 100 }}>
       <Option value="git">Git</Option>
       <Option value="svn">Svn</Option>
        </Select>);
     let codeVersion = this.state.buildSource.code_version;
     let versionType = "branch";
-    if (codeVersion.indexOf("tag:") == 0) {
+    if (codeVersion && codeVersion.indexOf("tag:") == 0) {
       versionType = "tag";
       codeVersion = codeVersion.substr(4, codeVersion.length);
     }
@@ -108,45 +129,66 @@ export default class ChangeBuildSource extends PureComponent {
     })(<Select style={{ width: 100 }}>
       <Option value="branch">分支</Option>
       <Option value="tag">Tag</Option>
-    </Select>);
-    const showCode = appUtil.isCodeAppByBuildSource(this.state.buildSource);
-    if (showCode) {
+       </Select>);
+    if (this.state.showCode) {
       getFieldDecorator("service_source", { initialValue: "source_code" });
     }
     const showImage = appUtil.isImageAppByBuildSource(this.state.buildSource);
-    if (showCode) {
+    if (this.state.showImage) {
       getFieldDecorator("service_source", { initialValue: "docker_run" });
     }
+    const { showUsernameAndPass } = this.state;
     return (
       <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
         <Form onSubmit={this.handleSubmit}>
-          <FormItem style={{ display: showImage ? "" : "none" }} {...formItemLayout} label="镜像名称">
+          <FormItem
+            style={{ display: showImage ? "" : "none" }}
+            {...formItemLayout}
+            label="镜像名称"
+          >
             {getFieldDecorator("image", {
               rules: [{ required: true, message: "镜像名称不能为空" }],
               initialValue: this.state.buildSource.image,
             })(<Input />)}
           </FormItem>
-          <FormItem style={{ display: showImage ? "" : "none" }} {...formItemLayout} label="启动命令">
+          <FormItem
+            style={{ display: showImage ? "" : "none" }}
+            {...formItemLayout}
+            label="启动命令"
+          >
             {getFieldDecorator("cmd", {
               initialValue: this.state.buildSource.cmd,
             })(<Input />)}
           </FormItem>
-          <Form.Item style={{ display: showCode ? "" : "none" }} {...formItemLayout} label="仓库地址">
-            {getFieldDecorator("git_url", {
-              initialValue: this.state.buildSource.git_url,
-              rules: [
-                { required: true, message: "请输入仓库地址" },
-                { pattern: urlCheck, message: "仓库地址不合法" },
-              ],
-            })(<Input addonBefore={prefixSelector} placeholder="请输入仓库地址" />)}
-          </Form.Item>
-          <Form.Item style={{ display: showCode ? "" : "none" }} {...formItemLayout} label="代码版本">
-            {getFieldDecorator("code_version", {
-              initialValue: codeVersion,
-              rules: [{ required: true, message: "请输入代码版本" }],
-            })(<Input addonBefore={versionSelector} placeholder="请输入代码版本" />)}
-          </Form.Item>
-          {gitUrl && isSSH ? (
+          {this.state.showCode && (
+            <Form.Item
+              style={{ display: this.state.showCode ? "" : "none" }}
+              {...formItemLayout}
+              label="仓库地址"
+            >
+              {getFieldDecorator("git_url", {
+                initialValue: this.state.buildSource.git_url,
+                force: true,
+                rules: [
+                  { required: true, message: "请输入仓库地址" },
+                  { validator: this.checkURL, message: "仓库地址不合法" },
+                ],
+              })(<Input addonBefore={prefixSelector} placeholder="请输入仓库地址" />)}
+            </Form.Item>
+          )}
+          {this.state.showCode && (
+            <Form.Item
+              style={{ display: this.state.showCode ? "" : "none" }}
+              {...formItemLayout}
+              label="代码版本"
+            >
+              {getFieldDecorator("code_version", {
+                initialValue: codeVersion,
+                rules: [{ required: true, message: "请输入代码版本" }],
+              })(<Input addonBefore={versionSelector} placeholder="请输入代码版本" />)}
+            </Form.Item>
+          )}
+          {!this.state.isUserPass ? (
             <div style={{ textAlign: "left", marginRight: 32 }}>
               这是一个私有仓库?{" "}
               <a
@@ -192,6 +234,7 @@ export default class ChangeBuildSource extends PureComponent {
             })(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
           </Form.Item>
         </Form>
+        {this.state.showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />}
       </Modal>
     );
   }
