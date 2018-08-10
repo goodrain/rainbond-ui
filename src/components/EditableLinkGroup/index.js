@@ -1,6 +1,6 @@
 import React, { PureComponent, createElement } from "react";
 import PropTypes from "prop-types";
-import { Button, Icon } from "antd";
+import { Icon } from "antd";
 import styles from "./index.less";
 import { Link } from "../../../node_modules/dva/router";
 

@@ -1,24 +1,8 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import {
-  Card,
-  Form,
-  Button,
-  Icon,
-  Select,
-  Radio,
-  Table,
-  Modal,
-  Input,
-  Tag,
-  notification,
-  Tooltip,
-} from "antd";
-import DescriptionList from "../../components/DescriptionList";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
-import KVinput from "../../components/KVinput";
 import SetMemberAppAction from "../../components/SetMemberAppAction";
-import { getCodeBranch, setCodeBranch } from "../../services/app";
 import ScrollerX from "../../components/ScrollerX";
 import globalUtil from "../../utils/global";
 import appProbeUtil from "../../utils/appProbe-util";
@@ -27,810 +11,15 @@ import NoPermTip from "../../components/NoPermTip";
 import AutoDeploy from "./setting/auto-deploy";
 import AddTag from "./setting/add-tag";
 import EditActions from "./setting/perm";
+import ViewHealthCheck from "./setting/health-check";
+import ViewRunHealthCheck from "./setting/run-health-check";
+import EditHealthCheck from "./setting/edit-health-check";
+import AddVarModal from "./setting/env";
+import EditRunHealthCheck from "./setting/edit-run-health-check";
+import DescriptionList from "../../components/DescriptionList";
+import ChangeBuildSource from "./setting/edit-buildsource";
 
 const FormItem = Form.Item;
-const Option = Select.Option;
-const RadioGroup = Radio.Group;
-
-// 查看启动时健康监测
-class ViewHealthCheck extends PureComponent {
-  render() {
-    const { title, onCancel } = this.props;
-    const data = this.props.data || {};
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 8,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    return (
-      <Modal
-        title={title}
-        visible
-        onCancel={onCancel}
-        footer={[<Button onClick={onCancel}> 关闭 </Button>]}
-      >
-        <Form>
-          <FormItem {...formItemLayout} label="监测端口">
-            <span>{data.port}</span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="探针使用协议">
-            <span>{data.scheme}</span>
-          </FormItem>
-          {data.scheme === "http" ? (
-            <Fragment>
-              <FormItem {...formItemLayout} label="http请求头">
-                <span>{appProbeUtil.getHeaders(data)}</span>
-              </FormItem>
-              <FormItem {...formItemLayout} label="路径">
-                <span>{appProbeUtil.getPath(data)}</span>
-              </FormItem>
-            </Fragment>
-          ) : null}
-
-          <FormItem {...formItemLayout} label="初始化等候时间">
-            <span>
-              {appProbeUtil.getInitWaitTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测监测时间">
-            <span>
-              {appProbeUtil.getIntervalTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
-            <span>
-              {appProbeUtil.getTimeoutTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="连续成功次数">
-            <span>{appProbeUtil.getSuccessTimes(data)}</span>
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
-// 查看运行时健康监测
-class ViewRunHealthCheck extends PureComponent {
-  render() {
-    const { title, onCancel } = this.props;
-    const data = this.props.data || {};
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 8,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    return (
-      <Modal
-        title={title}
-        visible
-        onCancel={onCancel}
-        footer={[<Button onClick={onCancel}> 关闭 </Button>]}
-      >
-        <Form>
-          <FormItem {...formItemLayout} label="监测端口">
-            <span>{appProbeUtil.getPort(data)}</span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="探针使用协议">
-            <span>{appProbeUtil.getProtocol(data)}</span>
-          </FormItem>
-          {data.scheme === "http" ? (
-            <Fragment>
-              <FormItem {...formItemLayout} label="http请求头">
-                <span>{appProbeUtil.getHeaders(data)}</span>
-              </FormItem>
-              <FormItem {...formItemLayout} label="路径">
-                <span>{appProbeUtil.getPath(data)}</span>
-              </FormItem>
-            </Fragment>
-          ) : null}
-          <FormItem {...formItemLayout} label="初始化等候时间">
-            <span>
-              {appProbeUtil.getInitWaitTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测监测时间">
-            <span>
-              {appProbeUtil.getIntervalTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
-            <span>
-              {appProbeUtil.getTimeoutTime(data)}
-              <span
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                秒
-              </span>
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="连续错误次数">
-            <span>{appProbeUtil.getFailTimes(data)}</span>
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
-// 设置、编辑健康监测
-@Form.create()
-class EditHealthCheck extends PureComponent {
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields(
-      {
-        force: true,
-      },
-      (err, vals) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(vals);
-        }
-      },
-    );
-  };
-  checkPath = (value, callback) => {
-    const visitType = this.props.form.getFieldValue("scheme");
-    if (visitType == "tcp") {
-      callback();
-      return;
-    }
-
-    if (visitType != "tcp" && value) {
-      callback();
-      return;
-    }
-    callback("请填写路径!");
-  };
-  render() {
-    const {
-      title, onCancel, ports,
-    } = this.props;
-    const data = this.props.data || {};
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 6,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const scheme = getFieldValue("scheme") || "tcp";
-    return (
-      <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
-        <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="检测端口">
-            {getFieldDecorator("port", {
-              initialValue:
-                appProbeUtil.getPort(data) || (ports.length ? ports[0].container_port : ""),
-            })(<Select>
-              {ports.map(port => <Option value={port.container_port}>{port.container_port}</Option>)}
-            </Select>)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="探针协议">
-            {getFieldDecorator("scheme", {
-              initialValue: data.scheme || "tcp",
-            })(<RadioGroup
-              options={[
-                  {
-                    label: "tcp",
-                    value: "tcp",
-                  },
-                  {
-                    label: "http",
-                    value: "http",
-                  },
-                ]}
-            />)}
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="http请求头"
-            style={{
-              display: scheme === "tcp" ? "none" : "",
-            }}
-          >
-            {getFieldDecorator("http_header", {
-              initialValue: data.http_header || "",
-            })(<KVinput />)}
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="路径"
-            style={{
-              display: scheme === "tcp" ? "none" : "",
-            }}
-          >
-            {getFieldDecorator("path", {
-              initialValue: data.path || "",
-              rules: [
-                {
-                  validator: this.checkPath,
-                },
-              ],
-            })(<Input placeholder="响应码2xx、3xx为正常" />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="初始化等候时间">
-            {getFieldDecorator("initial_delay_second", {
-              initialValue: data.initial_delay_second || "2",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写初始化等候时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测间隔时间">
-            {getFieldDecorator("period_second", {
-              initialValue: data.period_second || "3",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写检测间隔时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
-            {getFieldDecorator("timeout_second", {
-              initialValue: data.timeout_second || "20",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写检测超时时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="连续成功次数">
-            {getFieldDecorator("success_threshold", {
-              initialValue: data.success_threshold || "1",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写连续成功次数",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
-// 设置、编辑运行时健康监测
-@Form.create()
-class EditRunHealthCheck extends PureComponent {
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields(
-      {
-        force: true,
-      },
-      (err, vals) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(vals);
-        }
-      },
-    );
-  };
-  checkPath = (value, callback) => {
-    const visitType = this.props.form.getFieldValue("scheme");
-    if (visitType == "tcp") {
-      callback();
-      return;
-    }
-
-    if (visitType != "tcp" && value) {
-      callback();
-      return;
-    }
-
-    callback("请填写路径!");
-  };
-  render() {
-    const {
-      title, onCancel, ports,
-    } = this.props;
-    const data = this.props.data || {};
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 6,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const scheme = getFieldValue("scheme") || "tcp";
-    return (
-      <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
-        <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="检测端口">
-            {getFieldDecorator("port", {
-              initialValue:
-                appProbeUtil.getPort(data) || (ports.length ? ports[0].container_port : ""),
-            })(<Select>
-              {ports.map(port => <Option value={port.container_port}>{port.container_port}</Option>)}
-               </Select>)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="探针协议">
-            {getFieldDecorator("scheme", {
-              initialValue: data.scheme || "tcp",
-            })(<RadioGroup
-              options={[
-                  {
-                    label: "tcp",
-                    value: "tcp",
-                  },
-                  {
-                    label: "http",
-                    value: "http",
-                  },
-                ]}
-            />)}
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="http请求头"
-            style={{
-              display: scheme === "tcp" ? "none" : "",
-            }}
-          >
-            {getFieldDecorator("http_header", {
-              initialValue: data.http_header || "",
-            })(<KVinput />)}
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="路径"
-            style={{
-              display: scheme === "tcp" ? "none" : "",
-            }}
-          >
-            {getFieldDecorator("path", {
-              initialValue: data.path || "",
-              rules: [
-                {
-                  validator: this.checkPath,
-                },
-              ],
-            })(<Input placeholder="响应码2xx、3xx为正常" />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="初始化等候时间">
-            {getFieldDecorator("initial_delay_second", {
-              initialValue: data.initial_delay_second || "20",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写初始化等候时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测间隔时间">
-            {getFieldDecorator("period_second", {
-              initialValue: data.period_second || "3",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写检测间隔时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="检测超时时间">
-            {getFieldDecorator("timeout_second", {
-              initialValue: data.timeout_second || "20",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写检测超时时间",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-            <span
-              style={{
-                marginLeft: 8,
-              }}
-            >
-              秒
-            </span>
-          </FormItem>
-          <FormItem {...formItemLayout} label="连续错误次数">
-            {getFieldDecorator("failure_threshold", {
-              initialValue: data.failure_threshold || "3",
-              rules: [
-                {
-                  required: true,
-                  message: "请填写连续错误次数",
-                },
-              ],
-            })(<Input
-              type="number"
-              style={{
-                  width: "80%",
-                }}
-            />)}
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
-// 添加、编辑变量
-@Form.create()
-class AddVarModal extends PureComponent {
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onSubmit && this.props.onSubmit(values);
-        notification.success({ message: "操作成功，需要重启才能生效" });
-        this.props.isShowRestartTips(true);
-      }
-    });
-  };
-  handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
-  };
-  render() {
-    const { getFieldDecorator } = this.props.form;
-    const data = this.props.data || {};
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 6,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    return (
-      <Modal title="添加变量" onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
-        <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="变量名">
-            {getFieldDecorator("attr_name", {
-              initialValue: data.attr_name || "",
-              rules: [
-                {
-                  required: true,
-                  message: "请输入变量名称",
-                },
-                {
-                  pattern: /^[A-Za-z][A-Z0-9a-z_]*$/,
-                  message: "格式不正确， /^[A-Za-z][A-Z0-9a-z_]*$/",
-                },
-              ],
-            })(<Input
-              disabled={!!data.attr_name}
-              placeholder="请输入变量名称 格式/^[A-Za-z][A-Z0-9a-z_]*$/"
-            />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="变量值">
-            {getFieldDecorator("attr_value", {
-              initialValue: data.attr_value || "",
-              rules: [
-                {
-                  required: true,
-                  message: "请输入变量值",
-                },
-              ],
-            })(<Input placeholder="请输入变量值" />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="说明">
-            {getFieldDecorator("name", {
-              initialValue: data.name || "",
-              rules: [
-                {
-                  required: true,
-                  message: "请输入变量说明",
-                },
-              ],
-            })(<Input placeholder="请输入变量说明" />)}
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
-// 切换分支组件
-@Form.create()
-class ChangeBranch extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      branch: this.props.branch || [],
-      curr: "",
-    };
-  }
-  componentDidMount() {
-    this.loadBranch();
-  }
-  loadBranch() {
-    getCodeBranch({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
-    }).then((data) => {
-      if (data) {
-        this.setState({ branch: data.list, curr: data.bean.current_version });
-      }
-    });
-  }
-  handleChange = (val) => {
-    this.setState({ curr: val });
-  };
-  handleCustomChange = (e) => {
-    this.setState({ curr: e.target.value });
-  };
-  handleSubmit = () => {
-    const form = this.props.form;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      setCodeBranch({
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        branch: fieldsValue.branch,
-      }).then((data) => {
-        if (data) {
-          notification.success({ message: "操作成功，重新部署后生效" });
-          this.props.isShowDeployTips(true);
-        }
-      });
-    });
-  };
-  render() {
-    const branch = this.state.branch;
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 3,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 16,
-        },
-      },
-    };
-    const isCustomCode = this.props.isCreateFromCustomCode;
-    const { getFieldDecorator } = this.props.form;
-
-    if (!isCustomCode) {
-      return (
-        <FormItem {...formItemLayout} label="代码分支">
-          {getFieldDecorator("branch", {
-            initialValue: this.state.curr || "",
-            rules: [
-              {
-                required: true,
-                message: "请选择分支",
-              },
-            ],
-          })(<Select
-            style={{
-                width: 200,
-              }}
-          >
-            {branch.map(item => <Option value={item}>{item}</Option>)}
-             </Select>)}
-
-          <Button
-            onClick={this.handleSubmit}
-            style={{
-              marginLeft: 10,
-            }}
-            type="primary"
-          >
-            确定
-          </Button>
-        </FormItem>
-      );
-    }
-
-    return (
-      <FormItem {...formItemLayout} label="代码分支">
-        {getFieldDecorator("branch", {
-          initialValue: this.state.curr || "",
-          rules: [
-            {
-              required: true,
-              message: "请输入分支",
-            },
-          ],
-        })(<Input
-          type="text"
-          style={{
-              width: 200,
-            }}
-        />)}
-        <Button
-          onClick={this.handleSubmit}
-          style={{
-            marginLeft: 10,
-          }}
-          type="primary"
-        >
-          确定
-        </Button>
-      </FormItem>
-    );
-  }
-}
 
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -865,6 +54,8 @@ export default class Index extends PureComponent {
       toDeleteMember: null,
       memberslist: null,
       members: null,
+      buildSource: null,
+      changeBuildSource: false,
     };
   }
   componentDidMount() {
@@ -878,6 +69,7 @@ export default class Index extends PureComponent {
     this.fetchTags();
     this.loadMembers();
     this.loadpermsMembers();
+    this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
@@ -888,11 +80,9 @@ export default class Index extends PureComponent {
     dispatch({ type: "appControl/clearRunningProbe" });
     dispatch({ type: "appControl/clearMembers" });
   }
-  // 是否可以浏览当前界面
-  canView() {
-    return true;
-    // return appUtil.canManageAppSetting(this.props.appDetail);
-  }
+  onDeleteVar = (data) => {
+    this.setState({ deleteVar: data });
+  };
   fetchBaseInfo = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -982,6 +172,20 @@ export default class Index extends PureComponent {
       },
     });
   };
+  loadBuildSourceInfo = () => {
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    dispatch({
+      type: "appControl/getAppBuidSource",
+      payload: {
+        team_name,
+        service_alias: this.props.appAlias,
+      },
+      callback: (data) => {
+        this.setState({ buildSource: data.bean });
+      },
+    });
+  };
 
   showAddMember = () => {
     this.setState({ showAddMember: true });
@@ -990,7 +194,6 @@ export default class Index extends PureComponent {
     this.setState({ showAddMember: false });
   };
   handleAddMember = (values) => {
-    console.log(values);
     this.props.dispatch({
       type: "appControl/setMemberAction",
       payload: {
@@ -1027,9 +230,11 @@ export default class Index extends PureComponent {
       },
     });
   };
-  onDeleteVar = (data) => {
-    this.setState({ deleteVar: data });
-  };
+  // 是否可以浏览当前界面
+  canView() {
+    return true;
+    // return appUtil.canManageAppSetting(this.props.appDetail);
+  }
   cancelDeleteVar = () => {
     this.setState({ deleteVar: null });
   };
@@ -1198,7 +403,6 @@ export default class Index extends PureComponent {
     this.setState({ addTag: false });
   };
   handleAddTag = (tags) => {
-    console.log(tags);
     this.props.dispatch({
       type: "appControl/addTag",
       payload: {
@@ -1215,6 +419,10 @@ export default class Index extends PureComponent {
   };
   onEditAction = (member) => {
     this.setState({ toEditAction: member });
+  };
+  onChangeBuildSource = () => {
+    this.hideBuildSource();
+    this.loadBuildSourceInfo();
   };
   hideEditAction = () => {
     this.setState({ toEditAction: null });
@@ -1257,6 +465,12 @@ export default class Index extends PureComponent {
         this.hideDelMember();
       },
     });
+  };
+  changeBuildSource = () => {
+    this.setState({ changeBuildSource: true });
+  };
+  hideBuildSource = () => {
+    this.setState({ changeBuildSource: false });
   };
   render() {
     if (!this.canView()) return <NoPermTip />;
@@ -1301,32 +515,6 @@ export default class Index extends PureComponent {
           title="基础信息"
         >
           <Form>
-            {appUtil.isImageApp(appDetail) ? (
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="镜像名称"
-              >
-                {appDetail.service.image}
-              </FormItem>
-            ) : (
-              ""
-            )}
-            {appDetail.service.version ? (
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="版本"
-              >
-                {appDetail.service.version}
-              </FormItem>
-            ) : (
-              ""
-            )}
             <FormItem
               style={{
                 marginBottom: 0,
@@ -1336,17 +524,15 @@ export default class Index extends PureComponent {
             >
               {baseInfo.create_time || ""}
             </FormItem>
-            <Fragment>
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="创建方式"
-              >
-                {appUtil.getCreateTypeCN(appDetail)}
-              </FormItem>
-            </Fragment>
+            <FormItem
+              style={{
+                marginBottom: 0,
+              }}
+              {...formItemLayout}
+              label="应用部署类型"
+            >
+              {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
+            </FormItem>
             {tags ? (
               <FormItem
                 style={{
@@ -1359,13 +545,13 @@ export default class Index extends PureComponent {
                   <Tag
                     closable
                     onClose={(e) => {
-                        e.preventDefault();
-                        this.handleRemoveTag(tag);
-                      }}
+                      e.preventDefault();
+                      this.handleRemoveTag(tag);
+                    }}
                   >
                     {tag.label_alias}
                   </Tag>
-                  ))}
+                ))}
                 <Button onClick={this.onAddTag} size="small">
                   添加特性
                 </Button>
@@ -1373,34 +559,134 @@ export default class Index extends PureComponent {
             ) : (
               ""
             )}
-
-            {baseInfo.git_url ? (
+          </Form>
+        </Card>
+        {this.state.buildSource && (
+          <Card
+            title="构建源"
+            style={{
+              marginBottom: 24,
+            }}
+            extra={
+              !appUtil.isMarketAppByBuildSource(this.state.buildSource) && (
+                <a onClick={this.changeBuildSource} href="javascript:;">
+                  更改
+                </a>
+              )
+            }
+          >
+            <Fragment>
+              <FormItem
+                style={{
+                  marginBottom: 0,
+                }}
+                {...formItemLayout}
+                label="创建方式"
+              >
+                {appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}
+              </FormItem>
+            </Fragment>
+            {appUtil.isImageAppByBuildSource(this.state.buildSource) ? (
               <Fragment>
                 <FormItem
                   style={{
                     marginBottom: 0,
                   }}
                   {...formItemLayout}
-                  label="Git仓库"
+                  label="镜像名称"
                 >
-                  <a href={baseInfo.git_url} target="_blank">
-                    {baseInfo.git_url}
+                  {this.state.buildSource.image}
+                </FormItem>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="版本"
+                >
+                  {this.state.buildSource.version}
+                </FormItem>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="启动命令"
+                >
+                  {this.state.buildSource.cmd}
+                </FormItem>
+              </Fragment>
+            ) : (
+              ""
+            )}
+            {appUtil.isMarketAppByBuildSource(this.state.buildSource) ? (
+              <Fragment>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="镜像名称"
+                >
+                  {this.state.buildSource.image}
+                </FormItem>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="版本"
+                >
+                  {this.state.buildSource.version}
+                </FormItem>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="启动命令"
+                >
+                  {this.state.buildSource.docker_cmd}
+                </FormItem>
+              </Fragment>
+            ) : (
+              ""
+            )}
+            {appUtil.isCodeAppByBuildSource(this.state.buildSource) ? (
+              <Fragment>
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="仓库地址"
+                >
+                  <a href={this.state.buildSource.git_url} target="_blank">
+                    {this.state.buildSource.git_url}
                   </a>
                 </FormItem>
-                <ChangeBranch
+                <FormItem
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  {...formItemLayout}
+                  label="代码版本"
+                >
+                  {this.state.buildSource.code_version}
+                </FormItem>
+              </Fragment>
+            ) : (
+              ""
+            )}
+            {/* <ChangeBranch
                   isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
                   appAlias={this.props.appAlias}
                   isShowDeployTips={(onoffshow) => {
                     this.props.onshowDeployTips(onoffshow);
                   }}
-                />
-              </Fragment>
-            ) : (
-              ""
-            )}
-          </Form>
-        </Card>
-
+                /> */}
+          </Card>
+        )}
         <AutoDeploy app={appDetail} />
 
         <Card
@@ -1433,25 +719,25 @@ export default class Index extends PureComponent {
                       <a
                         href="javascript:;"
                         onClick={() => {
-                            this.onDeleteVar(data);
-                          }}
+                          this.onDeleteVar(data);
+                        }}
                       >
-                          删除
+                        删除
                       </a>
                       {data.is_change ? (
                         <a
                           href="javascript:;"
                           onClick={() => {
-                              this.onEditVar(data);
-                            }}
+                            this.onEditVar(data);
+                          }}
                         >
-                            修改
+                          修改
                         </a>
-                        ) : (
-                          ""
-                        )}
+                      ) : (
+                        ""
+                      )}
                     </Fragment>
-                    ),
+                  ),
                 },
               ]}
               pagination={false}
@@ -1498,18 +784,18 @@ export default class Index extends PureComponent {
                       if (appProbeUtil.isStartProbeStart(data)) {
                         return "已启用";
                       }
-                        return "已禁用";
+                      return "已禁用";
                     }
-                      return "未设置";
+                    return "未设置";
                   }
                   if (index === 1) {
                     if (appProbeUtil.isRunningProbeUsed(data)) {
                       if (appProbeUtil.isRunningProbeStart(data)) {
                         return "已启用";
                       }
-                        return "已禁用";
+                      return "已禁用";
                     }
-                      return "未设置";
+                    return "未设置";
                   }
                 },
               },
@@ -1562,20 +848,20 @@ export default class Index extends PureComponent {
                         </Fragment>
                       );
                     }
-                      return (
-                        <a
-                          href="javascript:;"
-                          onClick={() => {
-                            this.setState({
-                              editStartHealth: {
-                                data,
-                              },
-                            });
-                          }}
-                        >
-                          设置
-                        </a>
-                      );
+                    return (
+                      <a
+                        href="javascript:;"
+                        onClick={() => {
+                          this.setState({
+                            editStartHealth: {
+                              data,
+                            },
+                          });
+                        }}
+                      >
+                        设置
+                      </a>
+                    );
                   }
                   if (index === 1) {
                     if (appProbeUtil.isRunningProbeUsed(data)) {
@@ -1622,16 +908,16 @@ export default class Index extends PureComponent {
                         </Fragment>
                       );
                     }
-                      return (
-                        <a
-                          href="javascript:;"
-                          onClick={() => {
-                            this.setState({ editRunHealth: data });
-                          }}
-                        >
-                          设置
-                        </a>
-                      );
+                    return (
+                      <a
+                        href="javascript:;"
+                        onClick={() => {
+                          this.setState({ editRunHealth: data });
+                        }}
+                      >
+                        设置
+                      </a>
+                    );
                   }
                 },
               },
@@ -1673,11 +959,7 @@ export default class Index extends PureComponent {
                   dataIndex: "service_perms",
                   render(val) {
                     const arr = val || [];
-                    return (
-                      <span>
-                        {arr.map(item => <Tag>{item.perm_info}</Tag>)}
-                      </span>
-                    );
+                    return <span>{arr.map(item => <Tag>{item.perm_info}</Tag>)}</span>;
                   },
                 },
                 {
@@ -1821,6 +1103,15 @@ export default class Index extends PureComponent {
             title="删除成员权限"
             desc="确定要删除此成员的应用权限吗？"
             onCancel={this.hideDelMember}
+          />
+        )}
+        {this.state.changeBuildSource && (
+          <ChangeBuildSource
+            onOk={this.onChangeBuildSource}
+            buildSource={this.state.buildSource}
+            appAlias={this.props.appAlias}
+            title="更改应用构建源"
+            onCancel={this.hideBuildSource}
           />
         )}
       </Fragment>

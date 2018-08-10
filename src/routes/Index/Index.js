@@ -12,53 +12,19 @@ import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
+import { link } from "fs";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const links = [
-  {
-    title: "自定义源码",
-    icontype: "code",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
-  },
-  {
-    title: "Gitlab仓库",
-    icontype: "gitlab",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
-  },
-  {
-    title: "Github项目",
-    icontype: "github",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
-  },
-  {
-    title: "指定镜像",
-    icontype: "laptop",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`,
-  },
-  {
-    title: "DockerRun命令",
-    icontype: "laptop",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`,
-  },
-  {
-    title: "Dockercompose",
-    icontype: "laptop",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`,
-  },
-  {
-    title: "从应用市场安装",
-    icontype: "appstore-o",
-    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`,
-  },
-];
-
-@connect(({ user, index, loading }) => ({
+@connect(({
+  user, index, loading, global,
+}) => ({
   currUser: user.currentUser,
   index,
   events: index.events,
   pagination: index.pagination,
+  rainbondInfo: global.rainbondInfo,
   projectLoading: loading.effects["project/fetchNotice"],
   activitiesLoading: loading.effects["activities/fetchList"],
   loading,
@@ -86,6 +52,54 @@ export default class Index extends PureComponent {
       this.getCompanyInfo();
       this.getRegionResource();
     }
+  }
+  getLinks() {
+    const codelinks = [
+      {
+        title: "自定义源码",
+        icontype: "code",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
+      }
+    ];
+    const imagelinks = [  
+      {
+        title: "指定镜像",
+        icontype: "laptop",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`,
+      },
+      {
+        title: "DockerRun命令",
+        icontype: "laptop",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`,
+      },
+      {
+        title: "Dockercompose",
+        icontype: "laptop",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`,
+      },
+      {
+        title: "从应用市场安装",
+        icontype: "appstore-o",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`,
+      },
+    ];
+    const rainbondInfo = this.props.rainbondInfo
+    if (rainbondInfo.github_config.enable) {
+      codelinks.push({
+        title: "Github项目",
+        icontype: "github",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
+      });
+    }
+    if (rainbondInfo.gitlab_config.enable) {
+      codelinks.push({
+        title: "Gitlab仓库",
+        icontype: "gitlab",
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
+      });
+    }
+    codelinks.push(...imagelinks)
+    return codelinks;
   }
   isPublicRegion() {
     const region_name = globalUtil.getCurrRegionName();
@@ -321,7 +335,7 @@ export default class Index extends PureComponent {
                   {item.service_cname}
                 </Link>应用<span className={styles.datetime}>
                   {statusCNMap[item.final_status] ? `(${statusCNMap[item.final_status]})` : ""}
-                         </span>
+                </span>
               </span>
             }
             description={
@@ -381,10 +395,8 @@ export default class Index extends PureComponent {
                 title={`总计：${this.state.memory.limit || 0} 过期时间：${this.state.memory
                   .expire_date || "-"}`}
               >
-                <p>{`${sourceUtil.unit(
-                  index.overviewInfo.team_service_memory_count || 0,
-                  "MB",
-                )}`}
+                <p>
+                  {`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}
                 </p>
               </Tooltip>
             </div>
@@ -455,7 +467,7 @@ export default class Index extends PureComponent {
                 padding: 0,
               }}
             >
-              <EditableLinkGroup onAdd={() => {}} links={links} linkElement={Link} />
+              <EditableLinkGroup onAdd={() => {}} links={this.getLinks()} linkElement={Link} />
             </Card>
 
             <Card

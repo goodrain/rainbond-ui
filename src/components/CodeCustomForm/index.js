@@ -1,50 +1,16 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Link, Switch, Route, routerRedux } from 'dva/router';
+import React, { PureComponent, Fragment } from "react";
+import { connect } from "dva";
 import {
-  Row,
-  Col,
-  Card,
   Form,
   Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
   Select,
   Input,
-  Modal,
-} from 'antd';
-import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
-import ShowRegionKey from '../../components/ShowRegionKey';
+} from "antd";
+import AddGroup from "../../components/AddOrEditGroup";
+import globalUtil from "../../utils/global";
+import ShowRegionKey from "../../components/ShowRegionKey";
 
 const { Option } = Select;
-
-class ShowKeyModal extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-  componentDidMount() {}
-  render() {
-    const { onCancel } = this.props;
-    return (
-      <Modal
-        title="配置授权Key"
-        visible
-        onCancel={onCancel}
-        footer={[<Button onClick={onCancel}>已授权</Button>]}
-      >
-        <p>
-          <Icon type="info-circle-o" />{' '}
-          请拷贝如下Key到您的私有Git仓库进行授权，云帮平台方可访问您的私有Git仓库
-        </p>
-        <p style={{ border: '1px dotted #dcdcdc', padding: '20px' }}>sdfsdfsdfsdf</p>
-      </Modal>
-    );
-  }
-}
 
 const formItemLayout = {
   labelCol: {
@@ -69,7 +35,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      codeType: 'git',
+      codeType: "git",
       showUsernameAndPass: false,
       showKey: false,
       addGroup: false,
@@ -85,7 +51,7 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: 'groupControl/addGroup',
+      type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
@@ -94,7 +60,7 @@ export default class Index extends PureComponent {
         if (group) {
           // 获取群组
           this.props.dispatch({
-            type: 'global/fetchGroups',
+            type: "global/fetchGroups",
             payload: {
               team_name: globalUtil.getCurrTeamName(),
               region_name: globalUtil.getCurrRegionName(),
@@ -116,8 +82,11 @@ export default class Index extends PureComponent {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) {
-        console.log(err)
+        console.log(err);
         return;
+      }
+      if (fieldsValue.version_type == "tag") {
+        fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
@@ -126,61 +95,67 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups } = this.props;
     const { showUsernameAndPass, showKey } = this.state;
-    const gitUrl = getFieldValue('git_url');
-    const serverType = getFieldValue('server_type');
-    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || '');
-    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi
+    const gitUrl = getFieldValue("git_url");
+    const serverType = getFieldValue("server_type");
+    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
+    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
     if (serverType == "svn") {
-       isHttp = true
-       urlCheck = /^(svn:\/\/).+$/gi
+      isHttp = true;
+      urlCheck = /^(svn:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
     const data = this.props.data || {};
     const showSubmitBtn = this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
     const showCreateGroup =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
-    const prefixSelector = getFieldDecorator('server_type', {
+    const prefixSelector = getFieldDecorator("server_type", {
       initialValue: data.server_type || this.state.codeType,
     })(<Select style={{ width: 100 }}>
       <Option value="git">Git</Option>
       <Option value="svn">Svn</Option>
-    </Select>)
+       </Select>);
+    const versionSelector = getFieldDecorator("version_type", {
+      initialValue: this.state.version_type || "branch",
+    })(<Select style={{ width: 100 }}>
+      <Option value="branch">分支</Option>
+      <Option value="tag">Tag</Option>
+       </Select>);
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
-            {getFieldDecorator('service_cname', {
-              initialValue: data.service_cname || '',
+            {getFieldDecorator("service_cname", {
+              initialValue: data.service_cname || "",
               rules: [
-                { required: true, message: '要创建的应用还没有名字' },
-                { min: 4, message: '应用名称必须大于4位' },
+                { required: true, message: "要创建的应用还没有名字" },
+                { min: 4, message: "应用名称必须大于4位" },
               ],
             })(<Input placeholder="请为创建的应用起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="应用组">
-            {getFieldDecorator('group_id', {
+            {getFieldDecorator("group_id", {
               initialValue: data.group_id || -1,
-              rules: [{ required: true, message: '请选择' }],
+              rules: [{ required: true, message: "请选择" }],
             })(<Select
               placeholder="请选择要所属应用组"
-              style={{ display: 'inline-block', width: 306, marginRight: 15 }}
+              style={{ display: "inline-block", width: 306, marginRight: 15 }}
             >
               {(groups || []).map(group => <Option value={group.group_id}>{group.group_name}</Option>)}
-            </Select>)}
+               </Select>)}
             {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
-              {getFieldDecorator('git_url', {
-                initialValue: data.git_url || '',
+            {getFieldDecorator("git_url", {
+                initialValue: data.git_url || "",
                 rules: [
-                  { required: true, message: '请输入仓库地址' },
-                  { pattern: urlCheck, message: '仓库地址不合法' }
+                  { required: true, message: "请输入仓库地址" },
+                  { pattern: urlCheck, message: "仓库地址不合法" },
                 ],
               })(<Input addonBefore={prefixSelector} placeholder="请输入仓库地址" />)}
           </Form.Item>
           {gitUrl && isSSH ? (
-              <div style={{ textAlign: 'right' }}>
-                这是一个私有仓库?{' '}
+            <div style={{ textAlign: "right" }}>
+                这是一个私有仓库?{" "}
                 <a
                   onClick={() => {
                     this.setState({ showKey: true });
@@ -191,11 +166,11 @@ export default class Index extends PureComponent {
                 </a>
               </div>
             ) : (
-              ''
+              ""
             )}
-            {gitUrl && isHttp ? (
-              <div style={{ textAlign: 'right' }}>
-                这是一个私有仓库?{' '}
+          {gitUrl && isHttp ? (
+              <div style={{ textAlign: "right" }}>
+                这是一个私有仓库?{" "}
                 <a
                   onClick={() => {
                     this.setState({ showUsernameAndPass: true });
@@ -206,33 +181,35 @@ export default class Index extends PureComponent {
                 </a>
               </div>
             ) : (
-              ''
+              ""
             )}
           <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
+            style={{ display: showUsernameAndPass && isHttp ? "" : "none" }}
             {...formItemLayout}
             label="仓库用户名"
           >
-            {getFieldDecorator('username_1', {
-              initialValue: data.username || '',
-              rules: [{ required: false, message: '请输入仓库用户名' }],
+            {getFieldDecorator("username_1", {
+              initialValue: data.username || "",
+              rules: [{ required: false, message: "请输入仓库用户名" }],
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? '' : 'none' }}
+            style={{ display: showUsernameAndPass && isHttp ? "" : "none" }}
             {...formItemLayout}
             label="仓库密码"
           >
-            {getFieldDecorator('password_1', {
-              initialValue: data.password || '',
-              rules: [{ required: false, message: '请输入仓库密码' }],
+            {getFieldDecorator("password_1", {
+              initialValue: data.password || "",
+              rules: [{ required: false, message: "请输入仓库密码" }],
             })(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="代码分支">
-            {getFieldDecorator('code_version', {
-              initialValue: data.code_version || 'master',
-              rules: [{ required: true, message: '请输入代码分支' }],
-            })(<Input placeholder="请输入代码分支" />)}
+          <Form.Item {...formItemLayout} label="代码版本">
+            {getFieldDecorator("code_version", {
+                initialValue: data.code_version || "master",
+                rules: [
+                  { required: true, message: "请输入代码版本" },
+                ],
+              })(<Input addonBefore={versionSelector} placeholder="请输入代码版本" />)}
           </Form.Item>
 
           {showSubmitBtn ? (

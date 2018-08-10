@@ -1,5 +1,5 @@
-import request from '../utils/request';
-import config from '../config/config';
+import request from "../utils/request";
+import config from "../config/config";
 
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
@@ -7,7 +7,7 @@ export function delAppVersion(body = { team_name, service_alias, version_id }) {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.service_alias}/version/${body.version_id}`,
     {
-      method: 'DELETE',
+      method: "DELETE",
     },
   );
 }
@@ -17,7 +17,7 @@ export function getAppVersionList(body = { team_name, service_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -27,7 +27,7 @@ export function getAppVersionList(body = { team_name, service_alias }) {
  */
 export function getPhpConfig() {
   return request(`${config.baseUrl}/console/php`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -39,7 +39,7 @@ export function getAutoDeployStatus(body = { team_name, app_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/get-url`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -51,9 +51,9 @@ export function cancelAutoDeploy(body = { team_name, app_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
     {
-      method: 'post',
+      method: "post",
       data: {
-        action: 'close',
+        action: "close",
       },
     },
   );
@@ -66,9 +66,9 @@ export function openAutoDeploy(body = { team_name, app_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
     {
-      method: 'post',
+      method: "post",
       data: {
-        action: 'open',
+        action: "open",
       },
     },
   );
@@ -87,11 +87,11 @@ export function getActionLog(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/events`,
     {
-      method: 'get',
+      method: "get",
       params: {
         page: body.page,
         page_size: body.page_size,
-        start_time: body.start_time || '',
+        start_time: body.start_time || "",
       },
     },
   );
@@ -112,9 +112,9 @@ export function getActionLogDetail(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/event_log`,
     {
-      method: 'get',
+      method: "get",
       params: {
-        level: body.level || 'info',
+        level: body.level || "info",
         event_id: body.event_id,
       },
     },
@@ -130,7 +130,7 @@ export function deploy(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
-    { method: 'post' },
+    { method: "post" },
   );
 }
 /*
@@ -141,9 +141,9 @@ export function batchDeploy(body = {
   serviceIds,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
-    method: 'post',
+    method: "post",
     data: {
-      action: 'deploy',
+      action: "deploy",
       service_ids: body.serviceIds,
     },
   });
@@ -158,7 +158,7 @@ export function restart(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/restart`,
-    { method: 'post' },
+    { method: "post" },
   );
 }
 
@@ -170,9 +170,9 @@ export function batchReStart(body = {
   serviceIds,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
-    method: 'post',
+    method: "post",
     data: {
-      action: 'restart',
+      action: "restart",
       service_ids: body.serviceIds,
     },
   });
@@ -186,7 +186,7 @@ export function start(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/start`, {
-    method: 'post',
+    method: "post",
   });
 }
 /*
@@ -197,9 +197,9 @@ export function batchStart(body = {
   serviceIds,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
-    method: 'post',
+    method: "post",
     data: {
-      action: 'start',
+      action: "start",
       service_ids: body.serviceIds,
     },
   });
@@ -213,7 +213,7 @@ export function stop(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`, {
-    method: 'post',
+    method: "post",
   });
 }
 
@@ -225,9 +225,9 @@ export function batchStop(body = {
   serviceIds,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
-    method: 'post',
+    method: "post",
     data: {
-      action: 'stop',
+      action: "stop",
       service_ids: body.serviceIds,
     },
   });
@@ -244,7 +244,7 @@ export function rollback(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/rollback`,
     {
-      method: 'post',
+      method: "post",
       data: {
         deploy_version: body.deploy_version,
       },
@@ -265,7 +265,7 @@ export async function getDetail(
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
     {
-      method: 'get',
+      method: "get",
       handleError,
     },
   );
@@ -281,7 +281,7 @@ export function getStatus(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/status`,
     {
-      method: 'get',
+      method: "get",
       showLoading: false,
     },
   );
@@ -296,9 +296,9 @@ export function getMonitorLog(body = {
   lines,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log`, {
-    method: 'get',
+    method: "get",
     params: {
-      action: 'service',
+      action: "service",
       lines: body.lines || 50,
     },
   });
@@ -313,7 +313,7 @@ export function getMonitorWebSocketUrl(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log_instance`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -326,7 +326,7 @@ export function getHistoryLog(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/history_log`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -342,7 +342,7 @@ export function horizontal(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/horizontal`,
     {
-      method: 'post',
+      method: "post",
       data: {
         new_node: body.new_node,
       },
@@ -362,7 +362,7 @@ export function vertical(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vertical`,
     {
-      method: 'post',
+      method: "post",
       data: {
         new_memory: body.new_memory,
       },
@@ -379,7 +379,7 @@ export function getRelationedApp(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -397,7 +397,7 @@ export function getUnRelationedApp(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/un_dependency`,
     {
-      method: 'get',
+      method: "get",
       params: {
         page: body.page || 1,
         page_size: body.page_size || 8,
@@ -419,7 +419,7 @@ export function addRelationedApp(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
     {
-      method: 'post',
+      method: "post",
       data: {
         dep_service_id: body.dep_service_id,
       },
@@ -438,9 +438,9 @@ export function batchAddRelationedApp(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
     {
-      method: 'patch',
+      method: "patch",
       data: {
-        dep_service_ids: body.dep_service_ids.join(','),
+        dep_service_ids: body.dep_service_ids.join(","),
       },
     },
   );
@@ -457,7 +457,7 @@ export function removeRelationedApp(body = {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/dependency/${body.dep_service_id}`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -470,10 +470,10 @@ export function getMnt(body = {
   app_alias,
   page,
   pageSize,
-  type: 'mnt',
+  type: "mnt",
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`, {
-    method: 'get',
+    method: "get",
     params: {
       page: body.page,
       page_size: body.page_size,
@@ -492,7 +492,7 @@ export function addMnt(body = {
   body,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`, {
-    method: 'post',
+    method: "post",
     data: {
       body: JSON.stringify(body.body || []),
     },
@@ -510,7 +510,7 @@ export async function deleteMnt(body = {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/mnt/${body.dep_vol_id}`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -522,7 +522,7 @@ export async function getPorts(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -539,9 +539,9 @@ export async function changePortProtocal(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'change_protocol',
+        action: "change_protocol",
         protocol: body.protocol,
       },
     },
@@ -559,9 +559,9 @@ export async function openPortOuter(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'open_outer',
+        action: "open_outer",
       },
     },
   );
@@ -578,9 +578,9 @@ export async function closePortOuter(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'close_outer',
+        action: "close_outer",
       },
     },
   );
@@ -597,9 +597,9 @@ export async function openPortInner(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'open_inner',
+        action: "open_inner",
       },
     },
   );
@@ -616,9 +616,9 @@ export async function closePortInner(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'close_inner',
+        action: "close_inner",
       },
     },
   );
@@ -636,9 +636,9 @@ export async function editPortAlias(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
-        action: 'change_port_alias',
+        action: "change_port_alias",
         port_alias: body.port_alias,
       },
     },
@@ -655,7 +655,7 @@ export async function deletePort(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -673,7 +673,7 @@ export async function bindDomain(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
     {
-      method: 'post',
+      method: "post",
       data: {
         domain_name: body.domain,
         container_port: body.port,
@@ -696,7 +696,7 @@ export async function unbindDomain(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
     {
-      method: 'delete',
+      method: "delete",
       data: {
         domain_name: body.domain,
         container_port: body.port,
@@ -715,7 +715,7 @@ export async function addPort(body = {
   protocol,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`, {
-    method: 'post',
+    method: "post",
     data: {
       port: body.port,
       protocol: body.protocol,
@@ -732,9 +732,9 @@ export async function getInnerEnvs(body = {
   env_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
-    method: 'get',
+    method: "get",
     params: {
-      env_type: 'inner',
+      env_type: "inner",
     },
   });
 }
@@ -751,12 +751,12 @@ export async function addInnerEnvs(body = {
   attr_value,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
-    method: 'post',
+    method: "post",
     data: {
       name: body.name,
       attr_name: body.attr_name,
       attr_value: body.attr_value,
-      scope: 'inner',
+      scope: "inner",
       is_change: true,
     },
   });
@@ -772,9 +772,9 @@ export async function getOuterEnvs(body = {
   env_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
-    method: 'get',
+    method: "get",
     params: {
-      env_type: 'outer',
+      env_type: "outer",
     },
   });
 }
@@ -791,12 +791,12 @@ export async function addOuterEnvs(body = {
   attr_value,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
-    method: 'post',
+    method: "post",
     data: {
       name: body.name,
       attr_name: body.attr_name,
       attr_value: body.attr_value,
-      scope: 'outer',
+      scope: "outer",
     },
   });
 }
@@ -816,7 +816,7 @@ export async function editEvns(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.attr_name}`,
     {
-      method: 'put',
+      method: "put",
       data: {
         name: body.name,
         attr_value: body.attr_value,
@@ -836,7 +836,7 @@ export async function deleteEvns(body = {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.attr_name}`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -848,9 +848,9 @@ export async function getRunningProbe(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'get',
+    method: "get",
     params: {
-      mode: 'liveness',
+      mode: "liveness",
     },
   });
 }
@@ -863,9 +863,9 @@ export async function getStartProbe(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'get',
+    method: "get",
     params: {
-      mode: 'readiness',
+      mode: "readiness",
     },
   });
 }
@@ -885,9 +885,9 @@ export async function addStartProbe(body = {
   success_threshold,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'post',
+    method: "post",
     data: {
-      mode: 'readiness',
+      mode: "readiness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -915,9 +915,9 @@ export async function addRunningProbe(body = {
   failure_threshold,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'post',
+    method: "post",
     data: {
-      mode: 'liveness',
+      mode: "liveness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -946,9 +946,9 @@ export async function editStartProbe(body = {
   is_used,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'put',
+    method: "put",
     data: {
-      mode: 'readiness',
+      mode: "readiness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -978,9 +978,9 @@ export async function editRunningProbe(body = {
   is_used,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
-    method: 'put',
+    method: "put",
     data: {
-      mode: 'liveness',
+      mode: "liveness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -1002,7 +1002,7 @@ export async function getBaseInfo(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -1015,7 +1015,7 @@ export async function getVolumes(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -1032,7 +1032,7 @@ export async function addVolume(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
     {
-      method: 'post',
+      method: "post",
       data: {
         volume_name: body.volume_name,
         volume_type: body.volume_type,
@@ -1053,7 +1053,7 @@ export async function deleteVolume(body = {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.volume_id}`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -1068,7 +1068,7 @@ export async function getAppRequestTime(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `ceil(avg(app_requesttime{mode="avg",service_id="${body.serviceId}"}))`,
@@ -1092,7 +1092,7 @@ export async function getAppRequestTimeRange(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `ceil(avg(app_requesttime{mode="avg",service_id="${body.serviceId}"}))`,
@@ -1116,7 +1116,7 @@ export async function getAppRequest(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query:
@@ -1140,7 +1140,7 @@ export async function getAppDisk(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `app_resource_appfs{service_id="${body.serviceId}"}`,
@@ -1161,7 +1161,7 @@ export async function getAppMemory(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `app_resource_appmemory{service_id="${body.serviceId}"}`,
@@ -1185,7 +1185,7 @@ export async function getAppRequestRange(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query:
@@ -1212,7 +1212,7 @@ export async function getAppOnlineNumber(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `max(app_requestclient{service_id="${body.serviceId}"})`,
@@ -1236,7 +1236,7 @@ export async function getAppOnlineNumberRange(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
     {
-      method: 'get',
+      method: "get",
       showMessage: false,
       params: {
         query: `max(app_requestclient{service_id="${body.serviceId}"})`,
@@ -1256,7 +1256,7 @@ export function getCodeBranch(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/code/branch`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -1269,7 +1269,7 @@ export function setCodeBranch(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/code/branch`,
     {
-      method: 'put',
+      method: "put",
       data: {
         branch: body.branch,
       },
@@ -1290,7 +1290,7 @@ export async function getExtendInfo(
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/extend_method`,
     {
-      method: 'get',
+      method: "get",
       handleError,
     },
   );
@@ -1304,7 +1304,7 @@ export async function getPods(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -1318,7 +1318,7 @@ export async function managePods(body = {
   manage_name,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`, {
-    method: 'post',
+    method: "post",
     data: {
       c_id: body.pod_name,
       h_id: body.manage_name,
@@ -1334,7 +1334,7 @@ export async function getVisitInfo(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/visit`, {
-    method: 'get',
+    method: "get",
     showLoading: false,
   });
 }
@@ -1348,7 +1348,7 @@ export async function getTags(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -1363,7 +1363,7 @@ export async function deleteTag(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
     {
-      method: 'delete',
+      method: "delete",
       data: {
         label_id: body.label_id,
       },
@@ -1382,7 +1382,7 @@ export async function addTags(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
     {
-      method: 'post',
+      method: "post",
       data: body.tags,
     },
   );
@@ -1397,7 +1397,7 @@ export async function editName(body = {
   service_cname,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`, {
-    method: 'put',
+    method: "put",
     data: {
       service_cname: body.service_cname,
     },
@@ -1413,7 +1413,7 @@ export async function moveName(body = {
   service_cname,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`, {
-    method: 'put',
+    method: "put",
     data: {
       service_cname: body.service_cname,
     },
@@ -1428,7 +1428,7 @@ export async function getMembers(body = {
   app_alias,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`, {
-    method: 'get',
+    method: "get",
   });
 }
 
@@ -1442,9 +1442,9 @@ export async function setMemberAction(body = {
   perm_ids,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`, {
-    method: 'post',
+    method: "post",
     data: {
-      user_ids: body.user_ids.join(','),
+      user_ids: body.user_ids.join(","),
       perm_ids: body.perm_ids,
     },
   });
@@ -1459,7 +1459,7 @@ export async function deleteMember(body = {
   user_id,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`, {
-    method: 'delete',
+    method: "delete",
     data: {
       user_id: body.user_id,
     },
@@ -1476,7 +1476,7 @@ export async function editMemberAction(body = {
   perm_ids,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`, {
-    method: 'put',
+    method: "put",
     data: {
       user_id: body.user_id,
       perm_ids: body.perm_ids,
@@ -1493,7 +1493,7 @@ export async function moveGroup(body = {
   group_id,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/group`, {
-    method: 'put',
+    method: "put",
     data: {
       group_id: body.group_id,
     },
@@ -1510,7 +1510,7 @@ export async function getRuntimeInfo(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/compile_env`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -1527,7 +1527,7 @@ export async function editRuntimeInfo(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/compile_env`,
     {
-      method: 'put',
+      method: "put",
       data: {
         // 服务运行版本，如php5.5等
         service_runtimes: body.service_runtimes,
@@ -1560,7 +1560,7 @@ export async function editAppCreateInfo(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
     {
-      method: 'put',
+      method: "put",
       data: body,
     },
   );
@@ -1579,7 +1579,7 @@ export async function deleteApp(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/delete`,
     {
-      method: 'delete',
+      method: "delete",
       data: {
         is_force: true,
       },
@@ -1596,7 +1596,7 @@ export async function getAnalyzePlugins(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/analyze_plugins`,
-    { method: 'get' },
+    { method: "get" },
   );
 }
 
@@ -1611,7 +1611,7 @@ export async function getPlugins(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pluginlist`,
     {
-      method: 'get',
+      method: "get",
       params: {
         category: body.category,
       },
@@ -1632,7 +1632,7 @@ export async function installPlugin(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/install`,
     {
-      method: 'post',
+      method: "post",
       data: {
         build_version: body.build_version,
       },
@@ -1651,7 +1651,7 @@ export async function unInstallPlugin(body = {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/install`,
-    { method: 'delete' },
+    { method: "delete" },
   );
 }
 
@@ -1667,7 +1667,7 @@ export async function startPlugin(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
     {
-      method: 'put',
+      method: "put",
       data: {
         is_switch: true,
         min_memory: body.min_memory,
@@ -1688,7 +1688,7 @@ export async function updatePluginMemory(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
     {
-      method: 'put',
+      method: "put",
       data: {
         min_memory: body.min_memory,
       },
@@ -1708,7 +1708,7 @@ export async function stopPlugin(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
     {
-      method: 'put',
+      method: "put",
       data: {
         is_switch: false,
       },
@@ -1729,7 +1729,7 @@ export async function getPluginConfigs(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/configs`,
     {
-      method: 'get',
+      method: "get",
       params: {
         build_version: body.build_version,
       },
@@ -1750,7 +1750,7 @@ export async function editPluginConfigs(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/configs`,
     {
-      method: 'put',
+      method: "put",
       data: body.data,
     },
   );
@@ -1761,7 +1761,7 @@ export async function getAppResource(body = { team_name, app_alias }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/resource`,
     {
-      method: 'get',
+      method: "get",
     },
   );
 }
@@ -1776,7 +1776,7 @@ export async function getSubDomain(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/sld-domain`,
     {
-      method: 'get',
+      method: "get",
       params: {
         team_name: body.team_name,
         service_alias: body.service_alias,
@@ -1797,7 +1797,7 @@ export async function SubDomain(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/sld-domain`,
     {
-      method: 'put',
+      method: "put",
       data: {
         domain_name: body.domain_name,
         container_port: body.container_port,
@@ -1818,7 +1818,7 @@ export async function getSubPort(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.service_alias}/tcp-ports/${body.port}`,
     {
-      method: 'get',
+      method: "get",
       params: {
         team_name: body.team_name,
         service_alias: body.service_alias,
@@ -1842,7 +1842,7 @@ export async function SubPort(body = {
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.service_alias}/tcp-ports/${body.port}`,
     {
-      method: 'put',
+      method: "put",
       data: {
         lb_mapping_port: body.lb_mapping_port,
         service_id: body.service_id,
@@ -1857,15 +1857,56 @@ export async function SubPort(body = {
 export async function putAutoDeploySecret(body = {
   team_name,
   service_alias,
-  secret_key
+  secret_key,
 }) {
   return request(
     `${config.baseUrl
     }/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/updatekey`,
     {
-      method: 'put',
+      method: "put",
       data: {
         secret_key: body.secret_key,
+      },
+    },
+  );
+}
+
+/*
+  获取应用构建源信息
+*/
+export async function getAppBuidSource(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/buildsource`,
+    {
+      method: "get",
+    },
+  );
+}
+
+/*
+  修改应用构建源信息
+*/
+export async function putAppBuidSource(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/buildsource`,
+    {
+      method: "put",
+      data: {
+        service_source: body.service_source,
+        git_url: body.git_url,
+        code_version: body.code_version,
+        image: body.image,
+        cmd: body.cmd,
+        user_name: body.user_name,
+        password: body.password,
       },
     },
   );

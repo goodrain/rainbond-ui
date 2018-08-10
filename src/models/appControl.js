@@ -76,7 +76,9 @@ import {
   SubPort,
   getAppVersionList,
   delAppVersion,
-  putAutoDeploySecret
+  putAutoDeploySecret,
+  getAppBuidSource,
+  putAppBuidSource,
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -675,6 +677,19 @@ export default {
       const response = yield call(putAutoDeploySecret, payload);
       if (response) {
         callback && callback();
+      }
+    },
+    * getAppBuidSource({ payload, callback }, { call, put }) {
+      const response = yield call(getAppBuidSource, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * putAppBuidSource({ payload, callback }, { call, put }) {
+      console.log(payload);
+      const response = yield call(putAppBuidSource, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
   },
