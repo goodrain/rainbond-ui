@@ -81,7 +81,7 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div>
+            <div title={item.attr_info || item.attr_name}>
               {" "}
               {item.attr_name}
               {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
