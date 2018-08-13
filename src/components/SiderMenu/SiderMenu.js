@@ -312,7 +312,7 @@ location: {
       >
         <div className={styles.logo} key="logo">
           <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`}>
-            <img style={{ maxHeight: 64 }} src={logo} alt={title || "logo"} />
+            <img style={{ maxHeight: 32 }} src={logo} alt={title || "logo"} />
           </Link>
         </div>
         <Menu
