@@ -322,7 +322,7 @@ export default class BasicList extends PureComponent {
               {this.props.enterprise && this.props.enterprise.create_time}
             </Description>
             <Description term="平台版本">
-              {this.props.rainbondInfo.version || "V3.7.0-rc"}
+              {this.props.rainbondInfo.version || "V3.7.0-release"}
               <Button type="primary" style={{ marginLeft: 16 }} onClick={this.handelUnderstand}>
                 了解企业解决方案
               </Button>
