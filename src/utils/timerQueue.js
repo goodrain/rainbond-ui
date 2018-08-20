@@ -2,14 +2,14 @@
     时间间隔队列, 以一定的时间间隔根据队列中的数据执行某种操作， 避免某种操作太过频繁
 */
 
-import Queue from './queue';
+import Queue from "./queue";
 
 function TimerQueue(option) {
   option = option || {};
   this.queue = new Queue();
   this.timer = null;
   this.isStarted = false;
-  this.interval = option.interval || 50;
+  this.interval = option.interval || 10;
   this.onExecute = option.onExecute || util.noop;
 }
 TimerQueue.prototype = {

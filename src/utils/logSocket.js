@@ -1,4 +1,4 @@
-import TimerQueue from './timerQueue';
+import TimerQueue from "./timerQueue";
 
 function noop() {}
 
@@ -21,7 +21,7 @@ function LogSocket(option) {
   this.webSocket.onerror = this._onError.bind(this);
   this.timerQueue = new TimerQueue({
     onExecute: this.onMessage,
-    interval: option.interval || 150,
+    interval: option.interval || 10,
   });
 }
 
@@ -39,18 +39,17 @@ LogSocket.prototype = {
   },
   _onMessage(evt) {
     // 代表连接成功， 不做任何处理
-    if (evt.data === 'ok') {
-    } else {
+    if (evt.data != "ok") {
       const data = JSON.parse(evt.data);
 
       // 判断是否最后一步
-      if (data.step === 'callback' || data.step === 'last') {
+      if (data.step === "callback" || data.step === "last") {
         this.webSocket.close();
-        if (data.status === 'success') {
+        if (data.status === "success") {
           this.onSuccess(data);
-        } else if (data.status === 'timeout') {
+        } else if (data.status === "timeout") {
           this.onTimeout(data);
-        } else if (data.status === 'failure') {
+        } else if (data.status === "failure") {
           data.message = `<span style="color:#a94442">${data.message}</span>`;
           this.onFail(data);
         }

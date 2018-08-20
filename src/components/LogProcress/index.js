@@ -1,10 +1,7 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import { Card, Button, Table, notification, Badge } from 'antd';
-import LogSocket from '../../utils/logSocket';
-import domUtil from '../../utils/dom-util';
+import React, { PureComponent } from "react";
+import moment from "moment";
+import LogSocket from "../../utils/logSocket";
+import domUtil from "../../utils/dom-util";
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -14,15 +11,6 @@ export default class Index extends PureComponent {
     };
     this.socketUrl = this.props.socketUrl;
     this.eventId = this.props.eventId;
-  }
-  findProgressById = (id) => {
-    const datas = this.state.datas;
-    const d = datas.filter(data => data.message.id === id)[0];
-    return d;
-  };
-  createTmpElement() {
-    this.ele = document.createElement('p');
-    this.ele.cssText = 'margin-bottom:0';
   }
   componentDidMount() {
     const resover = this.props.resover;
@@ -50,8 +38,8 @@ export default class Index extends PureComponent {
             const msg = data.message;
             ele.innerHTML = this.getItemHtml(data);
             if (msg.id) {
-              ele.setAttribute('data-id', msg.id);
-              const hasEle = document.querySelector(`[data-id]=${msg.id}`);
+              ele.setAttribute("data-id", msg.id);
+              const hasEle = document.querySelector(`p[data-id="${msg.id}"]`);
               if (hasEle) {
                 this.ref.replaceChild(ele, hasEle);
               } else {
@@ -63,7 +51,6 @@ export default class Index extends PureComponent {
           }
         } catch (e) {
           ele.innerHTML = this.getItemHtml(data);
-
           domUtil.prependChild(this.ref, ele);
         }
       },
@@ -79,27 +66,36 @@ export default class Index extends PureComponent {
     }
     this.state.datas = [];
   }
-
   getItemHtml = (data) => {
-    if (typeof data.message === 'string') {
+    if (typeof data.message === "string") {
       var msg = data.message;
-      return `<span className="time" style="margin-right: 8px">${moment(data.time).format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+      return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
     }
     try {
       const message = data.message;
-      var msg = '';
+      var msg = "";
       if (message.id) {
         msg += `${message.id}:`;
       }
-      msg += message.status || '';
-      msg += message.progress || '';
-      if (data.step != 'build-progress') {
-        return `<span className="time" style="margin-right: 8px">${moment(data.time).format('HH:mm:ss')}</span><span>${msg || ''}</span>`;
+      msg += message.status || "";
+      msg += message.progress || "";
+      if (data.step != "build-progress") {
+        return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
-      return `<span className="time" style="margin-right: 8px">${moment(data.time).format('HH:mm:ss')}</span><span>${message.stream}</span>`;
+      return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${message.stream}</span>`;
     } catch (e) {
-      return '';
+      return "";
     }
+  };
+  createTmpElement() {
+    this.ele = document.createElement("p");
+    this.ele.cssText = "margin-bottom:0";
+  }
+
+  findProgressById = (id) => {
+    const datas = this.state.datas;
+    const d = datas.filter(data => data.message.id === id)[0];
+    return d;
   };
   saveRef = (ref) => {
     this.ref = ref;
@@ -107,6 +103,6 @@ export default class Index extends PureComponent {
   render() {
     const datas = this.state.datas || [];
 
-    return <div style={{ maxHeight: 300, overflowY: 'auto' }} ref={this.saveRef} />;
+    return <div style={{ maxHeight: 300, overflowY: "auto" }} ref={this.saveRef} />;
   }
 }
