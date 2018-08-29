@@ -248,7 +248,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="应用组">
           {getFieldDecorator("group_id", {
-            initialValue: data.groupd_id || -1,
+            initialValue: data.groupd_id,
             rules: [{ required: true, message: "请选择" }],
           })(<Select style={{ display: "inline-block", width: 290, marginRight: 15 }}>
             {(groups || []).map(group => <Option value={group.group_id}>{group.group_name}</Option>)}

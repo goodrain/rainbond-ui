@@ -1,61 +1,61 @@
-import { isUrl } from '../utils/utils';
-import globalUtil from '../utils/global';
+import { isUrl } from "../utils/utils";
+import globalUtil from "../utils/global";
 
 const menuData = function () {
   return [
     {
-      name: '总览',
-      icon: 'dashboard',
+      name: "总览",
+      icon: "dashboard",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
     },
     {
-      name: '创建应用',
-      icon: 'plus',
+      name: "创建应用",
+      icon: "plus",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create`,
       children: [
         {
-          name: '从源码创建',
-          path: 'code',
+          name: "从源码创建",
+          path: "code",
         },
         {
-          name: '从Docker镜像创建',
-          path: 'image',
+          name: "从Docker镜像创建",
+          path: "image",
         },
         {
-          name: '从应用市场安装',
-          path: 'market',
+          name: "从应用市场安装",
+          path: "market",
         },
       ],
     },
     {
-      name: '我的应用',
-      icon: 'appstore-o',
+      name: "我的应用",
+      icon: "appstore-o",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`,
     },
     {
-      name: '我的插件',
-      icon: 'api',
+      name: "我的插件",
+      icon: "api",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`,
     },
     {
-      name: '团队管理',
-      icon: 'team',
+      name: "团队管理",
+      icon: "team",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/team`,
     },
     {
-      name: '内部市场',
-      icon: 'usb',
+      name: "内部市场",
+      icon: "usb",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`,
     },
     {
-      name: '企业中心',
-      icon: 'red-envelope',
+      name: "企业中心",
+      icon: "red-envelope",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`,
     },
   ];
 };
 
-function formatter(data, parentPath = '', parentAuthority) {
+function formatter(data, parentPath = "", parentAuthority) {
   return data.map((item) => {
     let { path } = item;
     if (!isUrl(path)) {
@@ -80,7 +80,7 @@ export const getMenuData = (groups) => {
     for (let i = 0; i < menus.length; i++) {
       const item = menus[i];
 
-      if (item.path.indexOf('groups') > -1) {
+      if (item.path.indexOf("groups") > -1) {
         item.children = groups.map((group) => {
           const children = (group.service_list || []).map(item => ({
             name: item.service_cname,

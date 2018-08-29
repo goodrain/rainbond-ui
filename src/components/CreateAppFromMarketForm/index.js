@@ -102,7 +102,7 @@ export default class Index extends PureComponent {
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="选择应用组">
             {getFieldDecorator('group_id', {
-              initialValue: data.groupd_id || -1,
+              initialValue: data.groupd_id ,
               rules: [
                 {
                   required: true,

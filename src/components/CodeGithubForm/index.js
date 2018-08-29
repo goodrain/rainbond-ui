@@ -166,7 +166,7 @@ export default class Index extends PureComponent {
         </Form.Item>
         <Form.Item {...formItemLayout} label="应用组">
           {getFieldDecorator("group_id", {
-            initialValue: data.groupd_id || -1,
+            initialValue: data.groupd_id,
             rules: [
               {
                 required: true,
