@@ -65,6 +65,27 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handlePodClick = (podName, manageName) => {
+    console.log(podName, manageName);
+    let adPopup = window.open("about:blank");
+    const appAlias = this.props.appAlias;
+    if (podName && manageName) {
+      this
+        .props
+        .dispatch({
+          type: "appControl/managePod",
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: appAlias,
+            pod_name: podName,
+            manage_name: manageName,
+          },
+          callback: () => {
+            adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
+          },
+        });
+    }
+  }
   fetchExtendInfo = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -109,7 +130,7 @@ export default class Index extends PureComponent {
             </a>
         }
         >
-          <InstanceList list={this.props.instances} />
+          <InstanceList handlePodClick={this.handlePodClick} list={this.props.instances} />
         </Card>
         <Card style={{ marginTop: 16 }} title="手动伸缩">
           <Row gutter={16}>
@@ -124,7 +145,7 @@ export default class Index extends PureComponent {
                     }}
                 >
                   {(extendInfo.memory_list || []).map(item => <Option value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
-                </Select>)}{" "}
+                   </Select>)}{" "}
                   <Button onClick={this.handleVertical} size="default" type="primary">
                   设置
                   </Button>
@@ -140,7 +161,7 @@ export default class Index extends PureComponent {
                     }}
                   >
                     {(extendInfo.node_list || []).map(item => <Option value={item}>{item}</Option>)}
-                                                                                        </Select>)}{" "}
+                  </Select>)}{" "}
                   <Button onClick={this.handleHorizontal} size="default" type="primary">
                   设置
                   </Button>
