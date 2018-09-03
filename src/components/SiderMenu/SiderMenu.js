@@ -66,18 +66,26 @@ location: {
       // index 0 to not do anything
       return item;
     });
+    let withapp = false;
     snippets = snippets.map((item) => {
       const itemArr = item.split("/");
       if (itemArr[itemArr.length - 1] === "app") {
+        withapp = true
         return `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`;
       }
 
       if (itemArr[itemArr.length - 2] === "app") {
+        withapp = true
         return this.getOpenGroup(itemArr[itemArr.length - 1]);
       }
       return this.getSelectedMenuKeys(`/${item}`)[0];
     });
     // eg. ['list','list/search']
+    if (!withapp) {
+      snippets.push(
+        `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
+      );
+    }
     return snippets;
   }
   getOpenGroup(appAlias) {
