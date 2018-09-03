@@ -1420,6 +1420,23 @@ export async function moveName(body = {
   });
 }
 
+export function batchMove(body = {
+  team_name,
+  serviceIds,
+  move_group_id,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
+    method: "post",
+    data: {
+      action: "move",
+      service_ids: body.serviceIds,
+      move_group_id: body.move_group_id,
+    },
+  });
+}
+
+
+
 /*
 	获取设置了权限的团队成员
 */
@@ -1585,6 +1602,22 @@ export async function deleteApp(body = {
       },
     },
   );
+}
+
+/*
+	批量应用删除
+*/
+export function batchDelete(body = {
+  team_name,
+  serviceIds,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
+    method: "post",
+    data: {
+      action: "delete",
+      service_ids: body.serviceIds,
+    },
+  });
 }
 
 /*
