@@ -807,7 +807,9 @@ class RenderDeploy extends PureComponent {
           ...val
         },
         callback: (data) => {
-          if (data) {}
+          if (data) {
+            this.props.updateDetail()
+          }
         }
       })
   }
@@ -1120,6 +1122,7 @@ class Mnt extends PureComponent {
           </div>
         </Card>
         {this.state.showAddVar && <AddOrEditVolume
+          appBaseInfo={this.props.appDetail.service}
           onCancel={this.handleCancelAddVar}
           onSubmit={this.handleSubmitAddVar}
           data={this.state.showAddVar}/>}
@@ -1754,7 +1757,7 @@ export default class Index extends PureComponent {
             overflow: 'hidden',
             marginBottom: 90
           }}>
-            <RenderDeploy appDetail={appDetail} visible={type === 'deploy'}/>
+            <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/>
             <RenderProperty appDetail={appDetail} visible={type !== 'deploy'}/>
           </div>
         </div>

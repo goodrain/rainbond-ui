@@ -135,7 +135,7 @@ export default class Index extends PureComponent {
         <div style={{
           overflow: 'hidden'
         }}>
-          <AppCreateSetting appDetail={appDetail}/>
+          <AppCreateSetting updateDetail={this.loadDetail} appDetail={appDetail}/>
           <div
             style={{
             background: '#fff',
