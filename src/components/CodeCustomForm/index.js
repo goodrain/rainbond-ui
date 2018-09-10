@@ -47,7 +47,7 @@ export default class Index extends PureComponent {
   };
   checkURL = (rule, value, callback) => {
     if (this.state.serverType == "svn") {
-      if (!/^(svn:\/\/).+$/gi.test(value)) {
+      if (!/^(svn:\/\/|http:\/\/|https:\/\/).+$/gi.test(value)) {
         callback("不合法");
       }
     } else if (!/^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi.test(value)) {
@@ -115,7 +115,7 @@ export default class Index extends PureComponent {
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
     if (this.state.serverType == "svn") {
       isHttp = true;
-      urlCheck = /^(svn:\/\/).+$/gi;
+      urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
     const data = this.props.data || {};
