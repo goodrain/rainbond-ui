@@ -290,7 +290,6 @@ class JAVA extends PureComponent {
     const runtimeInfo = this.props.runtimeInfo || {};
 
     const language = this.props.language;
-    var res = false;
     if ((language === 'java-jar' || language === 'java-war') && runtimeInfo.runtimes === false) {
       return true;
     }
@@ -299,16 +298,15 @@ class JAVA extends PureComponent {
       return true;
     }
 
-    return res;
+    return false;
   }
   isShowService = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
     const language = this.props.language;
-    var res = false;
     if ((language === 'java-jar' || language === 'java-war') && runtimeInfo.procfile === false) {
       return true;
     }
-    return res;
+    return false;
   }
   getDefaultRuntime = () => {
     return '1.8'
@@ -671,6 +669,18 @@ class BaseInfo extends PureComponent {
     this.state = {
       memoryList: [
         {
+          text: '64M',
+          value: 64
+        },
+        {
+          text: '128M',
+          value: 128
+        },
+        {
+          text: '256M',
+          value: 256
+        },
+        {
           text: '512M',
           value: 512
         }, {
@@ -684,6 +694,9 @@ class BaseInfo extends PureComponent {
           value: 1024 * 4
         }, {
           text: '8G',
+          value: 1024 * 8
+        }, {
+          text: '16G',
           value: 1024 * 8
         }
       ]
@@ -754,8 +767,8 @@ class BaseInfo extends PureComponent {
               {minMemory < list[0].value
                 ? <RadioButton value={minMemory}>{minMemory}M</RadioButton>
                 : null}
-              {list.map((item) => {
-                return <RadioButton value={item.value}>{item.text}</RadioButton>
+              {list.map((item,index) => {
+                return <RadioButton key={index} value={item.value}>{item.text}</RadioButton>
               })
 }
             </RadioGroup>
@@ -1224,7 +1237,7 @@ class Relation extends PureComponent {
             dataIndex: 'group_name'
           }, {
             title: '应用说明',
-            dataIndex: 'var',
+            dataIndex: 'describe',
             render: (val, data) => {}
           }, {
             title: '操作',
@@ -1630,6 +1643,7 @@ class Ports extends PureComponent {
         <div className={styles.ports}>
           {ports.map((port) => {
             return <Port
+              key={port.ID}
               showOuterUrl={false}
               showDomain={false}
               port={port}
