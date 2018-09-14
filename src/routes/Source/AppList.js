@@ -1,46 +1,27 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import {
-  Row,
-  Col,
   Card,
   List,
   Avatar,
   Button,
-  Icon,
-  Modal,
-  Form,
   Input,
-  Spin,
-  Steps,
-  Radio,
   notification,
   Menu,
   Dropdown,
-  Upload,
   Tooltip,
 } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
-import Result from '../../components/Result';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from './Index.less';
 import BasicListStyles from '../List/BasicList.less';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
-import { routerRedux } from 'dva/router';
-import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
 import BatchImportForm from '../../components/BatchImportForm';
 import BatchImportListForm from '../../components/BatchImportmListForm';
-import config from '../../config/config';
 import CloudApp from './CloudApp';
 import UploadFile from './UploadFile';
 import localMarketUtil from '../../utils/localMarket';
+import AppExporter from "./AppExporter"
 
-const FormItem = Form.Item;
-const { Step } = Steps;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
 const { Search } = Input;
 const ButtonGroup = Button.Group;
 
@@ -83,8 +64,8 @@ class ExportBtn extends PureComponent {
     this.state = {
       docker_compose: null,
       rainbond_app: null,
-      is_docker_compose_exporting: false,
-      is_rainbond_app_exporting: false,
+      is_exporting: false,
+      showExporterApp: false,
     };
   }
   componentDidMount() {
@@ -114,6 +95,12 @@ class ExportBtn extends PureComponent {
       aEle.dispatchEvent(e);
     }
   };
+  showAppExport = () =>{
+    this.setState({showExporterApp: true})
+  }
+  hideAppExport = () =>{
+    this.setState({showExporterApp: false})
+  }
   appExport = (format) => {
     const app = this.props.app;
     const app_id = app.ID;
@@ -197,36 +184,25 @@ class ExportBtn extends PureComponent {
       },
     });
   };
+  setIsExporting = (status) =>{
+    this.setState({"is_exporting": status})
+  };
   render() {
     const app = this.props.app || {};
     return (
       <Fragment>
-        {app.source !== 'market' ? (
-          <Tooltip title="导出后的文件可直接在Rainbond平台及其他容器平台安装">
-            <a
-              onClick={() => {
-                if (this.state.is_docker_compose_exporting) return;
-                this.queryExport('docker-compose');
-              }}
-              style={{ marginRight: 8 }}
-              href="javascript:;"
-            >
-              导出Compose包{this.state.is_docker_compose_exporting ? '(导出中)' : ''}
-            </a>
-          </Tooltip>
-        ) : null}
         <Tooltip title="导出后的文件可直接在Rainbond平台安装">
           <a
-            onClick={() => {
-              if (this.state.is_rainbond_app_exporting) return;
-              this.queryExport('rainbond-app');
-            }}
+            onClick={this.showAppExport}
             style={{ marginRight: 8 }}
             href="javascript:;"
           >
-            导出平台应用{this.state.is_rainbond_app_exporting ? '(导出中)' : ''}
+            导出应用{this.state.is_exporting ? '(导出中)' : ''}
           </a>
         </Tooltip>
+      {this.state.showExporterApp && (
+        <AppExporter setIsExporting={this.setIsExporting}  app={this.props.app} onOk={this.hideAppExport} onCancel={this.hideAppExport} ></AppExporter>
+      )}  
       </Fragment>
     );
   }
