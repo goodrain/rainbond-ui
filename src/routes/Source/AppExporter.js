@@ -32,7 +32,7 @@ export default class AppExporter extends PureComponent {
     const app = this.props.app;
     const app_id = app.ID;
     this.props.dispatch({
-      type: 'createApp/appExport',
+      type: 'market/appExport',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id,
@@ -50,7 +50,7 @@ export default class AppExporter extends PureComponent {
   queryExport = () => {
     const item = this.props.app || {};
     this.props.dispatch({
-      type: 'createApp/queryExport',
+      type: 'market/queryExport',
       payload: {
         app_id: item.ID,
         team_name: globalUtil.getCurrTeamName(),

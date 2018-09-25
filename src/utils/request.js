@@ -185,7 +185,7 @@ export default function request(url, options) {
 
           notification.error({ message: "请求错误", description: msg });
         }
-
+        return;
         // if (status <= 504 && status >= 500) {
         // dispatch(routerRedux.push('/exception/500'));   return; } if (status >= 404
         // && status < 422) {   dispatch(routerRedux.push('/exception/404')); }

@@ -67,7 +67,7 @@ export default class Main extends PureComponent {
   };
   getApps = (v) => {
     this.props.dispatch({
-      type: 'createApp/getMarketApp',
+      type: 'market/getMarketApp',
       payload: {
         app_name: this.state.app_name || '',
         scope: this.state.scope,
@@ -307,9 +307,6 @@ export default class Main extends PureComponent {
         tabActiveKey={this.state.scope}
         onTabChange={this.handleTabChange}
       >
-        {/* <div className="btns" style={{marginTop: -10, marginBottom: 16, textAlign: 'right'}}>
-            <Button id="importApp" onClick={this.onUpload} type="primary">导入应用</Button>
-          </div> */}
         <div className={PluginStyles.cardList}>{cardList}</div>
         {this.state.showCreate && (
           <CreateAppFromMarketForm
