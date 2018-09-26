@@ -144,7 +144,7 @@ export default class Index extends PureComponent {
                       width: 200,
                     }}
                 >
-                  {(extendInfo.memory_list || []).map(item => <Option value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
+                  {(extendInfo.memory_list || []).map(item => <Option key={item} value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
                    </Select>)}{" "}
                   <Button onClick={this.handleVertical} size="default" type="primary">
                   设置
@@ -160,7 +160,7 @@ export default class Index extends PureComponent {
                       width: 200,
                     }}
                   >
-                    {(extendInfo.node_list || []).map(item => <Option value={item}>{item}</Option>)}
+                    {(extendInfo.node_list || []).map(item => <Option key={item} value={item}>{item}</Option>)}
                   </Select>)}{" "}
                   <Button onClick={this.handleHorizontal} size="default" type="primary">
                   设置

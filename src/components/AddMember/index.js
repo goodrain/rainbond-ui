@@ -139,7 +139,7 @@ class ConfirmModal extends PureComponent{
                   >
                      {
                        roles.map((role)=>{
-                           return <Option value={role.role_id}>{role.role_name}</Option>
+                           return <Option key={role.role_id} value={role.role_id}>{role.role_name}</Option>
                        })
                      }
                   </Select>

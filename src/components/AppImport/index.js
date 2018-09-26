@@ -75,12 +75,14 @@ export default class Index extends PureComponent {
       });
       return;
     }
-    if (file[0].status != "done") {
-      notification.info({
-        message: "正在上传请稍后"
-      });
-      return;
-    }
+    // file.map((item) => {
+    //   if (item.status != "done") {
+    //     notification.info({
+    //       message: "正在上传请稍后"
+    //     });
+    //     return;
+    //   }
+    // })
     const file_name = file[0].name;
     const event_id = file[0].response.data.bean.event_id;
     this.props.dispatch({
@@ -166,7 +168,7 @@ export default class Index extends PureComponent {
     });
   };
   queryImportStatus = () => {
-    if (!this.queryImportStatus) return;
+    if (!this.autoQueryStatus) return;
     this.props.dispatch({
       type: "market/queryImportApp",
       payload: {
@@ -175,7 +177,7 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         this.setState({ import_file_status: data.list });
-        if (data.bean&&(data.bean.status!="success" || data.bean.status!="failed")){
+        if (data.bean&&(data.bean.status!="success" && data.bean.status!="failed")){
           setTimeout(() => {
             this.queryImportStatus();
           }, 2000);
@@ -207,7 +209,7 @@ export default class Index extends PureComponent {
           if (this.autoQuery) {
             setTimeout(() => {
               this.handleQueryImportDir();
-            }, 5000);
+            }, 8000);
           }
         }
       });
@@ -237,7 +239,7 @@ export default class Index extends PureComponent {
           <div>
             <div style={{ paddingBottom: 8 }}>
               <span style={{ marginRight: 8 }}>
-                你可以将应用文件复制到数据中心管理节点目录:
+                你可以将RainbondAPP文件复制到数据中心管理节点目录:
               </span>
               <a style={{ marginRight: 16 }}>{this.state.record.source_dir}</a>
               <CopyToClipboard

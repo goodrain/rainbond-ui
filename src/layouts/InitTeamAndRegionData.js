@@ -33,7 +33,6 @@ export default class Index extends React.PureComponent {
     });
   }
   componentWillUnmount() {
-    console.log('componentWillUnMount');
   }
   render() {
     return this.props.children;

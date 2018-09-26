@@ -15,43 +15,12 @@ import BasicListStyles from '../List/BasicList.less';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import AppImport from '../../components/AppImport'
+import MarketAppDetailShow from '../../components/MarketAppDetailShow'
 import CloudApp from './CloudApp';
 import localMarketUtil from '../../utils/localMarket';
 import AppExporter from "./AppExporter"
 
 const { Search } = Input;
-
-const appstatus = {
-  pending: '等待中',
-  importing: '导入中',
-  success: '成功',
-  failed: '失败',
-};
-
-class ImportingApps extends PureComponent {
-  render() {
-    const list = this.props.data || [];
-    return (
-      <List.Item actions={[]}>
-        <List.Item.Meta
-          avatar={null}
-          shape="square"
-          size="large"
-          title={null}
-          description={
-            <div>
-              {list.map(item => item.map(file => (
-                <p>
-                  {file.file_name}--{appstatus[file.status]}
-                </p>
-                  )))}
-            </div>
-          }
-        />
-      </List.Item>
-    );
-  }
-}
 
 @connect()
 class ExportBtn extends PureComponent {
@@ -223,6 +192,8 @@ export default class AppList extends PureComponent {
       showCloudApp: false,
       importingApps: null,
       showImportApp: false,
+      showMarketAppDetail: false,
+      showApp: {},
     };
   }
   componentDidMount = () => {
@@ -340,6 +311,18 @@ export default class AppList extends PureComponent {
   showImportApp = () => {
     this.setState({ showImportApp: true });
   };
+  showMarketAppDetail = (app) => {
+    this.setState({
+      showApp:app,
+      showMarketAppDetail: true,
+    })
+  }
+  hideMarketAppDetail = () => {
+    this.setState({
+      showApp:{},
+      showMarketAppDetail: false,
+    })
+  }
   hideImportApp = () => {
     this.setState({ showImportApp: false });
   };
@@ -614,9 +597,14 @@ export default class AppList extends PureComponent {
                         src={item.pic || require('../../../public/images/app_icon.jpg')}
                         shape="square"
                         size="large"
+                        onClick={() =>{
+                          this.showMarketAppDetail(item)
+                        }}
                       />
                     }
-                    title={item.group_name}
+                    title={<a style={{color:"#1890ff"}} href="javascript:;" onClick={() =>{
+                      this.showMarketAppDetail(item)
+                    }}>{item.group_name}{item.is_official&&("(官方发布)")}</a>}
                     description={
                       <div>
                         <p>版本: {item.version}</p>
@@ -626,14 +614,6 @@ export default class AppList extends PureComponent {
                   />
                 </List.Item>
               );
-              if (index === 0 && this.state.importingApps && this.state.importingApps.length) {
-                return (
-                  <Fragment>
-                    <ImportingApps data={this.state.importingApps} dispatch={this.props.dispatch} />
-                    {renderItem}
-                  </Fragment>
-                );
-              }
                 return renderItem;
             }}
           />
@@ -665,6 +645,13 @@ export default class AppList extends PureComponent {
             subDesc="删除后其他人将无法安装此应用"
             title="删除应用"
             onCancel={this.hideOfflineApp}
+          />
+        )}
+        {this.state.showMarketAppDetail && (
+          <MarketAppDetailShow
+            onOk={this.hideMarketAppDetail}
+            onCancel={this.hideMarketAppDetail}
+            app={this.state.showApp}
           />
         )}
       </div>

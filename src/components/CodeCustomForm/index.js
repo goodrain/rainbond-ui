@@ -155,7 +155,7 @@ export default class Index extends PureComponent {
               style={{ display: "inline-block", width: 306, marginRight: 15 }}
             >
               {(groups || []).map(group => (
-                <Option value={group.group_id}>{group.group_name}</Option>
+                <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
                 ))}
             </Select>)}
             {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
