@@ -761,9 +761,7 @@ export default class Index extends PureComponent {
         return this.props.match.params.appAlias;
     }
     componentDidMount() {
-        if (this.id !== this.getAlias()) {
-            this.id = this.getAlias();
-        }
+        
     }
     flash = () => {
         this.setState({
@@ -773,6 +771,11 @@ export default class Index extends PureComponent {
         })
     }
     render() {
+        //Switching applications show
+        if (this.id !== this.getAlias()) {
+            this.id = this.getAlias();
+            this.flash()
+        }
         if (!this.state.show) {
             return null;
         }

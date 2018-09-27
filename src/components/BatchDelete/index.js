@@ -79,10 +79,10 @@ export default class MoveGroup extends PureComponent {
                             return <a target="_blank" onClick={()=>{this.reDelete(data.service_id)}}>确认删除</a>
                           }
                           if (data.status==409){
-                            return <p>请先关闭应用</p>
+                            return "请先关闭应用"
                           }
                           if (data.status==200){
-                            return <p>已删除</p>
+                            return "已删除"
                           }
                         }
                     }, 
