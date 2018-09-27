@@ -637,6 +637,9 @@ class PHP extends PureComponent {
                       }, {
                         title: '版本',
                         dataIndex: 'version'
+                      },{
+                        title: "操作",
+                        dataIndex: "action",
                       }
                     ]}
                       rowSelection={rowSelection}

@@ -24,9 +24,6 @@ export default class MoveGroup extends PureComponent {
             this.props.onOk(fieldsValue.group_id)
         });
     }
-    onCancel = () => {
-        this.props.onCancel();
-    }
     render() {
         const {getFieldDecorator} = this.props.form;
         const initValue = this.props.currGroupID;
@@ -36,7 +33,7 @@ export default class MoveGroup extends PureComponent {
                 title='修改应用所属组'
                 visible={true}
                 onOk={this.handleSubmit}
-                onCancel={this.onCancel}>
+                onCancel={this.props.onCancel}>
                 <Form onSubmit={this.handleSubmit}>
 
                     <FormItem label="">

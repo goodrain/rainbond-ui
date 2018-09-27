@@ -342,10 +342,10 @@ class Main extends PureComponent {
         >
 
           {(teamUtil.canShareApp(team) && hasService && this.state.recordShare)
-            ? <Button onClick={this.handleShare}>继续分享</Button>
+            ? <Button onClick={this.handleShare}>继续发布到市场</Button>
             : ""}
           {(teamUtil.canShareApp(team) && hasService && !this.state.recordShare)
-            ? <Button onClick={this.handleShare}>分享</Button>
+            ? <Button onClick={this.handleShare}>发布到市场</Button>
             : ""}
           <Button><Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}>备份&迁移</Link></Button>
           <Dropdown

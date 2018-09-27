@@ -8,7 +8,6 @@ import {
   batchReStart,
   batchStart,
   batchStop,
-  batchDelete,
   batchMove,
   restart,
   start,
@@ -18,11 +17,12 @@ import appUtil from "../../utils/app";
 import appStatusUtil from "../../utils/appStatus-util";
 import globalUtil from "../../utils/global";
 import styles from "./AppList.less";
-import MoveGroup from "../../components/AppMoveGroup"
+import MoveGroup from "../../components/AppMoveGroup";
+import BatchDelete from "../../components/BatchDelete";
 
 @connect(
   ({ groupControl, global }) => ({
-    groups: global.groups,
+    groups: global.groups
   }),
   null,
   null,
@@ -41,6 +41,8 @@ export default class AppList extends PureComponent {
       total: 0,
       pageSize: 10,
       moveGroupShow: false,
+      batchDeleteApps: [],
+      batchDeleteShow: false
     };
   }
   componentDidMount() {
@@ -168,40 +170,47 @@ export default class AppList extends PureComponent {
     });
   };
   handleBatchDelete = () => {
-    const ids = this.getSelectedKeys();
-    batchDelete({
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(",")
-    }).then(data => {
-      if (data) {
-        notification.success({
-          message: "批量删除中"
-        });
+    const apps = this.getSelected();
+    this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
+  };
+  hideBatchDelete = () => {
+    this.setState({ batchDeleteApps: [], batchDeleteShow: false });
+    this.loadApps();
+    //update menus data
+    this.updateGroupMenu()
+  };
+  updateGroupMenu = () => {
+    this.props.dispatch({
+      type: "global/fetchGroups",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
       }
     });
-  };
-  handleBatchMove = (groupID) => {
+  }
+  handleBatchMove = groupID => {
     const ids = this.getSelectedKeys();
     batchMove({
       team_name: globalUtil.getCurrTeamName(),
       serviceIds: ids.join(","),
-      move_group_id: groupID,
+      move_group_id: groupID
     }).then(data => {
       if (data) {
         notification.success({
           message: "批量移动中"
         });
-        this.hideMoveGroup()
-        this.loadApps()
+        this.hideMoveGroup();
+        this.loadApps();
+        this.updateGroupMenu();
       }
     });
   };
-  hideMoveGroup = () =>{
-    this.setState({"moveGroupShow": false})
-  }
+  hideMoveGroup = () => {
+    this.setState({ moveGroupShow: false });
+  };
   showBatchMove = () => {
-    this.setState({"moveGroupShow": true})
-  }
+    this.setState({ moveGroupShow: true });
+  };
   // 是否可以批量重启
   canBatchRestart = () => {
     const selectedRowKeys = this.getSelected();
@@ -349,62 +358,72 @@ export default class AppList extends PureComponent {
     ];
 
     return (
-      <Card
-        style={{
-          minHeight: 400
-        }}
-        bordered={false}
-      >
-        <div className={styles.tableList}>
-          <div className={styles.tableListOperator}>
-            <Button
-              disabled={!this.canBatchRestart()}
-              onClick={this.handleBatchRestart}
-            >
-              批量重启{" "}
-            </Button>{" "}
-            <Button
-              disabled={!this.canBatchStop()}
-              onClick={this.handleBatchStop}
-            >
-              批量关闭{" "}
-            </Button>{" "}
-            <Button
-              disabled={!this.canBatchStart()}
-              onClick={this.handleBatchStart}
-            >
-              批量启动{" "}
-            </Button>{" "}
-            <Button
-              disabled={!this.canBatchMove()}
-              onClick={this.showBatchMove}
-            >
-              批量移动{" "}
-            </Button>{" "}
-            <Button
-              disabled={!this.canBatchDelete()}
-              onClick={this.handleBatchDelete}
-            >
-              批量删除{" "}
-            </Button>{" "}
+      <div>
+        <Card
+          style={{
+            minHeight: 400
+          }}
+          bordered={false}
+        >
+          <div className={styles.tableList}>
+            <div className={styles.tableListOperator}>
+              <Button
+                disabled={!this.canBatchRestart()}
+                onClick={this.handleBatchRestart}
+              >
+                批量重启{" "}
+              </Button>{" "}
+              <Button
+                disabled={!this.canBatchStop()}
+                onClick={this.handleBatchStop}
+              >
+                批量关闭{" "}
+              </Button>{" "}
+              <Button
+                disabled={!this.canBatchStart()}
+                onClick={this.handleBatchStart}
+              >
+                批量启动{" "}
+              </Button>{" "}
+              <Button
+                disabled={!this.canBatchMove()}
+                onClick={this.showBatchMove}
+              >
+                批量移动{" "}
+              </Button>{" "}
+              <Button
+                disabled={!this.canBatchDelete()}
+                onClick={this.handleBatchDelete}
+              >
+                批量删除{" "}
+              </Button>{" "}
+            </div>{" "}
           </div>{" "}
-        </div>{" "}
-        <ScrollerX sm={750}>
-          <Table
-            pagination={pagination}
-            rowSelection={rowSelection}
-            columns={columns}
-            dataSource={apps || []}
-          />{" "}
-        </ScrollerX>{" "}
-        {
-          this.state.moveGroupShow&&<MoveGroup
-          currGroupID={this.props.groupId}
-          groups={this.props.groups}
-          onOk={this.handleBatchMove}
-          onCancel={this.hideMoveGroup}/>
-        }
-      </Card>
+          <ScrollerX sm={750}>
+            <Table
+              pagination={pagination}
+              rowSelection={rowSelection}
+              columns={columns}
+              dataSource={apps || []}
+            />{" "}
+          </ScrollerX>{" "}
+          {this.state.batchDeleteShow && (
+            <BatchDelete
+              batchDeleteApps={this.state.batchDeleteApps}
+              onCancel={this.hideBatchDelete}
+              onOk={this.hideBatchDelete}
+            />
+          )}
+          {this.state.moveGroupShow && (
+            <MoveGroup
+              currGroupID={this.props.groupId}
+              groups={this.props.groups}
+              onOk={this.handleBatchMove}
+              onCancel={this.hideMoveGroup}
+            />
+          )}
+        </Card>
+      </div>
     );
   }
 }

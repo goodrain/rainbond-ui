@@ -162,6 +162,7 @@ export default class Index extends PureComponent {
       callback: data => {
         this.setState({ record: data.bean });
         this.setState({ event_id: data.bean.event_id }, () => {
+          this.openQueryImportStatus();
           this.handleQueryImportDir();
         });
       }
@@ -177,6 +178,9 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         this.setState({ import_file_status: data.list });
+        if (data.bean&&data.bean.status == "uploading") {
+           return
+        }
         if (data.bean&&(data.bean.status!="success" && data.bean.status!="failed")){
           setTimeout(() => {
             this.queryImportStatus();

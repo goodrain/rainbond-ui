@@ -1611,11 +1611,25 @@ export function batchDelete(body = {
   team_name,
   serviceIds,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_actions`, {
-    method: "post",
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/batch_delete`, {
+    method: "delete",
     data: {
-      action: "delete",
       service_ids: body.serviceIds,
+    },
+  });
+}
+
+/*
+	二次确认强制删除
+*/
+export function reDelete(body = {
+  team_name,
+  service_id,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/again_delete`, {
+    method: "delete",
+    data: {
+      service_id: body.service_id,
     },
   });
 }
