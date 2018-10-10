@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Layout, Menu, Icon, Spin, Tag, Dropdown, Avatar, Divider, Tooltip, Modal } from "antd";
+import { Layout, Menu, Icon, Spin, Tag, Dropdown, Avatar, Divider, Tooltip, Modal, Button } from "antd";
 import { connect } from "dva";
 import Ellipsis from "../Ellipsis";
 import moment from "moment";
@@ -7,14 +7,11 @@ import groupBy from "lodash/groupBy";
 import Debounce from "lodash-decorators/debounce";
 import { Link } from "dva/router";
 import NoticeIcon from "../NoticeIcon";
-import HeaderSearch from "../HeaderSearch";
 import styles from "./index.less";
-import cookie from "../../utils/cookie";
 import userIcon from "../../../public/images/user-icon-small.png";
-import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
-import { Route, Redirect, Switch, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 
 class DialogMessage extends PureComponent {
   componentDidMount() {
@@ -260,6 +257,7 @@ export default class GlobalHeader extends PureComponent {
       currTeam,
     } = this.props;
     const noticesList = this.state.newNoticeList;
+
     if (!currentUser) {
       return null;
     }
@@ -342,7 +340,14 @@ export default class GlobalHeader extends PureComponent {
             </a>
           </Dropdown>
         </div>
-
+        {isPubCloud && (
+          <div className={styles.connect}>
+            {this.props.currentUser.user_name=="rainbond-demo" && (
+                <Button type="primary" size="large" href="https://sso.goodrain.com/#/register/https%3A%2F%2Fconsole.goodrain.com">注册试用</Button>
+            )}
+            <Button size="large" style={{marginLeft:16}} href="https://www.goodrain.com/industrycloud">咨询企业服务</Button>
+        </div>
+        )}
         <div className={styles.right}>
           <Tooltip title="使用文档">
             <a
