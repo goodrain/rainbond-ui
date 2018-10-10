@@ -66,9 +66,12 @@ location: {
       // index 0 to not do anything
       return item;
     });
-    let withapp = false
+    let withapp = false;
     snippets = snippets.map((item) => {
       const itemArr = item.split("/");
+      if (itemArr[itemArr.length - 1] === "index") {
+        withapp = true
+      }
       if (itemArr[itemArr.length - 1] === "app") {
         withapp = true
         return `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`;
@@ -80,8 +83,10 @@ location: {
       return this.getSelectedMenuKeys(`/${item}`)[0];
     });
     // eg. ['list','list/search']
-    if (!withapp) {
-      snippets.push(`team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`)
+    if (withapp) {
+      snippets.push(
+        `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
+      );
     }
     return snippets;
   }

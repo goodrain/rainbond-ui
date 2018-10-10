@@ -47,7 +47,7 @@ export default class Index extends PureComponent {
   };
   checkURL = (rule, value, callback) => {
     if (this.state.serverType == "svn") {
-      if (!/^(svn:\/\/).+$/gi.test(value)) {
+      if (!/^(svn:\/\/|http:\/\/|https:\/\/).+$/gi.test(value)) {
         callback("不合法");
       }
     } else if (!/^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi.test(value)) {
@@ -99,6 +99,13 @@ export default class Index extends PureComponent {
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
+  getDefaultBranchName() {
+    if (this.state.serverType=="svn"){
+      return "trunk"
+    }else{
+      return "master"
+    }
+  }
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups } = this.props;
@@ -108,7 +115,7 @@ export default class Index extends PureComponent {
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
     if (this.state.serverType == "svn") {
       isHttp = true;
-      urlCheck = /^(svn:\/\/).+$/gi;
+      urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
     const data = this.props.data || {};
@@ -141,14 +148,14 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="应用组">
             {getFieldDecorator("group_id", {
-              initialValue: data.group_id || -1,
+              initialValue: data.group_id,
               rules: [{ required: true, message: "请选择" }],
             })(<Select
               placeholder="请选择要所属应用组"
               style={{ display: "inline-block", width: 306, marginRight: 15 }}
             >
               {(groups || []).map(group => (
-                <Option value={group.group_id}>{group.group_name}</Option>
+                <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
                 ))}
             </Select>)}
             {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
@@ -215,7 +222,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="代码版本">
             {getFieldDecorator("code_version", {
-              initialValue: data.code_version || "master",
+              initialValue: data.code_version || this.getDefaultBranchName(),
               rules: [{ required: true, message: "请输入代码版本" }],
             })(<Input addonBefore={versionSelector} placeholder="请输入代码版本" />)}
           </Form.Item>

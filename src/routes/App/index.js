@@ -100,7 +100,7 @@ class MoveGroup extends PureComponent {
                         })(
                             <Select>
                                 {groups.map((group) => {
-                                    return <Option value={group.group_id}>{group.group_name}</Option>
+                                    return <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
                                 })}
                             </Select>
                         )}
@@ -760,6 +760,9 @@ export default class Index extends PureComponent {
     getAlias = () => {
         return this.props.match.params.appAlias;
     }
+    componentDidMount() {
+        
+    }
     flash = () => {
         this.setState({
             show: false
@@ -768,16 +771,14 @@ export default class Index extends PureComponent {
         })
     }
     render() {
+        //Switching applications show
         if (this.id !== this.getAlias()) {
             this.id = this.getAlias();
-            this.flash();
-            return null;
+            this.flash()
         }
-
         if (!this.state.show) {
             return null;
         }
-
         return (<Main {...this.props}/>);
     }
 }

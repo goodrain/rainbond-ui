@@ -62,9 +62,9 @@ class History1000Log extends PureComponent {
                    list.length > 0 ?
                    <div>
                       {
-                        list.map((item)=>{
+                        list.map((item,n)=>{
                             return (
-                              <p style={{marginBottom:0, color:'#999'}}>-- {item}</p>
+                              <p key={n} style={{marginBottom:0, color:'#999'}}>-- {item}</p>
                             )
                         })
                       }

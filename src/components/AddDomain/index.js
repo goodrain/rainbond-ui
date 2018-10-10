@@ -27,8 +27,8 @@ export default class AddDomain extends PureComponent {
     this.props.onCancel && this.props.onCancel();
   };
   checkKey = (rule, value, callback) => {
-    const visitType = this.props.form.getFieldValue("protocol");
-    if (visitType == "http") {
+    const visitType = this.props.form.getFieldValue('protocol');
+    if (visitType == 'http') {
       callback();
       return;
     }
@@ -117,8 +117,8 @@ export default class AddDomain extends PureComponent {
               ],
             })(<Select placeholder="请选择证书">
               <Option value="">请选择证书</Option>
-              {certificates.map(item => <Option value={item.id}>{item.alias}</Option>)}
-            </Select>)}
+              {certificates.map(item => <Option key={item.id} value={item.id}>{item.alias}</Option>)}
+               </Select>)}
             <p>
               无可用证书？
               <a

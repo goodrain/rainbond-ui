@@ -342,18 +342,18 @@ export default class shareCheck extends PureComponent {
       var actions = [];
       if (status === 'success') {
         type = 'success';
-        title = "插件同步成功"
+        title = "插件发布成功"
         desc = ""
         actions = [ < Button onClick = {
             this.handleCompleteShare
           }
-          type = "primary" > 确认分享 < /Button>];
+          type = "primary" > 确认发布 < /Button>];
          }
          if(status === 'checking'){
            type = 'ing'
-           title="插件同步中"
+           title="插件发布中"
            desc = "此过程可能比较耗时，请耐心等待";
-           actions = [<Button onClick={this.showDelete} type="default">放弃分享</Button >];
+           actions = [<Button onClick={this.showDelete} type="default">放弃发布</Button >];
       }
       if (status === 'failure') {
         type = 'error';
@@ -361,7 +361,7 @@ export default class shareCheck extends PureComponent {
         actions = [< Button onClick = {
             this.handleReStart
           }
-          type = "primary" > 重新同步 < /Button>, <Button  onClick={this.showDelete} type="default">放弃分享</Button >];
+          type = "primary" > 重新发布 < /Button>, <Button  onClick={this.showDelete} type="default">放弃发布</Button >];
       }
       return <Result
         type={type}

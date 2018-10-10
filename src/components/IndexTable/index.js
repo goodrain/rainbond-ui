@@ -1,12 +1,12 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { Link } from 'dva/router';
-import { Table, Alert, Badge, Divider } from 'antd';
-import appUtil from '../../utils/app';
-import styles from './index.less';
-import globalUtil from '../../utils/global';
+import React, { PureComponent, Fragment } from "react";
+import moment from "moment";
+import { Link } from "dva/router";
+import { Table, Alert, Badge, Divider } from "antd";
+import appUtil from "../../utils/app";
+import styles from "./index.less";
+import globalUtil from "../../utils/global";
 
-const statusMap = ['default', 'processing', 'success', 'error'];
+const statusMap = ["default", "processing", "success", "error"];
 class StandardTable extends PureComponent {
   state = {
     selectedRowKeys: [],
@@ -20,13 +20,12 @@ class StandardTable extends PureComponent {
   };
 
   render() {
-    const { selectedRowKeys, totalCallNo } = this.state;
-    const { list, pagination, status } = this.props;
+    const { list, pagination } = this.props;
 
     const columns = [
       {
-        title: '应用名称',
-        dataIndex: 'service_cname',
+        title: "应用名称",
+        dataIndex: "service_cname",
         render: (val, data) => (
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
@@ -38,8 +37,8 @@ class StandardTable extends PureComponent {
         ),
       },
       {
-        title: '应用组',
-        dataIndex: 'group_name',
+        title: "应用组",
+        dataIndex: "group_name",
 
         render: (val, data) =>
           (val === null ? (
@@ -59,15 +58,15 @@ class StandardTable extends PureComponent {
           )),
       },
       {
-        title: '内存',
-        dataIndex: 'min_memory',
+        title: "内存",
+        dataIndex: "min_memory",
         width: 150,
-        render: val => `${!val ? '0' : val}MB`,
+        render: val => `${!val ? "0" : val}MB`,
       },
       {
-        title: '状态',
+        title: "状态",
         width: 150,
-        dataIndex: 'status_cn',
+        dataIndex: "status_cn",
         render(val, data) {
           return <Badge status={appUtil.appStatusToBadgeStatus(data.status)} text={val} />;
         },

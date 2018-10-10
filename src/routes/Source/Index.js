@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
+import { routerRedux, Link } from 'dva/router';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './Index.less';
@@ -81,8 +81,8 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
-          <div>将当前云帮平台和好雨云市进行互联，同步应用，插件，数据中心等资源</div>
-          <div>应用下载完成后，方可在 创建应用->从应用市场安装 中看到</div>
+          <div>将当前Rainbond平台和云应用市场进行互联，同步应用，插件，数据中心等资源</div>
+          <div>应用下载完成后，方可在 <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`}>从应用市场安装</Link> 直接安装 </div>
         </div>
       </div>
     );

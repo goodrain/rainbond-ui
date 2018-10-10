@@ -28,7 +28,7 @@ class EditableLinkGroup extends PureComponent {
           //   to: link.href,
           //   href: link.href,
           // }, link.title)
-          <Link to={link.href}>
+          <Link key={link.href} to={link.href}>
             {link.icontype && <Icon style={{ marginRight: 8 }} type={link.icontype} />}
             {link.title}
           </Link>

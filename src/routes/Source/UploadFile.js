@@ -54,7 +54,7 @@ export default class UploadFile extends PureComponent {
         this
         .props
         .dispatch({
-            type: 'createApp/importApp',
+            type: 'market/importApp',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 scope: 'enterprise',

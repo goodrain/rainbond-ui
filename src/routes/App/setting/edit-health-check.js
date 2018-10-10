@@ -75,7 +75,7 @@ export default class EditHealthCheck extends PureComponent {
               initialValue:
                 appProbeUtil.getPort(data) || (ports.length ? ports[0].container_port : ""),
             })(<Select>
-              {ports.map(port => <Option value={port.container_port}>{port.container_port}</Option>)}
+              {ports.map(port => <Option key={port.container_port} value={port.container_port}>{port.container_port}</Option>)}
                </Select>)}
           </FormItem>
           <FormItem {...formItemLayout} label="探针协议">

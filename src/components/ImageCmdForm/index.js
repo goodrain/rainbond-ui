@@ -106,7 +106,7 @@ export default class Index extends PureComponent {
 			            label="应用组"
 			          >
 			            {getFieldDecorator('group_id', {
-			              initialValue: data.group_id||-1,
+			              initialValue: data.group_id,
 			              rules: [{ required: true, message: '请选择' }],
 			            })(
 			              <Select placeholder="请选择要所属应用组" style={{display: 'inline-block', width: 306, marginRight: 15}}>

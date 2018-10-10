@@ -150,8 +150,8 @@ export default class Index extends PureComponent {
                 }}>
                     <Tabs defaultActiveKey="0">
                         {apps.map((app, index) => {
-                            return <TabPane tab={app.service.service_cname} key={index}><AppCreateSetting appDetail={app}/></TabPane>
-
+                            return <TabPane tab={app.service.service_cname} key={index}>
+                            <AppCreateSetting updateDetail={this.loadDetail}  appDetail={app}/></TabPane>
                         })
 }
                     </Tabs>

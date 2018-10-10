@@ -45,16 +45,12 @@ export default class Index extends PureComponent {
 		}
 
 		componentDidMount() {
-			this.mount = true;
-			
+			this.mount = true;	
 		}
 		componentWillUnmount() {
 			this.mount = false;
 		}
-
 		handleRestore = (e)=>{
-			var teamsName = this.state.teamsName;
-			var regionName = this.state.regionName;
 			this.props.dispatch({
 				type: 'groupControl/migrateApp',
 				payload:{
@@ -84,7 +80,7 @@ export default class Index extends PureComponent {
 				},
 				callback: (data) => {
 					notification.success({message: "删除成功",duration:'2'});
-					//this.props.onCancel & this.props.onCancel()
+					this.props.onCancel & this.props.onCancel()
 				}
 			})
 		}

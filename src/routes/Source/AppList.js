@@ -1,80 +1,26 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import {
-  Row,
-  Col,
   Card,
   List,
   Avatar,
   Button,
-  Icon,
-  Modal,
-  Form,
   Input,
-  Spin,
-  Steps,
-  Radio,
   notification,
   Menu,
-  Dropdown,
-  Upload,
   Tooltip,
 } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
-import Result from '../../components/Result';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from './Index.less';
 import BasicListStyles from '../List/BasicList.less';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
-import { routerRedux } from 'dva/router';
-import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
-import BatchImportForm from '../../components/BatchImportForm';
-import BatchImportListForm from '../../components/BatchImportmListForm';
-import config from '../../config/config';
+import AppImport from '../../components/AppImport'
+import MarketAppDetailShow from '../../components/MarketAppDetailShow'
 import CloudApp from './CloudApp';
-import UploadFile from './UploadFile';
 import localMarketUtil from '../../utils/localMarket';
+import AppExporter from "./AppExporter"
 
-const FormItem = Form.Item;
-const { Step } = Steps;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
 const { Search } = Input;
-const ButtonGroup = Button.Group;
-
-const appstatus = {
-  pending: '等待中',
-  importing: '导入中',
-  success: '成功',
-  failed: '失败',
-};
-
-class ImportingApps extends PureComponent {
-  render() {
-    const list = this.props.data || [];
-    return (
-      <List.Item actions={[]}>
-        <List.Item.Meta
-          avatar={null}
-          shape="square"
-          size="large"
-          title={null}
-          description={
-            <div>
-              {list.map(item => item.map(file => (
-                <p>
-                  {file.file_name}--{appstatus[file.status]}
-                </p>
-                  )))}
-            </div>
-          }
-        />
-      </List.Item>
-    );
-  }
-}
 
 @connect()
 class ExportBtn extends PureComponent {
@@ -83,8 +29,9 @@ class ExportBtn extends PureComponent {
     this.state = {
       docker_compose: null,
       rainbond_app: null,
-      is_docker_compose_exporting: false,
-      is_rainbond_app_exporting: false,
+      is_exporting: false,
+      showExporterApp: false,
+      showImportApp: true,
     };
   }
   componentDidMount() {
@@ -114,11 +61,17 @@ class ExportBtn extends PureComponent {
       aEle.dispatchEvent(e);
     }
   };
+  showAppExport = () =>{
+    this.setState({showExporterApp: true})
+  }
+  hideAppExport = () =>{
+    this.setState({showExporterApp: false})
+  }
   appExport = (format) => {
     const app = this.props.app;
     const app_id = app.ID;
     this.props.dispatch({
-      type: 'createApp/appExport',
+      type: 'market/appExport',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_id,
@@ -138,7 +91,7 @@ class ExportBtn extends PureComponent {
   queryExport = (type) => {
     const item = this.props.app || {};
     this.props.dispatch({
-      type: 'createApp/queryExport',
+      type: 'market/queryExport',
       payload: {
         app_id: item.ID,
         team_name: globalUtil.getCurrTeamName(),
@@ -197,36 +150,25 @@ class ExportBtn extends PureComponent {
       },
     });
   };
+  setIsExporting = (status) =>{
+    this.setState({"is_exporting": status})
+  };
   render() {
     const app = this.props.app || {};
     return (
       <Fragment>
-        {app.source !== 'market' ? (
-          <Tooltip title="导出后的文件可直接在Rainbond平台及其他容器平台安装">
-            <a
-              onClick={() => {
-                if (this.state.is_docker_compose_exporting) return;
-                this.queryExport('docker-compose');
-              }}
-              style={{ marginRight: 8 }}
-              href="javascript:;"
-            >
-              导出Compose包{this.state.is_docker_compose_exporting ? '(导出中)' : ''}
-            </a>
-          </Tooltip>
-        ) : null}
         <Tooltip title="导出后的文件可直接在Rainbond平台安装">
           <a
-            onClick={() => {
-              if (this.state.is_rainbond_app_exporting) return;
-              this.queryExport('rainbond-app');
-            }}
+            onClick={this.showAppExport}
             style={{ marginRight: 8 }}
             href="javascript:;"
           >
-            导出平台应用{this.state.is_rainbond_app_exporting ? '(导出中)' : ''}
+            导出应用{this.state.is_exporting ? '(导出中)' : ''}
           </a>
         </Tooltip>
+      {this.state.showExporterApp && (
+        <AppExporter setIsExporting={this.setIsExporting}  app={this.props.app} onOk={this.hideAppExport} onCancel={this.hideAppExport} ></AppExporter>
+      )}  
       </Fragment>
     );
   }
@@ -249,22 +191,25 @@ export default class AppList extends PureComponent {
       showOfflineApp: null,
       showCloudApp: false,
       importingApps: null,
+      showImportApp: false,
+      showMarketAppDetail: false,
+      showApp: {},
     };
   }
   componentDidMount = () => {
     this.mounted = true;
-    this.queryImportingApp();
+    //this.queryImportingApp();
     this.getApps();
   };
   componentWillUnmount() {
     this.mounted = false;
   }
-  getApps = (v) => {
+  getApps = () => {
     const datavisible = {};
     const dataquery = {};
     const dataexportTit = {};
     this.props.dispatch({
-      type: 'createApp/getMarketApp',
+      type: 'market/getMarketApp',
       payload: {
         app_name: this.state.app_name || '',
         scope: this.state.scope,
@@ -286,7 +231,7 @@ export default class AppList extends PureComponent {
   };
   queryImportingApp = () => {
     this.props.dispatch({
-      type: 'createApp/queryImportingApp',
+      type: 'market/queryImportingApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
       },
@@ -335,13 +280,13 @@ export default class AppList extends PureComponent {
       },
       callback: (data) => {
         notification.success({ message: '操作成功' });
-        this.loadApps();
+        this.getApps();
       },
     });
   };
   handleTypeChange = (e) => {
     this.setState({ type: e.target.value, page: 1 }, () => {
-      this.loadApps();
+      this.getApps();
     });
   };
   handleOfflineApp = () => {
@@ -363,28 +308,26 @@ export default class AppList extends PureComponent {
   showOfflineApp = (app) => {
     this.setState({ showOfflineApp: app });
   };
+  showImportApp = () => {
+    this.setState({ showImportApp: true });
+  };
+  showMarketAppDetail = (app) => {
+    this.setState({
+      showApp:app,
+      showMarketAppDetail: true,
+    })
+  }
+  hideMarketAppDetail = () => {
+    this.setState({
+      showApp:{},
+      showMarketAppDetail: false,
+    })
+  }
+  hideImportApp = () => {
+    this.setState({ showImportApp: false });
+  };
   hideOfflineApp = () => {
     this.setState({ showOfflineApp: null });
-  };
-  handleImportMenuClick = (e) => {
-    if (e.key == '1') {
-      this.setState({ showUpload: true });
-    }
-    if (e.key == '2') {
-      this.setState({ showBatchImport: true });
-      this.props.dispatch({
-        type: 'createApp/importDir',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-        },
-        callback: (data) => {
-          this.setState({
-            source_dir: data.bean.source_dir,
-            importEvent_id: data.bean.event_id,
-          });
-        },
-      });
-    }
   };
   handleCancelUpload = () => {
     this.setState({ showUpload: false });
@@ -410,6 +353,10 @@ export default class AppList extends PureComponent {
     this.queryImportingApp();
     this.getApps();
   };
+  handleShowImportApp = () => {
+    this.setState({ showImportApp: true });
+  }
+  
   renderSubMenu = (item, querydata) => {
     const id = item.ID;
     const exportbox = querydata[id];
@@ -486,19 +433,18 @@ export default class AppList extends PureComponent {
     this.queryExport(item);
   };
   render() {
-    const ImportMenu = (
-      <Menu onClick={this.handleImportMenuClick}>
-        <Menu.Item key="1">文件上传</Menu.Item>
-        <Menu.Item key="2">批量导入</Menu.Item>
-      </Menu>
-    );
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-        <ButtonGroup value="">
-          <Dropdown overlay={ImportMenu}>
-            <Button>导入应用</Button>
-          </Dropdown>
+          {!this.state.showImportApp && (
+            <Button
+            value="test"
+            onClick={this.handleShowImportApp}
+          >
+            离线导入应用
+          </Button>
+          )}
           <Button
+            style={{marginLeft: 16}}
             type="primary"
             value="test"
             onClick={() => {
@@ -507,7 +453,6 @@ export default class AppList extends PureComponent {
           >
             云端同步
           </Button>
-        </ButtonGroup>
       </div>
     );
 
@@ -529,6 +474,17 @@ export default class AppList extends PureComponent {
           overflow: 'hidden',
         }}
       >
+        <div
+          style={{
+            transition: 'all .8s',
+            transform: this.state.showImportApp ? 'translate3d(0, 0, 0)' : 'translate3d(0, 100%, 0)',
+            marginBottom: 16,
+          }}
+        >
+          {this.state.showImportApp ? (
+            <AppImport cancelImport={this.hideImportApp} onOK={this.hideImportApp} />
+          ) : null}
+        </div>
         <Card
           className={BasicListStyles.listCard}
           bordered={false}
@@ -641,9 +597,14 @@ export default class AppList extends PureComponent {
                         src={item.pic || require('../../../public/images/app_icon.jpg')}
                         shape="square"
                         size="large"
+                        onClick={() =>{
+                          this.showMarketAppDetail(item)
+                        }}
                       />
                     }
-                    title={item.group_name}
+                    title={<a style={{color:"#1890ff"}} href="javascript:;" onClick={() =>{
+                      this.showMarketAppDetail(item)
+                    }}>{item.group_name}{item.is_official&&("(官方发布)")}</a>}
                     description={
                       <div>
                         <p>版本: {item.version}</p>
@@ -653,14 +614,6 @@ export default class AppList extends PureComponent {
                   />
                 </List.Item>
               );
-              if (index === 0 && this.state.importingApps && this.state.importingApps.length) {
-                return (
-                  <Fragment>
-                    <ImportingApps data={this.state.importingApps} dispatch={this.props.dispatch} />
-                    {renderItem}
-                  </Fragment>
-                );
-              }
                 return renderItem;
             }}
           />
@@ -694,24 +647,11 @@ export default class AppList extends PureComponent {
             onCancel={this.hideOfflineApp}
           />
         )}
-        {this.state.showUpload && (
-          <UploadFile onOk={this.handleUploadOk} onCancel={this.handleCancelUpload} />
-        )}
-        {this.state.showBatchImport && (
-          <BatchImportForm
-            onOk={this.handleBatchImportOk}
-            onCancel={this.handleCancelBatchImport}
-            source_dir={this.state.source_dir}
-            event_id={this.state.importEvent_id}
-          />
-        )}
-        {this.state.showBatchImportList && (
-          <BatchImportListForm
-            onOk={this.handleOKBatchImportList}
-            onCancel={this.handleCancelBatchImportList}
-            event_id={this.state.importEvent_id}
-            file_name={this.state.importNameList}
-            source_dir={this.state.source_dir}
+        {this.state.showMarketAppDetail && (
+          <MarketAppDetailShow
+            onOk={this.hideMarketAppDetail}
+            onCancel={this.hideMarketAppDetail}
+            app={this.state.showApp}
           />
         )}
       </div>

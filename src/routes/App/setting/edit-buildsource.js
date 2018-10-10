@@ -33,7 +33,7 @@ export default class ChangeBuildSource extends PureComponent {
   }
   getUrlCheck() {
     if (this.state.serverType == "svn") {
-      return /^(svn:\/\/).+$/gi;
+      return /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     return /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
   }

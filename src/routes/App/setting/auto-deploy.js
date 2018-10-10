@@ -16,6 +16,7 @@ export default class AutoDeploy extends PureComponent {
     this.state = {
       display: false,
       status: false,
+      support_type: 0,
       url: "",
       custom_url: "",
       secret_key: "",
@@ -38,8 +39,9 @@ export default class AutoDeploy extends PureComponent {
           url: data.bean.url,
           custom_url: data.bean.custom_url,
           secret_key: data.bean.secret_key,
+          support_type: data.bean.support_type,
         });
-        this.props.form.setFieldsValue({ secret_key: data.bean.secret_key });
+        //this.props.form.setFieldsValue({ secret_key: data.bean.secret_key });
       },
     });
   };
@@ -101,26 +103,33 @@ export default class AutoDeploy extends PureComponent {
         )}
         {this.state.status === true && (
           <Card type="inner" title="自动构建触发方式">
-            <DescriptionList size="small" style={{ marginBottom: 16 }} title="Git-Webhook" col="1">
-              <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
-              <Description term="Webhook">
-                {this.state.url}{" "}
-                <CopyToClipboard
-                  text={this.state.url}
-                  onCopy={() => {
-                    notification.success({ message: "复制成功" });
-                  }}
-                >
-                  <Button size="small">复制</Button>
-                </CopyToClipboard>
-              </Description>
-            </DescriptionList>
-            <Alert message="当Commmit信息包含“@deploy”时将自动触发应用自动部署" type="success" />
-            <Divider style={{ margin: "16px 0" }} />
+            {
+              this.state.support_type === 1 && (
+                <div>
+                  <DescriptionList size="small" style={{ marginBottom: 16 }} title="Git-Webhook" col="1">
+                    <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
+                    <Description term="Webhook">
+                      {this.state.url}{" "}
+                      <CopyToClipboard
+                        text={this.state.url}
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
+                        }}
+                      >
+                        <Button size="small">复制</Button>
+                      </CopyToClipboard>
+                    </Description>
+                  </DescriptionList>
+                  <Alert message="当Commmit信息包含“@deploy”时将自动触发应用自动部署" type="success" />
+                  <Divider style={{ margin: "16px 0" }} />
+                </div>
+              )
+            }
             <DescriptionList size="small" style={{ marginBottom: 16 }} title="自定义API" col="1">
               <Description term="API">
-                {this.state.custom_url}
+                {this.state.custom_url}{" "}
                 <CopyToClipboard
+                  text={this.state.custom_url}
                   onCopy={() => {
                     notification.success({ message: "复制成功" });
                   }}

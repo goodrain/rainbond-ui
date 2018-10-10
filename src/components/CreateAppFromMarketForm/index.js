@@ -102,7 +102,7 @@ export default class Index extends PureComponent {
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="选择应用组">
             {getFieldDecorator('group_id', {
-              initialValue: data.groupd_id || -1,
+              initialValue: data.groupd_id ,
               rules: [
                 {
                   required: true,
@@ -116,7 +116,7 @@ export default class Index extends PureComponent {
                   marginRight: 15,
                 }}
             >
-              {(groups || []).map(group => <Option value={group.group_id}>{group.group_name}</Option>)}
+              {(groups || []).map(group => <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>)}
             </Select>)}
             <Button onClick={this.onAddGroup}>新建组</Button>
           </Form.Item>

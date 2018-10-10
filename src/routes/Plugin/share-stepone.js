@@ -302,7 +302,7 @@ export default class Main extends PureComponent {
             <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>提交</Button>
             <Button
               disabled={loading.effects['plugin/giveupSharePlugin']}
-              onClick={this.handleGiveup}>放弃分享</Button>
+              onClick={this.handleGiveup}>放弃发布</Button>
           </FooterToolbar>
 
         </div>

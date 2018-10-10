@@ -154,7 +154,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         page: 1,
-        page_size: 8,
+        page_size: 6,
       },
     });
   };
@@ -231,7 +231,7 @@ export default class Index extends PureComponent {
           <Col md={8} sm={24}>
             <FormItem label="应用状态">
               {getFieldDecorator("service_status", { initialValue: "all" })(<Select placeholder="请选择">
-                {status.map(item => <Option value={item.value}>{item.text}</Option>)}
+                {status.map(item => <Option key={item.value} value={item.value}>{item.text}</Option>)}
                                                                             </Select>)}
             </FormItem>
           </Col>
@@ -325,7 +325,7 @@ export default class Index extends PureComponent {
         item.service_alias
       }/overview`;
       return (
-        <List.Item key={item.id}>
+        <List.Item key={item.ID}>
           <List.Item.Meta
             title={
               <span>

@@ -7,6 +7,7 @@ import { horizontal, vertical } from "../../services/app";
 import globalUtil from "../../utils/global";
 import appUtil from "../../utils/app";
 import NoPermTip from "../../components/NoPermTip";
+import InstanceList from "../../components/AppInstanceList";
 
 const { Option } = Select;
 
@@ -14,6 +15,7 @@ const { Option } = Select;
   currUser: user.currentUser,
   baseInfo: appControl.baseInfo,
   extendInfo: appControl.extendInfo,
+  instances: appControl.pods,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -27,6 +29,7 @@ export default class Index extends PureComponent {
 
   componentDidMount() {
     if (!this.canView()) return;
+    this.fetchInstanceInfo();
     this.fetchExtendInfo();
   }
   componentWillUnmount() {
@@ -62,6 +65,27 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handlePodClick = (podName, manageName) => {
+    console.log(podName, manageName);
+    let adPopup = window.open("about:blank");
+    const appAlias = this.props.appAlias;
+    if (podName && manageName) {
+      this
+        .props
+        .dispatch({
+          type: "appControl/managePod",
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: appAlias,
+            pod_name: podName,
+            manage_name: manageName,
+          },
+          callback: () => {
+            adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
+          },
+        });
+    }
+  }
   fetchExtendInfo = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -77,6 +101,16 @@ export default class Index extends PureComponent {
       },
     });
   };
+  fetchInstanceInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "appControl/fetchPods",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+      },
+    });
+  };
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo } = this.props;
@@ -87,44 +121,56 @@ export default class Index extends PureComponent {
     }
 
     return (
-      <Card title="手动伸缩">
-        <Row gutter={16}>
-          <Col lg={12} md={12} sm={24}>
-            <Form layout="inline" hideRequiredMark>
-              <Form.Item label="内存">
-                {getFieldDecorator("memory", {
+      <div>
+        <Card
+          title="实例情况"
+          extra={
+            <a onClick={this.fetchInstanceInfo} href="javascript:;">
+              刷新
+            </a>
+        }
+        >
+          <InstanceList handlePodClick={this.handlePodClick} list={this.props.instances} />
+        </Card>
+        <Card style={{ marginTop: 16 }} title="手动伸缩">
+          <Row gutter={16}>
+            <Col lg={12} md={12} sm={24}>
+              <Form layout="inline" hideRequiredMark>
+                <Form.Item label="内存">
+                  {getFieldDecorator("memory", {
                   initialValue: `${extendInfo.current_memory}`,
                 })(<Select
                   style={{
                       width: 200,
                     }}
                 >
-                  {(extendInfo.memory_list || []).map(item => <Option value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
+                  {(extendInfo.memory_list || []).map(item => <Option key={item} value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
                    </Select>)}{" "}
-                <Button onClick={this.handleVertical} size="md" type="primary">
+                  <Button onClick={this.handleVertical} size="default" type="primary">
                   设置
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-          <Col lg={12} md={12} sm={24}>
-            <Form layout="inline" hideRequiredMark>
-              <Form.Item label="实例数量">
-                {getFieldDecorator("node", { initialValue: extendInfo.current_node })(<Select
-                  style={{
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Col>
+            <Col lg={12} md={12} sm={24}>
+              <Form layout="inline" hideRequiredMark>
+                <Form.Item label="实例数量">
+                  {getFieldDecorator("node", { initialValue: extendInfo.current_node })(<Select
+                    style={{
                       width: 200,
                     }}
-                >
-                  {(extendInfo.node_list || []).map(item => <Option value={item}>{item}</Option>)}
-                </Select>)}{" "}
-                <Button onClick={this.handleHorizontal} size="md" type="primary">
+                  >
+                    {(extendInfo.node_list || []).map(item => <Option key={item} value={item}>{item}</Option>)}
+                  </Select>)}{" "}
+                  <Button onClick={this.handleHorizontal} size="default" type="primary">
                   设置
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </Card>
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Col>
+          </Row>
+        </Card>
+      </div>
     );
   }
 }

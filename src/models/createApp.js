@@ -2,18 +2,8 @@ import {
   createAppByCode,
   createAppByCompose,
   createAppByDockerrun,
-  getMarketApp,
   installApp,
-  queryExport,
-  appExport,
-  getExport,
   getAppsByComposeId,
-  uploadApp,
-  importApp,
-  queryImportApp,
-  importDir,
-  queryImportDirApp,
-  queryImportingApp,
 } from '../services/createApp';
 
 export default {
@@ -62,67 +52,7 @@ export default {
           callback && callback(data);
         });
       }
-    },
-    * getMarketApp({ payload, callback }, { call, put }) {
-      const data = yield call(getMarketApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * queryExport({ payload, callback }, { call, put }) {
-      const data = yield call(queryExport, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * appExport({ payload, callback }, { call, put }) {
-      const data = yield call(appExport, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * getExport({ payload, callback }, { call, put }) {
-      const data = yield call(getExport, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * uploadApp({ payload, callback }, { call, put }) {
-      const data = yield call(uploadApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * importApp({ payload, callback }, { call, put }) {
-      const data = yield call(importApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * queryImportApp({ payload, callback }, { call, put }) {
-      const data = yield call(queryImportApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * importDir({ payload, callback }, { call, put }) {
-      const data = yield call(importDir, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * queryImportDirApp({ payload, callback }, { call, put }) {
-      const data = yield call(queryImportDirApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
-    * queryImportingApp({ payload, callback }, { call, put }) {
-      const data = yield call(queryImportingApp, payload);
-      if (data) {
-        callback && callback(data);
-      }
-    },
+    }
   },
 
   reducers: {
