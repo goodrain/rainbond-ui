@@ -1,10 +1,10 @@
 let baseUrl = "";
 let imageUploadUrl = "";
 if (process.env.NODE_ENV === "dev") {
-  baseUrl = "http://gr-debug.goodrain.com/";
+  baseUrl = "http://dev.goodrain.com";
 } else if (process.env.NODE_ENV === "development") {
   // baseUrl = '/api';
-  baseUrl = "http://dev.goodrain.org";
+  baseUrl = "http://dev.goodrain.com";
 } else if (process.env.NODE_ENV === "production") {
   baseUrl = "";
 }
