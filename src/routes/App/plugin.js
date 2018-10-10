@@ -46,6 +46,7 @@ class UpdateMemory extends PureComponent {
     return (
       <Modal title="内存修改" visible onOk={this.handleOk} onCancel={this.props.onCancel}>
         <Select style={{ width: "100%" }} value={this.state.memory} onChange={this.handleChange}>
+          <Option value={32}>32M</Option>
           <Option value={64}>64M</Option>
           <Option value={128}>128M</Option>
           <Option value={256}>256M</Option>
@@ -120,7 +121,7 @@ class ConfigItems extends PureComponent {
             disabled={!item.is_change}
             value={item.attr_value || item.attr_default_value || ""}
           >
-            {options.map(v => <Option value={v}>{v}</Option>)}
+            {options.map(v => <Option key={v} value={v}>{v}</Option>)}
           </Select>
         </FormItem>
       );
@@ -148,7 +149,7 @@ class ConfigItems extends PureComponent {
             value={(item.attr_value || item.attr_default_value || "").split(",")}
             mode="multiple"
           >
-            {options.map(v => <Option value={v}>{v}</Option>)}
+            {options.map(v => <Option key={v} value={v}>{v}</Option>)}
           </Select>
         </FormItem>
       );
@@ -170,14 +171,14 @@ class ConfigDownstreamPort extends PureComponent {
     super(props);
     const data = this.props.data;
     this.state = {
-      currApp: data[0].dest_service_cname,
+      currApp: data[0].dest_service_alias,
       currPort: data[0].port,
     };
   }
-  getAppByName = appName => this.props.data.filter(item => item.dest_service_cname === appName);
-  handleAppChange = (appName) => {
-    const apps = this.getAppByName(appName);
-    this.setState({ currApp: appName, currPort: apps[0].port });
+  getAppByName = appAlias => this.props.data.filter(item => item.dest_service_alias === appAlias);
+  handleAppChange = (appAlias) => {
+    const apps = this.getAppByName(appAlias);
+    this.setState({ currApp: appAlias, currPort: apps[0].port });
   };
   handlePortChange = (port) => {
     this.setState({ currPort: port });
@@ -192,12 +193,29 @@ class ConfigDownstreamPort extends PureComponent {
     const apps = this.getAppByName(currApp);
     return apps.filter(item => item.port === currPort)[0];
   };
-  render() {
+  getApps = () =>{
     const data = this.props.data;
+    let n = []
+    let apps = []
+    data.map(item => {
+      if(n.indexOf(item.dest_service_alias) == -1) {
+         n.push(item.dest_service_alias);
+         apps.push({
+           dest_service_alias: item.dest_service_alias,
+           dest_service_cname: item.dest_service_cname,
+           port: item.port,
+         })
+      }
+    });
+    console.log(apps)
+    return apps
+  }
+  render() {
     const currData = this.getCurrData();
     const currPort = this.state.currPort;
     const currApp = this.state.currApp;
     const ports = this.getCurrPorts();
+    const apps = this.getApps()
     return (
       <Card
         style={{
@@ -214,8 +232,8 @@ class ConfigDownstreamPort extends PureComponent {
             >
               下游应用:{" "}
               <Select onChange={this.handleAppChange} value={currApp}>
-                {data.map(item => (
-                  <Option value={item.dest_service_cname}>{item.dest_service_cname}</Option>
+                {apps.map(item => (
+                  item && <Option key={item.dest_service_alias+item.port} value={item.dest_service_alias}>{item.dest_service_cname}</Option>
                 ))}
               </Select>
             </span>{" "}
@@ -269,7 +287,7 @@ class ConfigUpstreamPort extends PureComponent {
             >
               端口号:{" "}
               <Select onChange={this.handlePortChange} value={currPort}>
-                {data.map(item => <Option value={item.port}>{item.port}</Option>)}
+                {data.map(item => <Option key={item.port} value={item.port}>{item.port}</Option>)}
               </Select>
             </span>{" "}
             <span style={{ marginRight: 24 }}> 端口协议 : {currData.protocol} </span>{" "}

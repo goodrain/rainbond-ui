@@ -26,13 +26,8 @@ export default class AddPort extends PureComponent {
    handleCheckPort = (rule, value, callback) => {
       const { getFieldValue } = this.props.form;
       if((this.props.isImageApp || this.props.isDockerfile)){
-         if(value<1 || value > 65535){
-          callback("端口范围为1-65535");
-          return;
-         }
-      }else{
-        if(value<1025 || value > 65535){
-          callback("端口范围为1025-65535");
+         if(value<1 || value > 65534){
+          callback("端口范围为1-65534");
           return;
          }
       }
