@@ -79,13 +79,16 @@ export default class Index extends PureComponent {
       }
       msg += message.status || "";
       msg += message.progress || "";
-      if (data.step != "build-progress") {
+      if (msg) {
         return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
       return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${message.stream}</span>`;
     } catch (e) {
-      return "";
-    }
+      if (data.message) {
+        return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+      }
+      return ""
+     }
   };
   createTmpElement() {
     this.ele = document.createElement("p");
