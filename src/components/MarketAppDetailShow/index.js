@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Modal} from 'antd';
+import {Modal, Button} from 'antd';
 import ReactMarkdown from "react-markdown"
 import styles from './index.less';
 

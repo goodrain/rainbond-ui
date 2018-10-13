@@ -640,7 +640,7 @@ class Main extends PureComponent {
                         <Button onClick={this.handleDeploy} type="primary">重新部署</Button>
                     : ''}
                 {
-                    (appDetail.service.service_source=="market" && appDetail.service.is_upgrade) && (
+                    (appDetail.service.service_source=="market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 }
