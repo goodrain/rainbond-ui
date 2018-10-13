@@ -63,6 +63,9 @@ export default class Index extends PureComponent {
       }
     });
   };
+  complete = () => {
+    this.props.onOK && this.props.onOK()
+  }
   closeAutoQuery = () => {
     this.autoQuery = false;
     this.setState({ autoQuery: false });
@@ -185,19 +188,27 @@ export default class Index extends PureComponent {
           setTimeout(() => {
             this.queryImportStatus();
           }, 2000);
-        }else if (data.bean&&data.bean.status=="success"){
+        }
+        if (data.bean&&data.bean.status=="partial_success") {
+          notification.success({
+            message: "部分应用导入失败，你可以重试或取消导入"
+          });
+        }
+        if (data.bean&&data.bean.status=="success") {
           notification.success({
              message: "导入完成"
           });
           this.props.onOK && this.props.onOK()
-        }else if (data.bean&&data.bean.status=="failed"){
+        }
+        if (data.bean&&data.bean.status=="failed") {
           notification.success({
-             message: "导入失败"
+             message: "应用导入失败"
           });
         }
       }
     });
   };
+
   handleQueryImportDir = () => {
     if (this.autoQuery) {
       this.props.dispatch({
@@ -232,6 +243,7 @@ export default class Index extends PureComponent {
         notification.success({
           message: "开始重新导入"
         });
+        this.openQueryImportStatus()
       }
     });
   };
@@ -329,7 +341,9 @@ export default class Index extends PureComponent {
                         </span>
                         {app.status == "failed" ? (
                           <Button
-                            onClick={this.reImportApp(app.file_name)}
+                            onClick={()=>{
+                              this.reImportApp(app.file_name)
+                            }}
                             size="small"
                           >
                             重新导入

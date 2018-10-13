@@ -596,13 +596,12 @@ class Main extends PureComponent {
                 <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>删除</Menu.Item>
             </Menu>
         );
-
+        const appAlias = this.getAppAlias()
         const action = (
             <div>
                 <ButtonGroup>
-                    {(appStatusUtil.canVisit(status))
-                        ? <VisitBtn app_alias={this.getAppAlias()}/>
-                        : null}
+                    
+                    {(appDetail.service.service_source !="market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias}/>)}
 
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status)
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
@@ -631,7 +630,7 @@ class Main extends PureComponent {
                         <Button>其他操作<Icon type="ellipsis"/></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status))
+                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source!="market")
                      ?
                      this.state.showDeployTips?
                         <Tooltip title="应用配置已更改，重新部署后生效">
@@ -640,6 +639,12 @@ class Main extends PureComponent {
                         : 
                         <Button onClick={this.handleDeploy} type="primary">重新部署</Button>
                     : ''}
+                {
+                    (appDetail.service.service_source=="market" && appDetail.service.is_upgrade) && (
+                        <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
+                    )
+                }
+                {(appDetail.service.service_source =="market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias}/>)}
 
             </div>
         );

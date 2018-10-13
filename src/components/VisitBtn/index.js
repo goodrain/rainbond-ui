@@ -83,7 +83,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-          <Button onClick={this.showModal}>访问</Button>
+          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -118,7 +118,7 @@ export default class Index extends PureComponent {
     if (links.length === 1) {
       return (
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-          <Button
+          <Button type={this.props.btntype}
             onClick={() => {
               window.open(links[0]);
             }}
@@ -131,7 +131,7 @@ export default class Index extends PureComponent {
       return (
         <Fragment>
           <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-            <Button onClick={this.showModal}>访问</Button>
+            <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
           </Tooltip>
           {showModal && (
             <Modal
@@ -168,7 +168,7 @@ export default class Index extends PureComponent {
             }
           placement="bottomRight"
         >
-          <Button>
+          <Button type={this.props.btntype}>
             <a href={links[0]} target="_blank">
                 访问
             </a>
@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-          <Button onClick={this.showModal}>访问</Button>
+          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -217,7 +217,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-          <Button onClick={this.showModal}>访问</Button>
+          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -379,7 +379,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
-          <Button onClick={this.showModal}>访问</Button>
+          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
           <Modal
