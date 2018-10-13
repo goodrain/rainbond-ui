@@ -636,7 +636,7 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="云市应用名称"
                 >
-                  {!this.state.buildSource.group_key?(
+                  {this.state.buildSource.group_key?(
                     <a href="javascript:;" onClick={()=>{
                       this.setState({
                         showApp: {
