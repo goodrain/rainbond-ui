@@ -1,15 +1,8 @@
 import React, { PureComponent, Fragment } from "react";
 import globalUtil from "../../utils/global";
-import MarketAppDetailShow from '../../components/MarketAppDetailShow'
+import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import BasicListStyles from "../List/BasicList.less";
-import {
-  Card,
-  List,
-  Avatar,
-  Input,
-  Radio,
-  notification
-} from "antd";
+import { Card, List, Avatar, Input, Radio, notification } from "antd";
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
@@ -113,6 +106,41 @@ export default class CloudApp extends PureComponent {
       showMarketAppDetail: false
     });
   };
+  getAction = item => {
+    if (item.is_complete) {
+      if (item.is_upgrade === 0) {
+        return (
+          <Fragment>
+            <span>已下载,无更新</span>
+          </Fragment>
+        );
+      } else {
+        return (
+          <Fragment>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.handleLoadAppDetail(item);
+              }}
+            >
+              更新新版本
+            </a>
+          </Fragment>
+        );
+      }
+    } else {
+      return (
+        <a
+          href="javascript:;"
+          onClick={() => {
+            this.handleLoadAppDetail(item);
+          }}
+        >
+          下载
+        </a>
+      );
+    }
+  };
   render() {
     const paginationProps = {
       pageSize: this.state.pageSize,
@@ -122,6 +150,7 @@ export default class CloudApp extends PureComponent {
         this.handlePageChange(pageSize);
       }
     };
+
     return (
       <Card
         className={BasicListStyles.listCard}
@@ -155,24 +184,7 @@ export default class CloudApp extends PureComponent {
           pagination={paginationProps}
           dataSource={this.state.apps}
           renderItem={item => (
-            <List.Item
-              actions={[
-                item.is_complete ? (
-                  <Fragment>
-                    <span>已下载</span>
-                  </Fragment>
-                ) : (
-                  <a
-                    href="javascript:;"
-                    onClick={() => {
-                      this.handleLoadAppDetail(item);
-                    }}
-                  >
-                    下载
-                  </a>
-                )
-              ]}
-            >
+            <List.Item actions={[this.getAction(item)]}>
               <List.Item.Meta
                 avatar={
                   <Avatar
@@ -186,9 +198,18 @@ export default class CloudApp extends PureComponent {
                     size="large"
                   />
                 }
-                title={<a style={{color:"#1890ff"}} href="javascript:;" onClick={() =>{
-                    this.showMarketAppDetail(item)
-                  }}>{item.group_name}{item.is_official&&("(官方发布)")}</a>}
+                title={
+                  <a
+                    style={{ color: "#1890ff" }}
+                    href="javascript:;"
+                    onClick={() => {
+                      this.showMarketAppDetail(item);
+                    }}
+                  >
+                    {item.group_name}
+                    {item.is_official && "(官方发布)"}
+                  </a>
+                }
                 description={
                   <div>
                     <p>版本: {item.version}</p>
@@ -199,13 +220,13 @@ export default class CloudApp extends PureComponent {
             </List.Item>
           )}
         />
-      {this.state.showMarketAppDetail && (
+        {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={this.state.showApp}
           />
-      )}  
+        )}
       </Card>
     );
   }
