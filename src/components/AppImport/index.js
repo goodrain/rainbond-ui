@@ -184,27 +184,28 @@ export default class Index extends PureComponent {
         if (data.bean&&data.bean.status == "uploading") {
            return
         }
-        if (data.bean&&(data.bean.status!="success" && data.bean.status!="failed")){
-          setTimeout(() => {
-            this.queryImportStatus();
-          }, 2000);
-        }
         if (data.bean&&data.bean.status=="partial_success") {
           notification.success({
             message: "部分应用导入失败，你可以重试或取消导入"
           });
+          return
         }
         if (data.bean&&data.bean.status=="success") {
           notification.success({
              message: "导入完成"
           });
           this.props.onOK && this.props.onOK()
+          return
         }
         if (data.bean&&data.bean.status=="failed") {
           notification.success({
              message: "应用导入失败"
           });
+          return
         }
+        setTimeout(() => {
+            this.queryImportStatus();
+        }, 2000);
       }
     });
   };
