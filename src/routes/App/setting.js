@@ -18,7 +18,7 @@ import AddVarModal from "./setting/env";
 import EditRunHealthCheck from "./setting/edit-run-health-check";
 import DescriptionList from "../../components/DescriptionList";
 import ChangeBuildSource from "./setting/edit-buildsource";
-
+import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
 
 @connect(
@@ -56,6 +56,8 @@ export default class Index extends PureComponent {
       members: null,
       buildSource: null,
       changeBuildSource: false,
+      showMarketAppDetail: false,
+      showApp: {}
     };
   }
   componentDidMount() {
@@ -450,6 +452,12 @@ export default class Index extends PureComponent {
   hideDelMember = () => {
     this.setState({ toDeleteMember: null });
   };
+  hideMarketAppDetail = () =>{
+    this.setState({
+      showApp: {},
+      showMarketAppDetail: false
+    });
+  }
   handleDelMember = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
@@ -626,9 +634,20 @@ export default class Index extends PureComponent {
                     marginBottom: 0,
                   }}
                   {...formItemLayout}
-                  label="镜像名称"
+                  label="云市应用名称"
                 >
-                  {this.state.buildSource.image}
+                  {this.state.buildSource.group_key?(
+                    <a href="javascript:;" onClick={()=>{
+                      this.setState({
+                        showApp: {
+                          details: this.state.buildSource.details,
+                          group_name: this.state.buildSource.rain_app_name,
+                          group_key:this.state.buildSource.group_key,
+                        },
+                        showMarketAppDetail: true
+                      });
+                    }}>{this.state.buildSource.rain_app_name}</a>
+                  ):("无法找到源应用，可能已删除")}
                 </FormItem>
                 <FormItem
                   style={{
@@ -638,15 +657,6 @@ export default class Index extends PureComponent {
                   label="版本"
                 >
                   {this.state.buildSource.version}
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="启动命令"
-                >
-                  {this.state.buildSource.docker_cmd}
                 </FormItem>
               </Fragment>
             ) : (
@@ -1112,6 +1122,13 @@ export default class Index extends PureComponent {
             appAlias={this.props.appAlias}
             title="更改应用构建源"
             onCancel={this.hideBuildSource}
+          />
+        )}
+        {this.state.showMarketAppDetail && (
+          <MarketAppDetailShow
+            onOk={this.hideMarketAppDetail}
+            onCancel={this.hideMarketAppDetail}
+            app={this.state.showApp}
           />
         )}
       </Fragment>

@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Modal} from 'antd';
+import {Modal, Button} from 'antd';
 import ReactMarkdown from "react-markdown"
 import styles from './index.less';
 
@@ -18,6 +18,7 @@ export default class Index extends PureComponent {
             visible={true}
             onOk={this.props.onOk}
             onCancel={this.props.onCancel}
+            footer={<Button onClick={this.props.onOk}>确定</Button>}
             title={this.state.title}
             width={700}
             >
