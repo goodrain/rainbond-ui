@@ -191,15 +191,17 @@ export async function getRegionOneDayMoney(body = { team_name, date, region }) {
 export async function authEnterprise(body = {
   team_name,
   enterprise_id,
+  market_info,
   market_client_id,
   market_client_token,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/enterprise/active`, {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/enterprise/active/optimiz`, {
     method: "post",
     data: {
       enterprise_id: body.enterprise_id,
-      market_client_id: body.market_client_id,
-      market_client_token: body.market_client_token,
+      // market_client_id: body.market_client_id,
+      // market_client_token: body.market_client_token,
+      market_info: body.market_info.replace(/\s+/g,"")
     },
   });
 }
