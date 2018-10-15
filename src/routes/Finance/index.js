@@ -263,10 +263,10 @@ export default class BasicList extends PureComponent {
     );
   };
   handelUnderstand = () => {
-    window.open("https://www.rainbond.com/docs/stable/support/rainbond-enterprise-support.html");
+    window.open("https://www.goodrain.com/industrycloud");
   };
   handelObtain = () => {
-    window.open("https://www.rainbond.com/docs/stable/support/rainbond-opensource-support.html");
+    window.open("https://t.goodrain.com/");
   };
   getSettingShow = () => {
     if (!this.props.is_public) {
@@ -327,7 +327,7 @@ export default class BasicList extends PureComponent {
                 了解企业解决方案
               </Button>
               <Button style={{ marginLeft: 16 }} onClick={this.handelObtain}>
-                获取开源支持
+                开源社区
               </Button>
             </Description>
           </DescriptionList>
