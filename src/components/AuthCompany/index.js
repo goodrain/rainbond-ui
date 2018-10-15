@@ -4,7 +4,7 @@ import { Row, Col, Button, Modal, Form, Input, Steps, notification } from 'antd'
 import globalUtil from '../../utils/global';
 
 const { Step } = Steps;
-
+const {TextArea} = Input;
 @Form.create()
 class AuthForm extends PureComponent {
   handleSubmit = (e) => {
@@ -33,7 +33,7 @@ class AuthForm extends PureComponent {
         layout="horizontal"
         hideRequiredMark
       >
-        <Form.Item {...formItemLayout} label="企业ID">
+        {/* <Form.Item {...formItemLayout} label="企业ID">
           {getFieldDecorator('market_client_id', {
             initialValue: '',
             rules: [
@@ -54,7 +54,19 @@ class AuthForm extends PureComponent {
               },
             ],
           })(<Input placeholder="请输入您的企业Token" />)}
+        </Form.Item> */}
+        <Form.Item {...formItemLayout} label="企业秘钥">
+          {getFieldDecorator('market_info', {
+            initialValue: '',
+            rules: [
+              {
+                required: true,
+                message: '请输入您的企业秘钥',
+              },
+            ],
+          })(<TextArea placeholder="请输入您的企业秘钥" autosize />)}
         </Form.Item>
+
         <Row>
           <Col span="6" />
           <Col span="18" style={{}}>
@@ -81,9 +93,12 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: 'global/authEnterprise',
       payload: {
+        // team_name: globalUtil.getCurrTeamName(),
+        // enterprise_id: currUser.enterprise_id,
+        // ...vals,
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: currUser.enterprise_id,
-        ...vals,
+        market_info: vals.market_info
       },
       callback: () => {
         notification.success({
@@ -104,7 +119,7 @@ export default class Index extends PureComponent {
         currStep: 1,
       },
       () => {
-        window.open(`https://www.goodrain.com/spa/#/check-console/${currUser.enterprise_id}`);
+        window.open(`https://www.goodrain.com/spa/#/check-key/${currUser.enterprise_id}`);
       },
     );
   };

@@ -450,7 +450,10 @@ class BasicLayout extends React.PureComponent {
         {this.props.showAuthCompany && (
           <AuthCompany
             onOk={() => {
-              location.reload();
+              // location.reload();
+              setTimeout(function(){
+                history.go(0);
+              },1000)
             }}
           />
         )}

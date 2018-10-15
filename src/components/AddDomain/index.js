@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
-import { Form, Select, Modal, Input, Alert } from 'antd';
+import React, { PureComponent } from "react";
+import { Form, Select, Modal, Input, Alert } from "antd";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -33,12 +33,12 @@ export default class AddDomain extends PureComponent {
       return;
     }
 
-    if (visitType != 'http' && value) {
+    if (visitType != "http" && value) {
       callback();
       return;
     }
 
-    callback('请选择证书!');
+    callback("请选择证书!");
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -60,24 +60,24 @@ export default class AddDomain extends PureComponent {
         },
       },
     };
-    const protocol = getFieldValue('protocol') || 'http';
+    const protocol = getFieldValue("protocol") || "http";
     const certificates = this.props.certificates || [];
 
     return (
       <Modal title="绑定域名" onOk={this.handleSubmit} visible onCancel={this.handleCancel}>
         <Alert
-          style={{ textAlign: 'center', marginBottom: 16 }}
+          style={{ textAlign: "center", marginBottom: 16 }}
           message="请确保将域名cname指向到本应用的对外服务访问地址"
           type="warning"
         />
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="协议">
-            {getFieldDecorator('protocol', {
-              initialValue: 'http',
+            {getFieldDecorator("protocol", {
+              initialValue: "http",
               rules: [
                 {
                   required: true,
-                  message: '请添加端口',
+                  message: "请添加端口",
                 },
               ],
             })(<Select>
@@ -85,31 +85,31 @@ export default class AddDomain extends PureComponent {
               <Option value="https">HTTPS</Option>
               <Option value="httptohttps">HTTP转HTTPS</Option>
               <Option value="httpandhttps">HTTP与HTTPS共存</Option>
-               </Select>)}
+            </Select>)}
           </FormItem>
           <FormItem {...formItemLayout} label="域名">
-            {getFieldDecorator('domain', {
+            {getFieldDecorator("domain", {
               rules: [
                 {
                   required: true,
-                  message: '请添加域名',
+                  message: "请添加域名",
                 },
                 {
                   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  message: '格式不正确',
+                  message: "格式不正确",
                 },
               ],
             })(<Input placeholder="请填写域名" />)}
           </FormItem>
           <FormItem
             style={{
-              display: protocol == 'http' ? 'none' : '',
+              display: protocol == "http" ? "none" : "",
             }}
             {...formItemLayout}
             label="选择证书"
           >
-            {getFieldDecorator('certificate_id', {
-              initialValue: '',
+            {getFieldDecorator("certificate_id", {
+              initialValue: "",
               rules: [
                 {
                   validator: this.checkKey,

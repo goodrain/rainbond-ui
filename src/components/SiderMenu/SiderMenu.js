@@ -73,10 +73,11 @@ location: {
         withapp = true
       }
       if (itemArr[itemArr.length - 1] === "app") {
+        withapp = true
         return `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`;
       }
-
       if (itemArr[itemArr.length - 2] === "app") {
+        withapp = true
         return this.getOpenGroup(itemArr[itemArr.length - 1]);
       }
       return this.getSelectedMenuKeys(`/${item}`)[0];
@@ -285,7 +286,6 @@ location: {
     // const lastOpenKey = openKeys[openKeys.length - 1]; const isMainMenu =
     // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
     // || item.path === lastOpenKey) );
-
     this.setState({
       openKeys: [...openKeys],
     });
@@ -331,6 +331,7 @@ location: {
           {...menuProps}
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
+          defaultOpenKeys={[`team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`]}
           style={{
           padding: "16px 0",
           width: "100%",
