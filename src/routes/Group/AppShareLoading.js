@@ -10,6 +10,7 @@ import CodeCustomForm from "../../components/CodeCustomForm";
 import LogProcress from "../../components/LogProcress";
 import userUtil from "../../utils/user";
 import regionUtil from "../../utils/region";
+import { openInNewTab } from "../../utils/utils";
 
 @connect(({ user, appControl, loading }) => ({ currUser: user.currentUser, loading }))
 class ShareEvent extends React.Component {
@@ -295,7 +296,7 @@ export default class shareCheck extends PureComponent {
       },
       callback: (data) => {
         if (data.app_market_url) {
-          window.location.href = data.app_market_url;
+          openInNewTab(data.app_market_url)
           return;
         }
         this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${

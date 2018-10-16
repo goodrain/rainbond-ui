@@ -124,6 +124,11 @@ function getRenderArr(routes) {
   return renderArr;
 }
 
+export function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();  
+}
+
 /**
  * Get router routing configuration
  * { path:{name,...param}}=>Array<{name,path ...param}>
