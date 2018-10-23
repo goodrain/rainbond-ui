@@ -50,7 +50,7 @@ class EvnOption extends React.Component {
       return;
     }
 
-    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value || "")) {
+    if (!/^[A-Za-z].*$/.test(value || "")) {
       callback("大小写英文_");
       return;
     }
@@ -366,8 +366,8 @@ export default class Index extends PureComponent {
               rules: [
                 { required: true, message: "请输入配置组名" },
                 {
-                  pattern: /^[A-Za-z][A-Za-z0-9_]*$/,
-                  message: "格式不正确, /^[A-Za-z][A-Za-z0-9_]*$/",
+                  pattern: /^[A-Za-z].*$/,
+                  message: "格式不正确, /^[A-Za-z].*$/",
                 },
               ],
               validateFirst: true,
