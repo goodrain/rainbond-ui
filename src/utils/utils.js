@@ -125,8 +125,12 @@ function getRenderArr(routes) {
 }
 
 export function openInNewTab(url) {
-  var win = window.open(url, '_blank');
-  win.focus();  
+  try{
+    var win = window.open(url, '_blank');
+    win.focus();
+  }catch(e){
+    console.log(e)
+  }
 }
 
 /**
