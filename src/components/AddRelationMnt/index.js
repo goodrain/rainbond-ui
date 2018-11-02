@@ -7,21 +7,11 @@ import moment from "moment";
 import { connect } from "dva";
 import { Link, Switch, Route } from "dva/router";
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
   Input,
-  Alert,
-  Dropdown,
   Table,
   Modal,
-  Radio,
-  Tooltip,
   notification,
+  Pagination,
 } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
@@ -32,11 +22,9 @@ export default class Index extends PureComponent {
     this.state = {
       selectedRowKeys: [],
       list: [],
-      pagination: {
-        total: 0,
-        current: 1,
-        pageSize: 6,
-      },
+      total: 0,
+      current: 1,
+      pageSize: 6,
       localpaths: {},
     };
   }
@@ -63,14 +51,11 @@ export default class Index extends PureComponent {
 
     this.props.onSubmit && this.props.onSubmit(res);
   };
-  handleTableChange = (pagination) => {
-    const pager = {
-      ...this.state.pagination,
-    };
-    pager.current = pagination.current;
+  handleTableChange = (page, pageSize) => {
     this.setState(
       {
-        pagination: pager,
+        current: page,
+        pageSize: pageSize
       },
       () => {
         this.loadUnMntList();
@@ -81,14 +66,14 @@ export default class Index extends PureComponent {
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      page: this.state.pagination.current,
-      page_size: this.state.pagination.pageSize,
+      page: this.state.current,
+      page_size: this.state.pageSize,
       type: "unmnt",
     }).then((data) => {
       if (data) {
         this.setState({
           list: data.list || [],
-          pagination: Object.assign({}, this.state.pagination, { total: data.total }),
+          total: data.total
         });
       }
     });
@@ -110,29 +95,26 @@ export default class Index extends PureComponent {
         });
       },
     };
+    const {total, current, pageSize} = this.state
 
-    const pagination = Object.assign({}, this.state.pagination, {
-      onChange: (page) => {
-        this.loadUnMntList();
-        this.setState({
-          selectedRowKeys: [],
-          pagination: Object.assign({}, this.state.pagination, { current: page }),
-        });
-      },
-    });
+    const pagination = {
+       onChange:this.handleTableChange,
+       total:total,
+       pageSize:pageSize,
+       current:current
+    }
 
     return (
       <Modal
         title="挂载共享目录"
-        width={800}
+        width={900}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
         <Table
-          dataSource={this.state.list}
           pagination={pagination}
-          size="small"
+          dataSource={this.state.list}
           rowSelection={rowSelection}
           columns={[
             {
@@ -160,12 +142,17 @@ export default class Index extends PureComponent {
               dataIndex: "dep_vol_type",
             },
             {
-              title: "目标所属应用",
-              dataIndex: "dep_app_name",
-            },
-            {
-              title: "目标应用所属组",
-              dataIndex: "dep_app_group",
+              title: '目标所属应用',
+              dataIndex: 'dep_app_name',
+              render: (v, data) => {
+                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
+              }
+            }, {
+              title: '目标应用所属组',
+              dataIndex: 'dep_app_group',
+              render: (v, data) => {
+                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
+              }
             },
           ]}
         />
