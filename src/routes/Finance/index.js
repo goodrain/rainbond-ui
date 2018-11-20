@@ -335,7 +335,7 @@ export default class BasicList extends PureComponent {
             </Description>
           </DescriptionList>
         </Card>
-        {true && (
+        {this.state.adminer && (
           <div>
             {this.getSettingShow()}
             <Card
