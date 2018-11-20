@@ -34,6 +34,12 @@ import {
   getRegist,
   getEnterpriseInfo,
   getEnterpriseTeams,
+  queryAuthority,
+  toCreatUser,
+  toBuildShape,
+  toQueryTopology,
+  toQueryLinks,
+  toSearchTenant
 } from "../services/api";
 import { getTeamRegionGroups } from "../services/team";
 
@@ -308,6 +314,42 @@ export default {
         callback && callback(response);
       }
     },
+    * requestAuthority({ callback, payload}, { call }) {
+      const response = yield call(queryAuthority,payload);
+      if ( callback) {
+        callback(response);
+      }
+    },
+    *creatUser({payload,callback},{call}){
+      const response = yield call(toCreatUser,payload);
+      if ( callback) {
+        callback(response);
+      }
+    },
+    *buildShape({payload,callback},{call}){
+      const response = yield call(toBuildShape,payload);
+      if ( callback) {
+        callback(response);
+      }
+    },
+    *fetAllTopology({payload,callback},{call}){
+      const response = yield call(toQueryTopology,payload);
+      if ( callback) {
+        callback(response.bean);
+      }
+    },
+    *queryLinks({payload,callback},{call}){
+      const response = yield call(toQueryLinks,payload);
+      if ( callback) {
+        callback(response);
+      }
+    },
+    *searchTenant({payload,callback},{call}){
+      const response = yield call(toSearchTenant,payload);
+      if ( callback) {
+        callback(response);
+      }
+    }
   },
 
   reducers: {
@@ -378,25 +420,25 @@ export default {
         ...payload,
       };
     },
-    showLoading(state, {}) {
+    showLoading(state, { }) {
       return {
         ...state,
         apploadingnum: state.apploadingnum + 1,
       };
     },
-    hiddenLoading(state, {}) {
+    hiddenLoading(state, { }) {
       return {
         ...state,
         apploadingnum: state.apploadingnum - 1,
       };
     },
-    showAuthCompany(state, {}) {
+    showAuthCompany(state, { }) {
       return {
         ...state,
         showAuthCompany: true,
       };
     },
-    hideAuthCompany(state, {}) {
+    hideAuthCompany(state, { }) {
       return {
         ...state,
         showAuthCompany: false,

@@ -483,3 +483,62 @@ export async function getRegist(body = { }) {
     method: "get",
   });
 }
+/** 获取权限 */
+export async function queryAuthority(params) {
+  return request(`${config.baseUrl}/console/teams/${params.selectedTeam}/role-list`, {
+    method: "get",
+  });
+}
+
+/**创建用户 */
+export async function toCreatUser(params) {
+  return request(`${config.baseUrl}/console/enterprise/admin/add-user`, {
+    method: "post",
+    data:{
+      tenant_name:params.tenant_name,
+      user_name:params.user_name,
+      phone:params.phone,
+      email:params.email,
+      password:params.password,
+      re_password:params.password,
+      role_ids:params.identity.join(","),
+    }
+  });
+}
+/**构建拓扑图 */
+export async function toBuildShape(params) {
+  return request(`${config.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/common_operation `, {
+    method: "post",
+    data:{
+      tenantName:params.tenantName,
+      group_id:params.group_id,
+      action:params.action,
+    }
+  });
+}
+
+/**获取所有的拓扑图 */
+export async function toQueryTopology(params) {
+  return request(`${config.baseUrl}/console/teams/${params.team_name}/topological?group_id=${params.groupId}&region=${params.region_name}`, {
+    method: "get",
+  });
+}
+
+/**获取所有可访问的link */
+export async function toQueryLinks(params) {
+  return request(`${config.baseUrl}/console/teams/${params.team_name}/group/service/visit?service_alias=${params.service_alias}`, {
+    method: "get",
+  });
+}
+
+
+export async function toSearchTenant(params) {
+  return request(`${config.baseUrl}/console/enterprise/teams`, {
+    method: "get",
+    params:{
+      tenant_alias:params.tenant,
+      page_num:params.page_num||1,
+      page_size:params.page_size||1000,
+    }
+  });
+}

@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
-import { Card, Row, Col, DatePicker, notification, Button, Radio } from "antd";
+import { Card, Row, Col, DatePicker, notification, Button, Radio} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "../List/BasicList.less";
 import globalUtil from "../../utils/global";
@@ -16,6 +16,7 @@ import ScrollerX from "../../components/ScrollerX";
 import CreateTeam from "../../components/CreateTeam";
 import rainbond from "../../utils/rainbond";
 import DescriptionList from "../../components/DescriptionList";
+import CreatUser from "../../components/CreatUserForm";
 
 const { Description } = DescriptionList;
 const RadioGroup = Radio.Group;
@@ -51,6 +52,7 @@ export default class BasicList extends PureComponent {
       teamsPageSize: 8,
       showAddTeam: false,
       adminer,
+      userVisible:false
     };
   }
   componentDidMount() {
@@ -287,6 +289,7 @@ export default class BasicList extends PureComponent {
                 <Radio value>允许注册</Radio>
                 <Radio value={false}>禁止注册</Radio>
               </RadioGroup>
+              <Button size="small" type="primary" onClick={this.addUser} style={{float:"right"}}>添加用户</Button>
             </Description>
           </DescriptionList>
         </Card>
@@ -332,7 +335,7 @@ export default class BasicList extends PureComponent {
             </Description>
           </DescriptionList>
         </Card>
-        {this.state.adminer && (
+        {true && (
           <div>
             {this.getSettingShow()}
             <Card
@@ -379,8 +382,36 @@ export default class BasicList extends PureComponent {
       return this.finance();
     }
   };
-
+  //管理员添加用户
+  addUser=()=>{
+    this.setState({
+      userVisible: true,
+    });
+  }
+  handleCreatUser=(values)=>{
+    this.props.dispatch({
+      type:"global/creatUser",
+      payload:{
+        ...values
+      },
+      callback:(data)=>{
+        if(data._condition==200){
+          notification.success({ message: data.msg_show});
+        }else{
+          notification.error({ message: data.msg_show });
+        }
+        // console.log(data)
+      }
+    })
+    this.cancelCreatUser();
+  }
+  cancelCreatUser = () => {
+    this.setState({
+      userVisible: false,
+    });
+  }
   render() {
+    const {userVisible} = this.state;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -419,6 +450,7 @@ export default class BasicList extends PureComponent {
         {this.state.showAddTeam && (
           <CreateTeam onOk={this.handleCreateTeam} onCancel={this.cancelCreateTeam} />
         )}
+        {userVisible && <CreatUser onOk={this.handleCreatUser} onCancel={this.cancelCreatUser}/>}
       </PageHeaderLayout>
     );
   }

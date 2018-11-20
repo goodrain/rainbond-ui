@@ -2,6 +2,8 @@ import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import {
+  Row,
+  Col,
   Form,
   Button,
   Input,
@@ -10,6 +12,7 @@ import {
   Dropdown,
   Modal,
   notification,
+  Card,
 } from "antd";
 import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
@@ -17,6 +20,7 @@ import AppList from "./AppList";
 import AppShape from "./AppShape";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
+import VisterBtn from "../../components/visitBtnForAlllink"
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import teamUtil from "../../utils/team";
@@ -76,7 +80,7 @@ class EditGroupName extends PureComponent {
                 },
               ],
             })(<Input placeholder="请填写组名称" />)
-}
+            }
           </FormItem>
         </Form>
       </Modal>
@@ -98,6 +102,11 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toAdd: false,
+      service_alias:[],
+      linkList:[],
+      running:false,
+      secondJustify:'',
+      json_data_length:0
     };
   }
   getGroupId() {
@@ -106,10 +115,57 @@ class Main extends PureComponent {
   componentDidMount() {
     this.fetchGroupDetail();
     this.recordShare();
-    console.log(this.props);
+    // console.log(this.props);
+    this.loadTopology()
   }
-  componentwillreceiveprops() {
+  loadTopology(){
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+    const groupId = this.getGroupId();
+    dispatch({
+      type:"global/fetAllTopology",
+      payload:{
+        region_name,
+        team_name,
+        groupId
+      },
+      callback:(data)=>{
+        const service_alias = [];
+        let json_data = data.json_data;
+        this.setState({running:false});
+        this.setState({json_data_length:Object.keys(json_data).length})
+        Object.keys(json_data).map(key=>{
+          if(json_data[key].cur_status == "running"){
+            this.setState({running:true});
+          }
+          if(json_data[key].cur_status == "running" && json_data[key].is_internet == true){
+            service_alias.push(json_data[key].service_alias)
+          }
+        })
+        this.setState({service_alias},()=>{
+          // if(service_alias.length>0){
+            this.loadLinks(service_alias.join("-"),team_name)
+          // }
+        })
+      }
+    })
+  }
 
+  loadLinks(service_alias,team_name){
+    const { dispatch } = this.props;
+    dispatch({
+      type:"global/queryLinks",
+      payload:{
+        service_alias,
+        team_name
+      },
+      callback:(data)=>{
+        this.setState({
+          linkList:data.list||[]
+        })
+      }
+    })
   }
   fetchGroupDetail() {
     const { dispatch } = this.props;
@@ -178,7 +234,7 @@ class Main extends PureComponent {
                 this
                   .props
                   .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
-              }else {
+              } else {
                 this
                   .props
                   .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
@@ -279,6 +335,24 @@ class Main extends PureComponent {
       },
     });
   }
+  /**构建拓扑图 */
+  handleTopology=(code)=>{
+    this.props.dispatch({
+      type:"global/buildShape",
+      payload:{
+        tenantName: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
+        action: code
+      },
+      callback:(data)=>{
+        notification.success({ 
+          message: data.msg_show||"构建成功",
+          duration:"3",
+        });
+        this.loadTopology()
+        }
+    })
+  }
   render() {
     const {
       currUser,
@@ -289,8 +363,7 @@ class Main extends PureComponent {
 
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-    if (!groups.length)
-      {return null;}
+    if (!groups.length) { return null; }
     const currGroup = groups.filter((group) => group.group_id === Number(group_id))[0];
     let hasService = false;
     if (currGroup && currGroup.service_list && currGroup.service_list.length) {
@@ -303,23 +376,23 @@ class Main extends PureComponent {
           breadcrumbList={[{
             title: "首页",
             href: "/",
-        }, {
+          }, {
             title: "我的应用",
             href: "",
-        }, {
+          }, {
             title: this.props.groupDetail.group_name,
             href: "",
-        }]}
+          }]}
           content={(
             <div className={styles.pageHeaderContent}>
-            <div className={styles.content}>
-              <div className={styles.contentTitle}>{groupDetail.group_name || "-"}</div>
+              <div className={styles.content}>
+                <div className={styles.contentTitle}>{groupDetail.group_name || "-"}</div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
           extraContent={(
             <Button onClick={this.toAdd} href="javascript:;">新增组</Button>
-        )}
+          )}
         >
           <AppList groupId={this.getGroupId()} /> {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
         </PageHeaderLayout>
@@ -340,7 +413,10 @@ class Main extends PureComponent {
           marginRight: 10,
         }}
         >
-
+          {this.state.running==false ? <Button  onClick={this.handleTopology.bind(this, "start")}>启动</Button>
+          :<Button  onClick={this.handleTopology.bind(this, "stop")}>停止</Button>}
+          <Button disabled={this.state.json_data_length>0?false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button>
+          <Button disabled={this.state.json_data_length>0?false : true} onClick={this.handleTopology.bind(this, "deploy")}>部署</Button>
           {(teamUtil.canShareApp(team) && hasService && this.state.recordShare)
             ? <Button onClick={this.handleShare}>继续发布到市场</Button>
             : ""}
@@ -351,83 +427,85 @@ class Main extends PureComponent {
           <Dropdown
             overlay={(
               <Menu>
-              {
-                teamUtil.canManageGroup(team) &&
-                <Menu.Item>
-                  <a onClick={this.toEdit} href="javascript:;">修改组名</a>
-                </Menu.Item>
-              }
-              {
-                teamUtil.canManageGroup(team) &&
-                <Menu.Item>
-                  <a onClick={this.toDelete} href="javascript:;">删除当前组</a>
-                </Menu.Item>
-              }
+                {
+                  teamUtil.canManageGroup(team) &&
+                  <Menu.Item>
+                    <a onClick={this.toEdit} href="javascript:;">修改组名</a>
+                  </Menu.Item>
+                }
+                {
+                  teamUtil.canManageGroup(team) &&
+                  <Menu.Item>
+                    <a onClick={this.toDelete} href="javascript:;">删除当前组</a>
+                  </Menu.Item>
+                }
 
 
-              <Menu.Item>
-                <a onClick={this.toAdd} href="javascript:;">新增组</a>
-              </Menu.Item>
-            </Menu>
-          )}
+                <Menu.Item>
+                  <a onClick={this.toAdd} href="javascript:;">新增组</a>
+                </Menu.Item>
+              </Menu>
+            )}
           >
             <Button>更多<Icon type="ellipsis" /></Button>
           </Dropdown>
 
         </ButtonGroup>
-        <ButtonGroup>
-          {hasService && <Button
+        <ButtonGroup style={{position:"absolute",left:"24%",top:"30%",zIndex:"1000"}}>
+           {hasService && <Button
             onClick={() => {
-            this.changeType("shape");
-          }}
+              this.changeType("shape");
+            }}
             type={this.state.type === "shape"
-            ? "primary"
-            : ""}
+              ? "primary"
+              : ""}
             active
           >拓扑图
                          </Button>}
           <Button
             onClick={() => {
-            this.changeType("list");
-          }}
+              this.changeType("list");
+            }}
             type={this.state.type === "list"
-            ? "primary"
-            : ""}
+              ? "primary"
+              : ""}
           >列表
-          </Button>
+          </Button> 
         </ButtonGroup>
+          {this.state.linkList.length>0 && <VisterBtn linkList={this.state.linkList}/>}
       </div>
     );
 
     return (
       <PageHeaderLayout
         breadcrumbList={[{
-            title: "首页",
-            href: "/",
+          title: "首页",
+          href: "/",
         }, {
-            title: "我的应用",
-            href: "",
+          title: "我的应用",
+          href: "",
         }, {
-            title: this.props.groupDetail.group_name,
-            href: "",
+          title: this.props.groupDetail.group_name,
+          href: "",
         }]}
+        
         content={pageHeaderContent}
-extraContent={extraContent}
+        extraContent={extraContent}
       >
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
-        {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
+        {(hasService && this.state.type === "shape") && <AppShape group_id={group_id}/>}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"
           subDesc="此操作不可恢复"
           onOk={this.handleDelete}
-          onCancel={this.cancelDelete} 
+          onCancel={this.cancelDelete}
         />}
         {this.state.toEdit && <EditGroupName
           group_name={groupDetail.group_name}
           title="修改组名"
           onCancel={this.cancelEdit}
-          onOk={this.handleEdit} 
+          onOk={this.handleEdit}
         />}
         {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
       </PageHeaderLayout>
@@ -456,7 +534,7 @@ export default class Index extends PureComponent {
     });
   }
   render() {
-    const {currUser } = this.props;
+    const { currUser } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
 

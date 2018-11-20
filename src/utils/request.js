@@ -113,6 +113,8 @@ export default function request(url, options) {
       showLoading && dispatch && dispatch({ type: "global/hiddenLoading" });
       const res = response.data.data || {};
       res._code = response.status;
+      res._condition = response.data.code
+      res.msg_show = response.data.msg_show
       return res;
     })
     .catch((error) => {

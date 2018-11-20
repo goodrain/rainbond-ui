@@ -74,10 +74,10 @@ class Index extends React.Component {
         width: '100%',
         height: '500px'
       }}
-        frameborder="no"
+        frameBorder="no"
         border="0"
-        marginwidth="0"
-        marginheight="0"></iframe>
+        marginWidth="0"
+        marginHeight="0"></iframe>
     ));
   }
 }

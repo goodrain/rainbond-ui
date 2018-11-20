@@ -50,6 +50,7 @@ export default class AppList extends PureComponent {
     this.timer = setInterval(() => {
       this.loadApps();
     }, 5000);
+    document.querySelector('.ant-table-footer').setAttribute('style','position:absolute !important')
   }
   componentWillUnmount() {
     clearInterval(this.timer);
@@ -279,7 +280,7 @@ export default class AppList extends PureComponent {
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
               data.service_alias
-            }/overview`}
+              }/overview`}
           >
             {" "}
             {val}{" "}
@@ -356,7 +357,40 @@ export default class AppList extends PureComponent {
         )
       }
     ];
-
+    const footer = (<div className={styles.tableList} >
+    <div className={styles.tableListOperator}>
+      <Button
+        disabled={!this.canBatchRestart()}
+        onClick={this.handleBatchRestart}
+      >
+        批量重启{" "}
+      </Button>{" "}
+      <Button
+        disabled={!this.canBatchStop()}
+        onClick={this.handleBatchStop}
+      >
+        批量关闭{" "}
+      </Button>{" "}
+      <Button
+        disabled={!this.canBatchStart()}
+        onClick={this.handleBatchStart}
+      >
+        批量启动{" "}
+      </Button>{" "}
+      <Button
+        disabled={!this.canBatchMove()}
+        onClick={this.showBatchMove}
+      >
+        批量移动{" "}
+      </Button>{" "}
+      <Button
+        disabled={!this.canBatchDelete()}
+        onClick={this.handleBatchDelete}
+      >
+        批量删除{" "}
+      </Button>{" "}
+    </div>{" "}
+  </div>)
     return (
       <div>
         <Card
@@ -364,47 +398,19 @@ export default class AppList extends PureComponent {
             minHeight: 400
           }}
           bordered={false}
+          bodyStyle={{ padding: "60px 32px" }}
+          // headStyle={{ borderBottom: "0px" ,float:"right"}}
+          // title={}
         >
-          <div className={styles.tableList}>
-            <div className={styles.tableListOperator}>
-              <Button
-                disabled={!this.canBatchRestart()}
-                onClick={this.handleBatchRestart}
-              >
-                批量重启{" "}
-              </Button>{" "}
-              <Button
-                disabled={!this.canBatchStop()}
-                onClick={this.handleBatchStop}
-              >
-                批量关闭{" "}
-              </Button>{" "}
-              <Button
-                disabled={!this.canBatchStart()}
-                onClick={this.handleBatchStart}
-              >
-                批量启动{" "}
-              </Button>{" "}
-              <Button
-                disabled={!this.canBatchMove()}
-                onClick={this.showBatchMove}
-              >
-                批量移动{" "}
-              </Button>{" "}
-              <Button
-                disabled={!this.canBatchDelete()}
-                onClick={this.handleBatchDelete}
-              >
-                批量删除{" "}
-              </Button>{" "}
-            </div>{" "}
-          </div>{" "}
+
           <ScrollerX sm={750}>
             <Table
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
               dataSource={apps || []}
+              footer={() => footer}
+              style={{position:"relative"}}
             />{" "}
           </ScrollerX>{" "}
           {this.state.batchDeleteShow && (
@@ -422,6 +428,7 @@ export default class AppList extends PureComponent {
               onCancel={this.hideMoveGroup}
             />
           )}
+
         </Card>
       </div>
     );
