@@ -11,14 +11,13 @@ class Index extends React.Component {
     super(props);
   }
   componentDidMount(){
-  
   }
   componentWillMount() {
     const team_name = globalUtil.getCurrTeamName();
     const groupId = this.props.group_id;
     var self = this;
     try {
-
+//获取数据返回地址
       window.iframeGetNodeUrl = function () {
         return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId+'&region='+globalUtil.getCurrRegionName();
       }
@@ -34,7 +33,6 @@ class Index extends React.Component {
               fn && fn(data || {})
             }
         })
-
         return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId+'&region='+globalUtil.getCurrRegionName();
       }
 
@@ -49,7 +47,6 @@ class Index extends React.Component {
       window.iframeGetGroupId = function () {
         return groupId;
       }
-
       //拓扑图点击服务事件
       window.handleClickService = function (nodeDetails) {
         self
@@ -65,11 +62,13 @@ class Index extends React.Component {
       }
 
     } catch (e) {}
+
   }
   render() {
     return ((
       <iframe
-        src={config.baseUrl + '/static/www/weavescope/index.html'}
+        // src={config.baseUrl + '/static/www/weavescope/index.html'}
+        src ={'http://127.0.0.1:4042'}
         style={{
         width: '100%',
         height: '500px'
