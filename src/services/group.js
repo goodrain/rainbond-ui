@@ -109,8 +109,8 @@ export async function getGroupApps(body = {
     method: "get",
     params: {
       group_id: body.group_id,
-      page: body.page,
-      page_size: body.page_size,
+      page: body.page || 1,
+      page_size: body.page_size || 100,
     },
     showLoading: false,
   });
@@ -296,7 +296,7 @@ export async function startShareEvent(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
-      body.event_id
+    body.event_id
     }`,
     { method: "post" },
   );
@@ -312,7 +312,7 @@ export async function startPluginShareEventInShareApp(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
-      body.event_id
+    body.event_id
     }/plugin`,
     { method: "post" },
   );
@@ -328,7 +328,7 @@ export async function getPluginShareEventInShareApp(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
-      body.event_id
+    body.event_id
     }/plugin`,
     { method: "get" },
   );
@@ -344,7 +344,7 @@ export async function getShareStatus(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
-      body.event_id
+    body.event_id
     }`,
     { method: "get" },
   );

@@ -417,6 +417,7 @@ export default {
       const response = yield call(getCertificates, payload);
       if (response) {
         yield put({ type: "saveCertificates", payload: response.list });
+        callback&&callback(response)
       }
     },
     * addCertificate({ payload, callback }, { call, put }) {

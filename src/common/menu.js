@@ -33,6 +33,21 @@ const menuData = function () {
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`,
     },
     {
+      name: "应用网关",
+      icon: "appstore-o",
+      path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway`,
+      children: [
+        {
+          name: "访问控制",
+          path: "control",
+        },
+        {
+          name: "证书管理",
+          path: "license",
+        },
+      ],
+    },
+    {
       name: "我的插件",
       icon: "api",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`,

@@ -20,7 +20,9 @@ import DescriptionList from "../../components/DescriptionList";
 import ChangeBuildSource from "./setting/edit-buildsource";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
-
+import {
+  getStatus
+} from '../../services/app';
 @connect(
   ({ user, appControl, teamControl }) => ({
     currUser: user.currentUser,
@@ -57,7 +59,8 @@ export default class Index extends PureComponent {
       buildSource: null,
       changeBuildSource: false,
       showMarketAppDetail: false,
-      showApp: {}
+      showApp: {},
+      appStatus: null
     };
   }
   componentDidMount() {
@@ -72,6 +75,7 @@ export default class Index extends PureComponent {
     this.loadMembers();
     this.loadpermsMembers();
     this.loadBuildSourceInfo();
+    this.queryStatus();
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
@@ -188,7 +192,22 @@ export default class Index extends PureComponent {
       },
     });
   };
+  queryStatus = () => {
+    const team_name = globalUtil.getCurrTeamName();
+    const { appAlias } = this.props.match.params;
+    getStatus({
+      team_name,
+      app_alias: appAlias
+    }).then((data) => {
+      if (data) {
+        this.setState({ appStatus: data.bean })
+      }
+      // setTimeout(() => {
+      //     this.getStatus();
+      // }, 5000)
 
+    })
+  }
   showAddMember = () => {
     this.setState({ showAddMember: true });
   };
@@ -452,7 +471,7 @@ export default class Index extends PureComponent {
   hideDelMember = () => {
     this.setState({ toDeleteMember: null });
   };
-  hideMarketAppDetail = () =>{
+  hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
       showMarketAppDetail: false
@@ -480,6 +499,9 @@ export default class Index extends PureComponent {
   hideBuildSource = () => {
     this.setState({ changeBuildSource: false });
   };
+  setupAttribute=()=>{
+    console.log('todo...')
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
 
@@ -514,6 +536,7 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
+    const {appStatus} = this.state
     return (
       <Fragment>
         <Card
@@ -540,6 +563,7 @@ export default class Index extends PureComponent {
               label="应用部署类型"
             >
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
+              {false?<Button onClick={this.setupAttribute} size="small" style={{marginLeft:"10px"}}>应用设置</Button>:''}
             </FormItem>
             {tags ? (
               <FormItem
@@ -565,8 +589,8 @@ export default class Index extends PureComponent {
                 </Button>
               </FormItem>
             ) : (
-              ""
-            )}
+                ""
+              )}
           </Form>
         </Card>
         {this.state.buildSource && (
@@ -625,8 +649,8 @@ export default class Index extends PureComponent {
                 </FormItem>
               </Fragment>
             ) : (
-              ""
-            )}
+                ""
+              )}
             {appUtil.isMarketAppByBuildSource(this.state.buildSource) ? (
               <Fragment>
                 <FormItem
@@ -636,18 +660,18 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="云市应用名称"
                 >
-                  {this.state.buildSource.group_key?(
-                    <a href="javascript:;" onClick={()=>{
+                  {this.state.buildSource.group_key ? (
+                    <a href="javascript:;" onClick={() => {
                       this.setState({
                         showApp: {
                           details: this.state.buildSource.details,
                           group_name: this.state.buildSource.rain_app_name,
-                          group_key:this.state.buildSource.group_key,
+                          group_key: this.state.buildSource.group_key,
                         },
                         showMarketAppDetail: true
                       });
                     }}>{this.state.buildSource.rain_app_name}</a>
-                  ):("无法找到源应用，可能已删除")}
+                  ) : ("无法找到源应用，可能已删除")}
                 </FormItem>
                 <FormItem
                   style={{
@@ -660,8 +684,8 @@ export default class Index extends PureComponent {
                 </FormItem>
               </Fragment>
             ) : (
-              ""
-            )}
+                ""
+              )}
             {appUtil.isCodeAppByBuildSource(this.state.buildSource) ? (
               <Fragment>
                 <FormItem
@@ -686,8 +710,8 @@ export default class Index extends PureComponent {
                 </FormItem>
               </Fragment>
             ) : (
-              ""
-            )}
+                ""
+              )}
             {/* <ChangeBranch
                   isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
                   appAlias={this.props.appAlias}
@@ -744,8 +768,8 @@ export default class Index extends PureComponent {
                           修改
                         </a>
                       ) : (
-                        ""
-                      )}
+                          ""
+                        )}
                     </Fragment>
                   ),
                 },
@@ -846,15 +870,15 @@ export default class Index extends PureComponent {
                               禁用
                             </a>
                           ) : (
-                            <a
-                              onClick={() => {
-                                this.handleStartProbeStart(true);
-                              }}
-                              href="javascript:;"
-                            >
-                              启用
+                              <a
+                                onClick={() => {
+                                  this.handleStartProbeStart(true);
+                                }}
+                                href="javascript:;"
+                              >
+                                启用
                             </a>
-                          )}
+                            )}
                         </Fragment>
                       );
                     }
@@ -906,15 +930,15 @@ export default class Index extends PureComponent {
                               禁用
                             </a>
                           ) : (
-                            <a
-                              onClick={() => {
-                                this.handleRunProbeStart(true);
-                              }}
-                              href="javascript:;"
-                            >
-                              启用
+                              <a
+                                onClick={() => {
+                                  this.handleRunProbeStart(true);
+                                }}
+                                href="javascript:;"
+                              >
+                                启用
                             </a>
-                          )}
+                            )}
                         </Fragment>
                       );
                     }

@@ -1,7 +1,7 @@
 import React, {PureComponent, createElement} from 'react';
 import PropTypes from 'prop-types';
 import pathToRegexp from 'path-to-regexp';
-import {Breadcrumb, Tabs} from 'antd';
+import {Breadcrumb, Tabs, Icon} from 'antd';
 import classNames from 'classnames';
 import styles from './index.less';
 
@@ -45,12 +45,13 @@ export default class PageHeader extends PureComponent {
   conversionFromProps = () => {
     const {
       breadcrumbList,
-      linkElement = 'a'
+      linkElement = 'a',
     } = this.props;
     return (
       <Breadcrumb className={styles.breadcrumb}>
         {breadcrumbList.map(item => (
           <Breadcrumb.Item key={item.title}>
+          {item.icon? <Icon style={{marginRight:"5px"}} type={item.icon} />:''}
             {item.href
               ? (createElement(linkElement, {
                 [linkElement === 'a'

@@ -78,7 +78,7 @@ class MoveGroup extends PureComponent {
     }
     render() {
         const {getFieldDecorator} = this.props.form;
-        const initValue = this.props.currGroup;
+        const initValue = this.props.currGroup.toString();
         const groups = this.props.groups || [];
         return (
             <Modal
@@ -100,7 +100,7 @@ class MoveGroup extends PureComponent {
                         })(
                             <Select>
                                 {groups.map((group) => {
-                                    return <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
+                                    return <Option key={group.group_id} value={group.group_id.toString()}>{group.group_name}</Option>
                                 })}
                             </Select>
                         )}

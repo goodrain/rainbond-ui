@@ -1,0 +1,56 @@
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Table, Button, Modal } from 'antd';
+const confirm = Modal.confirm;
+
+@connect(({ }) => ({}))
+class UserTable extends Component {
+    onCancel=()=>{
+        const {onCancel} = this.props
+        onCancel&&onCancel()
+    }
+    rowKey = (record, index) => index
+    render() {
+        const columns = [
+            {
+                title: '变量名',
+                dataIndex: 'attr_name',
+                key: "attr_name",
+                align: 'center',
+            },
+            {
+                title: '变量值',
+                dataIndex: 'attr_value',
+                key: "attr_value",
+                align: 'center',
+            },
+            {
+                title: '说明',
+                dataIndex: 'name',
+                key: "name",
+                align: 'center',
+            },
+        ];
+        const { dataSource} = this.props;
+        const footer = [<Button key="back" onClick={this.onCancel}>关闭</Button>]
+        return (
+            <div>
+                <Modal
+                    title="连接信息"
+                    visible={this.props.visible}
+                    footer={footer}
+                >
+                    <Table
+                        rowKey={this.rowKey}
+                        bordered
+                        columns={columns}
+                        pagination={false}
+                        dataSource={dataSource}
+                    />
+                </Modal>
+            </div>
+        );
+    }
+}
+
+export default UserTable;
