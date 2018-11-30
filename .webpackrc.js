@@ -29,7 +29,8 @@ export default {
         template: "./src/index.ejs",
       },
       publicPath: "/static/dists/", //
-      outputPath: path.resolve(__dirname, "../../pythonWork/rainbond-console/www/static/dists"),
+      // outputPath: path.resolve(__dirname, "../../pythonWork/rainbond-console/www/static/dists"),
+      // outputPath: path.resolve(__dirname, "/dists"),
     },
   },
   ignoreMomentLocale: true,
