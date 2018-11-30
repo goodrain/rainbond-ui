@@ -24,17 +24,17 @@ class LicenseDrawer extends PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            
+
         }
     }
-    handleSubmit=(e)=>{
+    handleSubmit = (e) => {
         e.preventDefault();
-        const {onOk} = this.props
+        const { onOk } = this.props
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                onOk&&onOk(values);
+                onOk && onOk(values);
             }
-          });
+        });
     }
     //验证上传文件方式
     checkFile_public = (rules, value, callback) => {
@@ -50,8 +50,8 @@ class LicenseDrawer extends PureComponent {
         }
         callback()
     }
-     //验证上传文件方式
-     checkFile_private = (rules, value, callback) => {
+    //验证上传文件方式
+    checkFile_private = (rules, value, callback) => {
         if (value) {
             if (value.fileList.length > 0) {
                 this.readFileContents(value.fileList, 'private_key');
@@ -64,7 +64,7 @@ class LicenseDrawer extends PureComponent {
         }
         callback()
     }
-    readFileContents = (fileList,name) => {
+    readFileContents = (fileList, name) => {
         const _th = this;
         let fileString = "";
         for (var i = 0; i < fileList.length; i++) {
@@ -75,6 +75,15 @@ class LicenseDrawer extends PureComponent {
                 _th.props.form.setFieldsValue({ [name]: fileString })
             }
         }
+    }
+    beforeUpload = (file) => {
+        // console.log(file)
+        const fileArr = file.name.split(".");
+        // fileArr
+        if (!isJPG) {
+            message.error('You can only upload JPG file!');
+        }
+
     }
     render() {
         const { onClose } = this.props;
@@ -109,7 +118,7 @@ class LicenseDrawer extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="证书名称"
-                            style={{textAlign:"right"}}
+                            style={{ textAlign: "right" }}
                         >
                             {getFieldDecorator('alias', {
                                 rules: [{ required: true, message: '请输入证书名称!' }]
@@ -133,13 +142,13 @@ class LicenseDrawer extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            style={{textAlign:"right"}}
+                            style={{ textAlign: "right" }}
                             label="公钥证书"
                         >
                             {getFieldDecorator('certificate', {
                                 rules: [{ required: true, message: '请输入证书名称!' }]
                             })(
-                                <TextArea rows={8} style={{backgroundColor:"#02213f",color:"#fff"}}/>
+                                <TextArea rows={8} style={{ backgroundColor: "#02213f", color: "#fff" }} />
                             )}
                         </FormItem>
                         <Row>
@@ -149,13 +158,14 @@ class LicenseDrawer extends PureComponent {
                                 <FormItem
                                 >
                                     {getFieldDecorator('public_key_btn', {
-                                        rules: [{ validator: this.checkFile_public}],
+                                        rules: [{ validator: this.checkFile_public }],
                                     })(
                                         <Upload
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                                             showUploadList={false}
                                             withCredentials={true}
-                                            headers={{Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8`}}
+                                            headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
+                                            // beforeUpload={this.beforeUpload}
                                         >
                                             <Button size="small">
                                                 上传
@@ -167,13 +177,13 @@ class LicenseDrawer extends PureComponent {
                         </Row>
                         <FormItem
                             {...formItemLayout}
-                            style={{textAlign:"right"}}
+                            style={{ textAlign: "right" }}
                             label="私钥"
                         >
                             {getFieldDecorator('private_key', {
                                 rules: [{ required: true, message: '请输入私钥!' }]
                             })(
-                                <TextArea rows={8} style={{backgroundColor:"#02213f",color:"#fff"}}/>
+                                <TextArea rows={8} style={{ backgroundColor: "#02213f", color: "#fff" }} />
                             )}
                         </FormItem>
                         <Row>
@@ -189,7 +199,7 @@ class LicenseDrawer extends PureComponent {
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                                             showUploadList={false}
                                             withCredentials={true}
-                                            headers={{Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8`}}
+                                            headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
                                         >
                                             <Button size="small">
                                                 上传

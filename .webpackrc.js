@@ -25,12 +25,12 @@ export default {
     },
     production: {
       html: {
-        filename: "../../templates/index.html", //
+        filename: "./index.html", //
         template: "./src/index.ejs",
       },
       publicPath: "/static/dists/", //
       // outputPath: path.resolve(__dirname, "../../pythonWork/rainbond-console/www/static/dists"),
-      // outputPath: path.resolve(__dirname, "/dists"),
+      // outputPath: path.resolve(__dirname, "/static/dists"),
     },
   },
   ignoreMomentLocale: true,
