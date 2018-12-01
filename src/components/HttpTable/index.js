@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Link,routerRedux } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import Search from '../Search';
 import DrawerForm from '../DrawerForm';
 import InfoConnectModal from '../InfoConnectModal';
@@ -14,6 +14,7 @@ import {
     Tooltip
 } from 'antd';
 import globalUtil from '../../utils/global';
+import styles from './index.less'
 
 @connect(
     ({ user, global }) => ({
@@ -79,7 +80,7 @@ export default class HttpTable extends PureComponent {
                 this.handleSearch(http_search, page_num);
             })
         } else {
-            this.setState({ page_num,loading:true }, () => {
+            this.setState({ page_num, loading: true }, () => {
                 this.load();
             })
         }
@@ -256,8 +257,18 @@ export default class HttpTable extends PureComponent {
         )
     }
     rowKey = (record, index) => index;
-    openService=(record)=>{
-        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`))
+    openService = (record) => {
+        this.props.dispatch({
+            type: 'appControl/openPortOuter',
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: record.service_alias,
+                port: record.container_port
+            },
+            callback:()=>{
+                this.load()
+            }
+        })
     }
     render() {
         const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form } = this.state;
@@ -316,7 +327,7 @@ export default class HttpTable extends PureComponent {
             align: "center",
             width: "18%",
             render: (text, record) => {
-                return (record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/`}>{text}({record.container_port})</Link>)
+                return (record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{text}({record.container_port})</Link>)
             }
         }, {
             title: '操作',
@@ -330,11 +341,9 @@ export default class HttpTable extends PureComponent {
                         <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                         <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
-                    </div> : <Tooltip placement="topLeft" title="请点击,开启对外访问地址方可操作" arrowPointAtCenter>
+                    </div> : <Tooltip placement="topLeft" title="请开启对外服务方可操作" arrowPointAtCenter>
                             <div>
-                                <a style={{ marginRight: "10px" }} disabled>连接信息</a>
-                                <a style={{ marginRight: "10px" }} disabled>编辑</a>
-                                <a style={{ marginRight: "10px" }} disabled>删除</a>
+                                <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
                     // <div>
@@ -346,7 +355,7 @@ export default class HttpTable extends PureComponent {
             }
         }];
         return (
-            <div>
+            <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
                     <Search onSearch={this.handleSearch} />
                     <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick}>
@@ -358,16 +367,6 @@ export default class HttpTable extends PureComponent {
                 >
 
                     <Table
-                        onRow={(record) => {
-                            return {
-                                onClick: () => {
-                                    if (record.is_outer_service == 0) {
-                                        this.openService(record);
-                                    }
-                                },       
-                                
-                            };
-                        }}
                         dataSource={dataList}
                         columns={columns}
                         loading={loading}

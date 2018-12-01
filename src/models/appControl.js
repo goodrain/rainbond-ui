@@ -79,6 +79,7 @@ import {
   putAutoDeploySecret,
   getAppBuidSource,
   putAppBuidSource,
+  updateAppStatus
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -693,6 +694,12 @@ export default {
         callback && callback(response);
       }
     },
+    *updateAppStatus({ payload, callback }, { call }){
+      const response = yield call(updateAppStatus, payload);
+      if (callback) {
+        callback && callback(response);
+      }
+    }
   },
   reducers: {
     clearMembers(state, action) {

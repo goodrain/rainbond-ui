@@ -14,9 +14,11 @@ import {
     Select,
     Radio,
     InputNumber,
-    Checkbox
+    Checkbox,
+    Icon
 } from 'antd';
 import globalUtil from '../../utils/global';
+import styles from './index.less'
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -118,13 +120,13 @@ class DrawerForm extends PureComponent {
             }
         };
         // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
-        let rule_http,rule_round;
-        if(editInfo&&editInfo.length){
-            editInfo.rule_extensions.split(',').map((item)=>{
-                if(item.includes('httptohttps')){
-                    rule_http=item.split(':')[0];
-                }else if(item.includes('lb-type')){
-                    rule_round=item.split(':')[1]
+        let rule_http, rule_round;
+        if (editInfo && editInfo.length) {
+            editInfo.rule_extensions.split(',').map((item) => {
+                if (item.includes('httptohttps')) {
+                    rule_http = item.split(':')[0];
+                } else if (item.includes('lb-type')) {
+                    rule_round = item.split(':')[1]
                 }
             });
         }
@@ -144,7 +146,7 @@ class DrawerForm extends PureComponent {
                         paddingBottom: 53,
                     }}
                 >
-                    <Form>
+                    <Form className={styles.antd_form}>
                         <FormItem
                             {...formItemLayout}
                             label="域名"
@@ -164,6 +166,7 @@ class DrawerForm extends PureComponent {
                             })(
                                 <Input placeholder="请输入域名" />
                             )}
+                            <span style={{fontWeight:"bold",fontSize:"16px"}}><Icon type="question-circle" theme="filled" />请将域名解析到：10.10.10.10</span>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -189,7 +192,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="权重"
                         >
-                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight })(
+                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight||100 })(
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
@@ -197,7 +200,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="绑定证书"
                         >
-                            {getFieldDecorator('certificate_id',{initialValue: editInfo.certificate_id})(
+                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" >
                                     {
                                         (this.state.licenseList).map((license, index) => {
@@ -263,7 +266,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="扩展功能"
                         >
-                            {getFieldDecorator("rule_extensions_http",{ initialValue:[rule_http] })(
+                            {getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
                                 <Checkbox.Group>
                                     <Row>
                                         <Col span={24}>
@@ -272,7 +275,7 @@ class DrawerForm extends PureComponent {
                                     </Row>
                                 </Checkbox.Group>
                             )}
-                            {getFieldDecorator("rule_extensions_round",{initialValue:rule_round})(
+                            {getFieldDecorator("rule_extensions_round", { initialValue: rule_round })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
                                     <Option value="random">random</Option>

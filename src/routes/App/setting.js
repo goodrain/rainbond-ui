@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip } from "antd";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import SetMemberAppAction from "../../components/SetMemberAppAction";
 import ScrollerX from "../../components/ScrollerX";
@@ -23,6 +23,9 @@ const FormItem = Form.Item;
 import {
   getStatus
 } from '../../services/app';
+
+const RadioGroup = Radio.Group;
+
 @connect(
   ({ user, appControl, teamControl }) => ({
     currUser: user.currentUser,
@@ -39,6 +42,7 @@ import {
   null,
   { withRef: true },
 )
+@Form.create()
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -60,7 +64,8 @@ export default class Index extends PureComponent {
       changeBuildSource: false,
       showMarketAppDetail: false,
       showApp: {},
-      appStatus: null
+      appStatus: null,
+      visibleAppSetting: false
     };
   }
   componentDidMount() {
@@ -499,13 +504,44 @@ export default class Index extends PureComponent {
   hideBuildSource = () => {
     this.setState({ changeBuildSource: false });
   };
-  setupAttribute=()=>{
-    console.log('todo...')
+  setupAttribute = () => {
+    this.setState({
+      visibleAppSetting: true
+    })
+  }
+  handleOk_AppSetting = () => {
+    const { dispatch } = this.props;
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: "appControl/updateAppStatus",
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: this.props.appAlias,
+            extend_method:values.extend_method
+          },
+          callback: (data) => {
+            console.log(data)
+            this.setState({
+              visibleAppSetting:false,
+            },()=>{
+              this.fetchBaseInfo();
+            })
+          }
+        })
+      }
+    });
+  }
+  handleCancel_AppSetting = () => {
+    this.setState({
+      visibleAppSetting: false
+    })
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
 
     const self = this;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -524,7 +560,19 @@ export default class Index extends PureComponent {
         },
       },
     };
-
+    const appsetting_formItemLayout = {
+      labelCol: {
+        span: 5
+      },
+      wrapperCol: {
+        span: 19
+      }
+    };
+    const radioStyle = {
+      display: 'block',
+      height: '30px',
+      lineHeight: '30px'
+    };
     const {
       innerEnvs,
       runningProbe,
@@ -536,7 +584,7 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const {appStatus} = this.state
+    const { appStatus } = this.state
     return (
       <Fragment>
         <Card
@@ -563,7 +611,8 @@ export default class Index extends PureComponent {
               label="应用部署类型"
             >
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
-              {false?<Button onClick={this.setupAttribute} size="small" style={{marginLeft:"10px"}}>应用设置</Button>:''}
+              {/* {appStatus && appStatus.status == "running" ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''} */}
+              {false ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''}
             </FormItem>
             {tags ? (
               <FormItem
@@ -1155,6 +1204,30 @@ export default class Index extends PureComponent {
             app={this.state.showApp}
           />
         )}
+        {this.state.visibleAppSetting && <Modal
+          title="应用设置"
+          visible={this.state.visibleAppSetting}
+          onOk={this.handleOk_AppSetting}
+          onCancel={this.handleCancel_AppSetting}
+        >
+          <Form.Item {...appsetting_formItemLayout} label="应用类型">
+
+            {getFieldDecorator('extend_method', {
+              initialValue: baseInfo.extend_method || 'stateless',
+              rules: [
+                {
+                  required: true,
+                  message: '请选择应用类型'
+                }
+              ]
+            })(
+              <RadioGroup>
+                <Radio style={radioStyle} value="stateless">无状态应用（包括Web类，API类）</Radio>
+                <Radio style={radioStyle} value={"state"}>有状态应用（包括DB类，集群类，消息中间件类，数据类）</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
+        </Modal>}
       </Fragment>
     );
   }

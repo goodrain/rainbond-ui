@@ -1958,3 +1958,13 @@ export async function putAppBuidSource(body = {
     },
   );
 }
+
+/** */
+export async function updateAppStatus(params){
+  return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`, {
+    method: "put",
+    data: {
+      extend_method:params.params
+    }
+});
+}

@@ -41,7 +41,7 @@ class Control extends Component {
                     title: "首页",
                     icon: "home"
                 }, {
-                    title: "我的应用",
+                    title: "应用网关",
                     icon:"folder-open"
                 }, {
                     title: "访问控制",

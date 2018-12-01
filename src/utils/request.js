@@ -83,8 +83,8 @@ export default function request(url, options) {
   if (token && newOptions.passAuthorization) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
   }
-  // newOptions.headers.X_REGION_NAME = globalUtil.getCurrRegionName();
-  newOptions.headers.X_REGION_NAME = "rainbond";
+  newOptions.headers.X_REGION_NAME = globalUtil.getCurrRegionName();
+  // newOptions.headers.X_REGION_NAME = "rainbond";
   newOptions.headers.X_TEAM_NAME = globalUtil.getCurrTeamName();
 
   // newOptions.headers.Authorization = 'GRJWT '+

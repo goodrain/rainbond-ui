@@ -12,7 +12,8 @@ import {
     Input,
     Radio,
     Upload,
-    Icon
+    Icon,
+    message
 } from 'antd';
 import globalUtil from '../../utils/global';
 import apiconfig from '../../config/config'
@@ -79,9 +80,11 @@ class LicenseDrawer extends PureComponent {
     beforeUpload = (file) => {
         // console.log(file)
         const fileArr = file.name.split(".");
-        // fileArr
-        if (!isJPG) {
-            message.error('You can only upload JPG file!');
+        const length = fileArr.length;
+        let isRightType = fileArr[length - 1] == "pem" || fileArr[length - 1] == "crt" || fileArr[length - 1] == "cer" || fileArr[length - 1] == "key";
+        if (!isRightType) {
+            message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
+            return;
         }
 
     }
@@ -136,7 +139,7 @@ class LicenseDrawer extends PureComponent {
                             })(
                                 <RadioGroup >
                                     <Radio value="服务端证书">服务端证书</Radio>
-                                    <Radio value="客户端证书">客户端证书</Radio>
+                                    {/* <Radio value="客户端证书">客户端证书</Radio> */}
                                 </RadioGroup>
                             )}
                         </FormItem>
@@ -158,14 +161,14 @@ class LicenseDrawer extends PureComponent {
                                 <FormItem
                                 >
                                     {getFieldDecorator('public_key_btn', {
-                                        rules: [{ validator: this.checkFile_public }],
+                                        // rules: [{ validator: this.checkFile_public }],
                                     })(
                                         <Upload
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                                             showUploadList={false}
                                             withCredentials={true}
                                             headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
-                                            // beforeUpload={this.beforeUpload}
+                                            beforeUpload={this.beforeUpload}
                                         >
                                             <Button size="small">
                                                 上传
@@ -200,6 +203,7 @@ class LicenseDrawer extends PureComponent {
                                             showUploadList={false}
                                             withCredentials={true}
                                             headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
+                                            beforeUpload={this.beforeUpload}
                                         >
                                             <Button size="small">
                                                 上传

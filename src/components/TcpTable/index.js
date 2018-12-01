@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Link,routerRedux } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import Search from '../Search';
 import TcpDrawerForm from '../TcpDrawerForm';
 import InfoConnectModal from '../InfoConnectModal';
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { connect } from 'dva';
 import {
     Row,
@@ -11,9 +12,12 @@ import {
     Table,
     Button,
     notification,
-    Modal
+    Modal,
+    Tooltip,
+    Icon
 } from 'antd';
 import globalUtil from '../../utils/global';
+import styles from './index.less';
 
 @connect(
     ({ user, global }) => ({
@@ -36,7 +40,10 @@ export default class TcpTable extends PureComponent {
             editInfo: '',
             values: '',
             whether_open_form: false,
-            tcpLoading: true
+            tcpLoading: true,
+            visibleModal: false,
+            agreement: {},
+            NotHttpConnectInfo: []
         }
     }
     componentWillMount() {
@@ -78,7 +85,7 @@ export default class TcpTable extends PureComponent {
                 this.handleSearch(tcp_search, page_num);
             })
         } else {
-            this.setState({ page_num,tcpLoading:true }, () => {
+            this.setState({ page_num, tcpLoading: true }, () => {
                 this.load();
             })
         }
@@ -230,8 +237,72 @@ export default class TcpTable extends PureComponent {
         this.form = form;
         const { editInfo } = this.state;
     }
-    openService=(record)=>{
-        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`))
+    openService = (record) => {
+        this.props.dispatch({
+            type: 'appControl/openPortOuter',
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: record.service_alias,
+                port: record.container_port
+            },
+            callback: () => {
+                this.load()
+            }
+        })
+    }
+    resolveNotHttp = (record) => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: "gateWay/fetchEnvs",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: record.service_alias,
+            },
+            callback: (data) => {
+                this.setState({
+                    visibleModal: true,
+                    agreement: record,
+                    NotHttpConnectInfo: data.list
+                })
+            }
+        })
+    }
+    handeModalCancel = () => {
+        this.setState({
+            visibleModal: false
+        })
+    }
+    showConnectInfo = (infoArr) => {
+        return (
+            <Table
+                rowKey={this.rowKey}
+                // className={styles.tdPadding}
+                bordered
+                columns={[
+                    {
+                        title: '变量名',
+                        dataIndex: 'attr_name',
+                        key: "attr_name",
+                        align: 'center',
+                    },
+                    {
+                        title: '变量值',
+                        dataIndex: 'attr_value',
+                        key: "attr_value",
+                        align: 'center',
+                    },
+                    {
+                        title: '说明',
+                        dataIndex: 'name',
+                        key: "name",
+                        align: 'center',
+                    },
+                ]}
+                pagination={false}
+                dataSource={infoArr}
+                bordered={false}
+            />
+        )
     }
     render() {
         const columns = [{
@@ -239,6 +310,11 @@ export default class TcpTable extends PureComponent {
             dataIndex: 'end_point',
             key: 'end_point',
             align: "left",
+            render: (text, record) => {
+                return (
+                    record.protocol == "http" ? <a href={'http://'+text.replace(/\s+/g,"")} target="blank">{text}</a>: <a href="javascript:void(0)" onClick={this.resolveNotHttp.bind(this, record)}>{text}</a>
+                )
+            }
             // width: "25%",
         }, {
             title: '类型',
@@ -262,7 +338,7 @@ export default class TcpTable extends PureComponent {
             align: "center",
             render: (text, record) => {
                 return (
-                    record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>
+                    record.is_outer_service == 0 ? <a href="javascript:void(0)" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>
                 )
             }
         }, {
@@ -272,7 +348,7 @@ export default class TcpTable extends PureComponent {
             align: "center",
             // width: "10%",
             render: (text, record) => {
-                return (record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/`}>{record.service_cname}({text})</Link>)
+                return (record.is_outer_service == 0 ? <a href="javascript:void(0)" disabled>{record.service_cname}({text})</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{record.service_cname}({text})</Link>)
             }
         }, {
             title: '操作',
@@ -287,11 +363,9 @@ export default class TcpTable extends PureComponent {
                         <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                     </div> :
-                        <Tooltip placement="topLeft" title="请点击,开启对外访问地址方可操作" arrowPointAtCenter>
+                        <Tooltip placement="topLeft" title="请点击开启对外服务方可操作" arrowPointAtCenter>
                             <div>
-                                <a style={{ marginRight: "10px" }} disabled>连接信息</a>
-                                <a style={{ marginRight: "10px" }} disabled>编辑</a>
-                                <a style={{ marginRight: "10px" }} disabled>删除</a>
+                                <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
                     // <div>
@@ -309,10 +383,11 @@ export default class TcpTable extends PureComponent {
             innerEnvs,
             information_connect_visible,
             TcpDrawerVisible,
-            whether_open_form
+            whether_open_form,
+            visibleModal
         } = this.state;
         return (
-            <div>
+            <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
                     <Search onSearch={this.handleSearch} />
                     <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick}>
@@ -323,16 +398,6 @@ export default class TcpTable extends PureComponent {
                     bodyStyle={{ padding: "0" }}
                 >
                     <Table
-                        onRow={(record) => {
-                            return {
-                                onClick: () => {
-                                    if (record.is_outer_service == 0) {
-                                        this.openService(record);
-                                    }
-                                },
-
-                            };
-                        }}
                         rowKey={this.rowKey}
                         pagination={{ total: total, page_num: page_num, pageSize: page_size, onChange: this.onPageChange, current: page_num, }}
                         dataSource={dataList}
@@ -350,6 +415,32 @@ export default class TcpTable extends PureComponent {
                 >
                     <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
                 </Modal>}
+                {
+                    visibleModal && <Modal
+                        title="访问信息"
+                        visible={visibleModal}
+                        footer={null}
+                        onCancel={this.handeModalCancel}
+                    >
+                        <ul className={styles.ul}>
+                           {this.state.agreement.protocol=='tcp'?<li style={{fontWeight:"bold"}}>您当前的访问协议是{this.state.agreement.protocol}</li>: <li style={{fontWeight:"bold"}}>您当前的访问协议是{this.state.agreement.protocol},打开MySQL客户端访问</li>}
+                            <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{this.state.agreement.end_point}</a>
+                                <CopyToClipboard
+                                    text={this.state.agreement.end_point.replace(/\s+/g,"")}
+                                    onCopy={() => {
+                                        notification.success({ message: "复制成功" });
+                                        // this.setState({
+                                        //     visibleModal: false
+                                        // })
+                                    }}
+                                >
+                                    <Button size="small" type="primary"><Icon type="copy" />复制</Button>
+                                </CopyToClipboard>
+                            </li>
+                            {this.showConnectInfo(this.state.NotHttpConnectInfo)}
+                        </ul>
+                    </Modal>
+                }
             </div>
         )
     }
