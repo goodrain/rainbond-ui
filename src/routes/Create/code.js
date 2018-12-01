@@ -19,7 +19,8 @@ import rainbondUtil from "../../utils/rainbond";
 const ButtonGroup = Button.Group;
 
 @connect(
-  ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
+
+({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
   null,
   null,
   { pure: false },
@@ -38,7 +39,6 @@ export default class Main extends PureComponent {
   };
   render() {
     const rainbondInfo = this.props.rainbondInfo;
-
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,

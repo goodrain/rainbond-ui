@@ -8,7 +8,9 @@ import { getGithubInfo } from "../../services/team";
 import CodeGithubForm from "../../components/CodeGithubForm";
 import styles from "./Index.less";
 
-@connect(() => ({}))
+@connect(({ user, groupControl, global }) => ({
+  rainbondInfo: global.rainbondInfo
+}))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -56,6 +58,7 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         const appAlias = data.bean.service_alias;
+        this.props.handleType&&this.props.handleType==="Service"?this.props.handleGihubGetData(appAlias):
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
       },
     });

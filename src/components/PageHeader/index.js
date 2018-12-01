@@ -65,9 +65,6 @@ export default class PageHeader extends PureComponent {
     );
   }
   conversionFromLocation = (routerLocation, breadcrumbNameMap) => {
-
-    
-
     const {
       linkElement = 'a'
     } = this.props;

@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Button, Icon, Card, Modal, Input } from "antd";
+import { Button, Icon, Card, Modal, Switch, Radio } from "antd";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
 import Result from "../../components/Result";
@@ -20,6 +20,9 @@ import ModifyImageCmd from "./modify-image-cmd";
 import ModifyImageName from "./modify-image-name";
 import ModifyUrl from "./modify-url";
 
+const RadioGroup = Radio.Group;
+const RadioButton = Radio.Button;
+
 @connect(({ user }) => ({ currUser: user.currentUser }))
 export default class CreateCheck extends PureComponent {
   constructor(props) {
@@ -38,6 +41,8 @@ export default class CreateCheck extends PureComponent {
       modifyUserpass: false,
       modifyImageName: false,
       modifyImageCmd: false,
+      is_deploy:true,
+      GihubGetData: props.GihubGetData ? props.GihubGetData : null
     };
     this.mount = false;
     this.socketUrl = "";
@@ -85,7 +90,8 @@ export default class CreateCheck extends PureComponent {
     this.unbindEvent();
   }
   getAppAlias() {
-    return this.props.match.params.appAlias;
+    const { GihubGetData } = this.state;
+    return GihubGetData ? GihubGetData : this.props.match.params.appAlias;
   }
   loopStatus = () => {
     if (!this.mount) return;
@@ -135,7 +141,7 @@ export default class CreateCheck extends PureComponent {
       }
     });
   };
-  handleCreate = () => {};
+  handleCreate = () => { };
   handleSetting = () => {
     const appAlias = this.getAppAlias();
     this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-setting/${appAlias}`));
@@ -143,6 +149,7 @@ export default class CreateCheck extends PureComponent {
   handleBuild = () => {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
+    const {is_deploy}=this.state;
     buildApp({ team_name, app_alias: appAlias }).then((data) => {
       if (data) {
         const appAlias = this.getAppAlias();
@@ -150,6 +157,7 @@ export default class CreateCheck extends PureComponent {
           type: "global/fetchGroups",
           payload: {
             team_name,
+            is_deploy//默认true
           },
         });
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`));
@@ -223,6 +231,7 @@ export default class CreateCheck extends PureComponent {
   };
   handleDelete = () => {
     const appAlias = this.getAppAlias();
+    const { GihubGetData } = this.state;
     this.props.dispatch({
       type: "appControl/deleteApp",
       payload: {
@@ -231,7 +240,8 @@ export default class CreateCheck extends PureComponent {
         is_force: true,
       },
       callback: () => {
-        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
+        GihubGetData ? this.props.handleGihubState(true, null, null) :
+          this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
       },
     });
   };
@@ -321,7 +331,7 @@ export default class CreateCheck extends PureComponent {
       },
     });
   };
-  handleImageSubmit = () => {};
+  handleImageSubmit = () => { };
   showDelete = () => {
     this.setState({ showDelete: true });
   };
@@ -422,7 +432,16 @@ export default class CreateCheck extends PureComponent {
       </div>
     );
   };
+
+  renderSuccessOnChange=(e)=> {
+    this.setState({
+      is_deploy:e.target.value==1?true:false
+    })
+  }
+
   renderSuccess = () => {
+    const { GihubGetData } = this.state;
+
     const serviceInfo = this.state.serviceInfo;
     const extra = (
       <div>
@@ -437,19 +456,38 @@ export default class CreateCheck extends PureComponent {
         ))}
       </div>
     );
-    const actions = [
-      <Button onClick={this.handleBuild} type="primary">
-        {" "}
-        构建应用{" "}
+    let actions = []
+    GihubGetData ?
+      actions = [
+        <div style={{ display: 'flex', justifyContent: "space-around" }}>
+          <div style={{ display: 'flex'}}>
+            <Button onClick={this.handleBuild} type="primary" size="large">
+              {" "}创建{" "}
+            </Button>
+            <RadioGroup onChange={this.renderSuccessOnChange} defaultValue={1} size="small">
+              <div><Radio value={1}>构建应用并部署</Radio></div>
+              <div><Radio value={2}>构建应用不部署</Radio></div>
+            </RadioGroup>
+          </div>
+          <Button onClick={this.showDelete} type="default" size="large">
+            {" "}
+            放弃创建{" "}
+          </Button>
+        </div>,
+      ] : actions = [
+        <Button onClick={this.handleBuild} type="primary">
+          {" "}
+          构建应用{" "}
+        </Button>,
+
+        <Button type="default" onClick={this.handleSetting}>
+          高级设置
       </Button>,
-      <Button type="default" onClick={this.handleSetting}>
-        高级设置
-      </Button>,
-      <Button onClick={this.showDelete} type="default">
-        {" "}
-        放弃创建{" "}
-      </Button>,
-    ];
+        <Button onClick={this.showDelete} type="default">
+          {" "}
+          放弃创建{" "}
+        </Button>,
+      ];
     return (
       <Result
         type="success"
@@ -536,8 +574,9 @@ export default class CreateCheck extends PureComponent {
   render() {
     const status = this.state.status;
     const appDetail = this.state.appDetail;
+    const { GihubGetData } = this.state;
     return (
-      <PageHeaderLayout>
+      <PageHeaderLayout GihubGetData={GihubGetData}>
         <Card bordered={false}>
           <div
             style={{

@@ -13,6 +13,7 @@ import {
   Modal,
   notification,
   Card,
+  Drawer
 } from "antd";
 import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
@@ -25,6 +26,13 @@ import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import teamUtil from "../../utils/team";
 import userUtil from "../../utils/user";
+import Custom from "../Create/code-custom";
+import Github from "../Create/code-github";
+import Goodrain from "../Create/code-goodrain";
+import Check from "../Create/create-check";
+import Setting from "../Create/create-setting";
+import rainbondUtil from "../../utils/rainbond";
+
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
@@ -93,6 +101,7 @@ class EditGroupName extends PureComponent {
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
   groups: global.groups || [],
+  rainbondInfo: global.rainbondInfo
 }))
 class Main extends PureComponent {
   constructor(arg) {
@@ -102,67 +111,73 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toAdd: false,
-      service_alias:[],
-      linkList:[],
-      running:false,
-      secondJustify:'',
-      json_data_length:0
+      toAddService: false,
+      ServiceDisplay: true,
+      ServiceComponent: null,
+      service_alias: [],
+      linkList: [],
+      running: false,
+      secondJustify: '',
+      json_data_length: 0,
+      GihubGetData: null
     };
   }
   getGroupId() {
     return this.props.group_id;
   }
   componentDidMount() {
+    console.log("this.props", this.props)
+
     this.fetchGroupDetail();
     this.recordShare();
     // console.log(this.props);
     this.loadTopology()
   }
-  loadTopology(){
+  loadTopology() {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     const groupId = this.getGroupId();
     dispatch({
-      type:"global/fetAllTopology",
-      payload:{
+      type: "global/fetAllTopology",
+      payload: {
         region_name,
         team_name,
         groupId
       },
-      callback:(data)=>{
+      callback: (data) => {
         const service_alias = [];
         let json_data = data.json_data;
-        this.setState({running:false});
-        this.setState({json_data_length:Object.keys(json_data).length})
-        Object.keys(json_data).map(key=>{
-          if(json_data[key].cur_status == "running"){
-            this.setState({running:true});
+        this.setState({ running: false });
+        this.setState({ json_data_length: Object.keys(json_data).length })
+        Object.keys(json_data).map(key => {
+          if (json_data[key].cur_status == "running") {
+            this.setState({ running: true });
           }
-          if(json_data[key].cur_status == "running" && json_data[key].is_internet == true){
+          if (json_data[key].cur_status == "running" && json_data[key].is_internet == true) {
             service_alias.push(json_data[key].service_alias)
           }
         })
-        this.setState({service_alias},()=>{
+        this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
-            this.loadLinks(service_alias.join("-"),team_name)
+          this.loadLinks(service_alias.join("-"), team_name)
           // }
         })
       }
     })
   }
 
-  loadLinks(service_alias,team_name){
+  loadLinks(service_alias, team_name) {
     const { dispatch } = this.props;
     dispatch({
-      type:"global/queryLinks",
-      payload:{
+      type: "global/queryLinks",
+      payload: {
         service_alias,
         team_name
       },
-      callback:(data)=>{
+      callback: (data) => {
         this.setState({
-          linkList:data.list||[]
+          linkList: data.list || []
         })
       }
     })
@@ -277,6 +292,21 @@ class Main extends PureComponent {
   cancelAdd = () => {
     this.setState({ toAdd: false });
   }
+  toAddService = () => {
+    const { dispatch } = this.props;
+
+    // dispatch(routerRedux.push(`/team/`));
+
+    this.setState({ toAddService: true });
+  }
+  cancelAddService = () => {
+    this.setState({ toAddService: false }, () => {
+      this.setState({
+        ServiceComponent: null, ServiceDisplay: true
+      })
+    });
+  }
+
   handleAdd = (vals) => {
     const { dispatch } = this.props;
     dispatch({
@@ -336,22 +366,32 @@ class Main extends PureComponent {
     });
   }
   /**构建拓扑图 */
-  handleTopology=(code)=>{
+  handleTopology = (code) => {
     this.props.dispatch({
-      type:"global/buildShape",
-      payload:{
+      type: "global/buildShape",
+      payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
         action: code
       },
-      callback:(data)=>{
-        notification.success({ 
-          message: data.msg_show||"构建成功",
-          duration:"3",
+      callback: (data) => {
+        notification.success({
+          message: data.msg_show || "构建成功",
+          duration: "3",
         });
         this.loadTopology()
-        }
+      }
     })
+  }
+
+  //服务组件展示
+  handleServiceComponent = (ServiceDisplay, ServiceComponent, dataName, data) => {
+    // ServiceDisplay 显示第一页
+    // ServiceComponent 显示第二页组件模块
+    // dataName 显示数据流程
+    ServiceDisplay = ServiceDisplay || null
+    data = data || null
+    this.setState({ ServiceDisplay, ServiceComponent, [dataName]: data })
   }
   render() {
     const {
@@ -359,8 +399,8 @@ class Main extends PureComponent {
       groupDetail,
       group_id,
       groups,
+      rainbondInfo
     } = this.props;
-
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
     if (!groups.length) { return null; }
@@ -413,10 +453,10 @@ class Main extends PureComponent {
           marginRight: 10,
         }}
         >
-          {this.state.running==false ? <Button  onClick={this.handleTopology.bind(this, "start")}>启动</Button>
-          :<Button  onClick={this.handleTopology.bind(this, "stop")}>停止</Button>}
-          <Button disabled={this.state.json_data_length>0?false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button>
-          <Button disabled={this.state.json_data_length>0?false : true} onClick={this.handleTopology.bind(this, "deploy")}>部署</Button>
+          {this.state.running == false ? <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
+            : <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>}
+          <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button>
+          <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "deploy")}>部署</Button>
           {(teamUtil.canShareApp(team) && hasService && this.state.recordShare)
             ? <Button onClick={this.handleShare}>继续发布到市场</Button>
             : ""}
@@ -439,8 +479,6 @@ class Main extends PureComponent {
                     <a onClick={this.toDelete} href="javascript:;">删除当前组</a>
                   </Menu.Item>
                 }
-
-
                 <Menu.Item>
                   <a onClick={this.toAdd} href="javascript:;">新增组</a>
                 </Menu.Item>
@@ -451,8 +489,8 @@ class Main extends PureComponent {
           </Dropdown>
 
         </ButtonGroup>
-        <ButtonGroup style={{position:"absolute",left:"24%",top:"30%",zIndex:"1000"}}>
-           {hasService && <Button
+        <ButtonGroup style={{ position: "absolute", left: "24%", top: "30%", zIndex: "1000" }}>
+          {hasService && <Button
             onClick={() => {
               this.changeType("shape");
             }}
@@ -470,12 +508,13 @@ class Main extends PureComponent {
               ? "primary"
               : ""}
           >列表
-          </Button> 
+          </Button>
         </ButtonGroup>
-          {this.state.linkList.length>0 && <VisterBtn linkList={this.state.linkList}/>}
+
+        {this.state.linkList.length > 0 && <VisterBtn linkList={this.state.linkList} />}
       </div>
     );
-
+    const { ServiceDisplay, ServiceComponent, GihubGetData } = this.state;
     return (
       <PageHeaderLayout
         breadcrumbList={[{
@@ -488,12 +527,12 @@ class Main extends PureComponent {
           title: this.props.groupDetail.group_name,
           href: "",
         }]}
-        
+
         content={pageHeaderContent}
         extraContent={extraContent}
       >
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
-        {(hasService && this.state.type === "shape") && <AppShape group_id={group_id}/>}
+        {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"
@@ -508,6 +547,107 @@ class Main extends PureComponent {
           onOk={this.handleEdit}
         />}
         {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+        < Icon type="plus-circle"
+          onClick={this.toAddService}
+          twoToneColor="#52c41a"
+          style={{ position: "absolute", left: "28%", top: "80%", zIndex: "1000", cursor: "pointer", fontSize: 50 }}
+          theme="twoTone" />
+        <Drawer
+          title="添加服务组件"
+          placement="right"
+          onClose={this.cancelAddService}
+          visible={this.state.toAddService}
+          maskClosable={false}
+          width={600}
+        >
+
+          {ServiceDisplay &&
+            <div>
+              <div className={styles.ServiceBox}>
+                <Row>
+                  <p className={styles.ServiceTitle}>从源代码开始</p>
+                </Row>
+                <Row>
+                  <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "custom") }}>
+                    <Icon type="diff" />
+                    <p>从其他自定义仓库开始</p>
+                  </Col>
+                  {rainbondUtil.gitlabEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "goodrain") }}>
+                    <Icon type="gitlab" />
+                    <p>从Gitab源代码开始</p>
+                  </Col>}
+                  {rainbondUtil.githubEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "github") }}>
+                    <Icon type="github" />
+                    <p>从Gihub源代码开始</p>
+                  </Col>}
+                </Row>
+                <Row>
+                  <div className={styles.ServicePrompt}>注：支持 Java Python Php NodeJs Golang Netcore Helm等语言额规范</div>
+                </Row>
+              </div>
+              <div className={styles.ServiceBox}>
+                <Row>
+                  <p className={styles.ServiceTitle}>从源镜像开始</p>
+                </Row>
+                <Row>
+                  <Col span={8} className={styles.ServiceDiv}>
+                    <Icon type="file" />
+                    <p>指定镜像名称或命令</p>
+                  </Col>
+                  <Col span={8} className={styles.ServiceDiv}>
+                    <Icon type="file" />
+                    <p>指定DockerCompose文件</p>
+                  </Col>
+                </Row>
+              </div>
+              <div className={styles.ServiceBox}>
+                <Row>
+                  <p className={styles.ServiceTitle}>从应用市场开始</p>
+                </Row>
+              </div>
+            </div>}
+
+
+          {ServiceComponent === "custom" && <Custom handleType="Service" />}
+          {ServiceComponent === "github" && <Github handleType="Service" handleGihubGetData={(data) => { this.handleServiceComponent(false, "check", "GihubGetData", data) }} />}
+          {ServiceComponent === "goodrain" && <Goodrain handleType="Service" />}
+          {ServiceComponent === "check" && <Check GihubGetData={GihubGetData} handleType="Service" handleGihubState={(ServiceDisplay, ServiceComponent,data) => { this.handleServiceComponent(ServiceDisplay, ServiceComponent, "GihubGetData", data) }} />}
+
+
+
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              borderTop: '1px solid #e8e8e8',
+              padding: '10px 16px',
+              textAlign: 'right',
+              left: 0,
+              background: '#fff',
+              borderRadius: '0 0 4px 4px',
+            }}
+          >
+
+            {!ServiceDisplay && <Button
+              style={{
+                marginRight: 8,
+              }}
+              onClick={() => { this.handleServiceComponent(true, null) }}
+            >
+              上一步
+            </Button>}
+
+            <Button
+              style={{
+                marginRight: 8,
+              }}
+              onClick={this.cancelAddService}
+            >
+              取消
+            </Button>
+          </div>
+        </Drawer>
       </PageHeaderLayout>
     );
   }
