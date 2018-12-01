@@ -150,20 +150,22 @@ export default class CreateCheck extends PureComponent {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
     const {is_deploy}=this.state;
-    buildApp({ team_name, app_alias: appAlias }).then((data) => {
+    console.log("is_deploy",is_deploy)
+    buildApp({ team_name, app_alias: appAlias ,is_deploy}).then((data) => {
       if (data) {
         const appAlias = this.getAppAlias();
         this.props.dispatch({
           type: "global/fetchGroups",
           payload: {
             team_name,
-            is_deploy//默认true
           },
         });
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`));
       }
     });
   };
+
+
   recheck = () => {
     this.setState(
       {
