@@ -37,7 +37,7 @@ export default class Index extends PureComponent {
   fetchVisitInfo = () => {
     if (!this.mount) return;
     const appAlias = this.props.app_alias;
-    console.log(appAlias)
+    // console.log(appAlias)
     this.props.dispatch({
       type: "appControl/fetchVisitInfo",
       payload: {
@@ -82,7 +82,7 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
-    console.log(appAlias)
+    // console.log(appAlias)
     return (
       <Fragment>
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
@@ -117,7 +117,7 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
-    console.log(appAlias)
+    // console.log(appAlias)
     const links = this.getHttpLinks(demo.access_info || {});
     console.log(links)
     if (links.length === 1) {
@@ -216,7 +216,7 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
-    console.log(appAlias)
+    // console.log(appAlias)
     const res = demo.access_info || [];
     const btn = <Button onClick={this.hiddenModal}>关闭</Button>;
     const btns = [btn];
@@ -410,7 +410,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { visitInfo } = this.props;
-    console.log(visitInfo)
+    // console.log(visitInfo)
     if (!visitInfo) {
       return null;
     }

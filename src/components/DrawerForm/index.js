@@ -15,7 +15,8 @@ import {
     Radio,
     InputNumber,
     Checkbox,
-    Icon
+    Icon,
+    Modal
 } from 'antd';
 import globalUtil from '../../utils/global';
 import styles from './index.less'
@@ -24,7 +25,7 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 @connect(
-    ({ user, global, appControl }) => ({
+    ({ user }) => ({
         currUser: user.currentUser,
     }),
 )
@@ -36,7 +37,8 @@ class DrawerForm extends PureComponent {
             portList: [],
             licenseList: [],
             service_id: "",
-            group_name: ""
+            group_name: "",
+            descriptionVisible: false
         }
     }
     componentWillMount() {
@@ -106,6 +108,17 @@ class DrawerForm extends PureComponent {
             }
         })
     }
+    /**介绍域名说明 */
+    showDescription = () => {
+        this.setState({
+            descriptionVisible: true
+        })
+    }
+    handleOk_description = () => {
+        this.setState({
+            descriptionVisible: false
+        })
+    }
     render() {
         const { onClose, onOk, groups, editInfo } = this.props;
         const { getFieldDecorator } = this.props.form;
@@ -130,6 +143,12 @@ class DrawerForm extends PureComponent {
                 }
             });
         }
+        /**筛选当前的数据中心 */
+        const { region } = this.props.currUser.teams[0];
+        const currentRegion = region.filter((item) => {
+            return item.team_region_name == globalUtil.getCurrRegionName();
+        })
+        console.log(currentRegion)
         return (
             <div>
                 <Drawer
@@ -146,10 +165,11 @@ class DrawerForm extends PureComponent {
                         paddingBottom: 53,
                     }}
                 >
-                    <Form className={styles.antd_form}>
+                    <Form >
                         <FormItem
                             {...formItemLayout}
                             label="域名"
+                            className={styles.antd_form}
                         >
                             {getFieldDecorator('domain_name', {
                                 rules: [
@@ -166,7 +186,7 @@ class DrawerForm extends PureComponent {
                             })(
                                 <Input placeholder="请输入域名" />
                             )}
-                            <span style={{fontWeight:"bold",fontSize:"16px"}}><Icon type="question-circle" theme="filled" />请将域名解析到：10.10.10.10</span>
+                            <span style={{ fontWeight: "bold", fontSize: "16px" }}><Icon type="question-circle" theme="filled" /><a href="javascript:void(0)" onClick={this.showDescription}>请将域名解析到：{currentRegion[0].tcpdomain}</a></span>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -192,7 +212,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="权重"
                         >
-                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight||100 })(
+                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 100 })(
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
@@ -278,8 +298,8 @@ class DrawerForm extends PureComponent {
                             {getFieldDecorator("rule_extensions_round", { initialValue: rule_round })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
-                                    <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option>
+                                    {/* <Option value="random">random</Option>
+                                    <Option value="consistence-hash">consistence-hash</Option> */}
                                 </Select>
                             )}
                         </FormItem>
@@ -308,6 +328,20 @@ class DrawerForm extends PureComponent {
                         <Button onClick={this.handleOk} type="primary">确认</Button>
                     </div>
                 </Drawer>
+                {this.state.descriptionVisible && <Modal
+                    closable={false}
+                    title="域名解析说明"
+                    visible={this.state.descriptionVisible}
+                    onOk={this.handleOk_description}
+                    footer={[<Button type="primary" size="small" onClick={this.handleOk_description}>确定</Button>]}
+                >
+                    <ul className={styles.ulStyle}>
+                        <li>1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商</li>
+                        <li>2.DNS A记录 到当前数据中心的应用网关出口IP地址之上域名访问即可生效。</li>
+                        <li>3.当前数据中心（{currentRegion[0].team_region_alias}）出口IP地址是:  {currentRegion[0].tcpdomain}</li>
+                        <li>4.如有疑问请联系平台运营管理员</li>
+                    </ul>
+                </Modal>}
             </div>
         )
     }

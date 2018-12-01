@@ -157,6 +157,8 @@ export default class TcpTable extends PureComponent {
     }
 
     handleOk = (values, obj) => {
+        console.log(values)
+        return
         const { dispatch } = this.props;
         const { editInfo } = this.state;
         if (obj && obj.whether_open) {
@@ -276,7 +278,7 @@ export default class TcpTable extends PureComponent {
         return (
             <Table
                 rowKey={this.rowKey}
-                // className={styles.tdPadding}
+                className={styles.tdPadding}
                 bordered
                 columns={[
                     {

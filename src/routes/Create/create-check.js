@@ -158,6 +158,7 @@ export default class CreateCheck extends PureComponent {
           type: "global/fetchGroups",
           payload: {
             team_name,
+            is_deploy//默认true
           },
         });
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`));

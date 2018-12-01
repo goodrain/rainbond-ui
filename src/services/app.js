@@ -1121,7 +1121,7 @@ export async function getAppRequest(body = {
       params: {
         query:
           `sum(ceil(increase(app_request{service_id="${
-            body.serviceId
+          body.serviceId
           }",method="total"}[1m])/12))`,
       },
       showLoading: false,
@@ -1190,7 +1190,7 @@ export async function getAppRequestRange(body = {
       params: {
         query:
           `sum(ceil(increase(app_request{service_id="${
-            body.serviceId
+          body.serviceId
           }",method="total"}[1m])/12))`,
         start: body.start,
         end: body.end || new Date().getTime() / 1000,
@@ -1959,12 +1959,13 @@ export async function putAppBuidSource(body = {
   );
 }
 
-/** */
-export async function updateAppStatus(params){
+/**更改应用状态 */
+export async function updateAppStatus(params) {
+  console.log(params)
   return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`, {
     method: "put",
     data: {
-      extend_method:params.params
+      extend_method: params.extend_method
     }
-});
+  });
 }

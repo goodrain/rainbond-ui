@@ -35,6 +35,7 @@ const RadioGroup = Radio.Group;
     ports: appControl.ports,
     baseInfo: appControl.baseInfo,
     tags: appControl.tags,
+    appDetail: appControl.appDetail,
     teamControl,
     appControl,
   }),
@@ -65,7 +66,8 @@ export default class Index extends PureComponent {
       showMarketAppDetail: false,
       showApp: {},
       appStatus: null,
-      visibleAppSetting: false
+      visibleAppSetting: false,
+      is_fix: ''
     };
   }
   componentDidMount() {
@@ -81,7 +83,9 @@ export default class Index extends PureComponent {
     this.loadpermsMembers();
     this.loadBuildSourceInfo();
     this.queryStatus();
+    this.queryDetail();
   }
+
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearTags" });
@@ -207,11 +211,25 @@ export default class Index extends PureComponent {
       if (data) {
         this.setState({ appStatus: data.bean })
       }
-      // setTimeout(() => {
-      //     this.getStatus();
-      // }, 5000)
+      setTimeout(() => {
+        this.queryStatus();
+      }, 5000)
 
     })
+  }
+  queryDetail = () => {
+    const team_name = globalUtil.getCurrTeamName();
+    const { appAlias } = this.props.match.params;
+    this.props.dispatch({
+      type: "appControl/fetchDetail",
+      payload: {
+        team_name,
+        app_alias: appAlias,
+      },
+      callback: (data) => {
+        this.setState({ is_fix: data.service.is_fix })
+      },
+    });
   }
   showAddMember = () => {
     this.setState({ showAddMember: true });
@@ -518,14 +536,15 @@ export default class Index extends PureComponent {
           payload: {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.props.appAlias,
-            extend_method:values.extend_method
+            extend_method: values.extend_method
           },
           callback: (data) => {
-            console.log(data)
+            notification.success({ message: data.msg_show || "修改成功" })
             this.setState({
-              visibleAppSetting:false,
-            },()=>{
+              visibleAppSetting: false,
+            }, () => {
               this.fetchBaseInfo();
+              this.queryDetail()
             })
           }
         })
@@ -539,7 +558,6 @@ export default class Index extends PureComponent {
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
-
     const self = this;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const formItemLayout = {
@@ -584,7 +602,7 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus } = this.state
+    const { appStatus, is_fix } = this.state
     return (
       <Fragment>
         <Card
@@ -611,8 +629,7 @@ export default class Index extends PureComponent {
               label="应用部署类型"
             >
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
-              {/* {appStatus && appStatus.status == "running" ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''} */}
-              {false ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''}
+              {appStatus && (appStatus.status == "undeploy" && is_fix == false) ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''}
             </FormItem>
             {tags ? (
               <FormItem

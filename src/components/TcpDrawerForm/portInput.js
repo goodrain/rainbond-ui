@@ -19,6 +19,10 @@ class PriceInput extends React.Component {
             currency: undefined,
         };
     }
+    componentWillMount(){
+        const {domain_port} = this.props;
+        handleCurrencyChange(domain_port[0].port)
+    }
     handleNumberChange = (e) => {
         const number = parseInt(e.target.value || 0, 10);
         if (isNaN(number)) {
@@ -40,10 +44,10 @@ class PriceInput extends React.Component {
     triggerChange = (changedValue) => {
         // Should provide an event to pass value to Form.
         const onChange = this.props.onChange;
-        this.state = {
-            number: this.props.domain_port[0].port,
-            currency: this.props.domain_port[0].ip
-        }
+        // this.state = {
+        //     number: this.props.domain_port[0].port,
+        //     currency: this.props.domain_port[0].ip
+        // }
         if (onChange) {
             onChange(Object.assign({}, this.state, changedValue));
         }
@@ -60,12 +64,12 @@ class PriceInput extends React.Component {
                         onChange={this.handleCurrencyChange}
                         style={{ width: "100%" }}
                         placeholder="域名"
-                        // defaultValue={domain_port[0].ip}
+                        // defaultValue={domain_port[0].ip.toString()}
                     >
                         {/* <Select.Option value={domain_port.ip}>{domain_port.ip}</Select.Option> */}
                         {
                             (this.props.domain_port||[]).map((domain_port, index) => {
-                                return <Select.Option value={domain_port.ip} key={index}>{domain_port.ip}</Select.Option>
+                                return <Select.Option value={domain_port.ip.toString()} key={index}>{domain_port.ip}</Select.Option>
                             })
                         }
                     </Select>

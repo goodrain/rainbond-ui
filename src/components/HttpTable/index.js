@@ -265,7 +265,7 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias,
                 port: record.container_port
             },
-            callback:()=>{
+            callback: () => {
                 this.load()
             }
         })
@@ -374,7 +374,14 @@ export default class HttpTable extends PureComponent {
                         pagination={{ total: total, page_num: page_num, pageSize: page_size, onChange: this.onPageChange, current: page_num, }}
                     />
                 </Card>
-                {drawerVisible && <DrawerForm groups={this.props.groups} visible={drawerVisible} onClose={this.handleClose} onOk={this.handleOk} ref={this.saveForm} editInfo={this.state.editInfo} />}
+                {drawerVisible && <DrawerForm
+                    groups={this.props.groups}
+                    visible={drawerVisible}
+                    onClose={this.handleClose}
+                    onOk={this.handleOk}
+                    ref={this.saveForm}
+                    editInfo={this.state.editInfo}
+                />}
                 {information_connect && <InfoConnectModal visible={information_connect} dataSource={outerEnvs} onCancel={this.handleCancel} />}
                 {whether_open_form && <Modal
                     title="确认要添加吗？"

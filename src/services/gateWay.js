@@ -204,6 +204,7 @@ export async function addTcp(params) {
             default_port: params.values.end_point.number,
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
+            default_ip:params.values.end_point.currency
         }
     });
 }
@@ -220,7 +221,8 @@ export async function editTcp(params) {
             default_port: params.values.end_point.number,
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
-            tcp_rule_id: params.tcp_rule_id
+            tcp_rule_id: params.tcp_rule_id,
+            default_ip:params.values.end_point.currency
         }
     });
 }

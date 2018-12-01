@@ -209,8 +209,8 @@ class DrawerForm extends PureComponent {
                             {getFieldDecorator("rule_extensions", { initialValue: rule_round })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
-                                    <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option>
+                                    {/* <Option value="random">random</Option>
+                                    <Option value="consistence-hash">consistence-hash</Option> */}
                                 </Select>
                             )}
                         </FormItem>
