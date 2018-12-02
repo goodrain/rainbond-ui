@@ -41,8 +41,8 @@ export default class CreateCheck extends PureComponent {
       modifyUserpass: false,
       modifyImageName: false,
       modifyImageCmd: false,
-      is_deploy:true,
-      GihubGetData: props.GihubGetData ? props.GihubGetData : null
+      is_deploy: true,
+      ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null
     };
     this.mount = false;
     this.socketUrl = "";
@@ -90,8 +90,8 @@ export default class CreateCheck extends PureComponent {
     this.unbindEvent();
   }
   getAppAlias() {
-    const { GihubGetData } = this.state;
-    return GihubGetData ? GihubGetData : this.props.match.params.appAlias;
+    const { ServiceGetData } = this.state;
+    return ServiceGetData ? ServiceGetData : this.props.match.params.appAlias;
   }
   loopStatus = () => {
     if (!this.mount) return;
@@ -149,19 +149,18 @@ export default class CreateCheck extends PureComponent {
   handleBuild = () => {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
-    const {is_deploy}=this.state;
-    console.log("is_deploy",is_deploy)
-    buildApp({ team_name, app_alias: appAlias ,is_deploy}).then((data) => {
+    const { is_deploy, ServiceGetData } = this.state;
+    buildApp({ team_name, app_alias: appAlias, is_deploy }).then((data) => {
       if (data) {
         const appAlias = this.getAppAlias();
         this.props.dispatch({
           type: "global/fetchGroups",
           payload: {
             team_name,
-            is_deploy//默认true
           },
         });
-        this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`));
+        ServiceGetData && is_deploy ? this.props.refreshCurrent() :
+          this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`))
       }
     });
   };
@@ -234,7 +233,7 @@ export default class CreateCheck extends PureComponent {
   };
   handleDelete = () => {
     const appAlias = this.getAppAlias();
-    const { GihubGetData } = this.state;
+    const { ServiceGetData } = this.state;
     this.props.dispatch({
       type: "appControl/deleteApp",
       payload: {
@@ -243,7 +242,7 @@ export default class CreateCheck extends PureComponent {
         is_force: true,
       },
       callback: () => {
-        GihubGetData ? this.props.handleGihubState(true, null, null) :
+        ServiceGetData ? this.props.handleServiceDataState(true, null, null, null) :
           this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
       },
     });
@@ -364,15 +363,21 @@ export default class CreateCheck extends PureComponent {
         ))}
       </div>
     );
+
+    const {ServiceGetData}=this.state
+
     const actions = [
+      <Button onClick={this.recheck} type="primary" style={{marginRight:"8px"}}>
+        重新检测
+      </Button>,
       <Button onClick={this.showDelete} type="default">
         {" "}
         放弃创建{" "}
       </Button>,
-      <Button onClick={this.recheck} type="primary">
-        重新检测
-      </Button>,
+     
     ];
+    console.log("ButtonGroupState",this.props.ButtonGroupState);
+    ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
 
     return (
       <Result
@@ -380,7 +385,7 @@ export default class CreateCheck extends PureComponent {
         title="应用检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
-        actions={actions}
+        actions={ServiceGetData?"":actions}
         style={{
           marginTop: 48,
           marginBottom: 16,
@@ -436,15 +441,14 @@ export default class CreateCheck extends PureComponent {
     );
   };
 
-  renderSuccessOnChange=(e)=> {
+  renderSuccessOnChange = () => {
     this.setState({
-      is_deploy:e.target.value==1?true:false
+      is_deploy: !this.state.is_deploy
     })
   }
 
   renderSuccess = () => {
-    const { GihubGetData } = this.state;
-
+    const { ServiceGetData, is_deploy } = this.state;
     const serviceInfo = this.state.serviceInfo;
     const extra = (
       <div>
@@ -460,19 +464,18 @@ export default class CreateCheck extends PureComponent {
       </div>
     );
     let actions = []
-    GihubGetData ?
+    ServiceGetData ?
       actions = [
-        <div style={{ display: 'flex', justifyContent: "space-around" }}>
-          <div style={{ display: 'flex'}}>
-            <Button onClick={this.handleBuild} type="primary" size="large">
+        <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', alignItems: "center" }}>
+            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
               {" "}创建{" "}
             </Button>
-            <RadioGroup onChange={this.renderSuccessOnChange} defaultValue={1} size="small">
-              <div><Radio value={1}>构建应用并部署</Radio></div>
-              <div><Radio value={2}>构建应用不部署</Radio></div>
-            </RadioGroup>
+            {/* <RadioGroup  defaultValue={true} size="small"> */}
+            <div><Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>构建应用并部署</Radio></div>
+            {/* </RadioGroup> */}
           </div>
-          <Button onClick={this.showDelete} type="default" size="large">
+          <Button onClick={this.showDelete} type="default">
             {" "}
             放弃创建{" "}
           </Button>
@@ -491,6 +494,12 @@ export default class CreateCheck extends PureComponent {
           放弃创建{" "}
         </Button>,
       ];
+
+    if (is_deploy) {
+      ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
+    } else {
+      ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
+    }
     return (
       <Result
         type="success"
@@ -509,17 +518,19 @@ export default class CreateCheck extends PureComponent {
           </div>
         }
         extra={extra}
-        actions={actions}
+        actions={ServiceGetData ? "" : actions}
         style={{ marginTop: 48, marginBottom: 16 }}
       />
     );
   };
   renderChecking = () => {
+    const { ServiceGetData } = this.state;
     const actions = (
       <Button onClick={this.showDelete} type="default">
         放弃创建
       </Button>
     );
+    ServiceGetData && this.props.ButtonGroupState && this.props.handleServiceBotton(actions, false)
 
     const extra = (
       <div>
@@ -534,7 +545,7 @@ export default class CreateCheck extends PureComponent {
         title="应用检测中..."
         extra={extra}
         description="此过程可能比较耗时，请耐心等待"
-        actions={actions}
+        actions={ServiceGetData ? "" : actions}
         style={{
           marginTop: 48,
           marginBottom: 16,
@@ -577,69 +588,134 @@ export default class CreateCheck extends PureComponent {
   render() {
     const status = this.state.status;
     const appDetail = this.state.appDetail;
-    const { GihubGetData } = this.state;
+    const { ServiceGetData } = this.state;
     return (
-      <PageHeaderLayout GihubGetData={GihubGetData}>
-        <Card bordered={false}>
-          <div
-            style={{
-              minHeight: 400,
-            }}
-          >
-            {status === "checking" ? this.renderChecking() : null}
-            {status === "success" ? this.renderSuccess() : null}
-            {status === "failure" ? this.renderError() : null}
-          </div>
-        </Card>
+      <div>
+        {ServiceGetData ?
+          <div>
+            <Card bordered={false}>
+              <div
+                style={{
+                  minHeight: 400,
+                }}
+              >
+                {status === "checking" ? this.renderChecking() : null}
+                {status === "success" ? this.renderSuccess() : null}
+                {status === "failure" ? this.renderError() : null}
+              </div>
+            </Card>
 
-        {this.state.modifyUrl ? (
-          <ModifyUrl
-            data={appDetail}
-            onSubmit={this.handleModifyUrl}
-            onCancel={this.cancelModifyUrl}
-          />
-        ) : null}
+            {this.state.modifyUrl ? (
+              <ModifyUrl
+                data={appDetail}
+                onSubmit={this.handleModifyUrl}
+                onCancel={this.cancelModifyUrl}
+              />
+            ) : null}
 
-        {this.state.modifyImageName ? (
-          <ModifyImageName
-            data={{
-              docker_cmd: appDetail.docker_cmd,
-            }}
-            onSubmit={this.handleModifyImageName}
-            onCancel={this.cancelModifyImageName}
-          />
-        ) : null}
-        {this.state.modifyImageCmd ? (
-          <ModifyImageCmd
-            data={{
-              docker_cmd: appDetail.docker_cmd,
-            }}
-            onSubmit={this.handleModifyImageCmd}
-            onCancel={this.cancelModifyImageCmd}
-          />
-        ) : null}
+            {this.state.modifyImageName ? (
+              <ModifyImageName
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageName}
+                onCancel={this.cancelModifyImageName}
+              />
+            ) : null}
+            {this.state.modifyImageCmd ? (
+              <ModifyImageCmd
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageCmd}
+                onCancel={this.cancelModifyImageCmd}
+              />
+            ) : null}
 
-        {this.state.modifyUserpass ? (
-          <ModifyUrl
-            showUsernameAndPass
-            data={appDetail}
-            onSubmit={this.handleModifyUserpass}
-            onCancel={this.cancelModifyUserpass}
-          />
-        ) : null}
-        {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
-        {this.state.showDelete && (
-          <ConfirmModal
-            onOk={this.handleDelete}
-            title="放弃创建"
-            subDesc="此操作不可恢复"
-            desc="确定要放弃创建此应用吗？"
-            onCancel={() => {
-              this.setState({ showDelete: false });
-            }}
-          />
-        )}
-      </PageHeaderLayout>
+            {this.state.modifyUserpass ? (
+              <ModifyUrl
+                showUsernameAndPass
+                data={appDetail}
+                onSubmit={this.handleModifyUserpass}
+                onCancel={this.cancelModifyUserpass}
+              />
+            ) : null}
+            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+            {this.state.showDelete && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                title="放弃创建"
+                subDesc="此操作不可恢复"
+                desc="确定要放弃创建此应用吗？"
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />)
+            }
+          </div> :
+          <PageHeaderLayout>
+            <Card bordered={false}>
+              <div
+                style={{
+                  minHeight: 400,
+                }}
+              >
+                {status === "checking" ? this.renderChecking() : null}
+                {status === "success" ? this.renderSuccess() : null}
+                {status === "failure" ? this.renderError() : null}
+              </div>
+            </Card>
+
+            {this.state.modifyUrl ? (
+              <ModifyUrl
+                data={appDetail}
+                onSubmit={this.handleModifyUrl}
+                onCancel={this.cancelModifyUrl}
+              />
+            ) : null}
+
+            {this.state.modifyImageName ? (
+              <ModifyImageName
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageName}
+                onCancel={this.cancelModifyImageName}
+              />
+            ) : null}
+            {this.state.modifyImageCmd ? (
+              <ModifyImageCmd
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageCmd}
+                onCancel={this.cancelModifyImageCmd}
+              />
+            ) : null}
+
+            {this.state.modifyUserpass ? (
+              <ModifyUrl
+                showUsernameAndPass
+                data={appDetail}
+                onSubmit={this.handleModifyUserpass}
+                onCancel={this.cancelModifyUserpass}
+              />
+            ) : null}
+            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+            {this.state.showDelete && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                title="放弃创建"
+                subDesc="此操作不可恢复"
+                desc="确定要放弃创建此应用吗？"
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />
+            )}
+          </PageHeaderLayout>
+        }
+      </div>
     );
   }
 }

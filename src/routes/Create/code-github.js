@@ -58,7 +58,7 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         const appAlias = data.bean.service_alias;
-        this.props.handleType&&this.props.handleType==="Service"?this.props.handleGihubGetData(appAlias):
+        this.props.handleType&&this.props.handleType==="Service"?this.props.handleServiceGetData(appAlias):
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
       },
     });
@@ -78,6 +78,14 @@ export default class Index extends PureComponent {
               }}
             >
               尚未绑定Github账号
+              {this.props.handleType&&this.props.handleType==="Service"&&this.props.ButtonGroupState?
+              this.props.handleServiceBotton(<Button
+                onClick={this.toAuth}
+                type="primary"
+              >
+                点击绑定
+              </Button>,false):
+              !this.props.handleType&&
               <Button
                 onClick={this.toAuth}
                 style={{
@@ -86,10 +94,10 @@ export default class Index extends PureComponent {
                 type="primary"
               >
                 点击绑定
-              </Button>
+              </Button>}
             </div>
           ) : (
-            <CodeGithubForm onSubmit={this.handleSubmit} />
+            <CodeGithubForm onSubmit={this.handleSubmit} {...this.props}/>
           )}
         </div>
       </Card>

@@ -26,12 +26,7 @@ import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import teamUtil from "../../utils/team";
 import userUtil from "../../utils/user";
-import Custom from "../Create/code-custom";
-import Github from "../Create/code-github";
-import Goodrain from "../Create/code-goodrain";
-import Check from "../Create/create-check";
-import Setting from "../Create/create-setting";
-import rainbondUtil from "../../utils/rainbond";
+import AddServiceComponent from "./AddServiceComponent";
 
 
 const FormItem = Form.Item;
@@ -111,28 +106,26 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toAdd: false,
-      toAddService: false,
-      ServiceDisplay: true,
-      ServiceComponent: null,
       service_alias: [],
       linkList: [],
       running: false,
       secondJustify: '',
       json_data_length: 0,
-      GihubGetData: null
     };
   }
   getGroupId() {
     return this.props.group_id;
   }
   componentDidMount() {
-    console.log("this.props", this.props)
+    this.loading();
+  }
 
+   loading =()=>{
     this.fetchGroupDetail();
     this.recordShare();
-    // console.log(this.props);
     this.loadTopology()
-  }
+   }
+
   loadTopology() {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -292,20 +285,6 @@ class Main extends PureComponent {
   cancelAdd = () => {
     this.setState({ toAdd: false });
   }
-  toAddService = () => {
-    const { dispatch } = this.props;
-
-    // dispatch(routerRedux.push(`/team/`));
-
-    this.setState({ toAddService: true });
-  }
-  cancelAddService = () => {
-    this.setState({ toAddService: false }, () => {
-      this.setState({
-        ServiceComponent: null, ServiceDisplay: true
-      })
-    });
-  }
 
   handleAdd = (vals) => {
     const { dispatch } = this.props;
@@ -384,15 +363,7 @@ class Main extends PureComponent {
     })
   }
 
-  //服务组件展示
-  handleServiceComponent = (ServiceDisplay, ServiceComponent, dataName, data) => {
-    // ServiceDisplay 显示第一页
-    // ServiceComponent 显示第二页组件模块
-    // dataName 显示数据流程
-    ServiceDisplay = ServiceDisplay || null
-    data = data || null
-    this.setState({ ServiceDisplay, ServiceComponent, [dataName]: data })
-  }
+
   render() {
     const {
       currUser,
@@ -514,7 +485,6 @@ class Main extends PureComponent {
         {this.state.linkList.length > 0 && <VisterBtn linkList={this.state.linkList} />}
       </div>
     );
-    const { ServiceDisplay, ServiceComponent, GihubGetData } = this.state;
     return (
       <PageHeaderLayout
         breadcrumbList={[{
@@ -546,108 +516,8 @@ class Main extends PureComponent {
           onCancel={this.cancelEdit}
           onOk={this.handleEdit}
         />}
+        <AddServiceComponent refreshCurrent={()=>{this.loading()}} />
         {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
-        < Icon type="plus-circle"
-          onClick={this.toAddService}
-          twoToneColor="#52c41a"
-          style={{ position: "absolute", left: "28%", top: "80%", zIndex: "1000", cursor: "pointer", fontSize: 50 }}
-          theme="twoTone" />
-        <Drawer
-          title="添加服务组件"
-          placement="right"
-          onClose={this.cancelAddService}
-          visible={this.state.toAddService}
-          maskClosable={false}
-          width={600}
-        >
-
-          {ServiceDisplay &&
-            <div>
-              <div className={styles.ServiceBox}>
-                <Row>
-                  <p className={styles.ServiceTitle}>从源代码开始</p>
-                </Row>
-                <Row>
-                  <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "custom") }}>
-                    <Icon type="diff" />
-                    <p>从其他自定义仓库开始</p>
-                  </Col>
-                  {rainbondUtil.gitlabEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "goodrain") }}>
-                    <Icon type="gitlab" />
-                    <p>从Gitab源代码开始</p>
-                  </Col>}
-                  {rainbondUtil.githubEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "github") }}>
-                    <Icon type="github" />
-                    <p>从Gihub源代码开始</p>
-                  </Col>}
-                </Row>
-                <Row>
-                  <div className={styles.ServicePrompt}>注：支持 Java Python Php NodeJs Golang Netcore Helm等语言额规范</div>
-                </Row>
-              </div>
-              <div className={styles.ServiceBox}>
-                <Row>
-                  <p className={styles.ServiceTitle}>从源镜像开始</p>
-                </Row>
-                <Row>
-                  <Col span={8} className={styles.ServiceDiv}>
-                    <Icon type="file" />
-                    <p>指定镜像名称或命令</p>
-                  </Col>
-                  <Col span={8} className={styles.ServiceDiv}>
-                    <Icon type="file" />
-                    <p>指定DockerCompose文件</p>
-                  </Col>
-                </Row>
-              </div>
-              <div className={styles.ServiceBox}>
-                <Row>
-                  <p className={styles.ServiceTitle}>从应用市场开始</p>
-                </Row>
-              </div>
-            </div>}
-
-
-          {ServiceComponent === "custom" && <Custom handleType="Service" />}
-          {ServiceComponent === "github" && <Github handleType="Service" handleGihubGetData={(data) => { this.handleServiceComponent(false, "check", "GihubGetData", data) }} />}
-          {ServiceComponent === "goodrain" && <Goodrain handleType="Service" />}
-          {ServiceComponent === "check" && <Check GihubGetData={GihubGetData} handleType="Service" handleGihubState={(ServiceDisplay, ServiceComponent,data) => { this.handleServiceComponent(ServiceDisplay, ServiceComponent, "GihubGetData", data) }} />}
-
-
-
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              width: '100%',
-              borderTop: '1px solid #e8e8e8',
-              padding: '10px 16px',
-              textAlign: 'right',
-              left: 0,
-              background: '#fff',
-              borderRadius: '0 0 4px 4px',
-            }}
-          >
-
-            {!ServiceDisplay && <Button
-              style={{
-                marginRight: 8,
-              }}
-              onClick={() => { this.handleServiceComponent(true, null) }}
-            >
-              上一步
-            </Button>}
-
-            <Button
-              style={{
-                marginRight: 8,
-              }}
-              onClick={this.cancelAddService}
-            >
-              取消
-            </Button>
-          </div>
-        </Drawer>
       </PageHeaderLayout>
     );
   }

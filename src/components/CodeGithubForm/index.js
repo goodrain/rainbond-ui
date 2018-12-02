@@ -226,9 +226,16 @@ export default class Index extends PureComponent {
           }}
           label=""
         >
-          <Button onClick={this.handleSubmit} type="primary">
+        {this.props.handleType&&this.props.handleType==="Service"&&!this.props.ButtonGroupState?this.props.handleServiceBotton(
+           <Button onClick={this.handleSubmit} type="primary">
+           创建应用
+         </Button>,true
+        )
+        :!this.props.handleType&&
+        <Button onClick={this.handleSubmit} type="primary">
             创建应用
-          </Button>
+          </Button>}
+          
         </Form.Item>
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />

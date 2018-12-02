@@ -97,18 +97,17 @@ export default class Index extends PureComponent {
 				},
 				callback: (data) => {
 					const appAlias = data.bean.service_alias;
-					this
-						.props
-						.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
+					this.props.handleType&&this.props.handleType==="Service"?this.props.handleServiceGetData(appAlias):
+					this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
 				}
 			})
 	}
 	render() {
-		const image = decodeURIComponent(this.props.match.params.image||'');
+		const image = decodeURIComponent(this.props.handleType&&this.props.handleType==="Service"?"":(this.props.match.params.image || ""));
 		return (
 			<Card >
 				<div className={styles.formWrap}>
-					<ImageCmdForm data={{docker_cmd: image||''}} onSubmit={this.handleSubmit}/>
+					<ImageCmdForm data={{docker_cmd: image||''}} onSubmit={this.handleSubmit} {...this.props}/>
 				</div>
 			</Card>
 		)

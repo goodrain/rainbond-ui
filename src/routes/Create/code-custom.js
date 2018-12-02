@@ -95,6 +95,7 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         const appAlias = data.bean.service_alias;
+        this.props.handleType&&this.props.handleType==="Service"?this.props.handleServiceGetData(appAlias):
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
       },
     });
@@ -103,7 +104,7 @@ export default class Index extends PureComponent {
     return (
       <Card>
         <div className={styles.formWrap}>
-          <CodeCustomForm onSubmit={this.handleSubmit} />
+          <CodeCustomForm onSubmit={this.handleSubmit} {...this.props}/>
         </div>
       </Card>
     );
