@@ -177,11 +177,7 @@ export default class AddServiceComponent extends PureComponent {
     );
     return (
       <div>
-        < Icon type="plus-circle"
-          onClick={this.toAddService}
-          twoToneColor="#52c41a"
-          style={{ position: "absolute", left: "28%", top: "80%", zIndex: "1000", cursor: "pointer", fontSize: 50 }}
-          theme="twoTone" />
+          <Button type="primary"   onClick={this.toAddService} style={{marginLeft:"12px"}}><Icon type="plus" />添加服务组件</Button>
         <Drawer
           title="添加服务组件"
           placement="right"

@@ -120,11 +120,11 @@ class Main extends PureComponent {
     this.loading();
   }
 
-   loading =()=>{
+  loading = () => {
     this.fetchGroupDetail();
     this.recordShare();
     this.loadTopology()
-   }
+  }
 
   loadTopology() {
     const { dispatch } = this.props;
@@ -460,7 +460,24 @@ class Main extends PureComponent {
           </Dropdown>
 
         </ButtonGroup>
-        <ButtonGroup style={{ position: "absolute", left: "24%", top: "30%", zIndex: "1000" }}>
+        {this.state.linkList.length > 0 && <VisterBtn linkList={this.state.linkList} />}
+      </div>
+    );
+    return (
+      <PageHeaderLayout
+        breadcrumbList={[{
+          title: "首页",
+          href: "/",
+        }, {
+          title: "我的应用",
+          href: "",
+        }, {
+          title: this.props.groupDetail.group_name,
+          href: "",
+        }]}
+
+        content={pageHeaderContent}
+        extraContent={<ButtonGroup >
           {hasService && <Button
             onClick={() => {
               this.changeType("shape");
@@ -480,27 +497,14 @@ class Main extends PureComponent {
               : ""}
           >列表
           </Button>
-        </ButtonGroup>
-
-        {this.state.linkList.length > 0 && <VisterBtn linkList={this.state.linkList} />}
-      </div>
-    );
-    return (
-      <PageHeaderLayout
-        breadcrumbList={[{
-          title: "首页",
-          href: "/",
-        }, {
-          title: "我的应用",
-          href: "",
-        }, {
-          title: this.props.groupDetail.group_name,
-          href: "",
-        }]}
-
-        content={pageHeaderContent}
-        extraContent={extraContent}
+        </ButtonGroup>}
       >
+        <Row style={{ display: "flex", background: "#FAFAFA", height: "60px", alignItems: "center" }}>
+          <Col span={6}>
+            <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
+          </Col>
+          <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
+        </Row>
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
@@ -516,7 +520,6 @@ class Main extends PureComponent {
           onCancel={this.cancelEdit}
           onOk={this.handleEdit}
         />}
-        <AddServiceComponent  groupId={this.getGroupId()}  refreshCurrent={()=>{this.loading()}} />
         {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
       </PageHeaderLayout>
     );
