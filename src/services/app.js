@@ -13,11 +13,15 @@ export function delAppVersion(body = { team_name, service_alias, version_id }) {
 }
 
 /* 获取应用所有的版本列表 */
-export function getAppVersionList(body = { team_name, service_alias }) {
+export function getAppVersionList(body = { team_name, service_alias,page_num,page_size }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
     {
       method: "get",
+      params:{
+        page_num:body.page_num,
+        page_size:body.page_size
+      }
     },
   );
 }

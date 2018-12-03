@@ -81,8 +81,6 @@ export default class Index extends PureComponent {
     this.loadMembers();
     this.loadpermsMembers();
     this.loadBuildSourceInfo();
-    // this.queryStatus();
-    // this.queryDetail();
   }
 
   componentWillUnmount() {
@@ -200,37 +198,6 @@ export default class Index extends PureComponent {
       },
     });
   };
-  // queryStatus = () => {
-  //   const team_name = globalUtil.getCurrTeamName();
-  //   const { appAlias } = this.props.match.params;
-  //   getStatus({
-  //     team_name,
-  //     app_alias: appAlias
-  //   }).then((data) => {
-  //     if (data) {
-  //       this.setState({ appStatus: data.bean })
-  //     }
-  //     setTimeout(() => {
-  //       this.queryStatus();
-  //     }, 5000)
-
-  //   })
-  // }
-  /**查询应用详细信息 */
-  // queryDetail = () => {
-  //   const team_name = globalUtil.getCurrTeamName();
-  //   const { appAlias } = this.props.match.params;
-  //   this.props.dispatch({
-  //     type: "appControl/fetchDetail",
-  //     payload: {
-  //       team_name,
-  //       app_alias: appAlias,
-  //     },
-  //     callback: (data) => {
-  //       this.setState({ is_fix: data.service.is_fix })
-  //     },
-  //   });
-  // }
   showAddMember = () => {
     this.setState({ showAddMember: true });
   };

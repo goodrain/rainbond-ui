@@ -101,16 +101,14 @@ export default class AddDomain extends PureComponent {
               ],
             })(<Input placeholder="请填写域名" />)}
           </FormItem>
-          <FormItem
-            style={{
-              display: protocol == "http" ? "none" : "",
-            }}
+          {protocol == "http" ? '' : <FormItem
             {...formItemLayout}
             label="选择证书"
           >
             {getFieldDecorator("certificate_id", {
               initialValue: "",
               rules: [
+                { required: true },
                 {
                   validator: this.checkKey,
                 },
@@ -118,7 +116,7 @@ export default class AddDomain extends PureComponent {
             })(<Select placeholder="请选择证书">
               <Option value="">请选择证书</Option>
               {certificates.map(item => <Option key={item.id} value={item.id}>{item.alias}</Option>)}
-               </Select>)}
+            </Select>)}
             <p>
               无可用证书？
               <a
@@ -130,7 +128,7 @@ export default class AddDomain extends PureComponent {
                 去新建
               </a>
             </p>
-          </FormItem>
+          </FormItem>}
         </Form>
       </Modal>
     );

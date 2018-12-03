@@ -15,7 +15,11 @@ export default class Index extends PureComponent {
      super(props);
      this.state = {
        selectedRowKeys:[],
-       list:[]
+       list:[],
+      page_num:1,
+      page_size:10,
+      total:'',
+      loading:true
      }
    }
    componentDidMount(){
@@ -26,14 +30,21 @@ export default class Index extends PureComponent {
 
    }
    getVersionList = () => {
+     const {page_num,page_size} = this.state
        this.props.dispatch({
            type: 'appControl/getAppVersionList',
            payload: {
                team_name: this.props.team_name,
-               service_alias: this.props.service_alias
+               service_alias: this.props.service_alias,
+               page_num,
+               page_size
            },
            callback:(data) => {
-                this.setState({list: data.list || []})
+                this.setState({
+                  list: data.list || [],
+                  loading:false,
+                  total:data.bean.total
+                })
            }
        })
    }
@@ -56,8 +67,13 @@ export default class Index extends PureComponent {
         }
     })
    }
+   onPageChange = (page_num) => {
+        this.setState({ page_num, loading: true }, () => {
+            this.getVersionList();
+        })
+}
    render(){
-
+    const {total,page_num,page_size} = this.state;
       return (
         <Modal
         title="版本管理"
@@ -69,7 +85,9 @@ export default class Index extends PureComponent {
         ]}
         >
         <Table
-          pagination = {false}
+          // pagination = {false}
+          loading={this.loading}
+          pagination={{ total: total, page_num: page_num, pageSize: page_size, onChange: this.onPageChange, current: page_num, }}
           dataSource={this.state.list || []}
           columns={[{
             title: '版本',

@@ -30,6 +30,7 @@ import Mnt from './mnt';
 import Port from './port';
 import Plugin from './plugin';
 import Setting from './setting';
+import Resource from './resource';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Index.less';
 import globalUtil from '../../utils/global';
@@ -692,7 +693,8 @@ class Main extends PureComponent {
             mnt: Mnt,
             port: Port,
             plugin: Plugin,
-            setting: Setting
+            setting: Setting,
+            resource:Resource
         }
 
         const {match, routerData, location} = this.props;
