@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input } from "antd";
+import { Card, Form, List, Input, Modal, Icon } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -38,7 +38,9 @@ export default class Main extends PureComponent {
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
-      handleType: this.props.handleType ? this.props.handleType : null
+      installBounced: false,
+      handleType: this.props.handleType ? this.props.handleType : null,
+      moreState: this.props.moreState ? this.props.moreState : null,
     };
     this.mount = false;
   }
@@ -107,8 +109,45 @@ export default class Main extends PureComponent {
     this.setState({ showCreate: null });
   };
   showCreate = app => {
-    this.setState({ showCreate: app });
+    console.log("app", app)
+    const {handleType}=this.state;
+    if (handleType) {
+      this.setState({ installBounced: app });
+    } else {
+      this.setState({ showCreate: app });
+    }
   };
+  handleInstallBounced = ()=>{
+    const {installBounced}=this.state;
+    this.props.dispatch({
+      type: "createApp/installApp",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id:this.props.groupId?this.props.groupId:0,
+        app_id: installBounced.ID
+      },
+      callback: () => {
+        // 刷新左侧按钮
+        this.props.dispatch({
+          type: "global/fetchGroups",
+          payload: {
+            team_name: globalUtil.getCurrTeamName()
+          }
+        });
+
+        // 关闭弹框
+        this.setState({ installBounced: false });
+        this.state.handleType&&this.props.refreshCurrent()
+        this.props.dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              this.props.groupId?this.props.groupId:0
+            }`
+          )
+        );
+      }
+    });
+  }
   handleCreate = vals => {
     const app = this.state.showCreate;
     this.props.dispatch({
@@ -159,7 +198,7 @@ export default class Main extends PureComponent {
       showMarketAppDetail: false
     });
   };
-  loadMore = () =>{
+  loadMore = () => {
     this.props.handleServiceComponent();
   }
 
@@ -249,9 +288,9 @@ export default class Main extends PureComponent {
     const formItemLayout = {};
 
     const paginationProps = {
-      current: this.state.handleType?1:this.state.page,
-      pageSize:this.state.handleType?3: this.state.pageSize,
-      total:this.state. handleType?0:this.state.total,
+      current: this.state.moreState ? 1 : this.state.page,
+      pageSize: this.state.moreState ? 3 : this.state.pageSize,
+      total: this.state.moreState ? 0 : this.state.total,
       onChange: v => {
         this.hanldePageChange(v);
       }
@@ -331,23 +370,32 @@ export default class Main extends PureComponent {
       }
     ];
     const loading = this.props.loading;
-    const { handleType } = this.state;
+    const { handleType, moreState, installBounced } = this.state;
     return (
       <div>
         {handleType ? <div>
-
-          <div className={PluginStyles.cardList}>{cardList}</div>
-          <div style={{
-            textAlign: "right",
-            zIndex: 9,
-            position: "absolute",
-            height: "50px",
-            background: "white",
-            width: "100%",
-            right: 0,
-            bottom: "-10px",
-          }}><a onClick={this.loadMore}>查看更多...</a></div>
-
+          {!moreState && mainSearch}
+          <div style={{ marginBottom: "46px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
+          {moreState &&
+            <div style={{
+              textAlign: "right",
+              zIndex: 9,
+              position: "absolute",
+              height: "50px",
+              background: "white",
+              width: "100%",
+              right: 0,
+              bottom: "35px",
+            }}>
+              <a onClick={this.loadMore}>查看更多...</a></div>}
+          {installBounced && <Modal
+            title="确认要安装此应用作为你的服务组件么？"
+            visible={installBounced}
+            onOk={this.handleInstallBounced}
+            onCancel={() => { this.setState({ installBounced: false }) }}
+          >
+            <p>{installBounced.describe}</p>
+          </Modal>}
           {this.state.showCreate && (
             <CreateAppFromMarketForm
               disabled={loading.effects["createApp/installApp"]}

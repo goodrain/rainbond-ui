@@ -516,7 +516,7 @@ class Main extends PureComponent {
           onCancel={this.cancelEdit}
           onOk={this.handleEdit}
         />}
-        <AddServiceComponent refreshCurrent={()=>{this.loading()}} />
+        <AddServiceComponent  groupId={this.getGroupId()}  refreshCurrent={()=>{this.loading()}} />
         {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
       </PageHeaderLayout>
     );
