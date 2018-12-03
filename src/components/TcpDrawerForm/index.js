@@ -10,7 +10,8 @@ import {
     Drawer,
     Form,
     Input,
-    Select
+    Select,
+    notification
 } from 'antd';
 import globalUtil from '../../utils/global';
 const FormItem = Form.Item;
@@ -36,7 +37,6 @@ class DrawerForm extends PureComponent {
         e.preventDefault();
         const { onOk } = this.props
         this.props.form.validateFields((err, values) => {
-            console.log(values)
             if (!err) {
                 onOk && onOk(values);
             }
@@ -96,6 +96,7 @@ class DrawerForm extends PureComponent {
     }
     handleChange = (data) => {
         // this.props.form.setFieldsValue({end_point:data.})
+        
     }
     checkport=(rules, value, callback)=>{
         const {tcpType,editInfo} = this.props;
@@ -109,7 +110,8 @@ class DrawerForm extends PureComponent {
             return;
         }
         // if(editInfo&&tcpType==0&&value.port<20000){
-        //     callback('你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。');
+        //     // callback('你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。');
+        //     // notification.info({message:'你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。'})
         //     return;
         // }
         else{

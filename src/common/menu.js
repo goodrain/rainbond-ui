@@ -4,7 +4,7 @@ import globalUtil from "../utils/global";
 const menuData = function () {
   return [
     {
-      name: "总览",
+      name: "团队总览",
       icon: "dashboard",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`,
     },
@@ -28,13 +28,13 @@ const menuData = function () {
       ],
     },
     {
-      name: "我的应用",
+      name: "应用管理",
       icon: "appstore-o",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`,
     },
     {
       name: "应用网关",
-      icon: "appstore-o",
+      icon: "gateway",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway`,
       children: [
         {
@@ -48,7 +48,7 @@ const menuData = function () {
       ],
     },
     {
-      name: "我的插件",
+      name: "插件管理",
       icon: "api",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`,
     },

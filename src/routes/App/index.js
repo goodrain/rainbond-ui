@@ -677,6 +677,9 @@ class Main extends PureComponent {
             }, {
                 key: 'setting',
                 tab: '设置'
+            },{
+                key: 'resource',
+                tab: '源码构建'
             }
         ];
 

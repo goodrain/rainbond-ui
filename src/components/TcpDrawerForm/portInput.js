@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Checkbox, Row, Col, Select, Input, Button, Icon } from 'antd';
+import { Form, Checkbox, Row, Col, Select, Input, Button, Icon, notification} from 'antd';
 
 class PriceInput extends React.Component {
     static getDerivedStateFromProps(nextProps, nextState) {
@@ -36,7 +36,12 @@ class PriceInput extends React.Component {
         }
         this.triggerChange({ ip });
     }
-
+    handleBlur=()=>{
+        const {port} = this.state;
+        if(port<20000){
+            notification.warning({message:"你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。",duration:"6"})
+        }
+    }
     triggerChange = (changedValue) => {
         // Should provide an event to pass value to Form.
         const onChange = this.props.onChange;
@@ -70,7 +75,7 @@ class PriceInput extends React.Component {
                     </Select>
                 </Col>
                 <Col span={2} style={{ textAlign: 'center' }}>:</Col>
-                <Col span={8}><Input defaultValue={domain_port[0].port} placeholder="请输入端口" onChange={this.handleNumberChange} /></Col>
+                <Col span={8}><Input defaultValue={domain_port[0].port} placeholder="请输入端口" onChange={this.handleNumberChange} onBlur={this.handleBlur}/></Col>
             </Row>
         );
     }
