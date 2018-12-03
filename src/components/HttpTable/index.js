@@ -113,7 +113,9 @@ export default class HttpTable extends PureComponent {
                         this.whether_open(values, group_name);
                         return;
                     }
-                    data ? notification.success({ message: data.msg_show || '添加成功' }) : notification.error({ message: '添加失败' })
+                    if(data){
+                        notification.success({ message: data.msg_show || '添加成功' }) 
+                    }
                     this.setState({
                         drawerVisible: false
                     })
@@ -130,7 +132,9 @@ export default class HttpTable extends PureComponent {
                     http_rule_id: editInfo.http_rule_id
                 },
                 callback: (data) => {
-                    data ? notification.success({ message: data.msg_show || '编辑成功' }) : notification.error({ message: '编辑失败' })
+                    if(data){
+                        notification.success({ message: data.msg_show || '编辑成功' })
+                    }
                     this.setState({
                         drawerVisible: false
                     })

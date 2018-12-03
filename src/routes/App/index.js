@@ -1,8 +1,8 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import {connect} from 'dva';
-import {Link, Switch, Route, routerRedux} from 'dva/router';
+import { connect } from 'dva';
+import { Link, Switch, Route, routerRedux } from 'dva/router';
 import {
     Row,
     Col,
@@ -19,8 +19,8 @@ import {
     Tooltip
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import {getRoutes} from '../../utils/utils';
-import {getRouterData} from '../../common/router';
+import { getRoutes } from '../../utils/utils';
+import { getRouterData } from '../../common/router';
 import Overview from './overview';
 import Monitor from './monitor';
 import Log from './log';
@@ -58,12 +58,12 @@ import ManageAppGuide from '../../components/ManageAppGuide';
 class MoveGroup extends PureComponent {
     handleSubmit = (e) => {
         e.preventDefault();
-        const {form, currGroup} = this.props;
+        const { form, currGroup } = this.props;
         form.validateFields((err, fieldsValue) => {
-            if (err) 
+            if (err)
                 return;
             if (fieldsValue.group_id === currGroup) {
-                notification.warning({message: "不能选择当前所在组"})
+                notification.warning({ message: "不能选择当前所在组" })
                 return;
             }
 
@@ -78,7 +78,7 @@ class MoveGroup extends PureComponent {
             .onCancel();
     }
     render() {
-        const {getFieldDecorator} = this.props.form;
+        const { getFieldDecorator } = this.props.form;
         const initValue = this.props.currGroup.toString();
         const groups = this.props.groups || [];
         return (
@@ -118,9 +118,9 @@ class MoveGroup extends PureComponent {
 class EditName extends PureComponent {
     handleSubmit = (e) => {
         e.preventDefault();
-        const {form} = this.props;
+        const { form } = this.props;
         form.validateFields((err, fieldsValue) => {
-            if (err) 
+            if (err)
                 return;
             this
                 .props
@@ -133,7 +133,7 @@ class EditName extends PureComponent {
             .onCancel();
     }
     render() {
-        const {getFieldDecorator} = this.props.form;
+        const { getFieldDecorator } = this.props.form;
         const initValue = this.props.name;
         return (
             <Modal
@@ -152,7 +152,7 @@ class EditName extends PureComponent {
                                     message: '不能为空!'
                                 }
                             ]
-                        })(<Input placeholder="请输入新的应用名称"/>)}
+                        })(<Input placeholder="请输入新的应用名称" />)}
                     </FormItem>
                 </Form>
             </Modal>
@@ -161,9 +161,9 @@ class EditName extends PureComponent {
 }
 
 /* 管理容器 */
-@connect(({user, appControl, global}) => ({pods: appControl.pods}))
+@connect(({ user, appControl, global }) => ({ pods: appControl.pods }))
 class ManageContainer extends PureComponent {
-    componentDidMount() {}
+    componentDidMount() { }
     fetchPods = () => {
         const appAlias = this.props.app_alias;
         this
@@ -211,7 +211,7 @@ class ManageContainer extends PureComponent {
                 {(pods || []).map((item, index) => {
                     return <Menu.Item key={item.pod_name + '_' + item.manage_name}>节点{index + 1}</Menu.Item>
                 })
-}
+                }
 
             </Menu>
         )
@@ -226,7 +226,7 @@ class ManageContainer extends PureComponent {
     }
 }
 
-@connect(({user, appControl, global}) => ({currUser: user.currentUser, appDetail: appControl.appDetail, pods: appControl.pods, groups: global.groups}))
+@connect(({ user, appControl, global }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail, pods: appControl.pods, groups: global.groups }))
 class Main extends PureComponent {
     constructor(arg) {
         super(arg);
@@ -238,8 +238,10 @@ class Main extends PureComponent {
             pageStatus: '',
             showEditName: false,
             showMoveGroup: false,
-            showDeployTips:false,
-            showreStartTips:false
+            showDeployTips: false,
+            showreStartTips: false,
+            service_source: '',
+            language: ''
         }
         this.timer = null;
         this.mount = false;
@@ -259,19 +261,32 @@ class Main extends PureComponent {
         };
     }
     componentDidMount() {
-        const {dispatch} = this.props;
+        const { dispatch } = this.props;
         this.loadDetail();
         this.mount = true;
+        dispatch({
+            type: "appControl/getAppBuidSource",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                service_alias: this.getAppAlias()
+            },
+            callback: (data) => {
+                this.setState({
+                    service_source: data.bean.service_source,
+                    language: data.bean.language,
+                })
+            }
+        })
     }
     componentWillUnmount() {
         this.mount = false;
         clearInterval(this.timer);
         this
             .props
-            .dispatch({type: 'appControl/clearPods'})
+            .dispatch({ type: 'appControl/clearPods' })
         this
             .props
-            .dispatch({type: 'appControl/clearDetail'})
+            .dispatch({ type: 'appControl/clearDetail' })
 
     }
 
@@ -313,10 +328,10 @@ class Main extends PureComponent {
                         }
 
                         //访问的应用不在当前的数据中心里
-                        if (code === 10404) {}
+                        if (code === 10404) { }
 
                         //访问的应用不在当前团队里
-                        if (code === 10403) {}
+                        if (code === 10403) { }
 
                     }
 
@@ -324,14 +339,14 @@ class Main extends PureComponent {
             })
     }
     getStatus = () => {
-        if (!this.mount) 
+        if (!this.mount)
             return;
         getStatus({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias()
         }).then((data) => {
             if (data) {
-                this.setState({status: data.bean})
+                this.setState({ status: data.bean })
             }
             setTimeout(() => {
                 this.getStatus();
@@ -340,8 +355,8 @@ class Main extends PureComponent {
         })
     }
     handleTabChange = (key) => {
-        const {dispatch, match} = this.props;
-        const {appAlias} = this.props.match.params;
+        const { dispatch, match } = this.props;
+        const { appAlias } = this.props.match.params;
         dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/${key}`));
     }
     getChildCom = () => {
@@ -355,13 +370,13 @@ class Main extends PureComponent {
     getAppAlias() {
         return this.props.match.params.appAlias;
     }
-    handleshowDeployTips=(showonoff)=>{
-        this.setState({showDeployTips:showonoff});
+    handleshowDeployTips = (showonoff) => {
+        this.setState({ showDeployTips: showonoff });
     }
     handleDeploy = () => {
-        this.setState({showDeployTips:false,showreStartTips:false});
+        this.setState({ showDeployTips: false, showreStartTips: false });
         if (this.state.actionIng) {
-            notification.warning({message: `正在执行操作，请稍后`});
+            notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
         deploy({
@@ -370,7 +385,7 @@ class Main extends PureComponent {
         }).then((data) => {
             if (data) {
 
-                notification.success({message: `操作成功，部署中`});
+                notification.success({ message: `操作成功，部署中` });
 
                 var child = this.getChildCom();
                 if (child && child.onAction) {
@@ -382,7 +397,7 @@ class Main extends PureComponent {
     }
     handleRollback = (version) => {
         if (this.state.actionIng) {
-            notification.warning({message: `正在执行操作，请稍后`});
+            notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
         rollback({
@@ -391,7 +406,7 @@ class Main extends PureComponent {
             deploy_version: version
         }).then((data) => {
             if (data) {
-                notification.success({message: `操作成功，回滚中`});
+                notification.success({ message: `操作成功，回滚中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -400,13 +415,13 @@ class Main extends PureComponent {
 
         })
     }
-    handleshowRestartTips=(showonoff)=>{
-        this.setState({showreStartTips:showonoff});
+    handleshowRestartTips = (showonoff) => {
+        this.setState({ showreStartTips: showonoff });
     }
     handleRestart = () => {
-        this.setState({showreStartTips:false});
+        this.setState({ showreStartTips: false });
         if (this.state.actionIng) {
-            notification.warning({message: `正在执行操作，请稍后`});
+            notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
         restart({
@@ -414,7 +429,7 @@ class Main extends PureComponent {
             app_alias: this.getAppAlias()
         }).then((data) => {
             if (data) {
-                notification.success({message: `操作成功，重启中`});
+                notification.success({ message: `操作成功，重启中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -425,7 +440,7 @@ class Main extends PureComponent {
     }
     handleStart = () => {
         if (this.state.actionIng) {
-            notification.warning({message: `正在执行操作，请稍后`});
+            notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
         start({
@@ -433,7 +448,7 @@ class Main extends PureComponent {
             app_alias: this.getAppAlias()
         }).then((data) => {
             if (data) {
-                notification.success({message: `操作成功，启动中`});
+                notification.success({ message: `操作成功，启动中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -444,7 +459,7 @@ class Main extends PureComponent {
     }
     handleStop = () => {
         if (this.state.actionIng) {
-            notification.warning({message: `正在执行操作，请稍后`});
+            notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
         stop({
@@ -452,7 +467,7 @@ class Main extends PureComponent {
             app_alias: this.getAppAlias()
         }).then((data) => {
             if (data) {
-                notification.success({message: `操作成功，关闭中`});
+                notification.success({ message: `操作成功，关闭中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -473,10 +488,10 @@ class Main extends PureComponent {
         }
     }
     onDeleteApp = () => {
-        this.setState({showDeleteApp: true})
+        this.setState({ showDeleteApp: true })
     }
     cancelDeleteApp = () => {
-        this.setState({showDeleteApp: false})
+        this.setState({ showDeleteApp: false })
     }
     handleDeleteApp = () => {
         const team_name = globalUtil.getCurrTeamName()
@@ -506,10 +521,10 @@ class Main extends PureComponent {
     }
 
     showEditName = () => {
-        this.setState({showEditName: true})
+        this.setState({ showEditName: true })
     }
     hideEditName = () => {
-        this.setState({showEditName: false})
+        this.setState({ showEditName: false })
     }
     handleEditName = (data) => {
         const team_name = globalUtil.getCurrTeamName();
@@ -531,10 +546,10 @@ class Main extends PureComponent {
             })
     }
     showMoveGroup = () => {
-        this.setState({showMoveGroup: true})
+        this.setState({ showMoveGroup: true })
     }
     hideMoveGroup = () => {
-        this.setState({showMoveGroup: false})
+        this.setState({ showMoveGroup: false })
     }
     handleMoveGroup = (data) => {
 
@@ -562,7 +577,7 @@ class Main extends PureComponent {
                             }
                         })
 
-                    notification.success({message: '操作成功'})
+                    notification.success({ message: '操作成功' })
                 }
             })
     }
@@ -571,14 +586,14 @@ class Main extends PureComponent {
             {name || '-'}
             <Icon
                 style={{
-                cursor: 'pointer'
-            }}
+                    cursor: 'pointer'
+                }}
                 onClick={this.showEditName}
-                type="edit"/>
+                type="edit" />
         </Fragment>
     }
     render() {
-        const {index, projectLoading, activitiesLoading, currUser} = this.props;
+        const { index, projectLoading, activitiesLoading, currUser } = this.props;
 
         const team_name = globalUtil.getCurrTeamName();
         const appDetail = this.props.appDetail;
@@ -601,8 +616,8 @@ class Main extends PureComponent {
         const action = (
             <div>
                 <ButtonGroup>
-                    
-                    {(appDetail.service.service_source !="market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias}/>)}
+
+                    {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias} />)}
 
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status)
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
@@ -610,42 +625,42 @@ class Main extends PureComponent {
                     {(appUtil.canStartApp(appDetail)) && !appStatusUtil.canStop(status)
                         ? <Button disabled={!appStatusUtil.canStart(status)} onClick={this.handleStart}>启动</Button>
                         : null}
-                    
-                        {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status))?
+
+                    {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Tooltip title="应用配置已更改，重启后生效">
-                             <Button onClick={this.handleRestart} className={styles.blueant}>重启</Button>
+                            <Button onClick={this.handleRestart} className={styles.blueant}>重启</Button>
                         </Tooltip> : null}
 
-                        {(!this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status))?
-                             <Button onClick={this.handleRestart}>重启</Button>
-                         : null}
-                        
+                    {(!this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
+                        <Button onClick={this.handleRestart}>重启</Button>
+                        : null}
+
 
 
                     {(appUtil.canManageContainter(appDetail)) && appStatusUtil.canManageDocker(status)
-                        ? <ManageContainer app_alias={appDetail.service.service_alias}/>
+                        ? <ManageContainer app_alias={appDetail.service.service_alias} />
                         : null
-}
+                    }
 
                     <Dropdown overlay={menu} placement="bottomRight">
-                        <Button>其他操作<Icon type="ellipsis"/></Button>
+                        <Button>其他操作<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source!="market")
-                     ?
-                     this.state.showDeployTips?
+                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market")
+                    ?
+                    this.state.showDeployTips ?
                         <Tooltip title="应用配置已更改，重新部署后生效">
                             <Button onClick={this.handleDeploy} type="primary" className={styles.blueant}>重新部署</Button>
                         </Tooltip>
-                        : 
+                        :
                         <Button onClick={this.handleDeploy} type="primary">重新部署</Button>
                     : ''}
                 {
-                    (appDetail.service.service_source=="market" && appDetail.service.is_upgrate) && (
+                    (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 }
-                {(appDetail.service.service_source =="market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias}/>)}
+                {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)}
 
             </div>
         );
@@ -678,12 +693,13 @@ class Main extends PureComponent {
             }, {
                 key: 'setting',
                 tab: '设置'
-            },{
-                key: 'resource',
-                tab: '源码构建'
-            }
+            },
+            // {
+            //     key: 'resource',
+            //     tab: '源码构建'
+            // }
         ];
-
+        const { service_source, language } = this.state;
         const map = {
             overview: Overview,
             monitor: Monitor,
@@ -694,10 +710,18 @@ class Main extends PureComponent {
             port: Port,
             plugin: Plugin,
             setting: Setting,
-            resource:Resource
+            // resource:Resource
         }
-
-        const {match, routerData, location} = this.props;
+        /**判断是否是源码构建并且包含Java,node,python,go,php */
+        let languages = language.replace(/\./, "").toLowerCase();
+        if (service_source == 'source_code' && languages != 'static' && languages != 'nodejs') {
+            map.resource = Resource;
+            tabList.push({
+                key: 'resource',
+                tab: '源码构建'
+            })
+        }
+        const { match, routerData, location } = this.props;
         var type = this.props.match.params.type;
         if (!type) {
             type = 'overview';
@@ -708,13 +732,13 @@ class Main extends PureComponent {
                 breadcrumbList={[{
                     title: "首页",
                     href: `/`
-                },{
+                }, {
                     title: "我的应用",
                     href: ``
-                },{
+                }, {
                     title: this.props.appDetail.service.group_name,
                     href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.appDetail.service.group_id}`
-                },{
+                }, {
                     title: this.props.appDetail.service.service_cname,
                     href: ''
                 }]}
@@ -723,42 +747,42 @@ class Main extends PureComponent {
                 onTabChange={this.handleTabChange}
                 tabActiveKey={type}
                 tabList={tabList}
-                >
+            >
 
                 {Com
                     ? <Com
-                            status={this.state.status}
-                            ref={this.saveRef}
-                            {...this.props.match.params}
-                            {...this.props}
-                            onshowDeployTips={(msg)=>{this.handleshowDeployTips(msg)}}
-                            onshowRestartTips={(msg)=>{this.handleshowRestartTips(msg)}}/>
+                        status={this.state.status}
+                        ref={this.saveRef}
+                        {...this.props.match.params}
+                        {...this.props}
+                        onshowDeployTips={(msg) => { this.handleshowDeployTips(msg) }}
+                        onshowRestartTips={(msg) => { this.handleshowRestartTips(msg) }} />
                     : '参数错误'
-}
+                }
 
                 {this.state.showDeleteApp && <ConfirmModal
                     onOk={this.handleDeleteApp}
                     onCancel={this.cancelDeleteApp}
                     title="删除应用"
                     desc="确定要删除此应用吗？"
-                    subDesc="此操作不可恢复"/>}
+                    subDesc="此操作不可恢复" />}
                 {this.state.showEditName && <EditName
                     name={appDetail.service.service_cname}
                     onOk={this.handleEditName}
                     onCancel={this.hideEditName}
-                    title="修改应用名称"/>}
+                    title="修改应用名称" />}
                 {this.state.showMoveGroup && <MoveGroup
                     currGroup={appDetail.service.group_id}
                     groups={groups}
                     onOk={this.handleMoveGroup}
-                    onCancel={this.hideMoveGroup}/>}
-                    <ManageAppGuide />
+                    onCancel={this.hideMoveGroup} />}
+                <ManageAppGuide />
             </PageHeaderLayout>
         );
     }
 }
 
-@connect(({user, groupControl}) => ({}), null, null, {pure: false})
+@connect(({ user, groupControl }) => ({}), null, null, { pure: false })
 export default class Index extends PureComponent {
     constructor(arg) {
         super(arg);
@@ -771,13 +795,13 @@ export default class Index extends PureComponent {
         return this.props.match.params.appAlias;
     }
     componentDidMount() {
-        
+
     }
     flash = () => {
         this.setState({
             show: false
         }, () => {
-            this.setState({show: true})
+            this.setState({ show: true })
         })
     }
     render() {
@@ -789,6 +813,6 @@ export default class Index extends PureComponent {
         if (!this.state.show) {
             return null;
         }
-        return (<Main {...this.props}/>);
+        return (<Main {...this.props} />);
     }
 }

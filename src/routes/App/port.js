@@ -493,6 +493,12 @@ export default class Index extends PureComponent {
     });
   };
   handleAddDomain = (values) => {
+    if(values.protocol=='httptohttps'){
+      values.rule_extensions=[{
+        key:values.protocol,
+        value:"true"
+      }]
+    }
     const { showAddDomain } = this.state;
     this.props.dispatch({
       type: "appControl/bindDomain",

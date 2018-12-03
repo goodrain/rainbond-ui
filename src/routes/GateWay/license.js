@@ -26,10 +26,10 @@ class Control extends Component {
   componentWillMount() {
     const { currUser, dispatch } = this.props;
     // 不是系统管理员
-    if (!userUtil.isSystemAdmin(currUser) && !userUtil.isCompanyAdmin(currUser)) {
-      this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
-      return null;
-    }
+    // if (!userUtil.isSystemAdmin(currUser) && !userUtil.isCompanyAdmin(currUser)) {
+    //   this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
+    //   return null;
+    // }
     this.load();
   }
   /**查询证书 */

@@ -13,14 +13,14 @@ export function delAppVersion(body = { team_name, service_alias, version_id }) {
 }
 
 /* 获取应用所有的版本列表 */
-export function getAppVersionList(body = { team_name, service_alias,page_num,page_size }) {
+export function getAppVersionList(body = { team_name, service_alias, page_num, page_size }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
     {
       method: "get",
-      params:{
-        page_num:body.page_num,
-        page_size:body.page_size
+      params: {
+        page_num: body.page_num,
+        page_size: body.page_size
       }
     },
   );
@@ -673,7 +673,8 @@ export async function bindDomain(body = {
   domain,
   protocol,
   certificate_id,
-  group_id
+  group_id,
+  rule_extensions
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
@@ -684,7 +685,8 @@ export async function bindDomain(body = {
         container_port: body.port,
         protocol: body.protocol,
         certificate_id: body.certificate_id,
-        group_id: body.group_id
+        group_id: body.group_id,
+        rule_extensions: rule_extensions ? rule_extensions : []
       },
     },
   );

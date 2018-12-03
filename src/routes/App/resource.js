@@ -655,8 +655,9 @@ class PHP extends PureComponent {
     }
 }
 @connect(
-    ({ user }) => ({
+    ({ user,appControl }) => ({
         currUser: user.currentUser,
+        createWay:appControl.createWay
     }),
     { withRef: true }
 )
@@ -751,7 +752,7 @@ export default class Index extends PureComponent {
                     : null
                 }
 
-                {(language === 'golang')
+                {(language === 'go')
                     ? <Golang
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
