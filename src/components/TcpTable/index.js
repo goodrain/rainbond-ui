@@ -43,7 +43,8 @@ export default class TcpTable extends PureComponent {
             tcpLoading: true,
             visibleModal: false,
             agreement: {},
-            NotHttpConnectInfo: []
+            NotHttpConnectInfo: [],
+            tcpType:''
         }
     }
     componentWillMount() {
@@ -222,7 +223,8 @@ export default class TcpTable extends PureComponent {
             callback: (data) => {
                 this.setState({
                     editInfo: data.bean,
-                    TcpDrawerVisible: true
+                    TcpDrawerVisible: true,
+                    tcpType:values.type
                 })
             }
         })
@@ -370,11 +372,6 @@ export default class TcpTable extends PureComponent {
                                 <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
-                    // <div>
-                    //     {record.is_outer_service == 1? <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>:<a style={{ marginRight: "10px" }} disabled>连接信息</a>}
-                    //     {record.is_outer_service == 1?<a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>:<a style={{ marginRight: "10px" }} disabled>编辑</a>}
-                    //     {record.is_outer_service == 1?<a onClick={this.handleDelete.bind(this, record)}>删除</a>:<a style={{ marginRight: "10px" }} disabled>删除</a>}
-                    // </div>
                 )
             }
         }];
@@ -386,7 +383,8 @@ export default class TcpTable extends PureComponent {
             information_connect_visible,
             TcpDrawerVisible,
             whether_open_form,
-            visibleModal
+            visibleModal,
+            tcpType
         } = this.state;
         return (
             <div className={styles.tdPadding}>
@@ -407,7 +405,7 @@ export default class TcpTable extends PureComponent {
                         loading={this.state.tcpLoading}
                     />
                 </Card>
-                {TcpDrawerVisible && <TcpDrawerForm visible={TcpDrawerVisible} onClose={this.handleClose} editInfo={this.state.editInfo} onOk={this.handleOk} ref={this.saveForm} />}
+                {TcpDrawerVisible && <TcpDrawerForm visible={TcpDrawerVisible} onClose={this.handleClose} editInfo={this.state.editInfo} onOk={this.handleOk} ref={this.saveForm} tcpType={tcpType}/>}
                 {information_connect_visible && <InfoConnectModal visible={information_connect_visible} dataSource={innerEnvs} onCancel={this.handleCancel} />}
                 {whether_open_form && <Modal
                     title="确认要添加吗？"

@@ -32,7 +32,7 @@ export default class HttpTable extends PureComponent {
             dataList: [],
             loading: true,
             page_num: 1,
-            page_size: 2,
+            page_size: 10,
             total: '',
             http_search: '',
             editInfo: "",

@@ -669,6 +669,7 @@ export async function bindDomain(body = {
   domain,
   protocol,
   certificate_id,
+  group_id
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
@@ -679,6 +680,7 @@ export async function bindDomain(body = {
         container_port: body.port,
         protocol: body.protocol,
         certificate_id: body.certificate_id,
+        group_id: body.group_id
       },
     },
   );

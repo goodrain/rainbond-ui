@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio } from "antd";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio, Popconfirm} from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import SetMemberAppAction from "../../components/SetMemberAppAction";
 import ScrollerX from "../../components/ScrollerX";
@@ -65,9 +65,8 @@ export default class Index extends PureComponent {
       changeBuildSource: false,
       showMarketAppDetail: false,
       showApp: {},
-      appStatus: null,
+      // appStatus: null,
       visibleAppSetting: false,
-      is_fix: ''
     };
   }
   componentDidMount() {
@@ -82,8 +81,8 @@ export default class Index extends PureComponent {
     this.loadMembers();
     this.loadpermsMembers();
     this.loadBuildSourceInfo();
-    this.queryStatus();
-    this.queryDetail();
+    // this.queryStatus();
+    // this.queryDetail();
   }
 
   componentWillUnmount() {
@@ -201,36 +200,37 @@ export default class Index extends PureComponent {
       },
     });
   };
-  queryStatus = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    const { appAlias } = this.props.match.params;
-    getStatus({
-      team_name,
-      app_alias: appAlias
-    }).then((data) => {
-      if (data) {
-        this.setState({ appStatus: data.bean })
-      }
-      setTimeout(() => {
-        this.queryStatus();
-      }, 5000)
+  // queryStatus = () => {
+  //   const team_name = globalUtil.getCurrTeamName();
+  //   const { appAlias } = this.props.match.params;
+  //   getStatus({
+  //     team_name,
+  //     app_alias: appAlias
+  //   }).then((data) => {
+  //     if (data) {
+  //       this.setState({ appStatus: data.bean })
+  //     }
+  //     setTimeout(() => {
+  //       this.queryStatus();
+  //     }, 5000)
 
-    })
-  }
-  queryDetail = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    const { appAlias } = this.props.match.params;
-    this.props.dispatch({
-      type: "appControl/fetchDetail",
-      payload: {
-        team_name,
-        app_alias: appAlias,
-      },
-      callback: (data) => {
-        this.setState({ is_fix: data.service.is_fix })
-      },
-    });
-  }
+  //   })
+  // }
+  /**查询应用详细信息 */
+  // queryDetail = () => {
+  //   const team_name = globalUtil.getCurrTeamName();
+  //   const { appAlias } = this.props.match.params;
+  //   this.props.dispatch({
+  //     type: "appControl/fetchDetail",
+  //     payload: {
+  //       team_name,
+  //       app_alias: appAlias,
+  //     },
+  //     callback: (data) => {
+  //       this.setState({ is_fix: data.service.is_fix })
+  //     },
+  //   });
+  // }
   showAddMember = () => {
     this.setState({ showAddMember: true });
   };
@@ -529,6 +529,7 @@ export default class Index extends PureComponent {
   }
   handleOk_AppSetting = () => {
     const { dispatch } = this.props;
+    
     this.props.form.validateFields((err, values) => {
       if (!err) {
         dispatch({
@@ -544,7 +545,6 @@ export default class Index extends PureComponent {
               visibleAppSetting: false,
             }, () => {
               this.fetchBaseInfo();
-              this.queryDetail()
             })
           }
         })
@@ -629,7 +629,7 @@ export default class Index extends PureComponent {
               label="应用部署类型"
             >
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
-              {appStatus && (appStatus.status == "undeploy" && is_fix == false) ? <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button> : ''}
+              <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button>
             </FormItem>
             {tags ? (
               <FormItem
@@ -1224,8 +1224,11 @@ export default class Index extends PureComponent {
         {this.state.visibleAppSetting && <Modal
           title="应用设置"
           visible={this.state.visibleAppSetting}
-          onOk={this.handleOk_AppSetting}
-          onCancel={this.handleCancel_AppSetting}
+          // onOk={this.handleOk_AppSetting}
+          // onCancel={this.handleCancel_AppSetting}
+          footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
+          <Button type="primary">确定</Button>
+        </Popconfirm>,<Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
         >
           <Form.Item {...appsetting_formItemLayout} label="应用类型">
 

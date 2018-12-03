@@ -493,15 +493,17 @@ export default class Index extends PureComponent {
     });
   };
   handleAddDomain = (values) => {
+    const { showAddDomain } = this.state;
     this.props.dispatch({
       type: "appControl/bindDomain",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port: this.state.showAddDomain.container_port,
+        port: showAddDomain.container_port,
         domain: values.domain,
         protocol: values.protocol,
         certificate_id: values.certificate_id,
+        group_id: showAddDomain.bind_domains[0].g_id
       },
       callback: () => {
         this.fetchPorts();
@@ -577,27 +579,27 @@ export default class Index extends PureComponent {
             </p>
           </Card>
         ) : (
-          <Card>
-            <ScrollerX sm={700}>
-              {ports.map(port => (
-                <Port
-                  port={port}
-                  onDelete={this.handleDeletePort}
-                  onEditAlias={this.showEditAlias}
-                  onSubmitProtocol={this.handleSubmitProtocol}
-                  onOpenInner={this.handleOpenInner}
-                  onCloseInner={this.onCloseInner}
-                  onOpenOuter={this.handleOpenOuter}
-                  onCloseOuter={this.onCloseOuter}
-                  onAddDomain={this.onAddDomain}
-                  onDeleteDomain={this.handleDeleteDomain}
-                  onSubDomain={this.showSubDomain}
-                  onSubPort={this.showSubPort}
-                />
+            <Card>
+              <ScrollerX sm={700}>
+                {ports.map(port => (
+                  <Port
+                    port={port}
+                    onDelete={this.handleDeletePort}
+                    onEditAlias={this.showEditAlias}
+                    onSubmitProtocol={this.handleSubmitProtocol}
+                    onOpenInner={this.handleOpenInner}
+                    onCloseInner={this.onCloseInner}
+                    onOpenOuter={this.handleOpenOuter}
+                    onCloseOuter={this.onCloseOuter}
+                    onAddDomain={this.onAddDomain}
+                    onDeleteDomain={this.handleDeleteDomain}
+                    onSubDomain={this.showSubDomain}
+                    onSubPort={this.showSubPort}
+                  />
                 ))}
-            </ScrollerX>
-          </Card>
-        )}
+              </ScrollerX>
+            </Card>
+          )}
         {this.state.showDeletePort && (
           <ConfirmModal
             title="端口删除"
