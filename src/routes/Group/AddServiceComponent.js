@@ -5,7 +5,8 @@ import {
   Col,
   Button,
   Icon,
-  Drawer
+  Drawer,
+  Alert
 } from "antd";
 import styles from "./Index.less";
 import Custom from "../Create/code-custom";
@@ -212,7 +213,7 @@ export default class AddServiceComponent extends PureComponent {
                   </Col>}
                 </Row>
                 <Row>
-                  <div className={styles.ServicePrompt}>注：支持 Java Python Php NodeJs Golang Netcore 等语言额规范</div>
+                <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言额规范" type="info" showIcon/>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
