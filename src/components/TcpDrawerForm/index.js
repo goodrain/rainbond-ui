@@ -108,10 +108,10 @@ class DrawerForm extends PureComponent {
             callback('当前端口不可用!');
             return;
         }
-        if(editInfo&&tcpType==0&&value.port<20000){
-            callback('你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。');
-            return;
-        }
+        // if(editInfo&&tcpType==0&&value.port<20000){
+        //     callback('你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。');
+        //     return;
+        // }
         else{
             callback()
             return;
@@ -231,7 +231,7 @@ class DrawerForm extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="扩展功能"
+                            label="负载均衡"
                         >
                             {getFieldDecorator("rule_extensions", { initialValue: rule_round })(
                                 <Select placeholder="请选择负载均衡类型">

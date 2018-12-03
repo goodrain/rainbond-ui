@@ -100,9 +100,9 @@ export default class Index extends PureComponent {
     });
   };
   getDefaultBranchName() {
-    if (this.state.serverType=="svn"){
+    if (this.state.serverType == "svn") {
       return "trunk"
-    }else{
+    } else {
       return "master"
     }
   }
@@ -110,6 +110,7 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups } = this.props;
     const { showUsernameAndPass, showKey } = this.state;
+
     const gitUrl = getFieldValue("git_url");
     let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
@@ -127,7 +128,7 @@ export default class Index extends PureComponent {
     })(<Select onChange={this.onChangeServerType} style={{ width: 100 }}>
       <Option value="git">Git</Option>
       <Option value="svn">Svn</Option>
-       </Select>);
+    </Select>);
     const versionSelector = getFieldDecorator("version_type", {
       initialValue: this.state.version_type || "branch",
     })(<Select style={{ width: 100 }}>
@@ -156,7 +157,7 @@ export default class Index extends PureComponent {
             >
               {(groups || []).map(group => (
                 <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
-                ))}
+              ))}
             </Select>)}
             {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
           </Form.Item>
@@ -183,8 +184,8 @@ export default class Index extends PureComponent {
               </a>
             </div>
           ) : (
-            ""
-          )}
+              ""
+            )}
           {gitUrl && isHttp ? (
             <div style={{ textAlign: "right" }}>
               这是一个私有仓库?{" "}
@@ -198,8 +199,8 @@ export default class Index extends PureComponent {
               </a>
             </div>
           ) : (
-            ""
-          )}
+              ""
+            )}
           <Form.Item
             style={{ display: showUsernameAndPass && isHttp ? "" : "none" }}
             {...formItemLayout}
@@ -235,9 +236,11 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              <Button onClick={this.handleSubmit} type="primary">
-                新建应用
-              </Button>
+              {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建应用</Button>, false):
+                !this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
+                }
+          
             </Form.Item>
           ) : null}
         </Form>

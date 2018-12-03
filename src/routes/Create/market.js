@@ -26,7 +26,7 @@ import GoodrainRZ from "../../components/GoodrainRenzheng";
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const appName = decodeURIComponent(this.props.match.params.keyword || "");
+    const appName = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.keyword || ""));
     this.state = {
       list: [],
       showCreate: null,
@@ -37,7 +37,8 @@ export default class Main extends PureComponent {
       total: 0,
       target: "searchWrap",
       showApp: {},
-      showMarketAppDetail: false
+      showMarketAppDetail: false,
+      handleType: this.props.handleType ? this.props.handleType : null
     };
     this.mount = false;
   }
@@ -49,7 +50,7 @@ export default class Main extends PureComponent {
     this.mount = false;
     this.mountquery = false;
   }
-  handleChange = v => {};
+  handleChange = v => { };
   handleSearch = v => {
     this.setState(
       {
@@ -131,7 +132,7 @@ export default class Main extends PureComponent {
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              vals.group_id
+            vals.group_id
             }`
           )
         );
@@ -158,6 +159,9 @@ export default class Main extends PureComponent {
       showMarketAppDetail: false
     });
   };
+  loadMore = () =>{
+    this.props.handleServiceComponent();
+  }
 
   renderApp = item => {
     const ismarket = item.source;
@@ -242,13 +246,12 @@ export default class Main extends PureComponent {
     const { form } = this.props;
     const { getFieldDecorator } = form;
     const list = this.state.list;
-
     const formItemLayout = {};
 
     const paginationProps = {
-      current: this.state.page,
-      pageSize: this.state.pageSize,
-      total: this.state.total,
+      current: this.state.handleType?1:this.state.page,
+      pageSize:this.state.handleType?3: this.state.pageSize,
+      total:this.state. handleType?0:this.state.total,
       onChange: v => {
         this.hanldePageChange(v);
       }
@@ -328,31 +331,63 @@ export default class Main extends PureComponent {
       }
     ];
     const loading = this.props.loading;
-
+    const { handleType } = this.state;
     return (
-      <PageHeaderLayout
-        content={mainSearch}
-        tabList={tabList}
-        tabActiveKey={this.state.scope}
-        onTabChange={this.handleTabChange}
-      >
-        <div className={PluginStyles.cardList}>{cardList}</div>
-        {this.state.showCreate && (
-          <CreateAppFromMarketForm
-            disabled={loading.effects["createApp/installApp"]}
-            onSubmit={this.handleCreate}
-            onCancel={this.onCancelCreate}
-          />
-        )}
-        {this.state.showMarketAppDetail && (
-          <MarketAppDetailShow
-            onOk={this.hideMarketAppDetail}
-            onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
-          />
-        )}
-        {/* <GuideManager /> */}
-      </PageHeaderLayout>
+      <div>
+        {handleType ? <div>
+
+          <div className={PluginStyles.cardList}>{cardList}</div>
+          <div style={{
+            textAlign: "right",
+            zIndex: 9,
+            position: "absolute",
+            height: "50px",
+            background: "white",
+            width: "100%",
+            right: 0,
+            bottom: "-10px",
+          }}><a onClick={this.loadMore}>查看更多...</a></div>
+
+          {this.state.showCreate && (
+            <CreateAppFromMarketForm
+              disabled={loading.effects["createApp/installApp"]}
+              onSubmit={this.handleCreate}
+              onCancel={this.onCancelCreate}
+            />
+          )}
+          {this.state.showMarketAppDetail && (
+            <MarketAppDetailShow
+              onOk={this.hideMarketAppDetail}
+              onCancel={this.hideMarketAppDetail}
+              app={this.state.showApp}
+            />
+          )}
+        </div> :
+
+          <PageHeaderLayout
+            content={mainSearch}
+            tabList={tabList}
+            tabActiveKey={this.state.scope}
+            onTabChange={this.handleTabChange}
+          >
+            <div className={PluginStyles.cardList}>{cardList}</div>
+            {this.state.showCreate && (
+              <CreateAppFromMarketForm
+                disabled={loading.effects["createApp/installApp"]}
+                onSubmit={this.handleCreate}
+                onCancel={this.onCancelCreate}
+              />
+            )}
+            {this.state.showMarketAppDetail && (
+              <MarketAppDetailShow
+                onOk={this.hideMarketAppDetail}
+                onCancel={this.hideMarketAppDetail}
+                app={this.state.showApp}
+              />
+            )}
+            {/* <GuideManager /> */}
+          </PageHeaderLayout>}
+      </div>
     );
   }
 }

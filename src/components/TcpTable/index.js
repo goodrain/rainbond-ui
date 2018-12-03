@@ -31,7 +31,7 @@ export default class TcpTable extends PureComponent {
         this.state = {
             TcpDrawerVisible: false,
             page_num: 1,
-            page_size: 5,
+            page_size: 10,
             total: '',
             tcp_search: '',
             dataList: [],
