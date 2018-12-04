@@ -38,11 +38,11 @@ class DrawerForm extends PureComponent {
             licenseList: [],
             service_id: "",
             group_name: "",
-            descriptionVisible: false
+            descriptionVisible: false,
+            rule_extensions_visible:false
         }
     }
     componentWillMount() {
-        console.log(editInfo)
         const { dispatch, editInfo, form } = this.props;
         const team_name = globalUtil.getCurrTeamName();
         dispatch({
@@ -119,6 +119,12 @@ class DrawerForm extends PureComponent {
         this.setState({
             descriptionVisible: false
         })
+    }
+    handeCertificateSelect=(value)=>{
+        if(value){
+            console.log(value)
+            this.setState({rule_extensions_visible:true})
+        }
     }
     render() {
         const { onClose, onOk, groups, editInfo } = this.props;
@@ -212,7 +218,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="权重"
                         >
-                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 100 })(
+                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 1 })(
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
@@ -221,7 +227,7 @@ class DrawerForm extends PureComponent {
                             label="绑定证书"
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
-                                <Select placeholder="请绑定证书" >
+                                <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>
@@ -285,7 +291,7 @@ class DrawerForm extends PureComponent {
                                 </Select>
                             )}
                         </FormItem>
-                        <FormItem
+                        {this.state.rule_extensions_visible&&<FormItem
                             {...formItemLayout}
                             label="扩展功能"
                         >
@@ -305,7 +311,7 @@ class DrawerForm extends PureComponent {
                                     <Option value="consistence-hash">consistence-hash</Option> */}
                                 </Select>
                             )}
-                        </FormItem>
+                        </FormItem>}
                     </Form>
                     <div
                         style={{

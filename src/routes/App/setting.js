@@ -245,7 +245,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
-        notification.success({ message: "操作成功，需要重启才能生效" });
+        notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });

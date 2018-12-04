@@ -353,26 +353,26 @@ class JAVA extends PureComponent {
             <Card title="Java设置">
 
                 {<Form.Item {...formItemLayout} label="JDK设置">
-                        {getFieldDecorator('service_runtimes', {
-                            initialValue: this.getDefaultRuntime(),
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请选择应用类型'
-                                }
-                            ]
-                        })(
-                            <RadioGroup>
-                                <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
-                                <Radio value='1.6'>openjdk 1.6.0_27</Radio>
-                                <Radio value='1.7'>openjdk 1.7.0_79</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
+                    {getFieldDecorator('service_runtimes', {
+                        initialValue: this.getDefaultRuntime(),
+                        rules: [
+                            {
+                                required: true,
+                                message: '请选择应用类型'
+                            }
+                        ]
+                    })(
+                        <RadioGroup>
+                            <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
+                            <Radio value='1.6'>openjdk 1.6.0_27</Radio>
+                            <Radio value='1.7'>openjdk 1.7.0_79</Radio>
+                        </RadioGroup>
+                    )}
+                </Form.Item>
                 }
 
                 {
-                     <Form.Item {...formItemLayout} label="web服务器">
+                    <Form.Item {...formItemLayout} label="web服务器">
                         {getFieldDecorator('service_server', {
                             initialValue: this.getDefaultService(),
                             rules: [
@@ -788,6 +788,16 @@ export default class Index extends PureComponent {
                 },
             },
         };
+        const languageObj = {
+            "java-jar": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
+            "java-war": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
+            "java-maven": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
+            "php": "https://www.goodrain.com/docs/stable/user-manual/language-support/php.html",
+            "python": "https://www.goodrain.com/docs/stable/user-manual/language-support/python.html",
+            "nodejs": "https://www.goodrain.com/docs/stable/user-manual/language-support/nodejs.html",
+            "golang": "https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html",
+
+        }
         return (
             <Fragment>
                 {this.state.buildSource && (
@@ -913,11 +923,7 @@ export default class Index extends PureComponent {
                                     className={styles.ant_form_item}
                                     label="语言"
                                 >
-                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/java.html" target="_blank">Java</a>
-                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>
-                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>
-                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/nodejs.html" target="_blank">Node.JS</a>
-                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>
+                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${this.state.buildSource.language}`]}>{this.state.buildSource.language}</a> : '无'}
                                 </FormItem>
                             </Fragment>
                         ) : (
@@ -957,9 +963,9 @@ export default class Index extends PureComponent {
                     <Python
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency == 'python'} 
+                        runtimeInfo={runtimeInfo.check_dependency == 'python'}
                         language={language == "Python"}
-                        />
+                    />
 
                 }
 

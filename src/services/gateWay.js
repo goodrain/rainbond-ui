@@ -87,7 +87,7 @@ export async function addHttpStrategy(params) {
         method: "post",
         data: {
             container_port: params.values.container_port,
-            certificate_id: params.values.certificate_id,
+            certificate_id: params.values.certificate_id||'',
             domain_cookie: params.values.domain_cookie,
             domain_heander: params.values.domain_heander,
             domain_name: params.values.domain_name,
@@ -131,7 +131,7 @@ export async function editHttpStrategy(params) {
         method: "put",
         data: {
             container_port: params.values.container_port,
-            certificate_id: params.values.certificate_id,
+            certificate_id: params.values.certificate_id||'',
             domain_cookie: params.values.domain_cookie,
             domain_heander: params.values.domain_heander,
             domain_name: params.values.domain_name,

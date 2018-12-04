@@ -80,7 +80,7 @@ export default {
         },
         *addHttpStrategy({ callback, payload }, { call }) {
             const rule_extensions = [];
-            if (payload.values.rule_extensions_http) {
+            if (payload.values.rule_extensions_http[0] != undefined) {
                 rule_extensions.push({
                     key: 'httptohttps',
                     value: "true"
@@ -100,7 +100,7 @@ export default {
         },
         *editHttpStrategy({ callback, payload }, { call }) {
             const rule_extensions = [];
-            if (payload.values.rule_extensions_http) {
+            if (payload.values.rule_extensions_http[0] != undefined) {
                 rule_extensions.push({
                     key: 'httptohttps',
                     value: "true"
@@ -188,13 +188,13 @@ export default {
                 callback(response)
             }
         },
-        *query_app_status({ callback, payload }, { call }){
+        *query_app_status({ callback, payload }, { call }) {
             const response = yield call(query_app_status, payload);
             if (callback) {
                 callback(response)
             }
         },
-        *startApp({ callback, payload }, { call }){
+        *startApp({ callback, payload }, { call }) {
             const response = yield call(startApp, payload);
             if (callback) {
                 callback(response)

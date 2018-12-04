@@ -105,7 +105,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.fetchVolumes();
         this.handleCancelAddVar();
-        notification.success({ message: "操作成功，需要重启才能生效" });
+        notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -125,7 +125,7 @@ export default class Index extends PureComponent {
       if (data) {
         this.handleCancelAddRelation();
         this.loadMntList();
-        notification.success({ message: "操作成功，需要重启才能生效" });
+        notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       }
     });
@@ -150,7 +150,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
-        notification.success({ message: "操作成功，需要重启才能生效" });
+        notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -166,7 +166,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message: "操作成功，需要重启才能生效" });
+        notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
