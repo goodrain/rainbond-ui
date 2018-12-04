@@ -16,7 +16,8 @@ import {
     Modal,
     Input,
     Select,
-    Tooltip
+    Tooltip,
+    Popconfirm
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { getRoutes } from '../../utils/utils';
@@ -48,7 +49,8 @@ import {
     stop,
     rollback,
     getDetail,
-    getStatus
+    getStatus,
+    updateRolling
 } from '../../services/app';
 import ManageAppGuide from '../../components/ManageAppGuide';
 
@@ -240,8 +242,7 @@ class Main extends PureComponent {
             showMoveGroup: false,
             showDeployTips: false,
             showreStartTips: false,
-            service_source: '',
-            language: ''
+            isChecked: ''
         }
         this.timer = null;
         this.mount = false;
@@ -264,19 +265,19 @@ class Main extends PureComponent {
         const { dispatch } = this.props;
         this.loadDetail();
         this.mount = true;
-        dispatch({
-            type: "appControl/getAppBuidSource",
-            payload: {
-                team_name: globalUtil.getCurrTeamName(),
-                service_alias: this.getAppAlias()
-            },
-            callback: (data) => {
-                this.setState({
-                    service_source: data.bean.service_source,
-                    language: data.bean.language,
-                })
-            }
-        })
+        // dispatch({
+        //     type: "appControl/getAppBuidSource",
+        //     payload: {
+        //         team_name: globalUtil.getCurrTeamName(),
+        //         service_alias: this.getAppAlias()
+        //     },
+        //     callback: (data) => {
+        //         this.setState({
+        //             service_source: data.bean.service_source,
+        //             language: data.bean.language,
+        //         })
+        //     }
+        // })
     }
     componentWillUnmount() {
         this.mount = false;
@@ -379,9 +380,12 @@ class Main extends PureComponent {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
+        const { isChecked } = this.state;
+        console.log(isChecked)
         deploy({
             team_name: globalUtil.getCurrTeamName(),
-            app_alias: this.getAppAlias()
+            app_alias: this.getAppAlias(),
+            is_upgrate: isChecked
         }).then((data) => {
             if (data) {
 
@@ -395,6 +399,7 @@ class Main extends PureComponent {
 
         })
     }
+
     handleRollback = (version) => {
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
@@ -485,6 +490,9 @@ class Main extends PureComponent {
 
         if (item.key === 'moveGroup') {
             this.showMoveGroup();
+        }
+        if (item.key === 'restart') {
+            this.handleRestart()
         }
     }
     onDeleteApp = () => {
@@ -592,6 +600,26 @@ class Main extends PureComponent {
                 type="edit" />
         </Fragment>
     }
+    handleUpdateRolling = () => {
+        this.setState({ showDeployTips: false, showreStartTips: false });
+        if (this.state.actionIng) {
+            notification.warning({ message: `正在执行操作，请稍后` });
+            return;
+        }
+        updateRolling({
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: this.getAppAlias(),
+        }).then((data) => {
+            if (data) {
+                notification.success({ message: `操作成功，更新中` });
+                var child = this.getChildCom();
+                if (child && child.onAction) {
+                    child.onAction(data.bean);
+                }
+            }
+
+        })
+    }
     render() {
         const { index, projectLoading, activitiesLoading, currUser } = this.props;
 
@@ -603,9 +631,11 @@ class Main extends PureComponent {
         if (!appDetail.service) {
             return null;
         }
-
         const menu = (
             <Menu onClick={this.handleDropClick}>
+                <Menu.Item
+                    key="restart"
+                    disabled={!appUtil.canRestartApp(appDetail) || !appStatusUtil.canRestart(status)}>重启</Menu.Item>
                 <Menu.Item
                     key="moveGroup"
                     disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}>修改所属组</Menu.Item>
@@ -626,14 +656,14 @@ class Main extends PureComponent {
                         ? <Button disabled={!appStatusUtil.canStart(status)} onClick={this.handleStart}>启动</Button>
                         : null}
 
-                    {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
+                    {/* {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Tooltip title="应用配置已更改，重启后生效">
                             <Button onClick={this.handleRestart} className={styles.blueant}>重启</Button>
                         </Tooltip> : null}
 
                     {(!this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Button onClick={this.handleRestart}>重启</Button>
-                        : null}
+                        : null} */}
 
 
 
@@ -646,7 +676,7 @@ class Main extends PureComponent {
                         <Button>其他操作<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market")
+                {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market")
                     ?
                     this.state.showDeployTips ?
                         <Tooltip title="应用配置已更改，重新部署后生效">
@@ -654,14 +684,19 @@ class Main extends PureComponent {
                         </Tooltip>
                         :
                         <Button onClick={this.handleDeploy} type="primary">重新部署</Button>
+                    : ''} */}
+                {appDetail.service.service_source != "market" || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) ?
+                    <Button onClick={this.handleDeploy}>构建</Button>
                     : ''}
-                {
+                {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
-                }
+                } */}
+                {appStatusUtil.canVisit(status) ?
+                    <Button type="primary" onClick={this.handleUpdateRolling}>更新(滚动)</Button>
+                    : ''}
                 {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)}
-
             </div>
         );
 
@@ -690,17 +725,17 @@ class Main extends PureComponent {
             }, {
                 key: 'plugin',
                 tab: '插件'
-            }, 
+            },
             {
                 key: 'resource',
                 tab: '构建源'
-            },{
+            }, {
                 key: 'setting',
                 tab: '其他设置'
             },
-            
+
         ];
-        const { service_source, language } = this.state;
+        // const { service_source, language } = this.state;
         const map = {
             overview: Overview,
             monitor: Monitor,
@@ -711,7 +746,7 @@ class Main extends PureComponent {
             port: Port,
             plugin: Plugin,
             setting: Setting,
-            resource:Resource
+            resource: Resource
         }
         /**判断是否是源码构建并且包含Java,node,python,go,php */
         // let languages = language.replace(/\./, "").toLowerCase();
@@ -757,7 +792,9 @@ class Main extends PureComponent {
                         {...this.props.match.params}
                         {...this.props}
                         onshowDeployTips={(msg) => { this.handleshowDeployTips(msg) }}
-                        onshowRestartTips={(msg) => { this.handleshowRestartTips(msg) }} />
+                        onshowRestartTips={(msg) => { this.handleshowRestartTips(msg) }}
+                        onChecked={(value) => { this.setState({ isChecked: value }) }}
+                    />
                     : '参数错误'
                 }
 

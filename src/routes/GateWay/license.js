@@ -73,7 +73,9 @@ class Control extends Component {
           team_name: globalUtil.getCurrTeamName()
         },
         callback: (data) => {
-          notification.success({ message: "添加成功" })
+          if(data){
+            notification.success({ message: "添加成功" })
+          }
           this.setState({ visibleDrawer: false }, () => {
             this.load()
           })

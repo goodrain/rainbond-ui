@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio, Popconfirm} from "antd";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio, Popconfirm, Switch } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import SetMemberAppAction from "../../components/SetMemberAppAction";
 import ScrollerX from "../../components/ScrollerX";
@@ -21,9 +21,8 @@ import ChangeBuildSource from "./setting/edit-buildsource";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
 import {
-  getStatus
+  getStatus,
 } from '../../services/app';
-
 const RadioGroup = Radio.Group;
 
 @connect(
@@ -472,7 +471,7 @@ export default class Index extends PureComponent {
   }
   handleOk_AppSetting = () => {
     const { dispatch } = this.props;
-    
+
     this.props.form.validateFields((err, values) => {
       if (!err) {
         dispatch({
@@ -494,6 +493,13 @@ export default class Index extends PureComponent {
       }
     });
   }
+  handleChange = (checked) => {
+    const {onChecked} = this.props;
+    console.log(checked,onChecked)
+    if(onChecked){
+      onChecked&&onChecked(checked)
+    }
+  }
   handleCancel_AppSetting = () => {
     this.setState({
       visibleAppSetting: false
@@ -509,7 +515,7 @@ export default class Index extends PureComponent {
           span: 24,
         },
         sm: {
-          span: 3,
+          span: 4,
         },
       },
       wrapperCol: {
@@ -517,7 +523,7 @@ export default class Index extends PureComponent {
           span: 24,
         },
         sm: {
-          span: 16,
+          span: 18,
         },
       },
     };
@@ -600,6 +606,15 @@ export default class Index extends PureComponent {
             ) : (
                 ""
               )}
+            <FormItem
+              style={{
+                marginBottom: 0,
+              }}
+              {...formItemLayout}
+              label="应用构建后自动升级"
+            >
+              <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否"  onChange={this.handleChange} />
+            </FormItem>
           </Form>
         </Card>
         <AutoDeploy app={appDetail} />
@@ -1033,8 +1048,8 @@ export default class Index extends PureComponent {
           // onOk={this.handleOk_AppSetting}
           // onCancel={this.handleCancel_AppSetting}
           footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
-          <Button type="primary">确定</Button>
-        </Popconfirm>,<Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
+            <Button type="primary">确定</Button>
+          </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
         >
           <Form.Item {...appsetting_formItemLayout} label="应用类型">
 

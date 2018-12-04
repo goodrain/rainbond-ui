@@ -131,10 +131,30 @@ export function getActionLogDetail(body = {
 export function deploy(body = {
   team_name,
   app_alias,
+  is_upgrate
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
-    { method: "post" },
+    {
+      method: "post", 
+      data: {
+        is_upgrate:body.is_upgrate?true:false
+      }
+    },
+  );
+}
+/*
+	更新滚动
+*/
+export function updateRolling(body = {
+  team_name,
+  app_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
+    {
+      method: "post", 
+    },
   );
 }
 /*
