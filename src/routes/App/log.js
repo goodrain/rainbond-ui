@@ -186,7 +186,7 @@ export default class Index extends PureComponent {
          app_alias: this.props.appAlias
       }).then((data) => {
           if(data){
-              this.setState({logs: (data.list || []).reverse()})
+              this.setState({logs: (data.list || [])})
           }
       })
   }
@@ -218,7 +218,9 @@ export default class Index extends PureComponent {
           onMessage: (msg) =>  {
             if(this.state.started){
                 var logs = this.state.logs || [];
-                this.setState({logs: [msg].concat(logs)})
+                logs.push(msg)
+                // this.setState({logs: [msg].concat(logs)})
+                this.setState({logs: logs})
             }
           }
         })
@@ -244,7 +246,7 @@ export default class Index extends PureComponent {
   }
   render() {
     if(!this.canView()) return <NoPermTip />;
-    const logs = this.state.logs;
+    const {logs} = this.state;
     return (
      <Card
       title={
@@ -270,9 +272,9 @@ export default class Index extends PureComponent {
         </Fragment>
       }
      >
-        <div className={styles.logs}>
+        <div className={styles.logsss}>
           {
-            logs.map((log) => {
+            (logs||[]).map((log) => {
                return (
                   <p>{log}</p>
                )

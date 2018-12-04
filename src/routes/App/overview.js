@@ -119,7 +119,8 @@ class LogItem extends PureComponent {
     }).then((data) => {
       if (data) {
         this.setState({
-          logs: (data.list || []).reverse(),
+          // logs: (data.list || []).reverse(),
+          logs: (data.list || []),
         });
       }
     });
