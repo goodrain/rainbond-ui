@@ -210,7 +210,9 @@ export default class HttpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                notification.success({ message: data ? data.msg_show : '删除成功' })
+                if(data){
+                    notification.success({ message: data ? data.msg_show : '删除成功' })
+                }
                 this.reload()
             }
         })

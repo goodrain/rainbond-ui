@@ -80,7 +80,7 @@ export default class Index extends PureComponent {
     this.fetchTags();
     this.loadMembers();
     this.loadpermsMembers();
-    this.loadBuildSourceInfo();
+    // this.loadBuildSourceInfo();
   }
 
   componentWillUnmount() {
@@ -181,20 +181,6 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         this.setState({ members: data.list });
-      },
-    });
-  };
-  loadBuildSourceInfo = () => {
-    const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    dispatch({
-      type: "appControl/getAppBuidSource",
-      payload: {
-        team_name,
-        service_alias: this.props.appAlias,
-      },
-      callback: (data) => {
-        this.setState({ buildSource: data.bean });
       },
     });
   };
@@ -431,10 +417,6 @@ export default class Index extends PureComponent {
   onEditAction = (member) => {
     this.setState({ toEditAction: member });
   };
-  onChangeBuildSource = () => {
-    this.hideBuildSource();
-    this.loadBuildSourceInfo();
-  };
   hideEditAction = () => {
     this.setState({ toEditAction: null });
   };
@@ -482,12 +464,6 @@ export default class Index extends PureComponent {
         this.hideDelMember();
       },
     });
-  };
-  changeBuildSource = () => {
-    this.setState({ changeBuildSource: true });
-  };
-  hideBuildSource = () => {
-    this.setState({ changeBuildSource: false });
   };
   setupAttribute = () => {
     this.setState({
@@ -596,7 +572,7 @@ export default class Index extends PureComponent {
               label="应用部署类型"
             >
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
-              <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>应用设置</Button>
+              <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>更改</Button>
             </FormItem>
             {tags ? (
               <FormItem
@@ -626,134 +602,6 @@ export default class Index extends PureComponent {
               )}
           </Form>
         </Card>
-        {this.state.buildSource && (
-          <Card
-            title="构建源"
-            style={{
-              marginBottom: 24,
-            }}
-            extra={
-              !appUtil.isMarketAppByBuildSource(this.state.buildSource) && (
-                <a onClick={this.changeBuildSource} href="javascript:;">
-                  更改
-                </a>
-              )
-            }
-          >
-            <Fragment>
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="创建方式"
-              >
-                {appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}
-              </FormItem>
-            </Fragment>
-            {appUtil.isImageAppByBuildSource(this.state.buildSource) ? (
-              <Fragment>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="镜像名称"
-                >
-                  {this.state.buildSource.image}
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="版本"
-                >
-                  {this.state.buildSource.version}
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="启动命令"
-                >
-                  {this.state.buildSource.cmd}
-                </FormItem>
-              </Fragment>
-            ) : (
-                ""
-              )}
-            {appUtil.isMarketAppByBuildSource(this.state.buildSource) ? (
-              <Fragment>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="云市应用名称"
-                >
-                  {this.state.buildSource.group_key ? (
-                    <a href="javascript:;" onClick={() => {
-                      this.setState({
-                        showApp: {
-                          details: this.state.buildSource.details,
-                          group_name: this.state.buildSource.rain_app_name,
-                          group_key: this.state.buildSource.group_key,
-                        },
-                        showMarketAppDetail: true
-                      });
-                    }}>{this.state.buildSource.rain_app_name}</a>
-                  ) : ("无法找到源应用，可能已删除")}
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="版本"
-                >
-                  {this.state.buildSource.version}
-                </FormItem>
-              </Fragment>
-            ) : (
-                ""
-              )}
-            {appUtil.isCodeAppByBuildSource(this.state.buildSource) ? (
-              <Fragment>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="仓库地址"
-                >
-                  <a href={this.state.buildSource.git_url} target="_blank">
-                    {this.state.buildSource.git_url}
-                  </a>
-                </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0,
-                  }}
-                  {...formItemLayout}
-                  label="代码版本"
-                >
-                  {this.state.buildSource.code_version}
-                </FormItem>
-              </Fragment>
-            ) : (
-                ""
-              )}
-            {/* <ChangeBranch
-                  isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
-                  appAlias={this.props.appAlias}
-                  isShowDeployTips={(onoffshow) => {
-                    this.props.onshowDeployTips(onoffshow);
-                  }}
-                /> */}
-          </Card>
-        )}
         <AutoDeploy app={appDetail} />
 
         <Card
@@ -1170,15 +1018,6 @@ export default class Index extends PureComponent {
             title="删除成员权限"
             desc="确定要删除此成员的应用权限吗？"
             onCancel={this.hideDelMember}
-          />
-        )}
-        {this.state.changeBuildSource && (
-          <ChangeBuildSource
-            onOk={this.onChangeBuildSource}
-            buildSource={this.state.buildSource}
-            appAlias={this.props.appAlias}
-            title="更改应用构建源"
-            onCancel={this.hideBuildSource}
           />
         )}
         {this.state.showMarketAppDetail && (

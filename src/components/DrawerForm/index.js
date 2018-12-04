@@ -134,7 +134,7 @@ class DrawerForm extends PureComponent {
         };
         // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
         let rule_http, rule_round;
-        if (editInfo && editInfo.length) {
+        if (editInfo && editInfo.rule_extensions) {
             editInfo.rule_extensions.split(',').map((item) => {
                 if (item.includes('httptohttps')) {
                     rule_http = item.split(':')[0];
@@ -148,7 +148,6 @@ class DrawerForm extends PureComponent {
         const currentRegion = region.filter((item) => {
             return item.team_region_name == globalUtil.getCurrRegionName();
         })
-        console.log(currentRegion)
         return (
             <div>
                 <Drawer
@@ -220,13 +219,16 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="绑定证书"
                         >
-                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
+                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id.toString() })(
                                 <Select placeholder="请绑定证书" >
-                                    {
+                                    {/* {
                                         (this.state.licenseList).map((license, index) => {
-                                            return <Option value={license.id} key={index}>{license.alias}</Option>
+                                            return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
                                         })
-                                    }
+                                    } */}
+                                    {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
+                                        return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
+                                    }) : <Option value={editInfo.certificate_id.toString()} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>}
                                 </Select>
                             )}
                         </FormItem>

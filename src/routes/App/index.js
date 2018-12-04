@@ -690,14 +690,15 @@ class Main extends PureComponent {
             }, {
                 key: 'plugin',
                 tab: '插件'
-            }, {
+            }, 
+            {
+                key: 'resource',
+                tab: '构建源'
+            },{
                 key: 'setting',
-                tab: '设置'
+                tab: '其他设置'
             },
-            // {
-            //     key: 'resource',
-            //     tab: '源码构建'
-            // }
+            
         ];
         const { service_source, language } = this.state;
         const map = {
@@ -710,17 +711,17 @@ class Main extends PureComponent {
             port: Port,
             plugin: Plugin,
             setting: Setting,
-            // resource:Resource
+            resource:Resource
         }
         /**判断是否是源码构建并且包含Java,node,python,go,php */
-        let languages = language.replace(/\./, "").toLowerCase();
-        if (service_source == 'source_code' && languages != 'static' && languages != 'nodejs') {
-            map.resource = Resource;
-            tabList.push({
-                key: 'resource',
-                tab: '源码构建'
-            })
-        }
+        // let languages = language.replace(/\./, "").toLowerCase();
+        // if (service_source == 'source_code' && languages != 'static' && languages != 'nodejs') {
+        //     map.resource = Resource;
+        //     tabList.push({
+        //         key: 'resource',
+        //         tab: '源码构建'
+        //     })
+        // }
         const { match, routerData, location } = this.props;
         var type = this.props.match.params.type;
         if (!type) {

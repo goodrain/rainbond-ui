@@ -3,6 +3,7 @@ import { connect } from "dva";
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
+import ChangeBuildSource from "./setting/edit-buildsource";
 import {
     getMnt,
     addMnt,
@@ -26,13 +27,15 @@ import {
     Tabs,
     Affix,
     Input,
-    Form
+    Form,
+    Tooltip
 } from "antd";
-
+import styles from './resource.less'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
+const FormItem = Form.Item;
 
 //node.js
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
@@ -60,7 +63,7 @@ class Nodejs extends PureComponent {
         });
     }
     render() {
-
+        // const isDisabled = this.props.language ? '' : disabled;
         const formItemLayout = {
             labelCol: {
                 span: 5
@@ -92,7 +95,11 @@ class Nodejs extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        {console.log(this.props.language)}
+                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
+
+                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        }
                     </Col>
                 </Row>
             </Card>
@@ -181,7 +188,11 @@ class Golang extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
+                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
+
+                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        }
                     </Col>
                 </Row>
 
@@ -234,9 +245,9 @@ class Python extends PureComponent {
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
 
-        if (!this.isShowRuntime()) {
-            return null;
-        }
+        // if (!this.isShowRuntime()) {
+        //     return null;
+        // }
 
         return (
             <Card title="Python设置">
@@ -260,7 +271,11 @@ class Python extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
+                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
+
+                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        }
                     </Col>
                 </Row>
             </Card>
@@ -329,16 +344,15 @@ class JAVA extends PureComponent {
             }
         };
 
-        if (!this.isShowJdk() && !this.isShowService()) {
-            return null;
-        }
+        // if (!this.isShowJdk() && !this.isShowService()) {
+        //     return null;
+        // }
 
         const { getFieldDecorator, getFieldValue } = this.props.form;
         return (
             <Card title="Java设置">
 
-                {(this.isShowJdk())
-                    ? <Form.Item {...formItemLayout} label="JDK设置">
+                {<Form.Item {...formItemLayout} label="JDK设置">
                         {getFieldDecorator('service_runtimes', {
                             initialValue: this.getDefaultRuntime(),
                             rules: [
@@ -355,11 +369,10 @@ class JAVA extends PureComponent {
                             </RadioGroup>
                         )}
                     </Form.Item>
-                    : null
                 }
 
-                {(this.isShowService())
-                    ? <Form.Item {...formItemLayout} label="web服务器">
+                {
+                     <Form.Item {...formItemLayout} label="web服务器">
                         {getFieldDecorator('service_server', {
                             initialValue: this.getDefaultService(),
                             rules: [
@@ -376,13 +389,16 @@ class JAVA extends PureComponent {
                             </RadioGroup>
                         )}
                     </Form.Item>
-                    : null
                 }
 
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
+                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
+
+                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        }
                     </Col>
                 </Row>
 
@@ -645,7 +661,11 @@ class PHP extends PureComponent {
                     <Row>
                         <Col span="5"></Col>
                         <Col span="19">
-                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                            {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
+                            {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
+
+                                <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                            }
                         </Col>
                     </Row>
                 </Card>
@@ -655,9 +675,9 @@ class PHP extends PureComponent {
     }
 }
 @connect(
-    ({ user,appControl }) => ({
+    ({ user, appControl }) => ({
         currUser: user.currentUser,
-        createWay:appControl.createWay
+        createWay: appControl.createWay
     }),
     { withRef: true }
 )
@@ -665,11 +685,14 @@ export default class Index extends PureComponent {
     constructor(arg) {
         super(arg);
         this.state = {
-            runtimeInfo: null
+            runtimeInfo: null,
+            changeBuildSource: false,
+            buildSource: null,
         };
     }
     componentDidMount() {
         this.getRuntimeInfo();
+        this.loadBuildSourceInfo();
     }
     handleEditRuntime = (val = {}) => {
         this
@@ -715,6 +738,31 @@ export default class Index extends PureComponent {
                 }
             })
     }
+    changeBuildSource = () => {
+        this.setState({ changeBuildSource: true });
+    };
+    hideBuildSource = () => {
+        this.setState({ changeBuildSource: false });
+    };
+    onChangeBuildSource = () => {
+        this.hideBuildSource();
+        this.loadBuildSourceInfo();
+    };
+    loadBuildSourceInfo = () => {
+        const { dispatch } = this.props;
+        const team_name = globalUtil.getCurrTeamName();
+        dispatch({
+            type: "appControl/getAppBuidSource",
+            payload: {
+                team_name,
+                service_alias: this.props.appDetail.service.service_alias,
+            },
+            callback: (data) => {
+                console.log(data)
+                this.setState({ buildSource: data.bean });
+            },
+        });
+    };
     render() {
         const language = appUtil.getLanguage(this.props.appDetail);
         const runtimeInfo = this.state.runtimeInfo;
@@ -722,51 +770,225 @@ export default class Index extends PureComponent {
         if (!this.state.runtimeInfo)
             return null;
         const appDetail = this.props.appDetail;
+        const formItemLayout = {
+            labelCol: {
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
+            },
+            wrapperCol: {
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 16,
+                },
+            },
+        };
         return (
             <Fragment>
-                {(language === 'php')
-                    ? <PHP
-                        appDetail={this.props.appDetail}
-                        onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency || {}}
-                        userRunTimeInfo={runtimeInfo.user_dependency || {}}
-                        selected_dependency={runtimeInfo.selected_dependency || []}
-                    />
-                    : null
+                {this.state.buildSource && (
+                    <Card
+                        title="构建源"
+                        style={{
+                            marginBottom: 24,
+                        }}
+                        extra={
+                            !appUtil.isMarketAppByBuildSource(this.state.buildSource) && (
+                                <a onClick={this.changeBuildSource} href="javascript:;">
+                                    更改
+                                </a>
+                            )
+                        }
+                    >
+                        <div>
+                            <FormItem
+                                style={{
+                                    marginBottom: 0,
+                                }}
+                                {...formItemLayout}
+                                label="创建方式"
+                            >
+                                {appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}
+                            </FormItem>
+                        </div>
+                        {appUtil.isImageAppByBuildSource(this.state.buildSource) ? (
+                            <div>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="镜像名称"
+                                >
+                                    {this.state.buildSource.image}
+                                </FormItem>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="版本"
+                                >
+                                    {this.state.buildSource.version}
+                                </FormItem>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="启动命令"
+                                >
+                                    {this.state.buildSource.cmd}
+                                </FormItem>
+                            </div>
+                        ) : (
+                                ""
+                            )}
+                        {appUtil.isMarketAppByBuildSource(this.state.buildSource) ? (
+                            <Fragment>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="云市应用名称"
+                                >
+                                    {this.state.buildSource.group_key ? (
+                                        <a href="javascript:;" onClick={() => {
+                                            this.setState({
+                                                showApp: {
+                                                    details: this.state.buildSource.details,
+                                                    group_name: this.state.buildSource.rain_app_name,
+                                                    group_key: this.state.buildSource.group_key,
+                                                },
+                                                showMarketAppDetail: true
+                                            });
+                                        }}>{this.state.buildSource.rain_app_name}</a>
+                                    ) : ("无法找到源应用，可能已删除")}
+                                </FormItem>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="版本"
+                                >
+                                    {this.state.buildSource.version}
+                                </FormItem>
+                            </Fragment>
+                        ) : (
+                                ""
+                            )}
+                        {appUtil.isCodeAppByBuildSource(this.state.buildSource) ? (
+                            <Fragment>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="仓库地址"
+                                >
+                                    <a href={this.state.buildSource.git_url} target="_blank">
+                                        {this.state.buildSource.git_url}
+                                    </a>
+                                </FormItem>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    label="代码版本"
+                                >
+                                    {this.state.buildSource.code_version}
+                                </FormItem>
+                                <FormItem
+                                    style={{
+                                        marginBottom: 0,
+                                    }}
+                                    {...formItemLayout}
+                                    className={styles.ant_form_item}
+                                    label="语言"
+                                >
+                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/java.html" target="_blank">Java</a>
+                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>
+                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>
+                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/nodejs.html" target="_blank">Node.JS</a>
+                                    <a href="https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>
+                                </FormItem>
+                            </Fragment>
+                        ) : (
+                                ""
+                            )}
+                        {/* <ChangeBranch
+                  isCreateFromCustomCode={appUtil.isCreateFromCustomCode(appDetail)}
+                  appAlias={this.props.appAlias}
+                  isShowDeployTips={(onoffshow) => {
+                    this.props.onshowDeployTips(onoffshow);
+                  }}
+                /> */}
+                    </Card>
+                )}
+                {<PHP
+                    appDetail={this.props.appDetail}
+                    onSubmit={this.handleEditRuntime}
+                    runtimeInfo={runtimeInfo.check_dependency || {}}
+                    userRunTimeInfo={runtimeInfo.user_dependency || {}}
+                    selected_dependency={runtimeInfo.selected_dependency || []}
+                    language={language === 'php'}
+                />
                 }
 
-                {(appUtil.isJava(this.props.appDetail))
-                    ? <JAVA
+                {
+                    <JAVA
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
                         language={language}
-                        runtimeInfo={runtimeInfo.check_dependency || {}} />
-                    : null
+                        runtimeInfo={runtimeInfo.check_dependency || {}}
+                        language={appUtil.isJava(this.props.appDetail) == 'java-war' || appUtil.isJava(this.props.appDetail) == 'java-jar' || appUtil.isJava(this.props.appDetail) == 'java-maven'}
+                    />
+
                 }
 
-                {(language === 'python')
-                    ? <Python
+                {
+                    <Python
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency || {}} />
-                    : null
+                        runtimeInfo={runtimeInfo.check_dependency == 'python'} 
+                        language={language == "Python"}
+                        />
+
                 }
 
-                {(language === 'go')
-                    ? <Golang
-                        appDetail={this.props.appDetail}
-                        onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency || {}} />
-                    : null
+                {<Golang
+                    appDetail={this.props.appDetail}
+                    onSubmit={this.handleEditRuntime}
+                    runtimeInfo={runtimeInfo.check_dependency || {}}
+                    language={language == "go"}
+                />
+
                 }
 
-                {(language === 'nodejs')
-                    ? <Nodejs
+                {
+                    <Nodejs
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency || {}} />
-                    : null
+                        runtimeInfo={runtimeInfo.check_dependency || {}}
+                        language={language == 'nodejs'}
+                    />
                 }
+                {this.state.changeBuildSource && (
+                    <ChangeBuildSource
+                        onOk={this.onChangeBuildSource}
+                        buildSource={this.state.buildSource}
+                        appAlias={this.props.appDetail.service.service_alias}
+                        title="更改应用构建源"
+                        onCancel={this.hideBuildSource}
+                    />
+                )}
             </Fragment>
         );
     }

@@ -16,7 +16,7 @@ class Control extends Component {
       licenseList: [],
       licenseLoading: true,
       page_num: 1,
-      page_size: 2,
+      page_size: 10,
       total: '',
       editData:'',
       id:'',

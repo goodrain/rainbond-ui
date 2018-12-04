@@ -31,14 +31,14 @@ export default class Index extends PureComponent {
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
     const links = visitInfo.map((item)=>{
-      return item.access_info[0].access_urls
+      return {url:item.access_info[0].access_urls,service_cname:item.access_info[0].service_cname}
     })
     if (links.length === 1) {
       return (
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
           <Button type="primary"
             onClick={() => {
-              window.open(links[0]);
+              window.open(links[0].url);
             }}
           >
             访问
@@ -55,7 +55,7 @@ export default class Index extends PureComponent {
           overlay={
             <Menu>
               {links.map(item => <Menu.Item key={item}>
-                <a target="_blank" href={item}>{item} </a>
+                <a target="_blank" href={item.url}>{item.service_cname} </a>
               </Menu.Item>)}
             </Menu>
             }

@@ -144,7 +144,9 @@ export default class TcpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                data ? notification.success({ message: '删除成功' }) : notification.error({ message: '删除失败' })
+                if(data){
+                    notification.success({ message: '删除成功' })
+                }
                 this.reload()
             }
         })

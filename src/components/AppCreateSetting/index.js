@@ -1774,7 +1774,7 @@ export default class Index extends PureComponent {
             overflow: 'hidden',
             marginBottom: 90
           }}>
-            <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/>
+            {/* <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/> */}
             <RenderProperty appDetail={appDetail} visible={type !== 'deploy'}/>
           </div>
         </div>

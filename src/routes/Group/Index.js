@@ -169,6 +169,7 @@ class Main extends PureComponent {
         team_name
       },
       callback: (data) => {
+        console.log(data)
         this.setState({
           linkList: data.list || []
         })
