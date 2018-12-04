@@ -63,7 +63,6 @@ class Nodejs extends PureComponent {
         });
     }
     render() {
-        // const isDisabled = this.props.language ? '' : disabled;
         const formItemLayout = {
             labelCol: {
                 span: 5
@@ -95,11 +94,7 @@ class Nodejs extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        {console.log(this.props.language)}
-                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
-
-                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-                        }
+                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
                     </Col>
                 </Row>
             </Card>
@@ -188,11 +183,7 @@ class Golang extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
-                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
-
-                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-                        }
+                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
                     </Col>
                 </Row>
 
@@ -245,9 +236,9 @@ class Python extends PureComponent {
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
 
-        // if (!this.isShowRuntime()) {
-        //     return null;
-        // }
+        if (!this.isShowRuntime()) {
+            return null;
+        }
 
         return (
             <Card title="Python设置">
@@ -271,11 +262,7 @@ class Python extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
-                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
-
-                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-                        }
+                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
                     </Col>
                 </Row>
             </Card>
@@ -344,9 +331,9 @@ class JAVA extends PureComponent {
             }
         };
 
-        // if (!this.isShowJdk() && !this.isShowService()) {
-        //     return null;
-        // }
+        if (!this.isShowJdk() && !this.isShowService()) {
+            return null;
+        }
 
         const { getFieldDecorator, getFieldValue } = this.props.form;
         return (
@@ -394,11 +381,7 @@ class JAVA extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
-                        {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
-
-                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-                        }
+                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
                     </Col>
                 </Row>
 
@@ -661,11 +644,7 @@ class PHP extends PureComponent {
                     <Row>
                         <Col span="5"></Col>
                         <Col span="19">
-                            {/* <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button> */}
-                            {!this.props.language ? <Tooltip title="暂不支持修改，下个版本将支持"><Button disabled onClick={this.handleSubmit} type={'primary'}>确认修改</Button> </Tooltip> :
-
-                                <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-                            }
+                            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
                         </Col>
                     </Row>
                 </Card>
@@ -923,7 +902,7 @@ export default class Index extends PureComponent {
                                     className={styles.ant_form_item}
                                     label="语言"
                                 >
-                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${this.state.buildSource.language}`]}>{this.state.buildSource.language}</a> : '无'}
+                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${language}`]}>{this.state.buildSource.language}</a> : '无'}
                                 </FormItem>
                             </Fragment>
                         ) : (
@@ -938,53 +917,48 @@ export default class Index extends PureComponent {
                 /> */}
                     </Card>
                 )}
-                {<PHP
-                    appDetail={this.props.appDetail}
-                    onSubmit={this.handleEditRuntime}
-                    runtimeInfo={runtimeInfo.check_dependency || {}}
-                    userRunTimeInfo={runtimeInfo.user_dependency || {}}
-                    selected_dependency={runtimeInfo.selected_dependency || []}
-                    language={language === 'php'}
-                />
+                {(language === 'php')
+                    ? <PHP
+                        appDetail={this.props.appDetail}
+                        onSubmit={this.handleEditRuntime}
+                        runtimeInfo={runtimeInfo.check_dependency || {}}
+                        userRunTimeInfo={runtimeInfo.user_dependency || {}}
+                        selected_dependency={runtimeInfo.selected_dependency || []}
+                    />
+                    : null
                 }
 
-                {
-                    <JAVA
+                {appUtil.isJava(this.props.appDetail)
+                    ? <JAVA
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
                         language={language}
-                        runtimeInfo={runtimeInfo.check_dependency || {}}
-                        language={appUtil.isJava(this.props.appDetail) == 'java-war' || appUtil.isJava(this.props.appDetail) == 'java-jar' || appUtil.isJava(this.props.appDetail) == 'java-maven'}
-                    />
-
+                        runtimeInfo={runtimeInfo.check_dependency || {}} />
+                    : null
                 }
 
-                {
-                    <Python
+                {(language === 'python')
+                    ? <Python
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency == 'python'}
-                        language={language == "Python"}
-                    />
-
+                        runtimeInfo={runtimeInfo.check_dependency || {}} />
+                    : null
                 }
 
-                {<Golang
-                    appDetail={this.props.appDetail}
-                    onSubmit={this.handleEditRuntime}
-                    runtimeInfo={runtimeInfo.check_dependency || {}}
-                    language={language == "go"}
-                />
-
-                }
-
-                {
-                    <Nodejs
+                {(language === 'go')
+                    ? <Golang
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
-                        runtimeInfo={runtimeInfo.check_dependency || {}}
-                        language={language == 'nodejs'}
-                    />
+                        runtimeInfo={runtimeInfo.check_dependency || {}} />
+                    : null
+                }
+
+                {(language === 'nodejs')
+                    ? <Nodejs
+                        appDetail={this.props.appDetail}
+                        onSubmit={this.handleEditRuntime}
+                        runtimeInfo={runtimeInfo.check_dependency || {}} />
+                    : null
                 }
                 {this.state.changeBuildSource && (
                     <ChangeBuildSource

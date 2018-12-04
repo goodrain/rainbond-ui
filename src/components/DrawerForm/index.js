@@ -218,7 +218,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="权重"
                         >
-                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 1 })(
+                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 100 })(
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
