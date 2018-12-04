@@ -1405,13 +1405,15 @@ export async function deleteTag(body = {
 export async function addTags(body = {
   teamName,
   app_alias,
-  tags: [],
+  label_ids,
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
     {
       method: "post",
-      data: body.tags,
+      data: {
+        label_ids:body.label_ids}
+        ,
     },
   );
 }
@@ -1961,6 +1963,23 @@ export async function getAppBuidSource(body = {
     },
   );
 }
+
+/*
+  获取标签信息
+*/
+export async function getTagInformation(body = {
+  team_name,
+  app_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels/available`,
+    {
+      method: "get",
+    },
+  );
+}
+
+
 
 /*
   修改应用构建源信息

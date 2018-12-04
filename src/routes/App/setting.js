@@ -33,7 +33,7 @@ const RadioGroup = Radio.Group;
     runningProbe: appControl.runningProbe,
     ports: appControl.ports,
     baseInfo: appControl.baseInfo,
-    tags: appControl.tags,
+    // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
     appControl,
@@ -55,6 +55,7 @@ export default class Index extends PureComponent {
       viewRunHealth: null,
       editRunHealth: null,
       addTag: false,
+      tabData: [],
       showAddMember: false,
       toEditAction: null,
       toDeleteMember: null,
@@ -66,6 +67,7 @@ export default class Index extends PureComponent {
       showApp: {},
       // appStatus: null,
       visibleAppSetting: false,
+      tags:[]
     };
   }
   componentDidMount() {
@@ -121,6 +123,9 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
+      },
+      callback: (data) => {
+        this.setState({ tags: data.used_labels });
       },
     });
   };
@@ -393,10 +398,22 @@ export default class Index extends PureComponent {
     });
   };
   onAddTag = () => {
-    this.setState({ addTag: true });
+    this.props.dispatch({
+      type: "appControl/getTagInformation",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+      },
+      callback: (data) => {
+        this.setState({
+          addTag:true,
+          tabData:data.list
+        })
+      }
+    })
   };
   cancelAddTag = () => {
-    this.setState({ addTag: false });
+    this.setState({ addTag: false ,tabData:[]});
   };
   handleAddTag = (tags) => {
     this.props.dispatch({
@@ -404,12 +421,13 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        tags,
+        label_ids:tags,
       },
       callback: () => {
         this.cancelAddTag();
         notification.success({ message: "添加成功" });
         this.fetchTags();
+        this.setState({tabData:[]})
       },
     });
   };
@@ -495,7 +513,6 @@ export default class Index extends PureComponent {
   }
   handleChange = (checked) => {
     const { onChecked } = this.props;
-    console.log(checked, onChecked)
     if (onChecked) {
       onChecked && onChecked(checked)
     }
@@ -547,11 +564,10 @@ export default class Index extends PureComponent {
       ports,
       baseInfo,
       appDetail,
-      tags,
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix } = this.state
+    const { appStatus, is_fix ,tags,tabData} = this.state
     return (
       <Fragment>
         <Card
@@ -580,7 +596,6 @@ export default class Index extends PureComponent {
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
               <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>更改</Button>
             </FormItem>
-            {tags ? (
               <FormItem
                 style={{
                   marginBottom: 0,
@@ -588,7 +603,7 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="应用特性"
               >
-                {(tags.used_labels || []).map(tag => (
+                {(tags || []).map(tag => (
                   <Tag
                     closable
                     onClose={(e) => {
@@ -603,9 +618,6 @@ export default class Index extends PureComponent {
                   添加特性
                 </Button>
               </FormItem>
-            ) : (
-                ""
-              )}
             {baseInfo.build_upgrade == true || baseInfo.build_upgrade == false ? <FormItem
               style={{
                 marginBottom: 0,
@@ -942,7 +954,7 @@ export default class Index extends PureComponent {
 
         {this.state.addTag && (
           <AddTag
-            tags={tags ? tags.unused_labels : []}
+            tags={tabData ? tabData : []}
             onCancel={this.cancelAddTag}
             onOk={this.handleAddTag}
           />

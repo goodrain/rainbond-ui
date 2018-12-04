@@ -79,7 +79,8 @@ import {
   putAutoDeploySecret,
   getAppBuidSource,
   putAppBuidSource,
-  updateAppStatus
+  updateAppStatus,
+  getTagInformation
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -295,7 +296,7 @@ export default {
       const response = yield call(getTags, payload);
       if (response) {
         yield put({ type: "saveTags", payload: response.bean });
-        callback && callback();
+        callback && callback(response.bean);
       }
     },
     * managePod({ payload, callback }, { call, put }) {
@@ -683,6 +684,12 @@ export default {
     },
     * getAppBuidSource({ payload, callback }, { call, put }) {
       const response = yield call(getAppBuidSource, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * getTagInformation({ payload, callback }, { call, put }) {
+      const response = yield call(getTagInformation, payload);
       if (response) {
         callback && callback(response);
       }
