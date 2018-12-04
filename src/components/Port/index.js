@@ -267,10 +267,10 @@ export default class Index extends PureComponent {
                 </p>
                 <p className={styles.lr}>
                   <span className={styles.label}>访问地址</span>
-                  {(showOuterUrl && outerUrl)
+                  {/* {(showOuterUrl && outerUrl)
                     ? <a href={outerUrl} target={outerUrl} target="_blank">{outerUrl}</a>
-                    : '-'}</p>
-                  {/* // */}
+                    : '-'} */}
+                    </p>
                   {
                   (showOuterUrl && outerUrl)?
                   <div>
@@ -326,9 +326,7 @@ export default class Index extends PureComponent {
                             <a
                               title="解绑"
                               onClick={() => {
-                              this
-                                .props
-                                .onDeleteDomain({port: port.container_port, domain: domain.domain_name})
+                              this.props.onDeleteDomain({port: port.container_port, domain: domain.domain_name})
                             }}
                               className={styles.removePort}
                               href="javascript:;"><Icon type="close"/></a>

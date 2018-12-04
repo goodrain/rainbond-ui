@@ -117,8 +117,9 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
-    // console.log(appAlias)
+    console.log(demo.access_info)
     const links = this.getHttpLinks(demo.access_info || {});
+    console.log("links",links)
     if (links.length === 1) {
       return (
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
@@ -167,7 +168,8 @@ export default class Index extends PureComponent {
         <Dropdown
           overlay={
             <Menu onClick={this.handleClickLink}>
-              {links.map(item => <Menu.Item key={item}>{item}</Menu.Item>)}
+              {/* {links.map(item => <Menu.Item key={item}>{item}</Menu.Item>)} */}
+          <Menu.Item key={1}>{11}</Menu.Item>
             </Menu>
             }
           placement="bottomRight"
