@@ -494,10 +494,10 @@ export default class Index extends PureComponent {
     });
   }
   handleChange = (checked) => {
-    const {onChecked} = this.props;
-    console.log(checked,onChecked)
-    if(onChecked){
-      onChecked&&onChecked(checked)
+    const { onChecked } = this.props;
+    console.log(checked, onChecked)
+    if (onChecked) {
+      onChecked && onChecked(checked)
     }
   }
   handleCancel_AppSetting = () => {
@@ -606,15 +606,15 @@ export default class Index extends PureComponent {
             ) : (
                 ""
               )}
-            <FormItem
+            {baseInfo.build_upgrade == true || baseInfo.build_upgrade == false ? <FormItem
               style={{
                 marginBottom: 0,
               }}
               {...formItemLayout}
               label="应用构建后自动升级"
             >
-              <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否"  onChange={this.handleChange} />
-            </FormItem>
+              <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否" onChange={this.handleChange} />
+            </FormItem> : ''}
           </Form>
         </Card>
         <AutoDeploy app={appDetail} />

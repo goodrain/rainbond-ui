@@ -42,6 +42,7 @@ class DrawerForm extends PureComponent {
         }
     }
     componentWillMount() {
+        console.log(editInfo)
         const { dispatch, editInfo, form } = this.props;
         const team_name = globalUtil.getCurrTeamName();
         dispatch({
@@ -215,23 +216,23 @@ class DrawerForm extends PureComponent {
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
-                        <FormItem
+                        {this.state.licenseList&&<FormItem
                             {...formItemLayout}
                             label="绑定证书"
                         >
-                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id.toString() })(
+                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" >
-                                    {/* {
+                                    {
                                         (this.state.licenseList).map((license, index) => {
-                                            return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
+                                            return <Option value={license.id} key={index}>{license.alias}</Option>
                                         })
-                                    } */}
-                                    {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
+                                    }
+                                    {/* {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
                                         return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
-                                    }) : <Option value={editInfo.certificate_id.toString()} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>}
+                                    }) : <Option value={editInfo.certificate_id} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>} */}
                                 </Select>
                             )}
-                        </FormItem>
+                        </FormItem>}
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"

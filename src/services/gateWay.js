@@ -226,3 +226,16 @@ export async function editTcp(params) {
         }
     });
 }
+
+/**查询应用状态 */
+export async function query_app_status(params) {
+    return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/status`, {
+        method: "get",
+    });
+}
+
+export async function startApp(params) {
+    return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/start`, {
+        method: "post",
+    });
+}

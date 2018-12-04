@@ -11,7 +11,8 @@ import {
     Table,
     Button,
     notification,
-    Tooltip
+    Tooltip,
+    Modal
 } from 'antd';
 import globalUtil from '../../utils/global';
 import styles from './index.less'
@@ -40,7 +41,9 @@ export default class HttpTable extends PureComponent {
             whether_open_form: false,
             service_id: '',
             values: '',
-            group_name: ''
+            group_name: '',
+            appStatusVisable:false,
+            record:''
         }
     }
     componentWillMount() {
@@ -113,8 +116,8 @@ export default class HttpTable extends PureComponent {
                         this.whether_open(values, group_name);
                         return;
                     }
-                    if(data){
-                        notification.success({ message: data.msg_show || '添加成功' }) 
+                    if (data) {
+                        notification.success({ message: data.msg_show || '添加成功' })
                     }
                     this.setState({
                         drawerVisible: false
@@ -132,7 +135,7 @@ export default class HttpTable extends PureComponent {
                     http_rule_id: editInfo.http_rule_id
                 },
                 callback: (data) => {
-                    if(data){
+                    if (data) {
                         notification.success({ message: data.msg_show || '编辑成功' })
                     }
                     this.setState({
@@ -210,7 +213,7 @@ export default class HttpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                if(data){
+                if (data) {
                     notification.success({ message: data ? data.msg_show : '删除成功' })
                 }
                 this.reload()
@@ -276,8 +279,50 @@ export default class HttpTable extends PureComponent {
             }
         })
     }
+    justify_appStatus = (record) => {
+        this.props.dispatch({
+            type: 'gateWay/query_app_status',
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: record.service_alias,
+            },
+            callback: (data) => {
+                console.log(data)
+                if (data && data.bean.status != "running") {
+                    this.setState({appStatusVisable:true,record})
+                }else{
+                    window.open(record.domain_name)
+                }
+            }
+        })
+    }
+    handleAppStatus=()=>{
+        const {record} = this.state
+        console.log(record)
+        this.setState({loading:true})
+        this.props.dispatch({
+            type: 'gateWay/startApp',
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: record.service_alias,
+            },
+            callback: (data) => {
+               if(data){
+                    notification.success({message:"启动应用成功",duration:5})
+                    this.setState({loading:false,appStatusVisable:false},()=>{
+                        this.load();
+                    })
+               }
+            }
+        })
+    }
+    handleAppStatus_closed=()=>{
+        this.setState({
+            appStatusVisable:false
+        })
+    }
     render() {
-        const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form } = this.state;
+        const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable} = this.state;
         const columns = [{
             title: '域名',
             dataIndex: 'domain_name',
@@ -286,7 +331,8 @@ export default class HttpTable extends PureComponent {
             width: "23%",
             render: (text, record) => {
                 return (
-                    record.is_outer_service == 1 ? <a href={text} target="blank">{text}</a> : <a href={text} disabled target="blank">{text}</a>
+                    // record.is_outer_service == 1 ? <a href={text} target="blank">{text}</a> : <a href={text} disabled target="blank">{text}</a>
+                    record.is_outer_service == 1 ? <a onClick={this.justify_appStatus.bind(this, record)}>{text}</a> : <a href={text} disabled target="blank">{text}</a>
                 )
             }
         }, {
@@ -352,11 +398,6 @@ export default class HttpTable extends PureComponent {
                                 <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
-                    // <div>
-                    //     {record.is_outer_service == 1 ? <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> : <a style={{ marginRight: "10px" }} disabled>连接信息</a>}
-                    //     {record.is_outer_service == 1 ? <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a> : <a style={{ marginRight: "10px" }} disabled>编辑</a>}
-                    //     {record.is_outer_service == 1 ? <a onClick={this.handleDelete.bind(this, record)}>删除</a> : <a style={{ marginRight: "10px" }} disabled>删除</a>}
-                    // </div>
                 )
             }
         }];
@@ -396,6 +437,14 @@ export default class HttpTable extends PureComponent {
                     footer={[<Button type="primary" size="small" onClick={this.resolveOk}>确定</Button>]}
                 >
                     <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
+                </Modal>}
+                {appStatusVisable&&<Modal
+                    title="友情提示"
+                    visible={appStatusVisable}
+                    onOk={this.handleAppStatus}
+                    onCancel={this.handleAppStatus_closed}
+                >
+                    <p>当前应用处于关闭状态，启动后方可访问，是否启动应用？</p>
                 </Modal>}
             </div>
         )

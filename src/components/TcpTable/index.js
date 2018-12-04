@@ -316,7 +316,7 @@ export default class TcpTable extends PureComponent {
             align: "left",
             render: (text, record) => {
                 return (
-                    record.protocol == "http" ? <a href={'http://'+text.replace(/\s+/g,"")} target="blank">{text}</a>: <a href="javascript:void(0)" onClick={this.resolveNotHttp.bind(this, record)}>{text}</a>
+                    record.protocol == "http"||record.protocol == "https" ? <a href={'http://'+text.replace(/\s+/g,"")} target="blank">{text}</a>: <a href="javascript:void(0)" onClick={this.resolveNotHttp.bind(this, record)}>{text}</a>
                 )
             }
             // width: "25%",
@@ -384,7 +384,8 @@ export default class TcpTable extends PureComponent {
             TcpDrawerVisible,
             whether_open_form,
             visibleModal,
-            tcpType
+            tcpType,
+            agreement
         } = this.state;
         return (
             <div className={styles.tdPadding}>
@@ -423,15 +424,12 @@ export default class TcpTable extends PureComponent {
                         onCancel={this.handeModalCancel}
                     >
                         <ul className={styles.ul}>
-                           {this.state.agreement.protocol=='tcp'?<li style={{fontWeight:"bold"}}>您当前的访问协议是{this.state.agreement.protocol}</li>: <li style={{fontWeight:"bold"}}>您当前的访问协议是{this.state.agreement.protocol},打开MySQL客户端访问</li>}
-                            <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{this.state.agreement.end_point}</a>
+                           {agreement.protocol=='tcp'||agreement.protocol=='udp'?<li style={{fontWeight:"bold"}}>您当前的访问协议是{agreement.protocol}</li>:<li style={{fontWeight:"bold"}}>您当前的访问协议是{agreement.protocol},打开MySQL客户端访问</li>}
+                            <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{agreement.end_point}</a>
                                 <CopyToClipboard
-                                    text={this.state.agreement.end_point.replace(/\s+/g,"")}
+                                    text={agreement.end_point.replace(/\s+/g,"")}
                                     onCopy={() => {
                                         notification.success({ message: "复制成功" });
-                                        // this.setState({
-                                        //     visibleModal: false
-                                        // })
                                     }}
                                 >
                                     <Button size="small" type="primary"><Icon type="copy" />复制</Button>

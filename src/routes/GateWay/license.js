@@ -153,32 +153,38 @@ class Control extends Component {
       title: '证书名称',
       dataIndex: 'alias',
       key: 'alias',
-      align: "center"
+      align: "center",
+      width:"12%"
     }, {
       title: '证书域名',
       dataIndex: 'issued_to',
       key: 'issued_to',
-      align: "center"
+      align: "left",
+      width:"25%"
     }, {
       title: '过期时间',
       dataIndex: 'end_data',
       key: 'end_data',
-      align: "center"
+      align: "center",
+      width:"20%"
     }, {
       title: '证书类型',
       dataIndex: 'certificate_type',
       key: 'certificate_type',
-      align: "center"
+      align: "center",
+      width:"13%"
     }, {
       title: '证书来源',
       dataIndex: 'issued_by',
       key: 'issued_by',
-      align: "center"
+      align: "center",
+      width:"15%"
     }, {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
       align: "center",
+      width:"15%",
       render: (text, record, index) => {
         return (
           <span>

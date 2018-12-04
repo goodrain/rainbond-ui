@@ -17,7 +17,9 @@ import {
     querydomain_port,
     queryDetail_tcp,
     addTcp,
-    editTcp
+    editTcp,
+    query_app_status,
+    startApp
 } from '../services/gateWay';
 
 export default {
@@ -182,6 +184,18 @@ export default {
             }
             payload.rule_extensions = rule_extensions;
             const response = yield call(editTcp, payload);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *query_app_status({ callback, payload }, { call }){
+            const response = yield call(query_app_status, payload);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *startApp({ callback, payload }, { call }){
+            const response = yield call(startApp, payload);
             if (callback) {
                 callback(response)
             }
