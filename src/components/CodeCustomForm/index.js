@@ -121,8 +121,7 @@ export default class Index extends PureComponent {
     const isSSH = !isHttp;
     const data = this.props.data || {};
     const showSubmitBtn = this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
+    const showCreateGroup =this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
     const prefixSelector = getFieldDecorator("server_type", {
       initialValue: data.server_type || this.state.serverType,
     })(<Select onChange={this.onChangeServerType} style={{ width: 100 }}>
@@ -138,28 +137,29 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用名称">
+          <Form.Item {...formItemLayout} label="应用">
+            {getFieldDecorator("group_id", {
+              initialValue: (this.props.handleType && this.props.handleType === "Service") ? Number(this.props.groupId) : data.group_id,
+              rules: [{ required: true, message: "请选择" }],
+            })(<Select
+              placeholder="请选择要所属应用"
+              style={{ display: "inline-block", width: (this.props.handleType && this.props.handleType === "Service") ?"":292, marginRight: 15 }}
+              disabled={(this.props.handleType && this.props.handleType === "Service") ?true:false} 
+            >
+              {(groups || []).map(group => (
+                <Option  key={group.group_id} value={group.group_id}>{group.group_name}</Option>
+              ))}
+            </Select>)}
+            {(this.props.handleType && this.props.handleType === "Service") ?null:showCreateGroup ? <Button onClick={this.onAddGroup}>新建应用</Button> : null}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="服务组件名称">
             {getFieldDecorator("service_cname", {
               initialValue: data.service_cname || "",
               rules: [
                 { required: true, message: "要创建的应用还没有名字" },
                 { min: 4, message: "应用名称必须大于4位" },
               ],
-            })(<Input placeholder="请为创建的应用起个名字吧" />)}
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="应用组">
-            {getFieldDecorator("group_id", {
-              initialValue: data.group_id,
-              rules: [{ required: true, message: "请选择" }],
-            })(<Select
-              placeholder="请选择要所属应用组"
-              style={{ display: "inline-block", width: 306, marginRight: 15 }}
-            >
-              {(groups || []).map(group => (
-                <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>
-              ))}
-            </Select>)}
-            {showCreateGroup ? <Button onClick={this.onAddGroup}>新建组</Button> : null}
+            })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
             {getFieldDecorator("git_url", {
@@ -237,10 +237,10 @@ export default class Index extends PureComponent {
               label=""
             >
               {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建应用</Button>, false):
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建应用</Button>, false) :
                 !this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
-                }
-          
+              }
+
             </Form.Item>
           ) : null}
         </Form>

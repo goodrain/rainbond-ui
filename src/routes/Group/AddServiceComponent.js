@@ -188,48 +188,41 @@ export default class AddServiceComponent extends PureComponent {
           width={600}
         >
           {ServiceComponentOnePage &&
-            <div>
+            <div style={{marginTop:"-12px"}}>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>从源代码开始</p>
                 </Row>
                 <Row>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "custom") }}>
-                    {/* <Icon type="diff" /> */}
                     <Icon component={codeSvg} />
-                    <p>从其他自定义仓库开始</p>
+                    <p className={styles.ServiceSmallTitle}>从其他自定义仓库开始</p>
                   </Col>
                   {rainbondUtil.gitlabEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "goodrain") }}>
-                    {/* <Icon type="gitlab" /> */}
                     <Icon component={gitlabSvg} />
-
-                    <p>从Gitab源代码开始</p>
+                    <p className={styles.ServiceSmallTitle}>从Gitab源代码开始</p>
                   </Col>}
                   {rainbondUtil.githubEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "github") }}>
-                    {/* <Icon type="github" /> */}
                     <Icon component={githubrSvg} />
-
-                    <p>从Gihub源代码开始</p>
+                    <p className={styles.ServiceSmallTitle}>从Gihub源代码开始</p>
                   </Col>}
                 </Row>
-                <Row>
-                <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言额规范" type="info" showIcon/>
+                <Row style={{marginBottom:"2px"}}>
+                 <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言额规范" type="info" showIcon/>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>从源镜像开始</p>
                 </Row>
-                <Row>
+                <Row style={{marginTop:"-8px"}}>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "imageName") }}>
                     <Icon component={dockerSvg} />
-
-                    <p>指定镜像名称或命令</p>
+                    <p className={styles.ServiceSmallTitle}>指定镜像名称或命令</p>
                   </Col>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "imageCmd") }}>
                     <Icon component={dockerSvg} />
-
-                    <p>指定DockerCompose文件</p>
+                    <p className={styles.ServiceSmallTitle}>指定DockerCompose文件</p>
                   </Col>
                 </Row>
               </div>
@@ -252,17 +245,20 @@ export default class AddServiceComponent extends PureComponent {
               </div>
             </div>}
           {ServiceComponentTwoPage === "custom" && <Custom handleType="Service"
+            groupId={this.props.groupId}
             ButtonGroupState={ButtonGroupState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
             handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
           />}
           {ServiceComponentTwoPage === "goodrain" && <Goodrain
+            groupId={this.props.groupId}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
             ButtonGroupState={this.state.ButtonGroupState} handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }} />}
 
           {ServiceComponentTwoPage === "github" && <Github
+            groupId={this.props.groupId}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
@@ -276,6 +272,7 @@ export default class AddServiceComponent extends PureComponent {
             handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data) }} />}
 
           {ServiceComponentTwoPage === "imageName" && <ImageName
+            groupId={this.props.groupId}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
@@ -283,6 +280,7 @@ export default class AddServiceComponent extends PureComponent {
           />}
 
           {ServiceComponentTwoPage === "imageCmd" && <ImageCmd
+            groupId={this.props.groupId}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}

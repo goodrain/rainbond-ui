@@ -62,13 +62,13 @@ export default class Index extends PureComponent {
 			        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
 			          <Form.Item
 			            {...formItemLayout}
-			            label="应用组名称"
+			            label="应用名称"
 			          >
 			            {getFieldDecorator('group_name', {
 			              initialValue: data.group_name || '',
-			              rules: [{ required: true, message: '应用组名称' }],
+			              rules: [{ required: true, message: '应用名称' }],
 			            })(
-			              <Input style={{maxWidth: 300}} placeholder="应用组名称" />
+			              <Input style={{maxWidth: 300}} placeholder="应用名称" />
 			            )}
 			          </Form.Item>
 			          <Form.Item

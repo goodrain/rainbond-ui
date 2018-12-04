@@ -27,7 +27,7 @@ export default class EditGroupName extends PureComponent {
     };
      return (
         <Modal
-           title={title  || '新建应用组'}
+           title={title  || '新建应用'}
            visible = {true}
            onCancel={onCancel}
            onOk={this.onOk}
@@ -35,14 +35,14 @@ export default class EditGroupName extends PureComponent {
           <Form onSubmit={this.onOk}>
               <FormItem
               {...formItemLayout}
-              label="组名称"
+              label="应用名称"
               >
               {
                 getFieldDecorator('group_name', {
                   initialValue: group_name || '',
-                  rules:[{required: true, message: '请填写组名称'}]
+                  rules:[{required: true, message: '请填写应用名称'}]
                 })(
-                  <Input placeholder="请填写组名称" />
+                  <Input placeholder="请填写应用名称" />
                 )
               }
               </FormItem>

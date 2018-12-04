@@ -500,7 +500,7 @@ class Main extends PureComponent {
           </Button>
         </ButtonGroup>}
       >
-        <Row style={{ display: "flex", background: "#FAFAFA", height: "60px", alignItems: "center" }}>
+        <Row style={{ display: "flex", background: "#FFFAFA", height: "60px", alignItems: "center" }}>
           <Col span={6}>
             <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
           </Col>

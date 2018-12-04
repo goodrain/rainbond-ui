@@ -471,9 +471,7 @@ export default class CreateCheck extends PureComponent {
             <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
               {" "}创建{" "}
             </Button>
-            {/* <RadioGroup  defaultValue={true} size="small"> */}
-            <div><Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>构建应用并部署</Radio></div>
-            {/* </RadioGroup> */}
+            <div><Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>部署</Radio></div>
           </div>
           <Button onClick={this.showDelete} type="default">
             {" "}

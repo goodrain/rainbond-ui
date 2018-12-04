@@ -98,20 +98,20 @@ export default class Index extends PureComponent {
 
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="应用名称">
-          {getFieldDecorator("service_cname", {
-            initialValue: data.service_cname || "",
-            rules: [{ required: true, message: "要创建的应用还没有名字" }],
-          })(<Input placeholder="请为创建的应用起个名字吧" />)}
-        </Form.Item>
-        <Form.Item {...formItemLayout} label="应用组">
+       <Form.Item {...formItemLayout} label="应用">
           {getFieldDecorator("group_id", {
             initialValue: data.groupd_id,
             rules: [{ required: true, message: "请选择" }],
-          })(<Select style={{ display: "inline-block", width: 306, marginRight: 15 }}>
+          })(<Select style={{ display: "inline-block", width: 292, marginRight: 15 }}>
             {(groups || []).map(group => <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>)}
           </Select>)}
-          <Button onClick={this.onAddGroup}>新建组</Button>
+          <Button onClick={this.onAddGroup}>新建应用</Button>
+        </Form.Item>
+        <Form.Item {...formItemLayout} label="服务组件名称">
+          {getFieldDecorator("service_cname", {
+            initialValue: data.service_cname || "",
+            rules: [{ required: true, message: "要创建的服务组件还没有名字" }],
+          })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="Demo">
           {getFieldDecorator("git_url", {

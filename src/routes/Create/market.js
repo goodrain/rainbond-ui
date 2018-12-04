@@ -109,7 +109,6 @@ export default class Main extends PureComponent {
     this.setState({ showCreate: null });
   };
   showCreate = app => {
-    console.log("app", app)
     const {handleType}=this.state;
     if (handleType) {
       this.setState({ installBounced: app });
@@ -375,7 +374,7 @@ export default class Main extends PureComponent {
       <div>
         {handleType ? <div>
           {!moreState && mainSearch}
-          <div style={{ marginBottom: "46px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
+          <div style={{ marginBottom:!moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
           {moreState &&
             <div style={{
               textAlign: "right",
@@ -385,7 +384,7 @@ export default class Main extends PureComponent {
               background: "white",
               width: "100%",
               right: 0,
-              bottom: "35px",
+              bottom: "10px",
             }}>
               <a onClick={this.loadMore}>查看更多...</a></div>}
           {installBounced && <Modal
