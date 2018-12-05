@@ -77,6 +77,7 @@ class LogItem extends PureComponent {
   }
   componentDidMount() {
     const { data } = this.props;
+    console.log(data)
     if (data) {
       if (this.ref) {
         this
@@ -218,8 +219,7 @@ class LogItem extends PureComponent {
     this.setState({ opened: false });
   }
   changeLogType = (type) => {
-    if (type === this.state.logType)
-      {return;}
+    if (type === this.state.logType) { return; }
     this.setState({
       logType: type,
     }, () => {
@@ -254,7 +254,7 @@ class LogItem extends PureComponent {
     return (
       <div
         ref={this.saveRef}
-        className={`${styles.logItem  } ${  this.getResultClass()}`}
+        className={`${styles.logItem} ${this.getResultClass()}`}
       >
         <div className={styles.logItemDate}>
           <span className={styles.time}>{appAcionLogUtil.getActionTime(data)}</span>
@@ -272,7 +272,7 @@ class LogItem extends PureComponent {
               {appAcionLogUtil.canRollback(data) && appUtil.canRollback(this.props.appDetail)
                 ? <span onClick={this.handleRollback} className={styles.btn}>回滚到此版本</span>
                 : ""
-}
+              }
               {!opened
                 ? <span onClick={this.open} className={styles.btn}>查看详情</span>
                 : <span onClick={this.close} className={styles.btn}>收起</span>}
@@ -280,59 +280,59 @@ class LogItem extends PureComponent {
           </div>
           {appAcionLogUtil.isShowCommitInfo(data)
             ? <div className={styles.codeVersion}>
-              <div className={styles.versionInfo}>代码信息： {appAcionLogUtil.getCommitLog(data)}</div>
-              <div className={styles.versionAuthor}>#{appAcionLogUtil.getCodeVersion(data)}
+                <div className={styles.versionInfo}>代码信息： {appAcionLogUtil.getCommitLog(data)}</div>
+                <div className={styles.versionAuthor}>#{appAcionLogUtil.getCodeVersion(data)}
                   by {appAcionLogUtil.getCommitUser(data)}
-                </div>
+               </div>
             </div>
             : ""
-}
+          }
 
           <ButtonGroup
             style={{
-            display: this.showLogType(),
-          }}
+              display: this.showLogType(),
+            }}
             size="small"
             className={styles.logTypeBtn}
           >
             <Button
               onClick={() => {
-              this.changeLogType("info");
-            }}
+                this.changeLogType("info");
+              }}
               className={logType === "info"
-              ? "active"
-              : ""}
+                ? "active"
+                : ""}
               type="dashed"
             >Info日志
             </Button>
             <Button
               onClick={() => {
-              this.changeLogType("debug");
-            }}
+                this.changeLogType("debug");
+              }}
               className={logType === "debug"
-              ? "active"
-              : ""}
+                ? "active"
+                : ""}
               type="dashed"
             >Debug日志
             </Button>
             <Button
               onClick={() => {
-              this.changeLogType("error");
-            }}
+                this.changeLogType("error");
+              }}
               className={logType === "error"
-              ? "active"
-              : ""}
+                ? "active"
+                : ""}
               type="dashed"
             >Error日志
             </Button>
           </ButtonGroup>
           <div
             style={{
-            height: this.getLogContHeight(),
-            maxHeight: 500,
-            overflowY: "auto",
-          }}
-            className={`${styles.logContent  } logs-cont`}
+              height: this.getLogContHeight(),
+              maxHeight: 500,
+              overflowY: "auto",
+            }}
+            className={`${styles.logContent} logs-cont`}
           >
             {status === "ing" && <LogProcress
               resover
@@ -342,15 +342,15 @@ class LogItem extends PureComponent {
               onTimeout={this.onTimeout}
               onFail={this.onFail}
               socketUrl={this.getSocketUrl()}
-              eventId={data.event_id} 
+              eventId={data.event_id}
             />}
             {(logs || []).map((item) => <p key={item.message}>
-                <span style={{
-                  marginRight: 10
-                }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
-                <span>{item.message}</span>
-              </p>)
-}
+              <span style={{
+                marginRight: 10
+              }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
+              <span>{item.message}</span>
+            </p>)
+            }
           </div>
         </div>
       </div>
@@ -363,8 +363,8 @@ class LogList extends PureComponent {
     const list = this.props.list;
     return (
       <div className={styles.logs}>
-        {list.map((item) => (<LogItem appDetail={this.props.appDetail} key={item.event_id} appAlias={this.props.appAlias} data={item}/>))
-}
+        {list.map((item) => (<LogItem appDetail={this.props.appDetail} key={item.event_id} appAlias={this.props.appAlias} data={item} />))
+        }
       </div>
     );
   }
@@ -466,8 +466,7 @@ export default class Index extends PureComponent {
       });
   }
   fetchRequestTime() {
-    if (!this.mounted)
-      {return;}
+    if (!this.mounted) { return; }
     this
       .props
       .dispatch({
@@ -487,8 +486,7 @@ export default class Index extends PureComponent {
       });
   }
   fetchRequestTimeRange() {
-    if (!this.mounted)
-      {return;}
+    if (!this.mounted) { return; }
     this
       .props
       .dispatch({
@@ -510,8 +508,7 @@ export default class Index extends PureComponent {
       });
   }
   fetchRequest() {
-    if (!this.mounted)
-      {return;}
+    if (!this.mounted) { return; }
     this
       .props
       .dispatch({
@@ -531,8 +528,7 @@ export default class Index extends PureComponent {
       });
   }
   fetchRequestRange() {
-    if (!this.mounted)
-      {return;}
+    if (!this.mounted) { return; }
     this
       .props
       .dispatch({
@@ -630,12 +626,12 @@ export default class Index extends PureComponent {
             <ChartCard
               bordered={false}
               title="应用状态"
-              footer={<span className ={
-              styles.statuscn
-            } > {
-              status.status_cn || "-"
-            } 
-                      </span>}
+              footer={<span className={
+                styles.statuscn
+              } > {
+                  status.status_cn || "-"
+                }
+              </span>}
             >
               <div className={styles.charContent}>
                 <div className={styles.statusIconWraper}>
@@ -651,35 +647,35 @@ export default class Index extends PureComponent {
               ? <ChartCard
                 bordered={false}
                 title="平均响应时间（ms）"
-                action={<Tooltip title ="平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
+                action={<Tooltip title="平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
                 total={numeral(monitorDataUtil.queryTog2(this.props.requestTime)).format("0,0")}
-                footer={<Field label= "最大响应时间" value ="-" />}
+                footer={<Field label="最大响应时间" value="-" />}
                 contentHeight={46}
               >
                 <MiniArea
-                    color="#975FE4"
-                    data={monitorDataUtil.queryRangeTog2(this.props.requestTimeRange)} 
-                  />
+                  color="#975FE4"
+                  data={monitorDataUtil.queryRangeTog2(this.props.requestTimeRange)}
+                />
               </ChartCard>
               : <ChartCard
                 bordered={false}
                 title="平均响应时间（ms）"
-                action={<Tooltip title= "平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
-                footer={<Field label ="&nbsp;" value= "" />}
+                action={<Tooltip title="平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
+                footer={<Field label="&nbsp;" value="" />}
                 contentHeight={88}
               >
                 <div
                   style={{
-                  textAlign: "center",
-                  position: "relative",
-                  top: -10,
-                }}
+                    textAlign: "center",
+                    position: "relative",
+                    top: -10,
+                  }}
                 >
                   <p>暂无开通性能分析插件</p>
                   <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${this.props.appAlias}/plugin`}>去开通</Link>
                 </div>
-                </ChartCard>
-}
+              </ChartCard>
+            }
 
           </Col>
           <Col {...topColResponsiveProps}>
@@ -688,35 +684,35 @@ export default class Index extends PureComponent {
               ? <ChartCard
                 bordered={false}
                 title="吞吐率（dps）"
-                action={<Tooltip title ="过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
+                action={<Tooltip title="过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
                 total={numeral(monitorDataUtil.queryTog2(this.props.appRequest)).format("0,0")}
-                footer={<Field label ="最大吞吐率" value ="-" />}
+                footer={<Field label="最大吞吐率" value="-" />}
                 contentHeight={46}
               >
                 <MiniArea
-                    color="#4593fc"
-                    data={monitorDataUtil.queryRangeTog2(this.props.appRequestRange)} 
-                  />
+                  color="#4593fc"
+                  data={monitorDataUtil.queryRangeTog2(this.props.appRequestRange)}
+                />
               </ChartCard>
               : <ChartCard
                 bordered={false}
                 title="吞吐率（dps）"
-                action={<Tooltip title= "过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
-                footer={<Field label= "&nbsp;" value= "" />}
+                action={<Tooltip title="过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
+                footer={<Field label="&nbsp;" value="" />}
                 contentHeight={88}
               >
                 <div
                   style={{
-                  textAlign: "center",
-                  position: "relative",
-                  top: -10,
-                }}
+                    textAlign: "center",
+                    position: "relative",
+                    top: -10,
+                  }}
                 >
                   <p>暂无开通性能分析插件</p>
                   <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${this.props.appAlias}/plugin`}>去开通</Link>
                 </div>
-                </ChartCard>
-}
+              </ChartCard>
+            }
 
           </Col>
           <Col {...topColResponsiveProps}>
@@ -724,7 +720,7 @@ export default class Index extends PureComponent {
               bordered={false}
               title="资源使用"
               action={null}
-              footer={<Field label ="" value ="" />}
+              footer={<Field label="" value="" />}
             >
               <div className={styles.charContent}>
                 <p className={styles.charContentTit}>
@@ -746,18 +742,18 @@ export default class Index extends PureComponent {
             <Card bordered={false} title="操作日志" extra={<a onClick={this.showVersionManage} href="javascript:;">构建版本管理</a>}>
               <LogList appDetail={this.props.appDetail} appAlias={this.props.appAlias} list={logList || []} /> {this.state.hasNext && <p
                 style={{
-                textAlign: "center",
-                fontSize: 30,
-              }}
+                  textAlign: "center",
+                  fontSize: 30,
+                }}
               ><Icon
-                style={{
-                cursor: "pointer",
-              }}
-                onClick={this.handleNextPage}
-                type="down" 
-              />
-                                                                                                                                     </p>
-}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={this.handleNextPage}
+                  type="down"
+                />
+              </p>
+              }
 
               {this.state.showVersionManage && <AppVersionManage onRollback={this.handleRollback} onCancel={this.hideVersionManage} team_name={globalUtil.getCurrTeamName()} service_alias={this.props.appAlias} />}
             </Card>

@@ -389,7 +389,7 @@ class Main extends PureComponent {
         }).then((data) => {
             if (data) {
 
-                notification.success({ message: `操作成功，部署中` });
+                notification.success({ message: `操作成功，构建中` });
 
                 var child = this.getChildCom();
                 if (child && child.onAction) {
@@ -638,7 +638,7 @@ class Main extends PureComponent {
                     disabled={!appUtil.canRestartApp(appDetail) || !appStatusUtil.canRestart(status)}>重启</Menu.Item>
                 <Menu.Item
                     key="moveGroup"
-                    disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}>修改所属组</Menu.Item>
+                    disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}>修改所属应用</Menu.Item>
                 <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>删除</Menu.Item>
             </Menu>
         );
@@ -676,18 +676,18 @@ class Main extends PureComponent {
                         <Button>其他操作<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market")
+                    {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market")
                     ?
                     this.state.showDeployTips ?
-                        <Tooltip title="应用配置已更改，重新部署后生效">
-                            <Button onClick={this.handleDeploy} type="primary" className={styles.blueant}>重新部署</Button>
+                        <Tooltip title="应用配置已更改，更新后生效">
+                            <Button onClick={this.handleDeploy} >构建</Button>
                         </Tooltip>
                         :
-                        <Button onClick={this.handleDeploy} type="primary">重新部署</Button>
-                    : ''} */}
-                {appDetail.service.service_source != "market" || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) ?
+                        <Button onClick={this.handleDeploy} >构建</Button>
+                    : ''} 
+                {/* {appDetail.service.service_source != "market" || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) ?
                     <Button onClick={this.handleDeploy}>构建</Button>
-                    : ''}
+                    : ''} */}
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>

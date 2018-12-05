@@ -43,7 +43,7 @@ export default class Index extends PureComponent {
                 this.setState({
                   list: data.list || [],
                   loading:false,
-                  total:data.bean.total
+                  total:data.total
                 })
            }
        })
