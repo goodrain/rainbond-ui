@@ -159,7 +159,7 @@ export default class CreateCheck extends PureComponent {
             team_name,
           },
         });
-        ServiceGetData ? this.props.refreshCurrent() :
+        ServiceGetData && is_deploy ? this.props.refreshCurrent() :
           this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`))
       }
     });
@@ -466,7 +466,7 @@ export default class CreateCheck extends PureComponent {
     let actions = []
     ServiceGetData ?
       actions = [
-        <div style={{ display: 'flex'}}>
+        <div style={{ display: 'flex' }}>
           <div style={{ display: 'flex', alignItems: "center" }}>
             <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
               {" "}创建{" "}
@@ -479,7 +479,7 @@ export default class CreateCheck extends PureComponent {
           </Button>
         </div>,
       ] : actions = [
-        <div style={{ display: 'flex'  ,justifyContent:"center"}}>
+        <div style={{ display: 'flex', justifyContent: "center" }}>
           <div style={{ display: 'flex', alignItems: "center" }}>
             <Button onClick={this.handleBuild} type="primary">
               {" "}

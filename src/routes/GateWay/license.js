@@ -57,7 +57,7 @@ class Control extends Component {
     this.setState({ visibleDrawer: true })
   }
   handleClose = () => {
-    this.setState({ visibleDrawer: false })
+    this.setState({ visibleDrawer: false,editData:'' })
   }
   /**添加证书 */
   handleOk = (values) => {
@@ -127,7 +127,7 @@ class Control extends Component {
         this.setState({
           visibleDrawer: true,
           editData:data.bean,
-          id:data.bean.id
+          id:data.bean.id,
         })
       }
     })

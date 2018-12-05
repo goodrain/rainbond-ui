@@ -738,7 +738,7 @@ class BaseInfo extends PureComponent {
         marginBottom: 16
       }}>
 
-        <Form.Item {...formItemLayout} label="应用类型">
+        {/* <Form.Item {...formItemLayout} label="应用类型">
 
           {getFieldDecorator('extend_method', {
             initialValue: extend_method || 'stateless',
@@ -754,7 +754,7 @@ class BaseInfo extends PureComponent {
               <Radio style={radioStyle} value={"state"}>有状态应用（包括DB类，集群类，消息中间件类，数据类）</Radio>
             </RadioGroup>
           )}
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item {...formItemLayout} label="内存">
 
           {getFieldDecorator('min_memory', {
@@ -813,6 +813,7 @@ class RenderDeploy extends PureComponent {
       })
   }
   handleEditInfo = (val = {}) => {
+    console.log(val)
     this
       .props
       .dispatch({
@@ -857,7 +858,8 @@ class RenderDeploy extends PureComponent {
           ? 'block'
           : 'none'
       }}>
-        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo}/> {(language === 'php')
+        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo}/> 
+        {/* {(language === 'php')
           ? <PHP
               appDetail={this.props.appDetail}
               onSubmit={this.handleEditRuntime}
@@ -899,7 +901,7 @@ class RenderDeploy extends PureComponent {
               onSubmit={this.handleEditRuntime}
               runtimeInfo={runtimeInfo.check_dependency || {}}/>
           : null
-}
+} */}
       </div>
     )
   }
@@ -1774,7 +1776,7 @@ export default class Index extends PureComponent {
             overflow: 'hidden',
             marginBottom: 90
           }}>
-            {/* <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/> */}
+            <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/>
             <RenderProperty appDetail={appDetail} visible={type !== 'deploy'}/>
           </div>
         </div>

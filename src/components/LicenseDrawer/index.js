@@ -40,7 +40,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_public = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0) {
+            if (value.fileList.length > 0 && value.file.name.endsWith(".pem" || ".crt" || ".cer" || ".key")) {
                 this.readFileContents(value.fileList, 'certificate');
                 callback();
                 return;
@@ -54,7 +54,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_private = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0) {
+            if (value.fileList.length > 0 && value.file.name.endsWith(".pem" || ".crt" || ".cer" || ".key")) {
                 this.readFileContents(value.fileList, 'private_key');
                 callback();
                 return;
@@ -161,7 +161,7 @@ class LicenseDrawer extends PureComponent {
                                 <FormItem
                                 >
                                     {getFieldDecorator('public_key_btn', {
-                                        // rules: [{ validator: this.checkFile_public }],
+                                        rules: [{ validator: this.checkFile_public }],
                                     })(
                                         <Upload
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}

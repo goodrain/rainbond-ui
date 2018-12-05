@@ -265,12 +265,12 @@ export default class Index extends PureComponent {
                     onChange={this.handleOuterChange}
                     size="small"/>
                 </p>
-                <p className={styles.lr}>
+                {/* <p className={styles.lr}>
                   <span className={styles.label}>访问地址</span>
-                  {/* {(showOuterUrl && outerUrl)
+                  {(showOuterUrl && outerUrl)
                     ? <a href={outerUrl} target={outerUrl} target="_blank">{outerUrl}</a>
-                    : '-'} */}
-                    </p>
+                    : '-'}
+                </p> */}
                   {
                   (showOuterUrl && outerUrl)?
                   <div>

@@ -39,6 +39,7 @@ class UserTable extends Component {
                     title="连接信息"
                     visible={this.props.visible}
                     footer={footer}
+                    onCancel={this.onCancel}
                 >
                     <Table
                         rowKey={this.rowKey}
