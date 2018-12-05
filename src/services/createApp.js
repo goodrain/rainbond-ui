@@ -122,7 +122,6 @@ export function getCreateComposeCheckResult(body = {
    构建应用
 */
 export function buildApp(body = { team_name, app_alias,is_deploy }) {
-  console.log("is_deploy",body.is_deploy)
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`, {
     method: "post",
     data: {

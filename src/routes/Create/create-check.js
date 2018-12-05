@@ -159,7 +159,7 @@ export default class CreateCheck extends PureComponent {
             team_name,
           },
         });
-        ServiceGetData && is_deploy ? this.props.refreshCurrent() :
+        ServiceGetData ? this.props.refreshCurrent() :
           this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`))
       }
     });
@@ -364,19 +364,19 @@ export default class CreateCheck extends PureComponent {
       </div>
     );
 
-    const {ServiceGetData}=this.state
+    const { ServiceGetData } = this.state
 
     const actions = [
-      <Button onClick={this.recheck} type="primary" style={{marginRight:"8px"}}>
+      <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
         重新检测
       </Button>,
       <Button onClick={this.showDelete} type="default">
         {" "}
         放弃创建{" "}
       </Button>,
-     
+
     ];
-    console.log("ButtonGroupState",this.props.ButtonGroupState);
+    console.log("ButtonGroupState", this.props.ButtonGroupState);
     ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
 
     return (
@@ -385,7 +385,7 @@ export default class CreateCheck extends PureComponent {
         title="应用检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
-        actions={ServiceGetData?"":actions}
+        actions={ServiceGetData ? "" : actions}
         style={{
           marginTop: 48,
           marginBottom: 16,
@@ -466,7 +466,7 @@ export default class CreateCheck extends PureComponent {
     let actions = []
     ServiceGetData ?
       actions = [
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex'}}>
           <div style={{ display: 'flex', alignItems: "center" }}>
             <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
               {" "}创建{" "}
@@ -479,18 +479,21 @@ export default class CreateCheck extends PureComponent {
           </Button>
         </div>,
       ] : actions = [
-        <Button onClick={this.handleBuild} type="primary">
-          {" "}
-          构建应用{" "}
-        </Button>,
-
-        <Button type="default" onClick={this.handleSetting}>
-          高级设置
-      </Button>,
-        <Button onClick={this.showDelete} type="default">
-          {" "}
-          放弃创建{" "}
-        </Button>,
+        <div style={{ display: 'flex'  ,justifyContent:"center"}}>
+          <div style={{ display: 'flex', alignItems: "center" }}>
+            <Button onClick={this.handleBuild} type="primary">
+              {" "}
+              构建应用{" "}
+            </Button>
+            <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>部署</Radio></div>
+          <Button type="default" onClick={this.handleSetting}>
+            高级设置
+              </Button>
+          <Button onClick={this.showDelete} type="default">
+            {" "}
+            放弃创建{" "}
+          </Button>
+        </div>
       ];
 
     if (is_deploy) {
