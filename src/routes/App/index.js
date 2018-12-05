@@ -676,9 +676,8 @@ class Main extends PureComponent {
                         <Button>其他操作<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {console.log(appDetail)}
-                    {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") */}
-                    {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status))
+                {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") */}
+                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
                     ?
                     this.state.showDeployTips ?
                         <Tooltip title="应用配置已更改，更新后生效">
@@ -686,7 +685,7 @@ class Main extends PureComponent {
                         </Tooltip>
                         :
                         <Button onClick={this.handleDeploy} >构建</Button>
-                    : ''} 
+                    : ''}
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
