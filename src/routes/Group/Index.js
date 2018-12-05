@@ -442,17 +442,17 @@ class Main extends PureComponent {
                 {
                   teamUtil.canManageGroup(team) &&
                   <Menu.Item>
-                    <a onClick={this.toEdit} href="javascript:;">修改组名</a>
+                    <a onClick={this.toEdit} href="javascript:;">修改应用名</a>
                   </Menu.Item>
                 }
                 {
                   teamUtil.canManageGroup(team) &&
                   <Menu.Item>
-                    <a onClick={this.toDelete} href="javascript:;">删除当前组</a>
+                    <a onClick={this.toDelete} href="javascript:;">删除当前应用</a>
                   </Menu.Item>
                 }
                 <Menu.Item>
-                  <a onClick={this.toAdd} href="javascript:;">新增组</a>
+                  <a onClick={this.toAdd} href="javascript:;">新增应用</a>
                 </Menu.Item>
               </Menu>
             )}

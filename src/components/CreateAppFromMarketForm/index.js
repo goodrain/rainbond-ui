@@ -91,7 +91,7 @@ export default class Index extends PureComponent {
         visible
         onCancel={onCancel}
         onOk={this.handleSubmit}
-        title="要安装到哪个应用组?"
+        title="要安装到哪个应用?"
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" disabled={this.props.disabled} onClick={this.handleSubmit}>
@@ -100,7 +100,7 @@ export default class Index extends PureComponent {
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="选择应用组">
+          <Form.Item {...formItemLayout} label="选择应用">
             {getFieldDecorator('group_id', {
               initialValue: data.groupd_id ,
               rules: [
@@ -118,7 +118,7 @@ export default class Index extends PureComponent {
             >
               {(groups || []).map(group => <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>)}
             </Select>)}
-            <Button onClick={this.onAddGroup}>新建组</Button>
+            <Button onClick={this.onAddGroup}>新建应用</Button>
           </Form.Item>
           {this.state.addGroup && (
             <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
