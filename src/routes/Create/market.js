@@ -109,20 +109,20 @@ export default class Main extends PureComponent {
     this.setState({ showCreate: null });
   };
   showCreate = app => {
-    const {handleType}=this.state;
+    const { handleType } = this.state;
     if (handleType) {
       this.setState({ installBounced: app });
     } else {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = ()=>{
-    const {installBounced}=this.state;
+  handleInstallBounced = () => {
+    const { installBounced } = this.state;
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        group_id:this.props.groupId?this.props.groupId:0,
+        group_id: this.props.groupId ? this.props.groupId : 0,
         app_id: installBounced.ID
       },
       callback: () => {
@@ -136,11 +136,11 @@ export default class Main extends PureComponent {
 
         // 关闭弹框
         this.setState({ installBounced: false });
-        this.state.handleType&&this.props.refreshCurrent()
+        this.state.handleType && this.props.refreshCurrent()
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              this.props.groupId?this.props.groupId:0
+            this.props.groupId ? this.props.groupId : 0
             }`
           )
         );
@@ -283,9 +283,8 @@ export default class Main extends PureComponent {
   render() {
     const { form } = this.props;
     const { getFieldDecorator } = form;
-    const list = this.state.list;
+    const { handleType, moreState, installBounced, list } = this.state;
     const formItemLayout = {};
-
     const paginationProps = {
       current: this.state.moreState ? 1 : this.state.page,
       pageSize: this.state.moreState ? 3 : this.state.pageSize,
@@ -369,13 +368,12 @@ export default class Main extends PureComponent {
       }
     ];
     const loading = this.props.loading;
-    const { handleType, moreState, installBounced } = this.state;
     return (
       <div>
         {handleType ? <div>
           {!moreState && mainSearch}
-          <div style={{ marginBottom:!moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
-          {moreState &&
+          <div style={{ marginBottom: !moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
+          {moreState && list && list.length > 0 &&
             <div style={{
               textAlign: "right",
               zIndex: 9,
