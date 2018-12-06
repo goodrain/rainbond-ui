@@ -238,6 +238,9 @@ export default class TcpTable extends PureComponent {
             this.handleOk(values, { whether_open: true })
         })
     }
+    handleCancel_second=()=>{
+        this.setState({whether_open_form: false})
+    }
     saveForm = (form) => {
         this.form = form;
         const { editInfo } = this.state;
@@ -413,6 +416,7 @@ export default class TcpTable extends PureComponent {
                     title="确认要添加吗？"
                     visible={this.state.whether_open_form}
                     onOk={this.resolveOk}
+                    onCancel={this.handleCancel_second}
                     footer={[<Button type="primary" size="small" onClick={this.resolveOk}>确定</Button>]}
                 >
                     <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
