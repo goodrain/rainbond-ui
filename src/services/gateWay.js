@@ -197,14 +197,14 @@ export async function addTcp(params) {
         method: "post",
         data: {
             container_port: params.values.container_port,
-            end_point: `${params.values.end_point.ip}:${params.values.end_point.port}`,
+            end_point: `${params.values.end_point.ip}:${params.values.end_point.port}`.replace(/\s+/g,""),
             group_id: params.values.group_id.key,
             group_name: params.values.group_id.label,
             service_id: params.values.service_id,
             default_port: params.values.end_point.port,
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
-            default_ip:params.values.end_point.currency
+            default_ip:params.values.end_point.ip.replace(/\s+/g,"")
         }
     });
 }
@@ -214,7 +214,7 @@ export async function editTcp(params) {
         method: "put",
         data: {
             container_port: params.values.container_port,
-            end_point: `${params.values.end_point.ip}:${params.values.end_point.port}`,
+            end_point: `${params.values.end_point.ip}:${params.values.end_point.port}`.replace(/\s+/g,""),
             group_id: params.values.group_id.key,
             group_name: params.values.group_id.label,
             service_id: params.values.service_id,
@@ -222,7 +222,7 @@ export async function editTcp(params) {
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
             tcp_rule_id: params.tcp_rule_id,
-            default_ip:params.values.end_point.currency
+            default_ip:params.values.end_point.ip.replace(/\s+/g,"")
         }
     });
 }
