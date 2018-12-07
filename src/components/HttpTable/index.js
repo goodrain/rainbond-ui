@@ -268,7 +268,7 @@ export default class HttpTable extends PureComponent {
     rowKey = (record, index) => index;
     openService = (record) => {
         this.props.dispatch({
-            type: 'appControl/openPortOuter',
+            type: 'appControl/onlyOpenPortOuter',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 app_alias: record.service_alias,

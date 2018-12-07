@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio, Popconfirm, Switch } from "antd";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Modal, Radio, Popconfirm, Switch, Input } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import SetMemberAppAction from "../../components/SetMemberAppAction";
 import ScrollerX from "../../components/ScrollerX";
@@ -67,7 +67,8 @@ export default class Index extends PureComponent {
       showApp: {},
       // appStatus: null,
       visibleAppSetting: false,
-      tags:[]
+      tags: [],
+      isInput: false
     };
   }
   componentDidMount() {
@@ -406,14 +407,14 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          addTag:true,
-          tabData:data.list
+          addTag: true,
+          tabData: data.list
         })
       }
     })
   };
   cancelAddTag = () => {
-    this.setState({ addTag: false ,tabData:[]});
+    this.setState({ addTag: false, tabData: [] });
   };
   handleAddTag = (tags) => {
     this.props.dispatch({
@@ -421,13 +422,13 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        label_ids:tags,
+        label_ids: tags,
       },
       callback: () => {
         this.cancelAddTag();
         notification.success({ message: "添加成功" });
         this.fetchTags();
-        this.setState({tabData:[]})
+        this.setState({ tabData: [] })
       },
     });
   };
@@ -522,6 +523,34 @@ export default class Index extends PureComponent {
       visibleAppSetting: false
     })
   }
+  modifyText = () => {
+    this.setState({ isInput: true })
+  }
+  handlePressenter = (e) => {
+    const { dispatch } = this.props;
+    const service_name = e.target.value;
+    const {baseInfo} = this.props;
+    if(service_name==baseInfo.service_name){
+      this.setState({ isInput: false });
+      return;
+    }
+    dispatch({
+      type: "appControl/updateServiceName",
+      payload: {
+        service_name,
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+      },
+      callback: (data) => {
+        if (data) {
+          this.fetchBaseInfo();
+          notification.success({ message: "修改成功" })
+          this.setState({ isInput: false })
+        }
+      }
+    })
+
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const self = this;
@@ -567,7 +596,7 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix ,tags,tabData} = this.state
+    const { appStatus, is_fix, tags, tabData } = this.state
     return (
       <Fragment>
         <Card
@@ -596,28 +625,28 @@ export default class Index extends PureComponent {
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
               <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>更改</Button>
             </FormItem>
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="应用特性"
-              >
-                {(tags || []).map(tag => (
-                  <Tag
-                    closable
-                    onClose={(e) => {
-                      e.preventDefault();
-                      this.handleRemoveTag(tag);
-                    }}
-                  >
-                    {tag.label_alias}
-                  </Tag>
-                ))}
-                <Button onClick={this.onAddTag} size="small">
-                  添加特性
+            <FormItem
+              style={{
+                marginBottom: 0,
+              }}
+              {...formItemLayout}
+              label="应用特性"
+            >
+              {(tags || []).map(tag => (
+                <Tag
+                  closable
+                  onClose={(e) => {
+                    e.preventDefault();
+                    this.handleRemoveTag(tag);
+                  }}
+                >
+                  {tag.label_alias}
+                </Tag>
+              ))}
+              <Button onClick={this.onAddTag} size="small">
+                添加特性
                 </Button>
-              </FormItem>
+            </FormItem>
             {baseInfo.build_upgrade == true || baseInfo.build_upgrade == false ? <FormItem
               style={{
                 marginBottom: 0,
@@ -627,6 +656,16 @@ export default class Index extends PureComponent {
             >
               <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否" onChange={this.handleChange} />
             </FormItem> : ''}
+            <FormItem
+              style={{
+                marginBottom: 0,
+              }}
+              {...formItemLayout}
+              label="服务名称"
+            >
+              {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} /> : baseInfo.service_name || '无'}
+              {this.state.isInput ?'':<Button onClick={this.modifyText} size="small" type="primary" style={{ marginLeft: "10px" }}>修改</Button>}
+            </FormItem>
           </Form>
         </Card>
         <AutoDeploy app={appDetail} />
@@ -1058,7 +1097,7 @@ export default class Index extends PureComponent {
           title="应用设置"
           visible={this.state.visibleAppSetting}
           // onOk={this.handleOk_AppSetting}
-          // onCancel={this.handleCancel_AppSetting}
+          onCancel={this.handleCancel_AppSetting}
           footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
             <Button type="primary">确定</Button>
           </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}

@@ -44,7 +44,7 @@ export default class TcpTable extends PureComponent {
             visibleModal: false,
             agreement: {},
             NotHttpConnectInfo: [],
-            tcpType:''
+            tcpType: ''
         }
     }
     componentWillMount() {
@@ -144,7 +144,7 @@ export default class TcpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                if(data){
+                if (data) {
                     notification.success({ message: '删除成功' })
                 }
                 this.reload()
@@ -181,7 +181,9 @@ export default class TcpTable extends PureComponent {
                         this.whether_open(values);
                         return;
                     }
-                    data ? notification.success({ message: data.msg_show || '添加成功' }) : notification.error({ message: '添加失败' })
+                    if (data) {
+                        notification.success({ message: data.msg_show || '添加成功' })
+                    }
                     this.setState({
                         TcpDrawerVisible: false
                     })
@@ -225,7 +227,7 @@ export default class TcpTable extends PureComponent {
                 this.setState({
                     editInfo: data.bean,
                     TcpDrawerVisible: true,
-                    tcpType:values.type
+                    tcpType: values.type
                 })
             }
         })
@@ -238,8 +240,8 @@ export default class TcpTable extends PureComponent {
             this.handleOk(values, { whether_open: true })
         })
     }
-    handleCancel_second=()=>{
-        this.setState({whether_open_form: false})
+    handleCancel_second = () => {
+        this.setState({ whether_open_form: false })
     }
     saveForm = (form) => {
         this.form = form;
@@ -247,7 +249,7 @@ export default class TcpTable extends PureComponent {
     }
     openService = (record) => {
         this.props.dispatch({
-            type: 'appControl/openPortOuter',
+            type: 'appControl/onlyOpenPortOuter',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 app_alias: record.service_alias,
@@ -320,7 +322,7 @@ export default class TcpTable extends PureComponent {
             align: "left",
             render: (text, record) => {
                 return (
-                    record.protocol == "http"||record.protocol == "https" ? <a href={'http://'+text.replace(/\s+/g,"")} target="blank">{text}</a>: <a href="javascript:void(0)" onClick={this.resolveNotHttp.bind(this, record)}>{text}</a>
+                    record.protocol == "http" || record.protocol == "https" ? <a href={'http://' + text.replace(/\s+/g, "")} target="blank">{text}</a> : <a href="javascript:void(0)" onClick={this.resolveNotHttp.bind(this, record)}>{text}</a>
                 )
             }
             // width: "25%",
@@ -410,7 +412,7 @@ export default class TcpTable extends PureComponent {
                         loading={this.state.tcpLoading}
                     />
                 </Card>
-                {TcpDrawerVisible && <TcpDrawerForm visible={TcpDrawerVisible} onClose={this.handleClose} editInfo={this.state.editInfo} onOk={this.handleOk} ref={this.saveForm} tcpType={tcpType}/>}
+                {TcpDrawerVisible && <TcpDrawerForm visible={TcpDrawerVisible} onClose={this.handleClose} editInfo={this.state.editInfo} onOk={this.handleOk} ref={this.saveForm} tcpType={tcpType} />}
                 {information_connect_visible && <InfoConnectModal visible={information_connect_visible} dataSource={innerEnvs} onCancel={this.handleCancel} />}
                 {whether_open_form && <Modal
                     title="确认要添加吗？"
@@ -429,10 +431,10 @@ export default class TcpTable extends PureComponent {
                         onCancel={this.handeModalCancel}
                     >
                         <ul className={styles.ul}>
-                           {agreement.protocol=='tcp'||agreement.protocol=='udp'?<li style={{fontWeight:"bold"}}>您当前的访问协议是{agreement.protocol}</li>:<li style={{fontWeight:"bold"}}>您当前的访问协议是{agreement.protocol},打开MySQL客户端访问</li>}
+                            {agreement.protocol == 'tcp' || agreement.protocol == 'udp' ? <li style={{ fontWeight: "bold" }}>您当前的访问协议是{agreement.protocol}</li> : <li style={{ fontWeight: "bold" }}>您当前的访问协议是{agreement.protocol},打开MySQL客户端访问</li>}
                             <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{agreement.end_point}</a>
                                 <CopyToClipboard
-                                    text={agreement.end_point.replace(/\s+/g,"")}
+                                    text={agreement.end_point.replace(/\s+/g, "")}
                                     onCopy={() => {
                                         notification.success({ message: "复制成功" });
                                     }}

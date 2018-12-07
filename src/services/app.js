@@ -590,7 +590,22 @@ export async function openPortOuter(body = {
     },
   );
 }
-
+/**tcp||http开启对外端口(只针对tcp和http) */
+export async function onlyOpenPortOuter(body = {
+  team_name,
+  app_alias,
+  port,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    {
+      method: "put",
+      data: {
+        action: "only_open_outer",
+      },
+    },
+  );
+}
 /*
 	关闭端口外部访问
 */
@@ -2008,11 +2023,20 @@ export async function putAppBuidSource(body = {
 
 /**更改应用状态 */
 export async function updateAppStatus(params) {
-  console.log(params)
   return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`, {
     method: "put",
     data: {
       extend_method: params.extend_method
+    }
+  });
+}
+
+/**修改服务名称 */
+export async function updateServiceName(params) {
+  return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_name`, {
+    method: "put",
+    data: {
+      service_name: params.service_name
     }
   });
 }
