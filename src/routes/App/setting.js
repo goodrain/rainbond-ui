@@ -656,7 +656,7 @@ export default class Index extends PureComponent {
             >
               <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否" onChange={this.handleChange} />
             </FormItem> : ''}
-            {!(baseInfo.extend_method == "stateless")?<FormItem
+            {!(baseInfo.extend_method == "stateless")&&<FormItem
               style={{
                 marginBottom: 0,
               }}
@@ -665,7 +665,7 @@ export default class Index extends PureComponent {
             >
               {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} ref="myInput"/> : baseInfo.service_name || '无'}
               {this.state.isInput ?'':<Button onClick={this.modifyText} size="small"  style={{ marginLeft: "10px" }}>修改</Button>}
-            </FormItem>:''}
+            </FormItem>}
           </Form>
         </Card>
         <AutoDeploy app={appDetail} />
