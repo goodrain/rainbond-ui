@@ -269,10 +269,13 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
+                const dataList = data.list.filter((item)=>{
+                    !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
+                })
                 this.setState({
                     visibleModal: true,
                     agreement: record,
-                    NotHttpConnectInfo: data.list
+                    NotHttpConnectInfo: dataList||[]
                 })
             }
         })
