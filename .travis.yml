@@ -1,6 +1,5 @@
 
-language: nodejs
-
+language: node_js
 services:
   - docker
 script:
