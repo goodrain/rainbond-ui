@@ -1,4 +1,8 @@
 
+language: nodejs
+
+services:
+  - docker
 script:
   - docker build -t rainbond/rainbond-ui:5.0 .
   - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD

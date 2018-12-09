@@ -1,4 +1,4 @@
-FROM nodejs:8-alpine as builder
+FROM node:8-alpine as builder
 ADD . /build
 RUN npm install && npm run build
 
