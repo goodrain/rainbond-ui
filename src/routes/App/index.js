@@ -647,7 +647,8 @@ class Main extends PureComponent {
                 <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>删除</Menu.Item>
             </Menu>
         );
-        const appAlias = this.getAppAlias()
+        const appAlias = this.getAppAlias();
+        console.log(appDetail,status)
         const action = (
             <div>
                 <ButtonGroup>
