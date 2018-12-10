@@ -96,16 +96,16 @@ class DrawerForm extends PureComponent {
     }
     handleChange = (data) => {
         // this.props.form.setFieldsValue({end_point:data.})
-        
+
     }
-    checkport=(rules, value, callback)=>{
-        const {tcpType,editInfo} = this.props;
-        console.log(tcpType,value.port)
-        if(!value.ip||!value.port){
+    checkport = (rules, value, callback) => {
+        const { tcpType, editInfo } = this.props;
+        console.log(tcpType, value.port)
+        if (!value.ip || !value.port) {
             callback('请输入完整的ip和端口');
             return;
         }
-        if(editInfo&&tcpType==0&&(value.port==80||value.port==443||value.port==7070||value.port==6060||value.port==8443||value.port==8888)){
+        if (editInfo && tcpType == 0 && (value.port == 80 || value.port == 443 || value.port == 7070 || value.port == 6060 || value.port == 8443 || value.port == 8888)) {
             callback('当前端口不可用!');
             return;
         }
@@ -114,7 +114,7 @@ class DrawerForm extends PureComponent {
         //     // notification.info({message:'你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。'})
         //     return;
         // }
-        else{
+        else {
             callback()
             return;
         }
@@ -169,12 +169,12 @@ class DrawerForm extends PureComponent {
                             label="IP"
                         >
                             {getFieldDecorator('end_point', {
-                                rules: [{ required: true, validator: this.checkport}],
-                                initialValue:domain_port[0],
+                                rules: [{ required: true, validator: this.checkport }],
+                                initialValue: domain_port[0],
 
 
                             })(
-                                <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange}/>
+                                <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange} />
                             )}
                         </FormItem>
                         <FormItem
@@ -243,6 +243,11 @@ class DrawerForm extends PureComponent {
                                 </Select>
                             )}
                         </FormItem>
+                        <Select placeholder="请选择负载均衡类型">
+                            <Option value="round-robin">round-robin</Option>
+                            {/* <Option value="random">random</Option>
+                                    <Option value="consistence-hash">consistence-hash</Option> */}
+                        </Select>
                     </Form>
                     <div
                         style={{

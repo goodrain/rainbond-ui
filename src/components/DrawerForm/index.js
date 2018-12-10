@@ -343,6 +343,7 @@ class DrawerForm extends PureComponent {
                     visible={this.state.descriptionVisible}
                     onOk={this.handleOk_description}
                     footer={[<Button type="primary" size="small" onClick={this.handleOk_description}>确定</Button>]}
+                    zIndex={1010}
                 >
                     <ul className={styles.ulStyle}>
                         <li>1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商增加域名DNS A记录 到当前数据中心的应用网关出口IP地址之上域名访问即可生效。</li>
