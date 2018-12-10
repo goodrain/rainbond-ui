@@ -157,6 +157,8 @@ class DrawerForm extends PureComponent {
                     onClose={onClose}
                     visible={this.props.visible}
                     maskClosable={true}
+                    closable={true}
+                    zIndex={1001}
                     style={{
                         height: 'calc(100% - 55px)',
                         overflow: 'auto',
@@ -243,11 +245,6 @@ class DrawerForm extends PureComponent {
                                 </Select>
                             )}
                         </FormItem>
-                        <Select placeholder="请选择负载均衡类型">
-                            <Option value="round-robin">round-robin</Option>
-                            {/* <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option> */}
-                        </Select>
                     </Form>
                     <div
                         style={{

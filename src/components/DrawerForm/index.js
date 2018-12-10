@@ -165,6 +165,8 @@ class DrawerForm extends PureComponent {
                     onClose={onClose}
                     visible={this.props.visible}
                     maskClosable={true}
+                    closable={true}
+                    zIndex={1001}
                     style={{
                         height: 'calc(100% - 55px)',
                         overflow: 'auto',
