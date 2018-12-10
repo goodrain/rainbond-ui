@@ -37,7 +37,7 @@ class StandardTable extends PureComponent {
         ),
       },
       {
-        title: "应用组",
+        title: "服务名称",
         dataIndex: "group_name",
 
         render: (val, data) =>

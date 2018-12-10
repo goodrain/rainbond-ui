@@ -224,7 +224,7 @@ export default class Index extends PureComponent {
           }}
         >
           <Col md={8} sm={24}>
-            <FormItem label="应用名称">
+            <FormItem label="服务名称">
               {getFieldDecorator("query_key")(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
@@ -353,6 +353,7 @@ export default class Index extends PureComponent {
     const {
       index, projectLoading, activitiesLoading, currUser, pagination,
     } = this.props;
+    console.log(index)
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
 
@@ -374,8 +375,12 @@ export default class Index extends PureComponent {
     }
     const extraContent = (
       <div className={styles.extraContent}>
+      <div className={styles.statItem}>
+          <p>应用总数</p>
+          <p>{index.overviewInfo.team_app_num || 0}</p>
+        </div>
         <div className={styles.statItem}>
-          <p>应用数</p>
+          <p>服务总数</p>
           <p>{index.overviewInfo.team_service_num || 0}</p>
         </div>
         <div className={styles.statItem}>
