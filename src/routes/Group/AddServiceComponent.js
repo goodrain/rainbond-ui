@@ -210,7 +210,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row style={{ marginBottom: "2px" }}>
                   <Alert message={
                     <p style={{ fontSize: "12px", marginTop: "2px" }}>注：支持
-                   &nbsp;<a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/dockerfile.html" target="_blank">Dockefile</a>&nbsp;
+                   &nbsp;<a href="https://www.rainbond.com/docs/stable/user-manual/language-support/dockerfile.html" target="_blank">Dockefile</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/java.html" target="_blank">Java</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>&nbsp;

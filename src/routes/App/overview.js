@@ -77,14 +77,9 @@ class LogItem extends PureComponent {
   }
   componentDidMount() {
     const { data } = this.props;
-    console.log(data)
     if (data) {
       if (this.ref) {
-        this
-          .ref
-          .querySelector(".actioncn")
-          .innerHTML = (appAcionLogUtil.getActionCN(data));
-
+        this.ref.querySelector(".actioncn").innerHTML = (appAcionLogUtil.getActionCN(data));
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
         }
@@ -96,18 +91,10 @@ class LogItem extends PureComponent {
         }
         if (appAcionLogUtil.isActioning(data)) {
           this.setState({ status: "ing", actioning: true });
-          this
-            .ref
-            .querySelector(".actionresultcn")
-            .innerHTML = "进行中";
-          this
-            .context
-            .isActionIng(true);
+          this.ref.querySelector(".actionresultcn").innerHTML = "进行中";
+          this.context.isActionIng(true);
         }
-        this
-          .ref
-          .querySelector(".action-user")
-          .innerHTML = "@" + appAcionLogUtil.getActionUser(data);
+        this.ref.querySelector(".action-user").innerHTML = "@" + appAcionLogUtil.getActionUser(data);
       }
     }
   }
@@ -280,10 +267,10 @@ class LogItem extends PureComponent {
           </div>
           {appAcionLogUtil.isShowCommitInfo(data)
             ? <div className={styles.codeVersion}>
-                <div className={styles.versionInfo}>代码信息： {appAcionLogUtil.getCommitLog(data)}</div>
-                <div className={styles.versionAuthor}>#{appAcionLogUtil.getCodeVersion(data)}
-                  by {appAcionLogUtil.getCommitUser(data)}
-               </div>
+              <div className={styles.versionInfo}>代码信息： {appAcionLogUtil.getCommitLog(data)}</div>
+              <div className={styles.versionAuthor}>#{appAcionLogUtil.getCodeVersion(data)}
+                by {appAcionLogUtil.getCommitUser(data)}
+              </div>
             </div>
             : ""
           }
@@ -618,7 +605,6 @@ export default class Index extends PureComponent {
     const { appDetail } = this.props;
     const status = this.props.status || {};
     let hasAnaPlugins = !!anaPlugins.length;
-
     return (
       <Fragment>
         <Row gutter={24}>
