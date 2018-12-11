@@ -182,7 +182,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择应用(组)' }],
@@ -201,7 +201,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="服务组件"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -221,7 +221,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
@@ -239,9 +239,9 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="负载均衡"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
-                            {getFieldDecorator("rule_extensions", { initialValue: rule_round })(
+                            {getFieldDecorator("rule_extensions", { initialValue: rule_round || 'round-robin' })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
                                     {/* <Option value="random">random</Option>

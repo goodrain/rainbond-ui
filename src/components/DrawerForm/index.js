@@ -39,7 +39,7 @@ class DrawerForm extends PureComponent {
             service_id: "",
             group_name: "",
             descriptionVisible: false,
-            rule_extensions_visible:false
+            rule_extensions_visible: false
         }
     }
     componentWillMount() {
@@ -120,10 +120,10 @@ class DrawerForm extends PureComponent {
             descriptionVisible: false
         })
     }
-    handeCertificateSelect=(value)=>{
-        if(value){
+    handeCertificateSelect = (value) => {
+        if (value) {
             console.log(value)
-            this.setState({rule_extensions_visible:true})
+            this.setState({ rule_extensions_visible: true })
         }
     }
     render() {
@@ -166,7 +166,6 @@ class DrawerForm extends PureComponent {
                     visible={this.props.visible}
                     maskClosable={true}
                     closable={true}
-                    zIndex={1001}
                     style={{
                         height: 'calc(100% - 55px)',
                         overflow: 'auto',
@@ -224,10 +223,10 @@ class DrawerForm extends PureComponent {
                                 <InputNumber min={1} max={100} style={{ width: "100%" }} />
                             )}
                         </FormItem>
-                        {this.state.licenseList&&<FormItem
+                        {this.state.licenseList && <FormItem
                             {...formItemLayout}
                             label="绑定证书"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
@@ -245,7 +244,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -263,7 +262,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="服务组件"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -282,7 +281,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{zIndex:99999}}
+                            style={{ zIndex: 99999 }}
                         >
                             {getFieldDecorator('container_port', {
                                 initialValue: editInfo.container_port,
@@ -297,12 +296,11 @@ class DrawerForm extends PureComponent {
                                 </Select>
                             )}
                         </FormItem>
-                        {this.state.rule_extensions_visible&&<FormItem
+                        <FormItem
                             {...formItemLayout}
                             label="扩展功能"
-                            style={{zIndex:99999}}
                         >
-                            {getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
+                            {this.state.rule_extensions_visible && getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
                                 <Checkbox.Group>
                                     <Row>
                                         <Col span={24}>
@@ -311,14 +309,14 @@ class DrawerForm extends PureComponent {
                                     </Row>
                                 </Checkbox.Group>
                             )}
-                            {getFieldDecorator("rule_extensions_round", { initialValue: rule_round })(
+                            {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
                                     {/* <Option value="random">random</Option>
                                     <Option value="consistence-hash">consistence-hash</Option> */}
                                 </Select>
                             )}
-                        </FormItem>}
+                        </FormItem>
                     </Form>
                     <div
                         style={{

@@ -539,7 +539,6 @@ class PHP extends PureComponent {
                 span: 19
             }
         };
-console.log(runtimeInfo,this.state.versions)
         if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
             return null;
         }

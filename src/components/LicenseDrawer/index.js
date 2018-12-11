@@ -16,7 +16,8 @@ import {
     message
 } from 'antd';
 import globalUtil from '../../utils/global';
-import apiconfig from '../../config/config'
+import apiconfig from '../../config/config';
+import cookie from "../../utils/cookie";
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const { TextArea } = Input;
@@ -40,7 +41,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_public = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0 && value.file.name.endsWith(".pem" || ".crt" || ".cer" || ".key")) {
+            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem")||value.file.name.endsWith(".cer")||value.file.name.endsWith(".crt")||value.file.name.endsWith(".key"))) {
                 this.readFileContents(value.fileList, 'certificate');
                 callback();
                 return;
@@ -54,7 +55,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_private = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0 && value.file.name.endsWith(".pem" || ".crt" || ".cer" || ".key")) {
+            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem")||value.file.name.endsWith(".cer")||value.file.name.endsWith(".crt")||value.file.name.endsWith(".key"))) {
                 this.readFileContents(value.fileList, 'private_key');
                 callback();
                 return;
@@ -101,6 +102,8 @@ class LicenseDrawer extends PureComponent {
                 sm: { span: 18 }
             }
         };
+        let token =  cookie.get('token');
+        
         return (
             <div>
                 <Drawer
@@ -167,7 +170,7 @@ class LicenseDrawer extends PureComponent {
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                                             showUploadList={false}
                                             withCredentials={true}
-                                            headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
+                                            headers={{ Authorization: `GRJWT ${token}` }}
                                             beforeUpload={this.beforeUpload}
                                         >
                                             <Button size="small">
@@ -202,7 +205,7 @@ class LicenseDrawer extends PureComponent {
                                             action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                                             showUploadList={false}
                                             withCredentials={true}
-                                            headers={{ Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8` }}
+                                            headers={{ Authorization: `GRJWT ${token}` }}
                                             beforeUpload={this.beforeUpload}
                                         >
                                             <Button size="small">
