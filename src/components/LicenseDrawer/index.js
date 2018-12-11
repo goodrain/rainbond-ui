@@ -41,7 +41,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_public = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem")||value.file.name.endsWith(".cer")||value.file.name.endsWith(".crt")||value.file.name.endsWith(".key"))) {
+            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem") || value.file.name.endsWith(".cer") || value.file.name.endsWith(".crt") || value.file.name.endsWith(".key"))) {
                 this.readFileContents(value.fileList, 'certificate');
                 callback();
                 return;
@@ -55,7 +55,7 @@ class LicenseDrawer extends PureComponent {
     //验证上传文件方式
     checkFile_private = (rules, value, callback) => {
         if (value) {
-            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem")||value.file.name.endsWith(".cer")||value.file.name.endsWith(".crt")||value.file.name.endsWith(".key"))) {
+            if (value.fileList.length > 0 && (value.file.name.endsWith(".pem") || value.file.name.endsWith(".cer") || value.file.name.endsWith(".crt") || value.file.name.endsWith(".key"))) {
                 this.readFileContents(value.fileList, 'private_key');
                 callback();
                 return;
@@ -90,7 +90,7 @@ class LicenseDrawer extends PureComponent {
 
     }
     render() {
-        const { onClose } = this.props;
+        const { onClose, editData } = this.props;
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -102,15 +102,15 @@ class LicenseDrawer extends PureComponent {
                 sm: { span: 18 }
             }
         };
-        let token =  cookie.get('token');
-        
+        let token = cookie.get('token');
+
         return (
             <div>
                 <Drawer
-                    title="创建证书"
+                    title={editData ? '编辑证书' : '添加证书'}
                     placement="right"
                     width={500}
-                    closable={false}
+                    closable={true}
                     onClose={onClose}
                     visible={this.props.visible}
                     maskClosable={true}

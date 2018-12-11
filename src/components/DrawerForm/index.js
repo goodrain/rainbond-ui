@@ -309,6 +309,7 @@ class DrawerForm extends PureComponent {
                                     </Row>
                                 </Checkbox.Group>
                             )}
+                            <FormItem>
                             {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
                                 <Select placeholder="请选择负载均衡类型">
                                     <Option value="round-robin">round-robin</Option>
@@ -316,6 +317,7 @@ class DrawerForm extends PureComponent {
                                     <Option value="consistence-hash">consistence-hash</Option> */}
                                 </Select>
                             )}
+                            </FormItem>
                         </FormItem>
                     </Form>
                     <div
