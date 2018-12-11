@@ -25,19 +25,6 @@ class StandardTable extends PureComponent {
     const columns = [
       {
         title: "应用名称",
-        dataIndex: "service_cname",
-        render: (val, data) => (
-          <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
-              data.service_alias
-            }/overview`}
-          >
-            {val}
-          </Link>
-        ),
-      },
-      {
-        title: "服务名称",
         dataIndex: "group_name",
 
         render: (val, data) =>
@@ -56,6 +43,20 @@ class StandardTable extends PureComponent {
               {val}
             </Link>
           )),
+      },
+      {
+        title: "服务名称",
+        
+          dataIndex: "service_cname",
+          render: (val, data) => (
+            <Link
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                data.service_alias
+              }/overview`}
+            >
+              {val}
+            </Link>
+          ),
       },
       {
         title: "内存",

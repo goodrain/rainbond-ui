@@ -229,7 +229,7 @@ export default class Index extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="应用状态">
+            <FormItem label="服务状态">
               {getFieldDecorator("service_status", { initialValue: "all" })(<Select placeholder="请选择">
                 {status.map(item => <Option key={item.value} value={item.value}>{item.text}</Option>)}
                                                                             </Select>)}

@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Button, Icon, Card, Modal, Switch, Radio } from "antd";
+import { Button, Icon, Card, Modal, Switch, Radio, Tooltip } from "antd";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
 import Result from "../../components/Result";
@@ -467,32 +467,39 @@ export default class CreateCheck extends PureComponent {
     ServiceGetData ?
       actions = [
         <div style={{ display: 'flex' }}>
+          <Button onClick={this.showDelete} type="default" style={{ marginRight: "8px" }}>
+            {" "}
+            放弃创建{" "}
+          </Button>
           <div style={{ display: 'flex', alignItems: "center" }}>
             <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
               {" "}创建{" "}
             </Button>
-            <div><Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>部署</Radio></div>
+            <div>
+              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+                <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
+              </Tooltip>
+            </div>
           </div>
-          <Button onClick={this.showDelete} type="default">
-            {" "}
-            放弃创建{" "}
-          </Button>
         </div>,
       ] : actions = [
         <div style={{ display: 'flex', justifyContent: "center" }}>
-          <div style={{ display: 'flex', alignItems: "center" }}>
-            <Button onClick={this.handleBuild} type="primary">
-              {" "}
-              构建应用{" "}
-            </Button>
-            <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>部署</Radio></div>
-          <Button type="default" onClick={this.handleSetting}>
-            高级设置
-              </Button>
           <Button onClick={this.showDelete} type="default">
             {" "}
             放弃创建{" "}
           </Button>
+          <Button type="default" onClick={this.handleSetting}>
+            高级设置
+              </Button>
+          <div style={{ display: 'flex', alignItems: "center" }}>
+            <Button onClick={this.handleBuild} type="primary">
+              {" "}
+              创建{" "}
+            </Button>
+            <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+              <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
+            </Tooltip>
+          </div>
         </div>
       ];
 
