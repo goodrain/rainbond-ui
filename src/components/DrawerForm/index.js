@@ -300,7 +300,7 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="扩展功能"
                         >
-                            {this.state.rule_extensions_visible && getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
+                            {(this.state.rule_extensions_visible || (editInfo.certificate_id && rule_http)) && getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
                                 <Checkbox.Group>
                                     <Row>
                                         <Col span={24}>
@@ -310,13 +310,13 @@ class DrawerForm extends PureComponent {
                                 </Checkbox.Group>
                             )}
                             <FormItem>
-                            {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
-                                <Select placeholder="请选择负载均衡类型">
-                                    <Option value="round-robin">round-robin</Option>
-                                    {/* <Option value="random">random</Option>
+                                {getFieldDecorator("rule_extensions_round", { initialValue: rule_round||'round-robin' })(
+                                    <Select placeholder="请选择负载均衡类型">
+                                        <Option value="round-robin">轮询</Option>
+                                        {/* <Option value="random">random</Option>
                                     <Option value="consistence-hash">consistence-hash</Option> */}
-                                </Select>
-                            )}
+                                    </Select>
+                                )}
                             </FormItem>
                         </FormItem>
                     </Form>
