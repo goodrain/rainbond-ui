@@ -80,7 +80,7 @@ export default {
         },
         *addHttpStrategy({ callback, payload }, { call }) {
             const rule_extensions = [];
-            if (payload.values.rule_extensions_http && payload.values.rule_extensions_http[1]=='httptohttps') {
+            if (payload.values.rule_extensions_http && payload.values.rule_extensions_http.includes('httptohttps')) {
                 rule_extensions.push({
                     key: 'httptohttps',
                     value: "true"
@@ -100,7 +100,7 @@ export default {
         },
         *editHttpStrategy({ callback, payload }, { call }) {
             const rule_extensions = [];
-            if (payload.values.rule_extensions_http && payload.values.rule_extensions_http[0] != undefined) {
+            if (payload.values.rule_extensions_http && payload.values.rule_extensions_http.includes('httptohttps')) {
                 rule_extensions.push({
                     key: 'httptohttps',
                     value: "true"
