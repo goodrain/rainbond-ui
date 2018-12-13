@@ -721,7 +721,7 @@ export async function bindDomain(body = {
         protocol: body.protocol,
         certificate_id: body.certificate_id,
         group_id: body.group_id,
-        rule_extensions: rule_extensions ? rule_extensions : []
+        rule_extensions: body.rule_extensions ? body.rule_extensions : []
       },
     },
   );

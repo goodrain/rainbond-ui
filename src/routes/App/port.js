@@ -493,8 +493,9 @@ export default class Index extends PureComponent {
     });
   };
   handleAddDomain = (values) => {
+    let rule_extensions;
     if(values.protocol=='httptohttps'){
-      values.rule_extensions=[{
+      rule_extensions=[{
         key:values.protocol,
         value:"true"
       }]
@@ -509,7 +510,8 @@ export default class Index extends PureComponent {
         domain: values.domain,
         protocol: values.protocol,
         certificate_id: values.certificate_id,
-        group_id: showAddDomain.bind_domains[0].g_id
+        group_id: showAddDomain.bind_domains[0].g_id,
+        rule_extensions:rule_extensions
       },
       callback: () => {
         this.fetchPorts();
