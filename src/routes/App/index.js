@@ -184,7 +184,7 @@ class ManageContainer extends PureComponent {
         var manageName = key.split('_')[1];
         let pod_status = key.split('_')[2];
         if (pod_status != "Running") {
-            notification.warning({ message: "当前节点站不支持运行容器管理", duration: 5 })
+            notification.warning({ message: "当前节点暂不支持运行容器管理", duration: 5 })
             return;
         }
         var adPopup = window.open('about:blank');
