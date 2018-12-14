@@ -589,6 +589,7 @@ export default class Index extends PureComponent {
         ) : (
             <Card>
               <ScrollerX sm={700}>
+              {console.log(this.props.ports)}
                 {ports.map(port => (
                   <Port
                     port={port}

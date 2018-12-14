@@ -738,7 +738,7 @@ class BaseInfo extends PureComponent {
         marginBottom: 16
       }}>
 
-        {/* <Form.Item {...formItemLayout} label="应用类型">
+        <Form.Item {...formItemLayout} label="应用类型">
 
           {getFieldDecorator('extend_method', {
             initialValue: extend_method || 'stateless',
@@ -754,7 +754,7 @@ class BaseInfo extends PureComponent {
               <Radio style={radioStyle} value={"state"}>有状态应用（包括DB类，集群类，消息中间件类，数据类）</Radio>
             </RadioGroup>
           )}
-        </Form.Item> */}
+        </Form.Item>
         <Form.Item {...formItemLayout} label="内存">
 
           {getFieldDecorator('min_memory', {

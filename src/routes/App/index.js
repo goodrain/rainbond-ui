@@ -648,7 +648,7 @@ class Main extends PureComponent {
             </Menu>
         );
         const appAlias = this.getAppAlias();
-        console.log(appDetail,status)
+        // console.log(appDetail,status)
         const action = (
             <div>
                 <ButtonGroup>
