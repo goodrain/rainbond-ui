@@ -77,7 +77,7 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				if (data) {
-					this.setState({ isFinished: data.bean.is_finished })
+					this.setState({ event_id: data.bean.data.event_id || "" })
 				}
 			}
 		})
@@ -89,7 +89,6 @@ export default class Index extends PureComponent {
 	handleSubmit = (e) => {
 		var teamsName = this.state.teamsName;
 		var regionName = this.state.regionName;
-		const {isFinished} = this.state
 		if (teamsName == '') {
 			notification.warning({ message: "请选择迁移团队" })
 			return;
@@ -107,7 +106,7 @@ export default class Index extends PureComponent {
 				backup_id: this.props.backupId,
 				group_id: this.props.groupId,
 				migrate_type: 'migrate',
-				event_id: !isFinished ? this.props.event_id : ''
+				event_id: this.state.event_id
 			},
 			callback: (data) => {
 				// notification.success({message: "开始迁移应用",duration:'2'});

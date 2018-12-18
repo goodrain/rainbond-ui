@@ -57,7 +57,10 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				if (data) {
-					this.setState({ isFinished: data.bean.is_finished })
+					this.setState({
+						isFinished: data.bean.is_finished,
+						event_id: data.bean.data.event_id||""
+					})
 				}
 			}
 		})
@@ -66,7 +69,6 @@ export default class Index extends PureComponent {
 		this.mount = false;
 	}
 	handleRestore = (e) => {
-		const { isFinished } = this.state
 		this.props.dispatch({
 			type: 'groupControl/migrateApp',
 			payload: {
@@ -76,7 +78,7 @@ export default class Index extends PureComponent {
 				backup_id: this.props.backupId,
 				group_id: this.props.groupId,
 				migrate_type: 'recover',
-				event_id: !isFinished ? this.props.event_id : ''
+				event_id: this.state.event_id
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});

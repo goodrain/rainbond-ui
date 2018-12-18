@@ -132,7 +132,7 @@ class Index extends React.Component {
   }
   onPageChange = (pageNum) => {
     this.setState({ pageNum, tableLoading: true }, () => {
-      this.load();
+      this.fetchAllBackup();
     })
   }
   handleMoveBackup = () => {
@@ -179,7 +179,6 @@ class Index extends React.Component {
       showRecovery: true,
       backup_id: data.backup_id,
       group_uuid: data.group_uuid,
-      event_id: data.event_id
     });
   }
   // 迁移应用备份
@@ -295,7 +294,6 @@ class Index extends React.Component {
           onOk={this.handleMoveBackup}
           onCancel={this.cancelMoveBackup}
           backupId={this.state.backup_id}
-          event_id={this.state.event_id}
           group_uuid={this.state.group_uuid}
           groupId={this.getGroupId()} />}
         {this.state.showRecovery && <RestoreBackup
@@ -304,7 +302,6 @@ class Index extends React.Component {
           propsParams={this.props.match.params}
           backupId={this.state.backup_id}
           group_uuid={this.state.group_uuid}
-          event_id={this.state.event_id}
           groupId={this.getGroupId()} />}
         {this.state.showDel && <ConfirmModal
           backupId={this.state.backup_id}
