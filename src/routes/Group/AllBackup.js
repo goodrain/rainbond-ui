@@ -230,7 +230,7 @@ class Index extends React.Component {
         }
       },
       {
-        title: '所属应用',
+        title: '备份应用',
         dataIndex: 'group_name'
       },
       {

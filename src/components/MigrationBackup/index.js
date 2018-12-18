@@ -89,6 +89,7 @@ export default class Index extends PureComponent {
 	handleSubmit = (e) => {
 		var teamsName = this.state.teamsName;
 		var regionName = this.state.regionName;
+		const {isFinished} = this.state
 		if (teamsName == '') {
 			notification.warning({ message: "请选择迁移团队" })
 			return;

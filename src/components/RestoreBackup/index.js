@@ -66,7 +66,7 @@ export default class Index extends PureComponent {
 		this.mount = false;
 	}
 	handleRestore = (e) => {
-		const { is_finished } = this.state
+		const { isFinished } = this.state
 		this.props.dispatch({
 			type: 'groupControl/migrateApp',
 			payload: {
@@ -76,7 +76,7 @@ export default class Index extends PureComponent {
 				backup_id: this.props.backupId,
 				group_id: this.props.groupId,
 				migrate_type: 'recover',
-				event_id: !is_finished ? this.props.event_id : ''
+				event_id: !isFinished ? this.props.event_id : ''
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});
