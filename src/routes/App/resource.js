@@ -123,7 +123,7 @@ class Golang extends PureComponent {
             .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
     }
     getDefaultRuntime = () => {
-        return '2.0.0';
+        return '2.1.6';
     }
     isShowRuntime = () => {
         const runtimeInfo = this.props.runtimeInfo || {};
@@ -174,7 +174,7 @@ class Golang extends PureComponent {
                             <Radio value="1.8.7">1.8.7</Radio>
                             <Radio value="1.11.2">1.11.2</Radio>
                             <Radio value="1.11">1.11</Radio>
-                            <Radio value="2.1.6">1.11.1</Radio>
+                            <Radio value="2.1.6">2.1.6</Radio>
                             <Radio value="1.10.5">1.10.5</Radio>
                             <Radio value="1.10.4">1.10.4</Radio>
                         </RadioGroup>

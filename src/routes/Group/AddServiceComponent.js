@@ -208,7 +208,7 @@ export default class AddServiceComponent extends PureComponent {
                   </Col>}
                 </Row>
                 <Row style={{marginBottom:"2px"}}>
-                 <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言额规范" type="info" showIcon/>
+                 <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言规范" type="info" showIcon/>
                 </Row>
               </div>
               <div className={styles.ServiceBox}>

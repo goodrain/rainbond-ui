@@ -22,6 +22,7 @@ import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
 import {
   getStatus,
+  restart
 } from '../../services/app';
 const RadioGroup = Radio.Group;
 
@@ -67,7 +68,7 @@ export default class Index extends PureComponent {
       showApp: {},
       // appStatus: null,
       visibleAppSetting: false,
-      tags:[]
+      tags: []
     };
   }
   componentDidMount() {
@@ -406,14 +407,14 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          addTag:true,
-          tabData:data.list
+          addTag: true,
+          tabData: data.list
         })
       }
     })
   };
   cancelAddTag = () => {
-    this.setState({ addTag: false ,tabData:[]});
+    this.setState({ addTag: false, tabData: [] });
   };
   handleAddTag = (tags) => {
     this.props.dispatch({
@@ -421,13 +422,13 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        label_ids:tags,
+        label_ids: tags,
       },
       callback: () => {
         this.cancelAddTag();
         notification.success({ message: "添加成功" });
         this.fetchTags();
-        this.setState({tabData:[]})
+        this.setState({ tabData: [] })
       },
     });
   };
@@ -487,6 +488,18 @@ export default class Index extends PureComponent {
       visibleAppSetting: true
     })
   }
+  handleReStart = () => {
+    restart({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.props.appAlias,
+    }).then(data => {
+      if (data) {
+        notification.success({
+          message: "操作成功，重启中"
+        });
+      }
+    });
+  };
   handleOk_AppSetting = () => {
     const { dispatch } = this.props;
 
@@ -500,12 +513,15 @@ export default class Index extends PureComponent {
             extend_method: values.extend_method
           },
           callback: (data) => {
-            notification.success({ message: data.msg_show || "修改成功" })
-            this.setState({
-              visibleAppSetting: false,
-            }, () => {
-              this.fetchBaseInfo();
-            })
+            if (data) {
+              notification.success({ message: data.msg_show || "修改成功" })
+              this.setState({
+                visibleAppSetting: false,
+              }, () => {
+                this.fetchBaseInfo();
+                this.handleReStart();
+              })
+            }
           }
         })
       }
@@ -567,7 +583,7 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix ,tags,tabData} = this.state
+    const { appStatus, is_fix, tags, tabData } = this.state
     return (
       <Fragment>
         <Card
@@ -596,28 +612,28 @@ export default class Index extends PureComponent {
               {baseInfo.extend_method == "stateless" ? "无状态应用" : "有状态应用"}
               <Button onClick={this.setupAttribute} size="small" style={{ marginLeft: "10px" }}>更改</Button>
             </FormItem>
-              <FormItem
-                style={{
-                  marginBottom: 0,
-                }}
-                {...formItemLayout}
-                label="应用特性"
-              >
-                {(tags || []).map(tag => (
-                  <Tag
-                    closable
-                    onClose={(e) => {
-                      e.preventDefault();
-                      this.handleRemoveTag(tag);
-                    }}
-                  >
-                    {tag.label_alias}
-                  </Tag>
-                ))}
-                <Button onClick={this.onAddTag} size="small">
-                  添加特性
+            <FormItem
+              style={{
+                marginBottom: 0,
+              }}
+              {...formItemLayout}
+              label="应用特性"
+            >
+              {(tags || []).map(tag => (
+                <Tag
+                  closable
+                  onClose={(e) => {
+                    e.preventDefault();
+                    this.handleRemoveTag(tag);
+                  }}
+                >
+                  {tag.label_alias}
+                </Tag>
+              ))}
+              <Button onClick={this.onAddTag} size="small">
+                添加特性
                 </Button>
-              </FormItem>
+            </FormItem>
             {baseInfo.build_upgrade == true || baseInfo.build_upgrade == false ? <FormItem
               style={{
                 marginBottom: 0,
@@ -1059,7 +1075,7 @@ export default class Index extends PureComponent {
           visible={this.state.visibleAppSetting}
           // onOk={this.handleOk_AppSetting}
           // onCancel={this.handleCancel_AppSetting}
-          footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
+          footer={[<Popconfirm title="修改类型数据会丢失并且会重启服务,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
             <Button type="primary">确定</Button>
           </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
         >

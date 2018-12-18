@@ -103,6 +103,9 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/message": {
       component: dynamicWrapper(app, ["index"], () => import("../routes/Message/Index")),
     },
+    "/team/:team/region/:region/allbackup": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/AllBackup")),
+    },
     "/team/:team/region/:region/team": {
       component: dynamicWrapper(app, ["teamControl"], () => import("../routes/Team")),
     },
