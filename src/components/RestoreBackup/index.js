@@ -40,7 +40,8 @@ export default class Index extends PureComponent {
 			showRestore: false,
 			restore_status: '',
 			new_group_id: '',
-			isFinished: ''
+			isFinished: '',
+			restore_id: ''
 		}
 		this.mount = false;
 	}
@@ -59,7 +60,8 @@ export default class Index extends PureComponent {
 				if (data) {
 					this.setState({
 						isFinished: data.bean.is_finished,
-						event_id: data.bean.data===null ? "" : data.bean.data.event_id 
+						event_id: data.bean.data === null ? "" : data.bean.data.event_id,
+						restore_id: data.bean.data === null ? "" : data.bean.data.restore_id,
 					})
 				}
 			}
@@ -78,7 +80,8 @@ export default class Index extends PureComponent {
 				backup_id: this.props.backupId,
 				group_id: this.props.groupId,
 				migrate_type: 'recover',
-				event_id: this.state.event_id
+				event_id: this.state.event_id,
+				restore_id: this.state.restore_id,
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});
