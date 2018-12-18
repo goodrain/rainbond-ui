@@ -53,6 +53,7 @@ export default class Index extends PureComponent {
 			payload: {
 				team_name: globalUtil.getCurrTeamName(),
 				group_id: this.props.groupId,
+				group_uuid:this.props.group_uuid
 			},
 			callback: (data) => {
 				if (data) {

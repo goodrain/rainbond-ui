@@ -45,9 +45,11 @@ export async function queryAllBackup(param) {
 }
 
 export async function queryRestoreState(param) {
-  console.log(param)
   return request(`${config.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`, {
     method: "get",
+    params:{
+      group_uuid:param.group_uuid
+    }
   });
 }
 /*

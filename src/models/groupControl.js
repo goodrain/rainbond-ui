@@ -61,7 +61,6 @@ export default {
       }
     },
     *queryRestoreState({ payload, callback }, { call }){
-      console.log(payload)
       const response = yield call(queryRestoreState, payload);
       if (response) {
         callback && callback(response);

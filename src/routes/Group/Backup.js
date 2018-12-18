@@ -194,7 +194,8 @@ export default class AppList extends PureComponent {
 			showImport: false,
 			backup_id: '',
 			groupName: '',
-			is_configed: null
+			is_configed: null,
+			group_uuid:''
 		}
 	}
 	componentDidMount() {
@@ -273,7 +274,7 @@ export default class AppList extends PureComponent {
 	}
 	// 恢复应用备份
 	handleRecovery = (data, e) => {
-		this.setState({ showRecovery: true, backup_id: data.backup_id });
+		this.setState({ showRecovery: true, backup_id: data.backup_id,group_uuid:data.group_uuid });
 	}
 	handleRecoveryBackup = () => {
 		this.setState({ showRecovery: false, backup_id: '' });
@@ -447,7 +448,7 @@ export default class AppList extends PureComponent {
 
 				{this.state.showBackup && <Backup is_configed={this.state.is_configed} onOk={this.handleBackup} onCancel={this.cancelBackup} />}
 				{this.state.showMove && <MigrationBackup onOk={this.handleMoveBackup} onCancel={this.cancelMoveBackup} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
-				{this.state.showRecovery && <RestoreBackup onOk={this.handleRecoveryBackup} onCancel={this.cancelRecoveryBackup} propsParams={this.props.match.params} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
+				{this.state.showRecovery && <RestoreBackup onOk={this.handleRecoveryBackup} onCancel={this.cancelRecoveryBackup} propsParams={this.props.match.params} backupId={this.state.backup_id} group_uuid={this.state.group_uuid} groupId={this.getGroupId()} />}
 				{this.state.showImport && <ImportBackup onReLoad={this.handleImportBackup} onCancel={this.cancelImportBackup} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
 				{this.state.showDel && <ConfirmModal
 					backupId={this.state.backup_id}
