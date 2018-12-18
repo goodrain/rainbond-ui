@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
 				if (data) {
 					this.setState({
 						isFinished: data.bean.is_finished,
-						event_id: data.bean.data.event_id||""
+						event_id: isNull(data) ? "" : data.bean.data.event_id 
 					})
 				}
 			}

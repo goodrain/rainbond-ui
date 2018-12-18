@@ -18,6 +18,7 @@ import {
 	Spin
 } from 'antd';
 import globalUtil from '../../utils/global';
+import { isNull } from 'util';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -77,7 +78,7 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				if (data) {
-					this.setState({ event_id: data.bean.data.event_id || "" })
+					this.setState({ event_id: isNull(data) ? "" : data.bean.data.event_id })
 				}
 			}
 		})
@@ -167,9 +168,6 @@ export default class Index extends PureComponent {
 		const teamsData = this.state.teamsData || [];
 		const regionData = this.state.regionData || [];
 		const restoreStatus = this.state.restore_status;
-		if (this.state.isFinished === "") {
-			return null
-		}
 		return (
 			<Modal
 				visible={true}
