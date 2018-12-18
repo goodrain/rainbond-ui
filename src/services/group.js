@@ -47,8 +47,8 @@ export async function queryAllBackup(param) {
 export async function queryRestoreState(param) {
   return request(`${config.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`, {
     method: "get",
-    params:{
-      group_uuid:param.group_uuid
+    params: {
+      group_uuid: param.group_uuid
     }
   });
 }
@@ -396,6 +396,7 @@ export async function migrateApp(body = {
   backup_id,
   group_id,
   migrate_type,
+  event_id
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
@@ -406,6 +407,7 @@ export async function migrateApp(body = {
         team: body.team,
         backup_id: body.backup_id,
         migrate_type: body.migrate_type,
+        event_id: body.event_id
       },
     },
   );

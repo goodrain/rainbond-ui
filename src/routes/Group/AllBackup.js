@@ -15,7 +15,7 @@ import {
   Button,
   notification,
 } from 'antd';
-
+import config from '../../config/config';
 
 @connect(({ user, appControl }) => ({ currUser: user.currentUser }))
 class BackupStatus extends PureComponent {
@@ -102,6 +102,8 @@ class Index extends React.Component {
       showDel: false,
       showRecovery: false,
       backup_id: '',
+      group_uuid: '',
+      event_id:''
     };
   }
   componentWillMount() {
@@ -120,7 +122,7 @@ class Index extends React.Component {
       callback: (data) => {
         if (data) {
           this.setState({
-            dataList: data.list,
+            list: data.list,
             tableLoading: false,
             total: data.total
           })
@@ -172,9 +174,30 @@ class Index extends React.Component {
     return params.groupId;
   }
   // 恢复应用备份
-	handleRecovery = (data, e) => {
-		this.setState({ showRecovery: true, backup_id: data.backup_id });
-	}
+  handleRecovery = (data, e) => {
+    this.setState({
+      showRecovery: true,
+      backup_id: data.backup_id,
+      group_uuid: data.group_uuid,
+      event_id: data.event_id
+    });
+  }
+  // 迁移应用备份
+  handleMove = (data, e) => {
+    this.setState({ showMove: true, backup_id: data.backup_id,group_uuid: data.group_uuid });
+  }
+  // 导出应用备份
+  handleExport = (data, e) => {
+    var backup_id = data.backup_id;
+    var team_name = globalUtil.getCurrTeamName()
+    var group_id = this.getGroupId();
+    var exportURl = config.baseUrl + '/console/teams/' + team_name + '/groupapp/' + group_id + '/backup/export?backup_id=' + backup_id
+    window.open(exportURl);
+    notification.success({
+      message: '备份导出中',
+      duration: '2'
+    });
+  }
   render() {
     const columns = [
       {
@@ -205,7 +228,7 @@ class Index extends React.Component {
         render: (val, data) => {
           return <BackupStatus onEnd={this.fetchAllBackup} group_id={this.getGroupId()} data={data} />
         }
-      }, 
+      },
       {
         title: '所属应用',
         dataIndex: 'group_name'
@@ -268,8 +291,21 @@ class Index extends React.Component {
             loading={tableLoading}
           />
         </Card>
-        {this.state.showMove && <MigrationBackup onOk={this.handleMoveBackup} onCancel={this.cancelMoveBackup} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
-        {this.state.showRecovery && <RestoreBackup onOk={this.handleRecoveryBackup} onCancel={this.cancelRecoveryBackup} propsParams={this.props.match.params} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
+        {this.state.showMove && <MigrationBackup
+          onOk={this.handleMoveBackup}
+          onCancel={this.cancelMoveBackup}
+          backupId={this.state.backup_id}
+          event_id={this.state.event_id}
+          group_uuid={this.state.group_uuid}
+          groupId={this.getGroupId()} />}
+        {this.state.showRecovery && <RestoreBackup
+          onOk={this.handleRecoveryBackup}
+          onCancel={this.cancelRecoveryBackup}
+          propsParams={this.props.match.params}
+          backupId={this.state.backup_id}
+          group_uuid={this.state.group_uuid}
+          event_id={this.state.event_id}
+          groupId={this.getGroupId()} />}
         {this.state.showDel && <ConfirmModal
           backupId={this.state.backup_id}
           onOk={this.handleDelete}

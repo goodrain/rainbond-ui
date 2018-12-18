@@ -195,7 +195,8 @@ export default class AppList extends PureComponent {
 			backup_id: '',
 			groupName: '',
 			is_configed: null,
-			group_uuid:''
+			group_uuid: '',
+			event_id: ''
 		}
 	}
 	componentDidMount() {
@@ -263,7 +264,7 @@ export default class AppList extends PureComponent {
 	handleImportBackup = (e) => {
 		notification.success({
 			message: '备份已导入',
-			duration: '2'
+			duration: 2
 		});
 		this.setState({ showImport: false })
 		this.fetchBackup();
@@ -274,7 +275,7 @@ export default class AppList extends PureComponent {
 	}
 	// 恢复应用备份
 	handleRecovery = (data, e) => {
-		this.setState({ showRecovery: true, backup_id: data.backup_id,group_uuid:data.group_uuid });
+		this.setState({ showRecovery: true, backup_id: data.backup_id, group_uuid: data.group_uuid, event_id: data.event_id });
 	}
 	handleRecoveryBackup = () => {
 		this.setState({ showRecovery: false, backup_id: '' });
@@ -284,7 +285,7 @@ export default class AppList extends PureComponent {
 	}
 	// 迁移应用备份
 	handleMove = (data, e) => {
-		this.setState({ showMove: true, backup_id: data.backup_id });
+		this.setState({ showMove: true, backup_id: data.backup_id,group_uuid: data.group_uuid });
 	}
 	handleMoveBackup = () => {
 		this.setState({ showMove: false });
@@ -302,7 +303,7 @@ export default class AppList extends PureComponent {
 		window.open(exportURl);
 		notification.success({
 			message: '备份导出中',
-			duration: '2'
+			duration: 2
 		});
 	}
 	// 删除应用备份
@@ -319,17 +320,21 @@ export default class AppList extends PureComponent {
 				backup_id: this.state.backup_id
 			},
 			callback: (data) => {
-				notification.success({
-					message: '删除成功',
-					duration: '2'
-				});
-				this.fetchBackup();
-				this.cancelDelete();
+				if (data) {
+					notification.success({
+						message: '删除成功',
+						duration: 2
+					});
+					this.cancelDelete();
+					this.fetchBackup();
+				}
 			}
 		})
 	}
 	cancelDelete = (e) => {
-		this.setState({ showDel: false, backup_id: '' })
+		this.setState({ showDel: false, backup_id: '' }, () => {
+			this.fetchBackup();
+		})
 	}
 	jumpToAllbackup = () => {
 		this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/allbackup`))
@@ -447,8 +452,22 @@ export default class AppList extends PureComponent {
 				</Card>
 
 				{this.state.showBackup && <Backup is_configed={this.state.is_configed} onOk={this.handleBackup} onCancel={this.cancelBackup} />}
-				{this.state.showMove && <MigrationBackup onOk={this.handleMoveBackup} onCancel={this.cancelMoveBackup} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
-				{this.state.showRecovery && <RestoreBackup onOk={this.handleRecoveryBackup} onCancel={this.cancelRecoveryBackup} propsParams={this.props.match.params} backupId={this.state.backup_id} group_uuid={this.state.group_uuid} groupId={this.getGroupId()} />}
+				{this.state.showMove && <MigrationBackup
+					onOk={this.handleMoveBackup}
+					onCancel={this.cancelMoveBackup}
+					backupId={this.state.backup_id}
+					groupId={this.getGroupId()}
+					event_id={this.state.event_id}
+					group_uuid={this.state.group_uuid}
+				/>}
+				{this.state.showRecovery && <RestoreBackup
+					onOk={this.handleRecoveryBackup}
+					onCancel={this.cancelRecoveryBackup}
+					propsParams={this.props.match.params}
+					backupId={this.state.backup_id}
+					group_uuid={this.state.group_uuid}
+					event_id={this.state.event_id}
+					groupId={this.getGroupId()} />}
 				{this.state.showImport && <ImportBackup onReLoad={this.handleImportBackup} onCancel={this.cancelImportBackup} backupId={this.state.backup_id} groupId={this.getGroupId()} />}
 				{this.state.showDel && <ConfirmModal
 					backupId={this.state.backup_id}

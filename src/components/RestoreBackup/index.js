@@ -53,7 +53,7 @@ export default class Index extends PureComponent {
 			payload: {
 				team_name: globalUtil.getCurrTeamName(),
 				group_id: this.props.groupId,
-				group_uuid:this.props.group_uuid
+				group_uuid: this.props.group_uuid
 			},
 			callback: (data) => {
 				if (data) {
@@ -66,6 +66,7 @@ export default class Index extends PureComponent {
 		this.mount = false;
 	}
 	handleRestore = (e) => {
+		const { is_finished } = this.state
 		this.props.dispatch({
 			type: 'groupControl/migrateApp',
 			payload: {
@@ -74,7 +75,8 @@ export default class Index extends PureComponent {
 				team: this.props.propsParams.team,
 				backup_id: this.props.backupId,
 				group_id: this.props.groupId,
-				migrate_type: 'recover'
+				migrate_type: 'recover',
+				event_id: !is_finished ? this.props.event_id : ''
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});
@@ -126,7 +128,7 @@ export default class Index extends PureComponent {
 
 	render() {
 		const restoreStatus = this.state.restore_status;
-		if (this.state.isFinished=="") {
+		if (this.state.isFinished === "") {
 			return null
 		}
 		return (
