@@ -78,7 +78,7 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				if (data) {
-					this.setState({ event_id: isNull(data) ? "" : data.bean.data.event_id })
+					this.setState({ event_id: data.bean.data===null ? "" : data.bean.data.event_id })
 				}
 			}
 		})
