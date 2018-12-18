@@ -41,7 +41,7 @@ export default class Index extends PureComponent {
 			restore_status: '',
 			new_group_id: '',
 			isFinished: '',
-			restore_id: ''
+			notRecovered_restore_id: ''
 		}
 		this.mount = false;
 	}
@@ -61,7 +61,7 @@ export default class Index extends PureComponent {
 					this.setState({
 						isFinished: data.bean.is_finished,
 						event_id: data.bean.data === null ? "" : data.bean.data.event_id,
-						restore_id: data.bean.data === null ? "" : data.bean.data.restore_id,
+						notRecovered_restore_id: data.bean.data === null ? "" : data.bean.data.restore_id,
 					})
 				}
 			}
@@ -71,6 +71,7 @@ export default class Index extends PureComponent {
 		this.mount = false;
 	}
 	handleRestore = (e) => {
+		console.log(this.state.notRecovered_restore_id)
 		this.props.dispatch({
 			type: 'groupControl/migrateApp',
 			payload: {
@@ -81,7 +82,7 @@ export default class Index extends PureComponent {
 				group_id: this.props.groupId,
 				migrate_type: 'recover',
 				event_id: this.state.event_id,
-				restore_id: this.state.restore_id,
+				notRecovered_restore_id: this.state.notRecovered_restore_id,
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});

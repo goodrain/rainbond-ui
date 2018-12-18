@@ -397,8 +397,9 @@ export async function migrateApp(body = {
   group_id,
   migrate_type,
   event_id,
-  restore_id
+  notRecovered_restore_id
 }) {
+  console.log(body)
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
@@ -409,7 +410,7 @@ export async function migrateApp(body = {
         backup_id: body.backup_id,
         migrate_type: body.migrate_type,
         event_id: body.event_id,
-        restore_id: body.restore_id,
+        restore_id: body.notRecovered_restore_id,
       },
     },
   );

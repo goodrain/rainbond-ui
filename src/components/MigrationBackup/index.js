@@ -47,7 +47,7 @@ export default class Index extends PureComponent {
 			showRestore: false,
 			restore_status: '',
 			isFinished: '',
-			restore_id: ''
+			notRecovered_restore_id: ''
 		}
 		this.mount = false;
 	}
@@ -81,7 +81,7 @@ export default class Index extends PureComponent {
 				if (data) {
 					this.setState({
 						event_id: data.bean.data === null ? "" : data.bean.data.event_id,
-						restore_id: data.bean.data === null ? "" : data.bean.data.restore_id,
+						notRecovered_restore_id: data.bean.data === null ? "" : data.bean.data.restore_id,
 					})
 				}
 			}
@@ -112,7 +112,7 @@ export default class Index extends PureComponent {
 				group_id: this.props.groupId,
 				migrate_type: 'migrate',
 				event_id: this.state.event_id,
-				restore_id: this.state.restore_id,
+				notRecovered_restore_id: this.state.notRecovered_restore_id,
 			},
 			callback: (data) => {
 				// notification.success({message: "开始迁移应用",duration:'2'});
