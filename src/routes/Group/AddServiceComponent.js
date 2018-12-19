@@ -207,8 +207,21 @@ export default class AddServiceComponent extends PureComponent {
                     <p className={styles.ServiceSmallTitle}>从Gihub源代码开始</p>
                   </Col>}
                 </Row>
-                <Row style={{marginBottom:"2px"}}>
-                 <Alert message="注：支持 Java Python Php NodeJs Golang Netcore 等语言规范" type="info" showIcon/>
+                <Row style={{ marginBottom: "2px" }}>
+                  <Alert message={
+                    <p style={{ fontSize: "12px", marginTop: "2px" }}>注：支持
+                   &nbsp;<a href="https://www.rainbond.com/docs/stable/user-manual/language-support/dockerfile.html" target="_blank">Dockefile</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/java.html" target="_blank">Java</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/nodejs.html" target="_blank">NodeJs</a>&nbsp;
+                   <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/ruby.html" target="_blank">Ruby</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>&nbsp;
+                   <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/html.html" target="_blank">Html</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/netcore.html" target="_blank">Netcore</a>&nbsp;
+                      等语言规范</p>} type="info"
+                    style={{ height: "40px" }}
+                    showIcon />
                 </Row>
               </div>
               <div className={styles.ServiceBox}>
@@ -314,7 +327,7 @@ export default class AddServiceComponent extends PureComponent {
               zIndex: 99999
             }}
           >
-            {!ServiceComponentOnePage && <Button
+            {!ServiceComponentOnePage && ServiceComponentThreePage !== "check" && <Button
               style={{
                 marginRight: 8,
               }}
