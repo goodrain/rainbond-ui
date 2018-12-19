@@ -378,11 +378,11 @@ export default class Main extends PureComponent {
               textAlign: "right",
               zIndex: 9,
               position: "absolute",
-              height: "50px",
+              height: "100px",
               background: "white",
               width: "100%",
               right: 0,
-              bottom: "10px",
+              bottom: "-42px",
             }}>
               <a onClick={this.loadMore}>查看更多...</a></div>}
           {installBounced && <Modal
