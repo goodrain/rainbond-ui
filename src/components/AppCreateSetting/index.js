@@ -82,8 +82,8 @@ class Nodejs extends PureComponent {
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime())
-      return null;
+    // if (!this.isShowRuntime())
+    //   return null;
     return (
       <Card title="node " style={{
         marginBottom: 16
@@ -111,7 +111,7 @@ class Nodejs extends PureComponent {
   }
 }
 
-//Ruby
+//Golang
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 @Form.create()
 class Golang extends PureComponent {
@@ -161,8 +161,8 @@ class Golang extends PureComponent {
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime())
-      return null;
+    // if (!this.isShowRuntime())
+    //   return null;
     return (
       <Card title="Golang" style={{
         marginBottom: 16
@@ -245,9 +245,9 @@ class Python extends PureComponent {
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime()) {
-      return null;
-    }
+    // if (!this.isShowRuntime()) {
+    //   return null;
+    // }
 
     return (
       <Card title="Python设置">
@@ -339,9 +339,9 @@ class JAVA extends PureComponent {
       }
     };
 
-    if (!this.isShowJdk() && !this.isShowService()) {
-      return null;
-    }
+    // if (!this.isShowJdk() && !this.isShowService()) {
+    //   return null;
+    // }
 
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
@@ -551,9 +551,9 @@ class PHP extends PureComponent {
       }
     };
 
-    if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
-      return null;
-    }
+    // if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
+    //   return null;
+    // }
 
     if (!this.state.versions.length) return null;
 
@@ -562,8 +562,8 @@ class PHP extends PureComponent {
         <Card title="PHP设置" style={{
           marginBottom: 16
         }}>
-          {!runtimeInfo.runtimes
-            ? <Form.Item {...formItemLayout} label="版本设置">
+          {/* {!runtimeInfo.runtimes */}
+             <Form.Item {...formItemLayout} label="版本设置">
               {getFieldDecorator('service_runtimes', {
                 initialValue: userRunTimeInfo.runtimes || this.state.default_version,
                 rules: [
@@ -582,11 +582,11 @@ class PHP extends PureComponent {
                 </RadioGroup>
               )}
             </Form.Item>
-            : null
-          }
+            {/* : null
+          } */}
 
-          {!runtimeInfo.procfile
-            ? <Form.Item {...formItemLayout} label="web服务器">
+          {/* {!runtimeInfo.procfile */}
+             <Form.Item {...formItemLayout} label="web服务器">
               {getFieldDecorator('service_server', {
                 initialValue: this.getDefaultService(),
                 rules: [
@@ -602,11 +602,11 @@ class PHP extends PureComponent {
                 </RadioGroup>
               )}
             </Form.Item>
-            : null
-          }
+          {/* //   : null
+          // } */}
 
-          {!runtimeInfo.dependencies
-            ? <Form.Item {...formItemLayout} label="PHP扩展">
+          {/* {!runtimeInfo.dependencies */}
+             <Form.Item {...formItemLayout} label="PHP扩展">
               <Tabs defaultActiveKey="1">
                 <TabPane tab="已启用扩展" key="1">
                   <Table
@@ -649,8 +649,8 @@ class PHP extends PureComponent {
                 </TabPane>
               </Tabs>
             </Form.Item>
-            : null
-          }
+            {/* : null
+          } */}
 
           <Row>
             <Col span="5"></Col>
