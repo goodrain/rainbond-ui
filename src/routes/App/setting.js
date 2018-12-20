@@ -7,6 +7,7 @@ import ScrollerX from "../../components/ScrollerX";
 import globalUtil from "../../utils/global";
 import appProbeUtil from "../../utils/appProbe-util";
 import appUtil from "../../utils/app";
+import appStatusUtil from '../../utils/appStatus-util';
 import NoPermTip from "../../components/NoPermTip";
 import AutoDeploy from "./setting/auto-deploy";
 import AddTag from "./setting/add-tag";
@@ -484,22 +485,14 @@ export default class Index extends PureComponent {
     });
   };
   setupAttribute = () => {
+    if(appStatusUtil.canVisit(this.props.status)){
+      notification.warning({message:"请先关闭服务后再更改状态"})
+      return;
+    }
     this.setState({
       visibleAppSetting: true
     })
   }
-  handleReStart = () => {
-    restart({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias,
-    }).then(data => {
-      if (data) {
-        notification.success({
-          message: "操作成功，重启中"
-        });
-      }
-    });
-  };
   handleOk_AppSetting = () => {
     const { dispatch } = this.props;
 
@@ -519,7 +512,6 @@ export default class Index extends PureComponent {
                 visibleAppSetting: false,
               }, () => {
                 this.fetchBaseInfo();
-                this.handleReStart();
               })
             }
           }
@@ -1074,8 +1066,8 @@ export default class Index extends PureComponent {
           title="应用设置"
           visible={this.state.visibleAppSetting}
           // onOk={this.handleOk_AppSetting}
-          // onCancel={this.handleCancel_AppSetting}
-          footer={[<Popconfirm title="修改类型数据会丢失并且会重启服务,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
+          onCancel={this.handleCancel_AppSetting}
+          footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
             <Button type="primary">确定</Button>
           </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
         >
