@@ -67,8 +67,7 @@ class Index extends React.Component {
   render() {
     return ((
       <iframe
-        // src={config.baseUrl + '/static/www/weavescope/index.html'}
-        src ={'http://127.0.0.1:4042'}
+        src={config.baseUrl + '/static/www/weavescope/index.html'}
         style={{
         width: '100%',
         height: '500px'
