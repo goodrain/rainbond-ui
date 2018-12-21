@@ -19,6 +19,7 @@ import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import AppList from "./AppList";
 import AppShape from "./AppShape";
+import EditorTopology from "./EditorTopology";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
 import VisterBtn from "../../components/visitBtnForAlllink"
@@ -489,6 +490,16 @@ class Main extends PureComponent {
             active
           >拓扑图
                          </Button>}
+                         {hasService && <Button
+            onClick={() => {
+              this.changeType("shapes");
+            }}
+            type={this.state.type === "shapes"
+              ? "primary"
+              : ""}
+            active
+          >编辑拓扑图
+                         </Button>}
           <Button
             onClick={() => {
               this.changeType("list");
@@ -508,6 +519,7 @@ class Main extends PureComponent {
         </Row>
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
+        {(hasService && this.state.type === "shapes") && <EditorTopology group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"
