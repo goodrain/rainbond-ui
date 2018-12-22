@@ -140,6 +140,7 @@ class Main extends PureComponent {
         groupId
       },
       callback: (data) => {
+        console.log("数据",data);
         const service_alias = [];
         let json_data = data.json_data;
         this.setState({ running: false });
@@ -152,6 +153,7 @@ class Main extends PureComponent {
             service_alias.push(json_data[key].service_alias)
           }
         })
+        console.log("数据service_alias",service_alias)
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
           this.loadLinks(service_alias.join("-"), team_name)
@@ -382,6 +384,7 @@ class Main extends PureComponent {
     if (currGroup && currGroup.service_list && currGroup.service_list.length) {
       hasService = true;
     }
+    console.log("this.state",this.state.service_alias)
 
     if (group_id == -1) {
       return (
@@ -563,7 +566,6 @@ export default class Index extends PureComponent {
     const { currUser } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-
     if (!teamUtil.canViewApp(team)) return <NoPermTip />;
 
     if (this.id !== this.getGroupId()) {
