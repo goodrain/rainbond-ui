@@ -216,6 +216,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     this.fetchPorts();
     this.fetchCertificates();
+    console.log(this.props.ports)
   }
   // 获取证书
   fetchCertificates() {
@@ -493,12 +494,13 @@ export default class Index extends PureComponent {
     });
   };
   handleAddDomain = (values) => {
-    if(values.protocol=='httptohttps'){
-      values.rule_extensions=[{
-        key:values.protocol,
-        value:"true"
+    if (values.protocol == 'httptohttps') {
+      values.rule_extensions = [{
+        key: values.protocol,
+        value: "true"
       }]
     }
+    const { appDetail } = this.props
     const { showAddDomain } = this.state;
     this.props.dispatch({
       type: "appControl/bindDomain",
@@ -509,7 +511,8 @@ export default class Index extends PureComponent {
         domain: values.domain,
         protocol: values.protocol,
         certificate_id: values.certificate_id,
-        group_id: showAddDomain.bind_domains[0].g_id
+        group_id: appDetail.service.group_id,
+        rule_extensions: values.rule_extensions ? values.rule_extensions : []
       },
       callback: () => {
         this.fetchPorts();

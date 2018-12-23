@@ -4,6 +4,7 @@ import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import ChangeBuildSource from "./setting/edit-buildsource";
+import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import {
     getMnt,
     addMnt,
@@ -552,92 +553,92 @@ class PHP extends PureComponent {
                     marginBottom: 16
                 }}>
                     {/* {(!runtimeInfo.runtimes) */}
-                         <Form.Item {...formItemLayout} label="版本设置">
-                            {getFieldDecorator('service_runtimes', {
-                                initialValue: userRunTimeInfo.runtimes || this.state.default_version,
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请选择应用类型'
-                                    }
-                                ]
-                            })(
-                                <RadioGroup>
-                                    {
-                                        this.state.versions.map((item) => {
-                                            return <Radio value={item}>{item}</Radio>
-                                        })
-                                    }
-                                </RadioGroup>
-                            )}
-                        </Form.Item>
+                    <Form.Item {...formItemLayout} label="版本设置">
+                        {getFieldDecorator('service_runtimes', {
+                            initialValue: userRunTimeInfo.runtimes || this.state.default_version,
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '请选择应用类型'
+                                }
+                            ]
+                        })(
+                            <RadioGroup>
+                                {
+                                    this.state.versions.map((item) => {
+                                        return <Radio value={item}>{item}</Radio>
+                                    })
+                                }
+                            </RadioGroup>
+                        )}
+                    </Form.Item>
                     {/* //     : null
                     // } */}
 
                     {/* {(!runtimeInfo.procfile) */}
-                     <Form.Item {...formItemLayout} label="web服务器">
-                            {getFieldDecorator('service_server', {
-                                initialValue: this.getDefaultService(),
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请选择'
-                                    }
-                                ]
-                            })(
-                                <RadioGroup>
-                                    <Radio value="apache">apache</Radio>
-                                    <Radio value="nginx">nginx</Radio>
-                                </RadioGroup>
-                            )}
-                        </Form.Item>
-                        {/* : null
+                    <Form.Item {...formItemLayout} label="web服务器">
+                        {getFieldDecorator('service_server', {
+                            initialValue: this.getDefaultService(),
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '请选择'
+                                }
+                            ]
+                        })(
+                            <RadioGroup>
+                                <Radio value="apache">apache</Radio>
+                                <Radio value="nginx">nginx</Radio>
+                            </RadioGroup>
+                        )}
+                    </Form.Item>
+                    {/* : null
                      } */}
 
                     {/* {(!runtimeInfo.dependencies) */}
-                        <Form.Item {...formItemLayout} label="PHP扩展">
-                            <Tabs defaultActiveKey="1">
-                                <TabPane tab="已启用扩展" key="1">
-                                    <Table
-                                        columns={[
-                                            {
-                                                title: '名称',
-                                                dataIndex: 'name',
-                                                render: (v, data) => {
-                                                    return <a target="_blank" href={data.url}>{v}</a>
-                                                }
-                                            }, {
-                                                title: '版本',
-                                                dataIndex: 'version'
+                    <Form.Item {...formItemLayout} label="PHP扩展">
+                        <Tabs defaultActiveKey="1">
+                            <TabPane tab="已启用扩展" key="1">
+                                <Table
+                                    columns={[
+                                        {
+                                            title: '名称',
+                                            dataIndex: 'name',
+                                            render: (v, data) => {
+                                                return <a target="_blank" href={data.url}>{v}</a>
                                             }
-                                        ]}
-                                        pagination={false}
-                                        dataSource={this.state.enablePlugs} />
-                                </TabPane>
-                                <TabPane tab="未启用扩展" key="2">
-                                    <Table
-                                        rowKey='value'
-                                        columns={[
-                                            {
-                                                title: '名称',
-                                                dataIndex: 'name',
-                                                render: (v, data) => {
-                                                    return <a target="_blank" href={data.url}>{v}</a>
-                                                }
-                                            }, {
-                                                title: '版本',
-                                                dataIndex: 'version'
-                                            }, {
-                                                title: "操作",
-                                                dataIndex: "action",
+                                        }, {
+                                            title: '版本',
+                                            dataIndex: 'version'
+                                        }
+                                    ]}
+                                    pagination={false}
+                                    dataSource={this.state.enablePlugs} />
+                            </TabPane>
+                            <TabPane tab="未启用扩展" key="2">
+                                <Table
+                                    rowKey='value'
+                                    columns={[
+                                        {
+                                            title: '名称',
+                                            dataIndex: 'name',
+                                            render: (v, data) => {
+                                                return <a target="_blank" href={data.url}>{v}</a>
                                             }
-                                        ]}
-                                        rowSelection={rowSelection}
-                                        pagination={false}
-                                        dataSource={this.state.unablePlugs} />
-                                </TabPane>
-                            </Tabs>
-                        </Form.Item>
+                                        }, {
+                                            title: '版本',
+                                            dataIndex: 'version'
+                                        }, {
+                                            title: "操作",
+                                            dataIndex: "action",
+                                        }
+                                    ]}
+                                    rowSelection={rowSelection}
+                                    pagination={false}
+                                    dataSource={this.state.unablePlugs} />
+                            </TabPane>
+                        </Tabs>
+                    </Form.Item>
                     {/* //     : null
                     // } */}
 
@@ -667,6 +668,8 @@ export default class Index extends PureComponent {
             runtimeInfo: null,
             changeBuildSource: false,
             buildSource: null,
+            showMarketAppDetail: false,
+            showApp: {},
         };
     }
     componentDidMount() {
@@ -742,6 +745,12 @@ export default class Index extends PureComponent {
             },
         });
     };
+    hideMarketAppDetail = () => {
+        this.setState({
+            showApp: {},
+            showMarketAppDetail: false
+        });
+    }
     render() {
         const language = appUtil.getLanguage(this.props.appDetail);
         const runtimeInfo = this.state.runtimeInfo;
@@ -831,7 +840,7 @@ export default class Index extends PureComponent {
                                     {...formItemLayout}
                                     label="启动命令"
                                 >
-                                    {this.state.buildSource.docker_cmd||''}
+                                    {this.state.buildSource.docker_cmd || ''}
                                 </FormItem>
                             </div>
                         ) : (
@@ -967,6 +976,13 @@ export default class Index extends PureComponent {
                         appAlias={this.props.appDetail.service.service_alias}
                         title="更改应用构建源"
                         onCancel={this.hideBuildSource}
+                    />
+                )}
+                {this.state.showMarketAppDetail && (
+                    <MarketAppDetailShow
+                        onOk={this.hideMarketAppDetail}
+                        onCancel={this.hideMarketAppDetail}
+                        app={this.state.showApp}
                     />
                 )}
             </Fragment>

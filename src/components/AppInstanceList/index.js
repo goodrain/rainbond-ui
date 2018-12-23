@@ -15,7 +15,15 @@ class InstanceList extends PureComponent {
     const num = podName.split("-")[1];
     return `实例${num}`;
   };
+  
   render() {
+    const statusObj = {
+      "Running": "正常运行",
+      "Pending": "启动中",
+      "Succeeded": "运行成功",
+      "Failed": "运行失败",
+      "Unknown": "未知",
+    }
     return (
       <List
         grid={{ gutter: 16, column: 4 }}
@@ -36,6 +44,10 @@ class InstanceList extends PureComponent {
               className={style.instancename}
             >
               {this.showName(item.pod_name)}
+            </a>
+            <br/>
+            <a href="javascript:;" style={{color:"#000"}}>
+              {statusObj[item.pod_status]}
             </a>
           </List.Item>
         )}
