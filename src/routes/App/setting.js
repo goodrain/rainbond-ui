@@ -7,6 +7,7 @@ import ScrollerX from "../../components/ScrollerX";
 import globalUtil from "../../utils/global";
 import appProbeUtil from "../../utils/appProbe-util";
 import appUtil from "../../utils/app";
+import appStatusUtil from '../../utils/appStatus-util';
 import NoPermTip from "../../components/NoPermTip";
 import AutoDeploy from "./setting/auto-deploy";
 import AddTag from "./setting/add-tag";
@@ -22,6 +23,7 @@ import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
 import {
   getStatus,
+  restart
 } from '../../services/app';
 const RadioGroup = Radio.Group;
 
@@ -484,6 +486,10 @@ export default class Index extends PureComponent {
     });
   };
   setupAttribute = () => {
+    if(appStatusUtil.canVisit(this.props.status)){
+      notification.warning({message:"请先关闭服务后再更改状态"})
+      return;
+    }
     this.setState({
       visibleAppSetting: true
     })
@@ -501,12 +507,14 @@ export default class Index extends PureComponent {
             extend_method: values.extend_method
           },
           callback: (data) => {
-            notification.success({ message: data.msg_show || "修改成功" })
-            this.setState({
-              visibleAppSetting: false,
-            }, () => {
-              this.fetchBaseInfo();
-            })
+            if (data) {
+              notification.success({ message: data.msg_show || "修改成功" })
+              this.setState({
+                visibleAppSetting: false,
+              }, () => {
+                this.fetchBaseInfo();
+              })
+            }
           }
         })
       }

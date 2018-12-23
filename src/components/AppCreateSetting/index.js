@@ -1,4 +1,4 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
   Button,
   Icon,
@@ -14,10 +14,10 @@ import {
   Input,
   Form
 } from 'antd';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
-import {Link} from 'dva/router';
+import { Link } from 'dva/router';
 import httpResponseUtil from '../../utils/httpResponse';
 import styles from './setting.less';
 import Port from '../../components/Port';
@@ -43,17 +43,17 @@ import appUtil from '../../utils/app';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
-const {TextArea} = Input;
+const { TextArea } = Input;
 
 //node.js
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 @Form.create()
 class Nodejs extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {}
   }
-  componentDidMount() {}
+  componentDidMount() { }
   isShowRuntime = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
     return runtimeInfo.runtimes === false;
@@ -61,7 +61,7 @@ class Nodejs extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -80,10 +80,10 @@ class Nodejs extends PureComponent {
         span: 19
       }
     };
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime()) 
-      return null;
+    // if (!this.isShowRuntime())
+    //   return null;
     return (
       <Card title="node " style={{
         marginBottom: 16
@@ -98,7 +98,7 @@ class Nodejs extends PureComponent {
                 message: '请输入'
               }
             ]
-          })(<TextArea placeholder="例如：node demo.js"/>)}
+          })(<TextArea placeholder="例如：node demo.js" />)}
         </Form.Item>
         <Row>
           <Col span="5"></Col>
@@ -111,10 +111,10 @@ class Nodejs extends PureComponent {
   }
 }
 
-//Ruby
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+//Golang
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 @Form.create()
-class Ruby extends PureComponent {
+class Golang extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {}
@@ -129,10 +129,10 @@ class Ruby extends PureComponent {
   onChange = (value) => {
     this
       .props
-      .dispatch({type: 'createApp/saveRuntimeInfo', payload: value})
+      .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
-    return '2.0.0';
+    return '2.1.6';
   }
   isShowRuntime = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
@@ -141,7 +141,7 @@ class Ruby extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -159,12 +159,12 @@ class Ruby extends PureComponent {
         span: 19
       }
     };
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime()) 
-      return null;
+    // if (!this.isShowRuntime())
+    //   return null;
     return (
-      <Card title="Ruby" style={{
+      <Card title="Golang" style={{
         marginBottom: 16
       }}>
 
@@ -179,12 +179,13 @@ class Ruby extends PureComponent {
             ]
           })(
             <RadioGroup>
+              <Radio value="1.9.7">1.9.7</Radio>
               <Radio value="1.8.7">1.8.7</Radio>
-              <Radio value="1.9.2">1.9.2</Radio>
-              <Radio value="1.9.3">1.9.3</Radio>
-              <Radio value="2.0.0">2.0.0(默认)</Radio>
+              <Radio value="1.11.2">1.11.2</Radio>
+              <Radio value="1.11">1.11</Radio>
               <Radio value="2.1.6">2.1.6</Radio>
-              <Radio value="2.2.2">2.2.2</Radio>
+              <Radio value="1.10.5">1.10.5</Radio>
+              <Radio value="1.10.4">1.10.4</Radio>
             </RadioGroup>
           )}
         </Form.Item>
@@ -201,18 +202,18 @@ class Ruby extends PureComponent {
 }
 
 //python
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser, appDetail: appControl.appDetail}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail }), null, null, { withRef: true })
 @Form.create()
 class Python extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {}
   }
-  componentDidMount() {}
+  componentDidMount() { }
   onChange = (value) => {
     this
       .props
-      .dispatch({type: 'createApp/saveRuntimeInfo', payload: value})
+      .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
     return '2.7.13';
@@ -224,7 +225,7 @@ class Python extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -242,11 +243,11 @@ class Python extends PureComponent {
         span: 19
       }
     };
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
 
-    if (!this.isShowRuntime()) {
-      return null;
-    }
+    // if (!this.isShowRuntime()) {
+    //   return null;
+    // }
 
     return (
       <Card title="Python设置">
@@ -278,14 +279,14 @@ class Python extends PureComponent {
 }
 
 //java
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser, appDetail: appControl.appDetail}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail }), null, null, { withRef: true })
 @Form.create()
 class JAVA extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {}
   }
-  componentDidMount() {}
+  componentDidMount() { }
   isShowJdk = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
 
@@ -317,7 +318,7 @@ class JAVA extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -338,55 +339,55 @@ class JAVA extends PureComponent {
       }
     };
 
-    if (!this.isShowJdk() && !this.isShowService()) {
-      return null;
-    }
+    // if (!this.isShowJdk() && !this.isShowService()) {
+    //   return null;
+    // }
 
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <Card title="Java设置">
 
         {this.isShowJdk()
           ? <Form.Item {...formItemLayout} label="JDK设置">
-              {getFieldDecorator('service_runtimes', {
-                initialValue: this.getDefaultRuntime(),
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择应用类型'
-                  }
-                ]
-              })(
-                <RadioGroup>
-                  <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
-                  <Radio value='1.6'>openjdk 1.6.0_27</Radio>
-                  <Radio value='1.7'>openjdk 1.7.0_79</Radio>
-                </RadioGroup>
-              )}
-            </Form.Item>
+            {getFieldDecorator('service_runtimes', {
+              initialValue: this.getDefaultRuntime(),
+              rules: [
+                {
+                  required: true,
+                  message: '请选择应用类型'
+                }
+              ]
+            })(
+              <RadioGroup>
+                <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
+                <Radio value='1.6'>openjdk 1.6.0_27</Radio>
+                <Radio value='1.7'>openjdk 1.7.0_79</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
           : null
-}
+        }
 
         {this.isShowService()
           ? <Form.Item {...formItemLayout} label="web服务器">
-              {getFieldDecorator('service_server', {
-                initialValue: this.getDefaultService(),
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择'
-                  }
-                ]
-              })(
-                <RadioGroup>
-                  <Radio value="tomcat7" selected="selected">tomcat 7（默认）</Radio>
-                  <Radio value="tomcat8">tomcat 8</Radio>
-                  <Radio value="jetty7">jetty 7.5</Radio>
-                </RadioGroup>
-              )}
-            </Form.Item>
+            {getFieldDecorator('service_server', {
+              initialValue: this.getDefaultService(),
+              rules: [
+                {
+                  required: true,
+                  message: '请选择'
+                }
+              ]
+            })(
+              <RadioGroup>
+                <Radio value="tomcat7" selected="selected">tomcat 7（默认）</Radio>
+                <Radio value="tomcat8">tomcat 8</Radio>
+                <Radio value="jetty7">jetty 7.5</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
           : null
-}
+        }
 
         <Row>
           <Col span="5"></Col>
@@ -401,7 +402,7 @@ class JAVA extends PureComponent {
 }
 
 //php
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser, appDetail: appControl.appDetail}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail }), null, null, { withRef: true })
 @Form.create()
 class PHP extends PureComponent {
   constructor(props) {
@@ -468,7 +469,7 @@ class PHP extends PureComponent {
       dependencies: [],
       selected_dependency: this.props.selected_dependency || [],
       service_dependency: (this.props.selected_dependency || []).join(','),
-      versions:[],
+      versions: [],
       default_version: ''
     }
   }
@@ -489,17 +490,17 @@ class PHP extends PureComponent {
 
   }
   getPhpConfig = () => {
-     this.props.dispatch({
-        type: 'appControl/getPhpConfig',
-        callback: (data) => {
-            this.setState({versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends})
-        }
-     })
+    this.props.dispatch({
+      type: 'appControl/getPhpConfig',
+      callback: (data) => {
+        this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+      }
+    })
   }
   onChange = (value) => {
     this
       .props
-      .dispatch({type: 'createApp/saveRuntimeInfo', payload: value})
+      .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
     return '5.6.11';
@@ -510,7 +511,7 @@ class PHP extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -537,7 +538,7 @@ class PHP extends PureComponent {
       }
     };
 
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
 
     const runtimeInfo = this.props.runtimeInfo || {};
     const userRunTimeInfo = this.props.userRunTimeInfo;
@@ -550,66 +551,66 @@ class PHP extends PureComponent {
       }
     };
 
-    if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies ) {
-      return null;
-    }
+    // if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
+    //   return null;
+    // }
 
-    if(!this.state.versions.length) return null;
+    if (!this.state.versions.length) return null;
 
     return (
       <Fragment>
         <Card title="PHP设置" style={{
           marginBottom: 16
         }}>
-          {!runtimeInfo.runtimes
-            ? <Form.Item {...formItemLayout} label="版本设置">
-                {getFieldDecorator('service_runtimes', {
-                  initialValue: userRunTimeInfo.runtimes || this.state.default_version,
-                  rules: [
-                    {
-                      required: true,
-                      message: '请选择应用类型'
-                    }
-                  ]
-                })(
-                  <RadioGroup>
-                    {
-                      this.state.versions.map((item) => {
-                          return <Radio value={item}>{item}</Radio>
-                      })
-                    }
-                  </RadioGroup>
-                )}
-              </Form.Item>
-            : null
-}
+          {/* {!runtimeInfo.runtimes */}
+             <Form.Item {...formItemLayout} label="版本设置">
+              {getFieldDecorator('service_runtimes', {
+                initialValue: userRunTimeInfo.runtimes || this.state.default_version,
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择应用类型'
+                  }
+                ]
+              })(
+                <RadioGroup>
+                  {
+                    this.state.versions.map((item) => {
+                      return <Radio value={item}>{item}</Radio>
+                    })
+                  }
+                </RadioGroup>
+              )}
+            </Form.Item>
+            {/* : null
+          } */}
 
-          {!runtimeInfo.procfile
-            ? <Form.Item {...formItemLayout} label="web服务器">
-                {getFieldDecorator('service_server', {
-                  initialValue: this.getDefaultService(),
-                  rules: [
-                    {
-                      required: true,
-                      message: '请选择'
-                    }
-                  ]
-                })(
-                  <RadioGroup>
-                    <Radio value="apache">apache</Radio>
-                    <Radio value="nginx">nginx</Radio>
-                  </RadioGroup>
-                )}
-              </Form.Item>
-            : null
-}
+          {/* {!runtimeInfo.procfile */}
+             <Form.Item {...formItemLayout} label="web服务器">
+              {getFieldDecorator('service_server', {
+                initialValue: this.getDefaultService(),
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择'
+                  }
+                ]
+              })(
+                <RadioGroup>
+                  <Radio value="apache">apache</Radio>
+                  <Radio value="nginx">nginx</Radio>
+                </RadioGroup>
+              )}
+            </Form.Item>
+          {/* //   : null
+          // } */}
 
-          {!runtimeInfo.dependencies
-            ? <Form.Item {...formItemLayout} label="PHP扩展">
-                <Tabs defaultActiveKey="1">
-                  <TabPane tab="已启用扩展" key="1">
-                    <Table
-                      columns={[
+          {/* {!runtimeInfo.dependencies */}
+             <Form.Item {...formItemLayout} label="PHP扩展">
+              <Tabs defaultActiveKey="1">
+                <TabPane tab="已启用扩展" key="1">
+                  <Table
+                    columns={[
                       {
                         title: '名称',
                         dataIndex: 'name',
@@ -621,13 +622,13 @@ class PHP extends PureComponent {
                         dataIndex: 'version'
                       }
                     ]}
-                      pagination={false}
-                      dataSource={this.state.enablePlugs}/>
-                  </TabPane>
-                  <TabPane tab="未启用扩展" key="2">
-                    <Table
-                      rowKey='value'
-                      columns={[
+                    pagination={false}
+                    dataSource={this.state.enablePlugs} />
+                </TabPane>
+                <TabPane tab="未启用扩展" key="2">
+                  <Table
+                    rowKey='value'
+                    columns={[
                       {
                         title: '名称',
                         dataIndex: 'name',
@@ -637,19 +638,19 @@ class PHP extends PureComponent {
                       }, {
                         title: '版本',
                         dataIndex: 'version'
-                      },{
+                      }, {
                         title: "操作",
                         dataIndex: "action",
                       }
                     ]}
-                      rowSelection={rowSelection}
-                      pagination={false}
-                      dataSource={this.state.unablePlugs}/>
-                  </TabPane>
-                </Tabs>
-              </Form.Item>
-            : null
-}
+                    rowSelection={rowSelection}
+                    pagination={false}
+                    dataSource={this.state.unablePlugs} />
+                </TabPane>
+              </Tabs>
+            </Form.Item>
+            {/* : null
+          } */}
 
           <Row>
             <Col span="5"></Col>
@@ -664,7 +665,7 @@ class PHP extends PureComponent {
   }
 }
 
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
   constructor(props) {
@@ -708,7 +709,7 @@ class BaseInfo extends PureComponent {
   handleSubmit = (e) => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      if (err) 
+      if (err)
         return;
       this.props.onSubmit && this
         .props
@@ -716,7 +717,7 @@ class BaseInfo extends PureComponent {
     });
   }
   render() {
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -770,10 +771,10 @@ class BaseInfo extends PureComponent {
               {minMemory < list[0].value
                 ? <RadioButton value={minMemory}>{minMemory}M</RadioButton>
                 : null}
-              {list.map((item,index) => {
+              {list.map((item, index) => {
                 return <RadioButton key={index} value={item.value}>{item.text}</RadioButton>
               })
-}
+              }
             </RadioGroup>
           )}
         </Form.Item>
@@ -788,7 +789,7 @@ class BaseInfo extends PureComponent {
   }
 }
 
-@connect(({user, appControl, teamControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 class RenderDeploy extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -809,7 +810,7 @@ class RenderDeploy extends PureComponent {
           app_alias: this.props.appDetail.service.service_alias,
           ...val
         },
-        callback: (data) => {}
+        callback: (data) => { }
       })
   }
   handleEditInfo = (val = {}) => {
@@ -840,7 +841,7 @@ class RenderDeploy extends PureComponent {
           app_alias: this.props.appDetail.service.service_alias
         },
         callback: (data) => {
-          this.setState({runtimeInfo: data.bean})
+          this.setState({ runtimeInfo: data.bean })
         }
       })
   }
@@ -848,67 +849,67 @@ class RenderDeploy extends PureComponent {
     const language = appUtil.getLanguage(this.props.appDetail);
     const runtimeInfo = this.state.runtimeInfo;
     const visible = this.props.visible;
-    if (!this.state.runtimeInfo) 
+    if (!this.state.runtimeInfo)
       return null;
     const appDetail = this.props.appDetail;
     return (
       <div
         style={{
-        display: visible
-          ? 'block'
-          : 'none'
-      }}>
-        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo}/> 
-        {/* {(language === 'php')
+          display: visible
+            ? 'block'
+            : 'none'
+        }}>
+        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} />
+        {(language === 'php')
           ? <PHP
-              appDetail={this.props.appDetail}
-              onSubmit={this.handleEditRuntime}
-              runtimeInfo={runtimeInfo.check_dependency || {}}
-              userRunTimeInfo={runtimeInfo.user_dependency || {}}
-              selected_dependency={runtimeInfo.selected_dependency||[]}
-              />
+            appDetail={this.props.appDetail}
+            onSubmit={this.handleEditRuntime}
+            runtimeInfo={runtimeInfo.check_dependency || {}}
+            userRunTimeInfo={runtimeInfo.user_dependency || {}}
+            selected_dependency={runtimeInfo.selected_dependency || []}
+          />
           : null
-}
+        }
 
         {appUtil.isJava(this.props.appDetail)
           ? <JAVA
-              appDetail={this.props.appDetail}
-              onSubmit={this.handleEditRuntime}
-              language={language}
-              runtimeInfo={runtimeInfo.check_dependency || {}}/>
+            appDetail={this.props.appDetail}
+            onSubmit={this.handleEditRuntime}
+            language={language}
+            runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
-}
+        }
 
         {(language === 'python')
           ? <Python
-              appDetail={this.props.appDetail}
-              onSubmit={this.handleEditRuntime}
-              runtimeInfo={runtimeInfo.check_dependency || {}}/>
+            appDetail={this.props.appDetail}
+            onSubmit={this.handleEditRuntime}
+            runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
-}
+        }
 
-        {(language === 'ruby')
-          ? <Ruby
-              appDetail={this.props.appDetail}
-              onSubmit={this.handleEditRuntime}
-              runtimeInfo={runtimeInfo.check_dependency || {}}/>
+        {(language === 'go')
+          ? <Golang
+            appDetail={this.props.appDetail}
+            onSubmit={this.handleEditRuntime}
+            runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
-}
+        }
 
         {(language === 'nodejs')
           ? <Nodejs
-              appDetail={this.props.appDetail}
-              onSubmit={this.handleEditRuntime}
-              runtimeInfo={runtimeInfo.check_dependency || {}}/>
+            appDetail={this.props.appDetail}
+            onSubmit={this.handleEditRuntime}
+            runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
-} */}
+        }
       </div>
     )
   }
 }
 
 //存储管理
-@connect(({user, appControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(({ user, appControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 class Mnt extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -924,7 +925,7 @@ class Mnt extends PureComponent {
   }
 
   componentDidMount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     this.loadMntList();
     this.fetchVolumes();
   }
@@ -966,7 +967,7 @@ class Mnt extends PureComponent {
     })
   }
   handleCancelAddVar = () => {
-    this.setState({showAddVar: null})
+    this.setState({ showAddVar: null })
   }
   handleSubmitAddVar = (vals) => {
     this
@@ -985,10 +986,10 @@ class Mnt extends PureComponent {
       })
   }
   showAddRelation = () => {
-    this.setState({showAddRelation: true})
+    this.setState({ showAddRelation: true })
   }
   handleCancelAddRelation = () => {
-    this.setState({showAddRelation: false})
+    this.setState({ showAddRelation: false })
   }
   handleSubmitAddMnt = (mnts) => {
     addMnt({
@@ -1003,14 +1004,14 @@ class Mnt extends PureComponent {
     })
   }
   onDeleteMnt = (mnt) => {
-    this.setState({toDeleteMnt: mnt})
+    this.setState({ toDeleteMnt: mnt })
   }
   onDeleteVolume = (data) => {
     console.log(data)
-    this.setState({toDeleteVolume: data})
+    this.setState({ toDeleteVolume: data })
   }
   onCancelDeleteVolume = () => {
-    this.setState({toDeleteVolume: null})
+    this.setState({ toDeleteVolume: null })
   }
   handleDeleteVolume = () => {
     this
@@ -1045,11 +1046,11 @@ class Mnt extends PureComponent {
       })
   }
   cancelDeleteMnt = () => {
-    this.setState({toDeleteMnt: null})
+    this.setState({ toDeleteMnt: null })
   }
   render() {
-    const {mntList} = this.state;
-    const {volumes} = this.state;
+    const { mntList } = this.state;
+    const { volumes } = this.state;
     const columns = [
       {
         title: '存储名称',
@@ -1067,7 +1068,7 @@ class Mnt extends PureComponent {
           return <a
             onClick={() => {
               this.onDeleteVolume(data)
-          }}
+            }}
             href="javascript:;">删除</a>
         }
       }
@@ -1077,13 +1078,13 @@ class Mnt extends PureComponent {
         <Card style={{
           marginBottom: 16
         }} title={"存储设置"}>
-          <Table pagination={false} dataSource={volumes} columns={columns}/>
+          <Table pagination={false} dataSource={volumes} columns={columns} />
           <div
             style={{
-            marginTop: 10,
-            textAlign: 'right'
-          }}>
-            <Button onClick={this.handleAddVar}><Icon type="plus"/>
+              marginTop: 10,
+              textAlign: 'right'
+            }}>
+            <Button onClick={this.handleAddVar}><Icon type="plus" />
               添加存储</Button>
           </div>
         </Card>
@@ -1093,49 +1094,49 @@ class Mnt extends PureComponent {
           <Table
             pagination={false}
             columns={[
-            {
-              title: '本地存储目录',
-              dataIndex: 'local_vol_path'
-            }, {
-              title: '目标存储名称',
-              dataIndex: 'dep_vol_name'
-            }, {
-              title: '目标存储目录',
-              dataIndex: 'dep_vol_path'
-            }, {
-              title: '目标存储类型',
-              dataIndex: 'dep_vol_type'
-            }, {
-              title: '目标所属应用',
-              dataIndex: 'dep_app_name',
-              render: (v, data) => {
-                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
+              {
+                title: '本地存储目录',
+                dataIndex: 'local_vol_path'
+              }, {
+                title: '目标存储名称',
+                dataIndex: 'dep_vol_name'
+              }, {
+                title: '目标存储目录',
+                dataIndex: 'dep_vol_path'
+              }, {
+                title: '目标存储类型',
+                dataIndex: 'dep_vol_type'
+              }, {
+                title: '目标所属应用',
+                dataIndex: 'dep_app_name',
+                render: (v, data) => {
+                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
+                }
+              }, {
+                title: '目标应用所属组',
+                dataIndex: 'dep_app_group',
+                render: (v, data) => {
+                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
+                }
+              }, {
+                title: '操作',
+                dataIndex: 'action',
+                render: (val, data) => {
+                  return <a
+                    onClick={() => {
+                      this.onDeleteMnt(data)
+                    }}
+                    href="javascript:;">取消挂载</a>
+                }
               }
-            }, {
-              title: '目标应用所属组',
-              dataIndex: 'dep_app_group',
-              render: (v, data) => {
-                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
-              }
-            }, {
-              title: '操作',
-              dataIndex: 'action',
-              render: (val, data) => {
-                return <a
-                  onClick={() => {
-                  this.onDeleteMnt(data)
-                }}
-                  href="javascript:;">取消挂载</a>
-              }
-            }
-          ]}
-            dataSource={mntList}/>
+            ]}
+            dataSource={mntList} />
           <div
             style={{
-            marginTop: 10,
-            textAlign: 'right'
-          }}>
-            <Button onClick={this.showAddRelation}><Icon type="plus"/>
+              marginTop: 10,
+              textAlign: 'right'
+            }}>
+            <Button onClick={this.showAddRelation}><Icon type="plus" />
               挂载共享存储</Button>
           </div>
         </Card>
@@ -1143,27 +1144,27 @@ class Mnt extends PureComponent {
           appBaseInfo={this.props.appDetail.service}
           onCancel={this.handleCancelAddVar}
           onSubmit={this.handleSubmitAddVar}
-          data={this.state.showAddVar}/>}
+          data={this.state.showAddVar} />}
         {this.state.showAddRelation && <AddRelationMnt
           appAlias={this.props.appDetail.service.service_alias}
           onCancel={this.handleCancelAddRelation}
-          onSubmit={this.handleSubmitAddMnt}/>}
+          onSubmit={this.handleSubmitAddMnt} />}
         {this.state.toDeleteMnt && <ConfirmModal
           title="取消挂载"
           desc="确定要取消此挂载目录吗?"
           onCancel={this.cancelDeleteMnt}
-          onOk={this.handleDeleteMnt}/>}
+          onOk={this.handleDeleteMnt} />}
         {this.state.toDeleteVolume && <ConfirmModal
           title="删除存储目录"
           desc="确定要删除此存储目录吗?"
           onCancel={this.onCancelDeleteVolume}
-          onOk={this.handleDeleteVolume}/>}
+          onOk={this.handleDeleteVolume} />}
       </Fragment>
     );
   }
 }
 
-@connect(({user, appControl, teamControl}) => ({}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({}), null, null, { withRef: true })
 class Relation extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -1190,10 +1191,10 @@ class Relation extends PureComponent {
     })
   }
   showAddRelation = () => {
-    this.setState({showAddRelation: true})
+    this.setState({ showAddRelation: true })
   }
   handleCancelAddRelation = () => {
-    this.setState({showAddRelation: false})
+    this.setState({ showAddRelation: false })
   }
   handleSubmitAddRelation = (ids) => {
     batchAddRelationedApp({
@@ -1202,6 +1203,7 @@ class Relation extends PureComponent {
       dep_service_ids: ids
     }).then((data) => {
       if (data) {
+        notification.info({message:"需要重启才能生效"})
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }
@@ -1219,75 +1221,75 @@ class Relation extends PureComponent {
     })
   }
   onViewRelationInfo = (data) => {
-    this.setState({viewRelationInfo: data})
+    this.setState({ viewRelationInfo: data })
   }
   cancelViewRelationInfo = (data) => {
-    this.setState({viewRelationInfo: null})
+    this.setState({ viewRelationInfo: null })
   }
   render() {
-    const {linkList, relationList} = this.state;
+    const { linkList, relationList } = this.state;
     return (
       <Card title={"服务依赖"}>
         <Table
           pagination={false}
           columns={[
-          {
-            title: '应用名',
-            dataIndex: 'service_cname',
-            render: (val, data) => {
-              return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.service_alias}/overview`}>{val}</Link>
+            {
+              title: '应用名',
+              dataIndex: 'service_cname',
+              render: (val, data) => {
+                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.service_alias}/overview`}>{val}</Link>
+              }
+            }, {
+              title: '所属组',
+              dataIndex: 'group_name'
+            }, {
+              title: '应用说明',
+              dataIndex: 'describe',
+              render: (val, data) => { }
+            }, {
+              title: '操作',
+              dataIndex: 'var',
+              render: (val, data) => {
+                return (
+                  <Fragment>
+                    <a
+                      onClick={() => this.onViewRelationInfo(data)}
+                      href="javascript:;"
+                      style={{
+                        marginRight: 8
+                      }}>查看链接信息</a>
+                    <a
+                      onClick={() => {
+                        this.handleRemoveRelationed(data)
+                      }}
+                      href="javascript:;">取消依赖</a>
+                  </Fragment>
+                )
+              }
             }
-          }, {
-            title: '所属组',
-            dataIndex: 'group_name'
-          }, {
-            title: '应用说明',
-            dataIndex: 'describe',
-            render: (val, data) => {}
-          }, {
-            title: '操作',
-            dataIndex: 'var',
-            render: (val, data) => {
-              return (
-                <Fragment>
-                  <a
-                    onClick={() => this.onViewRelationInfo(data)}
-                    href="javascript:;"
-                    style={{
-                    marginRight: 8
-                  }}>查看链接信息</a>
-                  <a
-                    onClick={() => {
-                    this.handleRemoveRelationed(data)
-                  }}
-                    href="javascript:;">取消依赖</a>
-                </Fragment>
-              )
-            }
-          }
-        ]}
-          dataSource={relationList}/>
+          ]}
+          dataSource={relationList} />
         <div style={{
           marginTop: 10,
           textAlign: 'right'
         }}>
-          <Button onClick={this.showAddRelation}><Icon type="plus"/>
+          <Button onClick={this.showAddRelation}><Icon type="plus" />
             添加依赖</Button>
         </div>
         {this.state.showAddRelation && <AddRelation
           appAlias={this.props.appDetail.service.service_alias}
           onCancel={this.handleCancelAddRelation}
-          onSubmit={this.handleSubmitAddRelation}/>}
+          onSubmit={this.handleSubmitAddRelation} />}
         {this.state.viewRelationInfo && <ViewRelationInfo
           appAlias={this.state.viewRelationInfo.service_alias}
-          onCancel={this.cancelViewRelationInfo}/>}
+          onCancel={this.cancelViewRelationInfo} />}
       </Card>
     )
   }
 }
 
 //环境变量
-@connect(({user, appControl, teamControl}) => ({}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({}), null, null, { withRef: true })
 class Env extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -1318,10 +1320,10 @@ class Env extends PureComponent {
       })
   }
   handleAddVar = () => {
-    this.setState({showAddVar: true})
+    this.setState({ showAddVar: true })
   }
   handleCancelAddVar = () => {
-    this.setState({showAddVar: false})
+    this.setState({ showAddVar: false })
   }
   handleSubmitAddVar = (vals) => {
     this
@@ -1342,10 +1344,10 @@ class Env extends PureComponent {
       })
   }
   onEditVar = (data) => {
-    this.setState({showEditVar: data});
+    this.setState({ showEditVar: data });
   }
   cancelEditVar = () => {
-    this.setState({showEditVar: null});
+    this.setState({ showEditVar: null });
   }
   handleEditVar = (vals) => {
     this
@@ -1366,10 +1368,10 @@ class Env extends PureComponent {
       })
   }
   onDeleteVar = (data) => {
-    this.setState({deleteVar: data});
+    this.setState({ deleteVar: data });
   }
   cancelDeleteVar = () => {
-    this.setState({deleteVar: null});
+    this.setState({ deleteVar: null });
   }
   handleDeleteVar = () => {
     this
@@ -1395,72 +1397,72 @@ class Env extends PureComponent {
       }}>
         <Table
           columns={[
-          {
-            title: '变量名',
-            dataIndex: 'attr_name'
-          }, {
-            title: '变量值',
-            dataIndex: 'attr_value',
-            width: '20%'
-          }, {
-            title: '说明',
-            dataIndex: 'name'
-          }, {
-            title: '操作',
-            dataIndex: 'action',
-            render: (val, data) => {
-              return (
-                <Fragment>
-                  {data.is_change
-                    ? <a
+            {
+              title: '变量名',
+              dataIndex: 'attr_name'
+            }, {
+              title: '变量值',
+              dataIndex: 'attr_value',
+              width: '20%'
+            }, {
+              title: '说明',
+              dataIndex: 'name'
+            }, {
+              title: '操作',
+              dataIndex: 'action',
+              render: (val, data) => {
+                return (
+                  <Fragment>
+                    {data.is_change
+                      ? <a
                         href="javascript:;"
                         style={{
-                        marginRight: 8
-                      }}
+                          marginRight: 8
+                        }}
                         onClick={() => {
-                        this.onDeleteVar(data)
-                      }}>删除</a>
-                    : ''}
-                  {data.is_change
-                    ? <a
+                          this.onDeleteVar(data)
+                        }}>删除</a>
+                      : ''}
+                    {data.is_change
+                      ? <a
                         href="javascript:;"
                         onClick={() => {
-                        this.onEditVar(data)
-                      }}>修改</a>
-                    : ''}
-                </Fragment>
-              )
+                          this.onEditVar(data)
+                        }}>修改</a>
+                      : ''}
+                  </Fragment>
+                )
+              }
             }
-          }
-        ]}
+          ]}
           pagination={false}
-          dataSource={innerEnvs}/>
+          dataSource={innerEnvs} />
         <div style={{
           textAlign: 'right',
           paddingTop: 20
         }}>
-          <Button type="default" onClick={this.handleAddVar}><Icon type="plus"/>添加变量</Button>
+          <Button type="default" onClick={this.handleAddVar}><Icon type="plus" />添加变量</Button>
         </div>
         {this.state.showAddVar && <AddOrEditEnv
           onCancel={this.handleCancelAddVar}
-          onSubmit={this.handleSubmitAddVar}/>}
+          onSubmit={this.handleSubmitAddVar} />}
         {this.state.showEditVar && <AddOrEditEnv
           onCancel={this.cancelEditVar}
           onSubmit={this.handleEditVar}
-          data={this.state.showEditVar}/>}
+          data={this.state.showEditVar} />}
         {this.state.deleteVar && <ConfirmModal
           onOk={this.handleDeleteVar}
           onCancel={this.cancelDeleteVar}
           title="删除变量"
           desc="确定要删除此变量吗？"
-          subDesc="此操作不可恢复"/>}
+          subDesc="此操作不可恢复" />}
       </Card>
     )
   }
 }
 
 //端口
-@connect(({user, appControl, teamControl}) => ({}), null, null, {withRef: true})
+@connect(({ user, appControl, teamControl }) => ({}), null, null, { withRef: true })
 class Ports extends PureComponent {
   constructor(props) {
     super(props);
@@ -1477,7 +1479,7 @@ class Ports extends PureComponent {
     this.fetchPorts();
   }
   fetchPorts = () => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
@@ -1492,7 +1494,7 @@ class Ports extends PureComponent {
     })
   }
   handleSubmitProtocol = (protocol, port, callback) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'appControl/changeProtocol',
       payload: {
@@ -1508,10 +1510,10 @@ class Ports extends PureComponent {
     })
   }
   showEditAlias = (port) => {
-    this.setState({showEditAlias: port})
+    this.setState({ showEditAlias: port })
   }
   hideEditAlias = () => {
-    this.setState({showEditAlias: null})
+    this.setState({ showEditAlias: null })
   }
   handleEditAlias = (vals) => {
     this
@@ -1591,10 +1593,10 @@ class Ports extends PureComponent {
       })
   }
   handleDeletePort = (port) => {
-    this.setState({showDeletePort: port})
+    this.setState({ showDeletePort: port })
   }
   cancalDeletePort = () => {
-    this.setState({showDeletePort: null})
+    this.setState({ showDeletePort: null })
   }
   handleSubmitDeletePort = () => {
     this
@@ -1613,11 +1615,11 @@ class Ports extends PureComponent {
       })
   }
   showAddPort = () => {
-    this.setState({showAddPort: true})
+    this.setState({ showAddPort: true })
   }
 
   onCancelAddPort = () => {
-    this.setState({showAddPort: false})
+    this.setState({ showAddPort: false })
   }
   handleAddPort = (val) => {
 
@@ -1658,40 +1660,40 @@ class Ports extends PureComponent {
               onOpenInner={this.handleOpenInner}
               onCloseInner={this.onCloseInner}
               onOpenOuter={this.handleOpenOuter}
-              onCloseOuter={this.onCloseOuter}/>
+              onCloseOuter={this.onCloseOuter} />
           })
-}
+          }
           {!ports.length
             ? <p style={{
-                textAlign: 'center'
-              }}>暂无端口</p>
+              textAlign: 'center'
+            }}>暂无端口</p>
             : ''
-}
+          }
         </div>
         <div style={{
           textAlign: 'right',
           paddingTop: 20
         }}>
 
-          <Button type="default" onClick={this.showAddPort}><Icon type="plus"/>添加端口</Button>
+          <Button type="default" onClick={this.showAddPort}><Icon type="plus" />添加端口</Button>
         </div>
         {this.state.showEditAlias && <EditPortAlias
           port={this.state.showEditAlias}
           onOk={this.handleEditAlias}
-          onCancel={this.hideEditAlias}/>}
+          onCancel={this.hideEditAlias} />}
         {this.state.showDeletePort && <ConfirmModal
           title="端口删除"
           desc="确定要删除此端口吗？"
           subDesc="此操作不可恢复"
           onOk={this.handleSubmitDeletePort}
-          onCancel={this.cancalDeletePort}/>}
+          onCancel={this.cancalDeletePort} />}
         {this.state.showDeleteDomain && <ConfirmModal
           title="域名解绑"
           desc="确定要解绑此域名吗？"
           subDesc={this.state.showDeleteDomain.domain}
           onOk={this.handleSubmitDeleteDomain}
-          onCancel={this.cancalDeleteDomain}/>}
-        {this.state.showAddPort && <AddPort isImageApp={isImageApp} isDockerfile={isDockerfile}  onCancel={this.onCancelAddPort} onOk={this.handleAddPort}/>}
+          onCancel={this.cancalDeleteDomain} />}
+        {this.state.showAddPort && <AddPort isImageApp={isImageApp} isDockerfile={isDockerfile} onCancel={this.onCancelAddPort} onOk={this.handleAddPort} />}
       </Card>
     )
   }
@@ -1704,20 +1706,20 @@ class RenderProperty extends PureComponent {
     return (
       <div
         style={{
-        display: visible
-          ? 'block'
-          : 'none'
-      }}>
-        <Ports appDetail={appDetail}/>
-        <Env appDetail={appDetail}/>
-        <Mnt appDetail={appDetail}/>
-        <Relation appDetail={appDetail}/>
+          display: visible
+            ? 'block'
+            : 'none'
+        }}>
+        <Ports appDetail={appDetail} />
+        <Env appDetail={appDetail} />
+        <Mnt appDetail={appDetail} />
+        <Relation appDetail={appDetail} />
       </div>
     )
   }
 }
 
-@connect(({user, appControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(({ user, appControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -1731,7 +1733,7 @@ export default class Index extends PureComponent {
   }
   handleType = (type) => {
     if (this.state.type !== type) {
-      this.setState({type: type});
+      this.setState({ type: type });
     }
   }
   render() {
@@ -1748,23 +1750,23 @@ export default class Index extends PureComponent {
               <div>
                 <span
                   className={styles.typeBtn + ' ' + (type === 'property'
-                  ? styles.active
-                  : '')}
+                    ? styles.active
+                    : '')}
                   onClick={() => {
-                  this.handleType('property')
-                }}>
+                    this.handleType('property')
+                  }}>
                   基本属性
-                  <Icon type="right"/>
+                  <Icon type="right" />
                 </span>
                 <span
                   className={styles.typeBtn + ' ' + (type === 'deploy'
-                  ? styles.active
-                  : '')}
+                    ? styles.active
+                    : '')}
                   onClick={() => {
-                  this.handleType('deploy')
-                }}>
+                    this.handleType('deploy')
+                  }}>
                   部署属性
-                  <Icon type="right"/>
+                  <Icon type="right" />
                 </span>
               </div>
             </Affix>
@@ -1773,11 +1775,11 @@ export default class Index extends PureComponent {
           <div
             className={styles.content}
             style={{
-            overflow: 'hidden',
-            marginBottom: 90
-          }}>
-            <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'}/>
-            <RenderProperty appDetail={appDetail} visible={type !== 'deploy'}/>
+              overflow: 'hidden',
+              marginBottom: 90
+            }}>
+            <RenderDeploy updateDetail={this.props.updateDetail} appDetail={appDetail} visible={type === 'deploy'} />
+            <RenderProperty appDetail={appDetail} visible={type !== 'deploy'} />
           </div>
         </div>
       </div>

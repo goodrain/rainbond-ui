@@ -26,6 +26,8 @@ import {
   delBackup,
   startPluginShareEventInShareApp,
   getPluginShareEventInShareApp,
+  queryAllBackup,
+  queryRestoreState
 } from "../services/group";
 import cookie from "../utils/cookie";
 
@@ -48,6 +50,18 @@ export default {
     },
     * fetchBackup({ payload, callback }, { call, put }) {
       const response = yield call(getBackup, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *queryAllBackup({ payload, callback }, { call }){
+      const response = yield call(queryAllBackup, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *queryRestoreState({ payload, callback }, { call }){
+      const response = yield call(queryRestoreState, payload);
       if (response) {
         callback && callback(response);
       }

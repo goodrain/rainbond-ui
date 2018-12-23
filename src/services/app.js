@@ -136,9 +136,9 @@ export function deploy(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
     {
-      method: "post", 
+      method: "post",
       data: {
-        is_upgrate:body.is_upgrate?true:false
+        is_upgrate: body.is_upgrate ? true : false
       }
     },
   );
@@ -153,7 +153,7 @@ export function updateRolling(body = {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
-      method: "post", 
+      method: "post",
     },
   );
 }
@@ -721,7 +721,7 @@ export async function bindDomain(body = {
         protocol: body.protocol,
         certificate_id: body.certificate_id,
         group_id: body.group_id,
-        rule_extensions: body.rule_extensions ? body.rule_extensions : []
+        rule_extensions: body.rule_extensions.length > 0 ? body.rule_extensions : []
       },
     },
   );
@@ -1427,8 +1427,9 @@ export async function addTags(body = {
     {
       method: "post",
       data: {
-        label_ids:body.label_ids}
-        ,
+        label_ids: body.label_ids
+      }
+      ,
     },
   );
 }

@@ -61,7 +61,7 @@ export default class Index extends PureComponent {
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
       }
     ];
-    const imagelinks = [  
+    const imagelinks = [
       {
         title: "指定镜像",
         icontype: "laptop",
@@ -232,7 +232,7 @@ export default class Index extends PureComponent {
             <FormItem label="服务状态">
               {getFieldDecorator("service_status", { initialValue: "all" })(<Select placeholder="请选择">
                 {status.map(item => <Option key={item.value} value={item.value}>{item.text}</Option>)}
-                                                                            </Select>)}
+              </Select>)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -323,7 +323,7 @@ export default class Index extends PureComponent {
     return list.map((item) => {
       const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
         item.service_alias
-      }/overview`;
+        }/overview`;
       return (
         <List.Item key={item.ID}>
           <List.Item.Meta
@@ -380,6 +380,10 @@ export default class Index extends PureComponent {
           <p>{index.overviewInfo.team_app_num || 0}</p>
         </div>
         <div className={styles.statItem}>
+          <p>应用总数</p>
+          <p>{index.overviewInfo.team_app_num || 0}</p>
+        </div>
+        <div className={styles.statItem}>
           <p>服务总数</p>
           <p>{index.overviewInfo.team_service_num || 0}</p>
         </div>
@@ -387,7 +391,6 @@ export default class Index extends PureComponent {
           <p>团队成员</p>
           <p>{index.overviewInfo.user_nums || 0}</p>
         </div>
-
         {this.isPublicRegion() ? (
           <Fragment>
             <div className={styles.statItem}>
@@ -416,17 +419,17 @@ export default class Index extends PureComponent {
             </div>
           </Fragment>
         ) : (
-          <Fragment>
-            <div className={styles.statItem}>
-              <p>已使用内存</p>
-              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}</p>
-            </div>
-            <div className={styles.statItem}>
-              <p>已使用磁盘</p>
-              <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}</p>
-            </div>
-          </Fragment>
-        )}
+            <Fragment>
+              <div className={styles.statItem}>
+                <p>已使用内存</p>
+                <p>{`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}</p>
+              </div>
+              <div className={styles.statItem}>
+                <p>已使用磁盘</p>
+                <p>{`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}</p>
+              </div>
+            </Fragment>
+          )}
       </div>
     );
 
@@ -472,7 +475,7 @@ export default class Index extends PureComponent {
                 padding: 0,
               }}
             >
-              <EditableLinkGroup onAdd={() => {}} links={this.getLinks()} linkElement={Link} />
+              <EditableLinkGroup onAdd={() => { }} links={this.getLinks()} linkElement={Link} />
             </Card>
 
             <Card

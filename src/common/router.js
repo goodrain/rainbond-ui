@@ -79,6 +79,9 @@ export const getRouterData = (app) => {
         () => import("../layouts/BasicLayout"),
       ),
     },
+    "/telecom?usename": {
+      component: dynamicWrapper(app, ["index"], () => import("../routes/Source/Index")),
+    },
     "/team/:team/region/:region/source/:type?/:name?": {
       component: dynamicWrapper(app, ["index"], () => import("../routes/Source/Index")),
     },
@@ -102,6 +105,9 @@ export const getRouterData = (app) => {
     },
     "/team/:team/region/:region/message": {
       component: dynamicWrapper(app, ["index"], () => import("../routes/Message/Index")),
+    },
+    "/team/:team/region/:region/allbackup": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/AllBackup")),
     },
     "/team/:team/region/:region/team": {
       component: dynamicWrapper(app, ["teamControl"], () => import("../routes/Team")),

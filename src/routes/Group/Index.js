@@ -19,6 +19,7 @@ import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import AppList from "./AppList";
 import AppShape from "./AppShape";
+import EditorTopology from "./EditorTopology";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
 import VisterBtn from "../../components/visitBtnForAlllink"
@@ -139,6 +140,7 @@ class Main extends PureComponent {
         groupId
       },
       callback: (data) => {
+        console.log("数据",data);
         const service_alias = [];
         let json_data = data.json_data;
         this.setState({ running: false });
@@ -151,6 +153,7 @@ class Main extends PureComponent {
             service_alias.push(json_data[key].service_alias)
           }
         })
+        console.log("数据service_alias",service_alias)
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
           this.loadLinks(service_alias.join("-"), team_name)
@@ -381,6 +384,7 @@ class Main extends PureComponent {
     if (currGroup && currGroup.service_list && currGroup.service_list.length) {
       hasService = true;
     }
+    console.log("this.state",this.state.service_alias)
 
     if (group_id == -1) {
       return (
@@ -489,6 +493,16 @@ class Main extends PureComponent {
             active
           >拓扑图
                          </Button>}
+                         {hasService && <Button
+            onClick={() => {
+              this.changeType("shapes");
+            }}
+            type={this.state.type === "shapes"
+              ? "primary"
+              : ""}
+            active
+          >编辑拓扑图
+                         </Button>}
           <Button
             onClick={() => {
               this.changeType("list");
@@ -508,6 +522,7 @@ class Main extends PureComponent {
         </Row>
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
+        {(hasService && this.state.type === "shapes") && <EditorTopology group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"
@@ -551,7 +566,6 @@ export default class Index extends PureComponent {
     const { currUser } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-
     if (!teamUtil.canViewApp(team)) return <NoPermTip />;
 
     if (this.id !== this.getGroupId()) {

@@ -57,7 +57,6 @@ export default {
 
   reducers: {
     saveRuntimeInfo(state, { payload }) {
-      console.log(payload);
       return {
         ...state,
         ...payload,

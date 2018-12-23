@@ -703,7 +703,6 @@ export default {
       }
     },
     * putAppBuidSource({ payload, callback }, { call, put }) {
-      console.log(payload);
       const response = yield call(putAppBuidSource, payload);
       if (response) {
         callback && callback(response);

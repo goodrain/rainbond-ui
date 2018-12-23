@@ -30,6 +30,28 @@ export async function getBackup(body = { team_name, group_id }) {
   });
 }
 
+/**
+ * 查询全部备份
+ */
+
+export async function queryAllBackup(param) {
+  return request(`${config.baseUrl}/console/teams/${param.team_name}/all/groupapp/backup`, {
+    method: "get",
+    params: {
+      page: param.pageNum || 1,
+      page_size: param.pageSize || 10,
+    },
+  });
+}
+
+export async function queryRestoreState(param) {
+  return request(`${config.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`, {
+    method: "get",
+    params: {
+      group_uuid: param.group_uuid
+    }
+  });
+}
 /*
    备份
 */
@@ -374,7 +396,10 @@ export async function migrateApp(body = {
   backup_id,
   group_id,
   migrate_type,
+  event_id,
+  notRecovered_restore_id
 }) {
+  console.log(body)
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
@@ -384,6 +409,8 @@ export async function migrateApp(body = {
         team: body.team,
         backup_id: body.backup_id,
         migrate_type: body.migrate_type,
+        event_id: body.event_id,
+        restore_id: body.notRecovered_restore_id,
       },
     },
   );

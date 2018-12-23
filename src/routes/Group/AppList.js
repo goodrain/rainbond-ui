@@ -50,7 +50,7 @@ export default class AppList extends PureComponent {
     this.timer = setInterval(() => {
       this.loadApps();
     }, 5000);
-    document.querySelector('.ant-table-footer').setAttribute('style','position:absolute;background:"#fff" !important,')
+    document.querySelector('.ant-table-footer').setAttribute('style','position:absolute;background:#fff')
   }
   componentWillUnmount() {
     clearInterval(this.timer);

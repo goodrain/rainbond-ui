@@ -15,6 +15,7 @@ class InstanceList extends PureComponent {
     const num = podName.split("-")[1];
     return `实例${num}`;
   };
+  
   render() {
     const formItemLayout = {
       labelCol: {
@@ -62,16 +63,10 @@ class InstanceList extends PureComponent {
             >
               {this.showName(item.pod_name)}
             </a>
-            <Form.Item
-             style={{
-              marginBottom: 0,
-              marginLeft:"16%"
-            }}
-            {...formItemLayout}
-            label="实例状态"
-            >
-             {statusObj[item.pod_status]}
-            </Form.Item>
+            <br/>
+            <a href="javascript:;" style={{color:"#000"}}>
+              {statusObj[item.pod_status]}
+            </a>
           </List.Item>
         )}
       />

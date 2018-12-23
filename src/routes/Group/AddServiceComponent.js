@@ -219,7 +219,7 @@ export default class AddServiceComponent extends PureComponent {
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>&nbsp;
                    <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/html.html" target="_blank">Html</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/netcore.html" target="_blank">Netcore</a>&nbsp;
-                      等语言额规范</p>} type="info"
+                      等语言规范</p>} type="info"
                     style={{ height: "40px" }}
                     showIcon />
                 </Row>
@@ -256,7 +256,8 @@ export default class AddServiceComponent extends PureComponent {
                   />
                 </Row>
               </div>
-            </div>}
+            </div>
+          }
           {ServiceComponentTwoPage === "custom" && <Custom handleType="Service"
             groupId={this.props.groupId}
             ButtonGroupState={ButtonGroupState}

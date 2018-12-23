@@ -531,6 +531,13 @@ export default class CreateCheck extends PureComponent {
       />
     );
   };
+
+
+
+
+
+
+
   renderChecking = () => {
     const { ServiceGetData } = this.state;
     const actions = (
