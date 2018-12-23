@@ -439,6 +439,8 @@ export function addRelationedApp(body = {
   team_name,
   app_alias,
   dep_service_id,
+  container_port,
+  open_inner
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
@@ -446,6 +448,8 @@ export function addRelationedApp(body = {
       method: "post",
       data: {
         dep_service_id: body.dep_service_id,
+        container_port:body.container_port?body.container_port:"",
+        open_inner:body.open_inner?body.open_inner:""
       },
     },
   );
