@@ -594,7 +594,24 @@ export async function openPortOuter(body = {
     },
   );
 }
-
+/*
+	编辑打开端口外部访问
+*/
+export async function openExternalPort(body = {
+  team_name,
+  app_alias,
+  port,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    {
+      method: "put",
+      data: {
+        action: "open_outer",
+      },
+    },
+  );
+}
 /*
 	关闭端口外部访问
 */

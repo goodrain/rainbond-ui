@@ -80,7 +80,8 @@ import {
   getAppBuidSource,
   putAppBuidSource,
   updateAppStatus,
-  getTagInformation
+  getTagInformation,
+  openExternalPort
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -363,6 +364,12 @@ export default {
     },
     * openPortOuter({ payload, callback }, { call, put }) {
       const response = yield call(openPortOuter, payload);
+      if (response) {
+        callback && callback();
+      }
+    },
+    *openExternalPort({ payload, callback }, { call, put }) {
+      const response = yield call(openExternalPort, payload);
       if (response) {
         callback && callback();
       }

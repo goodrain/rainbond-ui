@@ -267,6 +267,21 @@ class EditorToplogy extends PureComponent {
       ]
     }
   }
+
+  //打开对外端口
+  handleSubmitOpenExternalPort=()=>{
+      // this.props.dispatch({
+      //     type: 'appControl/openExternalPort',
+      //     payload: {
+      //       team_name: globalUtil.getCurrTeamName(),
+      //       app_alias: this.props.appDetail.service.service_alias,
+      //       port: port
+      //     },
+      //     callback: () => {
+      //       this.fetchPorts();
+      //     }
+      //   })
+  }
   render() {
     const { group_id } = this.props;
     const { data, list, colorDataType } = this.state;
@@ -305,6 +320,8 @@ class EditorToplogy extends PureComponent {
                 const id = item.target.id;
                 if (name != "The Internet") {
                   this.handleSubmitAddRelation(name, id)
+                }else{
+                  this.handleSubmitOpenExternalPort()
                 }
               }
             }}
