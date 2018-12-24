@@ -83,6 +83,8 @@ import {
   getTagInformation,
   updateServiceName,
   onlyOpenPortOuter
+  getTagInformation,
+  openExternalPort
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -375,6 +377,12 @@ export default {
         callback && callback();
       }
     },
+    *openExternalPort({ payload, callback }, { call, put }) {
+      const response = yield call(openExternalPort, payload);
+      if (response) {
+        callback && callback();
+      }
+    },
     * closePortOuter({ payload, callback }, { call, put }) {
       const response = yield call(closePortOuter, payload);
       if (response) {
@@ -427,7 +435,7 @@ export default {
       const response = yield call(getCertificates, payload);
       if (response) {
         yield put({ type: "saveCertificates", payload: response.list });
-        callback && callback(response)
+        callback&&callback(response)
       }
     },
     * addCertificate({ payload, callback }, { call, put }) {
@@ -708,18 +716,12 @@ export default {
         callback && callback(response);
       }
     },
-    *updateAppStatus({ payload, callback }, { call }) {
+    *updateAppStatus({ payload, callback }, { call }){
       const response = yield call(updateAppStatus, payload);
       if (callback) {
         callback && callback(response);
       }
-    },
-    *updateServiceName({ payload, callback }, { call }) {
-      const response = yield call(updateServiceName, payload);
-      if (callback) {
-        callback && callback(response);
-      }
-    },
+    }
   },
   reducers: {
     clearMembers(state, action) {

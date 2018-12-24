@@ -439,6 +439,8 @@ export function addRelationedApp(body = {
   team_name,
   app_alias,
   dep_service_id,
+  container_port,
+  open_inner
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
@@ -446,6 +448,8 @@ export function addRelationedApp(body = {
       method: "post",
       data: {
         dep_service_id: body.dep_service_id,
+        container_port:body.container_port?body.container_port:"",
+        open_inner:body.open_inner?body.open_inner:""
       },
     },
   );
@@ -590,22 +594,7 @@ export async function openPortOuter(body = {
     },
   );
 }
-/**tcp||http开启对外端口(只针对tcp和http) */
-export async function onlyOpenPortOuter(body = {
-  team_name,
-  app_alias,
-  port,
-}) {
-  return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
-    {
-      method: "put",
-      data: {
-        action: "only_open_outer",
-      },
-    },
-  );
-}
+
 /*
 	关闭端口外部访问
 */
@@ -2024,6 +2013,7 @@ export async function putAppBuidSource(body = {
 
 /**更改应用状态 */
 export async function updateAppStatus(params) {
+  console.log(params)
   return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`, {
     method: "put",
     data: {
