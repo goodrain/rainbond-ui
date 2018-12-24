@@ -42,8 +42,8 @@ export default class HttpTable extends PureComponent {
             service_id: '',
             values: '',
             group_name: '',
-            appStatusVisable:false,
-            record:''
+            appStatusVisable: false,
+            record: ''
         }
     }
     componentWillMount() {
@@ -253,14 +253,19 @@ export default class HttpTable extends PureComponent {
     seeHighRoute = (values) => {
         let title = (
             <ul style={{ padding: "0", margin: "0" }}>
-                <li style={{ whiteSpace: "nowrap" }}><span style={{ marginRight: "10px", width: "20%" }}>请求头：</span><span>{values.domain_heander}</span></li>
-                <li style={{ whiteSpace: "nowrap" }}><span style={{ marginRight: "10px", width: "20%" }}>Cookie：</span><span>{values.domain_cookie}</span></li>
-                <li style={{ whiteSpace: "nowrap" }}><span style={{ marginRight: "10px", width: "20%" }}>Path：</span><span>{values.domain_path}</span></li>
-                <li style={{ whiteSpace: "nowrap" }}><span style={{ marginRight: "10px", width: "20%" }}>权重：</span><span>{values.the_weight}</span></li>
+                <li style={{ whiteSpace: "nowrap" }}><span >请求头：</span><span>{values.domain_heander}</span></li>
+                <li style={{ whiteSpace: "nowrap" }}><span>Cookie：</span><span>{values.domain_cookie}</span></li>
+                <li style={{ whiteSpace: "nowrap" }}><span >Path：</span><span>{values.domain_path}</span></li>
+                <li style={{ whiteSpace: "nowrap" }}><span >权重：</span><span>{values.the_weight}</span></li>
             </ul>
         )
         return (
-            <Tooltip placement="topLeft" title={title}>
+            <Tooltip
+                placement="topLeft"
+                title={title}
+                trigger="click"
+                style={{ maxWidth: "500px" }}
+            >
                 <a>查看详情</a>
             </Tooltip>
         )
@@ -289,17 +294,17 @@ export default class HttpTable extends PureComponent {
             callback: (data) => {
                 console.log(data)
                 if (data && data.bean.status != "running") {
-                    this.setState({appStatusVisable:true,record})
-                }else{
+                    this.setState({ appStatusVisable: true, record })
+                } else {
                     window.open(record.domain_name)
                 }
             }
         })
     }
-    handleAppStatus=()=>{
-        const {record} = this.state
+    handleAppStatus = () => {
+        const { record } = this.state
         console.log(record)
-        this.setState({loading:true})
+        this.setState({ loading: true })
         this.props.dispatch({
             type: 'gateWay/startApp',
             payload: {
@@ -307,22 +312,22 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-               if(data){
-                    notification.success({message:"启动应用成功",duration:5})
-                    this.setState({loading:false,appStatusVisable:false},()=>{
+                if (data) {
+                    notification.success({ message: "启动应用成功", duration: 5 })
+                    this.setState({ loading: false, appStatusVisable: false }, () => {
                         this.load();
                     })
-               }
+                }
             }
         })
     }
-    handleAppStatus_closed=()=>{
+    handleAppStatus_closed = () => {
         this.setState({
-            appStatusVisable:false
+            appStatusVisable: false
         })
     }
     render() {
-        const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable} = this.state;
+        const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable } = this.state;
         const columns = [{
             title: '域名',
             dataIndex: 'domain_name',
@@ -435,10 +440,11 @@ export default class HttpTable extends PureComponent {
                     visible={this.state.whether_open_form}
                     onOk={this.handleOk}
                     footer={[<Button type="primary" size="small" onClick={this.resolveOk}>确定</Button>]}
+                    zIndex={9999}
                 >
                     <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
                 </Modal>}
-                {appStatusVisable&&<Modal
+                {appStatusVisable && <Modal
                     title="友情提示"
                     visible={appStatusVisable}
                     onOk={this.handleAppStatus}

@@ -74,16 +74,16 @@ class EditGroupName extends PureComponent {
     return (
       <Modal title={title || ""} visible onCancel={onCancel} onOk={this.onOk}>
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="组名称">
+          <FormItem {...formItemLayout} label="应用名称">
             {getFieldDecorator("group_name", {
               initialValue: group_name || "",
               rules: [
                 {
                   required: true,
-                  message: "请填写组名称",
+                  message: "请填写应用名称",
                 },
               ],
-            })(<Input placeholder="请填写组名称" />)
+            })(<Input placeholder="请填写应用名称" />)
             }
           </FormItem>
         </Form>
@@ -112,6 +112,8 @@ class Main extends PureComponent {
       running: false,
       secondJustify: '',
       json_data_length: 0,
+      promptModal: false,
+      code: ''
     };
   }
   getGroupId() {
@@ -140,7 +142,7 @@ class Main extends PureComponent {
         groupId
       },
       callback: (data) => {
-        console.log("数据",data);
+        console.log("数据", data);
         const service_alias = [];
         let json_data = data.json_data;
         this.setState({ running: false });
@@ -153,7 +155,7 @@ class Main extends PureComponent {
             service_alias.push(json_data[key].service_alias)
           }
         })
-        console.log("数据service_alias",service_alias)
+        console.log("数据service_alias", service_alias)
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
           this.loadLinks(service_alias.join("-"), team_name)
@@ -350,6 +352,15 @@ class Main extends PureComponent {
   }
   /**构建拓扑图 */
   handleTopology = (code) => {
+    this.setState({
+      promptModal: true,
+      code: code
+    })
+
+  }
+
+  handlePromptModal_open = () => {
+    const { code } = this.state;
     this.props.dispatch({
       type: "global/buildShape",
       payload: {
@@ -362,11 +373,18 @@ class Main extends PureComponent {
           message: data.msg_show || "构建成功",
           duration: "3",
         });
-        this.loadTopology()
+        this.handlePromptModal_close();
+        this.loadTopology();
       }
     })
   }
 
+  handlePromptModal_close = () => {
+    this.setState({
+      promptModal: false,
+      code: ''
+    })
+  }
 
   render() {
     const {
@@ -384,7 +402,13 @@ class Main extends PureComponent {
     if (currGroup && currGroup.service_list && currGroup.service_list.length) {
       hasService = true;
     }
-    console.log("this.state",this.state.service_alias)
+
+    const codeObj = {
+      "start": "启动",
+      "restart": "重启",
+      "stop": "停止",
+      "deploy": "部署",
+    }
 
     if (group_id == -1) {
       return (
@@ -410,7 +434,7 @@ class Main extends PureComponent {
             <Button onClick={this.toAdd} href="javascript:;">新增组</Button>
           )}
         >
-          <AppList groupId={this.getGroupId()} /> {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+          <AppList groupId={this.getGroupId()} /> {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
         </PageHeaderLayout>
       );
     }
@@ -493,7 +517,7 @@ class Main extends PureComponent {
             active
           >拓扑图
                          </Button>}
-                         {hasService && <Button
+          {hasService && <Button
             onClick={() => {
               this.changeType("shapes");
             }}
@@ -536,7 +560,15 @@ class Main extends PureComponent {
           onCancel={this.cancelEdit}
           onOk={this.handleEdit}
         />}
-        {this.state.toAdd && <EditGroupName title="添加新组" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+        {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+        {this.state.promptModal && <Modal
+          title="友情提示"
+          visible={this.state.promptModal}
+          onOk={this.handlePromptModal_open}
+          onCancel={this.handlePromptModal_close}
+        >
+          <p>{codeObj[this.state.code]}当前应用下的全部服务？</p>
+        </Modal>}
       </PageHeaderLayout>
     );
   }

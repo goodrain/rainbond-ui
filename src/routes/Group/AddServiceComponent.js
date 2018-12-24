@@ -75,7 +75,8 @@ export default class AddServiceComponent extends PureComponent {
   cancelAddService = () => {
     this.setState({ toAddService: false }, () => {
       this.setState({
-        ServiceComponentTwoPage: null, ServiceComponentOnePage: true
+        ServiceComponentTwoPage: null, 
+        ServiceComponentOnePage: true
       })
     });
   }
@@ -235,7 +236,7 @@ export default class AddServiceComponent extends PureComponent {
                   </Col>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "imageCmd") }}>
                     <Icon component={dockerSvg} />
-                    <p className={styles.ServiceSmallTitle}>指定DockerCompose文件</p>
+                    <p className={styles.ServiceSmallTitle}>指定DockerRun命令</p>
                   </Col>
                 </Row>
               </div>

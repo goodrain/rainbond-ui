@@ -6,6 +6,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import MigrationBackup from '../../components/MigrationBackup';
 import RestoreBackup from '../../components/RestoreBackup';
 import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
 import globalUtil from '../../utils/global';
 import {
   Row,
@@ -14,6 +15,7 @@ import {
   Table,
   Button,
   notification,
+  Icon
 } from 'antd';
 import config from '../../config/config';
 
@@ -53,6 +55,7 @@ class BackupStatus extends PureComponent {
     this.logSocket && this.logSocket.destroy();
     this.logSocket = null;
   }
+  
   getSocketUrl = () => {
     return userUtil.getCurrRegionSoketUrl(this.props.currUser);
   }

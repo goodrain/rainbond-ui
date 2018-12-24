@@ -423,6 +423,7 @@ export default class TcpTable extends PureComponent {
                     onOk={this.resolveOk}
                     onCancel={this.handleCancel_second}
                     footer={[<Button type="primary" size="small" onClick={this.resolveOk}>确定</Button>]}
+                    zIndex={9999}
                 >
                     <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
                 </Modal>}

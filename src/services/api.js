@@ -452,19 +452,23 @@ export async function buyPurchase(body = {
 }
 
 /* 查询企业信息 */
-export async function getEnterpriseInfo(body = {}) {
+export async function getEnterpriseInfo(param) {
   return request(`${config.baseUrl}/console/enterprise/info`, {
     method: "get",
+    params:{
+      team_name:param.team_name
+    }
   });
 }
 
 /* 查询企业信息 */
-export async function getEnterpriseTeams(body = {page_num,page_size}) {
+export async function getEnterpriseTeams(body = {page_num,page_size,team_name}) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
     method: "get",
     params: {
       page_num: body.page_num,
       page_size: body.page_size,
+      team_name:body.team_name
     },
   });
 }

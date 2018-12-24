@@ -65,6 +65,9 @@ export default class BasicList extends PureComponent {
     });
     this.props.dispatch({
       type: "global/getEnterpriseInfo",
+      payload:{
+        team_name:globalUtil.getCurrTeamName()
+      },
       callback: () => {},
     });
     this.loadTeams();
@@ -180,6 +183,7 @@ export default class BasicList extends PureComponent {
         enterprise_id: this.props.user.enterprise_id,
         page_size: this.state.teamsPageSize,
         page_num: this.state.teamsPage,
+        team_name: globalUtil.getCurrTeamName()
       },
       callback: (data) => {
         this.setState({
