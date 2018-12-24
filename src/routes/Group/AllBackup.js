@@ -1,5 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import { Link, routerRedux } from 'dva/router';
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import logSocket from '../../utils/logSocket';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -34,7 +35,6 @@ class BackupStatus extends PureComponent {
   }
   componentDidMount() {
     const data = this.props.data;
-
     if (data.status === 'starting') {
       this.createSocket();
       this.startLoopStatus();
@@ -55,7 +55,7 @@ class BackupStatus extends PureComponent {
     this.logSocket && this.logSocket.destroy();
     this.logSocket = null;
   }
-  
+
   getSocketUrl = () => {
     return userUtil.getCurrRegionSoketUrl(this.props.currUser);
   }
@@ -106,7 +106,8 @@ class Index extends React.Component {
       showRecovery: false,
       backup_id: '',
       group_uuid: '',
-      event_id:''
+      event_id: '',
+      group_id: ''
     };
   }
   componentWillMount() {
@@ -142,13 +143,13 @@ class Index extends React.Component {
     this.setState({ showMove: false });
   }
   cancelMoveBackup = () => {
-    this.setState({ showMove: false, backup_id: '' });
+    this.setState({ showMove: false, backup_id: '', group_id: '' });
   }
   handleRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: '' });
+    this.setState({ showRecovery: false, backup_id: '', group_id: '' });
   }
   cancelRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: '' });
+    this.setState({ showRecovery: false, backup_id: '', group_id: '' });
   }
   handleDelete = (e) => {
     const team_name = globalUtil.getCurrTeamName();
@@ -156,7 +157,7 @@ class Index extends React.Component {
       type: 'groupControl/delBackup',
       payload: {
         team_name: team_name,
-        group_id: this.getGroupId(),
+        group_id: this.state.group_id,
         backup_id: this.state.backup_id
       },
       callback: (data) => {
@@ -170,29 +171,32 @@ class Index extends React.Component {
     })
   }
   cancelDelete = (e) => {
-    this.setState({ showDel: false, backup_id: '' })
+    this.setState({ showDel: false, backup_id: '', group_id: '' })
   }
-  getGroupId = () => {
-    const params = this.props.match.params;
-    return params.groupId;
-  }
+
   // 恢复应用备份
   handleRecovery = (data, e) => {
     this.setState({
       showRecovery: true,
       backup_id: data.backup_id,
       group_uuid: data.group_uuid,
+      group_id: data.group_id,
     });
   }
   // 迁移应用备份
   handleMove = (data, e) => {
-    this.setState({ showMove: true, backup_id: data.backup_id,group_uuid: data.group_uuid });
+    this.setState({
+      showMove: true,
+      backup_id: data.backup_id,
+      group_uuid: data.group_uuid,
+      group_id: data.group_id
+    });
   }
   // 导出应用备份
   handleExport = (data, e) => {
     var backup_id = data.backup_id;
     var team_name = globalUtil.getCurrTeamName()
-    var group_id = this.getGroupId();
+    var group_id = data.group_id;
     var exportURl = config.baseUrl + '/console/teams/' + team_name + '/groupapp/' + group_id + '/backup/export?backup_id=' + backup_id
     window.open(exportURl);
     notification.success({
@@ -228,12 +232,15 @@ class Index extends React.Component {
         title: '状态',
         dataIndex: 'status',
         render: (val, data) => {
-          return <BackupStatus onEnd={this.fetchAllBackup} group_id={this.getGroupId()} data={data} />
+          return <BackupStatus onEnd={this.fetchAllBackup} group_id={data.group_id} data={data} />
         }
       },
       {
         title: '备份应用',
-        dataIndex: 'group_name'
+        dataIndex: 'group_name',
+        render: (text, record) => {
+          return (text.includes("已删除") ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>)
+        }
       },
       {
         title: '备注',
@@ -298,14 +305,14 @@ class Index extends React.Component {
           onCancel={this.cancelMoveBackup}
           backupId={this.state.backup_id}
           group_uuid={this.state.group_uuid}
-          groupId={this.getGroupId()} />}
+          groupId={this.state.group_id} />}
         {this.state.showRecovery && <RestoreBackup
           onOk={this.handleRecoveryBackup}
           onCancel={this.cancelRecoveryBackup}
           propsParams={this.props.match.params}
           backupId={this.state.backup_id}
           group_uuid={this.state.group_uuid}
-          groupId={this.getGroupId()} />}
+          groupId={this.state.group_id} />}
         {this.state.showDel && <ConfirmModal
           backupId={this.state.backup_id}
           onOk={this.handleDelete}

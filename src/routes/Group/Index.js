@@ -407,7 +407,7 @@ class Main extends PureComponent {
       "start": "启动",
       "restart": "重启",
       "stop": "停止",
-      "deploy": "部署",
+      "deploy": "构建",
     }
 
     if (group_id == -1) {
@@ -456,7 +456,7 @@ class Main extends PureComponent {
           {this.state.running == false ? <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
             : <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>}
           <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button>
-          <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "deploy")}>部署</Button>
+          <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "deploy")}>构建</Button>
           {(teamUtil.canShareApp(team) && hasService && this.state.recordShare)
             ? <Button onClick={this.handleShare}>继续发布到市场</Button>
             : ""}
