@@ -83,7 +83,7 @@ import {
   getTagInformation,
   // updateServiceName,
   // onlyOpenPortOuter,
-  // openExternalPort
+  openExternalPort
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -376,12 +376,12 @@ export default {
     //     callback && callback();
     //   }
     // },
-    // *openExternalPort({ payload, callback }, { call, put }) {
-    //   const response = yield call(openExternalPort, payload);
-    //   if (response) {
-    //     callback && callback();
-    //   }
-    // },
+    *openExternalPort({ payload, callback }, { call, put }) {
+      const response = yield call(openExternalPort, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     * closePortOuter({ payload, callback }, { call, put }) {
       const response = yield call(closePortOuter, payload);
       if (response) {

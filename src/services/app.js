@@ -1439,6 +1439,26 @@ export async function editName(body = {
   });
 }
 
+
+/*
+	修改对外端口拓扑图teams/(?P<tenantName>[\w\-]+)/apps/(?P<serviceAlias>[\w\-]+)/topological/ports
+*/
+export async function openExternalPort(body = {
+  team_name,
+  app_alias,
+  container_port,
+  open_outer
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/topological/ports`, {
+    method: "put",
+    data: {
+      open_outer:body.open_outer?body.open_outer:"",
+      container_port:body.container_port?body.container_port:""
+    },
+  });
+}
+
+
 /*
 	转移组
 */

@@ -517,16 +517,6 @@ class Main extends PureComponent {
             active
           >拓扑图
                          </Button>}
-          {hasService && <Button
-            onClick={() => {
-              this.changeType("shapes");
-            }}
-            type={this.state.type === "shapes"
-              ? "primary"
-              : ""}
-            active
-          >编辑拓扑图
-                         </Button>}
           <Button
             onClick={() => {
               this.changeType("list");
@@ -544,9 +534,20 @@ class Main extends PureComponent {
           </Col>
           <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
         </Row>
+        {hasService&&<Row style={{background: "#fff"}}>
+          <Col style={{textAlign:"right"}} span={22}>
+            <a style={{color:this.state.type === "shapes"?"black":""}} onClick={() => {
+              this.changeType("shape");
+            }}>展示</a>
+            /
+             <a style={{color:this.state.type === "shape"?"black":""}} onClick={() => {
+              this.changeType("shapes");
+            }}>编辑</a>
+          </Col>
+        </Row>}
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
-        {(hasService && this.state.type === "shapes") && <EditorTopology group_id={group_id} />}
+        {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type)=>{this.changeType(type)}} group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"
