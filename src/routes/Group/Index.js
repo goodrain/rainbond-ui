@@ -511,7 +511,7 @@ class Main extends PureComponent {
             onClick={() => {
               this.changeType("shape");
             }}
-            type={this.state.type === "shape"
+            type={this.state.type ==="shape"||this.state.type ==="shapes"
               ? "primary"
               : ""}
             active

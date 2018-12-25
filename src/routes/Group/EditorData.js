@@ -81,6 +81,7 @@ class EditorData extends PureComponent {
     let item = {};
     let edge = {};
     let edgr = {};
+    const keyslength=keys.length;
     let dats = {
       nodes: [
         {
@@ -95,7 +96,7 @@ class EditorData extends PureComponent {
           rank: 'internet',
           cur_status: 'running',
           x: (document.body.clientWidth / 2) - (keys.length > 0 ? ((keys.length / 2) * 100) : 0),
-          y: 55,
+          y: 15,
           id: "The Internet",
           index: 0
         },
@@ -115,12 +116,10 @@ class EditorData extends PureComponent {
       return item.node_num > 3 ? 3 : item.node_num;
     }
     let num = 0;
-    let nums = -1;
 
     keys.forEach((k) => {
       if (Object.prototype.hasOwnProperty.call(data.json_data, k)) {
         num++
-        nums++
         node = {};
         edge = {}
         item = data.json_data[k];
@@ -142,8 +141,9 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        node.x = document.body.clientWidth / 2 - 100 * num;
-        node.y = 150;
+        let sum = (((document.body.clientWidth-352)-((keyslength*100)))/2)
+        let sm =num==1?"":(num-1)*100
+        
         if (item.is_internet) {
           edge.source = "The Internet";
           // edge.sourceAnchor = 2;
@@ -152,8 +152,8 @@ class EditorData extends PureComponent {
           // edge.index = num;
           dats.edges.push(edge);
         }
+
         if (data.json_svg[k] && data.json_svg[k].length > 0) {
-          // console.log("data.json_svg[k]", data.json_svg[k])
           for (let o = 0; o < data.json_svg[k].length; o++) {
             edgr = {}
             edgr.source = item.service_id;
@@ -161,11 +161,16 @@ class EditorData extends PureComponent {
             edgr.target = data.json_svg[k][o];
             // edgr.id = num * 999 + o;
             // edgr.index = num * 999 + o;
-            node.x = document.body.clientWidth / 2 - 100 * num;
-            node.y = num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
+            node.x =sum+sm
+            node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
+            
             arr.push(edgr);
           }
         }
+
+        node.x =sum+sm
+        node.y = node.y?node.y:num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
+
         dats.registerData.push(item.cur_status)
         dats.nodes.push(node);
       }
@@ -175,6 +180,7 @@ class EditorData extends PureComponent {
     arr = Array.from(new Set(arr))
     let ars = dats.edges.concat(arr)
     dats.edges = ars
+    dats.nodes[0].x=((document.body.clientWidth-352)-((keyslength*100)/2))/2
     return dats;
   }
 
@@ -369,6 +375,7 @@ class EditorData extends PureComponent {
           <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
             <Form.Item {...formItemLayout} label="选择端口">
               {getFieldDecorator('container_port', {
+               initialValue: list[0],
                 rules: [
                   {
                     required: true,
@@ -387,7 +394,7 @@ class EditorData extends PureComponent {
         </Modal>}
 
         <div>
-          <Flow style={{ width: "100%", height: 500 }} data={data} noEndEdge={false}
+          <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
           onBeforeItemSelected={((ev)=>{
             console.log("ev",ev)
             ev.cancel = true

@@ -49,6 +49,7 @@ export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
+      isShow:false,
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
@@ -510,6 +511,7 @@ export default class Index extends React.Component {
               notification.success({ message: data.msg_show || "修改成功" })
               this.setState({
                 visibleAppSetting: false,
+                isShow:false
               }, () => {
                 this.fetchBaseInfo();
               })
@@ -530,7 +532,8 @@ export default class Index extends React.Component {
   }
   handleCancel_AppSetting = () => {
     this.setState({
-      visibleAppSetting: false
+      visibleAppSetting: false,
+      isShow:false
     })
   }
   modifyText = () => {
@@ -561,6 +564,14 @@ export default class Index extends React.Component {
     })
 
   }
+
+  onChange1 = (e) => {
+    const show=e.target.value== (this.props.baseInfo.extend_method || 'stateless')?false:true
+    this.setState({
+      isShow: show,
+    });
+  }
+
   render() {
     if (!this.canView()) return <NoPermTip />;
     const self = this;
@@ -606,8 +617,7 @@ export default class Index extends React.Component {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix, tags, tabData } = this.state;
-    console.log(baseInfo.build_upgrade)
+    const { appStatus, is_fix, tags, tabData,isShow } = this.state
     if (typeof (baseInfo.build_upgrade) != "boolean") {
       return null;
     }
@@ -1112,9 +1122,18 @@ export default class Index extends React.Component {
           visible={this.state.visibleAppSetting}
           // onOk={this.handleOk_AppSetting}
           onCancel={this.handleCancel_AppSetting}
-          footer={[<Popconfirm title="修改类型数据会丢失,你确定要修改吗？" onConfirm={this.handleOk_AppSetting} onCancel={this.handleCancel_AppSetting} okText="Yes" cancelText="No">
+          footer={
+            isShow?
+            [
+            <Popconfirm title="修改类型数据会丢失,你确定要修改吗？"
+            onConfirm={this.handleOk_AppSetting}
+            onCancel={this.handleCancel_AppSetting}
+            okText="Yes"
+            cancelText="No">
             <Button type="primary">确定</Button>
-          </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>]}
+            </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>
+          ]:<div> <Button type="primary" onClick={this.handleCancel_AppSetting}>确定</Button><Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button></div>
+          }
         >
           <Form.Item {...appsetting_formItemLayout} label="应用类型">
 
@@ -1127,7 +1146,7 @@ export default class Index extends React.Component {
                 }
               ]
             })(
-              <RadioGroup>
+              <RadioGroup onChange={this.onChange1}>
                 <Radio style={radioStyle} value="stateless">无状态应用（包括Web类，API类）</Radio>
                 <Radio style={radioStyle} value={"state"}>有状态应用（包括DB类，集群类，消息中间件类，数据类）</Radio>
               </RadioGroup>
