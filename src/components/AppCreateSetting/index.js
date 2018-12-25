@@ -132,7 +132,7 @@ class Golang extends PureComponent {
       .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
-    return '2.1.6';
+    return '1.11.2';
   }
   isShowRuntime = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
@@ -181,7 +181,7 @@ class Golang extends PureComponent {
             <RadioGroup>
               <Radio value="1.9.7">1.9.7</Radio>
               <Radio value="1.8.7">1.8.7</Radio>
-              <Radio value="1.11.2">1.11.2</Radio>
+              <Radio value="1.11.2">1.11.2(默认)</Radio>
               <Radio value="1.11">1.11</Radio>
               <Radio value="2.1.6">2.1.6</Radio>
               <Radio value="1.10.5">1.10.5</Radio>
@@ -589,7 +589,7 @@ class PHP extends PureComponent {
           {/* {!runtimeInfo.procfile */}
           <Form.Item {...formItemLayout} label="web服务器">
             {getFieldDecorator('service_server', {
-              initialValue: this.getDefaultService(),
+              initialValue:  userRunTimeInfo.procfile || this.state.default_version,
               rules: [
                 {
                   required: true,

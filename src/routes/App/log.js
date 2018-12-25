@@ -215,6 +215,7 @@ export default class Index extends PureComponent {
           url: this.state.websocketUrl,
           serviceId: appDetail.service.service_id,
           isAutoConnect: true,
+          destroyed: false,
           onMessage: (msg) =>  {
             if(this.state.started){
                 var logs = this.state.logs || [];

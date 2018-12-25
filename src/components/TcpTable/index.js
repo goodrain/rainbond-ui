@@ -270,7 +270,8 @@ export default class TcpTable extends PureComponent {
             },
             callback: (data) => {
                 const dataList = data.list.filter((item)=>{
-                    !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
+                    // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
+                    return (!item.attr_name.endsWith("_HOST")&&!item.attr_name.endsWith("_PORT")) 
                 })
                 this.setState({
                     visibleModal: true,

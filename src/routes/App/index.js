@@ -391,7 +391,7 @@ class Main extends PureComponent {
             return;
         }
         const { build_upgrade } = this.props;
-        console.log('--->'+build_upgrade)
+        console.log('--->' + build_upgrade)
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
@@ -668,6 +668,9 @@ class Main extends PureComponent {
         );
         const appAlias = this.getAppAlias();
         // console.log(appDetail,status)
+        if (!status.status) {
+            return null
+        }
         const action = (
             <div>
                 <ButtonGroup>
@@ -715,9 +718,10 @@ class Main extends PureComponent {
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 } */}
-                {appStatusUtil.canVisit(status) ?
-                    <Button type="primary" onClick={this.handleUpdateRolling}>更新(滚动)</Button>
-                    : ''}
+                {console.log(status)}
+                {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" ?
+                    '' : <Button type="primary" onClick={this.handleUpdateRolling}>更新(滚动)</Button>
+                }
                 {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)}
             </div>
         );

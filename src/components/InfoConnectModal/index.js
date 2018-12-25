@@ -32,6 +32,10 @@ class UserTable extends Component {
             },
         ];
         const { dataSource} = this.props;
+        console.log(dataSource)
+        const dataList = dataSource.filter((item)=>{
+            return (!item.attr_name.endsWith("_HOST")&&!item.attr_name.endsWith("_PORT")) ;
+        })
         const footer = [<Button key="back" onClick={this.onCancel}>关闭</Button>]
         return (
             <div>
@@ -46,7 +50,7 @@ class UserTable extends Component {
                         bordered
                         columns={columns}
                         pagination={false}
-                        dataSource={dataSource}
+                        dataSource={dataList}
                     />
                 </Modal>
             </div>
