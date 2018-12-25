@@ -189,12 +189,13 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
-export async function installApp(body = { team_name, group_id, app_id }) {
+export async function installApp(body = { team_name, group_id, app_id,is_deploy }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
     method: "post",
     data: {
       group_id: body.group_id,
       app_id: body.app_id,
+      is_deploy:body.is_deploy
     },
   });
 }

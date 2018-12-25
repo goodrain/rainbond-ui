@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
   canView(){
     return appUtil.canManageAppLog(this.props.appDetail);
   }
-  loadLog(){
+  loadLog(isPerform){
       getMonitorLog({
          team_name: globalUtil.getCurrTeamName(),
          app_alias: this.props.appAlias
@@ -191,7 +191,6 @@ export default class Index extends PureComponent {
       })
   }
   loadWebSocketUrl(){
-     
      getMonitorWebSocketUrl({
          team_name: globalUtil.getCurrTeamName(),
          app_alias: this.props.appAlias

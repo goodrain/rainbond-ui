@@ -106,6 +106,7 @@ class LogItem extends PureComponent {
       event_id: this.props.data.event_id,
     }).then((data) => {
       if (data) {
+        console.log("data",data)
         this.setState({
           // logs: (data.list || []).reverse(),
           logs: (data.list || []),
@@ -235,6 +236,7 @@ class LogItem extends PureComponent {
   render() {
     const { status, opened, logType, logs } = this.state;
     const { data } = this.props;
+    console.log("logs",logs)
     if (!data) {
       return null;
     }
@@ -321,6 +323,7 @@ class LogItem extends PureComponent {
             }}
             className={`${styles.logContent} logs-cont`}
           >
+          {/* 动态日志 */}
             {status === "ing" && <LogProcress
               resover
               onClose={this.onClose}

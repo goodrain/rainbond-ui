@@ -34,6 +34,8 @@ export default class Index extends PureComponent {
         const ele = this.ele.cloneNode();
         try {
           if (this.ref) {
+            const box = document.getElementById("box")
+            box.scrollTop = box.scrollHeight
             data.message = JSON.parse(data.message);
             const msg = data.message;
             ele.innerHTML = this.getItemHtml(data);
@@ -88,7 +90,7 @@ export default class Index extends PureComponent {
         return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
       return ""
-     }
+    }
   };
   createTmpElement() {
     this.ele = document.createElement("p");
@@ -106,6 +108,6 @@ export default class Index extends PureComponent {
   render() {
     const datas = this.state.datas || [];
 
-    return <div style={{ maxHeight: 300, overflowY: "auto" }} ref={this.saveRef} />;
+    return <div style={{ maxHeight: 300, overflowY: "auto" }} id="box" ref={this.saveRef} />;
   }
 }

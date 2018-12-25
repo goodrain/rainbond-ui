@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input, Modal, Icon } from "antd";
+import { Card, Form, List, Input, Modal, Button, Tooltip,Radio} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -41,6 +41,7 @@ export default class Main extends PureComponent {
       installBounced: false,
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
+      is_deploy:true
     };
     this.mount = false;
   }
@@ -51,6 +52,11 @@ export default class Main extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
     this.mountquery = false;
+  }
+  renderSuccessOnChange = () => {
+    this.setState({
+      is_deploy: !this.state.is_deploy
+    })
   }
   handleChange = v => { };
   handleSearch = v => {
@@ -117,13 +123,14 @@ export default class Main extends PureComponent {
     }
   };
   handleInstallBounced = () => {
-    const { installBounced } = this.state;
+    const { installBounced ,is_deploy} = this.state;
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId ? this.props.groupId : 0,
-        app_id: installBounced.ID
+        app_id: installBounced.ID,
+        is_deploy
       },
       callback: () => {
         // 刷新左侧按钮
@@ -147,14 +154,15 @@ export default class Main extends PureComponent {
       }
     });
   }
-  handleCreate = vals => {
+  handleCreate = (vals,is_deploy) => {
     const app = this.state.showCreate;
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
-        app_id: app.ID
+        app_id: app.ID,
+        is_deploy
       },
       callback: () => {
         // 刷新左侧按钮
@@ -390,6 +398,17 @@ export default class Main extends PureComponent {
             visible={installBounced}
             onOk={this.handleInstallBounced}
             onCancel={() => { this.setState({ installBounced: false }) }}
+            footer={
+              <div>
+                <Button onClick={this.props.onCancel}>取消</Button>
+                <Button onClick={this.handleInstallBounced} type="primary" >
+                  安装
+                </Button>
+                <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+                  <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
+                </Tooltip>
+              </div>
+            }
           >
             <p>{installBounced.describe}</p>
           </Modal>}
