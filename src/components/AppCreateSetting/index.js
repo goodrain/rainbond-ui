@@ -160,7 +160,7 @@ class Golang extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
-
+    const { userRunTimeInfo } = this.props;
     // if (!this.isShowRuntime())
     //   return null;
     return (
@@ -170,7 +170,7 @@ class Golang extends PureComponent {
 
         <Form.Item {...formItemLayout} label="版本设置">
           {getFieldDecorator('service_runtimes', {
-            initialValue: this.getDefaultRuntime(),
+            initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
             rules: [
               {
                 required: true,
@@ -892,7 +892,9 @@ class RenderDeploy extends PureComponent {
           ? <Golang
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
-            runtimeInfo={runtimeInfo.check_dependency || {}} />
+            userRunTimeInfo={runtimeInfo.user_dependency || {}}
+            runtimeInfo={runtimeInfo.check_dependency || {}}
+             />
           : null
         }
 
