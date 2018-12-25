@@ -244,7 +244,7 @@ class Python extends PureComponent {
       }
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
-
+    const { userRunTimeInfo } = this.props;
     // if (!this.isShowRuntime()) {
     //   return null;
     // }
@@ -253,7 +253,7 @@ class Python extends PureComponent {
       <Card title="Python设置">
         <Form.Item {...formItemLayout} label="版本设置">
           {getFieldDecorator('service_runtimes', {
-            initialValue: this.getDefaultRuntime(),
+            initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
             rules: [
               {
                 required: true,
@@ -344,50 +344,51 @@ class JAVA extends PureComponent {
     // }
 
     const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { userRunTimeInfo } = this.props;
     return (
       <Card title="Java设置">
 
-        {this.isShowJdk()
-          ? <Form.Item {...formItemLayout} label="JDK设置">
-            {getFieldDecorator('service_runtimes', {
-              initialValue: this.getDefaultRuntime(),
-              rules: [
-                {
-                  required: true,
-                  message: '请选择应用类型'
-                }
-              ]
-            })(
-              <RadioGroup>
-                <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
-                <Radio value='1.6'>openjdk 1.6.0_27</Radio>
-                <Radio value='1.7'>openjdk 1.7.0_79</Radio>
-              </RadioGroup>
-            )}
-          </Form.Item>
-          : null
-        }
+        {/* {this.isShowJdk() */}
+        <Form.Item {...formItemLayout} label="JDK设置">
+          {getFieldDecorator('service_runtimes', {
+            initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
+            rules: [
+              {
+                required: true,
+                message: '请选择应用类型'
+              }
+            ]
+          })(
+            <RadioGroup>
+              <Radio value='1.8'>openjdk 1.8.0_40(默认)</Radio>
+              <Radio value='1.6'>openjdk 1.6.0_27</Radio>
+              <Radio value='1.7'>openjdk 1.7.0_79</Radio>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {/* : null
+        } */}
 
-        {this.isShowService()
-          ? <Form.Item {...formItemLayout} label="web服务器">
-            {getFieldDecorator('service_server', {
-              initialValue: this.getDefaultService(),
-              rules: [
-                {
-                  required: true,
-                  message: '请选择'
-                }
-              ]
-            })(
-              <RadioGroup>
-                <Radio value="tomcat7" selected="selected">tomcat 7（默认）</Radio>
-                <Radio value="tomcat8">tomcat 8</Radio>
-                <Radio value="jetty7">jetty 7.5</Radio>
-              </RadioGroup>
-            )}
-          </Form.Item>
-          : null
-        }
+        {/* {this.isShowService() */}
+        <Form.Item {...formItemLayout} label="web服务器">
+          {getFieldDecorator('service_server', {
+            initialValue: userRunTimeInfo.procfile || this.getDefaultService(),
+            rules: [
+              {
+                required: true,
+                message: '请选择'
+              }
+            ]
+          })(
+            <RadioGroup>
+              <Radio value="tomcat7">tomcat 7（默认）</Radio>
+              <Radio value="tomcat8">tomcat 8</Radio>
+              <Radio value="jetty7">jetty 7.5</Radio>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {/* : null
+        } */}
 
         <Row>
           <Col span="5"></Col>
@@ -563,93 +564,93 @@ class PHP extends PureComponent {
           marginBottom: 16
         }}>
           {/* {!runtimeInfo.runtimes */}
-             <Form.Item {...formItemLayout} label="版本设置">
-              {getFieldDecorator('service_runtimes', {
-                initialValue: userRunTimeInfo.runtimes || this.state.default_version,
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择应用类型'
-                  }
-                ]
-              })(
-                <RadioGroup>
-                  {
-                    this.state.versions.map((item) => {
-                      return <Radio value={item}>{item}</Radio>
-                    })
-                  }
-                </RadioGroup>
-              )}
-            </Form.Item>
-            {/* : null
+          <Form.Item {...formItemLayout} label="版本设置">
+            {getFieldDecorator('service_runtimes', {
+              initialValue: userRunTimeInfo.runtimes || this.state.default_version,
+              rules: [
+                {
+                  required: true,
+                  message: '请选择应用类型'
+                }
+              ]
+            })(
+              <RadioGroup>
+                {
+                  this.state.versions.map((item) => {
+                    return <Radio value={item}>{item}</Radio>
+                  })
+                }
+              </RadioGroup>
+            )}
+          </Form.Item>
+          {/* : null
           } */}
 
           {/* {!runtimeInfo.procfile */}
-             <Form.Item {...formItemLayout} label="web服务器">
-              {getFieldDecorator('service_server', {
-                initialValue: this.getDefaultService(),
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择'
-                  }
-                ]
-              })(
-                <RadioGroup>
-                  <Radio value="apache">apache</Radio>
-                  <Radio value="nginx">nginx</Radio>
-                </RadioGroup>
-              )}
-            </Form.Item>
+          <Form.Item {...formItemLayout} label="web服务器">
+            {getFieldDecorator('service_server', {
+              initialValue: this.getDefaultService(),
+              rules: [
+                {
+                  required: true,
+                  message: '请选择'
+                }
+              ]
+            })(
+              <RadioGroup>
+                <Radio value="apache">apache</Radio>
+                <Radio value="nginx">nginx</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
           {/* //   : null
           // } */}
 
           {/* {!runtimeInfo.dependencies */}
-             <Form.Item {...formItemLayout} label="PHP扩展">
-              <Tabs defaultActiveKey="1">
-                <TabPane tab="已启用扩展" key="1">
-                  <Table
-                    columns={[
-                      {
-                        title: '名称',
-                        dataIndex: 'name',
-                        render: (v, data) => {
-                          return <a target="_blank" href={data.url}>{v}</a>
-                        }
-                      }, {
-                        title: '版本',
-                        dataIndex: 'version'
+          <Form.Item {...formItemLayout} label="PHP扩展">
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="已启用扩展" key="1">
+                <Table
+                  columns={[
+                    {
+                      title: '名称',
+                      dataIndex: 'name',
+                      render: (v, data) => {
+                        return <a target="_blank" href={data.url}>{v}</a>
                       }
-                    ]}
-                    pagination={false}
-                    dataSource={this.state.enablePlugs} />
-                </TabPane>
-                <TabPane tab="未启用扩展" key="2">
-                  <Table
-                    rowKey='value'
-                    columns={[
-                      {
-                        title: '名称',
-                        dataIndex: 'name',
-                        render: (v, data) => {
-                          return <a target="_blank" href={data.url}>{v}</a>
-                        }
-                      }, {
-                        title: '版本',
-                        dataIndex: 'version'
-                      }, {
-                        title: "操作",
-                        dataIndex: "action",
+                    }, {
+                      title: '版本',
+                      dataIndex: 'version'
+                    }
+                  ]}
+                  pagination={false}
+                  dataSource={this.state.enablePlugs} />
+              </TabPane>
+              <TabPane tab="未启用扩展" key="2">
+                <Table
+                  rowKey='value'
+                  columns={[
+                    {
+                      title: '名称',
+                      dataIndex: 'name',
+                      render: (v, data) => {
+                        return <a target="_blank" href={data.url}>{v}</a>
                       }
-                    ]}
-                    rowSelection={rowSelection}
-                    pagination={false}
-                    dataSource={this.state.unablePlugs} />
-                </TabPane>
-              </Tabs>
-            </Form.Item>
-            {/* : null
+                    }, {
+                      title: '版本',
+                      dataIndex: 'version'
+                    }, {
+                      title: "操作",
+                      dataIndex: "action",
+                    }
+                  ]}
+                  rowSelection={rowSelection}
+                  pagination={false}
+                  dataSource={this.state.unablePlugs} />
+              </TabPane>
+            </Tabs>
+          </Form.Item>
+          {/* : null
           } */}
 
           <Row>
@@ -876,6 +877,7 @@ class RenderDeploy extends PureComponent {
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
             language={language}
+            userRunTimeInfo={runtimeInfo.user_dependency || {}}
             runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
         }
@@ -884,6 +886,7 @@ class RenderDeploy extends PureComponent {
           ? <Python
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
+            userRunTimeInfo={runtimeInfo.user_dependency || {}}
             runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
         }
@@ -894,7 +897,7 @@ class RenderDeploy extends PureComponent {
             onSubmit={this.handleEditRuntime}
             userRunTimeInfo={runtimeInfo.user_dependency || {}}
             runtimeInfo={runtimeInfo.check_dependency || {}}
-             />
+          />
           : null
         }
 
@@ -1205,7 +1208,7 @@ class Relation extends PureComponent {
       dep_service_ids: ids
     }).then((data) => {
       if (data) {
-        notification.info({message:"需要更新才能生效"})
+        notification.info({ message: "需要更新才能生效" })
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }

@@ -237,7 +237,7 @@ class Python extends PureComponent {
             }
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
-
+        const { userRunTimeInfo } = this.props;
         // if (!this.isShowRuntime()) {
         //     return null;
         // }
@@ -246,7 +246,7 @@ class Python extends PureComponent {
             <Card title="Python设置">
                 <Form.Item {...formItemLayout} label="版本设置">
                     {getFieldDecorator('service_runtimes', {
-                        initialValue: this.getDefaultRuntime(),
+                        initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
                         rules: [
                             {
                                 required: true,
@@ -338,12 +338,13 @@ class JAVA extends PureComponent {
         // }
 
         const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { userRunTimeInfo } = this.props;
         return (
             <Card title="Java设置">
 
                 {<Form.Item {...formItemLayout} label="JDK设置">
                     {getFieldDecorator('service_runtimes', {
-                        initialValue: this.getDefaultRuntime(),
+                        initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
                         rules: [
                             {
                                 required: true,
@@ -352,7 +353,7 @@ class JAVA extends PureComponent {
                         ]
                     })(
                         <RadioGroup>
-                            <Radio value='1.8' selected="selected">openjdk 1.8.0_40(默认)</Radio>
+                            <Radio value='1.8'>openjdk 1.8.0_40(默认)</Radio>
                             <Radio value='1.6'>openjdk 1.6.0_27</Radio>
                             <Radio value='1.7'>openjdk 1.7.0_79</Radio>
                         </RadioGroup>
@@ -363,7 +364,7 @@ class JAVA extends PureComponent {
                 {
                     <Form.Item {...formItemLayout} label="web服务器">
                         {getFieldDecorator('service_server', {
-                            initialValue: this.getDefaultService(),
+                            initialValue: userRunTimeInfo.procfile || this.getDefaultService(),
                             rules: [
                                 {
                                     required: true,
@@ -943,6 +944,7 @@ export default class Index extends PureComponent {
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
                         language={language}
+                        userRunTimeInfo={runtimeInfo.user_dependency || {}}
                         runtimeInfo={runtimeInfo.check_dependency || {}} />
                     : null
                 }
@@ -951,6 +953,7 @@ export default class Index extends PureComponent {
                     ? <Python
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
+                        userRunTimeInfo={runtimeInfo.user_dependency || {}}
                         runtimeInfo={runtimeInfo.check_dependency || {}} />
                     : null
                 }
