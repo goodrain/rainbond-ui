@@ -328,9 +328,7 @@ export default class Index extends PureComponent {
     });
   };
   handleSubPort = (values) => {
-    console.log(values);
     const valList = values.port.split("||");
-    console.log(valList);
     this.props.dispatch({
       type: "appControl/SubPort",
       payload: {
@@ -367,8 +365,6 @@ export default class Index extends PureComponent {
     this.setState({ showSubDomain: false });
   };
   handleSubDomain = (values) => {
-    console.log(values.domain);
-    console.log(this.state.single_port);
     const newdomain = `${values.domain}.${this.state.sld_suffix}`;
     this.props.dispatch({
       type: "appControl/SubDomain",
@@ -590,7 +586,6 @@ export default class Index extends PureComponent {
         ) : (
             <Card>
               <ScrollerX sm={700}>
-              {console.log(this.props.ports)}
                 {ports.map(port => (
                   <Port
                     port={port}

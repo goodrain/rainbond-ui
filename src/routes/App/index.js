@@ -718,7 +718,6 @@ class Main extends PureComponent {
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 } */}
-                {console.log(status)}
                 {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" ?
                     '' : <Button type="primary" onClick={this.handleUpdateRolling}>更新(滚动)</Button>
                 }

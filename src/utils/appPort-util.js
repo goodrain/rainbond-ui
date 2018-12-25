@@ -9,7 +9,12 @@ const appPortUtil = {
   },
   // 获取绑定的域名
   getDomains(portBean) {
-    return [...(portBean.bind_domains||[]),...(portBean.bind_tcp_domains)];
+    return portBean.bind_domains||[];
+  },
+  
+  // 获取绑定的tcp域名
+  getTcpDomains(portBean) {
+    return portBean.bind_tcp_domains||[]
   },
   // 是否可以绑定域名
   canBindDomain(portBean) {
