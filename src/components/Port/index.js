@@ -188,9 +188,9 @@ export default class Index extends PureComponent {
   rowKey = (record, index) => index;
   handeModalCancel = () => {
     this.setState({
-        visibleModal: false
+      visibleModal: false
     })
-}
+  }
   showConnectInfo = (infoArr) => {
     return (
       <Table
@@ -410,7 +410,10 @@ export default class Index extends PureComponent {
                   }
                   <Button size="small" onClick={this.onAddDomain}>新增域名</Button>
                 </div>
-                : <div>
+                : null
+              }
+              {outerUrl?
+                <div>
                   {tcp_domains.map((domain) => {
                     return <div>
                       {
@@ -423,9 +426,19 @@ export default class Index extends PureComponent {
                       }
                     </div>
                   })}
-                </div>
+                </div>:
+                <div>
+                {tcp_domains.map((domain) => {
+                  return <div>
+                    {
+                      <p>
+                          <a href="javascript:void(0)" disabled>{domain.end_point}</a>
+                      </p>
+                    }
+                  </div>
+                })}
+              </div>
               }
-
             </td>
             }
             <td>
