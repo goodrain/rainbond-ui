@@ -45,7 +45,7 @@ const RadioGroup = Radio.Group;
   { withRef: true },
 )
 @Form.create()
-export default class Index extends PureComponent {
+export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
@@ -70,7 +70,7 @@ export default class Index extends PureComponent {
       // appStatus: null,
       visibleAppSetting: false,
       tags: [],
-      isInput: false
+      isInput: false,
     };
   }
   componentDidMount() {
@@ -86,7 +86,6 @@ export default class Index extends PureComponent {
     this.loadpermsMembers();
     // this.loadBuildSourceInfo();
   }
-
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearTags" });
@@ -486,8 +485,8 @@ export default class Index extends PureComponent {
     });
   };
   setupAttribute = () => {
-    if(appStatusUtil.canVisit(this.props.status)){
-      notification.warning({message:"请先关闭服务后再更改状态"})
+    if (appStatusUtil.canVisit(this.props.status)) {
+      notification.warning({ message: "请先关闭服务后再更改状态" })
       return;
     }
     this.setState({
@@ -537,8 +536,8 @@ export default class Index extends PureComponent {
   handlePressenter = (e) => {
     const { dispatch } = this.props;
     const service_name = e.target.value;
-    const {baseInfo} = this.props;
-    if(service_name==baseInfo.service_name){
+    const { baseInfo } = this.props;
+    if (service_name == baseInfo.service_name) {
       this.setState({ isInput: false });
       return;
     }
@@ -604,7 +603,11 @@ export default class Index extends PureComponent {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix, tags, tabData } = this.state
+    const { appStatus, is_fix, tags, tabData } = this.state;
+    console.log(baseInfo.build_upgrade)
+    if (typeof (baseInfo.build_upgrade) != "boolean") {
+      return null;
+    }
     return (
       <Fragment>
         <Card
@@ -655,7 +658,7 @@ export default class Index extends PureComponent {
                 添加特性
                 </Button>
             </FormItem>
-            {baseInfo.build_upgrade == true || baseInfo.build_upgrade == false ? <FormItem
+            <FormItem
               style={{
                 marginBottom: 0,
               }}
@@ -663,16 +666,16 @@ export default class Index extends PureComponent {
               label="应用构建后自动升级"
             >
               <Switch defaultChecked={baseInfo.build_upgrade} checkedChildren="是" unCheckedChildren="否" onChange={this.handleChange} />
-            </FormItem> : ''}
-            {!(baseInfo.extend_method == "stateless")&&<FormItem
+            </FormItem>
+            {!(baseInfo.extend_method == "stateless") && <FormItem
               style={{
                 marginBottom: 0,
               }}
               {...formItemLayout}
               label="服务名称"
             >
-              {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} ref="myInput"/> : baseInfo.service_name || '无'}
-              {this.state.isInput ?'':<Button onClick={this.modifyText} size="small"  style={{ marginLeft: "10px" }}>修改</Button>}
+              {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} ref="myInput" /> : baseInfo.service_name || '无'}
+              {this.state.isInput ? '' : <Button onClick={this.modifyText} size="small" style={{ marginLeft: "10px" }}>修改</Button>}
             </FormItem>}
           </Form>
         </Card>

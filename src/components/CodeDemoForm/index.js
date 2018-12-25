@@ -122,13 +122,13 @@ export default class Index extends PureComponent {
             <Option value="http://code.goodrain.com/demo/static-hello.git">
                 静态Web：hello world !
             </Option>
-            <Option value="http://code.goodrain.com/demo/php-hello.git">
+            <Option value="http://code.goodrain.com/demo/php-demo.git">
                 PHP：hello world !
             </Option>
-            <Option value="http://code.goodrain.com/demo/python-hello.git">
+            <Option value="http://code.goodrain.com/demo/python-demo.git">
                 Python：hello world !
             </Option>
-            <Option value="http://code.goodrain.com/demo/nodejs-hello.git">
+            <Option value="http://code.goodrain.com/demo/nodejs-demo.git">
                 Node.js：hello world !
             </Option>
             <Option value="http://code.goodrain.com/demo/go-hello.git">

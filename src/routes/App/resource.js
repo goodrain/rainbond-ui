@@ -784,7 +784,7 @@ export default class Index extends PureComponent {
             "php": "https://www.goodrain.com/docs/stable/user-manual/language-support/php.html",
             "python": "https://www.goodrain.com/docs/stable/user-manual/language-support/python.html",
             "nodejs": "https://www.goodrain.com/docs/stable/user-manual/language-support/nodejs.html",
-            "golang": "https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html",
+            "go": "https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html",
 
         }
         return (
@@ -912,7 +912,7 @@ export default class Index extends PureComponent {
                                     className={styles.ant_form_item}
                                     label="语言"
                                 >
-                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${language}`]}>{this.state.buildSource.language}</a> : '无'}
+                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${language}`]}>{this.state.buildSource.language}</a> : <a href="javascript:void(0);">{this.state.buildSource.language}</a>}
                                 </FormItem>
                             </Fragment>
                         ) : (

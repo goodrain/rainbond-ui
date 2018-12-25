@@ -233,7 +233,13 @@ class ManageContainer extends PureComponent {
     }
 }
 
-@connect(({ user, appControl, global }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail, pods: appControl.pods, groups: global.groups }))
+@connect(({ user, appControl, global }) => ({
+    currUser: user.currentUser,
+    appDetail: appControl.appDetail,
+    pods: appControl.pods,
+    groups: global.groups,
+    build_upgrade: appControl.build_upgrade
+}))
 class Main extends PureComponent {
     constructor(arg) {
         super(arg);
@@ -247,7 +253,7 @@ class Main extends PureComponent {
             showMoveGroup: false,
             showDeployTips: false,
             showreStartTips: false,
-            isChecked: ''
+            // isChecked: ''
         }
         this.timer = null;
         this.mount = false;
@@ -295,7 +301,6 @@ class Main extends PureComponent {
             .dispatch({ type: 'appControl/clearDetail' })
 
     }
-
     loadDetail = () => {
         this
             .props
@@ -385,17 +390,15 @@ class Main extends PureComponent {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
         }
-        const { isChecked } = this.state;
-        console.log(isChecked)
+        const { build_upgrade } = this.props;
+        console.log('--->'+build_upgrade)
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
-            is_upgrate: isChecked
+            is_upgrate: build_upgrade
         }).then((data) => {
             if (data) {
-
                 notification.success({ message: `操作成功，构建中` });
-
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -625,6 +628,22 @@ class Main extends PureComponent {
 
         })
     }
+    handleChecked = (value) => {
+        this.props.dispatch({
+            type: 'appControl/changeApplicationState',
+            payload: {
+                build_upgrade: value,
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: this.getAppAlias(),
+            },
+            callback: (data) => {
+                if (data) {
+                    console.log(data)
+                    notification.info({ message: "修改成功" })
+                }
+            }
+        })
+    }
     render() {
         const { index, projectLoading, activitiesLoading, currUser } = this.props;
 
@@ -682,7 +701,7 @@ class Main extends PureComponent {
                     </Dropdown>
                 </ButtonGroup>
                 {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
-                // {(appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
+                    // {(appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
                     ?
                     this.state.showDeployTips ?
                         <Tooltip title="应用配置已更改，更新后生效">
@@ -796,7 +815,8 @@ class Main extends PureComponent {
                         {...this.props}
                         onshowDeployTips={(msg) => { this.handleshowDeployTips(msg) }}
                         onshowRestartTips={(msg) => { this.handleshowRestartTips(msg) }}
-                        onChecked={(value) => { this.setState({ isChecked: value }) }}
+                        // onChecked={(value) => { this.setState({ isChecked: value }) }}
+                        onChecked={this.handleChecked}
                     />
                     : '参数错误'
                 }

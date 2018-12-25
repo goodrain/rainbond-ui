@@ -2051,3 +2051,13 @@ export async function updateServiceName(params) {
     }
   });
 }
+
+/**修改应用状态 */
+export async function changeApplicationState(params) {
+  return request(`${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/set/is_upgrade`, {
+    method: "put",
+    data: {
+      build_upgrade: params.build_upgrade
+    }
+  });
+}

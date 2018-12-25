@@ -83,7 +83,8 @@ import {
   getTagInformation,
   // updateServiceName,
   // onlyOpenPortOuter,
-  openExternalPort
+  openExternalPort,
+  changeApplicationState
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -143,6 +144,7 @@ export default {
     visitInfo: null,
     // 设置了权限的团队成员
     members: [],
+    build_upgrade: ''
   },
   effects: {
     * getSubDomain({ payload, callback }, { call, put }) {
@@ -434,7 +436,7 @@ export default {
       const response = yield call(getCertificates, payload);
       if (response) {
         yield put({ type: "saveCertificates", payload: response.list });
-        callback&&callback(response)
+        callback && callback(response)
       }
     },
     * addCertificate({ payload, callback }, { call, put }) {
@@ -715,8 +717,16 @@ export default {
         callback && callback(response);
       }
     },
-    *updateAppStatus({ payload, callback }, { call }){
+    *updateAppStatus({ payload, callback }, { call }) {
       const response = yield call(updateAppStatus, payload);
+      if (callback) {
+        callback && callback(response);
+      }
+    },
+    *changeApplicationState({ payload, callback }, { call, put }) {
+      const response = yield call(changeApplicationState, payload);
+      console.log(response)
+      yield put({ type: "saveBuild_upgrade", build_upgrade: response.bean.build_upgrade });
       if (callback) {
         callback && callback(response);
       }
@@ -999,5 +1009,12 @@ export default {
         appDetail: action.payload,
       };
     },
+    saveBuild_upgrade(state, action) {
+      console.log(action.build_upgrade)
+      return {
+        ...state,
+        build_upgrade: action.build_upgrade,
+      };
+    }
   },
 };

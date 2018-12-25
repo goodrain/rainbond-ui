@@ -1203,7 +1203,7 @@ class Relation extends PureComponent {
       dep_service_ids: ids
     }).then((data) => {
       if (data) {
-        notification.info({message:"需要重启才能生效"})
+        notification.info({message:"需要更新才能生效"})
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }

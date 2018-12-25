@@ -117,7 +117,6 @@ export default class Index extends PureComponent {
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
     const links = this.getHttpLinks(demo.access_info || {});
-    console.log("links",links)
     if (links.length === 1) {
       return (
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
