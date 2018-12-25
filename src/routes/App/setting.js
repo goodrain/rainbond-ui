@@ -522,7 +522,10 @@ export default class Index extends React.Component {
   handleChange = (checked) => {
     const { onChecked } = this.props;
     if (onChecked) {
-      onChecked && onChecked(checked)
+      onChecked && onChecked(checked);
+      setTimeout(()=>{
+        this.fetchBaseInfo()
+      },1000)
     }
   }
   handleCancel_AppSetting = () => {
