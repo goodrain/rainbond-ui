@@ -26,6 +26,7 @@ function AppLogSocket(option) {
   this.onFail = option.onFail || noop;
   // 当close 事件发生时， 是否自动重新连接
   this.isAutoConnect = option.isAutoConnect;
+  this.destroyed = option.destroyed;
   this.init();
 }
 
