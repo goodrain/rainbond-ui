@@ -10,7 +10,7 @@
 
 import TimerQueue from './timerQueue';
 
-function noop() {}
+function noop() { }
 
 function AppLogSocket(option) {
   option = option || {};
@@ -26,12 +26,14 @@ function AppLogSocket(option) {
   this.onFail = option.onFail || noop;
   // 当close 事件发生时， 是否自动重新连接
   this.isAutoConnect = option.isAutoConnect;
+  this.destroyed = option.destroyed;
   this.init();
 }
 
 AppLogSocket.prototype = {
   constructor: AppLogSocket,
   init() {
+    console.log(this.url)
     this.webSocket = new WebSocket(this.url);
     this.webSocket.onopen = this._onOpen.bind(this);
     this.webSocket.onmessage = this._onMessage.bind(this);
@@ -75,6 +77,7 @@ AppLogSocket.prototype = {
     this.webSocket.onclose = null;
     this.webSocket.onerror = null;
     this.webSocket = null;
+    console.log(!this.destroyed, this.isAutoConnect)
     if (!this.destroyed && this.isAutoConnect) {
       this.init();
     }
