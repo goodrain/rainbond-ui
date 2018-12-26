@@ -190,7 +190,6 @@ class EditorData extends PureComponent {
     const { name, id, foreignType } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      console.log("fieldsValue", fieldsValue)
       if (!err) {
         if (foreignType === 0) {
           addRelationedApp({
@@ -200,12 +199,13 @@ class EditorData extends PureComponent {
             open_inner: true,
             container_port: fieldsValue.container_port
           }).then((res) => {
-            console.log("处理 多依赖00", res)
             if (res && res._code == 200) {
               notification.success({ message: res.msg_show })
-              //   this.props.propsAPI.executeCommand('undo');
-              //  this.props.changeType();
+              this.setState({ visible: false });
+              return
             }
+            this.setState({ visible: false });
+            this.handleUndo();
           });
         }
         if (foreignType === 1) {
@@ -218,16 +218,16 @@ class EditorData extends PureComponent {
               open_outer: true
             },
             callback: (res) => {
-              console.log("处理 多依赖11", res)
               if (res && res._code == 200) {
                 notification.success({ message: res.msg_show });
-                // this.props.propsAPI.executeCommand('undo');
-                // this.props.changeType();
+                this.setState({ visible: false });
+                return
               }
+              this.setState({ visible: false });
+              this.handleUndo();
             }
           })
         }
-        this.setState({ visible: false });
       };
     })
   }
@@ -246,7 +246,6 @@ class EditorData extends PureComponent {
       app_alias: name,
       dep_service_id: id
     }).then((res) => {
-      console.log("处理依赖接口", res)
       if (res && res._code == 212) {
         if (res.msg_show == "当前应用已被关联") {
           this.handleUndo();
@@ -263,11 +262,13 @@ class EditorData extends PureComponent {
           name,
           id,
         });
+        return
       }
       if (res && res._code == 200) {
         notification.success({ message: res.msg_show });
         return
       }
+      this.handleUndo();
     })
   }
   handleUndo = () => {
@@ -344,7 +345,6 @@ class EditorData extends PureComponent {
         open_outer: ""
       },
       callback: (res) => {
-        console.log("打开对外端口", res)
         if (res && res._code == 200) {
           if (res.msg_show == "该服务已开启对外端口") {
             this.handleUndo();
@@ -360,7 +360,9 @@ class EditorData extends PureComponent {
             list: res.list.join().split(),
             name,
           });
+          return
         }
+        this.handleUndo();
       }
     })
   }
@@ -400,11 +402,9 @@ class EditorData extends PureComponent {
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
             onBeforeItemSelected={((ev) => {
-              console.log("ev", ev)
               ev.cancel = true
             })}
             onAfterItemSelected={((ev) => {
-              console.log("ev", ev)
               ev.cancel = true
             })}
             onAfterChange={(e) => {
