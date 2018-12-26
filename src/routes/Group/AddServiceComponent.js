@@ -76,8 +76,7 @@ export default class AddServiceComponent extends PureComponent {
     this.setState({ toAddService: false }, () => {
       this.setState({
         ServiceComponentTwoPage: null, 
-        ServiceComponentOnePage: true,
-        moreState:true
+        ServiceComponentOnePage: true
       })
     });
   }
@@ -133,7 +132,6 @@ export default class AddServiceComponent extends PureComponent {
       ButtonGroup: false,
       ButtonGroupState: true,
       handleType: null,
-      moreState:true
     }, () => {
       this.props.refreshCurrent()
     })

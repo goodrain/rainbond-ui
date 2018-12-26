@@ -14,7 +14,7 @@ import Upgrade from "../../../public/images/upgrade.svg";
 import Building from "../../../public/images/building.svg";
 
 import globalUtil from '../../utils/global';
-import { Flow, RegisterNode, withPropsAPI } from 'gg-editor';
+import  { Flow, RegisterNode, withPropsAPI } from 'gg-editor';
 import {
   addRelationedApp,
 } from '../../services/app';
@@ -50,7 +50,7 @@ class EditorData extends PureComponent {
     this.loadTopology()
   }
   //更新拓扑图
-  changeType = () => {
+  changeType = ()=>{
     this.props.changeType("shape");
   }
   //获取拓扑图数据
@@ -81,7 +81,7 @@ class EditorData extends PureComponent {
     let item = {};
     let edge = {};
     let edgr = {};
-    const keyslength = keys.length;
+    const keyslength=keys.length;
     let dats = {
       nodes: [
         {
@@ -141,9 +141,9 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
-        let sm = num == 1 ? "" : (num - 1) * 100
-
+        let sum = (((document.body.clientWidth-352)-((keyslength*100)))/2)
+        let sm =num==1?"":(num-1)*100
+        
         if (item.is_internet) {
           edge.source = "The Internet";
           // edge.sourceAnchor = 2;
@@ -161,15 +161,15 @@ class EditorData extends PureComponent {
             edgr.target = data.json_svg[k][o];
             // edgr.id = num * 999 + o;
             // edgr.index = num * 999 + o;
-            node.x = Number(sum + sm)
+            node.x =sum+sm
             node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
-
+            
             arr.push(edgr);
           }
         }
 
-        node.x = Number(sum + sm)
-        node.y = node.y ? node.y : num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
+        node.x =sum+sm
+        node.y = node.y?node.y:num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
 
         dats.registerData.push(item.cur_status)
         dats.nodes.push(node);
@@ -180,19 +180,19 @@ class EditorData extends PureComponent {
     arr = Array.from(new Set(arr))
     let ars = dats.edges.concat(arr)
     dats.edges = ars
-    dats.nodes[0].x = Number(((document.body.clientWidth - 352) - ((keyslength * 100) / 2)) / 2)
+    dats.nodes[0].x=((document.body.clientWidth-352)-((keyslength*100)/2))/2
     return dats;
   }
 
   //处理 多依赖
   handleOk = (e) => {
     e.preventDefault();
-    const { name, id, foreignType } = this.state;
+    const { name, id,foreignType } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       console.log("fieldsValue", fieldsValue)
       if (!err) {
-        if (foreignType === 0) {
+        if(foreignType===0){
           addRelationedApp({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: name,
@@ -201,24 +201,24 @@ class EditorData extends PureComponent {
             container_port: fieldsValue.container_port
           }).then((res) => {
             console.log("处理 多依赖00", res)
-            if (res && res._code == 200) {
+            if (res&&res._code == 200) {
               notification.success({ message: res.msg_show })
-              //   this.props.propsAPI.executeCommand('undo');
-              //  this.props.changeType();
+            //   this.props.propsAPI.executeCommand('undo');
+            //  this.props.changeType();
             }
           });
         }
-        if (foreignType === 1) {
+        if(foreignType===1){
           this.props.dispatch({
             type: 'appControl/openExternalPort',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
               app_alias: name,
               container_port: fieldsValue.container_port,
-              open_outer: true
+              open_outer:true
             },
             callback: (res) => {
-              console.log("处理 多依赖11", res)
+            console.log("处理 多依赖11", res)
               if (res && res._code == 200) {
                 notification.success({ message: res.msg_show });
                 // this.props.propsAPI.executeCommand('undo');
@@ -248,17 +248,14 @@ class EditorData extends PureComponent {
     }).then((res) => {
       console.log("处理依赖接口", res)
       if (res && res._code == 212) {
-        if (res.msg_show == "当前应用已被关联") {
-          this.handleUndo();
-          return
-        }
+        this.handleUndo();
         notification.success({ message: res.msg_show });
         return
       }
       if (res && res._code == 201) {
         this.setState({
           visible: true,
-          foreignType: 0,
+          foreignType:0,
           list: res.list.join().split(),
           name,
           id,
@@ -266,14 +263,16 @@ class EditorData extends PureComponent {
       }
       if (res && res._code == 200) {
         notification.success({ message: res.msg_show });
+        this.handleUndo();
         return
       }
     })
   }
-  handleUndo = () => {
-    setTimeout(() => {
-      this.props.propsAPI.executeCommand('undo')
-    }, 100);
+  handleUndo=()=>{
+    console.log("set")
+    setTimeout(()=>{
+        this.props.propsAPI.executeCommand('undo')
+    },100);
   }
   onChange = (e) => {
     console.log("e", e.target.value)
@@ -336,42 +335,39 @@ class EditorData extends PureComponent {
   //打开对外端口
   handleSubmitOpenExternalPort = (name) => {
     this.props.dispatch({
-      type: 'appControl/openExternalPort',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: name,
-        container_port: "",
-        open_outer: ""
-      },
-      callback: (res) => {
-        console.log("打开对外端口", res)
-        if (res && res._code == 200) {
-          if (res.msg_show == "该服务已开启对外端口") {
-            this.handleUndo();
+        type: 'appControl/openExternalPort',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: name,
+          container_port: "",
+          open_outer:""
+        },
+        callback: (res) => {
+          console.log("打开对外端口",res)
+          if (res && res._code == 200) {
+            notification.success({ message: res.msg_show });
+            this.props.propsAPI.executeCommand('undo');
             return
           }
-          notification.success({ message: res.msg_show });
-          return
+          if (res && res._code == 201) {
+              this.setState({
+                visible: true,
+                foreignType:1,
+                list: res.list.join().split(),
+                name,
+              });
+          }
         }
-        if (res && res._code == 201) {
-          this.setState({
-            visible: true,
-            foreignType: 1,
-            list: res.list.join().split(),
-            name,
-          });
-        }
-      }
-    })
+      })
   }
   render() {
     const { group_id } = this.props;
-    const { data, list, colorDataType, visible, foreignType } = this.state;
+    const { data, list, colorDataType, visible,foreignType } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <div>
         {visible && <Modal
-          title={foreignType === 1 ? "该服务未开启对外端口" : "要关联的服务暂未开启对内端口，是否打开"}
+          title={foreignType===1?"该服务未开启对外端口":"要关联的服务暂未开启对内端口，是否打开"}
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
@@ -379,7 +375,7 @@ class EditorData extends PureComponent {
           <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
             <Form.Item {...formItemLayout} label="选择端口">
               {getFieldDecorator('container_port', {
-                initialValue: list[0],
+               initialValue: list[0],
                 rules: [
                   {
                     required: true,
@@ -399,14 +395,14 @@ class EditorData extends PureComponent {
 
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
-            onBeforeItemSelected={((ev) => {
-              console.log("ev", ev)
-              ev.cancel = true
-            })}
-            onAfterItemSelected={((ev) => {
-              console.log("ev", ev)
-              ev.cancel = true
-            })}
+          onBeforeItemSelected={((ev)=>{
+            console.log("ev",ev)
+            ev.cancel = true
+          })}
+          onAfterItemSelected={((ev)=>{
+            console.log("ev",ev)
+            ev.cancel = true
+          })}
             onAfterChange={(e) => {
               const { action, item } = e;
               // const model = item.getModel();
@@ -418,18 +414,22 @@ class EditorData extends PureComponent {
               // const parent = item.getParent();
 
               // const parentModel = parent.getModel();
-
+              
               if (action == 'add') {
                 const name = item.source.model.service_alias;
                 const names = item.target.model.service_alias
                 const sourceType = item.source.id
+                console.log("item", item)
+                console.log("name", name)
+                console.log("names", names)
                 const id = item.target.id;
                 if (sourceType == "The Internet") {
                   this.handleSubmitOpenExternalPort(names)
-                } else if (id == "The Internet") {
-                  this.handleUndo()
+                } else if (id=="The Internet"){
+                    console.log("22")
+                    this.handleUndo()
                 }
-                else if (name != "The Internet") {
+                else if(name != "The Internet") {
                   this.handleSubmitAddRelation(name, id)
                 }
               }

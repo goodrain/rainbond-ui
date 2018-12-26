@@ -405,9 +405,9 @@ export default class Main extends PureComponent {
                 <Button onClick={this.handleInstallBounced} type="primary" >
                   安装
                 </Button>
-                {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
+                <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
                   <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
-                {/* </Tooltip> */}
+                </Tooltip>
               </div>
             }
           >
