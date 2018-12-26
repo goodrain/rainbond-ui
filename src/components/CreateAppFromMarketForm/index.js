@@ -83,6 +83,7 @@ export default class Index extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       this.props.onSubmit && this.props.onSubmit(fieldsValue,is_deploy);
+      this.props.onSubmit && this.setState({is_deploy:true})
     });
   };
 
@@ -104,7 +105,7 @@ export default class Index extends PureComponent {
         onOk={this.handleSubmit}
         title="要安装到哪个应用?"
         footer={[
-          <Button onClick={this.onCancel}>取消</Button>,
+          <Button onClick={onCancel}>取消</Button>,
           <Button onClick={this.handleSubmit} type="primary" disabled={this.props.disabled} >
             安装
           </Button>,

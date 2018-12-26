@@ -142,7 +142,7 @@ export default class Main extends PureComponent {
         });
 
         // 关闭弹框
-        this.setState({ installBounced: false });
+        this.setState({ installBounced: false ,is_deploy:true});
         this.state.handleType && this.props.refreshCurrent()
         this.props.dispatch(
           routerRedux.push(
@@ -175,6 +175,7 @@ export default class Main extends PureComponent {
 
         // 关闭弹框
         this.onCancelCreate();
+        this.setState({is_deploy:true})
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
@@ -400,7 +401,7 @@ export default class Main extends PureComponent {
             onCancel={() => { this.setState({ installBounced: false }) }}
             footer={
               <div>
-                <Button onClick={this.props.onCancel}>取消</Button>
+                <Button onClick={() => { this.setState({ installBounced: false,is_deploy:true }) }}>取消</Button>
                 <Button onClick={this.handleInstallBounced} type="primary" >
                   安装
                 </Button>
