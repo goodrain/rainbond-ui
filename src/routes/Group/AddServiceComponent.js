@@ -232,7 +232,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row style={{ marginTop: "-8px" }}>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "imageName") }}>
                     <Icon component={dockerSvg} />
-                    <p className={styles.ServiceSmallTitle}>指定镜像名称或命令</p>
+                    <p className={styles.ServiceSmallTitle}>指定镜像</p>
                   </Col>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "imageCmd") }}>
                     <Icon component={dockerSvg} />
