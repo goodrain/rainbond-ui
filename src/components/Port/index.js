@@ -261,7 +261,7 @@ export default class Index extends PureComponent {
             }}>服务信息</th>
             {showDomain && <th style={{
               width: '30%'
-            }}>绑定域名</th>}
+            }}>访问策略</th>}
             <th style={{
               width: 100
             }}>操作</th>
