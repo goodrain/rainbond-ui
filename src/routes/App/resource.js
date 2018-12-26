@@ -176,7 +176,7 @@ class Golang extends PureComponent {
                             <Radio value="1.8.7">1.8.7</Radio>
                             <Radio value="1.11.2">1.11.2(默认)</Radio>
                             <Radio value="1.11">1.11</Radio>
-                            <Radio value="2.1.6">2.1.6</Radio>
+                            <Radio value="1.11.1">1.11.1</Radio>
                             <Radio value="1.10.5">1.10.5</Radio>
                             <Radio value="1.10.4">1.10.4</Radio>
                         </RadioGroup>

@@ -216,9 +216,9 @@ export default class AddServiceComponent extends PureComponent {
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/nodejs.html" target="_blank">NodeJs</a>&nbsp;
-                   <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/ruby.html" target="_blank">Ruby</a>&nbsp;
+                   {/* <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/ruby.html" target="_blank">Ruby</a>&nbsp; */}
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>&nbsp;
-                   <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/html.html" target="_blank">Html</a>&nbsp;
+                   <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/html.html" target="_blank">Html</a>&nbsp;
                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/netcore.html" target="_blank">Netcore</a>&nbsp;
                       等语言规范</p>} type="info"
                     style={{ height: "40px" }}
