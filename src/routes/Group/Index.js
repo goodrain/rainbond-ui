@@ -534,7 +534,7 @@ class Main extends PureComponent {
           </Col>
           <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
         </Row>
-        {hasService&&<Row style={{background: "#fff"}}>
+        {hasService&&this.state.type !== "list"&&<Row style={{background: "#fff"}}>
           <Col style={{textAlign:"right",marginTop:"30px",paddingRight:"30px"}} span={24}>
             <a style={{color:this.state.type === "shapes"?"black":""}} onClick={() => {
               this.changeType("shape");
