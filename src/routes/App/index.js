@@ -391,7 +391,6 @@ class Main extends PureComponent {
             return;
         }
         const { build_upgrade } = this.props;
-        console.log('--->' + build_upgrade)
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
