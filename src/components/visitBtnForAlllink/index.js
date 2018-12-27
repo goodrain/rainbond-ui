@@ -30,39 +30,42 @@ export default class Index extends PureComponent {
   };
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
-    const links = visitInfo.map((item)=>{
-      return {url:item.access_info[0].access_urls,service_cname:item.access_info[0].service_cname}
+    const links = visitInfo.map((item) => {
+      return { url: item.access_info[0].access_urls, service_cname: item.access_info[0].service_cname }
     })
     if (links.length === 1) {
+      let singleLink
+      if (links[0] && links[0].url && links[0].url[0])
+        singleLink = links[0].url[0].includes("http") || links[0].url[0].includes("https") ? links[0].url[0] : `http://${links[0].url[0]}`;
       return (
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        singleLink ? <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type="primary"
             onClick={() => {
-              window.open(links[0].url);
+              window.open(singleLink);
             }}
           >
             访问
           </Button>
-        </Tooltip>
+        </Tooltip> : null
       );
-    } 
+    }
     return (
-      <Tooltip 
-      placement="topLeft"
-      arrowPointAtCenter
-      title="跳转到应用对外访问端口对应的域名地址">
+      <Tooltip
+        placement="topLeft"
+        arrowPointAtCenter
+        title="跳转到应用对外访问端口对应的域名地址">
         <Dropdown
           overlay={
             <Menu>
               {links.map(item => <Menu.Item key={item}>
-                <a target="_blank" href={item.url}>{item.service_cname} </a>
+                <a target="_blank" href={item.url[0].includes("http") || item.url[0].includes("https") ? item.url[0] : `http://${item.url[0]}`}>{item.service_cname} </a>
               </Menu.Item>)}
             </Menu>
-            }
+          }
           placement="bottomRight"
         >
           <Button type="primary">
-                访问
+            访问
           </Button>
         </Dropdown>
       </Tooltip>

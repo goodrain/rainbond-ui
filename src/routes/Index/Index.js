@@ -353,7 +353,6 @@ export default class Index extends PureComponent {
     const {
       index, projectLoading, activitiesLoading, currUser, pagination,
     } = this.props;
-    console.log(index)
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
 
