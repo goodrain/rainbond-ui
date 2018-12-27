@@ -34,9 +34,11 @@ export default class Index extends PureComponent {
       return { url: item.access_info[0].access_urls, service_cname: item.access_info[0].service_cname }
     })
     if (links.length === 1) {
-      const singleLink = links[0].url[0].includes("http") || links[0].url[0].includes("https") ? links[0].url[0] : `http://${links[0].url[0]}`;
+      let singleLink
+      if (links[0] && links[0].url && links[0].url[0])
+        singleLink = links[0].url[0].includes("http") || links[0].url[0].includes("https") ? links[0].url[0] : `http://${links[0].url[0]}`;
       return (
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
+        singleLink ? <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type="primary"
             onClick={() => {
               window.open(singleLink);
@@ -44,7 +46,7 @@ export default class Index extends PureComponent {
           >
             访问
           </Button>
-        </Tooltip>
+        </Tooltip> : null
       );
     }
     return (
