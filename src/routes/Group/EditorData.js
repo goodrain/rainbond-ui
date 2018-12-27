@@ -42,8 +42,8 @@ class EditorData extends PureComponent {
       id: '',
       foreignType: 0,
       registerData: [],
-      colorDataType: ["running", "closed", "undeploy", "starting", "checking", "stoping", "upgrade", "unusual", "Owed", "expired", "Expired",
-        "internet", "The Internet", "Unknow", "unknow", "stopping", "abnormal", "some_abnormal", "building", "build_failure"]
+      colorDataType: ["The Internet","running", "closed", "undeploy", "starting", "checking", "stoping", "upgrade", "unusual", "Owed", "expired", "Expired",
+        "internet",  "Unknow", "unknow", "stopping", "abnormal", "some_abnormal", "building", "build_failure"]
     }
   }
   componentDidMount() {
@@ -87,7 +87,7 @@ class EditorData extends PureComponent {
         {
           type: "node",
           size: "70*70",
-          shape: "model-card",
+          shape: "The Internet",
           color: "#030303",
           label: "The Internet",
           stack: true,
@@ -251,6 +251,7 @@ class EditorData extends PureComponent {
           this.handleUndo();
           return
         }
+        this.loadTopology()
         notification.success({ message: res.msg_show });
         return
       }
@@ -265,6 +266,7 @@ class EditorData extends PureComponent {
         return
       }
       if (res && res._code == 200) {
+        this.loadTopology()
         notification.success({ message: res.msg_show });
         return
       }
@@ -281,6 +283,10 @@ class EditorData extends PureComponent {
   }
   //配置拓扑图
   config = (type) => {
+     const setAnchor=type == "The Internet" ?[[0.5, 2.5]]:[
+          [0.5, -2.1], // 上面边的中点
+          [0.5, 3.1] // 下边边的中点
+        ]
     return {
       draw(item) {
         const group = item.getGraphicGroup();
@@ -290,10 +296,12 @@ class EditorData extends PureComponent {
         const x = -width / 2;
         const y = -height / 2;
         const borderRadius = 6;
+        const xnums=type == "The Internet" ?30:25;
+        const ynums=type == "The Internet" ?35:28;
         const keyShape = group.addShape("rect", {
           attrs: {
-            x: x + 25,
-            y: y + 28,
+            x: x + xnums,
+            y: y + ynums,
             width: 10,
             height: 10,
             radius: borderRadius,
@@ -304,10 +312,10 @@ class EditorData extends PureComponent {
         // 类型 logo
         group.addShape("image", {
           attrs: {
-            img: type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting : type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
+            img:type == "The Internet" ? Yun:type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting : type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
             x: x,
             y: y,
-            width: 60,
+            width: type == "The Internet" ?70:60,
             height: 70
           }
         });
@@ -327,10 +335,7 @@ class EditorData extends PureComponent {
         return keyShape;
       },
       // 设置锚点
-      anchor: [
-        [0.5, -2.1], // 上面边的中点
-        [0.5, 3.1] // 下边边的中点
-      ]
+      anchor: setAnchor
     }
   }
 
@@ -350,6 +355,7 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
+          this.loadTopology()
           notification.success({ message: res.msg_show });
           return
         }
@@ -427,62 +433,6 @@ class EditorData extends PureComponent {
                   this.handleSubmitAddRelation(name, id)
                 }
               }
-            }}
-          />
-
-          <RegisterNode
-            name="model-card"
-            config={{
-              draw(item) {
-                const group = item.getGraphicGroup();
-                const model = item.getModel();
-                const width = 15;
-                const height = 15;
-                const x = -width / 2;
-                const y = -height / 2;
-                const borderRadius = 6;
-                const keyShape = group.addShape("rect", {
-                  attrs: {
-                    x: x + 30,
-                    y: y + 35,
-                    width: 10,
-                    height: 10,
-                    radius: borderRadius,
-                    stroke: "#030303",
-                    fill: "#030303"
-                  }
-                });
-
-                // 类型 logo
-                group.addShape("image", {
-                  attrs: {
-                    img: Yun,
-                    x: x,
-                    y: y,
-                    width: 70,
-                    height: 70
-                  }
-                });
-
-                // 名称文本
-                const label = model.label ? model.label : this.label;
-
-                group.addShape("text", {
-                  attrs: {
-                    text: label,
-                    x: x + 10,
-                    y: y + 70,
-                    textAlign: "start",
-                    textBaseline: "top",
-                    fill: "rgba(0,0,0,0.65)"
-                  }
-                });
-                return keyShape;
-              },
-              // 设置锚点
-              anchor: [
-                [0.5, 2.5], // 上面边的中点
-              ]
             }}
           />
           {colorDataType.map((itemq, index) => {
