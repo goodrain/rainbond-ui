@@ -120,7 +120,8 @@ export default class HttpTable extends PureComponent {
                         notification.success({ message: data.msg_show || '添加成功' })
                     }
                     this.setState({
-                        drawerVisible: false
+                        drawerVisible: false,
+                        editInfo: ''
                     })
                     this.reload()
                 }
