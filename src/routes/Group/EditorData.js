@@ -277,7 +277,7 @@ class EditorData extends PureComponent {
     }, 100);
   }
   onChange = (e) => {
-    console.log("e", e.target.value)
+    // console.log("e", e.target.value)
   }
   //配置拓扑图
   config = (type) => {
@@ -313,11 +313,11 @@ class EditorData extends PureComponent {
         });
         // 名称文本
         const label = model.label ? model.label : this.label;
-
+        const xnum =label.length>=3?0:10;
         group.addShape("text", {
           attrs: {
             text: label,
-            x: x + 10,
+            x: x + xnum,
             y: y + 70,
             textAlign: "start",
             textBaseline: "top",
@@ -328,8 +328,8 @@ class EditorData extends PureComponent {
       },
       // 设置锚点
       anchor: [
-        [0.5, 0], // 上面边的中点
-        [0.5, 1] // 下边边的中点
+        [0.5, -2.1], // 上面边的中点
+        [0.5, 3.1] // 下边边的中点
       ]
     }
   }
@@ -401,12 +401,6 @@ class EditorData extends PureComponent {
 
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
-            onBeforeItemSelected={((ev) => {
-              ev.cancel = true
-            })}
-            onAfterItemSelected={((ev) => {
-              ev.cancel = true
-            })}
             onAfterChange={(e) => {
               const { action, item } = e;
               // const model = item.getModel();
@@ -456,8 +450,6 @@ class EditorData extends PureComponent {
                     radius: borderRadius,
                     stroke: "#030303",
                     fill: "#030303"
-                    //  stroke: 'rgba(0,0,0,0)',
-                    // fill: 'rgba(0,0,0,0)'
                   }
                 });
 
@@ -489,8 +481,7 @@ class EditorData extends PureComponent {
               },
               // 设置锚点
               anchor: [
-                [0.5, 0], // 上面边的中点
-                [0.5, 1] // 下边边的中点
+                [0.5, 2.5], // 上面边的中点
               ]
             }}
           />
