@@ -70,10 +70,10 @@ export default class Index extends PureComponent {
     <div>
       <span
         style={{
-            marginRight: 16,
-          }}
+          marginRight: 16,
+        }}
       >
-          访问地址：{item.access_urls[0]}
+        访问地址：{item.access_urls[0]}
       </span>
       <span>访问协议： {item.protocol}</span>
     </div>
@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
     const appAlias = this.props.app_alias;
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
     } else if (links.length === 0) {
       return (
         <Fragment>
-          <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+          <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
             <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
           </Tooltip>
           {showModal && (
@@ -161,19 +161,19 @@ export default class Index extends PureComponent {
       );
     }
     return (
-      <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+      <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
         <Dropdown
           overlay={
             <Menu onClick={this.handleClickLink}>
-              {/* {links.map(item => <Menu.Item key={item}>{item}</Menu.Item>)} */}
-          <Menu.Item key={1}>{11}</Menu.Item>
+              {links.map(item => <Menu.Item key={item}>{item}</Menu.Item>)}
+              {/* <Menu.Item key={1}>{11}</Menu.Item> */}
             </Menu>
-            }
+          }
           placement="bottomRight"
         >
           <Button type={this.props.btntype}>
             <a href={links[0]} target="_blank">
-                访问
+              访问
             </a>
           </Button>
         </Dropdown>
@@ -182,7 +182,7 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -220,7 +220,7 @@ export default class Index extends PureComponent {
     const btns = [btn];
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -245,51 +245,51 @@ export default class Index extends PureComponent {
                   {!item.connect_info.length ? (
                     "-"
                   ) : (
-                    <Fragment>
-                      <table
-                        style={{
-                          width: "100%",
-                        }}
-                      >
-                        <thead>
-                          <tr>
-                            <th>变量名</th>
-                            <th>变量值</th>
-                            <th>说明</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {connect_info.map((item) => {
-                            if (
-                              item.attr_name.indexOf("_PORT") > -1 ||
-                              item.attr_name.indexOf("_HOST") > -1
-                            ) {
-                              return null;
-                            }
-                            return (
-                              <tr>
-                                <td width="150">{item.attr_name}</td>
-                                <td>{item.attr_value}</td>
-                                <td>{item.name}</td>
-                              </tr>
-                            );
-                          })}
-                          {!connect_info.length ? (
+                      <Fragment>
+                        <table
+                          style={{
+                            width: "100%",
+                          }}
+                        >
+                          <thead>
                             <tr>
-                              <td
-                                colSpan="3"
-                                style={{
-                                  textAlign: "center",
-                                }}
-                              >
-                                暂无数据
-                              </td>
+                              <th>变量名</th>
+                              <th>变量值</th>
+                              <th>说明</th>
                             </tr>
-                          ) : null}
-                        </tbody>
-                      </table>
-                    </Fragment>
-                  )}
+                          </thead>
+                          <tbody>
+                            {connect_info.map((item) => {
+                              if (
+                                item.attr_name.indexOf("_PORT") > -1 ||
+                                item.attr_name.indexOf("_HOST") > -1
+                              ) {
+                                return null;
+                              }
+                              return (
+                                <tr>
+                                  <td width="150">{item.attr_name}</td>
+                                  <td>{item.attr_value}</td>
+                                  <td>{item.name}</td>
+                                </tr>
+                              );
+                            })}
+                            {!connect_info.length ? (
+                              <tr>
+                                <td
+                                  colSpan="3"
+                                  style={{
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  暂无数据
+                              </td>
+                              </tr>
+                            ) : null}
+                          </tbody>
+                        </table>
+                      </Fragment>
+                    )}
                 </Card>
               );
             })}
@@ -327,62 +327,62 @@ export default class Index extends PureComponent {
           {!item.connect_info.length ? (
             "-"
           ) : (
-            <Fragment>
-              <table
-                style={{
-                  width: "100%",
-                }}
-              >
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        width: "33%",
-                      }}
-                    >
-                      变量名
-                    </th>
-                    <th
-                      style={{
-                        width: "33%",
-                      }}
-                    >
-                      变量值
-                    </th>
-                    <th>说明</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {connect_info.map(item => (
+              <Fragment>
+                <table
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <thead>
                     <tr>
-                      <td width="150">{item.attr_name}</td>
-                      <td>{item.attr_value}</td>
-                      <td>{item.name}</td>
-                    </tr>
-                    ))}
-                  {!connect_info.length ? (
-                    <tr>
-                      <td
-                        colSpan="3"
+                      <th
                         style={{
-                          textAlign: "center",
+                          width: "33%",
                         }}
                       >
-                        暂无数据
-                      </td>
+                        变量名
+                    </th>
+                      <th
+                        style={{
+                          width: "33%",
+                        }}
+                      >
+                        变量值
+                    </th>
+                      <th>说明</th>
                     </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </Fragment>
-          )}
+                  </thead>
+                  <tbody>
+                    {connect_info.map(item => (
+                      <tr>
+                        <td width="150">{item.attr_name}</td>
+                        <td>{item.attr_value}</td>
+                        <td>{item.name}</td>
+                      </tr>
+                    ))}
+                    {!connect_info.length ? (
+                      <tr>
+                        <td
+                          colSpan="3"
+                          style={{
+                            textAlign: "center",
+                          }}
+                        >
+                          暂无数据
+                      </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </Fragment>
+            )}
         </Card>
       );
     }
 
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (

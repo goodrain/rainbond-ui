@@ -12,7 +12,8 @@ import {
   Tabs,
   Affix,
   Input,
-  Form
+  Form,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -70,26 +71,57 @@ class Nodejs extends PureComponent {
         })
     });
   }
+  getDefaultRuntime = () => {
+    return "-1"
+  }
   render() {
 
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
-
+    const { userRunTimeInfo } = this.props;
     // if (!this.isShowRuntime())
     //   return null;
     return (
-      <Card title="node " style={{
+      <Card title="node版本支持" style={{
         marginBottom: 16
       }}>
-
-        <Form.Item {...formItemLayout} label="运行命令">
+        <Form.Item {...formItemLayout} label="版本">
+          {getFieldDecorator('service_runtimes', {
+            initialValue: userRunTimeInfo.runtimes,
+            rules: [
+              {
+                required: true,
+                message: '请选择'
+              }
+            ]
+          })(
+            <RadioGroup disabled className={styles.ant_radio_disabled}>
+              <Radio value="5.12.0">5.12.0</Radio>
+              <Radio value="6.14.4">6.14.4</Radio>
+              <Radio value="7.10.1">7.10.1</Radio>
+              <Radio value="8.12.0">8.12.0</Radio>
+              <Radio value="9.11.2">9.11.2</Radio>
+            </RadioGroup>
+          )}
+        </Form.Item>
+        {/* <Form.Item {...formItemLayout} label="运行命令">
           {getFieldDecorator('service_runtimes', {
             initialValue: '',
             rules: [
@@ -99,13 +131,13 @@ class Nodejs extends PureComponent {
               }
             ]
           })(<TextArea placeholder="例如：node demo.js" />)}
-        </Form.Item>
-        <Row>
+        </Form.Item> */}
+        {/* <Row>
           <Col span="5"></Col>
           <Col span="19">
             <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
           </Col>
-        </Row>
+        </Row> */}
       </Card>
     )
   }
@@ -153,24 +185,34 @@ class Golang extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { userRunTimeInfo } = this.props;
     // if (!this.isShowRuntime())
     //   return null;
     return (
-      <Card title="Golang" style={{
+      <Card title="Golang版本支持" style={{
         marginBottom: 16
       }}>
 
-        <Form.Item {...formItemLayout} label="版本设置">
+        <Form.Item {...formItemLayout} label="版本">
           {getFieldDecorator('service_runtimes', {
-            initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
+            initialValue: userRunTimeInfo.runtimes||this.getDefaultRuntime(),
             rules: [
               {
                 required: true,
@@ -178,7 +220,7 @@ class Golang extends PureComponent {
               }
             ]
           })(
-            <RadioGroup>
+            <RadioGroup disabled className={styles.ant_radio_disabled}>
               <Radio value="1.9.7">1.9.7</Radio>
               <Radio value="1.8.7">1.8.7</Radio>
               <Radio value="1.11.2">1.11.2(默认)</Radio>
@@ -189,12 +231,12 @@ class Golang extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        <Row>
+        {/* <Row>
           <Col span="5"></Col>
           <Col span="19">
             <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
           </Col>
-        </Row>
+        </Row> */}
 
       </Card>
     )
@@ -216,7 +258,7 @@ class Python extends PureComponent {
       .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
-    return '2.7.13';
+    return '2.7.15';
   }
   isShowRuntime = () => {
     const runtimeInfo = this.props.runtimeInfo || {};
@@ -237,11 +279,21 @@ class Python extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { userRunTimeInfo } = this.props;
@@ -250,8 +302,8 @@ class Python extends PureComponent {
     // }
 
     return (
-      <Card title="Python设置">
-        <Form.Item {...formItemLayout} label="版本设置">
+      <Card title="Python版本支持">
+        <Form.Item {...formItemLayout} label="版本">
           {getFieldDecorator('service_runtimes', {
             initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
             rules: [
@@ -261,18 +313,19 @@ class Python extends PureComponent {
               }
             ]
           })(
-            <RadioGroup>
-              <Radio value='2.7.13'>2.7.13(默认)</Radio>
-              <Radio value='3.6.1'>3.6.1</Radio>
+            <RadioGroup disabled className={styles.ant_radio_disabled}>
+              <Radio value='2.7.15'>2.7.15(默认)</Radio>
+              <Radio value='3.6.6'>3.6.6</Radio>
+              <Radio value='3.7.1'>3.7.1</Radio>
             </RadioGroup>
           )}
         </Form.Item>
-        <Row>
+        {/* <Row>
           <Col span="5"></Col>
           <Col span="19">
             <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
           </Col>
-        </Row>
+        </Row> */}
       </Card>
     )
   }
@@ -332,11 +385,21 @@ class JAVA extends PureComponent {
     const language = this.props.language;
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
 
     // if (!this.isShowJdk() && !this.isShowService()) {
@@ -346,10 +409,10 @@ class JAVA extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { userRunTimeInfo } = this.props;
     return (
-      <Card title="Java设置">
+      <Card title="Java版本支持">
 
         {/* {this.isShowJdk() */}
-        <Form.Item {...formItemLayout} label="JDK设置">
+        <Form.Item {...formItemLayout} label="JDK">
           {getFieldDecorator('service_runtimes', {
             initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
             rules: [
@@ -359,7 +422,7 @@ class JAVA extends PureComponent {
               }
             ]
           })(
-            <RadioGroup>
+            <RadioGroup disabled className={styles.ant_radio_disabled}>
               <Radio value='1.8'>openjdk 1.8.0_40(默认)</Radio>
               <Radio value='1.6'>openjdk 1.6.0_27</Radio>
               <Radio value='1.7'>openjdk 1.7.0_79</Radio>
@@ -380,8 +443,8 @@ class JAVA extends PureComponent {
               }
             ]
           })(
-            <RadioGroup>
-              <Radio value="tomcat7">tomcat 7（默认）</Radio>
+            <RadioGroup disabled className={styles.ant_radio_disabled}>
+              <Radio value="tomcat7">tomcat 7(默认)</Radio>
               <Radio value="tomcat8">tomcat 8</Radio>
               <Radio value="jetty7">jetty 7.5</Radio>
             </RadioGroup>
@@ -390,12 +453,12 @@ class JAVA extends PureComponent {
         {/* : null
         } */}
 
-        <Row>
+        {/* <Row>
           <Col span="5"></Col>
           <Col span="19">
             <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
           </Col>
-        </Row>
+        </Row> */}
 
       </Card>
     )
@@ -504,10 +567,10 @@ class PHP extends PureComponent {
       .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
   }
   getDefaultRuntime = () => {
-    return '5.6.11';
+    return '-1';
   }
   getDefaultService = () => {
-    return 'apache'
+    return '-1'
   }
   handleSubmit = (e) => {
     const form = this.props.form;
@@ -545,11 +608,21 @@ class PHP extends PureComponent {
     const userRunTimeInfo = this.props.userRunTimeInfo;
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
 
     // if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
@@ -560,11 +633,11 @@ class PHP extends PureComponent {
 
     return (
       <Fragment>
-        <Card title="PHP设置" style={{
+        <Card title="PHP版本支持" style={{
           marginBottom: 16
         }}>
           {/* {!runtimeInfo.runtimes */}
-          <Form.Item {...formItemLayout} label="版本设置">
+          <Form.Item {...formItemLayout} label="版本">
             {getFieldDecorator('service_runtimes', {
               initialValue: userRunTimeInfo.runtimes || this.state.default_version,
               rules: [
@@ -574,7 +647,7 @@ class PHP extends PureComponent {
                 }
               ]
             })(
-              <RadioGroup>
+              <RadioGroup disabled className={styles.ant_radio_disabled}>
                 {
                   this.state.versions.map((item) => {
                     return <Radio value={item}>{item}</Radio>
@@ -589,7 +662,7 @@ class PHP extends PureComponent {
           {/* {!runtimeInfo.procfile */}
           <Form.Item {...formItemLayout} label="web服务器">
             {getFieldDecorator('service_server', {
-              initialValue:  userRunTimeInfo.procfile || this.state.default_version,
+              initialValue: userRunTimeInfo.procfile ,
               rules: [
                 {
                   required: true,
@@ -597,7 +670,7 @@ class PHP extends PureComponent {
                 }
               ]
             })(
-              <RadioGroup>
+              <RadioGroup disabled className={styles.ant_radio_disabled}>
                 <Radio value="apache">apache</Radio>
                 <Radio value="nginx">nginx</Radio>
               </RadioGroup>
@@ -653,12 +726,12 @@ class PHP extends PureComponent {
           {/* : null
           } */}
 
-          <Row>
+          {/* <Row>
             <Col span="5"></Col>
             <Col span="19">
               <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
             </Col>
-          </Row>
+          </Row> */}
         </Card>
 
       </Fragment>
@@ -726,11 +799,21 @@ class BaseInfo extends PureComponent {
     };
     const formItemLayout = {
       labelCol: {
-        span: 5
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 3,
+        },
       },
       wrapperCol: {
-        span: 19
-      }
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 21,
+        },
+      },
     };
     const extend_method = this.props.appDetail.service.extend_method;
     const minMemory = this.props.appDetail.service.min_memory;
@@ -905,6 +988,7 @@ class RenderDeploy extends PureComponent {
           ? <Nodejs
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
+            userRunTimeInfo={runtimeInfo.user_dependency || {}}
             runtimeInfo={runtimeInfo.check_dependency || {}} />
           : null
         }
@@ -1112,13 +1196,13 @@ class Mnt extends PureComponent {
                 title: '目标存储类型',
                 dataIndex: 'dep_vol_type'
               }, {
-                title: '目标所属应用',
+                title: '目标所属服务',
                 dataIndex: 'dep_app_name',
                 render: (v, data) => {
                   return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
                 }
               }, {
-                title: '目标应用所属组',
+                title: '目标服务所属应用',
                 dataIndex: 'dep_app_group',
                 render: (v, data) => {
                   return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>

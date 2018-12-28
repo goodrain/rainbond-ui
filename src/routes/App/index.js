@@ -144,7 +144,6 @@ class EditName extends PureComponent {
                 onOk={this.handleSubmit}
                 onCancel={this.onCancel}>
                 <Form onSubmit={this.handleSubmit}>
-
                     <FormItem label="">
                         {getFieldDecorator('service_cname', {
                             initialValue: initValue || '',

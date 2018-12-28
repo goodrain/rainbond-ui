@@ -126,7 +126,10 @@ class Main extends PureComponent {
   loading = () => {
     this.fetchGroupDetail();
     this.recordShare();
-    this.loadTopology()
+    // this.loadTopology()
+    this.timer = setInterval(() => {
+      this.loadTopology()
+    }, 10000);
   }
 
   loadTopology() {
@@ -156,15 +159,15 @@ class Main extends PureComponent {
         })
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
-          this.loadLinks(service_alias.join("-"), team_name)
+          this.loadLinks(service_alias.join("-"))
           // }
         })
       }
     })
   }
-
-  loadLinks(service_alias, team_name) {
+  loadLinks(service_alias) {
     const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "global/queryLinks",
       payload: {
@@ -201,9 +204,11 @@ class Main extends PureComponent {
   }
 
   componentWillUnmount() {
+    clearInterval(this.timer)
     this
       .props
       .dispatch({ type: "groupControl/clearGroupDetail" });
+
   }
   handleFormReset = () => {
     const { form } = this.props;
@@ -508,7 +513,7 @@ class Main extends PureComponent {
             onClick={() => {
               this.changeType("shape");
             }}
-            type={this.state.type ==="shape"||this.state.type ==="shapes"
+            type={this.state.type === "shape" || this.state.type === "shapes"
               ? "primary"
               : ""}
             active
@@ -537,14 +542,14 @@ class Main extends PureComponent {
               this.changeType("shape");
             }}>展示</a>
             /
-             <a style={{color:this.state.type === "shape"?"black":""}} onClick={() => {
+             <a style={{ color: this.state.type === "shape" ? "black" : "" }} onClick={() => {
               this.changeType("shapes");
             }}>编辑</a>
           </Col>
         </Row>}
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
-        {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type)=>{this.changeType(type)}} group_id={group_id} />}
+        {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"

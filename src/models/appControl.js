@@ -81,7 +81,7 @@ import {
   putAppBuidSource,
   updateAppStatus,
   getTagInformation,
-  // updateServiceName,
+  updateServiceName,
   // onlyOpenPortOuter,
   openExternalPort,
   changeApplicationState
@@ -727,6 +727,12 @@ export default {
       const response = yield call(changeApplicationState, payload);
       console.log(response)
       yield put({ type: "saveBuild_upgrade", build_upgrade: response.bean.build_upgrade });
+      if (callback) {
+        callback && callback(response);
+      }
+    },
+    *updateServiceName({ payload, callback }, { call }){
+      const response = yield call(updateServiceName, payload);
       if (callback) {
         callback && callback(response);
       }

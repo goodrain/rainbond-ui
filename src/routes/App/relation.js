@@ -313,7 +313,7 @@ export default class Index extends PureComponent {
     const { outerEnvs } = this.props;
     return (
       <Fragment>
-        <Card style={{ marginBottom: 24 }} title={<span>应用连接信息</span>}>
+        <Card style={{ marginBottom: 24 }} title={<span>服务连接信息</span>}>
           <ScrollerX sm={650}>
             <Table
               pagination={false}
@@ -372,13 +372,13 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={<span>依赖应用信息</span>}>
+        <Card title={<span>依赖服务信息</span>}>
           <ScrollerX sm={650}>
             <Table
               pagination={false}
               columns={[
                 {
-                  title: "应用名",
+                  title: "服务名",
                   dataIndex: "service_cname",
                   render: (val, data) => (
                     <Link
@@ -391,7 +391,7 @@ export default class Index extends PureComponent {
                   ),
                 },
                 {
-                  title: "所属组",
+                  title: "所属应用",
                   dataIndex: "group_name",
                   render: (val, data) => (
                     <Link
@@ -404,7 +404,7 @@ export default class Index extends PureComponent {
                   ),
                 },
                 {
-                  title: "应用说明",
+                  title: "服务说明",
                   dataIndex: "var",
                   render: (val, data) => {},
                 },

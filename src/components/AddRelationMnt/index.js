@@ -142,13 +142,13 @@ export default class Index extends PureComponent {
               dataIndex: "dep_vol_type",
             },
             {
-              title: '目标所属应用',
+              title: '目标所属服务',
               dataIndex: 'dep_app_name',
               render: (v, data) => {
                 return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
               }
             }, {
-              title: '目标应用所属组',
+              title: '目标服务所属应用',
               dataIndex: 'dep_app_group',
               render: (v, data) => {
                 return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
