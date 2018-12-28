@@ -1,24 +1,14 @@
 import React, { PureComponent } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
-import { Card, Modal, Checkbox, notification, Radio, Form } from 'antd';
-import Yun from "../../../public/images/yun.svg";
-import Running from "../../../public/images/running.svg";
-import Undeploy from "../../../public/images/undeploy.svg";
-import Closed from "../../../public/images/closed.svg";
-import Starting from "../../../public/images/starting.svg";
-import Stopping from "../../../public/images/stopping.svg";
-import Unusual from "../../../public/images/unusual.svg";
-import Upgrade from "../../../public/images/upgrade.svg";
-import Building from "../../../public/images/building.svg";
+import { Modal, Checkbox, notification, Radio, Form } from 'antd';
+
 
 import globalUtil from '../../utils/global';
-import { Flow, RegisterNode, withPropsAPI } from 'gg-editor';
+import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
 import {
   addRelationedApp,
+  removeRelationedApp
 } from '../../services/app';
-import { Button } from 'antd/lib/radio';
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 const formItemLayout = {
@@ -31,19 +21,22 @@ const formItemLayout = {
 };
 @Form.create()
 @connect()
+
 class EditorData extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       data: {},
       visible: false,
+      edgeVisible: false,
       list: [],
       name: '',
       id: '',
       foreignType: 0,
       registerData: [],
-      colorDataType: ["running", "closed", "undeploy", "starting", "checking", "stoping", "upgrade", "unusual", "Owed", "expired", "Expired",
-        "internet", "The Internet", "Unknow", "unknow", "stopping", "abnormal", "some_abnormal", "building", "build_failure"]
+      edgeData: "",
+      edgeTitle: "",
+      foreignTypeName:""
     }
   }
   componentDidMount() {
@@ -87,7 +80,7 @@ class EditorData extends PureComponent {
         {
           type: "node",
           size: "70*70",
-          shape: "model-card",
+          shape: "The Internet",
           color: "#030303",
           label: "The Internet",
           stack: true,
@@ -240,7 +233,7 @@ class EditorData extends PureComponent {
   }
 
   //处理依赖接口
-  handleSubmitAddRelation = (name, id) => {
+  handleSubmitAddRelation = (name, id,targetName) => {
     addRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: name,
@@ -251,6 +244,7 @@ class EditorData extends PureComponent {
           this.handleUndo();
           return
         }
+        this.loadTopology()
         notification.success({ message: res.msg_show });
         return
       }
@@ -258,6 +252,7 @@ class EditorData extends PureComponent {
         this.setState({
           visible: true,
           foreignType: 0,
+          foreignTypeName:targetName,
           list: res.list.join().split(),
           name,
           id,
@@ -265,77 +260,67 @@ class EditorData extends PureComponent {
         return
       }
       if (res && res._code == 200) {
+        this.loadTopology()
         notification.success({ message: res.msg_show });
         return
       }
       this.handleUndo();
     })
   }
+
+  //处理删除依赖接口
+  handleDeleteRelationedApp = () => {
+    const { edgeData } = this.state;
+    if (edgeData) {
+      const name = edgeData.source.model.service_alias;
+      const names = edgeData.target.model.service_alias
+      const id = edgeData.target.id;
+      if (name) {
+        removeRelationedApp({
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: name,
+          dep_service_id: id,
+        }).then((res) => {
+          if (res && res._code == 200) {
+            notification.success({ message: res.msg_show });
+            this.loadTopology()
+            this.setState({
+              edgeData: "",
+              edgeVisible: false
+            })
+          }
+        });
+      } else {
+        this.props.dispatch({
+          type: 'appControl/openExternalPort',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            app_alias: names,
+            close_outer: true
+          },
+          callback: (res) => {
+            if (res && res._code == 200) {
+              notification.success({ message: res.msg_show });
+              this.loadTopology()
+              this.setState({
+                edgeData: "",
+                edgeVisible: false
+              })
+            }
+          }
+        })
+      }
+
+    }
+  }
   handleUndo = () => {
     setTimeout(() => {
       this.props.propsAPI.executeCommand('undo')
     }, 100);
   }
-  onChange = (e) => {
-    console.log("e", e.target.value)
-  }
-  //配置拓扑图
-  config = (type) => {
-    return {
-      draw(item) {
-        const group = item.getGraphicGroup();
-        const model = item.getModel();
-        const width = 15;
-        const height = 15;
-        const x = -width / 2;
-        const y = -height / 2;
-        const borderRadius = 6;
-        const keyShape = group.addShape("rect", {
-          attrs: {
-            x: x + 25,
-            y: y + 28,
-            width: 10,
-            height: 10,
-            radius: borderRadius,
-            stroke: "#030303",
-            fill: "#030303"
-          }
-        });
-        // 类型 logo
-        group.addShape("image", {
-          attrs: {
-            img: type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting : type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
-            x: x,
-            y: y,
-            width: 60,
-            height: 70
-          }
-        });
-        // 名称文本
-        const label = model.label ? model.label : this.label;
-
-        group.addShape("text", {
-          attrs: {
-            text: label,
-            x: x + 10,
-            y: y + 70,
-            textAlign: "start",
-            textBaseline: "top",
-            fill: "rgba(0,0,0,0.65)"
-          }
-        });
-        return keyShape;
-      },
-      // 设置锚点
-      anchor: [
-        [0.5, 0], // 上面边的中点
-        [0.5, 1] // 下边边的中点
-      ]
-    }
-  }
 
   //打开对外端口
-  handleSubmitOpenExternalPort = (name) => {
+  handleSubmitOpenExternalPort = (name,nowName) => {
     this.props.dispatch({
       type: 'appControl/openExternalPort',
       payload: {
@@ -350,6 +335,7 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
+          this.loadTopology()
           notification.success({ message: res.msg_show });
           return
         }
@@ -357,6 +343,7 @@ class EditorData extends PureComponent {
           this.setState({
             visible: true,
             foreignType: 1,
+            foreignTypeName:nowName,
             list: res.list.join().split(),
             name,
           });
@@ -366,14 +353,28 @@ class EditorData extends PureComponent {
       }
     })
   }
+  //保存数据
+  onSaveEdgeData = (data) => {
+    this.setState({
+      edgeData: data,
+      edgeTitle: data.source.model.service_alias ? <div>是否取消<a>{data.source.model.label}</a>依赖<a>{data.target.model.label}</a></div> : <div>是否关闭<a>{data.target.model.label}</a>服务的所有对外端口</div>
+    })
+  }
+  //打开弹框
+  onEdgeOpen = () => {
+    if (this.state.edgeData) {
+      this.setState({
+        edgeVisible: true
+      })
+    }
+  }
   render() {
-    const { group_id } = this.props;
-    const { data, list, colorDataType, visible, foreignType } = this.state;
+    const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle,foreignTypeName } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <div>
         {visible && <Modal
-          title={foreignType === 1 ? "该服务未开启对外端口" : "要关联的服务暂未开启对内端口，是否打开"}
+          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> :<div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开</div> }
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
@@ -389,7 +390,7 @@ class EditorData extends PureComponent {
                   },
                 ],
               })(
-                <RadioGroup onChange={this.onChange}>
+                <RadioGroup >
                   {list.map((items, index) => {
                     return <Radio key={index} value={items}>{items}</Radio>
                   })}
@@ -399,108 +400,48 @@ class EditorData extends PureComponent {
           </Form>
         </Modal>}
 
+        {edgeVisible && <Modal
+          title=""
+          visible={edgeVisible}
+          onOk={this.handleDeleteRelationedApp}
+          onCancel={() => { this.setState({ edgeVisible: false, edgeData: "" }) }}
+        >
+          <h3>{edgeTitle}</h3>
+        </Modal>}
+
+        <RegisterCommand name="delete" config={{ shortcutCodes: [] }} extend="delete" />
+
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
-            onBeforeItemSelected={((ev) => {
-              ev.cancel = true
-            })}
-            onAfterItemSelected={((ev) => {
-              ev.cancel = true
-            })}
+            onKeyDown={(e) => {
+              if (e.domEvent.key == "Backspace") {
+                this.onEdgeOpen();
+              }
+            }}
+            onEdgeClick={(e) => {
+              this.onSaveEdgeData(e.item);
+            }}
             onAfterChange={(e) => {
               const { action, item } = e;
-              // const model = item.getModel();
-              // if (action == 'add') {
-              // this.props.propsAPI.executeCommand('undo')
-              //   return;
-              // }
-              // console.log(" this.props.propsAPI", this.props.propsAPI.read())
-              // const parent = item.getParent();
-
-              // const parentModel = parent.getModel();
 
               if (action == 'add') {
                 const name = item.source.model.service_alias;
                 const names = item.target.model.service_alias
                 const sourceType = item.source.id
                 const id = item.target.id;
+                const targetName=item.target.model.label
                 if (sourceType == "The Internet") {
-                  this.handleSubmitOpenExternalPort(names)
+                  this.handleSubmitOpenExternalPort(names,targetName)
                 } else if (id == "The Internet") {
                   this.handleUndo()
                 }
                 else if (name != "The Internet") {
-                  this.handleSubmitAddRelation(name, id)
+                  this.handleSubmitAddRelation(name, id,targetName)
                 }
               }
             }}
           />
 
-          <RegisterNode
-            name="model-card"
-            config={{
-              draw(item) {
-                const group = item.getGraphicGroup();
-                const model = item.getModel();
-                const width = 15;
-                const height = 15;
-                const x = -width / 2;
-                const y = -height / 2;
-                const borderRadius = 6;
-                const keyShape = group.addShape("rect", {
-                  attrs: {
-                    x: x + 30,
-                    y: y + 35,
-                    width: 10,
-                    height: 10,
-                    radius: borderRadius,
-                    stroke: "#030303",
-                    fill: "#030303"
-                    //  stroke: 'rgba(0,0,0,0)',
-                    // fill: 'rgba(0,0,0,0)'
-                  }
-                });
-
-                // 类型 logo
-                group.addShape("image", {
-                  attrs: {
-                    img: Yun,
-                    x: x,
-                    y: y,
-                    width: 70,
-                    height: 70
-                  }
-                });
-
-                // 名称文本
-                const label = model.label ? model.label : this.label;
-
-                group.addShape("text", {
-                  attrs: {
-                    text: label,
-                    x: x + 10,
-                    y: y + 70,
-                    textAlign: "start",
-                    textBaseline: "top",
-                    fill: "rgba(0,0,0,0.65)"
-                  }
-                });
-                return keyShape;
-              },
-              // 设置锚点
-              anchor: [
-                [0.5, 0], // 上面边的中点
-                [0.5, 1] // 下边边的中点
-              ]
-            }}
-          />
-          {colorDataType.map((itemq, index) => {
-            return <RegisterNode
-              key={index}
-              name={colorDataType[index]}
-              config={this.config(colorDataType[index])}
-            />
-          })}
         </div>
       </div>
     )
