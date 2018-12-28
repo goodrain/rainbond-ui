@@ -154,7 +154,6 @@ class Main extends PureComponent {
             service_alias.push(json_data[key].service_alias)
           }
         })
-        console.log("数据service_alias", service_alias)
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
           this.loadLinks(service_alias.join("-"), team_name)
@@ -163,7 +162,6 @@ class Main extends PureComponent {
       }
     })
   }
-
   loadLinks(service_alias, team_name) {
     const { dispatch } = this.props;
     dispatch({
@@ -173,7 +171,6 @@ class Main extends PureComponent {
         team_name
       },
       callback: (data) => {
-        console.log(data)
         this.setState({
           linkList: data.list || []
         })
