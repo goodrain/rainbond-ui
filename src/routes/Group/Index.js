@@ -142,7 +142,6 @@ class Main extends PureComponent {
         groupId
       },
       callback: (data) => {
-        console.log("数据", data);
         const service_alias = [];
         let json_data = data.json_data;
         this.setState({ running: false });

@@ -84,7 +84,7 @@ export default class Index extends PureComponent {
     const appAlias = this.props.app_alias;
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
     } else if (links.length === 0) {
       return (
         <Fragment>
-          <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+          <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
             <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
           </Tooltip>
           {showModal && (
@@ -161,7 +161,7 @@ export default class Index extends PureComponent {
       );
     }
     return (
-      <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+      <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
         <Dropdown
           overlay={
             <Menu onClick={this.handleClickLink}>
@@ -182,7 +182,7 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -220,7 +220,7 @@ export default class Index extends PureComponent {
     const btns = [btn];
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (
@@ -382,7 +382,7 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Tooltip title="跳转到应用对外访问端口对应的域名地址">
+        <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
         </Tooltip>
         {showModal && (

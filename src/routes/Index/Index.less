@@ -161,9 +161,14 @@
 }
 
 .datetime {
-  color: @disabled-color;
+  // color: @disabled-color;
+  color: @text-color;
+  font-weight: normal;
 }
-
+.datatime_float{
+  float: right;
+  color: rgba(0, 0, 0, 0.65);
+}
 @media screen and (max-width: @screen-xl)  and (min-width: @screen-lg) {
   .activeCard {
     margin-bottom: 24px;

@@ -63,27 +63,61 @@ class Nodejs extends PureComponent {
                 })
         });
     }
+    getDefaultRuntime = () => {
+        return "-1"
+    }
     render() {
         const formItemLayout = {
             labelCol: {
-                span: 5
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
             },
             wrapperCol: {
-                span: 19
-            }
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 21,
+                },
+            },
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
-
+        const { userRunTimeInfo } = this.props;
         // if (!this.isShowRuntime())
         //     return null;
         return (
             <Card title="node " style={{
                 marginBottom: 16
             }}>
-
-                <Form.Item {...formItemLayout} label="运行命令">
+                <Form.Item {...formItemLayout} label="版本设置">
                     {getFieldDecorator('service_runtimes', {
-                        initialValue: '',
+                        initialValue: userRunTimeInfo.runtimes || this.getDefaultRuntime(),
+                        rules: [
+                            {
+                                required: true,
+                                message: '请选择'
+                            }
+                        ]
+                    })(
+                        <RadioGroup>
+                            <Radio value="5.12.0">5.12.0</Radio>
+                            <Radio value="6.14.4">6.14.4</Radio>
+                            <Radio value="7.10.1">7.10.1</Radio>
+                            <Radio value="8.12.0">8.12.0</Radio>
+                            <Radio value="9.11.2">9.11.2</Radio>
+                            <Tooltip title="将使用源码定义的版本">
+                                <Radio value="-1">未设置</Radio>
+                            </Tooltip>
+                        </RadioGroup>
+                    )}
+                </Form.Item>
+                {/* <Form.Item {...formItemLayout} label="运行命令">
+                    {getFieldDecorator('service_server', {
+                        initialValue: userRunTimeInfo.procfile || '',
                         rules: [
                             {
                                 required: true,
@@ -91,7 +125,7 @@ class Nodejs extends PureComponent {
                             }
                         ]
                     })(<TextArea placeholder="例如：node demo.js" />)}
-                </Form.Item>
+                </Form.Item> */}
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
@@ -124,7 +158,7 @@ class Golang extends PureComponent {
             .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
     }
     getDefaultRuntime = () => {
-        return '1.11.2';
+        return '-1';
     }
     isShowRuntime = () => {
         const runtimeInfo = this.props.runtimeInfo || {};
@@ -145,11 +179,21 @@ class Golang extends PureComponent {
     render() {
         const formItemLayout = {
             labelCol: {
-                span: 5
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
             },
             wrapperCol: {
-                span: 19
-            }
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 21,
+                },
+            },
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
 
@@ -174,11 +218,14 @@ class Golang extends PureComponent {
                         <RadioGroup>
                             <Radio value="1.9.7">1.9.7</Radio>
                             <Radio value="1.8.7">1.8.7</Radio>
-                            <Radio value="1.11.2">1.11.2(默认)</Radio>
+                            <Radio value="1.11.2">1.11.2</Radio>
                             <Radio value="1.11">1.11</Radio>
                             <Radio value="1.11.1">1.11.1</Radio>
                             <Radio value="1.10.5">1.10.5</Radio>
                             <Radio value="1.10.4">1.10.4</Radio>
+                            <Tooltip title="将使用源码定义的版本">
+                                <Radio value="-1">未设置</Radio>
+                            </Tooltip>
                         </RadioGroup>
                     )}
                 </Form.Item>
@@ -209,7 +256,7 @@ class Python extends PureComponent {
             .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
     }
     getDefaultRuntime = () => {
-        return '2.7.15';
+        return '-1';
     }
     isShowRuntime = () => {
         const runtimeInfo = this.props.runtimeInfo || {};
@@ -230,11 +277,21 @@ class Python extends PureComponent {
     render() {
         const formItemLayout = {
             labelCol: {
-                span: 5
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
             },
             wrapperCol: {
-                span: 19
-            }
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 21,
+                },
+            },
         };
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { userRunTimeInfo } = this.props;
@@ -255,9 +312,12 @@ class Python extends PureComponent {
                         ]
                     })(
                         <RadioGroup>
-                            <Radio value='2.7.15'>2.7.15(默认)</Radio>
+                            <Radio value='2.7.15'>2.7.15</Radio>
                             <Radio value='3.6.6'>3.6.6</Radio>
                             <Radio value='3.7.1'>3.7.1</Radio>
+                            <Tooltip title="将使用源码定义的版本">
+                                <Radio value="-1">未设置</Radio>
+                            </Tooltip>
                         </RadioGroup>
                     )}
                 </Form.Item>
@@ -304,10 +364,10 @@ class JAVA extends PureComponent {
         return false;
     }
     getDefaultRuntime = () => {
-        return '1.8'
+        return '-1'
     }
     getDefaultService = () => {
-        return 'tomcat7'
+        return '-1'
     }
     handleSubmit = (e) => {
         const form = this.props.form;
@@ -326,11 +386,21 @@ class JAVA extends PureComponent {
         const language = this.props.language;
         const formItemLayout = {
             labelCol: {
-                span: 5
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
             },
             wrapperCol: {
-                span: 19
-            }
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 21,
+                },
+            },
         };
 
         // if (!this.isShowJdk() && !this.isShowService()) {
@@ -353,9 +423,12 @@ class JAVA extends PureComponent {
                         ]
                     })(
                         <RadioGroup>
-                            <Radio value='1.8'>openjdk 1.8.0_40(默认)</Radio>
+                            <Radio value='1.8'>openjdk 1.8.0_40</Radio>
                             <Radio value='1.6'>openjdk 1.6.0_27</Radio>
                             <Radio value='1.7'>openjdk 1.7.0_79</Radio>
+                            <Tooltip title="将使用源码定义的版本">
+                                <Radio value="-1">未设置</Radio>
+                            </Tooltip>
                         </RadioGroup>
                     )}
                 </Form.Item>
@@ -373,9 +446,12 @@ class JAVA extends PureComponent {
                             ]
                         })(
                             <RadioGroup>
-                                <Radio value="tomcat7" selected="selected">tomcat 7（默认）</Radio>
+                                <Radio value="tomcat7" selected="selected">tomcat 7</Radio>
                                 <Radio value="tomcat8">tomcat 8</Radio>
                                 <Radio value="jetty7">jetty 7.5</Radio>
+                                <Tooltip title="将使用源码定义的服务">
+                                    <Radio value="-1">未设置</Radio>
+                                </Tooltip>
                             </RadioGroup>
                         )}
                     </Form.Item>
@@ -495,10 +571,10 @@ class PHP extends PureComponent {
             .dispatch({ type: 'createApp/saveRuntimeInfo', payload: value })
     }
     getDefaultRuntime = () => {
-        return '5.6.11';
+        return '-1';
     }
     getDefaultService = () => {
-        return 'apache'
+        return '-1'
     }
     handleSubmit = (e) => {
         const form = this.props.form;
@@ -536,11 +612,21 @@ class PHP extends PureComponent {
         const userRunTimeInfo = this.props.userRunTimeInfo;
         const formItemLayout = {
             labelCol: {
-                span: 5
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 3,
+                },
             },
             wrapperCol: {
-                span: 19
-            }
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 21,
+                },
+            },
         };
 
         // if (runtimeInfo.runtimes && runtimeInfo.procfile && runtimeInfo.dependencies) {
@@ -571,6 +657,9 @@ class PHP extends PureComponent {
                                         return <Radio value={item}>{item}</Radio>
                                     })
                                 }
+                                <Tooltip title="将使用源码定义的版本">
+                                    <Radio value="-1">未设置</Radio>
+                                </Tooltip>
                             </RadioGroup>
                         )}
                     </Form.Item>
@@ -591,6 +680,9 @@ class PHP extends PureComponent {
                             <RadioGroup>
                                 <Radio value="apache">apache</Radio>
                                 <Radio value="nginx">nginx</Radio>
+                                <Tooltip title="将使用源码定义的服务">
+                                    <Radio value="-1">未设置</Radio>
+                                </Tooltip>
                             </RadioGroup>
                         )}
                     </Form.Item>
@@ -774,7 +866,7 @@ export default class Index extends PureComponent {
                     span: 24,
                 },
                 sm: {
-                    span: 16,
+                    span: 21,
                 },
             },
         };
@@ -971,6 +1063,7 @@ export default class Index extends PureComponent {
                     ? <Nodejs
                         appDetail={this.props.appDetail}
                         onSubmit={this.handleEditRuntime}
+                        userRunTimeInfo={runtimeInfo.user_dependency || {}}
                         runtimeInfo={runtimeInfo.check_dependency || {}} />
                     : null
                 }

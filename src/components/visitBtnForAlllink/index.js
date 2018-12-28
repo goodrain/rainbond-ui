@@ -30,9 +30,16 @@ export default class Index extends PureComponent {
   };
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
-    const links = visitInfo.map((item) => {
+    const linksMap = visitInfo.map((item) => {
       return { url: item.access_info[0].access_urls, service_cname: item.access_info[0].service_cname }
     })
+
+    /**筛选出里面有必须url */
+    const links = linksMap.filter(item => item.url[0]);
+
+    if (links.length === 0) {
+      return null
+    }
     if (links.length === 1) {
       let singleLink
       if (links[0] && links[0].url && links[0].url[0])
