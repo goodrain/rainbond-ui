@@ -103,7 +103,7 @@ class Nodejs extends PureComponent {
                             }
                         ]
                     })(
-                        <RadioGroup disabled>
+                        <RadioGroup disabled  className={styles.ant_radio_disabled}>
                             <Radio value="5.12.0">5.12.0</Radio>
                             <Radio value="6.14.4">6.14.4</Radio>
                             <Radio value="7.10.1">7.10.1</Radio>
@@ -215,7 +215,7 @@ class Golang extends PureComponent {
                             }
                         ]
                     })(
-                        <RadioGroup disabled>
+                        <RadioGroup disabled  className={styles.ant_radio_disabled}>
                             <Radio value="1.9.7">1.9.7</Radio>
                             <Radio value="1.8.7">1.8.7</Radio>
                             <Radio value="1.11.2">1.11.2(默认)</Radio>
@@ -311,7 +311,7 @@ class Python extends PureComponent {
                             }
                         ]
                     })(
-                        <RadioGroup disabled>
+                        <RadioGroup disabled  className={styles.ant_radio_disabled}>
                             <Radio value='2.7.15'>2.7.15(默认)</Radio>
                             <Radio value='3.6.6'>3.6.6</Radio>
                             <Radio value='3.7.1'>3.7.1</Radio>
@@ -410,9 +410,9 @@ class JAVA extends PureComponent {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { userRunTimeInfo } = this.props;
         return (
-            <Card title="Java版本支持">
+            <Card title="Java运行环境">
 
-                {<Form.Item {...formItemLayout} label="JDK">
+                {<Form.Item {...formItemLayout} label="JDK支持">
                     {getFieldDecorator('service_runtimes', {
                         initialValue: userRunTimeInfo.runtimes||this.getDefaultRuntime(),
                         rules: [
@@ -422,7 +422,7 @@ class JAVA extends PureComponent {
                             }
                         ]
                     })(
-                        <RadioGroup disabled>
+                        <RadioGroup disabled className={styles.ant_radio_disabled}>
                             <Radio value='1.8'>openjdk 1.8.0_40(默认)</Radio>
                             <Radio value='1.6'>openjdk 1.6.0_27</Radio>
                             <Radio value='1.7'>openjdk 1.7.0_79</Radio>
@@ -435,7 +435,7 @@ class JAVA extends PureComponent {
                 }
 
                 {
-                    <Form.Item {...formItemLayout} label="web服务器">
+                    <Form.Item {...formItemLayout} label="web服务器支持">
                         {getFieldDecorator('service_server', {
                             initialValue: userRunTimeInfo.procfile||this.getDefaultService(),
                             rules: [
@@ -445,7 +445,7 @@ class JAVA extends PureComponent {
                                 }
                             ]
                         })(
-                            <RadioGroup disabled>
+                            <RadioGroup disabled  className={styles.ant_radio_disabled}>
                                 <Radio value="tomcat7" selected="selected">tomcat 7(默认)</Radio>
                                 <Radio value="tomcat8">tomcat 8</Radio>
                                 <Radio value="jetty7">jetty 7.5</Radio>
@@ -651,7 +651,7 @@ class PHP extends PureComponent {
                                 }
                             ]
                         })(
-                            <RadioGroup disabled>
+                            <RadioGroup disabled  className={styles.ant_radio_disabled}>
                                 {
                                     this.state.versions.map((item) => {
                                         return <Radio value={item}>{item}</Radio>
@@ -674,7 +674,7 @@ class PHP extends PureComponent {
                                 }
                             ]
                         })(
-                            <RadioGroup disabled>
+                            <RadioGroup disabled  className={styles.ant_radio_disabled}>
                                 <Radio value="apache">apache</Radio>
                                 <Radio value="nginx">nginx</Radio>
                             </RadioGroup>
