@@ -36,7 +36,7 @@ class EditorData extends PureComponent {
       registerData: [],
       edgeData: "",
       edgeTitle: "",
-      foreignTypeName:""
+      foreignTypeName: ""
     }
   }
   componentDidMount() {
@@ -233,7 +233,7 @@ class EditorData extends PureComponent {
   }
 
   //处理依赖接口
-  handleSubmitAddRelation = (name, id,targetName) => {
+  handleSubmitAddRelation = (name, id, targetName) => {
     addRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: name,
@@ -252,7 +252,7 @@ class EditorData extends PureComponent {
         this.setState({
           visible: true,
           foreignType: 0,
-          foreignTypeName:targetName,
+          foreignTypeName: targetName,
           list: res.list.join().split(),
           name,
           id,
@@ -320,7 +320,7 @@ class EditorData extends PureComponent {
   }
 
   //打开对外端口
-  handleSubmitOpenExternalPort = (name,nowName) => {
+  handleSubmitOpenExternalPort = (name, nowName) => {
     this.props.dispatch({
       type: 'appControl/openExternalPort',
       payload: {
@@ -340,11 +340,16 @@ class EditorData extends PureComponent {
           return
         }
         if (res && res._code == 201) {
+          if (res.list.length == 0) {
+            this.handleUndo();
+            notification.warning({ message: "暂无端口可用" })
+            return
+          }
           this.setState({
             visible: true,
             foreignType: 1,
-            foreignTypeName:nowName,
-            list: res.list.join().split(),
+            foreignTypeName: nowName,
+            list: res.list || [],
             name,
           });
           return
@@ -369,12 +374,12 @@ class EditorData extends PureComponent {
     }
   }
   render() {
-    const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle,foreignTypeName } = this.state;
+    const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle, foreignTypeName } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <div>
         {visible && <Modal
-          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> :<div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开</div> }
+          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> : <div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开</div>}
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
@@ -391,8 +396,8 @@ class EditorData extends PureComponent {
                 ],
               })(
                 <RadioGroup >
-                  {list.map((items, index) => {
-                    return <Radio key={index} value={items}>{items}</Radio>
+                  {list.map((item, index) => {
+                    return <Radio key={index} value={item}>{item}</Radio>
                   })}
                 </RadioGroup>
               )}
@@ -429,14 +434,14 @@ class EditorData extends PureComponent {
                 const names = item.target.model.service_alias
                 const sourceType = item.source.id
                 const id = item.target.id;
-                const targetName=item.target.model.label
+                const targetName = item.target.model.label
                 if (sourceType == "The Internet") {
-                  this.handleSubmitOpenExternalPort(names,targetName)
+                  this.handleSubmitOpenExternalPort(names, targetName)
                 } else if (id == "The Internet") {
                   this.handleUndo()
                 }
                 else if (name != "The Internet") {
-                  this.handleSubmitAddRelation(name, id,targetName)
+                  this.handleSubmitAddRelation(name, id, targetName)
                 }
               }
             }}
