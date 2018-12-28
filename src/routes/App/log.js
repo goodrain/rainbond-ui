@@ -186,6 +186,9 @@ export default class Index extends PureComponent {
          app_alias: this.props.appAlias
       }).then((data) => {
           if(data){
+              if(this.refs.box){
+                this.refs.box.scrollTop = this.refs.box.scrollHeight
+              }
               this.setState({logs: (data.list || [])})
           }
       })
@@ -207,6 +210,11 @@ export default class Index extends PureComponent {
           this.socket = null;
       }
   }
+  componentDidUpdate(){
+    if(this.refs.box){
+      this.refs.box.scrollTop = this.refs.box.scrollHeight
+    }
+  }
   createSocket(){
       const appDetail = this.props.appDetail;
       if(this.state.websocketUrl){
@@ -219,6 +227,9 @@ export default class Index extends PureComponent {
             if(this.state.started){
                 var logs = this.state.logs || [];
                 logs.push(msg)
+                if(this.refs.box){
+                  this.refs.box.scrollTop = this.refs.box.scrollHeight
+                }
                 // this.setState({logs: [msg].concat(logs)})
                 this.setState({logs: logs})
             }
@@ -246,6 +257,7 @@ export default class Index extends PureComponent {
   }
   render() {
     if(!this.canView()) return <NoPermTip />;
+   
     const {logs} = this.state;
     return (
      <Card
@@ -272,11 +284,11 @@ export default class Index extends PureComponent {
         </Fragment>
       }
      >
-        <div className={styles.logsss}>
+        <div className={styles.logsss} ref="box" >
           {
             (logs||[]).map((log) => {
                return (
-                  <p>{log}</p>
+                  <p >{log}</p>
                )
             })
           }
