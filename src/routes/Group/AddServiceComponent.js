@@ -199,7 +199,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "custom") }}>
                     <Icon component={codeSvg} />
-                    <p className={styles.ServiceSmallTitle}>从其他自定义仓库开始</p>
+                    <p className={styles.ServiceSmallTitle}>自定义仓库开始</p>
                   </Col>
                   {rainbondUtil.gitlabEnable(rainbondInfo) && <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "goodrain") }}>
                     <Icon component={gitlabSvg} />
