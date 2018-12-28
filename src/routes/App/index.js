@@ -215,7 +215,7 @@ class ManageContainer extends PureComponent {
         const renderPods = (
             <Menu onClick={this.handlePodClick}>
                 {(pods || []).map((item, index) => {
-                    return <Menu.Item key={item.pod_name + '_' + item.manage_name + '_' + item.pod_status}>节点{index + 1}</Menu.Item>
+                    return <Menu.Item key={item.pod_name + '_' + item.manage_name + '_' + item.pod_status}>实例{index + 1}</Menu.Item>
                 })
                 }
 
