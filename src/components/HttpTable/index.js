@@ -15,6 +15,7 @@ import {
     Modal
 } from 'antd';
 import globalUtil from '../../utils/global';
+import openLinkUtil from '../../utils/openLink';
 import styles from './index.less'
 
 @connect(
@@ -299,7 +300,9 @@ export default class HttpTable extends PureComponent {
                 if (data && data.bean.status != "running") {
                     this.setState({ appStatusVisable: true, record })
                 } else {
-                    window.open(record.domain_name)
+                    // const tempWindow = window.open("_blank");
+                    // tempWindow.location = record.domain_name;
+                    openLinkUtil.openLink(record.domain_name)
                 }
             }
         })
@@ -385,7 +388,7 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'service_cname',
             key: 'service_cname',
             align: "center",
-            width: "18%",
+            width: "15%",
             render: (text, record) => {
                 return (record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{text}({record.container_port})</Link>)
             }
@@ -394,10 +397,10 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'action',
             key: 'action',
             align: "center",
-            width: "23%",
+            width: "26%",
             render: (data, record, index) => {
                 return (
-                    record.is_outer_service == 1 ? <div style={{display:"flex",justifyContent:"center"}}>
+                    record.is_outer_service == 1 ? <div style={{display:"flex",justifyContent:"space-between"}}>
                         <a  onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                         <a  onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
