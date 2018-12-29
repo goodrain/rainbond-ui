@@ -15,6 +15,7 @@ import {
     Modal
 } from 'antd';
 import globalUtil from '../../utils/global';
+import openLinkUtil from '../../utils/openLink';
 import styles from './index.less'
 
 @connect(
@@ -299,8 +300,9 @@ export default class HttpTable extends PureComponent {
                 if (data && data.bean.status != "running") {
                     this.setState({ appStatusVisable: true, record })
                 } else {
-                    const tempWindow = window.open("_blank");
-                    tempWindow.location = record.domain_name;
+                    // const tempWindow = window.open("_blank");
+                    // tempWindow.location = record.domain_name;
+                    openLinkUtil.openLink(record.domain_name)
                 }
             }
         })
