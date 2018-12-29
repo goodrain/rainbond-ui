@@ -258,19 +258,19 @@ export default class Main extends PureComponent {
           ]}
         >
           <Card.Meta
-            style={{ height:80, overflow: "hidden",display:"flex",justifyContent:"center" }}
+            style={{ height:80, overflow: "hidden",display:"flex",justifyContent:"center",cursor:"pointer" }}
             className={PluginStyles.CardMeta}
             avatar={
               <img
                 style={{ width: 80, height:80, margin: "auto" }}
                 alt={item.title}
                 src={item.pic || require("../../../public/images/app_icon.jpg")}
-                onClick={() => {
-                  this.showMarketAppDetail(item);
-                }}
+               
               />
             }
-
+            onClick={() => {
+              this.showMarketAppDetail(item);
+            }}
             title=""
             description={""}
           />
