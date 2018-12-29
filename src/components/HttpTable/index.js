@@ -15,7 +15,7 @@ import {
     Modal
 } from 'antd';
 import globalUtil from '../../utils/global';
-import openLinkUtil from '../../utils/openLink';
+import {openInNewTab} from '../../utils/utils';
 import styles from './index.less'
 
 @connect(
@@ -302,7 +302,7 @@ export default class HttpTable extends PureComponent {
                 } else {
                     // const tempWindow = window.open("_blank");
                     // tempWindow.location = record.domain_name;
-                    openLinkUtil.openLink(record.domain_name)
+                    openInNewTab(record.domain_name)
                 }
             }
         })

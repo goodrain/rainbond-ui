@@ -4,7 +4,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
-import linkUtil from "../../utils/openLink";
+import {openInNewTab} from "../../utils/utils";
 import { link } from "fs";
 
 const { Description } = DescriptionList;
@@ -66,7 +66,7 @@ export default class Index extends PureComponent {
   };
   handleClickLink = (item) => {
     // window.open(item.key);
-    linkUtil.openLink(item.key);
+    openInNewTab(item.key);
   };
   renderNoHttpOuterTitle = item => (
     <div>
@@ -125,7 +125,7 @@ export default class Index extends PureComponent {
           <Button type={this.props.btntype}
             onClick={() => {
               // window.open(links[0]);
-              linkUtil.openLink(links[0]);
+              openInNewTab(links[0]);
             }}
           >
             访问

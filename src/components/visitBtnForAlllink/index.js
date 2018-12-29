@@ -4,7 +4,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
-import linkUtil from "../../utils/openLink";
+import {openInNewTab} from "../../utils/utils";
 
 const { Description } = DescriptionList;
 
@@ -28,7 +28,7 @@ export default class Index extends PureComponent {
 
   handleClickLink = (item) => {
     // window.open(item.key);
-    linkUtil.openLink(item.key);
+    openInNewTab(item.key);
   };
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
@@ -51,7 +51,7 @@ export default class Index extends PureComponent {
           <Button type="primary"
             onClick={() => {
               // window.open(singleLink);
-              linkUtil.openLink(singleLink);
+              openInNewTab(singleLink);
             }}
           >
             访问
