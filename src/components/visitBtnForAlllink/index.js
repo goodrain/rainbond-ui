@@ -4,6 +4,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
+import linkUtil from "../../utils/openLink";
 
 const { Description } = DescriptionList;
 
@@ -26,7 +27,8 @@ export default class Index extends PureComponent {
   }
 
   handleClickLink = (item) => {
-    window.open(item.key);
+    // window.open(item.key);
+    linkUtil.openLink(item.key);
   };
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
@@ -48,7 +50,8 @@ export default class Index extends PureComponent {
         singleLink ? <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type="primary"
             onClick={() => {
-              window.open(singleLink);
+              // window.open(singleLink);
+              linkUtil.openLink(singleLink);
             }}
           >
             访问
