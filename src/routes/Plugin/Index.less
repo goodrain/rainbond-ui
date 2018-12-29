@@ -41,7 +41,25 @@
   width: 100%;
   height: 188px;
 }
-
+.CardMeta {
+  :global{ .ant-card-meta-avatar{
+    padding-right: 0!important;
+    }
+  }
+}
+.cardTitle{
+  color:#1890ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cardTitle span:nth-child(1){
+  display:inline-block;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow:ellipsis;
+}
 .cardAvatar {
   width: 48px;
   height: 48px;
