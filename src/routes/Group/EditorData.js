@@ -238,15 +238,10 @@ class EditorData extends PureComponent {
         return
       }
       if (res && res._code == 201) {
-        if (res.list.length == 0) {
-          this.handleUndo();
-          notification.warning({ message: "暂无端口可用" })
-          return
-        }
         this.setState({
           foreignType: 0,
           foreignTypeName: targetName,
-          list: res.list || [],
+          list: res.list.join().split(),
           name,
           id,
         }, () => {
