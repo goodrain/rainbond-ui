@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Modal, Checkbox, notification, Radio, Form } from 'antd';
+
+
 import globalUtil from '../../utils/global';
 import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
 import {
@@ -9,7 +11,6 @@ import {
 } from '../../services/app';
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
-const confirm = Modal.confirm;
 const formItemLayout = {
   labelCol: {
     span: 5,
@@ -26,6 +27,8 @@ class EditorData extends PureComponent {
     super(props);
     this.state = {
       data: {},
+      visible: false,
+      edgeVisible: false,
       list: [],
       name: '',
       id: '',
@@ -175,7 +178,8 @@ class EditorData extends PureComponent {
   }
 
   //处理 多依赖
-  handleOk = () => {
+  handleOk = (e) => {
+    e.preventDefault();
     const { name, id, foreignType } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -190,8 +194,10 @@ class EditorData extends PureComponent {
           }).then((res) => {
             if (res && res._code == 200) {
               notification.success({ message: res.msg_show })
+              this.setState({ visible: false });
               return
             }
+            this.setState({ visible: false });
             this.handleUndo();
           });
         }
@@ -207,8 +213,10 @@ class EditorData extends PureComponent {
             callback: (res) => {
               if (res && res._code == 200) {
                 notification.success({ message: res.msg_show });
+                this.setState({ visible: false });
                 return
               }
+              this.setState({ visible: false });
               this.handleUndo();
             }
           })
@@ -218,6 +226,9 @@ class EditorData extends PureComponent {
   }
 
   handleCancel = (e) => {
+    this.setState({
+      visible: false,
+    });
     this.handleUndo();
   }
 
@@ -238,14 +249,18 @@ class EditorData extends PureComponent {
         return
       }
       if (res && res._code == 201) {
+         if (res.list.length == 0) {
+            this.handleUndo();
+            notification.warning({ message: "暂无端口可用" })
+            return
+          }
         this.setState({
+          visible: true,
           foreignType: 0,
           foreignTypeName: targetName,
-          list: res.list.join().split(),
+          list: res.list || [],
           name,
           id,
-        }, () => {
-          this.showEdgeConfirm();
         });
         return
       }
@@ -276,6 +291,7 @@ class EditorData extends PureComponent {
             this.loadTopology()
             this.setState({
               edgeData: "",
+              edgeVisible: false
             })
           }
         });
@@ -293,6 +309,7 @@ class EditorData extends PureComponent {
               this.loadTopology()
               this.setState({
                 edgeData: "",
+                edgeVisible: false
               })
             }
           }
@@ -334,12 +351,11 @@ class EditorData extends PureComponent {
             return
           }
           this.setState({
+            visible: true,
             foreignType: 1,
             foreignTypeName: nowName,
             list: res.list || [],
             name,
-          }, () => {
-            this.showEdgeConfirm();
           });
           return
         }
@@ -351,69 +367,60 @@ class EditorData extends PureComponent {
   onSaveEdgeData = (data) => {
     this.setState({
       edgeData: data,
-      edgeTitle: data.source.model.service_alias ? <div>是否取消<a>{data.source.model.label}</a>依赖<a>{data.target.model.label}</a></div> : <div>是否关闭<a>{data.target.model.label}</a>服务的所有对外端口。</div>
+      edgeTitle: data.source.model.service_alias ? <div>是否取消<a>{data.source.model.label}</a>依赖<a>{data.target.model.label}</a></div> : <div>是否关闭<a>{data.target.model.label}</a>服务的所有对外端口</div>
     })
   }
   //打开弹框
   onEdgeOpen = () => {
     if (this.state.edgeData) {
-      this.showEdgeVisibleConfirm();
+      this.setState({
+        edgeVisible: true
+      })
     }
   }
-  //打开弹框展示
-  showEdgeConfirm = () => {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { foreignTypeName, foreignType, list } = this.state
-    const _th=this;
-    confirm({
-      title: foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> : <div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开。</div>,
-      content: <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="选择端口">
-          {getFieldDecorator('container_port', {
-            initialValue: list[0],
-            rules: [
-              {
-                required: true,
-                message: '请选择端口',
-              },
-            ],
-          })(
-            <RadioGroup >
-              {list.map((item, index) => {
-                return <Radio key={index} value={item}>{item}</Radio>
-              })}
-            </RadioGroup>
-          )}
-        </Form.Item>
-      </Form>,
-      onOk() {
-        _th.handleOk();
-      },
-      onCancel() {
-        _th.handleCancel();
-      },
-    });
-  }
-  //打开弹框展示
-  showEdgeVisibleConfirm = () => {
-    const { edgeTitle} = this.state
-    const _th=this;
-    confirm({
-      title:edgeTitle,
-      content: "",
-      onOk() {
-        _th.handleDeleteRelationedApp();
-      },
-      onCancel() {
-        _th.setState({edgeData: "" })
-      },
-    });
-  }
   render() {
-    const { data} = this.state;
+    const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle, foreignTypeName } = this.state;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <div>
+        {visible && <Modal
+          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> : <div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开?</div>}
+          visible={visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+        >
+          <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
+            <Form.Item {...formItemLayout} label="选择端口">
+              {getFieldDecorator('container_port', {
+                initialValue: list[0],
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择端口',
+                  },
+                ],
+              })(
+                <RadioGroup >
+                  {list.map((item, index) => {
+                    return <Radio key={index} value={item}>{item}</Radio>
+                  })}
+                </RadioGroup>
+              )}
+            </Form.Item>
+          </Form>
+        </Modal>}
+
+        {edgeVisible && <Modal
+          title=""
+          visible={edgeVisible}
+          onOk={this.handleDeleteRelationedApp}
+          onCancel={() => { this.setState({ edgeVisible: false, edgeData: "" }) }}
+        >
+          <h3>{edgeTitle}</h3>
+        </Modal>}
+
         <RegisterCommand name="delete" config={{ shortcutCodes: [] }} extend="delete" />
+
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
             onKeyDown={(e) => {
@@ -444,6 +451,7 @@ class EditorData extends PureComponent {
               }
             }}
           />
+
         </div>
       </div>
     )
