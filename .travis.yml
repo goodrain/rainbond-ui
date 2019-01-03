@@ -2,6 +2,6 @@
 services:
   - docker
 script:
-  - 'bash -c ./build.sh'
-  - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then bash -c ./release.sh ;fi'
+  - docker build -t rainbond/rainbond-ui:master .
+  - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && docker push rainbond/rainbond-ui:master ;fi'
 

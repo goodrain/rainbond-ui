@@ -10,11 +10,9 @@
 [![GoDoc](https://godoc.org/github.com/goodrain/rainbond?status.svg)](https://godoc.org/github.com/goodrain/rainbond)
 
 [Website](http://www.rainbond.com) • [Docs](https://www.rainbond.com/docs/stable/) • [Public Cloud](https://console.goodrain.com) -->
-[![Go Report Card](https://goreportcard.com/badge/github.com/goodrain/rainbond)](https://goreportcard.com/report/github.com/goodrain/rainbond)
-[![GitHub stars](https://img.shields.io/github/stars/goodrain/rainbond.svg?style=flat-square)](https://github.com/goodrain/rainbond/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/goodrain/rainbond-ui.svg?style=flat-square)](https://github.com/goodrain/rainbond-ui/stargazers)
 ![Rainbond version](https://img.shields.io/badge/version-v5.0-brightgreen.svg)
-[![Build Status](https://travis-ci.org/goodrain/rainbond.svg?branch=master)](https://travis-ci.org/goodrain/rainbond)
-[![GoDoc](https://godoc.org/github.com/goodrain/rainbond?status.svg)](https://godoc.org/github.com/goodrain/rainbond)
+[![Build Status](https://travis-ci.org/goodrain/rainbond.svg?branch=master)](https://travis-ci.org/goodrain/rainbond-ui)
 
 [The project's website](http://www.rainbond.com) • [The document](https://www.rainbond.com/docs/stable/) • [Online experience](https://github.com/goodrain/rainbond/blob/master/README_EN.md)
 
