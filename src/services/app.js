@@ -448,8 +448,8 @@ export function addRelationedApp(body = {
       method: "post",
       data: {
         dep_service_id: body.dep_service_id,
-        container_port:body.container_port?body.container_port:"",
-        open_inner:body.open_inner?body.open_inner:""
+        container_port: body.container_port ? body.container_port : "",
+        open_inner: body.open_inner ? body.open_inner : ""
       },
     },
   );
@@ -1060,6 +1060,7 @@ export async function addVolume(body = {
   volume_name,
   volume_type,
   volume_path,
+  file_content
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
@@ -1069,6 +1070,7 @@ export async function addVolume(body = {
         volume_name: body.volume_name,
         volume_type: body.volume_type,
         volume_path: body.volume_path,
+        file_content: body.volume_type == "config-file" ? body.file_content : ''
       },
     },
   );
@@ -1453,9 +1455,9 @@ export async function openExternalPort(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/topological/ports`, {
     method: "put",
     data: {
-      open_outer:body.open_outer?body.open_outer:"",
-      container_port:body.container_port?body.container_port:"",
-      close_outer:body.close_outer?body.close_outer:""
+      open_outer: body.open_outer ? body.open_outer : "",
+      container_port: body.container_port ? body.container_port : "",
+      close_outer: body.close_outer ? body.close_outer : ""
     },
   });
 }

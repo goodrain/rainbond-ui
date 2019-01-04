@@ -126,7 +126,7 @@ class Main extends PureComponent {
   loading = () => {
     this.fetchGroupDetail();
     this.recordShare();
-    // this.loadTopology()
+    this.loadTopology()
     this.timer = setInterval(() => {
       this.loadTopology()
     }, 10000);
