@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card,  } from 'antd';
+import { Card, } from 'antd';
 
-import GGEditor ,{RegisterNode} from 'gg-editor';
+import GGEditor, { RegisterNode } from 'gg-editor';
 import EditorData from './EditorData'
 import Yun from "../../../public/images/yun.svg";
 import Running from "../../../public/images/running.svg";
@@ -19,8 +19,31 @@ class EditorToplogy extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      colorDataType: ["The Internet", "Unknow", "running", "closed", "undeploy", "starting", "checking", "stoping", "upgrade", "unusual", "Owed", "expired", "Expired",
-        "internet", "unknow", "stopping", "abnormal", "some_abnormal", "building", "build_failure"],
+      colorDataType: [
+        "The Internet",
+        "Unknow",
+        "Unknown",
+        "unknown",
+        "running",
+        "closed",
+        "undeploy",
+        "starting",
+        "checking",
+        "stoping",
+        "upgrade",
+        "unusual",
+        "Owed",
+        "expired",
+        "Expired",
+        "internet",
+        "unknow",
+        "stopping",
+        "abnormal",
+        "some_abnormal",
+        "building",
+        "build_failure",
+        "creating",
+      ],
     }
   }
   //配置拓扑图
@@ -54,7 +77,7 @@ class EditorToplogy extends PureComponent {
         // 类型 logo
         group.addShape("image", {
           attrs: {
-            img: type == "The Internet" ? Yun : type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting : type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
+            img: type == "The Internet" ? Yun : type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting :type == "creating"?Building: type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknown" ? Unusual : type == "unknown" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
             x: x,
             y: y,
             width: type == "The Internet" ? 70 : 60,
@@ -81,18 +104,18 @@ class EditorToplogy extends PureComponent {
     }
   }
   render() {
-    const {colorDataType}=this.state
+    const { colorDataType } = this.state
     return (
       <Card style={{ minHeight: 400 }} bordered={false}>
         <GGEditor>
-        {colorDataType.map((itemq, index) => {
-          return <RegisterNode
-            key={index}
-            name={colorDataType[index]}
-            config={this.config(colorDataType[index])}
-          />
-        })}
-          <EditorData  {...this.props}/>
+          {colorDataType.map((itemq, index) => {
+            return <RegisterNode
+              key={index}
+              name={colorDataType[index]}
+              config={this.config(colorDataType[index])}
+            />
+          })}
+          <EditorData  {...this.props} />
         </GGEditor>
       </Card>
     )
