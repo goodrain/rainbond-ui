@@ -4,6 +4,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
+import {openInNewTab} from "../../utils/utils";
 import { link } from "fs";
 
 const { Description } = DescriptionList;
@@ -64,7 +65,8 @@ export default class Index extends PureComponent {
     return res;
   };
   handleClickLink = (item) => {
-    window.open(item.key);
+    // window.open(item.key);
+    openInNewTab(item.key);
   };
   renderNoHttpOuterTitle = item => (
     <div>
@@ -122,7 +124,8 @@ export default class Index extends PureComponent {
         <Tooltip title="跳转到应用对外访问端口对应的域名地址">
           <Button type={this.props.btntype}
             onClick={() => {
-              window.open(links[0]);
+              // window.open(links[0]);
+              openInNewTab(links[0]);
             }}
           >
             访问
