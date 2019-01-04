@@ -139,8 +139,8 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        // let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
-        // let sm = num == 1 ? "" : (num - 1) * 100
+        let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
+        let sm = num == 1 ? "" : (num - 1) * 100
 
         if (item.is_internet) {
           edge.source = "The Internet";
@@ -222,6 +222,8 @@ class EditorData extends PureComponent {
     });
     read({ nodes: nextNodes, edges: data.edges });
   };
+
+
 
   //处理 多依赖
   handleOk = () => {
@@ -446,7 +448,7 @@ class EditorData extends PureComponent {
                   },
                 ],
               })(
-                <RadioGroup>
+                <RadioGroup >
                   {list.map((item, index) => {
                     return <Radio key={index} value={item}>{item}</Radio>
                   })}
