@@ -42,7 +42,8 @@ class LicenseDrawer extends PureComponent {
     checkFile_public = (rules, value, callback) => {
         if (value) {
             if (value.fileList.length > 0 && (value.file.name.endsWith(".pem") || value.file.name.endsWith(".cer") || value.file.name.endsWith(".crt") || value.file.name.endsWith(".key"))) {
-                this.readFileContents(value.fileList, 'certificate');
+                const fileList =  value.fileList.splice(-1);
+                this.readFileContents(fileList, 'certificate');
                 callback();
                 return;
             } else {
@@ -56,7 +57,8 @@ class LicenseDrawer extends PureComponent {
     checkFile_private = (rules, value, callback) => {
         if (value) {
             if (value.fileList.length > 0 && (value.file.name.endsWith(".pem") || value.file.name.endsWith(".cer") || value.file.name.endsWith(".crt") || value.file.name.endsWith(".key"))) {
-                this.readFileContents(value.fileList, 'private_key');
+                const fileList =  value.fileList.splice(-1);
+                this.readFileContents(fileList, 'private_key');
                 callback();
                 return;
             } else {
@@ -85,7 +87,9 @@ class LicenseDrawer extends PureComponent {
         let isRightType = fileArr[length - 1] == "pem" || fileArr[length - 1] == "crt" || fileArr[length - 1] == "cer" || fileArr[length - 1] == "key";
         if (!isRightType) {
             message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
-            return;
+            return false;
+        }else{
+            return true;
         }
 
     }
