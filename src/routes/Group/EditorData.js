@@ -169,7 +169,6 @@ class EditorData extends PureComponent {
         dats.nodes.push(node);
       }
     });
-
     dats.edges = Array.from(new Set(dats.edges))
     arr = Array.from(new Set(arr))
     let ars = dats.edges.concat(arr)
