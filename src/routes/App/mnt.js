@@ -242,7 +242,7 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={<span> 共享其他应用存储 </span>}>
+        <Card title={<span> 共享其他服务存储 </span>}>
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -264,7 +264,7 @@ export default class Index extends PureComponent {
                   dataIndex: "dep_vol_type",
                 },
                 {
-                  title: "目标所属应用",
+                  title: "目标所属服务",
                   dataIndex: "dep_app_name",
                   render: (v, data) => (
                     <Link
@@ -277,7 +277,7 @@ export default class Index extends PureComponent {
                     ),
                 },
                 {
-                  title: "目标应用所属组",
+                  title: "目标服务所属应用",
                   dataIndex: "dep_app_group",
                   render: (v, data) => (
                     <Link

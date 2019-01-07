@@ -333,13 +333,14 @@ export default class Index extends PureComponent {
                 <span className={styles.event}>{item.type_cn}</span>
                 <Link to={linkTo} className={styles.event}>
                   {item.service_cname}
-                </Link>应用<span className={styles.datetime}>
-                  {statusCNMap[item.final_status] ? `(${statusCNMap[item.final_status]})` : ""}
+                </Link>
+                <span className={styles.datetime}>
+                  应用{statusCNMap[item.final_status] ? `${statusCNMap[item.final_status]}` : ""}
                 </span>
               </span>
             }
             description={
-              <span className={styles.datetime} title={item.updatedAt}>
+              <span className={styles.datatime_float} title={item.updatedAt}>
                 {" "}
                 {moment(item.start_time).fromNow()}{" "}
               </span>
@@ -353,7 +354,6 @@ export default class Index extends PureComponent {
     const {
       index, projectLoading, activitiesLoading, currUser, pagination,
     } = this.props;
-    console.log(index)
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
 
@@ -375,10 +375,6 @@ export default class Index extends PureComponent {
     }
     const extraContent = (
       <div className={styles.extraContent}>
-      <div className={styles.statItem}>
-          <p>应用总数</p>
-          <p>{index.overviewInfo.team_app_num || 0}</p>
-        </div>
         <div className={styles.statItem}>
           <p>应用总数</p>
           <p>{index.overviewInfo.team_app_num || 0}</p>

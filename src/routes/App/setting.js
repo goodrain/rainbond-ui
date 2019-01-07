@@ -710,7 +710,7 @@ export default class Index extends React.Component {
                 {
                   title: "变量值",
                   dataIndex: "attr_value",
-                  width: "40%",
+                  // width: "40%",
                 },
                 {
                   title: "说明",

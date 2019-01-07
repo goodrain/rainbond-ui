@@ -126,7 +126,10 @@ class Main extends PureComponent {
   loading = () => {
     this.fetchGroupDetail();
     this.recordShare();
-    this.loadTopology()
+    // this.loadTopology()
+    this.timer = setInterval(() => {
+      this.loadTopology()
+    }, 10000);
   }
 
   loadTopology() {
@@ -142,7 +145,6 @@ class Main extends PureComponent {
         groupId
       },
       callback: (data) => {
-        console.log("数据", data);
         const service_alias = [];
         let json_data = data.json_data;
         this.setState({ running: false });
@@ -155,18 +157,17 @@ class Main extends PureComponent {
             service_alias.push(json_data[key].service_alias)
           }
         })
-        console.log("数据service_alias", service_alias)
         this.setState({ service_alias }, () => {
           // if(service_alias.length>0){
-          this.loadLinks(service_alias.join("-"), team_name)
+          this.loadLinks(service_alias.join("-"))
           // }
         })
       }
     })
   }
-
-  loadLinks(service_alias, team_name) {
+  loadLinks(service_alias) {
     const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "global/queryLinks",
       payload: {
@@ -174,7 +175,6 @@ class Main extends PureComponent {
         team_name
       },
       callback: (data) => {
-        console.log(data)
         this.setState({
           linkList: data.list || []
         })
@@ -204,9 +204,11 @@ class Main extends PureComponent {
   }
 
   componentWillUnmount() {
+    clearInterval(this.timer)
     this
       .props
       .dispatch({ type: "groupControl/clearGroupDetail" });
+
   }
   handleFormReset = () => {
     const { form } = this.props;
@@ -511,7 +513,7 @@ class Main extends PureComponent {
             onClick={() => {
               this.changeType("shape");
             }}
-            type={this.state.type ==="shape"||this.state.type ==="shapes"
+            type={this.state.type === "shape" || this.state.type === "shapes"
               ? "primary"
               : ""}
             active
@@ -534,20 +536,20 @@ class Main extends PureComponent {
           </Col>
           <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
         </Row>
-        {hasService&&<Row style={{background: "#fff"}}>
-          <Col style={{textAlign:"right"}} span={22}>
+        {hasService&&this.state.type !== "list"&&<Row style={{background: "#fff"}}>
+          <Col style={{textAlign:"right",marginTop:"30px",paddingRight:"30px"}} span={24}>
             <a style={{color:this.state.type === "shapes"?"black":""}} onClick={() => {
               this.changeType("shape");
             }}>展示</a>
             /
-             <a style={{color:this.state.type === "shape"?"black":""}} onClick={() => {
+             <a style={{ color: this.state.type === "shape" ? "black" : "" }} onClick={() => {
               this.changeType("shapes");
             }}>编辑</a>
           </Col>
         </Row>}
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
-        {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type)=>{this.changeType(type)}} group_id={group_id} />}
+        {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除组"
           desc="确定要此删除此分组吗？"

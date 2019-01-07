@@ -120,7 +120,8 @@ export default class HttpTable extends PureComponent {
                         notification.success({ message: data.msg_show || '添加成功' })
                     }
                     this.setState({
-                        drawerVisible: false
+                        drawerVisible: false,
+                        editInfo: ''
                     })
                     this.reload()
                 }
@@ -270,10 +271,12 @@ export default class HttpTable extends PureComponent {
             </Tooltip>
         )
     }
+
     rowKey = (record, index) => index;
+
     openService = (record) => {
         this.props.dispatch({
-            type: 'appControl/onlyOpenPortOuter',
+            type: 'appControl/openPortOuter',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 app_alias: record.service_alias,
@@ -285,6 +288,7 @@ export default class HttpTable extends PureComponent {
         })
     }
     justify_appStatus = (record) => {
+        let winHandler = window.open('', '_blank')
         this.props.dispatch({
             type: 'gateWay/query_app_status',
             payload: {
@@ -292,15 +296,16 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                console.log(data)
                 if (data && data.bean.status != "running") {
                     this.setState({ appStatusVisable: true, record })
+                    winHandler.close()
                 } else {
-                    window.open(record.domain_name)
+                    winHandler.location.href = record.domain_name
                 }
             }
         })
     }
+
     handleAppStatus = () => {
         const { record } = this.state
         console.log(record)
@@ -333,7 +338,7 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'domain_name',
             key: 'domain_name',
             align: "left",
-            width: "23%",
+            width: "18%",
             render: (text, record) => {
                 return (
                     // record.is_outer_service == 1 ? <a href={text} target="blank">{text}</a> : <a href={text} disabled target="blank">{text}</a>
@@ -354,7 +359,7 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'is_senior',
             key: 'is_senior',
             align: "center",
-            width: "10%",
+            width: "15%",
             render: (text, record) => {
                 return text == "0" ? <span>无</span> : this.seeHighRoute(record)
             }
@@ -382,7 +387,7 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'service_cname',
             key: 'service_cname',
             align: "center",
-            width: "18%",
+            width: "15%",
             render: (text, record) => {
                 return (record.is_outer_service == 0 ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{text}({record.container_port})</Link>)
             }
@@ -391,16 +396,16 @@ export default class HttpTable extends PureComponent {
             dataIndex: 'action',
             key: 'action',
             align: "center",
-            width: "18%",
+            width: "26%",
             render: (data, record, index) => {
                 return (
-                    record.is_outer_service == 1 ? <div>
-                        <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
-                        <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
+                    record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
+                        <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                     </div> : <Tooltip placement="topLeft" title="请开启对外服务方可操作" arrowPointAtCenter>
-                            <div>
-                                <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
+                            <div style={{ display: "flex", justifyContent: "center" }}>
+                                <a onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
                 )

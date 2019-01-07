@@ -144,7 +144,6 @@ class EditName extends PureComponent {
                 onOk={this.handleSubmit}
                 onCancel={this.onCancel}>
                 <Form onSubmit={this.handleSubmit}>
-
                     <FormItem label="">
                         {getFieldDecorator('service_cname', {
                             initialValue: initValue || '',
@@ -216,7 +215,7 @@ class ManageContainer extends PureComponent {
         const renderPods = (
             <Menu onClick={this.handlePodClick}>
                 {(pods || []).map((item, index) => {
-                    return <Menu.Item key={item.pod_name + '_' + item.manage_name + '_' + item.pod_status}>节点{index + 1}</Menu.Item>
+                    return <Menu.Item key={item.pod_name + '_' + item.manage_name + '_' + item.pod_status}>实例{index + 1}</Menu.Item>
                 })
                 }
 
@@ -391,7 +390,6 @@ class Main extends PureComponent {
             return;
         }
         const { build_upgrade } = this.props;
-        console.log('--->' + build_upgrade)
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),

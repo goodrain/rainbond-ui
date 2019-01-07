@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input, Modal, Button, Tooltip,Radio} from "antd";
+import { Card, Form, List, Input, Modal, Button, Tooltip, Radio } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -41,7 +41,7 @@ export default class Main extends PureComponent {
       installBounced: false,
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
-      is_deploy:true
+      is_deploy: true
     };
     this.mount = false;
   }
@@ -123,7 +123,7 @@ export default class Main extends PureComponent {
     }
   };
   handleInstallBounced = () => {
-    const { installBounced ,is_deploy} = this.state;
+    const { installBounced, is_deploy } = this.state;
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
@@ -142,7 +142,7 @@ export default class Main extends PureComponent {
         });
 
         // 关闭弹框
-        this.setState({ installBounced: false ,is_deploy:true});
+        this.setState({ installBounced: false, is_deploy: true });
         this.state.handleType && this.props.refreshCurrent()
         this.props.dispatch(
           routerRedux.push(
@@ -154,7 +154,7 @@ export default class Main extends PureComponent {
       }
     });
   }
-  handleCreate = (vals,is_deploy) => {
+  handleCreate = (vals, is_deploy) => {
     const app = this.state.showCreate;
     this.props.dispatch({
       type: "createApp/installApp",
@@ -175,7 +175,7 @@ export default class Main extends PureComponent {
 
         // 关闭弹框
         this.onCancelCreate();
-        this.setState({is_deploy:true})
+        this.setState({ is_deploy: true })
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
@@ -217,7 +217,9 @@ export default class Main extends PureComponent {
         title={item.group_name || ""}
         style={{
           maxWidth: "200px",
-          overflow: "hidden"
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow:"ellipsis"
         }}
         onClick={() => {
           this.showMarketAppDetail(item);
@@ -233,59 +235,91 @@ export default class Main extends PureComponent {
         </a>
       </div>
     );
-
+    const { handleType } = this.state;
     return (
       <Fragment>
         {item.is_official && (
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
+        {handleType?
         <Card
           className={PluginStyles.card}
           actions={[
-            <span
-              onClick={() => {
-                this.showCreate(item);
-              }}
-            >
-              安装
-            </span>
+            <div onClick={() => {
+              this.showCreate(item);
+            }}>
+              <div className={PluginStyles.cardTitle}> 
+              <span title={item.group_name}>{item.group_name}</span>
+              <span>安装</span>
+              </div>
+              <div>版本:{item.version}</div>
+              </div>
+
           ]}
         >
           <Card.Meta
-            style={{ height: 112, overflow: "hidden" }}
+            style={{ height:80, overflow: "hidden",display:"flex",justifyContent:"center",cursor:"pointer" }}
+            className={PluginStyles.CardMeta}
             avatar={
               <img
-                style={{ width: 110, height: 110, margin: " 0 auto" }}
+                style={{ width: 80, height:80, margin: "auto" }}
                 alt={item.title}
                 src={item.pic || require("../../../public/images/app_icon.jpg")}
-                height={154}
-                onClick={() => {
-                  this.showMarketAppDetail(item);
-                }}
+               
               />
             }
-            title={title(item)}
-            description={
-              <Fragment>
-                <span
-                  style={{
-                    display: "block",
-                    color: "rgb(200, 200, 200)",
-                    marginBottom: 8,
-                    fontSize: 12
-                  }}
-                >
-                  版本: {item.version}
-                  <br />
-                  内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
-                </span>
-                <Ellipsis className={PluginStyles.item} lines={3}>
-                  <span title={item.describe}>{item.describe}</span>
-                </Ellipsis>
-              </Fragment>
-            }
+            onClick={() => {
+              this.showMarketAppDetail(item);
+            }}
+            title=""
+            description={""}
           />
-        </Card>
+        </Card>:
+         <Card
+         className={PluginStyles.card}
+         actions={[
+             <span onClick={() => {
+             this.showCreate(item);
+           }}>安装</span>
+         ]}
+       >
+         <Card.Meta
+           style={{ height: 112, overflow: "hidden" }}
+           avatar={
+             <img
+               style={{ width: 110, height: 110, margin: " 0 auto" }}
+               alt={item.title}
+               src={item.pic || require("../../../public/images/app_icon.jpg")}
+               height={154}
+               onClick={() => {
+                 this.showMarketAppDetail(item);
+               }}
+             />
+           }
+
+           title={title(item)}
+           description={
+             <Fragment>
+               <span
+                 style={{
+                   display: "block",
+                   color: "rgb(200, 200, 200)",
+                   marginBottom: 8,
+                   fontSize: 12
+                 }}
+               >
+                 版本: {item.version}
+                 <br />
+                 内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
+               </span>
+               <Ellipsis className={PluginStyles.item} lines={3}>
+                 <span title={item.describe}>{item.describe}</span>
+               </Ellipsis>
+             </Fragment>
+           }
+         />
+       </Card>
+      }
       </Fragment>
     );
   };
@@ -401,12 +435,12 @@ export default class Main extends PureComponent {
             onCancel={() => { this.setState({ installBounced: false }) }}
             footer={
               <div>
-                <Button onClick={() => { this.setState({ installBounced: false,is_deploy:true }) }}>取消</Button>
+                <Button onClick={() => { this.setState({ installBounced: false, is_deploy: true }) }}>取消</Button>
                 <Button onClick={this.handleInstallBounced} type="primary" >
                   安装
                 </Button>
                 {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
-                  <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
+                <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
                 {/* </Tooltip> */}
               </div>
             }

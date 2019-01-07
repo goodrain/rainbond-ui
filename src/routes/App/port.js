@@ -216,7 +216,6 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     this.fetchPorts();
     this.fetchCertificates();
-    console.log(this.props.ports)
   }
   // 获取证书
   fetchCertificates() {

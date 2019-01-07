@@ -29,7 +29,7 @@ export default class EditRunHealthCheck extends PureComponent {
       },
     );
   };
-  checkPath = (value, callback) => {
+  checkPath = (rules, value, callback) => {
     const visitType = this.props.form.getFieldValue("scheme");
     if (visitType == "tcp") {
       callback();
