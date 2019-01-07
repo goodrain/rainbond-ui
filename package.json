@@ -1,6 +1,6 @@
 {
   "name": "rainbond-ui",
-  "version": "master",
+  "version": "5.0.0",
   "description": "rainbond front-end project. ",
   "private": true,
   "scripts": {
