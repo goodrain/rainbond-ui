@@ -1,14 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Modal, Checkbox, notification, Radio, Form } from 'antd';
-
-
 import globalUtil from '../../utils/global';
 import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
 import {
   addRelationedApp,
   removeRelationedApp
 } from '../../services/app';
+import dagre from "dagre";
+
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 const formItemLayout = {
@@ -79,7 +79,7 @@ class EditorData extends PureComponent {
       nodes: [
         {
           type: "node",
-          size: "70*70",
+          size: "60*60",
           shape: "The Internet",
           color: "#030303",
           label: "The Internet",
@@ -114,10 +114,15 @@ class EditorData extends PureComponent {
       if (Object.prototype.hasOwnProperty.call(data.json_data, k)) {
         num++
         node = {};
-        edge = {}
+        edge = {
+          // "style": {
+          // "lineWidth": 4,
+          //  stroke: 'red',
+          // },
+        };
         item = data.json_data[k];
         node.type = "node";
-        node.size = "70*70";
+        node.size = "75*75";
         node.shape = item.cur_status;
         node.color = "#030303";
         node.label = item.service_cname;
@@ -134,8 +139,8 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
-        let sm = num == 1 ? "" : (num - 1) * 100
+        // let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
+        // let sm = num == 1 ? "" : (num - 1) * 100
 
         if (item.is_internet) {
           edge.source = "The Internet";
@@ -145,7 +150,6 @@ class EditorData extends PureComponent {
           // edge.index = num;
           dats.edges.push(edge);
         }
-
         if (data.json_svg[k] && data.json_svg[k].length > 0) {
           for (let o = 0; o < data.json_svg[k].length; o++) {
             edgr = {}
@@ -154,32 +158,74 @@ class EditorData extends PureComponent {
             edgr.target = data.json_svg[k][o];
             // edgr.id = num * 999 + o;
             // edgr.index = num * 999 + o;
-            node.x = Number(sum + sm)
-            node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
-
+            // node.x = Number(sum + sm)
+            // node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
             arr.push(edgr);
           }
         }
-
-        node.x = Number(sum + sm)
-        node.y = node.y ? node.y : num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
-
+        // node.x = Number(sum + sm)
+        // node.y = node.y ? node.y : num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
         dats.registerData.push(item.cur_status)
         dats.nodes.push(node);
       }
     });
-
     dats.edges = Array.from(new Set(dats.edges))
     arr = Array.from(new Set(arr))
     let ars = dats.edges.concat(arr)
     dats.edges = ars
     dats.nodes[0].x = Number(((document.body.clientWidth - 352) - ((keyslength * 100) / 2)) / 2)
+
+    const graph = new dagre.graphlib.Graph()
+      .setGraph({})
+      .setDefaultEdgeLabel(() => {
+        return {};
+      });
+    dats.nodes.forEach(node => {
+      const size = node.size.split("*");
+      const width = Number(size[0]);
+      const height = Number(size[1]);
+      graph.setNode(node.id, { width, height });
+    });
+    dats.edges.forEach(edge => {
+      graph.setEdge(edge.source, edge.target);
+    });
+    dagre.layout(graph);
+    const nextNodes = dats.nodes.map(node => {
+      const graphNode = graph.node(node.id);
+      return { ...node, x: graphNode.x+200, y: graphNode.y };
+    });
+    dats.nodes = nextNodes
     return dats;
   }
+  //排序
+  handleLayout = () => {
+    const { read } = this.editor.propsAPI;
+    const graph = new dagre.graphlib.Graph()
+      .setGraph({})
+      .setDefaultEdgeLabel(() => {
+        return {};
+      });
+    data.nodes.forEach(node => {
+      const size = node.size.split("*");
+      const width = Number(size[0]);
+      const height = Number(size[1]);
+      graph.setNode(node.id, { width, height });
+    });
+    data.edges.forEach(edge => {
+      graph.setEdge(edge.source, edge.target);
+    });
+    dagre.layout(graph);
+    const nextNodes = data.nodes.map(node => {
+      const graphNode = graph.node(node.id);
+      return { ...node, x: graphNode.x, y: graphNode.y };
+    });
+    read({ nodes: nextNodes, edges: data.edges });
+  };
+
+
 
   //处理 多依赖
-  handleOk = (e) => {
-    e.preventDefault();
+  handleOk = () => {
     const { name, id, foreignType } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -214,6 +260,7 @@ class EditorData extends PureComponent {
               if (res && res._code == 200) {
                 notification.success({ message: res.msg_show });
                 this.setState({ visible: false });
+                this.loadTopology()
                 return
               }
               this.setState({ visible: false });
@@ -274,7 +321,7 @@ class EditorData extends PureComponent {
   }
 
   //处理删除依赖接口
-  handleDeleteRelationedApp = () => {
+  handleDeleteRelationedApp = (e) => {
     const { edgeData } = this.state;
     if (edgeData) {
       const name = edgeData.source.model.service_alias;
@@ -433,7 +480,6 @@ class EditorData extends PureComponent {
             }}
             onAfterChange={(e) => {
               const { action, item } = e;
-
               if (action == 'add') {
                 const name = item.source.model.service_alias;
                 const names = item.target.model.service_alias
