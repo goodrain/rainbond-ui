@@ -24,8 +24,8 @@ import ScrollerX from "../../components/ScrollerX";
 import AddVolumes from "../../components/AddOrEditVolume"
 
 @connect(
-  ({ user, appControl }) => ({ 
-    currUser: user.currentUser, 
+  ({ user, appControl }) => ({
+    currUser: user.currentUser,
     volumes: appControl.volumes,
     appBaseInfo: appControl.baseInfo,
   }),
@@ -219,13 +219,13 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <a
                       onClick={() => {
-                          this.onDeleteVolume(data);
-                        }}
+                        this.onDeleteVolume(data);
+                      }}
                       href="javascript:;"
                     >
-                        删除
+                      删除
                     </a>
-                    ),
+                  ),
                 },
               ]}
               dataSource={volumes}
@@ -269,12 +269,12 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
-                          data.dep_app_alias
+                        data.dep_app_alias
                         }/overview`}
                     >
                       {v}
                     </Link>
-                    ),
+                  ),
                 },
                 {
                   title: "目标服务所属应用",
@@ -282,12 +282,12 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-                          data.dep_group_id
+                        data.dep_group_id
                         }`}
                     >
                       {v}
                     </Link>
-                    ),
+                  ),
                 },
                 {
                   title: "操作",
@@ -295,13 +295,13 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <a
                       onClick={() => {
-                          this.onDeleteMnt(data);
-                        }}
+                        this.onDeleteMnt(data);
+                      }}
                       href="javascript:;"
                     >
-                        取消挂载
+                      取消挂载
                     </a>
-                    ),
+                  ),
                 },
               ]}
               dataSource={mntList}
