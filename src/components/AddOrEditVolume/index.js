@@ -12,7 +12,7 @@ export default class AddVolumes extends PureComponent {
     super(props)
     this.state = {
       configurationShow: false,
-      configuration_content:''
+      configuration_content: ''
     }
   }
   handleSubmit = (e) => {
@@ -41,7 +41,7 @@ export default class AddVolumes extends PureComponent {
   checkFile = (rules, value, callback) => {
     if (value) {
       if (value.fileList.length > 0 && (value.file.name.endsWith(".txt") || value.file.name.endsWith(".json") || value.file.name.endsWith(".yaml") || value.file.name.endsWith(".yml") || value.file.name.endsWith(".xml"))) {
-        const fileList =  value.fileList.splice(-1)
+        const fileList = value.fileList.splice(-1)
         this.readFileContents(fileList, 'file_content');
         callback();
         return;
@@ -60,7 +60,7 @@ export default class AddVolumes extends PureComponent {
     if (!isRightType) {
       message.error('请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件', 5);
       return false
-    }else{
+    } else {
       return true
     }
   }
