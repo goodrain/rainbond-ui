@@ -101,7 +101,7 @@ export default class Index extends PureComponent {
 		const user = this.props.user;
 		return (
 			<Card >
-				<div className={styles.formWrap}>
+				<div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
 
 					{(!userUtil.hasGitlatAccount(user))
 					?

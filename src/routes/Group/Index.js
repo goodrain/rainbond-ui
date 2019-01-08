@@ -538,11 +538,11 @@ class Main extends PureComponent {
         </Row>
         {hasService&&this.state.type !== "list"&&<Row style={{background: "#fff"}}>
           <Col style={{textAlign:"right",marginTop:"30px",paddingRight:"30px"}} span={24}>
-            <a style={{color:this.state.type === "shapes"?"black":""}} onClick={() => {
+            <a style={{color:this.state.type === "shapes"?"":"black"}} onClick={() => {
               this.changeType("shape");
             }}>展示</a>
             /
-             <a style={{ color: this.state.type === "shape" ? "black" : "" }} onClick={() => {
+             <a style={{ color: this.state.type === "shape" ? "" : "black" }} onClick={() => {
               this.changeType("shapes");
             }}>编辑</a>
           </Col>

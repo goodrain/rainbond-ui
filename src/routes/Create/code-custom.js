@@ -19,6 +19,7 @@ import styles from './Index.less';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import CodeCustomForm from '../../components/CodeCustomForm';
+import { width } from 'window-size';
 
 const { Option } = Select;
 
@@ -103,7 +104,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
-        <div className={styles.formWrap}>
+        <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
           <CodeCustomForm onSubmit={this.handleSubmit} {...this.props}/>
         </div>
       </Card>
