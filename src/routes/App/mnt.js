@@ -19,6 +19,7 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import { getMnt, addMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
+import {volumeTypeObj} from "../../utils/utils";
 import AddRelationMnt from "../../components/AddRelationMnt";
 import ScrollerX from "../../components/ScrollerX";
 import AddVolumes from "../../components/AddOrEditVolume"
@@ -212,6 +213,9 @@ export default class Index extends PureComponent {
                 {
                   title: "存储类型",
                   dataIndex: "volume_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "操作",
@@ -262,6 +266,9 @@ export default class Index extends PureComponent {
                 {
                   title: "目标存储类型",
                   dataIndex: "dep_vol_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "目标所属服务",

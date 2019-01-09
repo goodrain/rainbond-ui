@@ -6,15 +6,10 @@ import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link, Switch, Route } from "dva/router";
-import {
-  Input,
-  Table,
-  Modal,
-  notification,
-  Pagination,
-} from "antd";
+import { Input, Table, Modal, notification, Pagination } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
+import { volumeTypeObj } from "../../utils/utils";
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -25,7 +20,7 @@ export default class Index extends PureComponent {
       total: 0,
       current: 1,
       pageSize: 6,
-      localpaths: {},
+      localpaths: {}
     };
   }
   componentDidMount() {
@@ -38,9 +33,12 @@ export default class Index extends PureComponent {
     }
 
     let res = [];
-    res = this.state.selectedRowKeys.map((index) => {
+    res = this.state.selectedRowKeys.map(index => {
       const data = this.state.list[index];
-      return { id: data.dep_vol_id, path: this.state.localpaths[data.dep_vol_id] };
+      return {
+        id: data.dep_vol_id,
+        path: this.state.localpaths[data.dep_vol_id]
+      };
     });
     res = res.filter(item => !!item.path);
 
@@ -59,7 +57,7 @@ export default class Index extends PureComponent {
       },
       () => {
         this.loadUnMntList();
-      },
+      }
     );
   };
   loadUnMntList = () => {
@@ -68,8 +66,8 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
       page: this.state.current,
       page_size: this.state.pageSize,
-      type: "unmnt",
-    }).then((data) => {
+      type: "unmnt"
+    }).then(data => {
       if (data) {
         this.setState({
           list: data.list || [],
@@ -81,7 +79,8 @@ export default class Index extends PureComponent {
   handleCancel = () => {
     this.props.onCancel && this.props.onCancel();
   };
-  isDisabled = (data, index) => this.state.selectedRowKeys.indexOf(index) === -1;
+  isDisabled = (data, index) =>
+    this.state.selectedRowKeys.indexOf(index) === -1;
   handleChange = (value, data, index) => {
     const local = this.state.localpaths;
     local[data.dep_vol_id] = value;
@@ -91,18 +90,18 @@ export default class Index extends PureComponent {
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
-          selectedRowKeys,
+          selectedRowKeys
         });
-      },
+      }
     };
-    const {total, current, pageSize} = this.state
+    const { total, current, pageSize } = this.state;
 
     const pagination = {
-       onChange:this.handleTableChange,
-       total:total,
-       pageSize:pageSize,
-       current:current
-    }
+      onChange: this.handleTableChange,
+      total: total,
+      pageSize: pageSize,
+      current: current
+    };
 
     return (
       <Modal
@@ -122,38 +121,58 @@ export default class Index extends PureComponent {
               dataIndex: "localpath",
               render: (localpath, data, index) => (
                 <Input
-                  onChange={(e) => {
+                  onChange={e => {
                     this.handleChange(e.target.value, data, index);
                   }}
                   disabled={this.isDisabled(data, index)}
                 />
-              ),
+              )
             },
             {
               title: "目标存储名称",
-              dataIndex: "dep_vol_name",
+              dataIndex: "dep_vol_name"
             },
             {
               title: "目标存储目录",
-              dataIndex: "dep_vol_path",
+              dataIndex: "dep_vol_path"
             },
             {
               title: "目标存储类型",
               dataIndex: "dep_vol_type",
+              render: (text, record) => {
+                return <span>{volumeTypeObj[text]}</span>;
+              }
             },
             {
-              title: '目标所属服务',
-              dataIndex: 'dep_app_name',
+              title: "目标所属服务",
+              dataIndex: "dep_app_name",
               render: (v, data) => {
-                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
-              }
-            }, {
-              title: '目标服务所属应用',
-              dataIndex: 'dep_app_group',
-              render: (v, data) => {
-                return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
+                return (
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                      data.dep_app_alias
+                    }/overview`}
+                  >
+                    {v}
+                  </Link>
+                );
               }
             },
+            {
+              title: "目标服务所属应用",
+              dataIndex: "dep_app_group",
+              render: (v, data) => {
+                return (
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                      data.dep_group_id
+                    }`}
+                  >
+                    {v}
+                  </Link>
+                );
+              }
+            }
           ]}
         />
       </Modal>

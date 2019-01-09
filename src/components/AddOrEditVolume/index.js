@@ -118,16 +118,16 @@ export default class AddVolumes extends PureComponent {
               ],
             })(<Input placeholder="请输入存储名称" />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="目录">
+          <FormItem {...formItemLayout} label="挂载路径">
             {getFieldDecorator("volume_path", {
               initialValue: data.volume_path || "",
               rules: [
                 {
                   required: true,
-                  message: "请输入存储目录",
+                  message: "请输入挂载路径",
                 },
               ],
-            })(<Input placeholder="请输入存储目录" />)}
+            })(<Input placeholder="请输入挂载路径" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="类型">
             {getFieldDecorator("volume_type", {
