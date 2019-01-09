@@ -117,7 +117,7 @@ export default class Index extends PureComponent {
           rowSelection={rowSelection}
           columns={[
             {
-              title: "本地存储目录",
+              title: "本地挂载路径",
               dataIndex: "localpath",
               render: (localpath, data, index) => (
                 <Input
@@ -133,7 +133,7 @@ export default class Index extends PureComponent {
               dataIndex: "dep_vol_name"
             },
             {
-              title: "目标存储目录",
+              title: "目标挂载路径",
               dataIndex: "dep_vol_path"
             },
             {

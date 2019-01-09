@@ -207,7 +207,7 @@ export default class Index extends PureComponent {
                   dataIndex: "volume_name",
                 },
                 {
-                  title: "存储目录",
+                  title: "挂载路径",
                   dataIndex: "volume_path",
                 },
                 {
@@ -252,7 +252,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: "本地存储目录",
+                  title: "本地挂载路径",
                   dataIndex: "local_vol_path",
                 },
                 {
@@ -260,7 +260,7 @@ export default class Index extends PureComponent {
                   dataIndex: "dep_vol_name",
                 },
                 {
-                  title: "目标存储目录",
+                  title: "目标挂载路径",
                   dataIndex: "dep_vol_path",
                 },
                 {
