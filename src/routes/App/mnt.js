@@ -19,6 +19,7 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import { getMnt, addMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
+import {volumeTypeObj} from "../../utils/utils";
 import AddRelationMnt from "../../components/AddRelationMnt";
 import ScrollerX from "../../components/ScrollerX";
 import AddVolumes from "../../components/AddOrEditVolume"
@@ -206,12 +207,15 @@ export default class Index extends PureComponent {
                   dataIndex: "volume_name",
                 },
                 {
-                  title: "存储目录",
+                  title: "挂载路径",
                   dataIndex: "volume_path",
                 },
                 {
                   title: "存储类型",
                   dataIndex: "volume_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "操作",
@@ -248,7 +252,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: "本地存储目录",
+                  title: "本地挂载路径",
                   dataIndex: "local_vol_path",
                 },
                 {
@@ -256,12 +260,15 @@ export default class Index extends PureComponent {
                   dataIndex: "dep_vol_name",
                 },
                 {
-                  title: "目标存储目录",
+                  title: "目标挂载路径",
                   dataIndex: "dep_vol_path",
                 },
                 {
                   title: "目标存储类型",
                   dataIndex: "dep_vol_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "目标所属服务",
