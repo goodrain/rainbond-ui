@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Modal, Checkbox, notification, Radio, Form } from 'antd';
 import globalUtil from '../../utils/global';
-import { Flow, withPropsAPI, RegisterCommand} from 'gg-editor';
+import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
 import {
   addRelationedApp,
   removeRelationedApp
@@ -40,15 +40,15 @@ class EditorData extends PureComponent {
       edgeData: "",
       edgeTitle: "",
       foreignTypeName: "",
-      shape:""
+      shape: ""
     }
   }
   componentDidMount() {
     this.loadTopology()
   }
-  componentDidUpdate(){
+  componentDidUpdate() {
     //自适应
-   this.state.data.nodes&&this.state.data.nodes.length>10&& this.props.propsAPI.executeCommand('autoZoom');
+    this.state.data.nodes && this.state.data.nodes.length > 10 && this.props.propsAPI.executeCommand('autoZoom');
   }
   //更新拓扑图
   changeType = () => {
@@ -116,11 +116,8 @@ class EditorData extends PureComponent {
       item.node_num = item.node_num || 1;
       return item.node_num > 3 ? 3 : item.node_num;
     }
-    let num = 0;
-
     keys.forEach((k) => {
       if (Object.prototype.hasOwnProperty.call(data.json_data, k)) {
-        num++
         node = {};
         edge = {
           style: {
@@ -147,37 +144,23 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        // let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
-        // let sm = num == 1 ? "" : (num - 1) * 100
-
         if (item.is_internet) {
           edge.source = "The Internet";
-          // edge.sourceAnchor = 2;
           edge.target = k;
-          // edge.id = num;
-          // edge.index = num;
-
           dats.edges.push(edge);
         }
         if (data.json_svg[k] && data.json_svg[k].length > 0) {
           for (let o = 0; o < data.json_svg[k].length; o++) {
             edgr = {}
             edgr.source = item.service_id;
-            // edgr.sourceAnchor = 2;
             edgr.target = data.json_svg[k][o];
             edgr.style = {
               lineWidth: 2,
               stroke: '#B6B6CD',
             }
-            // edgr.id = num * 999 + o;
-            // edgr.index = num * 999 + o;
-            // node.x = Number(sum + sm)
-            // node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
             arr.push(edgr);
           }
         }
-        // node.x = Number(sum + sm)
-        // node.y = node.y ? node.y : num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
         dats.registerData.push(item.cur_status)
         dats.nodes.push(node);
       }
@@ -187,7 +170,6 @@ class EditorData extends PureComponent {
     let ars = dats.edges.concat(arr)
     dats.edges = ars
     dats.nodes[0].x = Number(((document.body.clientWidth - 352) - ((keyslength * 100) / 2)) / 2)
-
     const graph = new dagre.graphlib.Graph()
       .setGraph({})
       .setDefaultEdgeLabel(() => {
@@ -239,7 +221,7 @@ class EditorData extends PureComponent {
 
   //处理 多依赖
   handleOk = () => {
-    const { name, id, foreignType ,shape} = this.state;
+    const { name, id, foreignType, shape } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (!err) {
@@ -252,11 +234,11 @@ class EditorData extends PureComponent {
             container_port: fieldsValue.container_port
           }).then((res) => {
             if (res && res._code == 200) {
-              shape == "undeploy" || shape == "closed" || shape == "stopping" ?notification.success({ message:"依赖添加成功。"}):this.handleUpdateConfirm(name,"依赖添加成功，需要更新才能生效。");
-              this.setState({ visible: false ,shape:""});
+              shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: "依赖添加成功。" }) : this.handleUpdateConfirm(name, "依赖添加成功，需要更新才能生效。");
+              this.setState({ visible: false, shape: "" });
               return
             }
-            this.setState({ visible: false,shape:"" });
+            this.setState({ visible: false, shape: "" });
             this.handleUndo();
           });
         }
@@ -271,12 +253,12 @@ class EditorData extends PureComponent {
             },
             callback: (res) => {
               if (res && res._code == 200) {
-                shape == "undeploy" || shape == "closed" || shape == "stopping" ?notification.success({ message: res.msg_show }):this.handleUpdateConfirm(name,"已开启对外端口，需要更新才能生效。");
-                this.setState({ visible: false ,shape:""});
+                shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
+                this.setState({ visible: false, shape: "" });
                 this.loadTopology();
                 return
               }
-              this.setState({ visible: false ,shape:""});
+              this.setState({ visible: false, shape: "" });
               this.handleUndo();
             }
           })
@@ -293,7 +275,7 @@ class EditorData extends PureComponent {
   }
 
   //处理依赖接口
-  handleSubmitAddRelation = (name, id, targetName,sourceShape) => {
+  handleSubmitAddRelation = (name, id, targetName, sourceShape) => {
     addRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: name,
@@ -320,14 +302,14 @@ class EditorData extends PureComponent {
           foreignTypeName: targetName,
           list: res.list || [],
           name,
-          shape:sourceShape,
+          shape: sourceShape,
           id,
         });
         return
       }
       if (res && res._code == 200) {
         this.loadTopology();
-        sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ?notification.success({ message: "依赖添加成功。" }):this.handleUpdateConfirm(name,"依赖添加成功，需要更新才能生效。");
+        sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: "依赖添加成功。" }) : this.handleUpdateConfirm(name, "依赖添加成功，需要更新才能生效。");
         return
       }
       this.handleUndo();
@@ -340,8 +322,8 @@ class EditorData extends PureComponent {
     if (edgeData) {
       const name = edgeData.source.model.service_alias;
       const names = edgeData.target.model.service_alias
-      const sourceShape =edgeData.source.model.shape;
-      const targetShape =edgeData.target.model.shape;
+      const sourceShape = edgeData.source.model.shape;
+      const targetShape = edgeData.target.model.shape;
       const id = edgeData.target.id;
       if (name) {
         removeRelationedApp({
@@ -350,10 +332,8 @@ class EditorData extends PureComponent {
           dep_service_id: id,
         }).then((res) => {
           if (res && res._code == 200) {
-            
-        sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ?
-        notification.success({ message: res.msg_show }):
-        this.handleUpdateConfirm(name,"取消依赖成功，需要更新才能生效。");
+            sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: res.msg_show }) :
+              this.handleUpdateConfirm(name, "取消依赖成功，需要更新才能生效。");
             this.loadTopology()
             this.setState({
               edgeData: "",
@@ -371,9 +351,7 @@ class EditorData extends PureComponent {
           },
           callback: (res) => {
             if (res && res._code == 200) {
-              targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ?
-              notification.success({ message: res.msg_show }):
-              this.handleUpdateConfirm(names,"关闭对外端口成功,需要更新才能生效。");
+              targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ?notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(names, "关闭对外端口成功,需要更新才能生效。");
               this.loadTopology()
               this.setState({
                 edgeData: "",
@@ -393,7 +371,7 @@ class EditorData extends PureComponent {
   }
 
   //打开对外端口
-  handleSubmitOpenExternalPort = (name, nowName,targetShape) => {
+  handleSubmitOpenExternalPort = (name, nowName, targetShape) => {
     this.props.dispatch({
       type: 'appControl/openExternalPort',
       payload: {
@@ -408,7 +386,7 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
-          targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ?notification.success({ message: res.msg_show }):this.handleUpdateConfirm(name,"该服务已开启对外端口，需要更新才能生效。");
+          targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
           this.loadTopology();
           return
         }
@@ -424,7 +402,7 @@ class EditorData extends PureComponent {
             foreignTypeName: nowName,
             list: res.list || [],
             name,
-            shape:targetShape,
+            shape: targetShape,
           });
           return
         }
@@ -450,9 +428,9 @@ class EditorData extends PureComponent {
 
 
   //更新
-  handleUpdateConfirm = (name,title) => {
+  handleUpdateConfirm = (name, title) => {
     Modal.confirm({
-      title:title,
+      title: title,
       content: '',
       okText: '更新',
       cancelText: '取消',
@@ -472,7 +450,6 @@ class EditorData extends PureComponent {
   render() {
     const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle, foreignTypeName } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    console.log("data",data)
     return (
       <div>
         {visible && <Modal
@@ -513,10 +490,6 @@ class EditorData extends PureComponent {
         <RegisterCommand name="delete" config={{ shortcutCodes: [] }} extend="delete" />
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
-            onEdgeMouseEnter={(e) => {
-              // console.log("e", e)
-              // e.shape._attrs.stroke = "red"
-            }}
             onKeyDown={(e) => {
               if (e.domEvent.key == "Backspace") {
                 this.onEdgeOpen();
@@ -532,18 +505,18 @@ class EditorData extends PureComponent {
               if (action == 'add') {
                 const name = item.source.model.service_alias;
                 const names = item.target.model.service_alias;
-                const sourceShape =item.source.model.shape;
-                const targetShape =item.target.model.shape;
+                const sourceShape = item.source.model.shape;
+                const targetShape = item.target.model.shape;
                 const sourceType = item.source.id
                 const id = item.target.id;
                 const targetName = item.target.model.label
                 if (sourceType == "The Internet") {
-                  this.handleSubmitOpenExternalPort(names, targetName,targetShape)
+                  this.handleSubmitOpenExternalPort(names, targetName, targetShape)
                 } else if (id == "The Internet") {
                   this.handleUndo()
                 }
                 else if (name != "The Internet") {
-                  this.handleSubmitAddRelation(name, id, targetName,sourceShape)
+                  this.handleSubmitAddRelation(name, id, targetName, sourceShape)
                 }
               }
             }}

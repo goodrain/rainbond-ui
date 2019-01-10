@@ -90,9 +90,9 @@ class EditorToplogy extends PureComponent {
         group.addShape("text", {
           attrs: {
             text: label,
-            x: x + xnum,
+            x: x+xnum ,
             y: y + 46,
-            textAlign: "start",
+            textAlign: "left",
             textBaseline: "top",
             fill: "rgba(0,0,0,0.65)",
           }
