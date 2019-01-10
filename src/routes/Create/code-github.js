@@ -68,7 +68,7 @@ export default class Index extends PureComponent {
 
     return (
       <Card>
-        <div className={styles.formWrap}>
+        <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
           {!is_auth ? (
             <div
               style={{

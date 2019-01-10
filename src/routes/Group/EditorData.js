@@ -1,14 +1,17 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Modal, Checkbox, notification, Radio, Form } from 'antd';
-
-
 import globalUtil from '../../utils/global';
 import { Flow, withPropsAPI, RegisterCommand } from 'gg-editor';
 import {
   addRelationedApp,
   removeRelationedApp
 } from '../../services/app';
+import dagre from "dagre";
+import {
+  updateRolling
+} from '../../services/app';
+
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 const formItemLayout = {
@@ -36,11 +39,16 @@ class EditorData extends PureComponent {
       registerData: [],
       edgeData: "",
       edgeTitle: "",
-      foreignTypeName: ""
+      foreignTypeName: "",
+      shape: ""
     }
   }
   componentDidMount() {
     this.loadTopology()
+  }
+  componentDidUpdate() {
+    //自适应
+    this.state.data.nodes && this.state.data.nodes.length > 10 && this.props.propsAPI.executeCommand('autoZoom');
   }
   //更新拓扑图
   changeType = () => {
@@ -79,7 +87,7 @@ class EditorData extends PureComponent {
       nodes: [
         {
           type: "node",
-          size: "70*70",
+          size: "60*60",
           shape: "The Internet",
           color: "#030303",
           label: "The Internet",
@@ -108,16 +116,18 @@ class EditorData extends PureComponent {
       item.node_num = item.node_num || 1;
       return item.node_num > 3 ? 3 : item.node_num;
     }
-    let num = 0;
-
     keys.forEach((k) => {
       if (Object.prototype.hasOwnProperty.call(data.json_data, k)) {
-        num++
         node = {};
-        edge = {}
+        edge = {
+          style: {
+            lineWidth: 2,
+            stroke: '#B6B6CD',
+          },
+        };
         item = data.json_data[k];
         node.type = "node";
-        node.size = "70*70";
+        node.size = "75*75";
         node.shape = item.cur_status;
         node.color = "#030303";
         node.label = item.service_cname;
@@ -134,53 +144,84 @@ class EditorData extends PureComponent {
         node.stackNum = getStackNum(item);
         node.linkable = item.cur_status === 'running' ? 1 : 0;
         node.adjacency = data.json_svg[k] || [];
-        let sum = (((document.body.clientWidth - 352) - ((keyslength * 100))) / 2)
-        let sm = num == 1 ? "" : (num - 1) * 100
-
         if (item.is_internet) {
           edge.source = "The Internet";
-          // edge.sourceAnchor = 2;
           edge.target = k;
-          // edge.id = num;
-          // edge.index = num;
           dats.edges.push(edge);
         }
-
         if (data.json_svg[k] && data.json_svg[k].length > 0) {
           for (let o = 0; o < data.json_svg[k].length; o++) {
             edgr = {}
             edgr.source = item.service_id;
-            // edgr.sourceAnchor = 2;
             edgr.target = data.json_svg[k][o];
-            // edgr.id = num * 999 + o;
-            // edgr.index = num * 999 + o;
-            node.x = Number(sum + sm)
-            node.y = num > 10 ? 250 : num > 20 ? 350 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 150;
-
+            edgr.style = {
+              lineWidth: 2,
+              stroke: '#B6B6CD',
+            }
             arr.push(edgr);
           }
         }
-
-        node.x = Number(sum + sm)
-        node.y = node.y ? node.y : num > 10 ? 350 : num > 20 ? 450 : num > 30 ? 550 : num > 40 ? 650 : num > 50 ? 750 : num > 60 ? 850 : num > 70 ? 950 : 250;
-
         dats.registerData.push(item.cur_status)
         dats.nodes.push(node);
       }
     });
-
     dats.edges = Array.from(new Set(dats.edges))
     arr = Array.from(new Set(arr))
     let ars = dats.edges.concat(arr)
     dats.edges = ars
     dats.nodes[0].x = Number(((document.body.clientWidth - 352) - ((keyslength * 100) / 2)) / 2)
+    const graph = new dagre.graphlib.Graph()
+      .setGraph({})
+      .setDefaultEdgeLabel(() => {
+        return {};
+      });
+    dats.nodes.forEach(node => {
+      const size = node.size.split("*");
+      const width = Number(size[0]);
+      const height = Number(size[1]);
+      graph.setNode(node.id, { width, height });
+    });
+    dats.edges.forEach(edge => {
+      graph.setEdge(edge.source, edge.target);
+    });
+    dagre.layout(graph);
+    const nextNodes = dats.nodes.map(node => {
+      const graphNode = graph.node(node.id);
+      return { ...node, x: graphNode.x + 200, y: graphNode.y };
+    });
+    dats.nodes = nextNodes
     return dats;
   }
+  //排序
+  handleLayout = () => {
+    const { read } = this.editor.propsAPI;
+    const graph = new dagre.graphlib.Graph()
+      .setGraph({})
+      .setDefaultEdgeLabel(() => {
+        return {};
+      });
+    data.nodes.forEach(node => {
+      const size = node.size.split("*");
+      const width = Number(size[0]);
+      const height = Number(size[1]);
+      graph.setNode(node.id, { width, height });
+    });
+    data.edges.forEach(edge => {
+      graph.setEdge(edge.source, edge.target);
+    });
+    dagre.layout(graph);
+    const nextNodes = data.nodes.map(node => {
+      const graphNode = graph.node(node.id);
+      return { ...node, x: graphNode.x, y: graphNode.y };
+    });
+    read({ nodes: nextNodes, edges: data.edges });
+  };
+
+
 
   //处理 多依赖
-  handleOk = (e) => {
-    e.preventDefault();
-    const { name, id, foreignType } = this.state;
+  handleOk = () => {
+    const { name, id, foreignType, shape } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (!err) {
@@ -193,11 +234,11 @@ class EditorData extends PureComponent {
             container_port: fieldsValue.container_port
           }).then((res) => {
             if (res && res._code == 200) {
-              notification.success({ message: res.msg_show })
-              this.setState({ visible: false });
+              shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: "依赖添加成功。" }) : this.handleUpdateConfirm(name, "依赖添加成功，需要更新才能生效。");
+              this.setState({ visible: false, shape: "" });
               return
             }
-            this.setState({ visible: false });
+            this.setState({ visible: false, shape: "" });
             this.handleUndo();
           });
         }
@@ -212,11 +253,12 @@ class EditorData extends PureComponent {
             },
             callback: (res) => {
               if (res && res._code == 200) {
-                notification.success({ message: res.msg_show });
-                this.setState({ visible: false });
+                shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
+                this.setState({ visible: false, shape: "" });
+                this.loadTopology();
                 return
               }
-              this.setState({ visible: false });
+              this.setState({ visible: false, shape: "" });
               this.handleUndo();
             }
           })
@@ -233,7 +275,7 @@ class EditorData extends PureComponent {
   }
 
   //处理依赖接口
-  handleSubmitAddRelation = (name, id, targetName) => {
+  handleSubmitAddRelation = (name, id, targetName, sourceShape) => {
     addRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: name,
@@ -244,29 +286,30 @@ class EditorData extends PureComponent {
           this.handleUndo();
           return
         }
-        this.loadTopology()
+        this.loadTopology();
         notification.success({ message: res.msg_show });
         return
       }
       if (res && res._code == 201) {
-         if (res.list.length == 0) {
-            this.handleUndo();
-            notification.warning({ message: "暂无端口可用" })
-            return
-          }
+        if (res.list.length == 0) {
+          this.handleUndo();
+          notification.warning({ message: "暂无端口可用" })
+          return
+        }
         this.setState({
           visible: true,
           foreignType: 0,
           foreignTypeName: targetName,
           list: res.list || [],
           name,
+          shape: sourceShape,
           id,
         });
         return
       }
       if (res && res._code == 200) {
-        this.loadTopology()
-        notification.success({ message: res.msg_show });
+        this.loadTopology();
+        sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: "依赖添加成功。" }) : this.handleUpdateConfirm(name, "依赖添加成功，需要更新才能生效。");
         return
       }
       this.handleUndo();
@@ -274,11 +317,13 @@ class EditorData extends PureComponent {
   }
 
   //处理删除依赖接口
-  handleDeleteRelationedApp = () => {
+  handleDeleteRelationedApp = (e) => {
     const { edgeData } = this.state;
     if (edgeData) {
       const name = edgeData.source.model.service_alias;
       const names = edgeData.target.model.service_alias
+      const sourceShape = edgeData.source.model.shape;
+      const targetShape = edgeData.target.model.shape;
       const id = edgeData.target.id;
       if (name) {
         removeRelationedApp({
@@ -287,7 +332,8 @@ class EditorData extends PureComponent {
           dep_service_id: id,
         }).then((res) => {
           if (res && res._code == 200) {
-            notification.success({ message: res.msg_show });
+            sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: res.msg_show }) :
+              this.handleUpdateConfirm(name, "取消依赖成功，需要更新才能生效。");
             this.loadTopology()
             this.setState({
               edgeData: "",
@@ -305,7 +351,7 @@ class EditorData extends PureComponent {
           },
           callback: (res) => {
             if (res && res._code == 200) {
-              notification.success({ message: res.msg_show });
+              targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ?notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(names, "关闭对外端口成功,需要更新才能生效。");
               this.loadTopology()
               this.setState({
                 edgeData: "",
@@ -325,7 +371,7 @@ class EditorData extends PureComponent {
   }
 
   //打开对外端口
-  handleSubmitOpenExternalPort = (name, nowName) => {
+  handleSubmitOpenExternalPort = (name, nowName, targetShape) => {
     this.props.dispatch({
       type: 'appControl/openExternalPort',
       payload: {
@@ -340,8 +386,8 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
-          this.loadTopology()
-          notification.success({ message: res.msg_show });
+          targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
+          this.loadTopology();
           return
         }
         if (res && res._code == 201) {
@@ -356,6 +402,7 @@ class EditorData extends PureComponent {
             foreignTypeName: nowName,
             list: res.list || [],
             name,
+            shape: targetShape,
           });
           return
         }
@@ -378,6 +425,28 @@ class EditorData extends PureComponent {
       })
     }
   }
+
+
+  //更新
+  handleUpdateConfirm = (name, title) => {
+    Modal.confirm({
+      title: title,
+      content: '',
+      okText: '更新',
+      cancelText: '取消',
+      onOk() {
+        updateRolling({
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: name,
+        }).then((data) => {
+          if (data) {
+            notification.success({ message: `操作成功，更新中` });
+          }
+        })
+      },
+    });
+  }
+
   render() {
     const { data, list, visible, foreignType, edgeVisible, edgeData, edgeTitle, foreignTypeName } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -418,9 +487,7 @@ class EditorData extends PureComponent {
         >
           <h3>{edgeTitle}</h3>
         </Modal>}
-
         <RegisterCommand name="delete" config={{ shortcutCodes: [] }} extend="delete" />
-
         <div>
           <Flow style={{ width: "100%", minHeight: 500 }} data={data} noEndEdge={false}
             onKeyDown={(e) => {
@@ -429,24 +496,27 @@ class EditorData extends PureComponent {
               }
             }}
             onEdgeClick={(e) => {
+              e.shape._attrs.stroke = "#5BB1FA"
+              e.shape._attrs.lineWidth = 3;
               this.onSaveEdgeData(e.item);
             }}
             onAfterChange={(e) => {
               const { action, item } = e;
-
               if (action == 'add') {
                 const name = item.source.model.service_alias;
-                const names = item.target.model.service_alias
+                const names = item.target.model.service_alias;
+                const sourceShape = item.source.model.shape;
+                const targetShape = item.target.model.shape;
                 const sourceType = item.source.id
                 const id = item.target.id;
                 const targetName = item.target.model.label
                 if (sourceType == "The Internet") {
-                  this.handleSubmitOpenExternalPort(names, targetName)
+                  this.handleSubmitOpenExternalPort(names, targetName, targetShape)
                 } else if (id == "The Internet") {
                   this.handleUndo()
                 }
                 else if (name != "The Internet") {
-                  this.handleSubmitAddRelation(name, id, targetName)
+                  this.handleSubmitAddRelation(name, id, targetName, sourceShape)
                 }
               }
             }}

@@ -252,9 +252,8 @@ export default class Main extends PureComponent {
               <span title={item.group_name}>{item.group_name}</span>
               <span>安装</span>
               </div>
-              <div>版本:{item.version}</div>
+              <div className={PluginStyles.cardVersion} title={item.version}>版本:{item.version}</div>
               </div>
-
           ]}
         >
           <Card.Meta
@@ -436,7 +435,7 @@ export default class Main extends PureComponent {
             footer={
               <div>
                 <Button onClick={() => { this.setState({ installBounced: false, is_deploy: true }) }}>取消</Button>
-                <Button onClick={this.handleInstallBounced} type="primary" >
+                <Button onClick={this.handleInstallBounced} type="primary" style={{marginRight:"5px"}}>
                   安装
                 </Button>
                 {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
