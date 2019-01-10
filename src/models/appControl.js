@@ -731,7 +731,7 @@ export default {
         callback && callback(response);
       }
     },
-    *updateServiceName({ payload, callback }, { call }){
+    *updateServiceName({ payload, callback }, { call }) {
       const response = yield call(updateServiceName, payload);
       if (callback) {
         callback && callback(response);

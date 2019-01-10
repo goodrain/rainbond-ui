@@ -19,13 +19,14 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import { getMnt, addMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
+import {volumeTypeObj} from "../../utils/utils";
 import AddRelationMnt from "../../components/AddRelationMnt";
 import ScrollerX from "../../components/ScrollerX";
 import AddVolumes from "../../components/AddOrEditVolume"
 
 @connect(
-  ({ user, appControl }) => ({ 
-    currUser: user.currentUser, 
+  ({ user, appControl }) => ({
+    currUser: user.currentUser,
     volumes: appControl.volumes,
     appBaseInfo: appControl.baseInfo,
   }),
@@ -206,12 +207,15 @@ export default class Index extends PureComponent {
                   dataIndex: "volume_name",
                 },
                 {
-                  title: "存储目录",
+                  title: "挂载路径",
                   dataIndex: "volume_path",
                 },
                 {
                   title: "存储类型",
                   dataIndex: "volume_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "操作",
@@ -219,13 +223,13 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <a
                       onClick={() => {
-                          this.onDeleteVolume(data);
-                        }}
+                        this.onDeleteVolume(data);
+                      }}
                       href="javascript:;"
                     >
-                        删除
+                      删除
                     </a>
-                    ),
+                  ),
                 },
               ]}
               dataSource={volumes}
@@ -248,7 +252,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: "本地存储目录",
+                  title: "本地挂载路径",
                   dataIndex: "local_vol_path",
                 },
                 {
@@ -256,12 +260,15 @@ export default class Index extends PureComponent {
                   dataIndex: "dep_vol_name",
                 },
                 {
-                  title: "目标存储目录",
+                  title: "目标挂载路径",
                   dataIndex: "dep_vol_path",
                 },
                 {
                   title: "目标存储类型",
                   dataIndex: "dep_vol_type",
+                  render:(text,record)=>{
+                    return <span>{volumeTypeObj[text]}</span>
+                  }
                 },
                 {
                   title: "目标所属服务",
@@ -269,12 +276,12 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
-                          data.dep_app_alias
+                        data.dep_app_alias
                         }/overview`}
                     >
                       {v}
                     </Link>
-                    ),
+                  ),
                 },
                 {
                   title: "目标服务所属应用",
@@ -282,12 +289,12 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-                          data.dep_group_id
+                        data.dep_group_id
                         }`}
                     >
                       {v}
                     </Link>
-                    ),
+                  ),
                 },
                 {
                   title: "操作",
@@ -295,13 +302,13 @@ export default class Index extends PureComponent {
                   render: (v, data) => (
                     <a
                       onClick={() => {
-                          this.onDeleteMnt(data);
-                        }}
+                        this.onDeleteMnt(data);
+                      }}
                       href="javascript:;"
                     >
-                        取消挂载
+                      取消挂载
                     </a>
-                    ),
+                  ),
                 },
               ]}
               dataSource={mntList}
