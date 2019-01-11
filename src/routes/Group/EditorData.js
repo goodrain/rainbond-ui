@@ -253,7 +253,7 @@ class EditorData extends PureComponent {
             },
             callback: (res) => {
               if (res && res._code == 200) {
-                 notification.success({ message: res.msg_show }) 
+                notification.success({ message: res.msg_show })
                 this.setState({ visible: false, shape: "" });
                 this.loadTopology();
                 return
@@ -332,8 +332,7 @@ class EditorData extends PureComponent {
           dep_service_id: id,
         }).then((res) => {
           if (res && res._code == 200) {
-            sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: res.msg_show }) :
-              this.handleUpdateConfirm(name, "取消依赖成功，需要更新才能生效。");
+            notification.success({ message: res.msg_show });
             this.loadTopology()
             this.setState({
               edgeData: "",
@@ -351,7 +350,7 @@ class EditorData extends PureComponent {
           },
           callback: (res) => {
             if (res && res._code == 200) {
-             notification.success({ message: res.msg_show })
+              notification.success({ message: res.msg_show });
               this.loadTopology()
               this.setState({
                 edgeData: "",
@@ -386,7 +385,7 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
-           notification.success({ message: res.msg_show })
+          notification.success({ message: res.msg_show })
           this.loadTopology();
           return
         }
