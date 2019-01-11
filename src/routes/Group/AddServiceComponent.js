@@ -184,7 +184,7 @@ export default class AddServiceComponent extends PureComponent {
       <div>
         <Button type="primary" onClick={this.toAddService} style={{ marginLeft: "12px" }}><Icon type="plus" />添加服务组件</Button>
         <Drawer
-          title="创建应用"
+          title="添加服务组件"
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}

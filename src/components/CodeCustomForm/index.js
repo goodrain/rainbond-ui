@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
               label=""
             >
               {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建应用</Button>, false) :
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">创建应用</Button>, false) :
                 !this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
               }
 
