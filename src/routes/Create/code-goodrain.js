@@ -80,7 +80,7 @@ export default class Index extends PureComponent {
 				this.setState({registerGitlabSuccess: false})
 			}
 		}
-		type = "primary" > 点击继续创建应用 </Button>];
+		type = "primary" >{this.props.handleType && this.props.handleType === "Service" && !this.props.ButtonGroupState?"点击继续新建服务":"点击继续新建应用"}  </Button>];
 
 		{this.props.handleType && this.props.handleType === "Service" && !this.props.ButtonGroupState &&
 		 this.props.handleServiceBotton(actions, true)}
