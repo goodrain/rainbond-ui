@@ -168,3 +168,15 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-
 export function isUrl(path) {
   return reg.test(path);
 }
+
+
+export const languageObj = {
+  "Dockefile": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/dockerfile.html",
+  "Java": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/java.html",
+  "PHP": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/php.html",
+  "Python": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/python.html",
+  "Nodejs": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/nodejs.html",
+  "Go": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/golang.html",
+  "Netcore": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/netcore.html",
+  "Html": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/html.html",
+}

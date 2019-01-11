@@ -15,6 +15,7 @@ import {
     batchAddRelationedApp,
 } from '../../services/app';
 import appUtil from '../../utils/app';
+import {languageObj} from '../../utils/utils';
 import {
     Button,
     Icon,
@@ -843,7 +844,7 @@ export default class Index extends PureComponent {
         const language = appUtil.getLanguage(this.props.appDetail);
         const runtimeInfo = this.state.runtimeInfo;
         const visible = this.props.visible;
-        if (!this.state.runtimeInfo)
+        if (!this.state.runtimeInfo || !this.state.buildSource)
             return null;
         const appDetail = this.props.appDetail;
         const formItemLayout = {
@@ -864,15 +865,8 @@ export default class Index extends PureComponent {
                 },
             },
         };
-        const languageObj = {
-            "java-jar": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
-            "java-war": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
-            "java-maven": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
-            "php": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/php.html",
-            "python": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/python.html",
-            "nodejs": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/nodejs.html",
-            "go": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/golang.html",
-        }
+        const versionLanguage = this.state.buildSource.language;
+        const languageType = versionLanguage=='Java-jar' || versionLanguage=='Java-war' || versionLanguage == 'Java-maven' ? "Java" : versionLanguage;
         return (
             <Fragment>
                 {this.state.buildSource && (
@@ -998,7 +992,7 @@ export default class Index extends PureComponent {
                                     className={styles.ant_form_item}
                                     label="语言"
                                 >
-                                    {this.state.buildSource.language != "static" ? <a target="blank" href={languageObj[`${language}`]}>{this.state.buildSource.language}</a> : <a href="javascript:void(0);">{this.state.buildSource.language}</a>}
+                                    {languageType != "static" ? <a target="blank" href={languageObj[`${languageType}`]}>{languageType}</a> : <a href="javascript:void(0);">{languageType}</a>}
                                 </FormItem>
                             </Fragment>
                         ) : (
