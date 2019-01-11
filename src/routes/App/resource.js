@@ -865,14 +865,13 @@ export default class Index extends PureComponent {
             },
         };
         const languageObj = {
-            "java-jar": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
-            "java-war": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
-            "java-maven": "https://www.goodrain.com/docs/stable/user-manual/language-support/java.html",
-            "php": "https://www.goodrain.com/docs/stable/user-manual/language-support/php.html",
-            "python": "https://www.goodrain.com/docs/stable/user-manual/language-support/python.html",
-            "nodejs": "https://www.goodrain.com/docs/stable/user-manual/language-support/nodejs.html",
-            "go": "https://www.goodrain.com/docs/stable/user-manual/language-support/golang.html",
-
+            "java-jar": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
+            "java-war": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
+            "java-maven": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html",
+            "php": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/php.html",
+            "python": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/python.html",
+            "nodejs": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/nodejs.html",
+            "go": "https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/golang.html",
         }
         return (
             <Fragment>

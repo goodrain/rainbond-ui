@@ -218,14 +218,14 @@ export default class AddServiceComponent extends PureComponent {
                 <Row style={{ marginBottom: "2px" }}>
                   <Alert message={
                     <p className={styles.prompt} >注:支持
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/dockerfile.html" target="_blank">Dockefile</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/java.html" target="_blank">Java</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/python.html" target="_blank">Python</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/php.html" target="_blank">PHP</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/nodejs.html" target="_blank">NodeJs</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/golang.html" target="_blank">Golang</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/html.html" target="_blank">Html</a>
-                    <a href="https://www.rainbond.com/docs/stable/user-manual/language-support/netcore.html" target="_blank">Netcore</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/dockerfile.html" target="_blank">Dockefile</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/java.html" target="_blank">Java</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/python.html" target="_blank">Python</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/php.html" target="_blank">PHP</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/nodejs.html" target="_blank">NodeJs</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/golang.html" target="_blank">Golang</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/html.html" target="_blank">Html</a>
+                    <a href="https://www.goodrain.com/docs/stable/user-manual/app-creation/language-support/netcore.html" target="_blank">Netcore</a>
                    {/* <a href="https：//www.rainbond.com/docs/stable/user-manual/language-support/ruby.html" target="_blank">Ruby</a>&nbsp; */}
                       等语言规范</p>} type="info"
                     style={{ height: "40px" }}
