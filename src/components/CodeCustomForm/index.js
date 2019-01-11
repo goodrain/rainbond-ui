@@ -156,8 +156,8 @@ export default class Index extends PureComponent {
             {getFieldDecorator("service_cname", {
               initialValue: data.service_cname || "",
               rules: [
-                { required: true, message: "要创建的应用还没有名字" },
-                { min: 4, message: "应用名称必须大于4位" },
+                { required: true, message: "要创建的服务组件还没有名字"},
+                { min: 4, message: "服务名称必须大于4位" },
               ],
             })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
           </Form.Item>
@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
               label=""
             >
               {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">创建应用</Button>, false) :
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建服务</Button>, false) :
                 !this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
               }
 
