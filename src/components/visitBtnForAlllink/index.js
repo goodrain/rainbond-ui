@@ -4,6 +4,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
+
 const { Description } = DescriptionList;
 
 /*
@@ -40,7 +41,8 @@ export default class Index extends PureComponent {
       let singleLink
       if (links[0] && links[0].url && links[0].url[0])
         singleLink = links[0].url[0].includes("http") || links[0].url[0].includes("https") ? links[0].url[0] : `http://${links[0].url[0]}`;
-      return (
+      console.log(singleLink)
+        return (
         singleLink ? <Tooltip title="跳转到应用对外访问端口对应的域名地址" placement="topRight">
           <Button type="primary"
             onClick={() => {

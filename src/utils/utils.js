@@ -169,7 +169,6 @@ export function isUrl(path) {
   return reg.test(path);
 }
 
-
 export const languageObj = {
   "Dockefile": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/dockerfile.html",
   "Java": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/java.html",
@@ -179,4 +178,11 @@ export const languageObj = {
   "Go": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/golang.html",
   "Netcore": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/netcore.html",
   "Html": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/html.html",
+}
+
+export const volumeTypeObj = {
+  "share-file":"共享存储（文件）",
+  "memoryfs":"内存文件存储",
+  "local":"本地存储",
+  "config-file":"配置文件",
 }

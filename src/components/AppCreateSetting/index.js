@@ -40,6 +40,7 @@ import AddRelationMnt from '../../components/AddRelationMnt';
 import AddRelation from '../../components/AddRelation';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
 import appUtil from '../../utils/app';
+import { volumeTypeObj } from "../../utils/utils";
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -1145,7 +1146,7 @@ class Mnt extends PureComponent {
         title: '存储名称',
         dataIndex: 'volume_name'
       }, {
-        title: '存储目录',
+        title: '挂载路径',
         dataIndex: 'volume_path'
       }, {
         title: '存储类型',
@@ -1184,17 +1185,20 @@ class Mnt extends PureComponent {
             pagination={false}
             columns={[
               {
-                title: '本地存储目录',
+                title: '本地挂载路径',
                 dataIndex: 'local_vol_path'
               }, {
                 title: '目标存储名称',
                 dataIndex: 'dep_vol_name'
               }, {
-                title: '目标存储目录',
+                title: '目标挂载路径',
                 dataIndex: 'dep_vol_path'
               }, {
                 title: '目标存储类型',
-                dataIndex: 'dep_vol_type'
+                dataIndex: 'dep_vol_type',
+                render: (text, record) => {
+                  return <span>{volumeTypeObj[text]}</span>;
+                }
               }, {
                 title: '目标所属服务',
                 dataIndex: 'dep_app_name',
