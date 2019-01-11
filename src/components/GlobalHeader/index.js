@@ -347,7 +347,7 @@ export default class GlobalHeader extends PureComponent {
           <Tooltip title="使用文档">
             <a
               target="_blank"
-              href="https://www.rainbond.com/docs/stable/user-app-docs/how-to-use-app.html"
+              href="https://www.rainbond.com/docs/stable/getting-started/rainbond-overview.html"
               rel="noopener noreferrer"
               className={styles.action}
             >
