@@ -234,6 +234,7 @@ class EditorData extends PureComponent {
             container_port: fieldsValue.container_port
           }).then((res) => {
             if (res && res._code == 200) {
+              this.loadTopology();
               shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: "依赖添加成功。" }) : this.handleUpdateConfirm(name, "依赖添加成功，需要更新才能生效。");
               this.setState({ visible: false, shape: "" });
               return
@@ -253,7 +254,7 @@ class EditorData extends PureComponent {
             },
             callback: (res) => {
               if (res && res._code == 200) {
-                shape == "undeploy" || shape == "closed" || shape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
+                notification.success({ message: res.msg_show })
                 this.setState({ visible: false, shape: "" });
                 this.loadTopology();
                 return
@@ -332,8 +333,7 @@ class EditorData extends PureComponent {
           dep_service_id: id,
         }).then((res) => {
           if (res && res._code == 200) {
-            sourceShape == "undeploy" || sourceShape == "closed" || sourceShape == "stopping" ? notification.success({ message: res.msg_show }) :
-              this.handleUpdateConfirm(name, "取消依赖成功，需要更新才能生效。");
+            notification.success({ message: res.msg_show });
             this.loadTopology()
             this.setState({
               edgeData: "",
@@ -351,7 +351,7 @@ class EditorData extends PureComponent {
           },
           callback: (res) => {
             if (res && res._code == 200) {
-              targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ?notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(names, "关闭对外端口成功,需要更新才能生效。");
+              notification.success({ message: res.msg_show });
               this.loadTopology()
               this.setState({
                 edgeData: "",
@@ -386,7 +386,7 @@ class EditorData extends PureComponent {
             this.handleUndo();
             return
           }
-          targetShape == "undeploy" || targetShape == "closed" || targetShape == "stopping" ? notification.success({ message: res.msg_show }) : this.handleUpdateConfirm(name, "已开启对外端口，需要更新才能生效。");
+          notification.success({ message: res.msg_show })
           this.loadTopology();
           return
         }
