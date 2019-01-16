@@ -196,7 +196,7 @@ export default class BasicList extends PureComponent {
   };
   handleRecharge=()=>{
     const { is_team_enter_admin } = this.props.overviewInfo;
-    if(!is_team_enter_admin ){
+    if( is_team_enter_admin ){
       window.open("https://www.goodrain.com/spa/#/personalCenter/my/recharge", "_blank");
     }else{
       notification.warning({message:"您不是当前团队的企业管理员，无法充值！"})
