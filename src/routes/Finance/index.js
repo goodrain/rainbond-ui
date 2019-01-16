@@ -22,7 +22,7 @@ const { Description } = DescriptionList;
 const RadioGroup = Radio.Group;
 
 @connect(({
-  user, list, loading, global,
+  user, list, loading, global, index
 }) => ({
   user: user.currentUser,
   list,
@@ -30,6 +30,7 @@ const RadioGroup = Radio.Group;
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
+  overviewInfo: index.overviewInfo
 }))
 export default class BasicList extends PureComponent {
   constructor(props) {
@@ -189,7 +190,15 @@ export default class BasicList extends PureComponent {
       },
     });
   };
-
+  
+  handleRecharge=()=>{
+    const { is_team_enter_admin } = this.props.overviewInfo;
+    if(is_team_enter_admin ){
+      window.open("https://www.goodrain.com/spa/#/personalCenter/my/recharge", "_blank");
+    }else{
+      notification.warning({message:"您不是当前团队的企业管理员，无法充值！"})
+    }
+  }
   finance = () => {
     const companyInfo = this.state.companyInfo || {};
 
@@ -220,9 +229,10 @@ export default class BasicList extends PureComponent {
               <Info title="企业账户" value={`${companyInfo.balance || 0}元`} bordered />
               <p style={{ textAlign: "center" }}>
                 <a
-                  target="_blank"
-                  href="https://www.goodrain.com/spa/#/personalCenter/my/recharge"
+                  // target="_blank"
+                  // href="https://www.goodrain.com/spa/#/personalCenter/my/recharge"
                   style={{ paddingRight: "10px" }}
+                  onClick={this.handleRecharge}
                 >
                   充值
                 </a>
