@@ -71,7 +71,7 @@ export default class Index extends PureComponent {
   getItemHtml = (data) => {
     if (typeof data.message === "string") {
       var msg = data.message;
-      return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
     }
     try {
       const message = data.message;
@@ -82,12 +82,12 @@ export default class Index extends PureComponent {
       msg += message.status || "";
       msg += message.progress || "";
       if (msg) {
-        return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
-      return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${message.stream}</span>`;
+      return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(data.time).format("HH:mm:ss")}</span><span>${message.stream}</span>`;
     } catch (e) {
       if (data.message) {
-        return `<span className="time" style="margin-right: 8px">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(data.time).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
       return ""
     }
@@ -95,6 +95,7 @@ export default class Index extends PureComponent {
   createTmpElement() {
     this.ele = document.createElement("p");
     this.ele.cssText = "margin-bottom:0";
+
   }
 
   findProgressById = (id) => {
@@ -107,7 +108,6 @@ export default class Index extends PureComponent {
   };
   render() {
     const datas = this.state.datas || [];
-
-    return <div style={{ maxHeight: 300, overflowY: "auto" }} id="box" ref={this.saveRef} />;
+    return <div style={{ maxHeight: this.props.opened?350:30, overflowY: "auto" }} id="box" ref={this.saveRef} />;
   }
 }
