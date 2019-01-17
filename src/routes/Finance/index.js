@@ -140,6 +140,8 @@ export default class BasicList extends PureComponent {
         notification.success({ message: "添加成功" });
         this.cancelCreateTeam();
         this.props.dispatch({ type: "user/fetchCurrent" });
+        //添加完查询企业团队列表
+        this.loadTeams();
       },
     });
   };
