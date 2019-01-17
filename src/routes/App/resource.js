@@ -921,7 +921,7 @@ export default class Index extends PureComponent {
                                     {...formItemLayout}
                                     label="启动命令"
                                 >
-                                    {this.state.buildSource.docker_cmd || ''}
+                                    {this.state.buildSource.cmd || ''}
                                 </FormItem>
                             </div>
                         ) : (
