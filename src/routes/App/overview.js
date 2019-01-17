@@ -185,7 +185,7 @@ class LogItem extends PureComponent {
   getLogContHeight() {
     const { status, opened } = this.state;
     if (status === "ing" && !opened) {
-      return 16;
+      return 15;
     }
 
     if (opened) {
@@ -316,7 +316,7 @@ class LogItem extends PureComponent {
           <div
             style={{
               height: this.getLogContHeight(),
-              maxHeight: 500,
+              maxHeight: 350,
               overflowY: "auto",
             }}
             className={`${styles.logContent} logs-cont`}
@@ -331,6 +331,7 @@ class LogItem extends PureComponent {
               onFail={this.onFail}
               socketUrl={this.getSocketUrl()}
               eventId={data.event_id}
+              opened={opened}
             />}
             {(logs || []).map((item) => <p key={item.message}>
               <span style={{
@@ -602,7 +603,7 @@ export default class Index extends PureComponent {
         marginBottom: 24,
       },
     };
-    const { logList, hasNext, anaPlugins } = this.state;
+    const { logList, hasNext, anaPlugins,opened } = this.state;
     const { appDetail } = this.props;
     const status = this.props.status || {};
     let hasAnaPlugins = !!anaPlugins.length;
