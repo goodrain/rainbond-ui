@@ -119,7 +119,7 @@ const appActionLogUtil = {
   },
   // 获取回滚的版本
   getRollbackVersion(log) {
-    return log.deploy_version;
+    return log;
   },
   // 获取操作的时间
   getActionTime(log) {

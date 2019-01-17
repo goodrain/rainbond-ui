@@ -264,6 +264,7 @@ export function rollback(body = {
   team_name,
   app_alias,
   deploy_version,
+  upgrade_or_rollback
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/rollback`,
@@ -271,6 +272,7 @@ export function rollback(body = {
       method: "post",
       data: {
         deploy_version: body.deploy_version,
+        upgrade_or_rollback:body.upgrade_or_rollback?body.upgrade_or_rollback:-1
       },
     },
   );

@@ -266,8 +266,8 @@ class Main extends PureComponent {
             isActionIng: (res) => {
                 //this.setState({actionIng: res})
             },
-            appRolback: (version) => {
-                this.handleRollback(version)
+            appRolback: (data) => {
+                this.handleRollback(data)
             }
         };
     }
@@ -406,7 +406,7 @@ class Main extends PureComponent {
         })
     }
 
-    handleRollback = (version) => {
+    handleRollback = (datas) => {
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -414,10 +414,11 @@ class Main extends PureComponent {
         rollback({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
-            deploy_version: version
+            deploy_version: datas.build_version?datas.build_version:datas.deploy_version?datas.deploy_version:"",
+            upgrade_or_rollback:datas.upgrade_or_rollback?datas.upgrade_or_rollback:-1
         }).then((data) => {
             if (data) {
-                notification.success({ message: `操作成功，回滚中` });
+                notification.success({ message:datas.upgrade_or_rollback?datas.upgrade_or_rollback==1? `操作成功，升级中`:`操作成功，回滚中`:`操作成功，回滚中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
