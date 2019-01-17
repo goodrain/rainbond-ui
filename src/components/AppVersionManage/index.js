@@ -19,6 +19,7 @@ export default class Index extends PureComponent {
       page_num:1,
       page_size:10,
       total:'',
+      bean:"",
       loading:true
      }
    }
@@ -26,11 +27,16 @@ export default class Index extends PureComponent {
      this.getVersionList();
    }
    handleRolback = (data) => {
-      this.props.onRollback && this.props.onRollback(data.build_version);
-
+      this.props.onRollback && this.props.onRollback(data);
    }
-   getVersionList = () => {
+
+   componentWillReceiveProps(nextProps){
+     nextProps.showUpgrade==true&&this.getVersionList("update")
+   }
+
+   getVersionList = (update) => {
      const {page_num,page_size} = this.state
+     update&&this.props.setShowUpgrade()
        this.props.dispatch({
            type: 'appControl/getAppVersionList',
            payload: {
@@ -42,6 +48,7 @@ export default class Index extends PureComponent {
            callback:(data) => {
                 this.setState({
                   list: data.list || [],
+                  bean:data.bean||"",
                   loading:false,
                   total:data.total
                 })
@@ -73,10 +80,15 @@ export default class Index extends PureComponent {
         })
 }
    render(){
-    const {total,page_num,page_size} = this.state;
+    const {total,page_num,page_size,bean} = this.state;
       return (
         <Modal
-        title="版本管理"
+        title={
+          <div>
+            <span>版本管理</span>
+            {bean&&JSON.stringify(bean) != "{}"&&<span style={{marginLeft:"100px"}}>当前运行版本：<a>{bean.current_version}</a></span>
+            }
+          </div>}
         width={1200}
         visible={true}
         onCancel={this.handleCancel}
@@ -134,7 +146,10 @@ export default class Index extends PureComponent {
             width: 100,
             render: (v, data) => {
                 return <Fragment>
-                    <a href="javascript:;" onClick={()=>{this.handleRolback(data)}}>回滚</a>
+                    {data.upgrade_or_rollback==1?
+                      <a href="javascript:;" onClick={()=>{this.handleRolback(data)}}>升级</a>:
+                      data.upgrade_or_rollback==-1?
+                      <a href="javascript:;" onClick={()=>{this.handleRolback(data)}}>回滚</a>:""}
                     <Popconfirm title="确定要删除此版本吗?" onConfirm={()=>{this.handleDel(data)}}>
                     <a href="javascript:;">删除</a>
                     </Popconfirm>

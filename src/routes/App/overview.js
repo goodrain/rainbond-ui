@@ -382,6 +382,7 @@ export default class Index extends PureComponent {
       disk: 0,
       memory: 0,
       showVersionManage: false,
+      showUpgrade:false
     };
     this.inerval = 5000;
   }
@@ -564,8 +565,10 @@ export default class Index extends PureComponent {
     });
   }
   onAction = (actionLog) => {
+    console.log("actionLog",actionLog)
     this.setState({
       logList: [actionLog].concat(this.state.logList),
+      showUpgrade:true
     });
   }
   handleNextPage = () => {
@@ -587,10 +590,10 @@ export default class Index extends PureComponent {
   hideVersionManage = () => {
     this.setState({ showVersionManage: false });
   }
-  handleRollback = (version) => {
+  handleRollback = (data) => {
     this
       .context
-      .appRolback(version);
+      .appRolback(data);
   }
   render() {
     const topColResponsiveProps = {
@@ -603,10 +606,11 @@ export default class Index extends PureComponent {
         marginBottom: 24,
       },
     };
-    const { logList, hasNext, anaPlugins,opened } = this.state;
+    const { logList, hasNext, anaPlugins,opened ,showUpgrade} = this.state;
     const { appDetail } = this.props;
     const status = this.props.status || {};
     let hasAnaPlugins = !!anaPlugins.length;
+    console.log("logListssssssssssss",logList)
     return (
       <Fragment>
         <Row gutter={24}>
@@ -743,7 +747,15 @@ export default class Index extends PureComponent {
               </p>
               }
 
-              {this.state.showVersionManage && <AppVersionManage onRollback={this.handleRollback} onCancel={this.hideVersionManage} team_name={globalUtil.getCurrTeamName()} service_alias={this.props.appAlias} />}
+              {this.state.showVersionManage && 
+              <AppVersionManage 
+                onRollback={this.handleRollback} 
+                onCancel={this.hideVersionManage} 
+                team_name={globalUtil.getCurrTeamName()} 
+                service_alias={this.props.appAlias} 
+                showUpgrade={showUpgrade}
+                setShowUpgrade={()=>{this.setState({showUpgrade:false})}}
+                />}
             </Card>
           </Col>
 
