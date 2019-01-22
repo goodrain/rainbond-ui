@@ -3,6 +3,8 @@ import { connect } from "dva";
 import { Steps, Form, Icon, Select, Button } from "antd";
 import styles from "./index.less";
 import userStyles from "../../layouts/UserLayout.less";
+import { routerRedux } from "dva/router";
+import cookie from "../../utils/cookie";
 
 const Step = Steps.Step;
 const Option = Select.Option;
@@ -47,6 +49,27 @@ export default class Index extends PureComponent {
     });
   };
 
+  deleteJoinTeams = () => {
+    const { joinTeams } = this.state;
+    this.props.dispatch({
+      type: "global/deleteJoinTeams",
+      payload: {
+        user_id: this.props.currUser.user_id,
+        is_pass: 2,
+        team_name: joinTeams[0].team_name
+      },
+      callback: (data) => {
+        if (data._code == 200) {
+          cookie.remove("token");
+          cookie.remove("token", { domain: "" });
+          cookie.remove("team", { domain: "" });
+          cookie.remove("region_name", { domain: "" });
+          localStorage.clear();
+          this.props.dispatch(routerRedux.replace("/user/login"));
+        }
+      },
+    });
+  }
   handleSubmit = () => {
     if (this.state.selectedTeam != "") {
       this.props.dispatch({
@@ -90,6 +113,12 @@ export default class Index extends PureComponent {
     return this.state.joinTeams.map(join => (
       <div style={{ marginTop: 32 }}>
         <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）{this.change(join.is_pass)}
+        {join.is_pass == 2 &&
+          <div style={{ marginTop: "20px" }}>
+            <Button onClick={this.deleteJoinTeams} type="primary">
+              重新登录
+            </Button>
+          </div>}
       </div>
     ));
   };
