@@ -105,30 +105,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         title={
-          <div>
-            {/* <span>版本管理</span> */}
-            {bean && JSON.stringify(bean) != "{}" && (
-              <span>
-                当前运行版本：<a>{bean.current_version}</a>
-              </span>
-            )}
-
-            {bean.success_num && (
-              <span className={styles.marginleft100}>
-                成功次数：<a>{Number(bean.success_num)}</a>
-              </span>
-            )}
-            {bean.failure_num && (
-              <span className={styles.marginleft100}>
-                失败次数：<a>{Number(bean.failure_num)}</a>
-              </span>
-            )}
-            {total && (
-              <span className={styles.marginleft100}>
-                成功率：<a>{(Math.round(Number(bean.success_num) / (total== "0" ? 1 : Number(total)) * 10000) / 100.00)+"%"}</a>
-              </span>
-            )}
-          </div>
+          <span>构建版本信息</span>
         }
         width={1200}
         visible={true}
@@ -136,6 +113,23 @@ export default class Index extends PureComponent {
         footer={[<Button onClick={this.handleCancel}>关闭</Button>]}
       >
         <div className={styles.tdPadding}>
+
+            {bean.success_num && total && (
+              <span className={styles.floatright}>
+                成功率：<a>{(Math.round(Number(bean.success_num) / (total== "0" ? 1 : Number(total)) * 10000) / 100.00)+"%"}</a>
+              </span>
+            )}
+             {bean.failure_num && (
+              <span className={styles.floatright}>
+                失败次数：<a>{Number(bean.failure_num)}</a>
+              </span>
+            )}
+            {bean.success_num && (
+              <span className={styles.floatright}>
+                成功次数：<a>{Number(bean.success_num)}</a>
+              </span>
+            )}
+            
           <Table
             // pagination = {false}
             loading={this.loading}
@@ -152,7 +146,12 @@ export default class Index extends PureComponent {
                 title: "版本",
                 dataIndex: "build_version",
                 width: 120,
-                align: "left"
+                align: "left",
+                render:(text,record)=>{
+                 return (
+                  text == bean.current_version ? (<span style={{color:"#2593fb"}}>{`${text}(当前版本)`}</span>):(<span>{text}</span>)
+                 )
+                }
               },
               {
                 title: "构建人",
@@ -169,7 +168,7 @@ export default class Index extends PureComponent {
               {
                 title: "构建类型",
                 dataIndex: "kind",
-                width: 100,
+                width: 120,
                 align: "center"
               },
               {
