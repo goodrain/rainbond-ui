@@ -398,7 +398,7 @@ export default class AppList extends PureComponent {
             minHeight: 400
           }}
           bordered={false}
-          bodyStyle={{ padding: "60px 32px" }}
+          bodyStyle={{ padding: "10px 32px" }}
           // headStyle={{ borderBottom: "0px" ,float:"right"}}
           // title={}
         >

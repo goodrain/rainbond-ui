@@ -10,7 +10,7 @@ export default class AppList extends PureComponent {
 	render(){
 		const {group_id} = this.props;
 		return (
-			<Card  style={{minHeight: 400}} bordered={false}>
+			<Card  style={{minHeight: 400,marginTop:"-15px"}} bordered={false}>
 				<Topological group_id={group_id} />
 			</Card>
 			
