@@ -21,6 +21,7 @@ export default class Index extends PureComponent {
       teams: [],
       joinTeams: [],
       current: 0,
+      exitShow: false
     };
   }
   componentDidMount = () => {
@@ -43,7 +44,10 @@ export default class Index extends PureComponent {
       callback: (data) => {
         this.setState({ joinTeams: data.list });
         if (data.list && data.list.length > 0) {
-          this.setState({ current: 1 });
+          const exitShow = data.list.filter((item => {
+            return item.is_pass == 2
+          }))
+          this.setState({ current: 1, exitShow: exitShow.length > 0 ? true : false });
         }
       },
     });
@@ -51,22 +55,25 @@ export default class Index extends PureComponent {
 
   deleteJoinTeams = () => {
     const { joinTeams } = this.state;
+    let str = ""
+    joinTeams.map(item => {
+      str += item.team_name + "-"
+    })
+    str = str.slice(0, str.length - 1)
     this.props.dispatch({
       type: "global/deleteJoinTeams",
       payload: {
         user_id: this.props.currUser.user_id,
         is_pass: 2,
-        team_name: joinTeams[0].team_name
+        team_name: str
       },
       callback: (data) => {
-        if (data._code == 200) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
           cookie.remove("team", { domain: "" });
           cookie.remove("region_name", { domain: "" });
           localStorage.clear();
           this.props.dispatch(routerRedux.replace("/user/login"));
-        }
       },
     });
   }
@@ -97,31 +104,6 @@ export default class Index extends PureComponent {
     }
     return "";
   };
-  stepshow = () => {
-    if (this.state.current == 0) {
-      return (
-        <Select
-          value={this.state.selectedTeam}
-          style={{ width: "32%" }}
-          onChange={this.handleTeamChange}
-        >
-          <Option value="">请选择一个团队</Option>
-          {this.state.teams.map(team => <Option value={team.team_name}>{team.team_alias}</Option>)}
-        </Select>
-      );
-    }
-    return this.state.joinTeams.map(join => (
-      <div style={{ marginTop: 32 }}>
-        <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）{this.change(join.is_pass)}
-        {join.is_pass == 2 &&
-          <div style={{ marginTop: "20px" }}>
-            <Button onClick={this.deleteJoinTeams} type="primary">
-              重新登录
-            </Button>
-          </div>}
-      </div>
-    ));
-  };
   render() {
     const form = this.props.form;
     const { getFieldDecorator } = form;
@@ -148,17 +130,32 @@ export default class Index extends PureComponent {
                   <Step title="加入已存在的团队" description="" />
                   <Step title="等待审核" description="" />
                 </Steps>
-                {this.stepshow()}
-              </div>
-              {this.state.current == 0 && (
-                <div className={styles.footer}>
+                <div style={{ marginTop: "20px" }}>
+                  <Select
+                    value={this.state.selectedTeam}
+                    style={{ width: "32%", marginRight: "10px" }}
+                    onChange={this.handleTeamChange}
+                  >
+                    <Option value="">请选择一个团队</Option>
+                    {this.state.teams.map((team, index) => <Option key={index} value={team.team_name}>{team.team_alias}</Option>)}
+                  </Select>
                   <Fragment>
                     <Button onClick={this.handleSubmit} type="primary">
                       加入团队
                     </Button>
                   </Fragment>
                 </div>
-              )}
+                {this.state.joinTeams.map((join, index) => (
+                  <div style={{ marginTop: "10px" }} key={index}>
+                    <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）{this.change(join.is_pass)}
+                  </div>
+                ))}
+
+                {this.state.exitShow &&
+                  <div style={{ marginTop: "20px" }}>
+                    <Button onClick={this.deleteJoinTeams} type="primary">退出登录</Button>
+                  </div>}
+              </div>
             </div>
           </div>
         </div>

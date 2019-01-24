@@ -223,7 +223,6 @@ export default class Index extends PureComponent {
       const appDetail = this.props.appDetail;
       const {websocketUrl}=this.state;
       if(websocketUrl){
-        debugger
          this.socket = new AppLogSocket({
           url: websocketUrl,
           serviceId: appDetail.service.service_id,
