@@ -610,7 +610,6 @@ export default class Index extends PureComponent {
     const { appDetail } = this.props;
     const status = this.props.status || {};
     let hasAnaPlugins = !!anaPlugins.length;
-    console.log("logListssssssssssss",logList)
     return (
       <Fragment>
         <Row gutter={24}>
