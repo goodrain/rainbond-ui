@@ -51,11 +51,18 @@ export default class MemberList extends PureComponent {
         user_name: this.state.toMoveTeam.user_name,
       },
       callback: () => {
+        this.updateCurrentUser()
         this.loadMembers();
         this.hideMoveTeam();
       },
     });
   };
+
+  updateCurrentUser=()=>{
+    this.props.dispatch({
+      type: "user/fetchCurrent",
+    })
+  }
   hideEditAction = () => {
     this.setState({ toEditAction: null });
   };
