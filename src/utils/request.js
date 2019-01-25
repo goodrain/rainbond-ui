@@ -133,10 +133,20 @@ export default function request(url, options) {
         try {
           resData = error.response.data;
         } catch (e) {}
-        if (resData.code === 10406) {
+        if (resData.code === 10410) {
           dispatch && dispatch({ type: "global/showPayTip" });
+          return;
         }
 
+        if(resData.code === 10406){
+          dispatch && dispatch({ 
+            type: "global/showMemoryTip",
+            payload: {
+              message: resData.msg_show
+            }
+           });
+          return;
+        }
         if (resData.code === 10408) {
           dispatch &&
             dispatch({

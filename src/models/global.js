@@ -65,6 +65,7 @@ export default {
     // enterprise info
     enterprise: null,
     isRegist: false,
+    memoryTip: ''
   },
 
   effects: {
@@ -357,6 +358,19 @@ export default {
       return {
         ...state,
         payTip: true,
+      };
+    },
+    showMemoryTip(state,action){
+      console.log(action)
+      return {
+        ...state,
+        memoryTip: action.payload.message,
+      };
+    },
+    hideMemoryTip(state,action){
+      return {
+        ...state,
+        memoryTip: '',
       };
     },
     showNoMoneyTip(state) {

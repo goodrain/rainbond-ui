@@ -27,6 +27,7 @@ import AuthCompany from "../components/AuthCompany";
 import CheckUserInfo from "./CheckUserInfo";
 import InitTeamAndRegionData from "./InitTeamAndRegionData";
 import PayTip from "./PayTip";
+import MemoryTip from "./MemoryTip";
 import PayMoneyTip from "./PayMoneyTip";
 import Meiqia from "./Meiqia";
 
@@ -446,6 +447,7 @@ class BasicLayout extends React.PureComponent {
         <Loading />
         {rainbondInfo.is_public && <Meiqia />}
         {this.props.payTip && <PayTip dispatch={this.props.dispatch} />}
+        {this.props.memoryTip && <MemoryTip dispatch={this.props.dispatch} memoryTip={this.props.memoryTip}/>}
         {this.props.noMoneyTip && <PayMoneyTip dispatch={this.props.dispatch} />}
         {this.props.showAuthCompany && (
           <AuthCompany
@@ -473,6 +475,7 @@ export default connect(({ user, global, loading }) => ({
   currRegion: globalUtil.getCurrRegionName(),
   rainbondInfo: global.rainbondInfo,
   payTip: global.payTip,
+  memoryTip: global.memoryTip,
   noMoneyTip: global.noMoneyTip,
   showAuthCompany: global.showAuthCompany,
 }))(BasicLayout);
