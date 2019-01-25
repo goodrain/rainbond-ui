@@ -180,7 +180,7 @@ export default class AutoDeploy extends PureComponent {
             {!tabLoading[0] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }} 
-                title={<div>Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="info-circle-o"/></Tooltip></div>} col="1">
+                title={<div>Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></div>} col="1">
                 
                   <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
                   <Description term="Webhook">
@@ -233,7 +233,7 @@ export default class AutoDeploy extends PureComponent {
             {!tabLoading[1] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" 
-                title={<div>自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="info-circle-o"/></Tooltip></div>} 
+                title={<div>自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></div>} 
                 style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
                 col="1">
                 
@@ -278,7 +278,7 @@ export default class AutoDeploy extends PureComponent {
             {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small"
-                title={<div>镜像仓库Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="info-circle-o"/></Tooltip></div>} 
+                title={<div>镜像仓库Webhook&nbsp;<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></div>} 
                 style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
                 col="1">
                   <Description term="Webhook">
