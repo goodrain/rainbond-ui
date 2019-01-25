@@ -130,7 +130,7 @@ export default class Index extends PureComponent {
                   <Step title="加入已存在的团队" description="" />
                   <Step title="等待审核" description="" />
                 </Steps>
-                <div style={{ marginTop: "20px" }}>
+                <div style={{ marginTop: "20px" ,textAlign: "left",paddingLeft:"166px" }}>
                   <Select
                     value={this.state.selectedTeam}
                     style={{ width: "32%", marginRight: "10px" }}
@@ -145,15 +145,16 @@ export default class Index extends PureComponent {
                     </Button>
                   </Fragment>
                 </div>
-                {this.state.joinTeams.map((join, index) => (
-                  <div style={{ marginTop: "10px" }} key={index}>
-                    <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）{this.change(join.is_pass)}
-                  </div>
-                ))}
-
+                <div style={{ textAlign: "left",paddingLeft:"166px",paddingTop:"10px" }}>
+                    {this.state.joinTeams.map((join, index) => (
+                      <div style={{ marginTop: "10px" }} key={index}>
+                        <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）<span style={{color:join.is_pass==0?"#009B62":join.is_pass==2?"#DD1144":"#FAFAFA"}}>{this.change(join.is_pass)}</span>
+                      </div>
+                    ))}
+                </div>
                 {this.state.exitShow &&
-                  <div style={{ marginTop: "20px" }}>
-                    <Button onClick={this.deleteJoinTeams} type="primary">退出登录</Button>
+                  <div style={{ marginTop: "20px" ,textAlign: "left",paddingLeft:"244px"}}>
+                    <Button onClick={this.deleteJoinTeams}>退出登录</Button>
                   </div>}
               </div>
             </div>
