@@ -8,7 +8,14 @@ class InstanceList extends PureComponent {
     super(arg);
     this.state = {
       list: this.props.list,
-    };
+    }
+  }
+  componentWillReceiveProps(nextProps){
+    if(nextProps.list!==this.props.list){
+      this.setState({
+        list:nextProps.list
+      })
+    }
   }
   componentDidMount() {}
   showName = (podName) => {
@@ -45,7 +52,7 @@ class InstanceList extends PureComponent {
     return (
       <List
         grid={{ gutter: 16, column: 4 }}
-        dataSource={this.props.list}
+        dataSource={this.state.list}
         renderItem={item => (
           <List.Item className={style.item} key={item.pod_name}>
             <WaterWave

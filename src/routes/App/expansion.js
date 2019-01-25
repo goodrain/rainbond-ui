@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import { Row, Col, Card, Form, Button, Select, notification } from "antd";
+import { Row, Col, Card, Form, Button, Select, notification,Spin } from "antd";
 import sourceUtil from "../../utils/source";
 import { horizontal, vertical } from "../../services/app";
 import globalUtil from "../../utils/global";
@@ -24,18 +24,37 @@ export default class Index extends PureComponent {
     this.state = {
       node: 0,
       memory: 0,
+      instances:this.props.instances?this.props.instances:[],
+      loading:this.props.instances?true:false
     };
   }
 
   componentDidMount() {
     if (!this.canView()) return;
-    this.fetchInstanceInfo();
+    this.fetchInstanceInfo(1);
     this.fetchExtendInfo();
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearExtendInfo" });
+    clearTimeout(this.timeout);
   }
+
+  componentWillReceiveProps(nextProps){
+    const node = this.props.form.getFieldValue("node");
+    if(nextProps.instances!==this.state.instances){
+    clearTimeout(this.timeout);
+        if(nextProps.instances&&nextProps.instances.length==node){
+          this.setState({
+            instances:nextProps.instances,
+            loading:true
+          })
+        }else{
+          this.fetchInstanceInfo()
+        }
+    }
+  }
+
   // 是否可以浏览当前界面
   canView() {
     return appUtil.canManageAppExtend(this.props.appDetail);
@@ -66,7 +85,6 @@ export default class Index extends PureComponent {
     });
   };
   handlePodClick = (podName, manageName) => {
-    console.log(podName, manageName);
     let adPopup = window.open("about:blank");
     const appAlias = this.props.appAlias;
     if (podName && manageName) {
@@ -101,25 +119,34 @@ export default class Index extends PureComponent {
       },
     });
   };
-  fetchInstanceInfo = () => {
+  fetchInstanceInfo = (times) => {
     const { dispatch } = this.props;
-    dispatch({
-      type: "appControl/fetchPods",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
-    });
+    this.setState({
+      loading:false
+    })
+    const node = this.props.form.getFieldValue("node");
+    let time=times?times:node<=4?1500:node<=8?2000:node<=20?3000:1500
+    this.timeout = setTimeout(() => {
+      dispatch({
+        type: "appControl/fetchPods",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+        },
+      });
+    }, time);
   };
+
+  showInstanceList = ()=>{
+   return <InstanceList handlePodClick={this.handlePodClick} list={this.state.instances} />
+  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo } = this.props;
     const { getFieldDecorator } = this.props.form;
-
     if (!extendInfo) {
       return null;
     }
-
     return (
       <div>
         <Card
@@ -130,7 +157,11 @@ export default class Index extends PureComponent {
             </a>
         }
         >
-          <InstanceList handlePodClick={this.handlePodClick} list={this.props.instances} />
+          <Spin tip="Loading..." spinning={!this.state.loading}>
+              <div style={{minHeight:this.state.loading?"":"190px"}}>
+                {this.state.loading&&this.showInstanceList()}
+              </div>
+          </Spin>
         </Card>
         <Card style={{ marginTop: 16 }} title="手动伸缩">
           <Row gutter={16}>
