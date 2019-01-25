@@ -51,6 +51,21 @@ export async function getJoinTeam(body = { user_id }) {
   });
 }
 
+/*
+  用户删除团队状态
+ */
+export async function deleteJoinTeam(body = { user_id, is_pass, team_name }) {
+  return request(`${config.baseUrl}/console/user/applicants/join`, {
+    method: "delete",
+    data: {
+      user_id: body.user_id,
+      is_pass: body.is_pass,
+      team_name: body.team_name,
+    },
+  });
+}
+
+
 /* 内部市场删除插件 */
 export async function deleteMarketPlugin(body = { plugin_id }) {
   return request(`${config.baseUrl}/console/market/plugins/uninstall-template`, {

@@ -30,6 +30,7 @@ import {
   getAllTeams,
   joinTeam,
   getJoinTeam,
+  deleteJoinTeam,
   setRegist,
   getRegist,
   getEnterpriseInfo,
@@ -82,6 +83,12 @@ export default {
     },
     * getJoinTeams({ payload, callback }, { call, put }) {
       const data = yield call(getJoinTeam, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * deleteJoinTeams({ payload, callback }, { call, put }) {
+      const data = yield call(deleteJoinTeam, payload);
       if (data && callback) {
         callback(data);
       }

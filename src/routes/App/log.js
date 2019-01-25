@@ -189,6 +189,7 @@ export default class Index extends PureComponent {
               if(this.refs.box){
                 this.refs.box.scrollTop = this.refs.box.scrollHeight
               }
+              console.log("data",data.list)
               this.setState({logs: (data.list || [])})
           }
       })
@@ -199,8 +200,11 @@ export default class Index extends PureComponent {
          app_alias: this.props.appAlias
       }).then((data) => {
           if(data){
-              this.state.websocketUrl = data.bean.web_socket_url;
-              this.createSocket();
+              this.setState({
+                websocketUrl:data.bean.web_socket_url
+              },()=>{
+                this.createSocket();
+              })
           }
       })
   }
@@ -217,9 +221,10 @@ export default class Index extends PureComponent {
   }
   createSocket(){
       const appDetail = this.props.appDetail;
-      if(this.state.websocketUrl){
+      const {websocketUrl}=this.state;
+      if(websocketUrl){
          this.socket = new AppLogSocket({
-          url: this.state.websocketUrl,
+          url: websocketUrl,
           serviceId: appDetail.service.service_id,
           isAutoConnect: true,
           destroyed: false,
@@ -230,6 +235,7 @@ export default class Index extends PureComponent {
                 if(this.refs.box){
                   this.refs.box.scrollTop = this.refs.box.scrollHeight
                 }
+                console.log("logs",logs)
                 // this.setState({logs: [msg].concat(logs)})
                 this.setState({logs: logs})
             }
@@ -286,9 +292,9 @@ export default class Index extends PureComponent {
      >
         <div className={styles.logsss} ref="box" >
           {
-            (logs||[]).map((log) => {
+            (logs||[]).map((log,index) => {
                return (
-                  <p >{log}</p>
+                  <p key={index}>{log}</p>
                )
             })
           }
