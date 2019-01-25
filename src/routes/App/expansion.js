@@ -16,7 +16,7 @@ const { Option } = Select;
   baseInfo: appControl.baseInfo,
   extendInfo: appControl.extendInfo,
   instances: appControl.pods,
-}))
+}), null, null, { pure: false,withRef:true})
 @Form.create()
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -49,7 +49,7 @@ export default class Index extends PureComponent {
             instances:nextProps.instances,
             loading:true
           })
-        }else{
+        }else if(nextProps.instances&&nextProps.instances.length>0){
           this.fetchInstanceInfo()
         }
     }
@@ -122,7 +122,7 @@ export default class Index extends PureComponent {
   fetchInstanceInfo = (times) => {
     const { dispatch } = this.props;
     this.setState({
-      loading:false
+      loading:this.props.instances.length==0?true:false
     })
     const node = this.props.form.getFieldValue("node");
     let time=times?times:node<=4?1500:node<=8?2000:node<=20?3000:1500
