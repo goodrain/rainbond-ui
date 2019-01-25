@@ -18,9 +18,10 @@ import globalUtil from '../../utils/global';
 import styles from './index.less'
 
 @connect(
-    ({ user, global }) => ({
+    ({ user, global, loading }) => ({
         currUser: user.currentUser,
         groups: global.groups,
+        addHttpLoading: loading.effects["appControl/fetchCertificates"]
     }),
 )
 export default class HttpTable extends PureComponent {
@@ -288,7 +289,8 @@ export default class HttpTable extends PureComponent {
         })
     }
     justify_appStatus = (record) => {
-        let winHandler = window.open('', '_blank')
+        let winHandler = window.open('', '_blank');
+        const that = this;
         this.props.dispatch({
             type: 'gateWay/query_app_status',
             payload: {
@@ -296,11 +298,15 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                if (data && data.bean.status != "running") {
+                if (data && data.bean.status == "closed") {
                     this.setState({ appStatusVisable: true, record })
                     winHandler.close()
-                } else {
-                    winHandler.location.href = record.domain_name
+                }else if(data && data.bean.status == "undeploy"){
+                    notification.warning({message:"当前服务属于未部署状态", duration: 5});
+                    that.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}`))
+                } 
+                else {
+                    winHandler.location.href = record.domain_name;
                 }
             }
         })
@@ -308,7 +314,6 @@ export default class HttpTable extends PureComponent {
 
     handleAppStatus = () => {
         const { record } = this.state
-        console.log(record)
         this.setState({ loading: true })
         this.props.dispatch({
             type: 'gateWay/startApp',
@@ -333,6 +338,7 @@ export default class HttpTable extends PureComponent {
     }
     render() {
         const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable } = this.state;
+        const {addHttpLoading} = this.props;
         const columns = [{
             title: '域名',
             dataIndex: 'domain_name',
@@ -341,7 +347,6 @@ export default class HttpTable extends PureComponent {
             width: "18%",
             render: (text, record) => {
                 return (
-                    // record.is_outer_service == 1 ? <a href={text} target="blank">{text}</a> : <a href={text} disabled target="blank">{text}</a>
                     record.is_outer_service == 1 ? <a onClick={this.justify_appStatus.bind(this, record)}>{text}</a> : <a href={text} disabled target="blank">{text}</a>
                 )
             }
@@ -399,7 +404,7 @@ export default class HttpTable extends PureComponent {
             width: "26%",
             render: (data, record, index) => {
                 return (
-                    record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-around" }}>
                         <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                         <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
@@ -415,7 +420,7 @@ export default class HttpTable extends PureComponent {
             <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
                     <Search onSearch={this.handleSearch} />
-                    <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick}>
+                    <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick} loading={addHttpLoading}>
                         添加策略
                     </Button>
                 </Row>
