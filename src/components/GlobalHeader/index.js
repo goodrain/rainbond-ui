@@ -17,38 +17,57 @@ import globalUtil from "../../utils/global";
 import { Route, Redirect, Switch, routerRedux } from "dva/router";
 
 class DialogMessage extends PureComponent {
-  componentDidMount() {
-    const data = this.props.data;
-
-    if (data && data.length) {
-      const ids = data.map(item => item.ID);
-
-      this.props.dispatch({
-        type: "global/putMsgAction",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          msg_ids: ids.join(","),
-          action: "mark_read",
-        },
-        callback: (data) => {},
-      });
-
-      Modal.info({
-        title: data[0].title,
-        okText: "知道了",
-        width: 600,
-        onOk: () => {
-          this.props.onCancel();
-        },
-        content: (
-          <div
-            dangerouslySetInnerHTML={{ __html: data[0].content }}
-            style={{ whiteSpace: "pre-wrap" }}
-          />
-        ),
-      });
-    }
+  constructor(props) {
+    super(props);
+    this.modal="";
   }
+  componentDidMount() {
+  this.loadin(this.props.data)
+  }
+    componentWillReceiveProps(nextProps){
+      console.log("nextProps",nextProps.data)
+      console.log("props",this.props.data)
+      if(nextProps.data&&nextProps.data[0].ID!==this.props.data[0].ID){
+        this.modal.destroy();
+        console.log("1")
+        this.loadin(nextProps.data);
+      }
+    }
+gbdd = ()=>{
+  Modal.destroyAll();
+}
+    loadin=(data)=>{
+      if (data && data.length) {
+        const ids = data.map(item => item.ID);
+  
+        this.props.dispatch({
+          type: "global/putMsgAction",
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            msg_ids: ids.join(","),
+            action: "mark_read",
+          },
+          callback: (data) => {},
+        });
+  
+        this.modal=Modal.info({
+          title: data[0].title,
+          okText: "知道了",
+          width: 500,
+          style:{left:"-100px"},
+          onOk: () => {
+            this.gbdd()
+            this.props.onCancel();
+          },
+          content: (
+            <div
+              dangerouslySetInnerHTML={{ __html: data[0].content }}
+              style={{ whiteSpace: "pre-wrap" }}
+            />
+          ),
+        });
+      }
+    }
   render() {
     return null;
   }
@@ -260,6 +279,7 @@ export default class GlobalHeader extends PureComponent {
       currTeam,
     } = this.props;
     const noticesList = this.state.newNoticeList;
+
     if (!currentUser) {
       return null;
     }
@@ -290,6 +310,8 @@ export default class GlobalHeader extends PureComponent {
         </Menu.Item>
       </Menu>
     );
+    console.log("noticesList",noticesList)
+    
     return (
       <Header className={styles.header}>
         {isMobile && [
@@ -374,6 +396,7 @@ export default class GlobalHeader extends PureComponent {
             onPopupVisibleChange={this.handleVisibleChange}
             onClear={this.onClear}
             onItemClick={(item) => {
+              console.log("item",item)
               this.setState({ showDialogMessage: [item] });
             }}
           >

@@ -39,9 +39,9 @@ export function getPhpConfig() {
 	获取自动部署设置状态
 
  */
-export function getAutoDeployStatus(body = { team_name, app_alias }) {
+export function getAutoDeployStatus(body = { team_name, app_alias,deployment_way }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/get-url`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/get-url?deployment_way=${body.deployment_way}`,
     {
       method: "get",
     },
@@ -51,13 +51,14 @@ export function getAutoDeployStatus(body = { team_name, app_alias }) {
 /*
 	取消自动部署
  */
-export function cancelAutoDeploy(body = { team_name, app_alias }) {
+export function cancelAutoDeploy(body = { team_name, app_alias,deployment_way }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
     {
       method: "post",
       data: {
         action: "close",
+        deployment_way:body.deployment_way
       },
     },
   );
@@ -66,13 +67,14 @@ export function cancelAutoDeploy(body = { team_name, app_alias }) {
 /*
 	开启自动部署
  */
-export function openAutoDeploy(body = { team_name, app_alias }) {
+export function openAutoDeploy(body = { team_name, app_alias,deployment_way }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
     {
       method: "post",
       data: {
         action: "open",
+        deployment_way:body.deployment_way
       },
     },
   );
@@ -1978,6 +1980,31 @@ export async function putAutoDeploySecret(body = {
     },
   );
 }
+
+
+/*
+   修改自动构建命令
+*/
+export async function putAutoDeployCommand(body = {
+  team_name,
+  service_alias,
+  keyword,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword'`,
+    {
+      method: "put",
+      data: {
+        keyword: body.keyword,
+      },
+    },
+  );
+}
+
+
+
+
 
 /*
   获取应用构建源信息

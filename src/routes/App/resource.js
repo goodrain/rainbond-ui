@@ -38,6 +38,7 @@ const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
 const FormItem = Form.Item;
+import AutoDeploy from "./setting/auto-deploy";
 
 //node.js
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
@@ -829,7 +830,6 @@ export default class Index extends PureComponent {
                 service_alias: this.props.appDetail.service.service_alias,
             },
             callback: (data) => {
-                console.log(data)
                 this.setState({ buildSource: data.bean });
             },
         });
@@ -1007,6 +1007,7 @@ export default class Index extends PureComponent {
                 /> */}
                     </Card>
                 )}
+                
                 {(language === 'php')
                     ? <PHP
                         appDetail={this.props.appDetail}
@@ -1069,6 +1070,9 @@ export default class Index extends PureComponent {
                         onCancel={this.hideMarketAppDetail}
                         app={this.state.showApp}
                     />
+                )}
+                {this.state.buildSource && (
+                <AutoDeploy app={this.props.appDetail} service_source={appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}/>
                 )}
             </Fragment>
         );
