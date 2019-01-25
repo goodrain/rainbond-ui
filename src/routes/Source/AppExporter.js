@@ -173,7 +173,13 @@ export default class AppExporter extends PureComponent {
   };
   render() {
     return (
-      <Modal title="导出云市应用" onOk={this.props.onOk} visible onCancel={this.props.onCancel}>
+      <Modal 
+        // onOk={this.props.onOk}
+        // onCancel={this.props.onCancel}
+        title="导出云市应用" 
+        footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
+        visible={true}
+        >
         <Alert
           style={{ textAlign: 'center', marginBottom: 16 }}
           message="导出云市应用适用于交付环境"
