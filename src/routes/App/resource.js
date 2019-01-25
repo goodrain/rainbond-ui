@@ -1007,7 +1007,9 @@ export default class Index extends PureComponent {
                 /> */}
                     </Card>
                 )}
-                
+                {this.state.buildSource && (
+                <AutoDeploy app={this.props.appDetail} service_source={appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}/>
+                )}
                 {(language === 'php')
                     ? <PHP
                         appDetail={this.props.appDetail}
@@ -1071,9 +1073,7 @@ export default class Index extends PureComponent {
                         app={this.state.showApp}
                     />
                 )}
-                {this.state.buildSource && (
-                <AutoDeploy app={this.props.appDetail} service_source={appUtil.getCreateTypeCNByBuildSource(this.state.buildSource)}/>
-                )}
+                
             </Fragment>
         );
     }

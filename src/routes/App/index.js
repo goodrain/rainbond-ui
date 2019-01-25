@@ -162,7 +162,7 @@ class EditName extends PureComponent {
 }
 
 /* 管理容器 */
-@connect(({ user, appControl, global }) => ({ pods: appControl.pods }))
+@connect(({ user, appControl, global }) => ({ pods: appControl.pods }),null,null,{withRef:true},)
 class ManageContainer extends PureComponent {
     componentDidMount() { }
     fetchPods = () => {
@@ -238,7 +238,7 @@ class ManageContainer extends PureComponent {
     pods: appControl.pods,
     groups: global.groups,
     build_upgrade: appControl.build_upgrade
-}))
+}),null,null,{withRef:true},)
 class Main extends PureComponent {
     constructor(arg) {
         super(arg);
@@ -375,7 +375,7 @@ class Main extends PureComponent {
         if (this.ref) {
             return this
                 .ref
-                .getWrappedInstance()
+                .getWrappedInstance({})
         }
         return null;
     }
@@ -849,7 +849,7 @@ class Main extends PureComponent {
     }
 }
 
-@connect(({ user, groupControl }) => ({}), null, null, { pure: false })
+@connect(({ user, groupControl }) => ({}), null, null, { pure: false,withRef:true})
 export default class Index extends PureComponent {
     constructor(arg) {
         super(arg);
