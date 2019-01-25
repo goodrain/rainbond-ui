@@ -692,8 +692,7 @@ export default class Index extends React.Component {
             </FormItem>}
           </Form>
         </Card>
-        <AutoDeploy app={appDetail} />
-
+        {/* <AutoDeploy app={appDetail} /> */}
         <Card
           style={{
             marginBottom: 24,

@@ -77,6 +77,7 @@ import {
   getAppVersionList,
   delAppVersion,
   putAutoDeploySecret,
+  putAutoDeployCommand,
   getAppBuidSource,
   putAppBuidSource,
   updateAppStatus,
@@ -699,6 +700,13 @@ export default {
         callback && callback();
       }
     },
+    * putAutoDeployCommand({ payload, callback }, { call, put }) {
+      const response = yield call(putAutoDeployCommand, payload);
+      if (response) {
+        callback && callback();
+      }
+    },
+
     * getAppBuidSource({ payload, callback }, { call, put }) {
       const response = yield call(getAppBuidSource, payload);
       if (response) {
