@@ -3,19 +3,13 @@ import { connect } from 'dva';
 import { Link, Switch, Route, routerRedux } from 'dva/router';
 import { Row, Col, Card, Form, Button, Icon, Menu, Dropdown, notification, Select, Input } from 'antd';
 import globalUtil from '../../utils/global';
-
-
-
 const { Option } = Select;
-const formItemLayout = {
-	labelCol: {
-		span: 5,
-	},
-	wrapperCol: {
-		span: 19,
-	},
-};
 
+@connect(
+    ({ loading }) => ({
+        gitlabRegisterLoading: loading.effects["user/gitlabRegister"]
+    }),
+)
 @Form.create()
 export default class Index extends PureComponent {
 	constructor(props) {
@@ -35,7 +29,15 @@ export default class Index extends PureComponent {
 	render() {
 		const { getFieldDecorator, getFieldValue } = this.props.form;
 		const data = this.props.data || {};
-
+		const {gitlabRegisterLoading} = this.props;
+		const formItemLayout = {
+			labelCol: {
+				span: 5,
+			},
+			wrapperCol: {
+				span: 19,
+			},
+		};
 		return (
 			<Form layout="horizontal" hideRequiredMark>
 				<Form.Item
@@ -68,10 +70,10 @@ export default class Index extends PureComponent {
 					label=""
 				>
 					{this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-						this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">
+						this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={gitlabRegisterLoading}>
 							确认提交
 						 </Button>, false) :
-						!this.props.handleType && <Button onClick={this.handleSubmit} type="primary">
+						!this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={gitlabRegisterLoading}>
 							确认提交
 						</Button>}
 

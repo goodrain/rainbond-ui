@@ -9,7 +9,7 @@ import CodeGithubForm from "../../components/CodeGithubForm";
 import styles from "./Index.less";
 
 @connect(({ user, groupControl, global }) => ({
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class Index extends PureComponent {
   constructor(props) {

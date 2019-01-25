@@ -28,8 +28,9 @@ const formItemLayout = {
 };
 
 @connect(
-  ({ user, global }) => ({
+  ({ user, global, loading}) => ({
     groups: global.groups,
+    createAppByCodeLoading: loading.effects['createApp/createAppByCode']
   }),
   null,
   null,
@@ -93,7 +94,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups } = this.props;
+    const { groups, createAppByCodeLoading } = this.props;
     const data = this.props.data || {};
 
     return (
@@ -147,7 +148,7 @@ export default class Index extends PureComponent {
           }}
           label=""
         >
-          <Button onClick={this.handleSubmit} type="primary">
+          <Button onClick={this.handleSubmit} type="primary" loading={createAppByCodeLoading}>
             新建应用
           </Button>
         </Form.Item>

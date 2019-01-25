@@ -435,7 +435,7 @@ export default class Main extends PureComponent {
             footer={
               <div>
                 <Button onClick={() => { this.setState({ installBounced: false, is_deploy: true }) }}>取消</Button>
-                <Button onClick={this.handleInstallBounced} type="primary" style={{marginRight:"5px"}}>
+                <Button onClick={this.handleInstallBounced} type="primary" style={{marginRight:"5px"}} loading={loading.effects["createApp/installApp"]}>
                   安装
                 </Button>
                 {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}

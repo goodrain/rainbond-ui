@@ -22,8 +22,9 @@ const formItemLayout = {
   },
 };
 
-@connect(({ user, global }) => ({
-  groups: global.groups
+@connect(({ user, global, loading }) => ({
+	groups: global.groups,
+	createAppByCompose: loading.effects['createApp/createAppByCompose']
 }), null, null, {withRef: true})
 
 @Form.create()
@@ -51,6 +52,7 @@ export default class Index extends PureComponent {
 		const { getFieldDecorator, getFieldValue } = this.props.form;
 		const data = this.props.data || {};
 		const showSubmitBtn = this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
+		const {createAppByCompose} = this.props;
 		var options = {
             lineNumbers: true,
             theme: "monokai",
@@ -96,7 +98,7 @@ export default class Index extends PureComponent {
 			            label=""
 			          >
 			          	
-			          		<Button  onClick={this.handleSubmit} type="primary">
+			          		<Button  onClick={this.handleSubmit} type="primary" loading={createAppByCompose}>
 				              新建应用
 				            </Button>
 				          

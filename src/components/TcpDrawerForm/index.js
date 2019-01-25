@@ -18,9 +18,11 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 @connect(
-    ({ user, global }) => ({
+    ({ user, global, loading }) => ({
         currUser: user.currentUser,
         groups: global.groups,
+        addTcpLoading: loading.effects['gateWay/addTcp'],
+        editTcpLoading: loading.effects['gateWay/editTcp'],
     }),
 )
 class DrawerForm extends PureComponent {
@@ -120,7 +122,7 @@ class DrawerForm extends PureComponent {
         }
     }
     render() {
-        const { onClose, editInfo } = this.props;
+        const { onClose, editInfo, addTcpLoading, editTcpLoading } = this.props;
         const { getFieldDecorator } = this.props.form;
         const { domain_port } = this.state;
         const formItemLayout = {
@@ -271,7 +273,7 @@ class DrawerForm extends PureComponent {
                         >
                             取消
                         </Button>
-                        <Button onClick={this.resolveOk} type="primary">确认</Button>
+                        <Button onClick={this.resolveOk} type="primary" loading={addTcpLoading || editTcpLoading}>确认</Button>
                     </div>
                 </Drawer>}
             </div>
