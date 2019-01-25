@@ -23,11 +23,17 @@
 
       body {
         /* background: radial-gradient(#eeeeee, #444444); */
-        background-color: #f0f2f5;
+        background-color: #f0f2f5 !important;
         background-image: url("/static/dists/user-bg.svg");
         background-repeat: no-repeat;
         background-position: center 110px;
         background-size: 100%;
+      }
+      .roundloading {
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        -webkit-animation: rotate 1.5s 0s linear infinite;
+        animation: rotate 1.5s 0s linear infinite;
       }
 
       .loader {
@@ -117,6 +123,37 @@
           margin-top: 25%;
         }
       }
+
+      @-webkit-keyframes rotate {
+        0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes rotate {
+        0% {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        50% {
+          -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      
     </style>
   </head>
 

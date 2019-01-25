@@ -670,7 +670,6 @@ class Main extends PureComponent {
             </Menu>
         );
         const appAlias = this.getAppAlias();
-        console.log(appDetail,status)
         if (!status.status) {
             return null
         }
