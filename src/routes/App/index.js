@@ -363,6 +363,7 @@ class Main extends PureComponent {
             notification.warning({message: `正在执行操作，请稍后`});
             return;
         }
+        const that = this;
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias()
@@ -370,7 +371,13 @@ class Main extends PureComponent {
             if (data) {
 
                 notification.success({message: `操作成功，部署中`});
-
+                that.props.dispatch({
+                    type: 'appControl/fetchDetail',
+                    payload: {
+                        team_name: globalUtil.getCurrTeamName(),
+                        app_alias: this.getAppAlias()
+                    }
+                })
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);

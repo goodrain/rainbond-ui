@@ -451,27 +451,7 @@ class Main extends PureComponent {
           </Dropdown>
 
         </ButtonGroup>
-        <ButtonGroup style={{position:"absolute",left:"24%",top:"30%",zIndex:"1000"}}>
-           {hasService && <Button
-            onClick={() => {
-              this.changeType("shape");
-            }}
-            type={this.state.type === "shape"
-              ? "primary"
-              : ""}
-            active
-          >拓扑图
-                         </Button>}
-          <Button
-            onClick={() => {
-              this.changeType("list");
-            }}
-            type={this.state.type === "list"
-              ? "primary"
-              : ""}
-          >列表
-          </Button> 
-        </ButtonGroup>
+        
           {this.state.linkList.length>0 && <VisterBtn linkList={this.state.linkList}/>}
       </div>
     );
@@ -492,6 +472,27 @@ class Main extends PureComponent {
         content={pageHeaderContent}
         extraContent={extraContent}
       >
+      <ButtonGroup style={{background:"#fff",width:"100%",padding:"20px"}}>
+           {hasService && <Button
+            onClick={() => {
+              this.changeType("shape");
+            }}
+            type={this.state.type === "shape"
+              ? "primary"
+              : ""}
+            active
+          >拓扑图
+                         </Button>}
+          <Button
+            onClick={() => {
+              this.changeType("list");
+            }}
+            type={this.state.type === "list"
+              ? "primary"
+              : ""}
+          >列表
+          </Button> 
+        </ButtonGroup>
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id}/>}
         {this.state.toDelete && <ConfirmModal
