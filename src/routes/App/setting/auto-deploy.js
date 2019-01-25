@@ -23,7 +23,7 @@ export default class AutoDeploy extends PureComponent {
       secret_key: "",
       tabActiveKey: 0,
       setTabActiveKey: false,
-      deployment_way: this.props.service_source == "镜像" ? "api_webhooks" : "code_webhooks",
+      deployment_way: this.props.service_source == "镜像" ? "api_webhooks" : "code_Webhooks",
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
       deploy_keyword:"deploy"
@@ -122,7 +122,12 @@ export default class AutoDeploy extends PureComponent {
           keyword: deploy_keyword,
         },
         callback: (data) => {
+          if(data._code==200){
           notification.success({ message: "更新成功" });
+            this.setState({
+              deploy_keyword:data.bean.deploy_keyword
+            })
+          }
         },
       });
     });
@@ -176,11 +181,11 @@ export default class AutoDeploy extends PureComponent {
             </div>
           }
         >
-          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook</span>} key="0">
+          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#webhooks" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="0">
             {!tabLoading[0] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }} 
-                title={<div>Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></div>} col="1">
+                title="" col="1">
                 
                   <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
                   <Description term="Webhook">
@@ -194,10 +199,16 @@ export default class AutoDeploy extends PureComponent {
                       <Button size="small">复制</Button>
                     </CopyToClipboard>
                   </Description>
-                  <Description term="提醒">
+                  
+                  <Description term="触发关键字&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
                   <div style={{display:"flex"}}>
+                  <div style={{paddingTop:"10px",margin:"0 15px 0 -30px"}}>
+                    <Tooltip title ={<div>当Commit信息包含“@{this.state.deploy_keyword}”时将自动触发应用自动部署</div>}>
+                     <Icon type="question-circle-o" />
+                     </Tooltip>
+                     </div>
                   <span style={{paddingTop:"10px"}}>
-                  当Commmit信息包含“@
+                  @
                   </span>
                   <FormItem>
                       {getFieldDecorator("deploy_keyword", {
@@ -210,7 +221,7 @@ export default class AutoDeploy extends PureComponent {
                         ],
                       })(<Input style={{ width:100 }} />)}
                       <Button
-                        onClick={this.handleCommandSubmit}
+                        onClick={()=>{this.handleCommandSubmit()}}
                         style={{
                           marginLeft: 10,
                         }}
@@ -219,9 +230,7 @@ export default class AutoDeploy extends PureComponent {
                         更新
                   </Button>
                     </FormItem>
-                    <span style={{paddingTop:"10px"}}>
-                    ”时将自动触发应用自动部署
-                  </span>
+                   
                   </div>
                   </Description>
                 </DescriptionList>
@@ -229,11 +238,11 @@ export default class AutoDeploy extends PureComponent {
               </div>
             }
           </TabPane>}
-          <TabPane  tab={<span><Icon type="api" />自定义API</span>}  key="1" >
+          <TabPane  tab={<span><Icon type="api" />自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#api" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}  key="1" >
             {!tabLoading[1] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" 
-                title={<div>自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></div>} 
+                title="" 
                 style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
                 col="1">
                 
@@ -274,11 +283,11 @@ export default class AutoDeploy extends PureComponent {
                 </DescriptionList>
               </div>}
           </TabPane>
-          {service_source == "镜像" && <TabPane  tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook</span>} key="2">
+          {service_source == "镜像" && <TabPane  tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#webhooks" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
             {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small"
-                title={<div>镜像仓库Webhook&nbsp;<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></div>} 
+                title="" 
                 style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
                 col="1">
                   <Description term="Webhook">

@@ -703,7 +703,7 @@ export default {
     * putAutoDeployCommand({ payload, callback }, { call, put }) {
       const response = yield call(putAutoDeployCommand, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
 
