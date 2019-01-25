@@ -20,9 +20,10 @@ import globalUtil from '../../utils/global';
 import styles from './index.less';
 
 @connect(
-    ({ user, global }) => ({
+    ({ user, global, loading}) => ({
         currUser: user.currentUser,
         groups: global.groups,
+        addTcpLoading: loading.effects["gateWay/querydomain_port"]
     }),
 )
 export default class TcpTable extends PureComponent {
@@ -401,7 +402,7 @@ export default class TcpTable extends PureComponent {
             <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
                     <Search onSearch={this.handleSearch} />
-                    <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick}>
+                    <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick} loading={this.props.addTcpLoading}>
                         添加策略
                     </Button>
                 </Row>

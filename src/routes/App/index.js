@@ -252,6 +252,8 @@ class Main extends PureComponent {
             showMoveGroup: false,
             showDeployTips: false,
             showreStartTips: false,
+            deployCanClick: false,
+            rollingCanClick: false
             // isChecked: ''
         }
         this.timer = null;
@@ -384,7 +386,7 @@ class Main extends PureComponent {
         this.setState({ showDeployTips: showonoff });
     }
     handleDeploy = () => {
-        this.setState({ showDeployTips: false, showreStartTips: false });
+        this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true});
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -395,6 +397,7 @@ class Main extends PureComponent {
             app_alias: this.getAppAlias(),
             is_upgrate: build_upgrade
         }).then((data) => {
+            this.setState({deployCanClick: false})
             if (data) {
                 notification.success({ message: `操作成功，构建中` });
                 var child = this.getChildCom();
@@ -608,7 +611,7 @@ class Main extends PureComponent {
         </Fragment>
     }
     handleUpdateRolling = () => {
-        this.setState({ showDeployTips: false, showreStartTips: false });
+        this.setState({ showDeployTips: false, showreStartTips: false, rollingCanClick: true});
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -617,6 +620,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
         }).then((data) => {
+            this.setState({rollingCanClick: false});
             if (data) {
                 notification.success({ message: `操作成功，更新中` });
                 var child = this.getChildCom();
@@ -666,7 +670,7 @@ class Main extends PureComponent {
             </Menu>
         );
         const appAlias = this.getAppAlias();
-        // console.log(appDetail,status)
+        console.log(appDetail,status)
         if (!status.status) {
             return null
         }
@@ -707,10 +711,10 @@ class Main extends PureComponent {
                     ?
                     this.state.showDeployTips ?
                         <Tooltip title="应用配置已更改，更新后生效">
-                            <Button onClick={this.handleDeploy} >构建</Button>
+                            <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                         </Tooltip>
                         :
-                        <Button onClick={this.handleDeploy} >构建</Button>
+                        <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                     : ''}
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
@@ -718,7 +722,7 @@ class Main extends PureComponent {
                     )
                 } */}
                 {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" ?
-                    '' : <Button type="primary" onClick={this.handleUpdateRolling}>更新(滚动)</Button>
+                    '' : <Button type="primary" onClick={this.handleUpdateRolling} loading={this.state.rollingCanClick}>更新(滚动)</Button>
                 }
                 {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)}
             </div>

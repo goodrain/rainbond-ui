@@ -42,7 +42,8 @@ export default class CreateCheck extends PureComponent {
       modifyImageName: false,
       modifyImageCmd: false,
       is_deploy: true,
-      ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null
+      ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
+      buildAppLoading: false
     };
     this.mount = false;
     this.socketUrl = "";
@@ -150,7 +151,9 @@ export default class CreateCheck extends PureComponent {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
     const { is_deploy, ServiceGetData } = this.state;
+    this.setState({buildAppLoading: true})
     buildApp({ team_name, app_alias: appAlias, is_deploy }).then((data) => {
+      this.setState({buildAppLoading: false})
       if (data) {
         const appAlias = this.getAppAlias();
         this.props.dispatch({
@@ -162,7 +165,7 @@ export default class CreateCheck extends PureComponent {
         ServiceGetData && is_deploy ? this.props.refreshCurrent() :
           this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/overview`))
       }
-    });
+    })
   };
 
 
@@ -472,7 +475,7 @@ export default class CreateCheck extends PureComponent {
             放弃创建{" "}
           </Button>
           <div style={{ display: 'flex', alignItems: "center" }}>
-            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }}>
+            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading} >
               {" "}创建{" "}
             </Button>
             <div>
@@ -492,7 +495,7 @@ export default class CreateCheck extends PureComponent {
             高级设置
               </Button>
           <div style={{ display: 'flex', alignItems: "center" }}>
-            <Button onClick={this.handleBuild} type="primary">
+            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading}>
               {" "}
               创建{" "}
             </Button>

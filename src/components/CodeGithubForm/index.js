@@ -22,7 +22,10 @@ const formItemLayout = {
 };
 
 @connect(
-  ({ global }) => ({ groups: global.groups }),
+  ({ global, loading }) => ({ 
+    groups: global.groups,
+    githubBtnLoading: loading.effects['createApp/createAppByCode']
+   }),
   null,
   null,
   { withRef: true },
@@ -146,7 +149,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { groups } = this.props;
+    const { groups, githubBtnLoading} = this.props;
     const data = this.props.data || {};
     const codeList = this.state.codeList || [];
     const defaultProject = this.getDefaultProjectId();
@@ -229,12 +232,12 @@ export default class Index extends PureComponent {
           label=""
         >
         {this.props.handleType&&this.props.handleType==="Service"&&!this.props.ButtonGroupState?this.props.handleServiceBotton(
-           <Button onClick={this.handleSubmit} type="primary">
+           <Button onClick={this.handleSubmit} type="primary" loading={githubBtnLoading}>
            新建服务
          </Button>,true
         )
         :!this.props.handleType&&
-        <Button onClick={this.handleSubmit} type="primary">
+        <Button onClick={this.handleSubmit} type="primary" loading={githubBtnLoading}>
             新建应用
           </Button>}
           

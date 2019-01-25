@@ -25,8 +25,10 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 @connect(
-    ({ user }) => ({
+    ({ user, loading }) => ({
         currUser: user.currentUser,
+        addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
+        editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy']
     }),
 )
 class DrawerForm extends PureComponent {
@@ -127,7 +129,7 @@ class DrawerForm extends PureComponent {
         }
     }
     render() {
-        const { onClose, onOk, groups, editInfo } = this.props;
+        const { onClose, onOk, groups, editInfo, addHttpStrategyLoading, editHttpStrategyLoading } = this.props;
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -341,7 +343,7 @@ class DrawerForm extends PureComponent {
                         >
                             取消
                         </Button>
-                        <Button onClick={this.handleOk} type="primary">确认</Button>
+                        <Button onClick={this.handleOk} type="primary" loading={addHttpStrategyLoading || editHttpStrategyLoading}>确认</Button>
                     </div>
                 </Drawer>
                 {this.state.descriptionVisible && <Modal

@@ -17,9 +17,10 @@ const formItemLayout = {
 };
 
 @connect(
-  ({ user, global }) => ({
+  ({ user, global, loading}) => ({
     currUser: user.currentUser,
     groups: global.groups,
+    createAppByCodeLoading: loading.effects["createApp/createAppByCode"]
   }),
   null,
   null,
@@ -108,7 +109,7 @@ export default class Index extends PureComponent {
   }
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups } = this.props;
+    const { groups, createAppByCodeLoading} = this.props;
     const { showUsernameAndPass, showKey } = this.state;
 
     const gitUrl = getFieldValue("git_url");
@@ -237,8 +238,8 @@ export default class Index extends PureComponent {
               label=""
             >
               {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建服务</Button>, false) :
-                !this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByCodeLoading}>新建服务</Button>, false) :
+                !this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByCodeLoading}>新建应用</Button>
               }
 
             </Form.Item>

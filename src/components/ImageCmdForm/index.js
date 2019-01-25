@@ -17,8 +17,9 @@ const formItemLayout = {
 	},
 };
 
-@connect(({ user, global }) => ({
-	groups: global.groups
+@connect(({ user, global, loading }) => ({
+	groups: global.groups,
+	createAppByDockerrunLoading: loading.effects['createApp/createAppByDockerrun']
 }), null, null, { withRef: true })
 
 @Form.create()
@@ -82,7 +83,7 @@ export default class Index extends PureComponent {
 	}
 	render() {
 		const { getFieldDecorator, getFieldValue } = this.props.form;
-		const { groups } = this.props;
+		const { groups, createAppByDockerrunLoading } = this.props;
 		const data = this.props.data || {};
 		const showSubmitBtn = this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
 		const showCreateGroup = this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
@@ -149,8 +150,8 @@ export default class Index extends PureComponent {
 								label=""
 							>
 								{this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-									this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">新建服务</Button>, false) :
-									!this.props.handleType && <Button onClick={this.handleSubmit} type="primary">新建应用</Button>
+									this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建服务</Button>, false) :
+									!this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建应用</Button>
 								}
 							</Form.Item>
 							: null

@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import Search from '../Search';
 import { connect } from 'dva';
 import {
     Row,
@@ -15,6 +14,7 @@ import {
     Icon,
     message
 } from 'antd';
+
 import globalUtil from '../../utils/global';
 import apiconfig from '../../config/config';
 import cookie from "../../utils/cookie";
@@ -22,6 +22,12 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const { TextArea } = Input;
 
+@connect(
+    ({ loading }) => ({
+        editLicenseLoading: loading.effects['gateWay/editLicense'],
+        addLicenseLoading: loading.effects['gateWay/addLicense']
+    }),
+)
 class LicenseDrawer extends PureComponent {
     constructor(props) {
         super(props)
@@ -94,7 +100,7 @@ class LicenseDrawer extends PureComponent {
 
     }
     render() {
-        const { onClose, editData } = this.props;
+        const { onClose, editData, addLicenseLoading, editLicenseLoading } = this.props;
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -242,7 +248,7 @@ class LicenseDrawer extends PureComponent {
                         >
                             取消
                         </Button>
-                        <Button onClick={this.handleSubmit} type="primary">确认</Button>
+                        <Button onClick={this.handleSubmit} type="primary" loading={editLicenseLoading || addLicenseLoading}>确认</Button>
                     </div>
                 </Drawer>
             </div>
