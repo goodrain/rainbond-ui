@@ -24,19 +24,19 @@ export default class Index extends PureComponent {
     this.state = {
       node: 0,
       memory: 0,
-      instances:[],
-      loading: true
+      instances: this.props.instances ? this.props.instances : [],
+      loading: false
     };
   }
-  componentWillReceiveProps(nextProps){
-    if(nextProps.instances!==this.state.instances){
-        this.setState({
-          instances:nextProps.instances,
-          loading:false
-        })
-    }else{
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.instances !== this.state.instances) {
       this.setState({
-        loading:false
+        instances: nextProps.instances,
+        loading: false
+      })
+    } else {
+      this.setState({
+        loading: false
       })
     }
   }
@@ -121,11 +121,15 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
       },
       callback: (res) => {
-        if(res._code==200){
-            this.setState({
-              instances:res.list,
-              loading:false
-            })
+        if (res._code == 200) {
+          this.setState({
+            instances: res.list,
+            loading: false
+          })
+        } else {
+          this.setState({
+            loading: false
+          })
         }
       }
     })
@@ -157,7 +161,7 @@ export default class Index extends PureComponent {
           }
         >
           {loading ? <Spin tip="Loading..."><div style={{ minHeight: "190px" }}></div></Spin> :
-              <InstanceList handlePodClick={this.handlePodClick} list={this.state.instances} />
+            <InstanceList handlePodClick={this.handlePodClick} list={this.state.instances} />
           }
         </Card>
         <Card style={{ marginTop: 16 }} title="手动伸缩">
