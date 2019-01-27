@@ -25,11 +25,8 @@ class DialogMessage extends PureComponent {
   this.loadin(this.props.data)
   }
     componentWillReceiveProps(nextProps){
-      console.log("nextProps",nextProps.data)
-      console.log("props",this.props.data)
       if(nextProps.data&&nextProps.data[0].ID!==this.props.data[0].ID){
         this.modal.destroy();
-        console.log("1")
         this.loadin(nextProps.data);
       }
     }
@@ -310,7 +307,6 @@ export default class GlobalHeader extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-    console.log("noticesList",noticesList)
     
     return (
       <Header className={styles.header}>
@@ -396,7 +392,6 @@ export default class GlobalHeader extends PureComponent {
             onPopupVisibleChange={this.handleVisibleChange}
             onClear={this.onClear}
             onItemClick={(item) => {
-              console.log("item",item)
               this.setState({ showDialogMessage: [item] });
             }}
           >

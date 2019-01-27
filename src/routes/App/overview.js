@@ -209,6 +209,7 @@ class LogItem extends PureComponent {
     if (type === this.state.logType) { return; }
     this.setState({
       logType: type,
+      logs:[]
     }, () => {
       this.loadLog();
     });

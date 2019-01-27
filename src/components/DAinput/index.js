@@ -40,7 +40,6 @@ class DAinput extends Component {
     remove = (index) => {
         var values = this.state.values;
         values.splice(index, 1);
-        console.log(values)
         this.setValues(values);
         this.triggerChange(values);
     }

@@ -28,7 +28,6 @@ class CreateTeam extends PureComponent{
    }
    handleSubmit= () => {
        this.props.form.validateFields((err, values) => {
-        console.log(values)
         if (!err) {
           this.props.onOk && this.props.onOk(values);
         }

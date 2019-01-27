@@ -641,7 +641,6 @@ class Main extends PureComponent {
             },
             callback: (data) => {
                 if (data) {
-                    console.log(data)
                     notification.info({ message: "修改成功" });
                 }
             }

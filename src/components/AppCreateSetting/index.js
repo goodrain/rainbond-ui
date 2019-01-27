@@ -900,7 +900,6 @@ class RenderDeploy extends PureComponent {
       })
   }
   handleEditInfo = (val = {}) => {
-    console.log(val)
     this
       .props
       .dispatch({
@@ -1098,7 +1097,6 @@ class Mnt extends PureComponent {
     this.setState({ toDeleteMnt: mnt })
   }
   onDeleteVolume = (data) => {
-    console.log(data)
     this.setState({ toDeleteVolume: data })
   }
   onCancelDeleteVolume = () => {
