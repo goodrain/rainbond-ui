@@ -28,10 +28,21 @@ export default class Index extends PureComponent {
       loading: true
     };
   }
-
+  componentWillReceiveProps(nextProps){
+    if(nextProps.instances!==this.state.instances){
+        this.setState({
+          instances:nextProps.instances,
+          loading:false
+        })
+    }else{
+      this.setState({
+        loading:false
+      })
+    }
+  }
   componentDidMount() {
     if (!this.canView()) return;
-    this.fetchInstanceInfo(1);
+    this.fetchInstanceInfo();
     this.fetchExtendInfo();
   }
   componentWillUnmount() {
@@ -101,7 +112,7 @@ export default class Index extends PureComponent {
       },
     });
   };
-  fetchInstanceInfo = (times) => {
+  fetchInstanceInfo = () => {
     const { dispatch } = this.props;
     dispatch({
       type: "appControl/fetchPods",
