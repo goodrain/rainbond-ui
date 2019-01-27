@@ -317,10 +317,11 @@ export default {
         yield put({ type: "saveVisitInfo", payload: response.bean });
       }
     },
-    * fetchPods({ payload }, { call, put }) {
+    * fetchPods({ payload,callback }, { call, put }) {
       const response = yield call(getPods, payload);
       if (response) {
         yield put({ type: "savePods", payload: response.list });
+        callback && callback(response);
       }
     },
     * fetchExtendInfo({ payload, handleError }, { call, put }) {
@@ -658,7 +659,6 @@ export default {
     // 设置用户权限
     * setMemberAction({ payload, callback }, { call, put }) {
       const response = yield call(setMemberAction, payload);
-      console.log(response);
       if (response) {
         callback && callback();
       }
@@ -733,7 +733,6 @@ export default {
     },
     *changeApplicationState({ payload, callback }, { call, put }) {
       const response = yield call(changeApplicationState, payload);
-      console.log(response)
       yield put({ type: "saveBuild_upgrade", build_upgrade: response.bean.build_upgrade });
       if (callback) {
         callback && callback(response);
@@ -1024,7 +1023,6 @@ export default {
       };
     },
     saveBuild_upgrade(state, action) {
-      console.log(action.build_upgrade)
       return {
         ...state,
         build_upgrade: action.build_upgrade,

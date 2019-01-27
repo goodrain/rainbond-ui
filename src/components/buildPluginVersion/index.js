@@ -75,7 +75,6 @@ export default class Index extends PureComponent {
    getStatus = () => {
       const plugin_id = this.props.plugin_id;
       const build_version = this.props.build_version;
-      console.log(build_version, plugin_id)
       this.props.dispatch({
          type: 'plugin/getBuildPluginVersionStatus',
          payload:{

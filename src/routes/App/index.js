@@ -641,7 +641,6 @@ class Main extends PureComponent {
             },
             callback: (data) => {
                 if (data) {
-                    console.log(data)
                     notification.info({ message: "修改成功" });
                 }
             }
@@ -670,7 +669,6 @@ class Main extends PureComponent {
             </Menu>
         );
         const appAlias = this.getAppAlias();
-        console.log(appDetail,status)
         if (!status.status) {
             return null
         }

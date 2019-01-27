@@ -124,7 +124,6 @@ class DrawerForm extends PureComponent {
     }
     handeCertificateSelect = (value) => {
         if (value) {
-            console.log(value)
             this.setState({ rule_extensions_visible: true })
         }
     }

@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import { Row, Col, Card, Form, Button, Select, notification,Spin } from "antd";
+import { Row, Col, Card, Form, Button, Select, notification, Spin } from "antd";
 import sourceUtil from "../../utils/source";
 import { horizontal, vertical } from "../../services/app";
 import globalUtil from "../../utils/global";
@@ -16,7 +16,7 @@ const { Option } = Select;
   baseInfo: appControl.baseInfo,
   extendInfo: appControl.extendInfo,
   instances: appControl.pods,
-}), null, null, { pure: false,withRef:true})
+}), null, null, { pure: false, withRef: true })
 @Form.create()
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -24,8 +24,8 @@ export default class Index extends PureComponent {
     this.state = {
       node: 0,
       memory: 0,
-      instances:this.props.instances?this.props.instances:[],
-      loading:this.props.instances?true:false
+      instances:[],
+      loading: true
     };
   }
 
@@ -37,31 +37,13 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearExtendInfo" });
-    clearTimeout(this.timeout);
   }
-
-  componentWillReceiveProps(nextProps){
-    const node = this.props.form.getFieldValue("node");
-    if(nextProps.instances!==this.state.instances){
-    clearTimeout(this.timeout);
-        if(nextProps.instances&&nextProps.instances.length==node){
-          this.setState({
-            instances:nextProps.instances,
-            loading:true
-          })
-        }else if(nextProps.instances&&nextProps.instances.length>0){
-          this.fetchInstanceInfo()
-        }
-    }
-  }
-
   // 是否可以浏览当前界面
   canView() {
     return appUtil.canManageAppExtend(this.props.appDetail);
   }
   handleVertical = () => {
     const memory = this.props.form.getFieldValue("memory");
-
     vertical({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -121,29 +103,29 @@ export default class Index extends PureComponent {
   };
   fetchInstanceInfo = (times) => {
     const { dispatch } = this.props;
-    this.setState({
-      loading:this.props.instances.length==0?true:false
+    dispatch({
+      type: "appControl/fetchPods",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+      },
+      callback: (res) => {
+        if(res._code==200){
+            this.setState({
+              instances:res.list,
+              loading:false
+            })
+        }
+      }
     })
-    const node = this.props.form.getFieldValue("node");
-    let time=times?times:node<=4?1500:node<=8?2000:node<=20?3000:1500
-    this.timeout = setTimeout(() => {
-      dispatch({
-        type: "appControl/fetchPods",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-        },
-      });
-    }, time);
+
   };
 
-  showInstanceList = ()=>{
-   return <InstanceList handlePodClick={this.handlePodClick} list={this.state.instances} />
-  }
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo } = this.props;
     const { getFieldDecorator } = this.props.form;
+    const { loading } = this.state;
     if (!extendInfo) {
       return null;
     }
@@ -152,16 +134,20 @@ export default class Index extends PureComponent {
         <Card
           title="实例情况"
           extra={
-            <a onClick={this.fetchInstanceInfo} href="javascript:;">
+            <a onClick={() => {
+              this.setState({
+                loading: true
+              }, () => {
+                this.fetchInstanceInfo()
+              })
+            }} href="javascript:;">
               刷新
             </a>
-        }
+          }
         >
-          <Spin tip="Loading..." spinning={!this.state.loading}>
-              <div style={{minHeight:this.state.loading?"":"190px"}}>
-                {this.state.loading&&this.showInstanceList()}
-              </div>
-          </Spin>
+          {loading ? <Spin tip="Loading..."><div style={{ minHeight: "190px" }}></div></Spin> :
+              <InstanceList handlePodClick={this.handlePodClick} list={this.state.instances} />
+          }
         </Card>
         <Card style={{ marginTop: 16 }} title="手动伸缩">
           <Row gutter={16}>
@@ -169,16 +155,16 @@ export default class Index extends PureComponent {
               <Form layout="inline" hideRequiredMark>
                 <Form.Item label="内存">
                   {getFieldDecorator("memory", {
-                  initialValue: `${extendInfo.current_memory}`,
-                })(<Select
-                  style={{
+                    initialValue: `${extendInfo.current_memory}`,
+                  })(<Select
+                    style={{
                       width: 200,
                     }}
-                >
-                  {(extendInfo.memory_list || []).map(item => <Option key={item} value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
-                   </Select>)}{" "}
+                  >
+                    {(extendInfo.memory_list || []).map(item => <Option key={item} value={item}>{sourceUtil.getMemoryAndUnit(item)}</Option>)}
+                  </Select>)}{" "}
                   <Button onClick={this.handleVertical} size="default" type="primary">
-                  设置
+                    设置
                   </Button>
                 </Form.Item>
               </Form>
@@ -194,7 +180,7 @@ export default class Index extends PureComponent {
                     {(extendInfo.node_list || []).map(item => <Option key={item} value={item}>{item}</Option>)}
                   </Select>)}{" "}
                   <Button onClick={this.handleHorizontal} size="default" type="primary">
-                  设置
+                    设置
                   </Button>
                 </Form.Item>
               </Form>
