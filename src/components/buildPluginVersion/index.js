@@ -44,7 +44,7 @@ class EndLog extends PureComponent {
      return (
           <div>
             {
-              logs.map((item)=>{
+              logs&&logs.length>0&&logs.map((item)=>{
                   return <p style={{marginBottom: 0}}>{item.message}</p>
               })
             }
@@ -119,7 +119,7 @@ export default class Index extends PureComponent {
           <div style={{padding: '8px', minHeight: 300, maxHeight: 500, overflowY: 'auto'}}>
           {
              this.state.status === 'building' ? 
-             <LogProcress socketUrl={this.getSocketUrl()} eventId={eventId} />
+             <LogProcress opened={true} socketUrl={this.getSocketUrl()} eventId={eventId} />
              :
              <Tabs type="card">
                 <TabPane tab="Info" key="1">
