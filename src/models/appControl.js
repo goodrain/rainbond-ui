@@ -455,7 +455,7 @@ export default {
     * addInnerEnvs({ payload, callback }, { call, put }) {
       const response = yield call(addInnerEnvs, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * fetchOuterEnvs({ payload, callback }, { call, put }) {

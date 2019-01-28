@@ -228,9 +228,12 @@ export default class Index extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name,
       },
-      callback: () => {
-        this.handleCancelAddVar();
-        this.fetchInnerEnvs();
+      callback: (data) => {
+        if(data){
+          notification.success({ message: "操作成功，需要更新才能生效" });
+          this.handleCancelAddVar();
+          this.fetchInnerEnvs();
+        }
       },
     });
   };
