@@ -168,9 +168,7 @@ class DrawerForm extends PureComponent {
                     maskClosable={true}
                     closable={true}
                     style={{
-                        height: 'calc(100% - 55px)',
                         overflow: 'auto',
-                        paddingBottom: 53,
                     }}
                 >
                     <Form >
@@ -227,7 +225,7 @@ class DrawerForm extends PureComponent {
                         {this.state.licenseList && <FormItem
                             {...formItemLayout}
                             label="绑定证书"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
@@ -245,7 +243,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 999}}
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -263,7 +261,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="服务组件"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -282,7 +280,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('container_port', {
                                 initialValue: editInfo.container_port,
@@ -332,6 +330,7 @@ class DrawerForm extends PureComponent {
                             left: 0,
                             background: '#fff',
                             borderRadius: '0 0 4px 4px',
+                            zIndex:9999,
                         }}
                     >
                         <Button
@@ -351,7 +350,7 @@ class DrawerForm extends PureComponent {
                     visible={this.state.descriptionVisible}
                     onOk={this.handleOk_description}
                     footer={[<Button type="primary" size="small" onClick={this.handleOk_description}>确定</Button>]}
-                    zIndex={999999}
+                    zIndex={9999}
                 >
                     <ul className={styles.ulStyle}>
                         <li>1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商增加域名DNS A记录 到当前数据中心的应用网关出口IP地址之上域名访问即可生效。</li>
