@@ -1,6 +1,6 @@
 const dateUtil = {
   format(date, format) {
-    var dates = new Date(date.substr(0,10)+"T"+date.substr(11,8));
+    var dates = new Date(date.replace(/\-/g, "/"));
     const map = {
       yyyy() {
         return dates.getFullYear();
@@ -36,13 +36,10 @@ const dateUtil = {
 		根据日期返回今天，昨天，前天，或者日期
 	*/
   dateToCN(date, format) {
-    if (!date) {
-      return null;
-    }
-    // 是否是昨天
+    // 是否是今天
     function isToday(str) {
-      var d =  new Date(str.substr(0,10)+"T"+str.substr(11,8));
-      var todaysDate =  new Date(str.substr(0,10)+"T"+str.substr(11,8));
+      var d = new Date(str.replace(/\-/g, "/"));
+      var todaysDate =  new Date();
       if (d.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
         return true;
       }
@@ -51,7 +48,7 @@ const dateUtil = {
 
     // 是否昨天
     function isYestday(date) {
-      const d = new Date(date.substr(0,10)+"T"+date.substr(11,8));
+      const d = new Date(date.replace(/\-/g, "/"));
       var dates = new Date(); // 当前时间
       const today = new Date(dates.getFullYear(), dates.getMonth(), dates.getDate()).getTime(); // 今天凌晨
       const yestday = new Date(today - 24 * 3600 * 1000).getTime();
@@ -59,7 +56,7 @@ const dateUtil = {
     }
     // 是否是前天
     function isBeforeYestday(date) {
-      const d = new Date(date.substr(0,10)+"T"+date.substr(11,8));
+      const d = new Date(date.replace(/\-/g, "/"));
       var dates = new Date(); // 当前时间
       const today = new Date(dates.getFullYear(), dates.getMonth(), dates.getDate()).getTime(); // 今天凌晨
       const yestday = new Date(today - 24 * 3600 * 1000).getTime();
@@ -77,6 +74,8 @@ const dateUtil = {
       }
       return dateUtil.format(date, format);
     }
+
+
     return getShowData(date);
   },
 };
