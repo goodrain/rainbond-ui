@@ -194,10 +194,10 @@ export default class Index extends PureComponent {
                 render: v => {
                   var map = {
                     success: "成功",
-                    failed: "失败",
+                    failure: "失败",
                     timeout: "超时"
                   };
-                  return map[v] || v;
+                  return map[v] || '构建中';
                 }
               },
               {
