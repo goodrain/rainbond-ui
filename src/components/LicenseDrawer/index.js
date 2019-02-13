@@ -125,9 +125,7 @@ class LicenseDrawer extends PureComponent {
                     visible={this.props.visible}
                     maskClosable={true}
                     style={{
-                        height: 'calc(100% - 55px)',
                         overflow: 'auto',
-                        paddingBottom: 53,
                     }}
                 >
                     <Form>
@@ -238,6 +236,7 @@ class LicenseDrawer extends PureComponent {
                             left: 0,
                             background: '#fff',
                             borderRadius: '0 0 4px 4px',
+                            zIndex:99999,
                         }}
                     >
                         <Button

@@ -162,9 +162,7 @@ class DrawerForm extends PureComponent {
                     closable={true}
                     zIndex={1001}
                     style={{
-                        height: 'calc(100% - 55px)',
                         overflow: 'auto',
-                        paddingBottom: 53,
                     }}
                 >
                     <Form>
@@ -184,7 +182,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 10011 }}
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择应用(组)' }],
@@ -203,7 +201,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="服务组件"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 10011 }}
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
@@ -223,7 +221,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 10011 }}
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
@@ -241,7 +239,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="负载均衡"
-                            style={{ zIndex: 99999 }}
+                            style={{ zIndex: 10011 }}
                         >
                             {getFieldDecorator("rule_extensions", { initialValue: rule_round || 'round-robin' })(
                                 <Select placeholder="请选择负载均衡类型">
@@ -263,6 +261,7 @@ class DrawerForm extends PureComponent {
                             left: 0,
                             background: '#fff',
                             borderRadius: '0 0 4px 4px',
+                            zIndex:99999,
                         }}
                     >
                         <Button
