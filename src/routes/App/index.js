@@ -23,6 +23,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { getRoutes } from '../../utils/utils';
 import { getRouterData } from '../../common/router';
 import Overview from './overview';
+import ConnectionInformation from './connectionInformation';
+import ThirdPartyServices from './ThirdPartyServices';
 import Monitor from './monitor';
 import Log from './log';
 import Expansion from './expansion';
@@ -312,7 +314,7 @@ class Main extends PureComponent {
                     app_alias: this.getAppAlias()
                 },
                 callback: (appDetail) => {
-
+console.log("appDetail",appDetail)
                     if (!appUtil.isCreateComplete(appDetail) && !appUtil.isMarketApp(appDetail)) {
                         if (!appUtil.isCreateFromCompose(appDetail)) {
                             this
@@ -726,7 +728,25 @@ class Main extends PureComponent {
             </div>
         );
 
-        const tabList = [
+        const tabList = 
+        appDetail.service.service_source = "source_code" ?
+        [
+            {
+                key: 'thirdPartyServices',
+                tab: '总览'
+            }, {
+                key: 'port',
+                tab: '端口'
+            },
+            {
+                key: 'connectionInformation',
+                tab: '连接信息'
+            }, {
+                key: 'setting',
+                tab: '更多设置'
+            },
+        ] :
+        [
             {
                 key: 'overview',
                 tab: '总览'
@@ -763,6 +783,8 @@ class Main extends PureComponent {
         ];
         // const { service_source, language } = this.state;
         const map = {
+            thirdPartyServices:ThirdPartyServices,
+            connectionInformation:ConnectionInformation,
             overview: Overview,
             monitor: Monitor,
             log: Log,
@@ -783,10 +805,12 @@ class Main extends PureComponent {
         //         tab: '源码构建'
         //     })
         // }
-        const { match, routerData, location } = this.props;
+        const { match, routerData, location, } = this.props;
         var type = this.props.match.params.type;
+     
         if (!type) {
-            type = 'overview';
+            type =   appDetail.service.service_source = "source_code" ?'thirdPartyServices': 'overview';
+            // type =  'overview';
         }
         const Com = map[type];
         return (
