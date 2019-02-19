@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION=5.0
+VERSION=master
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 docker build -t rainbond/rainbond-ui:$VERSION .
 docker push rainbond/rainbond-ui:$VERSION
