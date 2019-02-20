@@ -1,6 +1,9 @@
 const dateUtil = {
   format(date, format) {
-    var dates = new Date(date.replace(/\-/g, "/"));
+    let dates = new Date(date.replace(/\-/g, "/"));
+    if(dates=="Invalid Date"){
+      dates=new Date(date);
+    }
     const map = {
       yyyy() {
         return dates.getFullYear();
@@ -38,7 +41,10 @@ const dateUtil = {
   dateToCN(date, format) {
     // 是否是今天
     function isToday(str) {
-      var d = new Date(str.replace(/\-/g, "/"));
+      let d = new Date(str.replace(/\-/g, "/"));
+      if(d=="Invalid Date"){
+        d=new Date(str);
+      }
       var todaysDate =  new Date();
       if (d.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
         return true;
@@ -48,7 +54,10 @@ const dateUtil = {
 
     // 是否昨天
     function isYestday(date) {
-      const d = new Date(date.replace(/\-/g, "/"));
+      let d = new Date(date.replace(/\-/g, "/"));
+      if(d=="Invalid Date"){
+        d=new Date(date);
+      }
       var dates = new Date(); // 当前时间
       const today = new Date(dates.getFullYear(), dates.getMonth(), dates.getDate()).getTime(); // 今天凌晨
       const yestday = new Date(today - 24 * 3600 * 1000).getTime();
@@ -56,7 +65,10 @@ const dateUtil = {
     }
     // 是否是前天
     function isBeforeYestday(date) {
-      const d = new Date(date.replace(/\-/g, "/"));
+      let d = new Date(date.replace(/\-/g, "/"));
+      if(d=="Invalid Date"){
+        d=new Date(date);
+      }
       var dates = new Date(); // 当前时间
       const today = new Date(dates.getFullYear(), dates.getMonth(), dates.getDate()).getTime(); // 今天凌晨
       const yestday = new Date(today - 24 * 3600 * 1000).getTime();
