@@ -6,7 +6,7 @@ import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link, Switch, Route } from "dva/router";
-import { Input, Table, Modal, notification, Pagination } from "antd";
+import { Input, Table, Modal, notification, Pagination, Tooltip } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
 import { volumeTypeObj } from "../../utils/utils";
@@ -106,7 +106,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         title="挂载共享目录"
-        width={900}
+        width={1150}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
@@ -115,10 +115,13 @@ export default class Index extends PureComponent {
           pagination={pagination}
           dataSource={this.state.list}
           rowSelection={rowSelection}
+          style={{ width: "100%", overflowX: "auto" }}
           columns={[
             {
               title: "本地挂载路径",
               dataIndex: "localpath",
+              key: "1",
+              width: "20%",
               render: (localpath, data, index) => (
                 <Input
                   onChange={e => {
@@ -130,46 +133,87 @@ export default class Index extends PureComponent {
             },
             {
               title: "目标存储名称",
-              dataIndex: "dep_vol_name"
+              dataIndex: "dep_vol_name",
+              key: "2",
+              width: "15%",
+              render: (data, index) => (
+                <Tooltip title={data}>
+                  <span style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word"
+                  }}>{data}</span>
+                </Tooltip>
+              )
             },
             {
               title: "目标挂载路径",
-              dataIndex: "dep_vol_path"
+              dataIndex: "dep_vol_path",
+              key: "3",
+              width: "15%",
+              render: (data, index) => (
+                <Tooltip title={data}>
+                  <span style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word"
+                  }}>{data}</span>
+                </Tooltip>
+              )
             },
             {
               title: "目标存储类型",
               dataIndex: "dep_vol_type",
+              key: "4",
+              width: "15%",
               render: (text, record) => {
-                return <span>{volumeTypeObj[text]}</span>;
+                return <Tooltip title={text}>
+                  <span style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word"
+                  }}>{volumeTypeObj[text]}</span>
+                </Tooltip>
               }
             },
             {
               title: "目标所属服务",
               dataIndex: "dep_app_name",
+              key: "5",
+              width: "15%",
               render: (v, data) => {
                 return (
-                  <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
-                      data.dep_app_alias
-                    }/overview`}
-                  >
-                    {v}
-                  </Link>
+                  <Tooltip title={v}>
+                    <Link
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                        data.dep_app_alias
+                        }/overview`}
+                    >
+                      <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{v}</span>
+                    </Link>
+                  </Tooltip>
                 );
               }
             },
             {
               title: "目标服务所属应用",
               dataIndex: "dep_app_group",
+              key: "6",
+              width: "15%",
               render: (v, data) => {
                 return (
-                  <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-                      data.dep_group_id
-                    }`}
-                  >
-                    {v}
-                  </Link>
+                  <Tooltip title={v}>
+                    <Link
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                        data.dep_group_id
+                        }`}
+                    >
+                      <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{v}</span>
+                    </Link>
+                  </Tooltip>
                 );
               }
             }
