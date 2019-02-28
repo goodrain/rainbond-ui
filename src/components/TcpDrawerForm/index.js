@@ -37,9 +37,11 @@ class DrawerForm extends PureComponent {
     }
     resolveOk = (e) => {
         e.preventDefault();
-        const { onOk } = this.props
+        const { onOk ,editInfo} = this.props
+        const {domain_port}=this.state
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                values.default_port=domain_port[0].port
                 onOk && onOk(values);
             }
         });
@@ -102,7 +104,6 @@ class DrawerForm extends PureComponent {
     }
     checkport = (rules, value, callback) => {
         const { tcpType, editInfo } = this.props;
-        console.log(tcpType, value.port)
         if (!value.ip || !value.port) {
             callback('请输入完整的ip和端口');
             return;
@@ -172,9 +173,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('end_point', {
                                 rules: [{ required: true, validator: this.checkport }],
-                                initialValue: domain_port[0],
-
-
+                                initialValue: editInfo?current_enpoint[0]:domain_port[0],
                             })(
                                 <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange} />
                             )}

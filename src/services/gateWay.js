@@ -201,7 +201,7 @@ export async function addTcp(params) {
             group_id: params.values.group_id.key,
             group_name: params.values.group_id.label,
             service_id: params.values.service_id,
-            default_port: params.values.end_point.port,
+            default_port: params.values.default_port,
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
             default_ip: params.values.end_point.ip.replace(/\s+/g, "")
@@ -218,7 +218,8 @@ export async function editTcp(params) {
             group_id: params.values.group_id.key,
             group_name: params.values.group_id.label,
             service_id: params.values.service_id,
-            default_port: params.values.end_point.port,
+            default_port: params.values.default_port,
+            type: params.values.type,
             whether_open: params.values.whether_open ? true : false,
             rule_extensions: params.rule_extensions && params.rule_extensions.length ? params.rule_extensions : [],
             tcp_rule_id: params.tcp_rule_id,

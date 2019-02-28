@@ -161,9 +161,8 @@ export default class TcpTable extends PureComponent {
     }
 
     handleOk = (values, obj) => {
-        console.log(values)
         const { dispatch } = this.props;
-        const { editInfo } = this.state;
+        const { editInfo,end_point,tcpType } = this.state;
         if (obj && obj.whether_open) {
             values.whether_open = true;
         }
@@ -192,6 +191,10 @@ export default class TcpTable extends PureComponent {
                 }
             })
         } else {
+            // let end_points= `${values.end_point.ip}:${values.end_point.port}`.replace(/\s+/g, "")
+            let end_pointArr = editInfo.end_point.split(":");
+            values.default_port=end_pointArr[1]
+            values.end_point.port==end_pointArr[1] ?values.type=tcpType:values.type=1
             dispatch({
                 type: "gateWay/editTcp",
                 payload: {
@@ -202,7 +205,8 @@ export default class TcpTable extends PureComponent {
                 callback: (data) => {
                     data ? notification.success({ message: data.msg_show || '编辑成功' }) : notification.error({ message: '编辑失败' })
                     this.setState({
-                        TcpDrawerVisible: false
+                        TcpDrawerVisible: false,
+                        editInfo: false,
                     })
                     this.load()
                 }
@@ -228,7 +232,8 @@ export default class TcpTable extends PureComponent {
                 this.setState({
                     editInfo: data.bean,
                     TcpDrawerVisible: true,
-                    tcpType: values.type
+                    tcpType: values.type,
+                    end_point:values.end_point
                 })
             }
         })
