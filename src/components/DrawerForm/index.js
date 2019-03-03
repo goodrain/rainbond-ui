@@ -229,6 +229,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
+                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99}></Option>}
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>
@@ -265,7 +266,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo.service_id,
+                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts} >
                                     {
@@ -283,7 +284,7 @@ class DrawerForm extends PureComponent {
                             style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('container_port', {
-                                initialValue: editInfo.container_port,
+                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
                                 rules: [{ required: true, message: '请选择端口号' }],
                             })(
                                 <Select placeholder="请选择端口号">
