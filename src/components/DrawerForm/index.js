@@ -89,7 +89,12 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list })
+                this.setState({ serviceComponentList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.handlePorts(data.list[0].service_id);
+                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                    }
+                })
             }
         })
     }
@@ -107,7 +112,11 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list })
+                this.setState({ portList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                    }
+                })
             }
         })
     }
@@ -229,7 +238,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
-                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99}></Option>}
+                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99} style={{height:"30px"}}></Option>}
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>
