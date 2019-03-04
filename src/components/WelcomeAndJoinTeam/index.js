@@ -152,7 +152,7 @@ export default class Index extends PureComponent {
                       </div>
                     ))}
                 </div>
-                {this.state.exitShow &&
+                {this.state.joinTeams&&this.state.joinTeams.length>0&&
                   <div style={{ marginTop: "20px" ,textAlign: "left",paddingLeft:"244px"}}>
                     <Button onClick={this.deleteJoinTeams}>退出登录</Button>
                   </div>}

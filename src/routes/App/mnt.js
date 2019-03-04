@@ -184,7 +184,7 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              message="存储配置发生变化后需要重启应用才能生效"
+              message="存储配置发生变化后需要更新应用才能生效"
               type="info"
               style={{
                 marginBottom: 24,
