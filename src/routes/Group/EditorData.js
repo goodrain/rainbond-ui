@@ -67,11 +67,13 @@ class EditorData extends PureComponent {
         groupId: group_id
       },
       callback: (res) => {
-        const data = this.goodrainData2scopeData(res)
-        this.setState({
-          data,
-          registerData: data.registerData
-        })
+        if (res._code == 200) {
+          const data = this.goodrainData2scopeData(res.bean)
+          this.setState({
+            data,
+            registerData: data.registerData
+          })
+        }
       }
     })
   }

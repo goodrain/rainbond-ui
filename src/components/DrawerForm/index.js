@@ -81,7 +81,9 @@ class DrawerForm extends PureComponent {
         const group_obj = this.props.groups.filter((item) => {
             return item.group_id == group_id
         })
-        this.setState({ group_name: group_obj[0].group_name })
+        if(group_obj&&group_obj.length>0){
+            this.setState({ group_name: group_obj[0].group_name })
+        }
         dispatch({
             type: "groupControl/fetchApps",
             payload: {
@@ -238,7 +240,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
-                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99} style={{height:"30px"}}></Option>}
+                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99}>不绑定</Option>}
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>

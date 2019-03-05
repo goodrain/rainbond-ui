@@ -100,7 +100,7 @@ export default {
     * delete({ payload, callback }, { call, put }) {
       const response = yield call(deleteGroup, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * deleteCompose({ payload, callback }, { call, put }) {

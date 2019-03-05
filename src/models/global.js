@@ -271,12 +271,12 @@ export default {
     * fetchGroups({ payload, callback }, { put, call }) {
       const response = yield call(getTeamRegionGroups, payload);
       if (response) {
+        setTimeout(() => {
+          callback && callback(response.list);
+        });
         yield put({
           type: "saveGroups",
           payload: response.list || [],
-        });
-        setTimeout(() => {
-          callback && callback(response.list);
         });
       }
     },
@@ -343,7 +343,7 @@ export default {
     *fetAllTopology({payload,callback},{call}){
       const response = yield call(toQueryTopology,payload);
       if ( callback) {
-        callback(response.bean);
+        callback(response);
       }
     },
     *queryLinks({payload,callback},{call}){
