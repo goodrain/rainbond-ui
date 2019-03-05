@@ -35,12 +35,14 @@ class LicenseDrawer extends PureComponent {
 
         }
     }
-    handleSubmit = (e) => {
-        e.preventDefault();
+    handleSubmit = () => {
         const { onOk } = this.props
         this.props.form.validateFields((err, values) => {
+            console.log("values",values)
             if (!err) {
                 onOk && onOk(values);
+            }else{
+                console.log("证书报错",err)
             }
         });
     }
@@ -128,7 +130,7 @@ class LicenseDrawer extends PureComponent {
                         overflow: 'auto',
                     }}
                 >
-                    <Form>
+                    <Form onSubmit={this.handleSubmit}>
                         <FormItem
                             {...formItemLayout}
                             label="证书名称"
