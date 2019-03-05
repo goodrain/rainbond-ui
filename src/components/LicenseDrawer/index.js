@@ -35,14 +35,12 @@ class LicenseDrawer extends PureComponent {
 
         }
     }
-    handleSubmit = () => {
+    handleSubmit = (e) => {
+        e.preventDefault();
         const { onOk } = this.props
         this.props.form.validateFields((err, values) => {
-            console.log("values",values)
             if (!err) {
                 onOk && onOk(values);
-            }else{
-                console.log("证书报错",err)
             }
         });
     }
@@ -53,9 +51,6 @@ class LicenseDrawer extends PureComponent {
                 const fileList =  value.fileList.splice(-1);
                 this.readFileContents(fileList, 'certificate');
                 callback();
-                return;
-            } else {
-                // callback('请上传文件');
                 return;
             }
         }
@@ -68,9 +63,6 @@ class LicenseDrawer extends PureComponent {
                 const fileList =  value.fileList.splice(-1);
                 this.readFileContents(fileList, 'private_key');
                 callback();
-                return;
-            } else {
-                // callback('请上传文件');
                 return;
             }
         }
@@ -226,7 +218,6 @@ class LicenseDrawer extends PureComponent {
                                 </FormItem>
                             </Col>
                         </Row>
-                    </Form>
                     <div
                         style={{
                             position: 'absolute',
@@ -249,8 +240,9 @@ class LicenseDrawer extends PureComponent {
                         >
                             取消
                         </Button>
-                        <Button onClick={this.handleSubmit} type="primary" loading={editLicenseLoading || addLicenseLoading}>确认</Button>
+                        <Button htmlType="submit" type="primary" loading={editLicenseLoading || addLicenseLoading}>确认</Button>
                     </div>
+                    </Form>
                 </Drawer>
             </div>
         )
