@@ -3,6 +3,7 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import moment from "moment";
 import React, { Fragment, PureComponent } from "react";
+import { routerRedux } from "dva/router";
 import ScrollerX from "../../components/ScrollerX";
 import {
   batchReStart,
@@ -45,11 +46,9 @@ export default class AppList extends PureComponent {
       batchDeleteShow: false
     };
   }
+
   componentDidMount() {
-    this.loadApps();
-    this.timer = setInterval(() => {
-      this.loadApps();
-    }, 5000);
+    this.updateApp();
     document.querySelector('.ant-table-footer').setAttribute('style','position:absolute;background:#fff')
   }
   componentWillUnmount() {
@@ -57,6 +56,15 @@ export default class AppList extends PureComponent {
     this.props.dispatch({
       type: "groupControl/clearApps"
     });
+  }
+  updateApp = () => {
+    this.loadApps();
+    const { clearTime } = this.props
+    this.timer = setInterval(() => {
+      if (!clearTime){
+        this.loadApps();
+      }
+    }, 5000)
   }
   loadApps = () => {
     const { dispatch, form, index } = this.props;
@@ -73,11 +81,13 @@ export default class AppList extends PureComponent {
         page_size: 10
       },
       callback: data => {
-        this.setState({
-          apps: data.list || [],
-          teamAction: data.bean || {},
-          total: data.total
-        });
+        if(data._code==200){
+          this.setState({
+            apps: data.list || [],
+            teamAction: data.bean || {},
+            total: data.total||0
+          });
+        }
       }
     });
   };

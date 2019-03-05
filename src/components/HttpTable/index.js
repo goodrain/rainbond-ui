@@ -194,7 +194,6 @@ export default class HttpTable extends PureComponent {
                 service_alias: values.service_alias
             },
             callback: (data) => {
-                const editInfo = data.bean;
                 this.setState({
                     editInfo: data.bean,
                     drawerVisible: true
