@@ -162,7 +162,7 @@ class EditName extends PureComponent {
 }
 
 /* 管理容器 */
-@connect(({ user, appControl, global }) => ({ pods: appControl.pods }),null,null,{withRef:true},)
+@connect(({ user, appControl, global }) => ({ pods: appControl.pods }), null, null, { withRef: true })
 class ManageContainer extends PureComponent {
     componentDidMount() { }
     fetchPods = () => {
@@ -186,23 +186,27 @@ class ManageContainer extends PureComponent {
             notification.warning({ message: "当前节点暂不支持运行容器管理", duration: 5 })
             return;
         }
-        var adPopup = window.open('about:blank');
+     
+
         const appAlias = this.props.app_alias;
         if (podName && manageName) {
-            this
-                .props
-                .dispatch({
-                    type: 'appControl/managePod',
-                    payload: {
-                        team_name: globalUtil.getCurrTeamName(),
-                        app_alias: appAlias,
-                        pod_name: podName,
-                        manage_name: manageName
-                    },
-                    callback: () => {
-                        adPopup.location.href = "/console/teams/" + globalUtil.getCurrTeamName() + "/apps/" + appAlias + "/docker_console/";
-                    }
-                })
+            if (navigator.userAgent.indexOf("Firefox") > 0) {
+                var adPopup = window.open()
+            } else {
+                var adPopup = window.open('about:blank');
+            }
+            this.props.dispatch({
+                type: 'appControl/managePod',
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    app_alias: appAlias,
+                    pod_name: podName,
+                    manage_name: manageName
+                },
+                callback: () => {
+                    adPopup.location.href = "/console/teams/" + globalUtil.getCurrTeamName() + "/apps/" + appAlias + "/docker_console/";
+                }
+            })
         }
     }
     handleVisibleChange = (visible) => {
@@ -238,7 +242,7 @@ class ManageContainer extends PureComponent {
     pods: appControl.pods,
     groups: global.groups,
     build_upgrade: appControl.build_upgrade
-}),null,null,{withRef:true},)
+}), null, null, { withRef: true })
 class Main extends PureComponent {
     constructor(arg) {
         super(arg);
@@ -386,7 +390,7 @@ class Main extends PureComponent {
         this.setState({ showDeployTips: showonoff });
     }
     handleDeploy = () => {
-        this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true});
+        this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -397,7 +401,7 @@ class Main extends PureComponent {
             app_alias: this.getAppAlias(),
             is_upgrate: build_upgrade
         }).then((data) => {
-            this.setState({deployCanClick: false})
+            this.setState({ deployCanClick: false })
             if (data) {
                 notification.success({ message: `操作成功，构建中` });
                 var child = this.getChildCom();
@@ -417,11 +421,11 @@ class Main extends PureComponent {
         rollback({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
-            deploy_version: datas.build_version?datas.build_version:datas.deploy_version?datas.deploy_version:"",
-            upgrade_or_rollback:datas.upgrade_or_rollback?datas.upgrade_or_rollback:-1
+            deploy_version: datas.build_version ? datas.build_version : datas.deploy_version ? datas.deploy_version : "",
+            upgrade_or_rollback: datas.upgrade_or_rollback ? datas.upgrade_or_rollback : -1
         }).then((data) => {
             if (data) {
-                notification.success({ message:datas.upgrade_or_rollback?datas.upgrade_or_rollback==1? `操作成功，升级中`:`操作成功，回滚中`:`操作成功，回滚中` });
+                notification.success({ message: datas.upgrade_or_rollback ? datas.upgrade_or_rollback == 1 ? `操作成功，升级中` : `操作成功，回滚中` : `操作成功，回滚中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -611,7 +615,7 @@ class Main extends PureComponent {
         </Fragment>
     }
     handleUpdateRolling = () => {
-        this.setState({ showDeployTips: false, showreStartTips: false, rollingCanClick: true});
+        this.setState({ showDeployTips: false, showreStartTips: false, rollingCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -620,7 +624,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
         }).then((data) => {
-            this.setState({rollingCanClick: false});
+            this.setState({ rollingCanClick: false });
             if (data) {
                 notification.success({ message: `操作成功，更新中` });
                 var child = this.getChildCom();
@@ -847,7 +851,7 @@ class Main extends PureComponent {
     }
 }
 
-@connect(({ user, groupControl }) => ({}), null, null, { pure: false,withRef:true})
+@connect(({ user, groupControl }) => ({}), null, null, { pure: false, withRef: true })
 export default class Index extends PureComponent {
     constructor(arg) {
         super(arg);
