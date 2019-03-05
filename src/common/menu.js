@@ -91,9 +91,6 @@ function formatter(data, parentPath = "", parentAuthority) {
 // 处理我的应用二级和三级菜单
 
 export const getMenuData = (groups) => {
-  if(groups==""&&groups=="undefined"){
-    return 
-  }
   const menus = formatter(menuData());
 
   if (groups && groups.length) {
