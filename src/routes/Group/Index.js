@@ -249,11 +249,11 @@ class Main extends PureComponent {
               if (list && list.length) {
                 this
                   .props
-                  .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
+                  .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
               } else {
                 this
                   .props
-                  .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
+                  .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
               }
             },
           });

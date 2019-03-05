@@ -76,7 +76,12 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list })
+                this.setState({ serviceComponentList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.handlePorts(data.list[0].service_id);
+                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                    }
+                })
             }
         })
     }
@@ -94,7 +99,11 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list })
+                this.setState({ portList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                    }
+                })
             }
         })
     }
@@ -204,8 +213,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo.service_id
-
+                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
                                     {
@@ -224,7 +232,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
-                                initialValue: editInfo.container_port,
+                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
                             })(
                                 <Select placeholder="请选择端口号">
                                     {
