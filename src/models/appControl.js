@@ -14,6 +14,7 @@ import {
   addPort,
   getInnerEnvs,
   addInnerEnvs,
+  getVariableList,
   getOuterEnvs,
   addOuterEnvs,
   deleteEvns,
@@ -85,7 +86,15 @@ import {
   updateServiceName,
   // onlyOpenPortOuter,
   openExternalPort,
-  changeApplicationState
+  changeApplicationState,
+  getInstanceList,
+  deleteInstanceList,
+  modifyInstanceList,
+  getHealthList,
+  addInstanceList,
+  editorHealthList,
+  editUpDatekey,
+  getPermissions
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -457,7 +466,7 @@ export default {
     * addInnerEnvs({ payload, callback }, { call, put }) {
       const response = yield call(addInnerEnvs, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * fetchOuterEnvs({ payload, callback }, { call, put }) {
@@ -482,6 +491,48 @@ export default {
       const response = yield call(deleteEvns, payload);
       if (response) {
         callback && callback();
+      }
+    },
+    * getInstanceList({ payload, callback }, { call, put }) {
+      const response = yield call(getInstanceList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * deleteInstanceList({ payload, callback }, { call, put }) {
+      const response = yield call(deleteInstanceList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * modifyInstanceList({ payload, callback }, { call, put }) {
+      const response = yield call(modifyInstanceList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * addInstanceList({ payload, callback }, { call, put }) {
+      const response = yield call(addInstanceList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * editUpDatekey({ payload, callback }, { call, put }) {
+      const response = yield call(editUpDatekey, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * getHealthList({ payload, callback }, { call, put }) {
+      const response = yield call(getHealthList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * editorHealthList({ payload, callback }, { call, put }) {
+      const response = yield call(editorHealthList, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
     * editEvns({ payload, callback }, { call, put }) {
@@ -675,11 +726,23 @@ export default {
         callback && callback(response);
       }
     },
+    * getPermissions({ payload, callback }, { call, put }) {
+      const response = yield call(getPermissions, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     * deleteMember({ payload, callback }, { call, put }) {
       const response = yield call(deleteMember, payload);
 
       if (response) {
         callback && callback();
+      }
+    },
+    * getVariableList({ payload, callback }, { call, put }) {
+      const response = yield call(getVariableList, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
     * editMemberAction({ payload, callback }, { call, put }) {

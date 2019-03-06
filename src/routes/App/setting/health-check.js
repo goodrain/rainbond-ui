@@ -41,6 +41,9 @@ export default class ViewHealthCheck extends PureComponent {
           <FormItem {...formItemLayout} label="探针使用协议">
             <span>{data.scheme}</span>
           </FormItem>
+          <FormItem {...formItemLayout} label="不健康处理方式">
+            <span>{data.mode == "readiness" ? "下线" : data.mode == "liveness" ? "重启" : data.mode == "ignore" ? "忽略" : "未设置"}</span>
+          </FormItem>
           {data.scheme === "http" ? (
             <Fragment>
               <FormItem {...formItemLayout} label="http请求头">

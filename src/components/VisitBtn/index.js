@@ -411,7 +411,6 @@ export default class Index extends PureComponent {
   };
   render() {
     const { visitInfo } = this.props;
-    // console.log(visitInfo)
     if (!visitInfo) {
       return null;
     }

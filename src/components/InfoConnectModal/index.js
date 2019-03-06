@@ -32,7 +32,6 @@ class UserTable extends Component {
             },
         ];
         const { dataSource} = this.props;
-        console.log(dataSource)
         const dataList = dataSource.filter((item)=>{
             return (!item.attr_name.endsWith("_HOST")&&!item.attr_name.endsWith("_PORT")) ;
         })

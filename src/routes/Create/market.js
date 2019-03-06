@@ -14,9 +14,10 @@ import PluginStyles from "../Plugin/Index.less";
 import GoodrainRZ from "../../components/GoodrainRenzheng";
 
 @connect(
-  ({ global, loading }) => ({
+  ({ global, loading,appControl }) => ({
     rainbondInfo: global.rainbondInfo,
-    loading
+    loading,
+    appDetail: appControl.appDetail,
   }),
   null,
   null,
@@ -323,7 +324,7 @@ export default class Main extends PureComponent {
     );
   };
   render() {
-    const { form } = this.props;
+    const { form,appDetail } = this.props;
     const { getFieldDecorator } = form;
     const { handleType, moreState, installBounced, list } = this.state;
     const formItemLayout = {};
@@ -335,7 +336,6 @@ export default class Main extends PureComponent {
         this.hanldePageChange(v);
       }
     };
-
     const cardList = (
       <List
         bordered={false}
@@ -420,11 +420,11 @@ export default class Main extends PureComponent {
               textAlign: "right",
               zIndex: 9,
               position: "absolute",
-              height: "100px",
+              height: "50px",
               background: "white",
               width: "100%",
               right: 0,
-              bottom: "-42px",
+              bottom: "-10px",
             }}>
               <a onClick={this.loadMore}>查看更多...</a></div>}
           {installBounced && <Modal

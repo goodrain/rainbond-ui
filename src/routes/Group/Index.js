@@ -28,6 +28,7 @@ import globalUtil from "../../utils/global";
 import teamUtil from "../../utils/team";
 import userUtil from "../../utils/user";
 import AddServiceComponent from "./AddServiceComponent";
+import AddThirdParty from "./AddThirdParty";
 
 
 const FormItem = Form.Item;
@@ -558,7 +559,7 @@ class Main extends PureComponent {
         </ButtonGroup>}
       >
         <Row style={{ display: "flex", background: "#FFFAFA", height: "60px", alignItems: "center" }}>
-          <Col span={6}>
+          <Col span={4}>
             <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
           </Col>
           <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
@@ -566,14 +567,18 @@ class Main extends PureComponent {
         {hasService && this.state.type !== "list" && <Row style={{ background: "#fff" }}>
           <Col style={{ textAlign: "right", marginTop: "30px", paddingRight: "30px" }} span={24}>
             <a style={{ color: this.state.type === "shapes" ? "" : "black" }} onClick={() => {
+          <Col span={6}>
+            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
+          </Col>
+          {hasService && this.state.type !== "list" && <Col span={12} style={{ paddingRight: "15px",textAlign:"right" }}>
+            <a style={{ color: this.state.type === "shapes" ? "" : "black" }} onClick={() => {
               this.changeType("shape");
             }}>展示</a>
             /
              <a style={{ color: this.state.type === "shape" ? "" : "black" }} onClick={() => {
               this.changeType("shapes");
-            }}>编辑</a>
-          </Col>
-        </Row>}
+            }}>编辑</a></Col>}
+        </Row>
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
         {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}

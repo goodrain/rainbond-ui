@@ -135,6 +135,9 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/create/code/:type?/:code?": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/code")),
     },
+    "/team/:team/region/:region/create/outer/:type?/:outer?": {
+      component: dynamicWrapper(app, [], () => import("../routes/Create/outer")),
+    },
     "/team/:team/region/:region/create/market/:keyword?": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/market")),
     },

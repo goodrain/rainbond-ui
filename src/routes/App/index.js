@@ -23,6 +23,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { getRoutes } from '../../utils/utils';
 import { getRouterData } from '../../common/router';
 import Overview from './overview';
+import ConnectionInformation from './connectionInformation';
+import ThirdPartyServices from './ThirdPartyServices';
 import Monitor from './monitor';
 import Log from './log';
 import Expansion from './expansion';
@@ -31,6 +33,7 @@ import Mnt from './mnt';
 import Port from './port';
 import Plugin from './plugin';
 import Setting from './setting';
+import Members from './members';
 import Resource from './resource';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Index.less';
@@ -257,7 +260,8 @@ class Main extends PureComponent {
             showDeployTips: false,
             showreStartTips: false,
             deployCanClick: false,
-            rollingCanClick: false
+            rollingCanClick: false,
+            isShowThirdParty: false
             // isChecked: ''
         }
         this.timer = null;
@@ -316,7 +320,9 @@ class Main extends PureComponent {
                     app_alias: this.getAppAlias()
                 },
                 callback: (appDetail) => {
-
+                    if (appDetail.service.service_source) {
+                        this.setState({ isShowThirdParty: appDetail.is_third ? appDetail.is_third : false })
+                    }
                     if (!appUtil.isCreateComplete(appDetail) && !appUtil.isMarketApp(appDetail)) {
                         if (!appUtil.isCreateFromCompose(appDetail)) {
                             this
@@ -330,7 +336,6 @@ class Main extends PureComponent {
                     } else {
                         this.getStatus();
                     }
-
                 },
                 handleError: (data) => {
                     var code = httpResponseUtil.getCode(data);
@@ -652,23 +657,25 @@ class Main extends PureComponent {
     }
     render() {
         const { index, projectLoading, activitiesLoading, currUser } = this.props;
-
         const team_name = globalUtil.getCurrTeamName();
         const appDetail = this.props.appDetail;
         const status = this.state.status || {};
         const groups = this.props.groups || [];
-
+        const isShowThirdParty = this.state.isShowThirdParty
         if (!appDetail.service) {
             return null;
         }
         const menu = (
             <Menu onClick={this.handleDropClick}>
-                <Menu.Item
+                {!appDetail.is_third && <Menu.Item
                     key="restart"
-                    disabled={!appUtil.canRestartApp(appDetail) || !appStatusUtil.canRestart(status)}>重启</Menu.Item>
-                <Menu.Item
+                    disabled={!appUtil.canRestartApp(appDetail) || !appStatusUtil.canRestart(status)}>重启</Menu.Item>}
+
+                {!appDetail.is_third ? <Menu.Item
                     key="moveGroup"
-                    disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}>修改所属应用</Menu.Item>
+                    disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}>修改所属应用</Menu.Item> :
+                    <Menu.Item key="moveGroup">修改所属应用</Menu.Item>
+                }
                 <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>删除</Menu.Item>
             </Menu>
         );
@@ -681,11 +688,11 @@ class Main extends PureComponent {
                 <ButtonGroup>
 
                     {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias} />)}
-
-                    {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status)
+                    {isShowThirdParty && <VisitBtn btntype="default" app_alias={appAlias} />}
+                    {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
                         : null}
-                    {(appUtil.canStartApp(appDetail)) && !appStatusUtil.canStop(status)
+                    {(appUtil.canStartApp(appDetail)) && !appStatusUtil.canStop(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStart(status)} onClick={this.handleStart}>启动</Button>
                         : null}
 
@@ -705,7 +712,7 @@ class Main extends PureComponent {
                     }
 
                     <Dropdown overlay={menu} placement="bottomRight">
-                        <Button>其他操作<Icon type="ellipsis" /></Button>
+                        <Button>{isShowThirdParty ? "更多操作" : "其他操作"}<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
                 {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
@@ -715,8 +722,8 @@ class Main extends PureComponent {
                         <Tooltip title="应用配置已更改，更新后生效">
                             <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                         </Tooltip>
-                        :
-                        <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
+                        : isShowThirdParty ? "" :
+                            <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                     : ''}
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
@@ -730,44 +737,64 @@ class Main extends PureComponent {
             </div>
         );
 
-        const tabList = [
-            {
-                key: 'overview',
-                tab: '总览'
-            }, {
-                key: 'monitor',
-                tab: '监控'
-            }, {
-                key: 'log',
-                tab: '日志'
-            }, {
-                key: 'expansion',
-                tab: '伸缩'
-            }, {
-                key: 'relation',
-                tab: '依赖'
-            }, {
-                key: 'mnt',
-                tab: '存储'
-            }, {
-                key: 'port',
-                tab: '端口'
-            }, {
-                key: 'plugin',
-                tab: '插件'
-            },
-            {
-                key: 'resource',
-                tab: '构建源'
-            }, {
-                key: 'setting',
-                tab: '其他设置'
-            },
+        const tabList = isShowThirdParty ?
+            [
+                {
+                    key: 'thirdPartyServices',
+                    tab: '总览'
+                }, {
+                    key: 'port',
+                    tab: '端口'
+                },
+                {
+                    key: 'connectionInformation',
+                    tab: '连接信息'
+                }, {
+                    key: 'members',
+                    tab: '更多设置'
+                },
+            ] :
+            [
+                {
+                    key: 'overview',
+                    tab: '总览'
+                }, {
+                    key: 'monitor',
+                    tab: '监控'
+                }, {
+                    key: 'log',
+                    tab: '日志'
+                }, {
+                    key: 'expansion',
+                    tab: '伸缩'
+                }, {
+                    key: 'relation',
+                    tab: '依赖'
+                }, {
+                    key: 'mnt',
+                    tab: '存储'
+                }, {
+                    key: 'port',
+                    tab: '端口'
+                }, {
+                    key: 'plugin',
+                    tab: '插件'
+                },
+                {
+                    key: 'resource',
+                    tab: '构建源'
+                }, {
+                    key: 'setting',
+                    tab: '其他设置'
+                },
 
-        ];
+            ];
         // const { service_source, language } = this.state;
         const map = {
-            overview: Overview,
+            thirdPartyServices: ThirdPartyServices,
+            connectionInformation: ConnectionInformation,
+            members: Members,
+            overview: isShowThirdParty ?ThirdPartyServices:Overview,
             monitor: Monitor,
             log: Log,
             expansion: Expansion,
@@ -787,10 +814,12 @@ class Main extends PureComponent {
         //         tab: '源码构建'
         //     })
         // }
-        const { match, routerData, location } = this.props;
+        const { match, routerData, location, } = this.props;
         var type = this.props.match.params.type;
+
         if (!type) {
-            type = 'overview';
+            type = isShowThirdParty ? 'thirdPartyServices' : 'overview';
+            // type =  'overview';
         }
         const Com = map[type];
         return (

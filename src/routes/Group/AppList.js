@@ -3,7 +3,6 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import moment from "moment";
 import React, { Fragment, PureComponent } from "react";
-import { routerRedux } from "dva/router";
 import ScrollerX from "../../components/ScrollerX";
 import {
   batchReStart,
@@ -22,8 +21,8 @@ import MoveGroup from "../../components/AppMoveGroup";
 import BatchDelete from "../../components/BatchDelete";
 
 @connect(
-  ({ groupControl, global }) => ({
-    groups: global.groups
+  ({ appControl, global }) => ({
+    groups: global.groups,
   }),
   null,
   null,
@@ -46,7 +45,6 @@ export default class AppList extends PureComponent {
       batchDeleteShow: false
     };
   }
-
   componentDidMount() {
     this.updateApp();
     document.querySelector('.ant-table-footer').setAttribute('style','position:absolute;background:#fff')
@@ -259,8 +257,9 @@ export default class AppList extends PureComponent {
     const hasSelected = selectedRowKeys.length > 0;
     return hasSelected;
   };
+
   render() {
-    const { apps, teamAction } = this.state;
+    const { apps, teamAction} = this.state;
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -288,7 +287,8 @@ export default class AppList extends PureComponent {
         dataIndex: "service_cname",
         render: (val, data) => (
           <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+            to={
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
               data.service_alias
               }/overview`}
           >
@@ -368,39 +368,39 @@ export default class AppList extends PureComponent {
       }
     ];
     const footer = (<div className={styles.tableList} >
-    <div className={styles.tableListOperator}>
-      <Button
-        disabled={!this.canBatchRestart()}
-        onClick={this.handleBatchRestart}
-      >
-        批量重启{" "}
-      </Button>{" "}
-      <Button
-        disabled={!this.canBatchStop()}
-        onClick={this.handleBatchStop}
-      >
-        批量关闭{" "}
-      </Button>{" "}
-      <Button
-        disabled={!this.canBatchStart()}
-        onClick={this.handleBatchStart}
-      >
-        批量启动{" "}
-      </Button>{" "}
-      <Button
-        disabled={!this.canBatchMove()}
-        onClick={this.showBatchMove}
-      >
-        批量移动{" "}
-      </Button>{" "}
-      <Button
-        disabled={!this.canBatchDelete()}
-        onClick={this.handleBatchDelete}
-      >
-        批量删除{" "}
-      </Button>{" "}
-    </div>{" "}
-  </div>)
+      <div className={styles.tableListOperator}>
+        <Button
+          disabled={!this.canBatchRestart()}
+          onClick={this.handleBatchRestart}
+        >
+          批量重启{" "}
+        </Button>{" "}
+        <Button
+          disabled={!this.canBatchStop()}
+          onClick={this.handleBatchStop}
+        >
+          批量关闭{" "}
+        </Button>{" "}
+        <Button
+          disabled={!this.canBatchStart()}
+          onClick={this.handleBatchStart}
+        >
+          批量启动{" "}
+        </Button>{" "}
+        <Button
+          disabled={!this.canBatchMove()}
+          onClick={this.showBatchMove}
+        >
+          批量移动{" "}
+        </Button>{" "}
+        <Button
+          disabled={!this.canBatchDelete()}
+          onClick={this.handleBatchDelete}
+        >
+          批量删除{" "}
+        </Button>{" "}
+      </div>{" "}
+    </div>)
     return (
       <div>
         <Card
@@ -420,7 +420,7 @@ export default class AppList extends PureComponent {
               columns={columns}
               dataSource={apps || []}
               footer={() => footer}
-              style={{position:"relative"}}
+              style={{ position: "relative" }}
             />{" "}
           </ScrollerX>{" "}
           {this.state.batchDeleteShow && (

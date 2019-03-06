@@ -11,7 +11,7 @@ export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      configurationShow: false,
+      configurationShow: this.props.data&&this.props.data.volume_type&&this.props.data.volume_type=="config-file"?true:false,
       configuration_content: ''
     }
   }
@@ -159,6 +159,7 @@ export default class AddVolumes extends PureComponent {
           </FormItem>
           {this.state.configurationShow ? <FormItem {...formItemLayout} label="文件内容" style={{ textAlign: "right" }}>
             {getFieldDecorator('file_content', {
+              initialValue: data.file_content || undefined,
               rules: [{ required: true, message: '请编辑内容!' }]
             })(
               <TextArea rows={8} style={{ backgroundColor: "#02213f", color: "#fff" }} />

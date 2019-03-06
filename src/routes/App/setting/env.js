@@ -1,11 +1,38 @@
 import React, { PureComponent } from "react";
-import { Form, Modal, Input, notification } from "antd";
+import { Form, Modal, Input, notification,Select } from "antd";
+import { connect } from "dva";
+import globalUtil from "../../../utils/global";
 
 const FormItem = Form.Item;
-
+const Option = Select.Option;
+@connect(
+  ({ user, appControl, teamControl }) => ({
+    currUser: user.currentUser,
+    innerEnvs: appControl.innerEnvs,
+    startProbe: appControl.startProbe,
+    runningProbe: appControl.runningProbe,
+    ports: appControl.ports,
+    baseInfo: appControl.baseInfo,
+    tags: appControl.tags,
+    teamControl,
+    appControl,
+  }),
+  null,
+  null,
+  { withRef: true },
+)
 // 添加、编辑变量
 @Form.create()
 export default class AddVarModal extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.state = {
+      fontSizeVal: '',
+      list: []
+    }
+  }
+
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -19,6 +46,39 @@ export default class AddVarModal extends PureComponent {
   handleCancel = () => {
     this.props.onCancel && this.props.onCancel();
   };
+
+  handleList = (attr_name, attr_value) => {
+
+    if(attr_name==null&&attr_value==null){
+      return false;
+    }
+    
+    this.props.dispatch({
+      type: "appControl/getVariableList",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        attr_name,
+        attr_value
+      },
+      callback: (res) => {
+        let arr = res.list?res.list:[];
+        arr.unshift(attr_name ? attr_name + "" : attr_value + "")
+        Array.from(new Set(arr))
+        if (arr && arr.length > 0 && arr[0] == "null") {
+          return
+        }
+        this.setState({ list: arr })
+        attr_name && this.props.form.setFieldsValue({
+          attr_name: attr_name,
+        });
+        attr_value && this.props.form.setFieldsValue({
+          attr_value: attr_value,
+        });
+      },
+    });
+  };
+
+
   render() {
     const { getFieldDecorator } = this.props.form;
     const data = this.props.data || {};
@@ -40,6 +100,7 @@ export default class AddVarModal extends PureComponent {
         },
       },
     };
+    const {list}=this.state;
     return (
       <Modal title="添加变量" onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
         <Form onSubmit={this.handleSubmit}>
@@ -56,10 +117,18 @@ export default class AddVarModal extends PureComponent {
                   message: "格式不正确， /^[A-Za-z].*$/",
                 },
               ],
-            })(<Input
-              disabled={!!data.attr_name}
-              placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
-            />)}
+            })(
+              <Select
+                placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
+                showSearch
+                onSearch={(val) => { this.handleList(val, null) }}
+              >
+                {list && list.map((item) => {
+                  return <Option key={item} value={item}>{item}</Option>
+                })}
+              </Select>
+
+            )}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
             {getFieldDecorator("attr_value", {
@@ -70,7 +139,17 @@ export default class AddVarModal extends PureComponent {
                   message: "请输入变量值",
                 },
               ],
-            })(<Input placeholder="请输入变量值" />)}
+            })(
+              <Select
+                showSearch
+                onSearch={(val) => { this.handleList(null, val) }}
+                placeholder="请输入变量值"
+              >
+                {list && list.map((item) => {
+                  return <Option key={item} value={item}>{item}</Option>
+                })}
+              </Select>
+            )}
           </FormItem>
           <FormItem {...formItemLayout} label="说明">
             {getFieldDecorator("name", {

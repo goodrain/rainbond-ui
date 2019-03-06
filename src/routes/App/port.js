@@ -270,7 +270,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancalDeletePort();
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -294,7 +294,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancalDeleteDomain();
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -395,7 +395,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelAddPort();
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -438,7 +438,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -453,7 +453,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -468,7 +468,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -483,7 +483,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -533,7 +533,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功，需要更新才能生效" });
         this.props.onshowRestartTips(true);
       },
     });

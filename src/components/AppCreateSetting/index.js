@@ -1404,9 +1404,9 @@ class Env extends PureComponent {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appDetail.service.service_alias
         },
-        callback: (data) => {
+        callback: (res) => {
           this.setState({
-            innerEnvs: data.list || []
+            innerEnvs: res.list || []
           })
         }
       })
