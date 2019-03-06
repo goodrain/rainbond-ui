@@ -180,6 +180,7 @@ export default class Index extends PureComponent {
       linkList: [],
       relationList: [],
       viewRelationInfo: null,
+      showText:null,
     };
   }
 
@@ -192,12 +193,33 @@ export default class Index extends PureComponent {
     getRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-    }).then((data) => {
-      if (data) {
-        this.setState({ relationList: data.list || [] });
+    }).then((res) => {
+      if (res) {
+        let arr=res.bean.port_list;
+        if(res.list&&res.list.length>0){
+          res.list.map((item,index)=>{
+            const {ports_list}=item;
+            arr= arr.concat(ports_list)
+          })
+        }
+        arr=this.isRepeat(arr)
+        this.setState({ relationList: res.list || [],showText:arr });
       }
     });
   };
+   isRepeat=(arr)=>{
+    var hash = {};
+    
+    for(var i in arr) {
+    
+    if(hash[arr[i]]) //hash 哈希
+    
+    return true;
+    hash[arr[i]] = true;
+    }
+    return false;
+    
+    }
   handleAddVar = () => {
     this.setState({ showAddVar: { new: true } });
   };
@@ -309,7 +331,7 @@ export default class Index extends PureComponent {
     this.setState({ viewRelationInfo: null });
   };
   render() {
-    const { linkList, relationList } = this.state;
+    const { showText, relationList } = this.state;
     const { outerEnvs } = this.props;
     return (
       <Fragment>
@@ -372,7 +394,7 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={<span>依赖服务信息</span>}>
+        <Card title={[<span>依赖服务信息</span>,<span style={{color:"red"}}>{showText&&"（依赖的服务有相同的端口冲突,请处理）"}</span>]}>
           <ScrollerX sm={650}>
             <Table
               pagination={false}

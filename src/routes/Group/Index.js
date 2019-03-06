@@ -113,7 +113,8 @@ class Main extends PureComponent {
       secondJustify: '',
       json_data_length: 0,
       promptModal: false,
-      code: ''
+      code: '',
+      clearTime:false,
     };
   }
   getGroupId() {
@@ -144,24 +145,30 @@ class Main extends PureComponent {
         team_name,
         groupId
       },
-      callback: (data) => {
-        const service_alias = [];
-        let json_data = data.json_data;
-        this.setState({ running: false });
-        this.setState({ json_data_length: Object.keys(json_data).length })
-        Object.keys(json_data).map(key => {
-          if (json_data[key].cur_status == "running") {
-            this.setState({ running: true });
-          }
-          if (json_data[key].cur_status == "running" && json_data[key].is_internet == true) {
-            service_alias.push(json_data[key].service_alias)
-          }
-        })
-        this.setState({ service_alias }, () => {
-          // if(service_alias.length>0){
-          this.loadLinks(service_alias.join("-"))
-          // }
-        })
+      callback: (res) => {
+        if (res._code == 200) {
+          let data = res.bean
+         if(JSON.stringify(data)=="{}"){
+           return
+         }
+          const service_alias = [];
+          let json_data = data.json_data;
+          this.setState({ running: false });
+          this.setState({ json_data_length: Object.keys(json_data).length })
+          Object.keys(json_data).map(key => {
+            if (json_data[key].cur_status == "running") {
+              this.setState({ running: true });
+            }
+            if (json_data[key].cur_status == "running" && json_data[key].is_internet == true) {
+              service_alias.push(json_data[key].service_alias)
+            }
+          })
+          this.setState({ service_alias }, () => {
+            // if(service_alias.length>0){
+            this.loadLinks(service_alias.join("-"))
+            // }
+          })
+        }
       }
     })
   }
@@ -229,37 +236,57 @@ class Main extends PureComponent {
     this.setState({ toDelete: false });
   }
   handleDelete = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "groupControl/delete",
+    this.setState({
+      clearTime:true
+    },()=>{
+      const { dispatch } = this.props;
+      let grid = this.getGroupId()
+      dispatch({
+        type: "groupControl/delete",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          group_id: this.getGroupId(),
+        },
+        callback: (res) => {
+          if (res._code == 200) {
+            notification.success({ message: "删除成功" });
+            this.cancelDelete();
+            this.newAddress(grid)
+          }else{
+            this.setState({
+              clearTime:false
+            })
+          }
+        },
+      });
+    })
+  }
+
+  newAddress = (grid) => {
+    this.props.dispatch({
+      type: "global/fetchGroups",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId(),
       },
-      callback: () => {
-        this.cancelDelete();
-        this
-          .props
-          .dispatch({
-            type: "global/fetchGroups",
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-            },
-            callback: (list) => {
-              if (list && list.length) {
-                this
-                  .props
-                  .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
-              } else {
-                this
-                  .props
-                  .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
-              }
-            },
-          });
+      callback: (list) => {
+        if (list && list.length) {
+          if (grid == list[0].group_id) {
+            this.newAddress(grid)
+          }else{
+            this
+            .props
+            .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
+          }
+        } else {
+          this
+            .props
+            .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
+        }
       },
     });
   }
+
+
   toEdit = () => {
     this.setState({ toEdit: true });
   }
@@ -436,7 +463,7 @@ class Main extends PureComponent {
             <Button onClick={this.toAdd} href="javascript:;">新增组</Button>
           )}
         >
-          <AppList groupId={this.getGroupId()} /> {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+          <AppList groupId={this.getGroupId()} clearTime={this.state.clearTime}/> {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
         </PageHeaderLayout>
       );
     }
@@ -536,9 +563,9 @@ class Main extends PureComponent {
           </Col>
           <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
         </Row>
-        {hasService&&this.state.type !== "list"&&<Row style={{background: "#fff"}}>
-          <Col style={{textAlign:"right",marginTop:"30px",paddingRight:"30px"}} span={24}>
-            <a style={{color:this.state.type === "shapes"?"":"black"}} onClick={() => {
+        {hasService && this.state.type !== "list" && <Row style={{ background: "#fff" }}>
+          <Col style={{ textAlign: "right", marginTop: "30px", paddingRight: "30px" }} span={24}>
+            <a style={{ color: this.state.type === "shapes" ? "" : "black" }} onClick={() => {
               this.changeType("shape");
             }}>展示</a>
             /
@@ -551,8 +578,8 @@ class Main extends PureComponent {
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
         {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
-          title="删除组"
-          desc="确定要此删除此分组吗？"
+          title="删除应用"
+          desc="确定要此删除此应用吗？"
           subDesc="此操作不可恢复"
           onOk={this.handleDelete}
           onCancel={this.cancelDelete}

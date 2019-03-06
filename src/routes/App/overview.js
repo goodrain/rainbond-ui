@@ -566,7 +566,6 @@ export default class Index extends PureComponent {
     });
   }
   onAction = (actionLog) => {
-    console.log("actionLog",actionLog)
     this.setState({
       logList: [actionLog].concat(this.state.logList),
       showUpgrade:true

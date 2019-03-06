@@ -34,21 +34,7 @@ import Meiqia from "./Meiqia";
 const { Content } = Layout;
 const { AuthorizedRoute } = Authorized;
 
-/**
- * 根据菜单取得重定向地址.
- */
-const redirectData = [];
-const getRedirect = (item) => {
-  if (item && item.children) {
-    if (item.children[0] && item.children[0].path) {
-      redirectData.push({ from: `/${item.path}`, to: `/${item.children[0].path}` });
-      item.children.forEach((children) => {
-        getRedirect(children);
-      });
-    }
-  }
-};
-getMenuData().forEach(getRedirect);
+
 
 const query = {
   "screen-xs": {
@@ -294,6 +280,22 @@ class BasicLayout extends React.PureComponent {
     });
   };
   render() {
+    /**
+ * 根据菜单取得重定向地址.
+ */
+const redirectData = [];
+const getRedirect = (item) => {
+  if (item && item.children) {
+    if (item.children[0] && item.children[0].path) {
+      redirectData.push({ from: `/${item.path}`, to: `/${item.children[0].path}` });
+      item.children.forEach((children) => {
+        getRedirect(children);
+      });
+    }
+  }
+};
+getMenuData().forEach(getRedirect);
+
     const {
       currentUser,
       collapsed,

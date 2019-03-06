@@ -18,7 +18,8 @@ import {
   Dropdown,
   Table,
   Modal,
-  notification
+  notification,
+  Tooltip
 } from "antd";
 import {
   getRelationedApp,
@@ -131,7 +132,6 @@ export default class Index extends PureComponent {
             )}
             
           <Table
-            // pagination = {false}
             loading={this.loading}
             pagination={{
               total: total,
@@ -145,51 +145,106 @@ export default class Index extends PureComponent {
               {
                 title: "版本",
                 dataIndex: "build_version",
-                width: 120,
+                width: 200,
                 align: "left",
-                render:(text,record)=>{
-                 return (
-                  text == bean.current_version ? (<span style={{color:"#2593fb"}}>{`${text}(当前版本)`}</span>):(<span>{text}</span>)
-                 )
-                }
+                render: (text) => (
+                  <Tooltip title={bean.current_version ? `${text}(当前版本)`:text}>
+                      <div style={{
+                          width: 200,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>
+                      {text == bean.current_version ? (<span style={{color:"#2593fb"}}>{`${text}(当前版本)`}</span>):(<span>{text}</span>)}
+                      </div>
+                  </Tooltip>
+              )
               },
               {
                 title: "构建人",
                 dataIndex: "build_user",
                 width: 100,
-                align: "center"
+                align: "center",
+                render: (v) => (
+                  <Tooltip title={v}>
+                      <div style={{
+                          width: 100,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{v}</div>
+                  </Tooltip>
+              )
               },
               {
                 title: "构建时间",
                 dataIndex: "create_time",
-                width: 100,
-                align: "left"
+                width: 205,
+                align: "left",
+                render: (v) => (
+                  <Tooltip title={v}>
+                      <div style={{
+                          width: 205,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{v}</div>
+                  </Tooltip>
+              )
               },
               {
                 title: "构建类型",
                 dataIndex: "kind",
-                width: 120,
-                align: "center"
+                width: 100,
+                align: "center",
+                render: (v) => (
+                  <Tooltip title={v}>
+                      <div style={{
+                          width: 100,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{v}</div>
+                  </Tooltip>
+              )
+
               },
               {
                 title: "提交信息",
                 dataIndex: "commit_msg",
-                width: 150,
-                align: "center"
+                width: 120,
+                align: "center",
+                render: (v) => (
+                  <Tooltip title={v}>
+                      <div style={{
+                          width: 120,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{v}</div>
+                  </Tooltip>
+              )
               },
               {
                 title: "镜像/源码地址",
                 dataIndex: "repo_url",
-                width: 100,
+                width: 120,
                 align: "left",
-                render: (v, data) => {
-                  return data.repo_url || data.image_url;
-                }
+                render: (v, data) => (
+                  <Tooltip title={v}>
+                      <div style={{
+                        width: 120,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{data.repo_url || data.image_url}</div>
+                  </Tooltip>
+              )
               },
               {
                 title: "构建状态",
                 dataIndex: "status",
-                width: 100,
+                width: 90,
                 align: "center",
                 render: v => {
                   var map = {
@@ -197,13 +252,20 @@ export default class Index extends PureComponent {
                     failed: "失败",
                     timeout: "超时"
                   };
-                  return map[v] || v;
+                  return <Tooltip title={v}>
+                      <div style={{
+                        width: 90,
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden"
+                      }}>{map[v] || v}</div>
+                  </Tooltip>
                 }
               },
               {
                 title: "操作",
                 dataIndex: "group_name",
-                width: 100,
+                // width: 100,
                 align: "center",
                 render: (v, data) => {
                   return (

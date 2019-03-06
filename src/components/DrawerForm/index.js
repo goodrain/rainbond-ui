@@ -81,7 +81,9 @@ class DrawerForm extends PureComponent {
         const group_obj = this.props.groups.filter((item) => {
             return item.group_id == group_id
         })
-        this.setState({ group_name: group_obj[0].group_name })
+        if(group_obj&&group_obj.length>0){
+            this.setState({ group_name: group_obj[0].group_name })
+        }
         dispatch({
             type: "groupControl/fetchApps",
             payload: {
@@ -89,7 +91,12 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list })
+                this.setState({ serviceComponentList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.handlePorts(data.list[0].service_id);
+                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                    }
+                })
             }
         })
     }
@@ -107,7 +114,11 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list })
+                this.setState({ portList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                    }
+                })
             }
         })
     }
@@ -229,6 +240,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
+                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99}>不绑定</Option>}
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>
@@ -265,7 +277,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo.service_id,
+                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts} >
                                     {
@@ -283,7 +295,7 @@ class DrawerForm extends PureComponent {
                             style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('container_port', {
-                                initialValue: editInfo.container_port,
+                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
                                 rules: [{ required: true, message: '请选择端口号' }],
                             })(
                                 <Select placeholder="请选择端口号">

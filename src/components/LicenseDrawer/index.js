@@ -52,9 +52,6 @@ class LicenseDrawer extends PureComponent {
                 this.readFileContents(fileList, 'certificate');
                 callback();
                 return;
-            } else {
-                // callback('请上传文件');
-                return;
             }
         }
         callback()
@@ -66,9 +63,6 @@ class LicenseDrawer extends PureComponent {
                 const fileList =  value.fileList.splice(-1);
                 this.readFileContents(fileList, 'private_key');
                 callback();
-                return;
-            } else {
-                // callback('请上传文件');
                 return;
             }
         }
@@ -128,7 +122,7 @@ class LicenseDrawer extends PureComponent {
                         overflow: 'auto',
                     }}
                 >
-                    <Form>
+                    <Form onSubmit={this.handleSubmit}>
                         <FormItem
                             {...formItemLayout}
                             label="证书名称"
@@ -224,7 +218,6 @@ class LicenseDrawer extends PureComponent {
                                 </FormItem>
                             </Col>
                         </Row>
-                    </Form>
                     <div
                         style={{
                             position: 'absolute',
@@ -247,8 +240,9 @@ class LicenseDrawer extends PureComponent {
                         >
                             取消
                         </Button>
-                        <Button onClick={this.handleSubmit} type="primary" loading={editLicenseLoading || addLicenseLoading}>确认</Button>
+                        <Button htmlType="submit" type="primary" loading={editLicenseLoading || addLicenseLoading}>确认</Button>
                     </div>
+                    </Form>
                 </Drawer>
             </div>
         )

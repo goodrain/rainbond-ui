@@ -37,9 +37,11 @@ class DrawerForm extends PureComponent {
     }
     resolveOk = (e) => {
         e.preventDefault();
-        const { onOk } = this.props
+        const { onOk ,editInfo} = this.props
+        const {domain_port}=this.state
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                values.default_port=domain_port[0].port
                 onOk && onOk(values);
             }
         });
@@ -74,7 +76,12 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list })
+                this.setState({ serviceComponentList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.handlePorts(data.list[0].service_id);
+                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                    }
+                })
             }
         })
     }
@@ -92,7 +99,11 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list })
+                this.setState({ portList: data.list },()=>{
+                    if(data.list&&data.list.length>0){
+                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                    }
+                })
             }
         })
     }
@@ -102,7 +113,6 @@ class DrawerForm extends PureComponent {
     }
     checkport = (rules, value, callback) => {
         const { tcpType, editInfo } = this.props;
-        console.log(tcpType, value.port)
         if (!value.ip || !value.port) {
             callback('请输入完整的ip和端口');
             return;
@@ -172,9 +182,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('end_point', {
                                 rules: [{ required: true, validator: this.checkport }],
-                                initialValue: domain_port[0],
-
-
+                                initialValue: editInfo?current_enpoint[0]:domain_port[0],
                             })(
                                 <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange} />
                             )}
@@ -205,8 +213,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo.service_id
-
+                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
                                     {
@@ -225,7 +232,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
-                                initialValue: editInfo.container_port,
+                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
                             })(
                                 <Select placeholder="请选择端口号">
                                     {
