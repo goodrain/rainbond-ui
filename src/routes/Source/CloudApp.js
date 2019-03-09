@@ -2,10 +2,11 @@ import React, { PureComponent, Fragment } from "react";
 import globalUtil from "../../utils/global";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import BasicListStyles from "../List/BasicList.less";
-import { Card, List, Avatar, Input, Radio, notification } from "antd";
+import { Card, List, Avatar, Input, Radio, notification, Select } from "antd";
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
+const Option = Select.Option;
 
 export default class CloudApp extends PureComponent {
   constructor(props) {
@@ -17,7 +18,9 @@ export default class CloudApp extends PureComponent {
       sync: false,
       loading: false,
       showMarketAppDetail: false,
-      showApp: {}
+      showApp: {},
+      version: null,
+      versionList: null
     };
   }
   componentDidMount = () => {
@@ -25,6 +28,7 @@ export default class CloudApp extends PureComponent {
   };
   handleClose = () => {
     this.props.onClose && this.props.onClose();
+    this.setState({ versionList: null })
   };
   handleSync = () => {
     this.loadApps();
@@ -32,6 +36,7 @@ export default class CloudApp extends PureComponent {
   handleSearch = app_name => {
     this.setState(
       {
+        versionList: null,
         app_name: app_name,
         page: 1
       },
@@ -57,7 +62,8 @@ export default class CloudApp extends PureComponent {
             this.setState({
               apps: data.list || [],
               loading: false,
-              total: data.total
+              total: data.total,
+              version: null
             });
           }
         });
@@ -73,6 +79,7 @@ export default class CloudApp extends PureComponent {
           {
             group_key: data.group_key,
             version: data.version,
+            group_version: this.state.version ? [this.state.version] : [data.version[0]],
             template_version: data.template_version
           }
         ]
@@ -84,6 +91,37 @@ export default class CloudApp extends PureComponent {
       }
     });
   };
+
+  shouldComponentUpdate =()=> {
+    return true
+  }
+
+
+  handleChange = (version, data, index) => {
+    this.setState({ version })
+    this.props.dispatch({
+      type: "global/getVersion",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_name: data.group_name,
+        group_key: data.group_key,
+        version: version,
+      },
+      callback: res => {
+        if (res._code == 200 ) {
+          if(res.list && res.list.length>0){
+            let arr = this.state.apps
+            arr[index].is_complete = res.list[0].is_complete
+            arr[index].is_upgrade = res.list[0].is_upgrade
+            this.setState({ apps: arr })
+          }
+        }
+      }
+    });
+  }
+
+
+
   handlePageChange = page => {
     this.setState(
       {
@@ -142,6 +180,7 @@ export default class CloudApp extends PureComponent {
     }
   };
   render() {
+    const { versionList } = this.state;
     const paginationProps = {
       pageSize: this.state.pageSize,
       total: this.state.total,
@@ -183,7 +222,7 @@ export default class CloudApp extends PureComponent {
           loading={this.state.loading}
           pagination={paginationProps}
           dataSource={this.state.apps}
-          renderItem={item => (
+          renderItem={(item,index) => (
             <List.Item actions={[this.getAction(item)]}>
               <List.Item.Meta
                 avatar={
@@ -212,7 +251,17 @@ export default class CloudApp extends PureComponent {
                 }
                 description={
                   <div>
-                    <p>版本: {item.version}</p>
+                    {!this.state.loading && <p>版本: &nbsp;
+                      <Select
+                         defaultValue={item.version[0]} 
+                         onChange={(version) => { this.handleChange(version, item, index) }}
+                         size="small"
+                      >
+                        {
+                          item.version&&item.version.map((item, index) => {
+                            return <Option value={item} key={index}>{item}</Option>
+                          })}
+                      </Select></p>}
                     {item.describe || "-"}
                   </div>
                 }

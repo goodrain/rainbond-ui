@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input, Modal, Button, Tooltip, Radio } from "antd";
+import { Card, Form, List, Input, Modal, Button, Tooltip, Radio,Select,Tag } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -12,6 +12,7 @@ import Ellipsis from "../../components/Ellipsis";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import PluginStyles from "../Plugin/Index.less";
 import GoodrainRZ from "../../components/GoodrainRenzheng";
+const Option = Select.Option;
 
 @connect(
   ({ global, loading,appControl }) => ({
@@ -23,6 +24,7 @@ import GoodrainRZ from "../../components/GoodrainRenzheng";
   null,
   { pure: false }
 )
+
 @Form.create()
 export default class Main extends PureComponent {
   constructor(arg) {
@@ -39,6 +41,7 @@ export default class Main extends PureComponent {
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
+      group_version:"",
       installBounced: false,
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
@@ -120,6 +123,7 @@ export default class Main extends PureComponent {
     if (handleType) {
       this.setState({ installBounced: app });
     } else {
+    console.log("app",app)
       this.setState({ showCreate: app });
     }
   };
@@ -156,6 +160,7 @@ export default class Main extends PureComponent {
     });
   }
   handleCreate = (vals, is_deploy) => {
+    const {group_version}=this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
       type: "createApp/installApp",
@@ -163,7 +168,9 @@ export default class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
         app_id: app.ID,
-        is_deploy
+        is_deploy,
+        group_key: app.group_key,
+        group_version: vals.group_version,
       },
       callback: () => {
         // 刷新左侧按钮
@@ -284,7 +291,7 @@ export default class Main extends PureComponent {
          ]}
        >
          <Card.Meta
-           style={{ height: 112, overflow: "hidden" }}
+           style={{ height: 112, overflow: "auto" }}
            avatar={
              <img
                style={{ width: 110, height: 110, margin: " 0 auto" }}
@@ -304,12 +311,25 @@ export default class Main extends PureComponent {
                  style={{
                    display: "block",
                    color: "rgb(200, 200, 200)",
-                   marginBottom: 8,
+                   marginBottom: 2,
                    fontSize: 12
                  }}
                >
-                 版本: {item.version}
-                 <br />
+                <div style={{lineHeight:"18px",display:"flex",alignItems:"center",marginBottom:"5px",flexWrap:"wrap"}}>
+                    {/* 版本：<Select defaultValue={item.group_version_list && item.group_version_list[0]}
+                      onChange={this.handleChangeVersion}
+                      size="small">
+                      {item.group_version_list && item.group_version_list.map((item, index) => {
+                        return <Option key={index} value={item}>{item}</Option>
+                      })}
+                    </Select> */}
+                       <span>版本:&nbsp;</span> 
+                            {
+                            item.group_version_list &&item.group_version_list.map((item, index) => {
+                              return <Tag style={{ height: "17px", lineHeight: "16px",marginBottom:"3px" }} color="green" size="small" key={index}> {item}</Tag>
+                            })}
+                  </div>
+
                  内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
                </span>
                <Ellipsis className={PluginStyles.item} lines={3}>
@@ -323,6 +343,13 @@ export default class Main extends PureComponent {
       </Fragment>
     );
   };
+
+  handleChangeVersion = (value) => {
+    this.setState({
+      group_version:value
+    })
+  }
+
   render() {
     const { form,appDetail } = this.props;
     const { getFieldDecorator } = form;
@@ -420,7 +447,7 @@ export default class Main extends PureComponent {
               textAlign: "right",
               zIndex: 9,
               position: "absolute",
-              height: "50px",
+              height: "70px",
               background: "white",
               width: "100%",
               right: 0,
@@ -451,6 +478,7 @@ export default class Main extends PureComponent {
               disabled={loading.effects["createApp/installApp"]}
               onSubmit={this.handleCreate}
               onCancel={this.onCancelCreate}
+              showCreate={this.state.showCreate}
             />
           )}
           {this.state.showMarketAppDetail && (
@@ -474,6 +502,7 @@ export default class Main extends PureComponent {
                 disabled={loading.effects["createApp/installApp"]}
                 onSubmit={this.handleCreate}
                 onCancel={this.onCancelCreate}
+              showCreate={this.state.showCreate}
               />
             )}
             {this.state.showMarketAppDetail && (

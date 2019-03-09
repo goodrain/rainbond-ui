@@ -82,6 +82,7 @@ export default class AddThirdParty extends PureComponent {
         ServiceComponentOnePage: false,
         moreState: true,
         ButtonGroup: false,
+        ButtonGroupState: true,
         ServiceComponentThreePage: false
       })
     });
@@ -199,29 +200,7 @@ export default class AddThirdParty extends PureComponent {
           maskClosable={false}
           width={550}
         >
-          {ServiceComponentOnePage &&
-              <div className={styles.ServiceBox} style={{ marginBottom: "30px" }}>
-                <Row>
-                  <p className={styles.ServiceTitle}>创建第三方服务</p>
-                </Row>
-                <div className={styles.ServiceBox}>
-                  <Row style={{ marginTop: "-8px" }}>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomStatic") }}>
-                      <Icon component={staticSvg} />
-                      <p className={styles.ServiceSmallTitle}>静态创建</p>
-                    </Col>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomDynamic") }}>
-                      <Icon component={kuberSvg} />
-                      <p className={styles.ServiceSmallTitle}>动态创建</p>
-                    </Col>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomAPI") }}>
-                      <Icon component={apiSvg} />
-                      <p className={styles.ServiceSmallTitle}>API创建</p>
-                    </Col>
-                  </Row>
-                </div>
-              </div>
-          }
+          
           {ServiceComponentThreePage === "check" && ServiceGetData && <Check ServiceGetData={ServiceGetData}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}

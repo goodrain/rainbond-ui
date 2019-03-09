@@ -33,7 +33,8 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       addGroup: false,
-      is_deploy: true
+      is_deploy: true,
+      group_version:""
     };
   }
   onAddGroup = () => {
@@ -68,6 +69,11 @@ export default class Index extends PureComponent {
       },
     });
   };
+
+  handleChangeVersion = () =>{
+
+  };
+
   fetchGroup = () => {
     this.props.dispatch({
       type: 'global/fetchGroups',
@@ -95,9 +101,8 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, onCancel } = this.props;
+    const { groups, onCancel,showCreate } = this.props;
     const data = this.props.data || {};
-
     return (
       <Modal
         visible
@@ -116,6 +121,28 @@ export default class Index extends PureComponent {
         }
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
+        <Form.Item {...formItemLayout} label="安装版本">
+            {getFieldDecorator('group_version', {
+              initialValue: showCreate&&showCreate.group_version_list && showCreate.group_version_list[0],
+              rules: [
+                {
+                  required: true,
+                  message: '请选择版本',
+                },
+              ],
+            })(
+              
+              <Select
+                onChange={this.handleChangeVersion}
+                style={{width:"220px"}}
+                >
+                {showCreate&&showCreate.group_version_list && showCreate.group_version_list.map((item, index) => {
+                  return <Option key={index} value={item}>{item}</Option>
+                })}
+              </Select>
+            )}
+          </Form.Item>
+
           <Form.Item {...formItemLayout} label="选择应用">
             {getFieldDecorator('group_id', {
               initialValue: data.groupd_id,

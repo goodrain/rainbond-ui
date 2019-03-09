@@ -40,6 +40,7 @@ import {
   toBuildShape,
   toQueryTopology,
   toQueryLinks,
+  getVersion,
   toSearchTenant
 } from "../services/api";
 import { getTeamRegionGroups } from "../services/team";
@@ -120,6 +121,12 @@ export default {
     },
     * syncCloudPlugin({ payload, callback }, { call, put }) {
       const data = yield call(syncCloudPlugin, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getVersion({ payload, callback }, { call, put }) {
+      const data = yield call(getVersion, payload);
       if (data && callback) {
         callback(data);
       }

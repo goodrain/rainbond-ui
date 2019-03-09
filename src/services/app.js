@@ -133,6 +133,7 @@ export function getActionLogDetail(body = {
 export function deploy(body = {
   team_name,
   app_alias,
+  group_version,
   is_upgrate
 }) {
   return request(
@@ -140,7 +141,8 @@ export function deploy(body = {
     {
       method: "post",
       data: {
-        is_upgrate: body.is_upgrate ? true : false
+        is_upgrate: body.is_upgrate ? true : false,
+        group_version: body.group_version,
       }
     },
   );
@@ -770,10 +772,67 @@ export async function getInnerEnvs(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
     method: "get",
     params: {
-      env_type: body.env_type?body.env_type:"inner",
+      env_type: body.env_type ? body.env_type : "inner",
     },
   });
 }
+
+/*
+	获取版本的信息
+*/
+export async function getBuildInformation(body = {
+  team_name,
+  app_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
+    {
+      method: "get",
+    },
+  );
+}
+
+
+
+/*
+	获取变量值信息
+*/
+export async function getVariable(body = {
+  attr_name,
+  page,
+  page_size,
+}) {
+  return request(
+    `${config.baseUrl}/console/enterprise/diy_envs`,
+    {
+      method: "get",
+      params: {
+        attr_name: body.attr_name,
+        page: body.page,
+        page_size: body.page_size,
+      }
+    },
+  );
+}
+
+
+/*
+ 删除应用的环境变量值
+*/
+export async function deleteVariable(body = {
+  diy_id,
+}) {
+  return request(
+    `${config.baseUrl}/console/enterprise/diy_envs`,
+    {
+      method: "delete",
+      data: {
+        diy_id: body.diy_id,
+      },
+    },
+  );
+}
+
 
 /*
  添加应用的自定义环境变量
@@ -793,7 +852,7 @@ export async function addInnerEnvs(body = {
       name: body.name,
       attr_name: body.attr_name,
       attr_value: body.attr_value,
-      scope: body.scope? body.scope:"inner",
+      scope: body.scope ? body.scope : "inner",
       is_change: true,
     },
   });
@@ -941,7 +1000,7 @@ export async function addInstanceList(body = {
     {
       method: "POST",
       data: {
-        ip	: body.ip	,
+        ip: body.ip,
         is_online: body.is_online,
       },
     });
@@ -987,17 +1046,18 @@ export async function editorHealthList(body = {
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/3rd-party/health`,
-    { method: "put",
-    data: {
-      mode: "readiness",
-      scheme: body.scheme,
-      time_interval: body.time_interval,
-      port: body.port,
-      max_error_num: body.max_error_num,
-      action: body.action,
-      path: body.path,
+    {
+      method: "put",
+      data: {
+        mode: "readiness",
+        scheme: body.scheme,
+        time_interval: body.time_interval,
+        port: body.port,
+        max_error_num: body.max_error_num,
+        action: body.action,
+        path: body.path,
+      },
     },
-  },
   );
 }
 
@@ -1051,7 +1111,7 @@ export async function addStartProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "post",
     data: {
-      mode:body.mode? body.mode:"readiness",
+      mode: body.mode ? body.mode : "readiness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -1112,7 +1172,7 @@ export async function editStartProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "put",
     data: {
-      mode:body.mode? body.mode:"readiness",
+      mode: body.mode ? body.mode : "readiness",
       scheme: body.scheme,
       path: body.path,
       port: body.port,
@@ -1207,6 +1267,28 @@ export async function addVolume(body = {
     },
   );
 }
+/*
+	编辑应用的持久化路径
+*/
+export async function editorVolume(body = {
+  team_name,
+  app_alias,
+  ID,
+  new_volume_path,
+  file_content
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.ID}`,
+    {
+      method: "put",
+      data: {
+        new_volume_path: body.new_volume_path,
+        new_file_content: body.new_file_content
+      },
+    },
+  );
+}
+
 
 /*
 	删除应用的某个持久化目录
@@ -1753,6 +1835,19 @@ export async function getRuntimeInfo(body = {
     { method: "get" },
   );
 }
+/*
+	获取构建的运行环境信息
+*/
+export async function getRuntimeBuildInfo(body = {
+  team_name,
+  app_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build_envs`,
+    { method: "get" },
+  );
+}
+
 
 /*
 	修改应用的运行环境信息
@@ -1780,6 +1875,25 @@ export async function editRuntimeInfo(body = {
   );
 }
 
+
+/*
+	修改应用的运行环境信息
+*/
+export async function editRuntimeBuildInfo(body = {
+  team_name,
+  app_alias,
+  build_env_dict
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build_envs`,
+    {
+      method: "put",
+      data: {
+        build_env_dict: body.build_env_dict,
+      },
+    },
+  );
+}
 /*
 	应用未创建阶段的信息修改
 	可部分修改

@@ -307,28 +307,6 @@ export default class AddServiceComponent extends PureComponent {
                   />
                 </Row>
               </div>
-
-              <div className={styles.ServiceBox} style={{ marginBottom: "30px" }}>
-                <Row>
-                  <p className={styles.ServiceTitle}>创建第三方服务</p>
-                </Row>
-                <div className={styles.ServiceBox}>
-                  <Row style={{ marginTop: "-8px" }}>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomStatic") }}>
-                      <Icon component={staticSvg} />
-                      <p className={styles.ServiceSmallTitle}>静态创建</p>
-                    </Col>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomDynamic") }}>
-                      <Icon component={kuberSvg} />
-                      <p className={styles.ServiceSmallTitle}>动态创建</p>
-                    </Col>
-                    <Col span={8} className={styles.ServiceDiv} onClick={() => { this.handleServiceComponent(false, "outerCustomAPI") }}>
-                      <Icon component={apiSvg} />
-                      <p className={styles.ServiceSmallTitle}>API创建</p>
-                    </Col>
-                  </Row>
-                </div>
-              </div>
             </div>
           }
           {ServiceComponentTwoPage === "custom" && <Custom handleType="Service"
@@ -385,16 +363,6 @@ export default class AddServiceComponent extends PureComponent {
             handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}
           />
           }
-          {(ServiceComponentTwoPage === "outerCustomStatic" || ServiceComponentTwoPage === "outerCustomDynamic" || ServiceComponentTwoPage === "outerCustomAPI") && <OuterCustom
-            groupId={this.props.groupId}
-            handleType="Service"
-            dynamicType={ServiceComponentTwoPage}
-            ButtonGroupState={ButtonGroupState}
-            handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
-            handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
-            handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}
-          />}
-
           <div
             style={{
               position: 'absolute',

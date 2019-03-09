@@ -44,6 +44,7 @@ export default class Index extends PureComponent {
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
+      editor:null
     };
   }
 
@@ -93,23 +94,43 @@ export default class Index extends PureComponent {
     });
   };
   handleCancelAddVar = () => {
-    this.setState({ showAddVar: null });
+    this.setState({ showAddVar: null,editor:null });
   };
   handleSubmitAddVar = (vals) => {
-    this.props.dispatch({
-      type: "appControl/addVolume",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        ...vals,
-      },
-      callback: () => {
-        this.fetchVolumes();
-        this.handleCancelAddVar();
-        notification.success({ message: "操作成功，需要更新才能生效" });
-        this.props.onshowRestartTips(true);
-      },
-    });
+    const {editor}=this.state
+    if(editor){
+      this.props.dispatch({
+        type: "appControl/editorVolume",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+          new_volume_path:vals.volume_path,
+          new_file_content:vals.file_content,
+          ID:editor.ID
+        },
+        callback: () => {
+          this.fetchVolumes();
+          this.handleCancelAddVar();
+          notification.success({ message: "操作成功，需要更新才能生效" });
+          this.props.onshowRestartTips(true);
+        },
+      });
+    }else{
+      this.props.dispatch({
+        type: "appControl/addVolume",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+          ...vals,
+        },
+        callback: () => {
+          this.fetchVolumes();
+          this.handleCancelAddVar();
+          notification.success({ message: "操作成功，需要更新才能生效" });
+          this.props.onshowRestartTips(true);
+        },
+      });
+    }
   };
   showAddRelation = () => {
     this.setState({ showAddRelation: true });
@@ -138,7 +159,7 @@ export default class Index extends PureComponent {
     this.setState({ toDeleteVolume: data });
   };
   onEditVolume = (data) => {
-    this.setState({ showAddVar: data });
+    this.setState({ showAddVar: data,editor:data });
   };
   onCancelDeleteVolume = () => {
     this.setState({ toDeleteVolume: null });
@@ -233,14 +254,14 @@ export default class Index extends PureComponent {
                       >
                         删除
                     </a>
-                    {/* <a
+                    <a
                         onClick={() => {
                           this.onEditVolume(data);
                         }}
                         href="javascript:;"
                       >
                         编辑
-                    </a> */}
+                    </a>
                     </div>
                   ),
                 },
@@ -345,6 +366,7 @@ export default class Index extends PureComponent {
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             data={this.state.showAddVar}
+            editor={this.state.editor}
           />
         )}
         {this.state.showAddRelation && (

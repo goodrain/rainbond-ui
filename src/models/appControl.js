@@ -18,6 +18,7 @@ import {
   getOuterEnvs,
   addOuterEnvs,
   deleteEvns,
+  deleteVariable,
   editEvns,
   getRunningProbe,
   getStartProbe,
@@ -29,6 +30,7 @@ import {
   deleteMnt,
   getVolumes,
   addVolume,
+  editorVolume,
   deleteVolume,
   getAppRequestTime,
   getAppRequestTimeRange,
@@ -46,15 +48,21 @@ import {
   managePods,
   getTags,
   deleteTag,
+  getVariable,
+  // addVariable,
+  // putVariable,
   addTags,
   editName,
   moveGroup,
+  getBuildInformation,
   setMemberAction,
   getMembers,
   deleteMember,
   editMemberAction,
   getRuntimeInfo,
+  getRuntimeBuildInfo,
   editRuntimeInfo,
+  editRuntimeBuildInfo,
   editAppCreateInfo,
   deleteApp,
   getPlugins,
@@ -289,12 +297,44 @@ export default {
         callback && callback(response);
       }
     },
+    * getRuntimeBuildInfo({ payload, callback }, { call, put }) {
+      const response = yield call(getRuntimeBuildInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    
+    // * addVariable({ payload, callback }, { call, put }) {
+    //   const response = yield call(addVariable, payload);
+    //   if (response) {
+    //     callback && callback(response);
+    //   }
+    // },
+    // * putVariable({ payload, callback }, { call, put }) {
+    //   const response = yield call(putVariable, payload);
+    //   if (response) {
+    //     callback && callback(response);
+    //   }
+    // },
+    * getVariable({ payload, callback }, { call, put }) {
+      const response = yield call(getVariable, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     * editRuntimeInfo({ payload, callback }, { call, put }) {
       const response = yield call(editRuntimeInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
+    * editRuntimeBuildInfo({ payload, callback }, { call, put }) {
+      const response = yield call(editRuntimeBuildInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    
     * addTag({ payload, callback }, { call, put }) {
       const response = yield call(addTags, payload);
       if (response) {
@@ -440,7 +480,19 @@ export default {
     * moveGroup({ payload, callback }, { call, put }) {
       const response = yield call(moveGroup, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
+      }
+    },
+    * getBuildInformation({ payload, callback }, { call, put }) {
+      const response = yield call(getBuildInformation, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * deleteVariable({ payload, callback }, { call, put }) {
+      const response = yield call(deleteVariable, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
     * fetchCertificates({ payload, callback }, { call, put }) {
@@ -607,6 +659,12 @@ export default {
     },
     * addVolume({ payload, callback }, { call, put }) {
       const response = yield call(addVolume, payload);
+      if (response) {
+        callback && callback();
+      }
+    },
+    * editorVolume({ payload, callback }, { call, put }) {
+      const response = yield call(editorVolume, payload);
       if (response) {
         callback && callback();
       }

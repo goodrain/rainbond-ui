@@ -45,15 +45,11 @@ export default class AddVolumes extends PureComponent {
         this.readFileContents(fileList, 'file_content');
         callback();
         return;
-      } else {
-        // callback('请上传文件');
-        return;
-      }
+      } 
     }
     callback()
   }
   beforeUpload = (file) => {
-    // console.log(file)
     const fileArr = file.name.split(".");
     const length = fileArr.length;
     let isRightType = fileArr[length - 1] == "txt" || fileArr[length - 1] == "json" || fileArr[length - 1] == "yaml" || fileArr[length - 1] == "yml" || fileArr[length - 1] == "xml";
@@ -92,7 +88,7 @@ export default class AddVolumes extends PureComponent {
     let token = cookie.get('token');
     return (
       <Drawer
-        title="添加存储"
+        title={this.props.editor?"编辑存储":"添加存储"}
         placement="right"
         width={500}
         closable={false}
@@ -116,7 +112,7 @@ export default class AddVolumes extends PureComponent {
                   message: "请输入存储名称",
                 },
               ],
-            })(<Input placeholder="请输入存储名称" />)}
+            })(<Input placeholder="请输入存储名称" disabled={this.props.editor?true:false}/>)}
           </FormItem>
           <FormItem {...formItemLayout} label="挂载路径">
             {getFieldDecorator("volume_path", {
@@ -139,20 +135,20 @@ export default class AddVolumes extends PureComponent {
                 },
               ],
             })(<RadioGroup onChange={this.handleChange}>
-              <Radio value="share-file">
+              <Radio value="share-file" disabled={this.props.editor?true:false}>
                 <Tooltip title="分布式文件存储，可租户内共享挂载，适用于所有类型应用">
                   共享存储（文件）
                 </Tooltip>
               </Radio>
-              <Radio value="memoryfs">
+              <Radio value="memoryfs" disabled={this.props.editor?true:false}>
                 <Tooltip title="基于内存的存储设备，容量由内存量限制。应用重启数据即丢失，适用于高速暂存数据">
                   内存文件存储
                 </Tooltip>
               </Radio>
-              {appBaseInfo && appBaseInfo.extend_method == "state" && (<Radio value="local">
+              {appBaseInfo && appBaseInfo.extend_method == "state" && (<Radio value="local" disabled={this.props.editor?true:false}>
                 <Tooltip title="本地高速块存储设备，适用于有状态数据库服务">本地存储</Tooltip>
               </Radio>)}
-              <Radio value="config-file">
+              <Radio value="config-file" disabled={this.props.editor?true:false}>
                 <Tooltip title="编辑或上传您的配置文件内容">配置文件</Tooltip>
               </Radio>
             </RadioGroup>)}

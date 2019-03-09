@@ -216,7 +216,22 @@ export async function authEnterprise(body = {
       enterprise_id: body.enterprise_id,
       // market_client_id: body.market_client_id,
       // market_client_token: body.market_client_token,
-      market_info: body.market_info.replace(/\s+/g,"")
+      market_info: body.market_info.replace(/\s+/g, "")
+    },
+  });
+}
+/* 从云市同步应用的详细模板 */
+export async function getVersion(body = {
+  app_name,
+  version,
+  group_key,
+}) {
+  return request(`${config.baseUrl}/console/app_market/version`, {
+    method: "get",
+    params: {
+      app_name: body.app_name,
+      version: body.version,
+      group_key: body.group_key,
     },
   });
 }
@@ -226,6 +241,8 @@ export async function offlineMarketApp(body = { app_id }) {
   return request(`${config.baseUrl}/console/app_market/manage`, {
     method: "post",
     data: {
+      group_key: body.group_key,
+      group_version_list: body.group_version_list,
       app_id: body.app_id,
       action: "offline",
     },
@@ -470,20 +487,20 @@ export async function buyPurchase(body = {
 export async function getEnterpriseInfo(param) {
   return request(`${config.baseUrl}/console/enterprise/info`, {
     method: "get",
-    params:{
-      team_name:param.team_name
+    params: {
+      team_name: param.team_name
     }
   });
 }
 
 /* 查询企业信息 */
-export async function getEnterpriseTeams(body = {page_num,page_size,team_name}) {
+export async function getEnterpriseTeams(body = { page_num, page_size, team_name }) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
     method: "get",
     params: {
       page_num: body.page_num,
       page_size: body.page_size,
-      team_name:body.team_name
+      team_name: body.team_name
     },
   });
 }
@@ -497,7 +514,7 @@ export async function setRegist(body = { isRegist }) {
 }
 
 /* 设置注册功能 */
-export async function getRegist(body = { }) {
+export async function getRegist(body = {}) {
   return request(`${config.baseUrl}/console/enterprise/registerstatus`, {
     method: "get",
   });
@@ -513,14 +530,14 @@ export async function queryAuthority(params) {
 export async function toCreatUser(params) {
   return request(`${config.baseUrl}/console/enterprise/admin/add-user`, {
     method: "post",
-    data:{
-      tenant_name:params.tenant_name,
-      user_name:params.user_name,
-      phone:params.phone,
-      email:params.email,
-      password:params.password,
-      re_password:params.password,
-      role_ids:params.identity.join(","),
+    data: {
+      tenant_name: params.tenant_name,
+      user_name: params.user_name,
+      phone: params.phone,
+      email: params.email,
+      password: params.password,
+      re_password: params.password,
+      role_ids: params.identity.join(","),
     }
   });
 }
@@ -528,10 +545,10 @@ export async function toCreatUser(params) {
 export async function toBuildShape(params) {
   return request(`${config.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/common_operation `, {
     method: "post",
-    data:{
-      tenantName:params.tenantName,
-      group_id:params.group_id,
-      action:params.action,
+    data: {
+      tenantName: params.tenantName,
+      group_id: params.group_id,
+      action: params.action,
     }
   });
 }
@@ -554,10 +571,10 @@ export async function toQueryLinks(params) {
 export async function toSearchTenant(params) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
     method: "get",
-    params:{
-      tenant_alias:params.tenant,
-      page_num:params.page_num||1,
-      page_size:params.page_size||1000,
+    params: {
+      tenant_alias: params.tenant,
+      page_num: params.page_num || 1,
+      page_size: params.page_size || 1000,
     }
   });
 }

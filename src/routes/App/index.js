@@ -17,7 +17,11 @@ import {
     Input,
     Select,
     Tooltip,
-    Popconfirm
+    Popconfirm,
+    Radio,
+    Alert,
+    Badge
+
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { getRoutes } from '../../utils/utils';
@@ -42,9 +46,15 @@ import appUtil from '../../utils/app';
 import appStatusUtil from '../../utils/appStatus-util';
 import VisitBtn from '../../components/VisitBtn';
 import httpResponseUtil from '../../utils/httpResponse';
+import MarketAppDetailShow from "../../components/MarketAppDetailShow";
+
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const ButtonGroup = Button.Group;
+const RadioGroup = Radio.Group;
+
+
 import {
     deploy,
     restart,
@@ -165,6 +175,7 @@ class EditName extends PureComponent {
 }
 
 /* 管理容器 */
+@Form.create()
 @connect(({ user, appControl, global }) => ({ pods: appControl.pods }), null, null, { withRef: true })
 class ManageContainer extends PureComponent {
     componentDidMount() { }
@@ -189,7 +200,7 @@ class ManageContainer extends PureComponent {
             notification.warning({ message: "当前节点暂不支持运行容器管理", duration: 5 })
             return;
         }
-     
+
 
         const appAlias = this.props.app_alias;
         if (podName && manageName) {
@@ -239,6 +250,8 @@ class ManageContainer extends PureComponent {
     }
 }
 
+
+@Form.create()
 @connect(({ user, appControl, global }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
@@ -259,9 +272,16 @@ class Main extends PureComponent {
             showMoveGroup: false,
             showDeployTips: false,
             showreStartTips: false,
+            visibleBuild: null,
+            BuildText: "",
+            BuildList: [],
+            showMarketAppDetail: null,
+            showApp: {},
+            BuildState: null,
             deployCanClick: false,
             rollingCanClick: false,
             isShowThirdParty: false
+
             // isChecked: ''
         }
         this.timer = null;
@@ -310,6 +330,28 @@ class Main extends PureComponent {
             .dispatch({ type: 'appControl/clearDetail' })
 
     }
+
+    loadBuildState = (appDetail) => {
+        if (appDetail && appDetail.service && appDetail.service.service_source == "market") {
+            const serviceAlias = appDetail.service.service_alias;
+            this.props.dispatch({
+                type: 'appControl/getBuildInformation',
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    app_alias: serviceAlias,
+                },
+                callback: (res) => {
+                    if (res._code == 200) {
+                        this.setState({
+                            BuildState: res.list && res.list.length > 0 ? res.list.length : null
+                        })
+                    }
+                }
+            })
+        }
+        return
+    }
+
     loadDetail = () => {
         this
             .props
@@ -320,6 +362,7 @@ class Main extends PureComponent {
                     app_alias: this.getAppAlias()
                 },
                 callback: (appDetail) => {
+                    this.loadBuildState(appDetail);
                     if (appDetail.service.service_source) {
                         this.setState({ isShowThirdParty: appDetail.is_third ? appDetail.is_third : false })
                     }
@@ -394,7 +437,7 @@ class Main extends PureComponent {
     handleshowDeployTips = (showonoff) => {
         this.setState({ showDeployTips: showonoff });
     }
-    handleDeploy = () => {
+    handleDeploy = (group_version) => {
         this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
@@ -404,11 +447,14 @@ class Main extends PureComponent {
         deploy({
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
+            group_version: group_version ? group_version : "",
             is_upgrate: build_upgrade
         }).then((data) => {
             this.setState({ deployCanClick: false })
             if (data) {
-                notification.success({ message: `操作成功，构建中` });
+                this.handleCancelBuild()
+                this.loadBuildState(this.props.appDetail);
+                notification.success({ message: `操作成功，部署中` });
                 var child = this.getChildCom();
                 if (child && child.onAction) {
                     child.onAction(data.bean);
@@ -655,6 +701,71 @@ class Main extends PureComponent {
             }
         })
     }
+
+    handleOkBuild = () => {
+        this.props.form.validateFields((err, fieldsValue) => {
+            if (!err) {
+                this.handleDeploy(fieldsValue.group_version)
+            }
+        });
+    };
+
+    handleOpenBuild = () => {
+        const appDetail = this.props.appDetail;
+        const serviceAlias = appDetail.service.service_alias;
+        const buildType = appDetail.service.service_source
+        const text = appDetail.rain_app_name
+
+        if (buildType == "market") {
+            this.props.dispatch({
+                type: 'appControl/getBuildInformation',
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    app_alias: serviceAlias,
+                },
+                callback: (res) => {
+                    if (res._code == 200) {
+                        this.setState({
+                            BuildList: res.list,
+                            visibleBuild: true,
+                            BuildText: text,
+                            BuildState: res.list && res.list.length > 0 ? res.list.length : null,
+                            showApp: {
+                                details: false,
+                                group_name: text,
+                            }
+                        })
+                    }
+                }
+            })
+        } else {
+            this.handleDeploy()
+        }
+    };
+
+
+
+    handleCancelBuild = () => {
+        this.setState({
+            visibleBuild: null,
+            BuildText: "",
+        })
+    };
+
+    hideMarketAppDetail = () => {
+        this.setState({
+            showMarketAppDetail: null,
+        })
+    }
+    hideMarketOpenAppDetail = () => {
+        this.setState({
+            showMarketAppDetail: true
+        })
+    }
+
+
+
+
     render() {
         const { index, projectLoading, activitiesLoading, currUser } = this.props;
         const team_name = globalUtil.getCurrTeamName();
@@ -662,6 +773,8 @@ class Main extends PureComponent {
         const status = this.state.status || {};
         const groups = this.props.groups || [];
         const isShowThirdParty = this.state.isShowThirdParty
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+
         if (!appDetail.service) {
             return null;
         }
@@ -687,14 +800,22 @@ class Main extends PureComponent {
             <div>
                 <ButtonGroup>
 
+                    {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="" app_alias={appAlias} />)}
                     {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias} />)}
+
                     {isShowThirdParty && <VisitBtn btntype="default" app_alias={appAlias} />}
+
+
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
                         : null}
                     {(appUtil.canStartApp(appDetail)) && !appStatusUtil.canStop(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStart(status)} onClick={this.handleStart}>启动</Button>
                         : null}
+
+
+
+
 
                     {/* {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Tooltip title="应用配置已更改，重启后生效">
@@ -715,7 +836,7 @@ class Main extends PureComponent {
                         <Button>{isShowThirdParty ? "更多操作" : "其他操作"}<Icon type="ellipsis" /></Button>
                     </Dropdown>
                 </ButtonGroup>
-                {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
+                {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
                     // {(appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
                     ?
                     this.state.showDeployTips ?
@@ -724,7 +845,23 @@ class Main extends PureComponent {
                         </Tooltip>
                         : isShowThirdParty ? "" :
                             <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
-                    : ''}
+                    : ''} */}
+
+
+                {this.state.BuildState ?
+                    <Tooltip title={"有新版本"}>
+                        <Button onClick={this.handleOpenBuild} >
+                            <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
+                            构建</Button>
+                    </Tooltip>
+                    : <Button onClick={this.handleOpenBuild} >构建</Button>
+                }
+
+
+
+
+
+
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
@@ -794,7 +931,7 @@ class Main extends PureComponent {
             thirdPartyServices: ThirdPartyServices,
             connectionInformation: ConnectionInformation,
             members: Members,
-            overview: isShowThirdParty ?ThirdPartyServices:Overview,
+            overview: isShowThirdParty ? ThirdPartyServices : Overview,
             monitor: Monitor,
             log: Log,
             expansion: Expansion,
@@ -822,6 +959,16 @@ class Main extends PureComponent {
             // type =  'overview';
         }
         const Com = map[type];
+        const formItemLayout = {
+            labelCol: {
+                span: 1,
+            },
+            wrapperCol: {
+                span: 23,
+            },
+        };
+        const { BuildList } = this.state;
+
         return (
             <PageHeaderLayout
                 breadcrumbList={[{
@@ -843,6 +990,61 @@ class Main extends PureComponent {
                 tabActiveKey={type}
                 tabList={tabList}
             >
+
+                {this.state.showMarketAppDetail && (
+                    <MarketAppDetailShow
+                        onOk={this.hideMarketAppDetail}
+                        onCancel={this.hideMarketAppDetail}
+                        app={this.state.showApp}
+                    />
+                )}
+                <Modal
+                    title={[<span>从云市应用构建</span>]
+                    }
+                    visible={this.state.visibleBuild}
+                    onOk={this.handleOkBuild}
+                    onCancel={this.handleCancelBuild}
+                    afterClose={() => { this.setState({ BuildList: [] }) }}
+                    footer={BuildList && BuildList.length > 0 ?
+                        [
+                            <Button onClick={() => { this.handleCancelBuild() }}>取消</Button>,
+                            <Button type="primary" onClick={() => { this.handleOkBuild() }}>构建</Button>,
+                        ]
+                        : [
+                            <Button onClick={() => { this.handleCancelBuild() }}>取消</Button>,
+                            <Button type="primary" onClick={() => { this.handleOkBuild() }}>强制更新</Button>,
+                        ]}
+                >
+
+                    <div>
+                        {
+                            BuildList && BuildList.length > 0 ?
+                                <Form onSubmit={this.handleOkBuild}>
+                                    <Alert message={[<span>从云市应用</span>,
+                                    <a onClick={() => { this.hideMarketOpenAppDetail() }}>{this.state.BuildText}</a>,
+                                    <span>构建而来,当前云市应用版本有更新!</span>]} type="success" style={{ marginBottom: "5px" }} />
+                                    <Form.Item
+                                        {...formItemLayout}
+                                        label=""
+                                    >
+                                        {getFieldDecorator('group_version', {
+                                            initialValue: BuildList[0],
+                                            rules: [{ required: true, message: '选择版本' }],
+                                        })(
+                                            <RadioGroup>
+                                                {BuildList.map((item, index) => {
+                                                    return <div>版本:&nbsp;<Radio key={index} value={item}><a>{item}</a>可更新</Radio></div>
+                                                })}
+                                            </RadioGroup>
+                                        )}
+                                    </Form.Item>
+                                </Form>
+                                : <Alert message="云市应用未更新，您无需更新。" type="success" style={{ marginBottom: "5px" }} />
+                        }
+                    </div>
+                </Modal>
+
+
 
                 {Com
                     ? <Com
@@ -879,6 +1081,7 @@ class Main extends PureComponent {
         );
     }
 }
+@Form.create()
 
 @connect(({ user, groupControl }) => ({}), null, null, { pure: false, withRef: true })
 export default class Index extends PureComponent {
