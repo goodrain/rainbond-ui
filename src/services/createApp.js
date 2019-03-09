@@ -24,6 +24,21 @@ export async function createAppByCode(body = { team_name }) {
 }
 
 /*
+   源码创建应用
+*/
+export async function createThirdPartyServices(body = { team_name,group_id,service_cname,endpoints_type,endpoints }) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/third_party`, {
+    method: "post",
+    data: {
+      group_id: body.group_id,
+      service_cname: body.service_cname,
+      endpoints_type:body.endpoints_type,
+      endpoints:body.endpoints?body.endpoints:""
+    },
+  });
+}
+
+/*
    compose创建应用
 */
 export async function createAppByCompose(body = { team_name, group_name, yaml_content }) {
@@ -189,12 +204,14 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
-export async function installApp(body = { team_name, group_id, app_id,is_deploy }) {
+  export async function installApp(body = { team_name, group_id, app_id,group_key,group_version }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
     method: "post",
     data: {
       group_id: body.group_id,
       app_id: body.app_id,
+      group_key: body.group_key,
+      group_version: body.group_version,
       is_deploy:body.is_deploy
     },
   });

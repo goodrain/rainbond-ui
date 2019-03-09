@@ -19,7 +19,7 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import { getMnt, addMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
-import {volumeTypeObj} from "../../utils/utils";
+import { volumeTypeObj } from "../../utils/utils";
 import AddRelationMnt from "../../components/AddRelationMnt";
 import ScrollerX from "../../components/ScrollerX";
 import AddVolumes from "../../components/AddOrEditVolume"
@@ -44,6 +44,7 @@ export default class Index extends PureComponent {
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
+      editor:null
     };
   }
 
@@ -93,23 +94,43 @@ export default class Index extends PureComponent {
     });
   };
   handleCancelAddVar = () => {
-    this.setState({ showAddVar: null });
+    this.setState({ showAddVar: null,editor:null });
   };
   handleSubmitAddVar = (vals) => {
-    this.props.dispatch({
-      type: "appControl/addVolume",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        ...vals,
-      },
-      callback: () => {
-        this.fetchVolumes();
-        this.handleCancelAddVar();
-        notification.success({ message: "操作成功，需要更新才能生效" });
-        this.props.onshowRestartTips(true);
-      },
-    });
+    const {editor}=this.state
+    if(editor){
+      this.props.dispatch({
+        type: "appControl/editorVolume",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+          new_volume_path:vals.volume_path,
+          new_file_content:vals.file_content,
+          ID:editor.ID
+        },
+        callback: () => {
+          this.fetchVolumes();
+          this.handleCancelAddVar();
+          notification.success({ message: "操作成功，需要更新才能生效" });
+          this.props.onshowRestartTips(true);
+        },
+      });
+    }else{
+      this.props.dispatch({
+        type: "appControl/addVolume",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: this.props.appAlias,
+          ...vals,
+        },
+        callback: () => {
+          this.fetchVolumes();
+          this.handleCancelAddVar();
+          notification.success({ message: "操作成功，需要更新才能生效" });
+          this.props.onshowRestartTips(true);
+        },
+      });
+    }
   };
   showAddRelation = () => {
     this.setState({ showAddRelation: true });
@@ -136,6 +157,9 @@ export default class Index extends PureComponent {
   };
   onDeleteVolume = (data) => {
     this.setState({ toDeleteVolume: data });
+  };
+  onEditVolume = (data) => {
+    this.setState({ showAddVar: data,editor:data });
   };
   onCancelDeleteVolume = () => {
     this.setState({ toDeleteVolume: null });
@@ -213,7 +237,7 @@ export default class Index extends PureComponent {
                 {
                   title: "存储类型",
                   dataIndex: "volume_type",
-                  render:(text,record)=>{
+                  render: (text, record) => {
                     return <span>{volumeTypeObj[text]}</span>
                   }
                 },
@@ -221,14 +245,24 @@ export default class Index extends PureComponent {
                   title: "操作",
                   dataIndex: "action",
                   render: (v, data) => (
-                    <a
-                      onClick={() => {
-                        this.onDeleteVolume(data);
-                      }}
-                      href="javascript:;"
-                    >
-                      删除
+                    <div>
+                      <a
+                        onClick={() => {
+                          this.onDeleteVolume(data);
+                        }}
+                        href="javascript:;"
+                      >
+                        删除
                     </a>
+                    <a
+                        onClick={() => {
+                          this.onEditVolume(data);
+                        }}
+                        href="javascript:;"
+                      >
+                        编辑
+                    </a>
+                    </div>
                   ),
                 },
               ]}
@@ -266,7 +300,7 @@ export default class Index extends PureComponent {
                 {
                   title: "目标存储类型",
                   dataIndex: "dep_vol_type",
-                  render:(text,record)=>{
+                  render: (text, record) => {
                     return <span>{volumeTypeObj[text]}</span>
                   }
                 },
@@ -332,6 +366,7 @@ export default class Index extends PureComponent {
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             data={this.state.showAddVar}
+            editor={this.state.editor}
           />
         )}
         {this.state.showAddRelation && (

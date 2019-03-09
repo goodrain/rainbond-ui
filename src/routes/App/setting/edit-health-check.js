@@ -16,6 +16,13 @@ const RadioGroup = Radio.Group;
 // 设置、编辑健康监测
 @Form.create()
 export default class EditHealthCheck extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      list: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
+    };
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields(
@@ -42,6 +49,50 @@ export default class EditHealthCheck extends PureComponent {
     }
     callback("请填写路径!");
   };
+
+  handleHeavyList = (arr) => {
+    let arrs = [];
+    arr.map((item) => {
+      arrs.push(item.container_port);
+    });
+    return arrs
+  }
+
+  handleList = (value) => {
+    if (value == null && value == "") {
+      return;
+    }
+    let arr = this.state.list ? this.state.list : [];
+
+    value && arr.unshift(value + "")
+    if (arr && arr.length > 0 && arr[0] == "null" || arr[0] == "") {
+      return
+    }
+    var res = [arr[0]];
+    for (var i = 1; i < arr.length; i++) {
+      var repeat = false;
+      for (var j = 0; j < res.length; j++) {
+        if (arr[i] == res[j]) {
+          repeat = true;
+          break;
+        }
+      }
+      if (!repeat) {
+        res.push(arr[i]);
+      }
+    }
+
+    this.setState({ list: res })
+    this.props.form.setFieldsValue({
+      port: value,
+    });
+  };
+  onChanges = (e) => {
+    this.props.form.setFieldsValue({
+      mode: e.target.value,
+    })
+}
+
   render() {
     const {
       title, onCancel, ports,
@@ -66,33 +117,51 @@ export default class EditHealthCheck extends PureComponent {
       },
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { list } = this.state;
     const scheme = getFieldValue("scheme") || "tcp";
     return (
       <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="检测端口">
             {getFieldDecorator("port", {
-              initialValue:
-                appProbeUtil.getPort(data) || (ports.length ? ports[0].container_port : ""),
-            })(<Select>
-              {ports.map(port => <Option key={port.container_port} value={port.container_port}>{port.container_port}</Option>)}
-               </Select>)}
+              initialValue: appProbeUtil.getPort(data) || (list && list.length ? list[0] : ""),
+              rules: [{ required: true, message: "请输入" }],
+            })(<Select showSearch onSearch={(val) => { this.handleList(val) }}>
+              {list && list.map(port =>
+                <Option key={port}
+                  value={port}
+                >{port}
+                </Option>)
+              }
+            </Select>)}
           </FormItem>
           <FormItem {...formItemLayout} label="探针协议">
             {getFieldDecorator("scheme", {
               initialValue: data.scheme || "tcp",
             })(<RadioGroup
               options={[
-                  {
-                    label: "tcp",
-                    value: "tcp",
-                  },
-                  {
-                    label: "http",
-                    value: "http",
-                  },
-                ]}
+                {
+                  label: "tcp",
+                  value: "tcp",
+                },
+                {
+                  label: "http",
+                  value: "http",
+                },
+              ]}
             />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label="不健康处理方式:">
+            {getFieldDecorator("mode", {
+              initialValue: data.mode || "readiness",
+              rules: [{ required: true, message: "请选择" }],
+            })(
+              <RadioGroup onChange={this.onChanges}>
+                <Radio value={"readiness"}>下线</Radio>
+                {!this.props.types&&<Radio value={"liveness"}>重启</Radio>}
+                {this.props.types&&<Radio value={"ignore"}>忽略</Radio>}
+              </RadioGroup>
+            )}
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -133,8 +202,8 @@ export default class EditHealthCheck extends PureComponent {
             })(<Input
               type="number"
               style={{
-                  width: "80%",
-                }}
+                width: "80%",
+              }}
             />)}
             <span
               style={{
@@ -156,8 +225,8 @@ export default class EditHealthCheck extends PureComponent {
             })(<Input
               type="number"
               style={{
-                  width: "80%",
-                }}
+                width: "80%",
+              }}
             />)}
             <span
               style={{
@@ -179,8 +248,8 @@ export default class EditHealthCheck extends PureComponent {
             })(<Input
               type="number"
               style={{
-                  width: "80%",
-                }}
+                width: "80%",
+              }}
             />)}
             <span
               style={{
@@ -202,8 +271,8 @@ export default class EditHealthCheck extends PureComponent {
             })(<Input
               type="number"
               style={{
-                  width: "80%",
-                }}
+                width: "80%",
+              }}
             />)}
           </FormItem>
         </Form>

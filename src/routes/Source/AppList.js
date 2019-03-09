@@ -9,6 +9,10 @@ import {
   notification,
   Menu,
   Tooltip,
+  Tag,
+  Modal,
+  Form,
+  Checkbox
 } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
 import BasicListStyles from '../List/BasicList.less';
@@ -20,7 +24,12 @@ import CloudApp from './CloudApp';
 import localMarketUtil from '../../utils/localMarket';
 import AppExporter from "./AppExporter"
 
+const FormItem = Form.Item;
 const { Search } = Input;
+const CheckboxGroup = Checkbox.Group;
+
+@Form.create()
+
 
 @connect()
 class ExportBtn extends PureComponent {
@@ -61,12 +70,15 @@ class ExportBtn extends PureComponent {
       aEle.dispatchEvent(e);
     }
   };
-  showAppExport = () =>{
-    this.setState({showExporterApp: true})
+  showAppExport = () => {
+    const app = this.props.app || {};
+    this.setState({ showExporterApp: true })
   }
-  hideAppExport = () =>{
-    this.setState({showExporterApp: false})
+
+  hideAppExport = () => {
+    this.setState({ showExporterApp: false })
   }
+
   appExport = (format) => {
     const app = this.props.app;
     const app_id = app.ID;
@@ -95,6 +107,10 @@ class ExportBtn extends PureComponent {
       payload: {
         app_id: item.ID,
         team_name: globalUtil.getCurrTeamName(),
+        body: {
+          group_key: item.group_key,
+          group_version: item.group_version_list,
+        },
       },
       callback: (data) => {
         // 点击导出平台应用
@@ -150,8 +166,8 @@ class ExportBtn extends PureComponent {
       },
     });
   };
-  setIsExporting = (status) =>{
-    this.setState({"is_exporting": status})
+  setIsExporting = (status) => {
+    this.setState({ "is_exporting": status })
   };
   render() {
     const app = this.props.app || {};
@@ -166,9 +182,9 @@ class ExportBtn extends PureComponent {
             导出应用{this.state.is_exporting ? '(导出中)' : ''}
           </a>
         </Tooltip>
-      {this.state.showExporterApp && (
-        <AppExporter setIsExporting={this.setIsExporting}  app={this.props.app} onOk={this.hideAppExport} onCancel={this.hideAppExport} ></AppExporter>
-      )}  
+        {this.state.showExporterApp && (
+          <AppExporter setIsExporting={this.setIsExporting} app={this.props.app} onOk={this.hideAppExport} onCancel={this.hideAppExport} ></AppExporter>
+        )}
       </Fragment>
     );
   }
@@ -177,6 +193,8 @@ class ExportBtn extends PureComponent {
 @connect(({ user }) => ({
   currentUser: user.currentUser,
 }))
+@Form.create()
+
 export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
@@ -194,6 +212,11 @@ export default class AppList extends PureComponent {
       showImportApp: false,
       showMarketAppDetail: false,
       showApp: {},
+      visibles: null,
+      bouncedText: "",
+      bouncedType: "",
+      group_version: null,
+      chooseVersion: null
     };
   }
   componentDidMount = () => {
@@ -265,20 +288,30 @@ export default class AppList extends PureComponent {
       },
     );
   };
-  handleLoadAppDetail = (data) => {
+  handleLoadAppDetail = (data, text) => {
+    if (data.group_version_list && data.group_version_list.length > 1) {
+      this.setState({ visibles: true, group_version: data, bouncedText: text })
+    } else {
+      this.setState({ group_version: data }, () => { this.handleCloudsUpdate(data.group_version_list) })
+    }
+  };
+
+  handleCloudsUpdate = (chooseVersion) => {
+    const { group_version } = this.state;
+
     this.props.dispatch({
       type: 'global/syncMarketAppDetail',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        body: [
-          {
-            group_key: data.group_key,
-            version: data.version,
-            template_version: data.template_version,
-          },
-        ],
+        body: {
+          group_key: group_version.group_key,
+          group_version: chooseVersion,
+          template_version: group_version.template_version,
+        },
+
       },
       callback: (data) => {
+        this.setState({ visibles: null, group_version: null, bouncedText: "", bouncedType: "" })
         notification.success({ message: '操作成功' });
         this.getApps();
       },
@@ -291,35 +324,46 @@ export default class AppList extends PureComponent {
   };
   handleOfflineApp = () => {
     const app = this.state.showOfflineApp;
+    const { group_version, chooseVersion } = this.state;
+    let data = app ? app : group_version
+
     this.props.dispatch({
       type: 'global/offlineMarketApp',
       payload: {
         app_id: app.ID,
+        group_key: data.group_key,
+        group_version_list: chooseVersion,
       },
       callback: () => {
         notification.success({
           message: '删除成功',
         });
+        this.setState({ visibles: null, group_version: null, bouncedText: "", bouncedType: "" })
         this.hideOfflineApp();
         this.getApps();
       },
     });
   };
   showOfflineApp = (app) => {
-    this.setState({ showOfflineApp: app });
+    if (app.group_version_list && app.group_version_list.length > 1) {
+      this.setState({ visibles: true, group_version: app, bouncedText: "删除应用", bouncedType: "delete" })
+    } else {
+      this.setState({ showOfflineApp: app, chooseVersion: app.group_version_list });
+    }
+
   };
   showImportApp = () => {
     this.setState({ showImportApp: true });
   };
   showMarketAppDetail = (app) => {
     this.setState({
-      showApp:app,
+      showApp: app,
       showMarketAppDetail: true,
     })
   }
   hideMarketAppDetail = () => {
     this.setState({
-      showApp:{},
+      showApp: {},
       showMarketAppDetail: false,
     })
   }
@@ -356,7 +400,7 @@ export default class AppList extends PureComponent {
   handleShowImportApp = () => {
     this.setState({ showImportApp: true });
   }
-  
+
   renderSubMenu = (item, querydata) => {
     const id = item.ID;
     const exportbox = querydata[id];
@@ -432,26 +476,54 @@ export default class AppList extends PureComponent {
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
   };
+
+  handleOkBounced = () => {
+    const { bouncedType } = this.state;
+    this.props.form.validateFields(
+      (err, values) => {
+        if (!err) {
+          this.setState({
+            chooseVersion: values.chooseVersion
+          }, () => {
+            if (bouncedType == "delete") {
+              this.setState({ showOfflineApp: this.state.group_version, chooseVersion: values.chooseVersion });
+            } else {
+              this.handleCloudsUpdate(values.chooseVersion)
+            }
+          })
+        }
+      },
+    );
+  }
+
+
+  onChangeBounced = (checkedValues) => {
+    this.setState({
+      chooseVersion: checkedValues
+    })
+  }
+
+
   render() {
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-          {!this.state.showImportApp && (
-            <Button
+        {!this.state.showImportApp && (
+          <Button
             value="test"
             onClick={this.handleShowImportApp}
           >
             离线导入应用
           </Button>
-          )}
-          <Button
-            style={{marginLeft: 16}}
-            type="primary"
-            value="test"
-            onClick={() => {
-              this.setState({ showCloudApp: true });
-            }}
-          >
-            云端同步
+        )}
+        <Button
+          style={{ marginLeft: 16 }}
+          type="primary"
+          value="test"
+          onClick={() => {
+            this.setState({ showCloudApp: true });
+          }}
+        >
+          云端同步
           </Button>
       </div>
     );
@@ -462,6 +534,26 @@ export default class AppList extends PureComponent {
       current: this.state.page,
       onChange: (pageSize) => {
         this.handlePageChange(pageSize);
+      },
+    };
+    const { group_version } = this.state;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 5,
+        },
+      },
+      wrapperCol: {
+        xs: {
+          span: 24,
+        },
+        sm: {
+          span: 16,
+        },
       },
     };
 
@@ -542,43 +634,43 @@ export default class AppList extends PureComponent {
                     this.state.showCloudApp
                       ? null
                       : [
-                          item.is_complete ? (
-                            <Fragment>
-                              <ExportBtn app={item} />
-                              {item.source === 'market' && (
+                        item.is_complete ? (
+                          <Fragment>
+                            <ExportBtn app={item} />
+                            {item.source === 'market' && (
+                              <a
+                                style={{ marginRight: 8 }}
+                                href="javascript:;"
+                                onClick={() => {
+                                  this.handleLoadAppDetail(item, "云端更新");
+                                }}
+                              >
+                                云端更新
+                                </a>
+                            )}
+                            {item.enterprise_id === 'public'
+                              ? userUtil.isSystemAdmin(this.props.currentUser) && (
                                 <a
-                                  style={{ marginRight: 8 }}
                                   href="javascript:;"
                                   onClick={() => {
-                                    this.handleLoadAppDetail(item);
+                                    this.showOfflineApp(item);
                                   }}
                                 >
-                                  云端更新
+                                  删除
+                                </a>
+                              )
+                              : userUtil.isCompanyAdmin(this.props.currentUser) && (
+                                <a
+                                  href="javascript:;"
+                                  onClick={() => {
+                                    this.showOfflineApp(item);
+                                  }}
+                                >
+                                  删除
                                 </a>
                               )}
-                              {item.enterprise_id === 'public'
-                                ? userUtil.isSystemAdmin(this.props.currentUser) && (
-                                <a
-                                  href="javascript:;"
-                                  onClick={() => {
-                                        this.showOfflineApp(item);
-                                      }}
-                                >
-                                      删除
-                                </a>
-                                  )
-                                : userUtil.isCompanyAdmin(this.props.currentUser) && (
-                                <a
-                                  href="javascript:;"
-                                  onClick={() => {
-                                        this.showOfflineApp(item);
-                                      }}
-                                >
-                                      删除
-                                </a>
-                                  )}
-                            </Fragment>
-                          ) : (
+                          </Fragment>
+                        ) : (
                             <a
                               href="javascript:;"
                               onClick={() => {
@@ -588,7 +680,7 @@ export default class AppList extends PureComponent {
                               下载应用
                             </a>
                           ),
-                        ]
+                      ]
                   }
                 >
                   <List.Item.Meta
@@ -597,24 +689,30 @@ export default class AppList extends PureComponent {
                         src={item.pic || require('../../../public/images/app_icon.jpg')}
                         shape="square"
                         size="large"
-                        onClick={() =>{
+                        onClick={() => {
                           this.showMarketAppDetail(item)
                         }}
                       />
                     }
-                    title={<a style={{color:"#1890ff"}} href="javascript:;" onClick={() =>{
+                    title={<a style={{ color: "#1890ff" }} href="javascript:;" onClick={() => {
                       this.showMarketAppDetail(item)
-                    }}>{item.group_name}{item.is_official&&("(官方发布)")}</a>}
+                    }}>{item.group_name}{item.is_official && ("(官方发布)")}</a>}
                     description={
                       <div>
-                        <p>版本: {item.version}</p>
+                        <p>版本:&nbsp;
+                            {
+                            item.group_version_list&&item.group_version_list.map((item, index) => {
+                              return <Tag style={{ height: "17px", lineHeight: "16px" }} color="green" size="small" key={index}> {item}</Tag>
+                            })}
+                        </p>
+
                         {item.describe || '-'}
                       </div>
                     }
                   />
                 </List.Item>
               );
-                return renderItem;
+              return renderItem;
             }}
           />
         </Card>
@@ -626,6 +724,33 @@ export default class AppList extends PureComponent {
             width: '49%',
           }}
         >
+
+          {this.state.visibles && <Modal
+            title={this.state.bouncedText}
+            visible={this.state.visibles}
+            onOk={this.handleOkBounced}
+            onCancel={() => { this.setState({ visibles: null, group_version: null, bouncedText: "", bouncedType: "" }) }}
+          >
+            <Form onSubmit={this.handleOkBounced}>
+              <FormItem {...formItemLayout} label={group_version && group_version.group_name + "版本"}>
+                {getFieldDecorator("chooseVersion", {
+                  initialValue: group_version && [group_version.group_version_list[0]],
+                  rules: [
+                    {
+                      required: true,
+                      message: "请选择版本",
+                    },
+                  ],
+                })(
+                  <CheckboxGroup options={group_version && group_version.group_version_list} onChange={this.onChangeBounced} />
+                )}
+              </FormItem>
+            </Form>
+
+
+          </Modal>
+          }
+
           {this.state.showCloudApp ? (
             <CloudApp
               onSyncSuccess={() => {

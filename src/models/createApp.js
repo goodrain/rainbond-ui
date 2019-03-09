@@ -1,5 +1,6 @@
 import {
   createAppByCode,
+  createThirdPartyServices,
   createAppByCompose,
   createAppByDockerrun,
   installApp,
@@ -31,6 +32,14 @@ export default {
     },
     * createAppByCode({ payload, callback }, { call, put }) {
       const data = yield call(createAppByCode, payload);
+      if (data) {
+        setTimeout(() => {
+          callback && callback(data);
+        });
+      }
+    },
+    * createThirdPartyServices({ payload, callback }, { call, put }) {
+      const data = yield call(createThirdPartyServices, payload);
       if (data) {
         setTimeout(() => {
           callback && callback(data);

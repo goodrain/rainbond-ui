@@ -14,25 +14,25 @@ export function getMarketApp(body = {}) {
 /*
    应用导出状态查询
 */
-export function queryExport(body = { team_name, app_id }) {
+export function queryExport(body = { team_name, body,app_id }) {
   const team_name = body.team_name;
-  return request(`${config.baseUrl}/console/teams/${team_name}/apps/export`, {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/export`, {
     method: "get",
-    params: {
-      app_id: body.app_id
-    }
+    params: body.body,
   });
 }
 
 /*
      应用导出 console/teams/{team_name}/apps/export
   */
-export function appExport(body = { team_name, app_id, format }) {
+  export function appExport(body = { team_name, app_id, format,group_version }) {
   const team_name = body.team_name;
   return request(`${config.baseUrl}/console/teams/${team_name}/apps/export`, {
     method: "post",
     data: {
       app_id: body.app_id,
+      group_key: body.group_key,
+      group_version: body.group_version,
       format: body.format
     }
   });
