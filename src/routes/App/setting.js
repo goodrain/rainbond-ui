@@ -49,7 +49,7 @@ export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
-      isShow:false,
+      isShow: false,
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
@@ -158,7 +158,6 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
       },
       callback: (code) => {
-        console.log(code);
       },
     });
   }
@@ -511,7 +510,7 @@ export default class Index extends React.Component {
               notification.success({ message: data.msg_show || "修改成功" })
               this.setState({
                 visibleAppSetting: false,
-                isShow:false
+                isShow: false
               }, () => {
                 this.fetchBaseInfo();
               })
@@ -525,15 +524,15 @@ export default class Index extends React.Component {
     const { onChecked } = this.props;
     if (onChecked) {
       onChecked && onChecked(checked);
-      setTimeout(()=>{
+      setTimeout(() => {
         this.fetchBaseInfo()
-      },1000)
+      }, 1000)
     }
   }
   handleCancel_AppSetting = () => {
     this.setState({
       visibleAppSetting: false,
-      isShow:false
+      isShow: false
     })
   }
   modifyText = () => {
@@ -566,10 +565,22 @@ export default class Index extends React.Component {
   }
 
   onChange1 = (e) => {
-    const show=e.target.value== (this.props.baseInfo.extend_method || 'stateless')?false:true
+    const show = e.target.value == (this.props.baseInfo.extend_method || 'stateless') ? false : true
     this.setState({
       isShow: show,
     });
+  }
+
+
+
+  handleState = (data)=>{
+    if (appProbeUtil.isStartProbeUsed(data)) {
+      if (appProbeUtil.isStartProbeStart(data)) {
+        return "已启用";
+      }
+      return "已禁用";
+    }
+    return "未设置";
   }
 
   render() {
@@ -617,7 +628,7 @@ export default class Index extends React.Component {
       teamControl,
     } = this.props;
     const members = this.state.members || [];
-    const { appStatus, is_fix, tags, tabData,isShow } = this.state
+    const { viewStartHealth, is_fix, tags, tabData, isShow } = this.state
     if (typeof (baseInfo.build_upgrade) != "boolean") {
       return null;
     }
@@ -763,20 +774,63 @@ export default class Index extends React.Component {
           style={{
             marginBottom: 24,
           }}
-          title="健康监测"
+          title={
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              健康检测
+          {startProbe &&
+                <div>
+                  <a onClick={() => {
+                    this.setState({ editStartHealth: startProbe });
+                  }}
+                  style={{marginRight:"5px"}}
+                  >{JSON.stringify(startProbe)!="{}"?"编辑":"设置"}</a>
+
+                  {JSON.stringify(startProbe)!="{}"&&<a
+                    href="javascript:;"
+                    onClick={() => {
+                      this.showViewStartHealth(startProbe);
+                    }}
+                    style={{marginRight:"5px"}}
+                  >查看</a>}
+
+                  {JSON.stringify(startProbe)!="{}"&&appProbeUtil.isStartProbeStart(startProbe) ? (
+                    <a
+                      onClick={() => {
+                        this.handleStartProbeStart(false);
+                      }}
+                      href="javascript:;"
+                    >
+                      禁用
+                            </a>
+                  ) :JSON.stringify(startProbe)!="{}"&& (
+                      <a
+                        onClick={() => {
+                          this.handleStartProbeStart(true);
+                        }}
+                        href="javascript:;"
+                      >
+                        启用
+                            </a>
+                    )}
+                </div>}
+            </div>}
         >
-          <Table
+          {/* <Table
             columns={[
               {
-                title: "监测类型",
+                title: "不健康处理方式",
                 dataIndex: "type",
                 render: (v, data, index) => {
-                  if (index === 0) {
-                    return "启动时检测";
+                  // if (index === 0) {
+                  //   return "启动时检测";
+                  // }
+                  // if (index === 1) {
+                  //   return "运行时检测";
+                  // }
+                  if (data) {
+                    return data.mode == "readiness" ? "下线" : data.mode == "liveness" ? "重启" : data.mode == "ignore" ? "忽略" : ""
                   }
-                  if (index === 1) {
-                    return "运行时检测";
-                  }
+                  return ""
                 },
               },
               {
@@ -928,9 +982,14 @@ export default class Index extends React.Component {
             ]}
             pagination={false}
             dataSource={[startProbe, runningProbe]}
-          />
-        </Card>
+          /> */}
 
+          {startProbe && <div style={{ display: "flex" }}>
+            <div style={{ width: "33%", textAlign: "center" }}>当前状态:{this.handleState(startProbe)}</div>
+            <div style={{ width: "33%", textAlign: "center" }}>检测方式:{startProbe.scheme?startProbe.scheme:"未设置"}</div>
+            <div style={{ width: "33%", textAlign: "center" }}>不健康处理方式:{startProbe.mode == "readiness" ? "下线" : startProbe.mode == "liveness" ? "重启" : startProbe.mode == "ignore" ? "忽略" : "未设置"}</div>
+          </div>}
+        </Card>
         <Card
           style={{
             marginBottom: 24,
@@ -1051,7 +1110,7 @@ export default class Index extends React.Component {
         )}
         {this.state.viewStartHealth && (
           <ViewHealthCheck
-            title="启动时检查查看"
+            title="健康检查查看"
             data={this.state.viewStartHealth}
             onCancel={() => {
               this.setState({ viewStartHealth: null });
@@ -1062,7 +1121,7 @@ export default class Index extends React.Component {
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
-            title="设置启动时检查"
+            title="健康检测"
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
           />
@@ -1122,16 +1181,16 @@ export default class Index extends React.Component {
           // onOk={this.handleOk_AppSetting}
           onCancel={this.handleCancel_AppSetting}
           footer={
-            isShow?
-            [
-            <Popconfirm title="修改类型数据会丢失,你确定要修改吗？"
-            onConfirm={this.handleOk_AppSetting}
-            onCancel={this.handleCancel_AppSetting}
-            okText="Yes"
-            cancelText="No">
-            <Button type="primary">确定</Button>
-            </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>
-          ]:<div> <Button type="primary" onClick={this.handleCancel_AppSetting}>确定</Button><Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button></div>
+            isShow ?
+              [
+                <Popconfirm title="修改类型数据会丢失,你确定要修改吗？"
+                  onConfirm={this.handleOk_AppSetting}
+                  onCancel={this.handleCancel_AppSetting}
+                  okText="Yes"
+                  cancelText="No">
+                  <Button type="primary">确定</Button>
+                </Popconfirm>, <Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button>
+              ] : <div> <Button type="primary" onClick={this.handleCancel_AppSetting}>确定</Button><Button type="primary" onClick={this.handleCancel_AppSetting}>取消</Button></div>
           }
         >
           <Form.Item {...appsetting_formItemLayout} label="应用类型">

@@ -25,6 +25,10 @@ const menuData = function () {
           name: "从应用市场安装",
           path: "market",
         },
+        {
+          name: "创建第三方服务",
+          path: "outer",
+        },
       ],
     },
     {

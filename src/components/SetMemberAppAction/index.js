@@ -44,7 +44,6 @@ class ConfirmModal extends PureComponent{
    render(){
       const { getFieldDecorator } = this.props.form;
       const { onOk, onCancel, actions, title}= this.props;
-
       const formItemLayout = {
         labelCol: {
           xs: { span: 24 },
@@ -93,8 +92,8 @@ class ConfirmModal extends PureComponent{
                   })(
                     <Select mode="multiple">
                        {
-                        members.map((member) => {
-                           return <Select.Option value={member.user_id}>{member.user_name}</Select.Option>
+                        members.map((member,index) => {
+                           return <Select.Option key={index} value={member.user_id}>{member.user_name}</Select.Option>
                         })
                        }
                     </Select>

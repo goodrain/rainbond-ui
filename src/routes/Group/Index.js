@@ -12,8 +12,7 @@ import {
   Dropdown,
   Modal,
   notification,
-  Card,
-  Drawer
+  Radio,
 } from "antd";
 import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
@@ -28,6 +27,7 @@ import globalUtil from "../../utils/global";
 import teamUtil from "../../utils/team";
 import userUtil from "../../utils/user";
 import AddServiceComponent from "./AddServiceComponent";
+import AddThirdParty from "./AddThirdParty";
 
 
 const FormItem = Form.Item;
@@ -114,7 +114,8 @@ class Main extends PureComponent {
       json_data_length: 0,
       promptModal: false,
       code: '',
-      clearTime:false,
+      clearTime: false,
+      size: 'large',
     };
   }
   getGroupId() {
@@ -148,9 +149,9 @@ class Main extends PureComponent {
       callback: (res) => {
         if (res._code == 200) {
           let data = res.bean
-         if(JSON.stringify(data)=="{}"){
-           return
-         }
+          if (JSON.stringify(data) == "{}") {
+            return
+          }
           const service_alias = [];
           let json_data = data.json_data;
           this.setState({ running: false });
@@ -237,8 +238,8 @@ class Main extends PureComponent {
   }
   handleDelete = () => {
     this.setState({
-      clearTime:true
-    },()=>{
+      clearTime: true
+    }, () => {
       const { dispatch } = this.props;
       let grid = this.getGroupId()
       dispatch({
@@ -252,9 +253,9 @@ class Main extends PureComponent {
             notification.success({ message: "删除成功" });
             this.cancelDelete();
             this.newAddress(grid)
-          }else{
+          } else {
             this.setState({
-              clearTime:false
+              clearTime: false
             })
           }
         },
@@ -272,10 +273,10 @@ class Main extends PureComponent {
         if (list && list.length) {
           if (grid == list[0].group_id) {
             this.newAddress(grid)
-          }else{
+          } else {
             this
-            .props
-            .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
+              .props
+              .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${list[0].group_id}`));
           }
         } else {
           this
@@ -414,7 +415,9 @@ class Main extends PureComponent {
       code: ''
     })
   }
-
+  handleSizeChange = (e) => {
+    this.setState({ size: e.target.value });
+  }
   render() {
     const {
       currUser,
@@ -463,7 +466,7 @@ class Main extends PureComponent {
             <Button onClick={this.toAdd} href="javascript:;">新增组</Button>
           )}
         >
-          <AppList groupId={this.getGroupId()} clearTime={this.state.clearTime}/> {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
+          <AppList groupId={this.getGroupId()} clearTime={this.state.clearTime} /> {this.state.toAdd && <EditGroupName title="添加新应用" onCancel={this.cancelAdd} onOk={this.handleAdd} />}
         </PageHeaderLayout>
       );
     }
@@ -536,44 +539,47 @@ class Main extends PureComponent {
 
         content={pageHeaderContent}
         extraContent={<ButtonGroup >
-          {hasService && <Button
-            onClick={() => {
-              this.changeType("shape");
-            }}
-            type={this.state.type === "shape" || this.state.type === "shapes"
-              ? "primary"
-              : ""}
-            active
-          >拓扑图
-                         </Button>}
-          <Button
-            onClick={() => {
-              this.changeType("list");
-            }}
-            type={this.state.type === "list"
-              ? "primary"
-              : ""}
-          >列表
-          </Button>
+
+          <Row>
+            <Col span={24} style={{ paddingTop: "10px" }}>{extraContent}</Col>
+          </Row>
         </ButtonGroup>}
       >
+
+
         <Row style={{ display: "flex", background: "#FFFAFA", height: "60px", alignItems: "center" }}>
-          <Col span={6}>
+          <Col span={4}>
             <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
           </Col>
-          <Col span={18} style={{ paddingRight: "12px" }}>{extraContent}</Col>
+          <Col span={4}>
+            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
+          </Col>
+          <Col span={16} style={{ textAlign: "right", paddingRight: "12px" }}>
+
+            <Radio.Group value={this.state.size} onChange={this.handleSizeChange}>
+              {
+                hasService && <Radio.Button onClick={() => {
+                  this.changeType("shape");
+                }} value="large">拓扑图</Radio.Button>
+              }
+              <Radio.Button onClick={() => {
+                this.changeType("list");
+              }} value="default">列表</Radio.Button>
+            </Radio.Group>
+          </Col>
         </Row>
-        {hasService && this.state.type !== "list" && <Row style={{ background: "#fff" }}>
-          <Col style={{ textAlign: "right", marginTop: "30px", paddingRight: "30px" }} span={24}>
+        {hasService && this.state.type !== "list" &&
+          <Row  style={{ textAlign: "right", paddingRight: "20px",background:"#fff" }}>
             <a style={{ color: this.state.type === "shapes" ? "" : "black" }} onClick={() => {
               this.changeType("shape");
             }}>展示</a>
             /
-             <a style={{ color: this.state.type === "shape" ? "" : "black" }} onClick={() => {
+ <a style={{ color: this.state.type === "shape" ? "" : "black" }} onClick={() => {
               this.changeType("shapes");
-            }}>编辑</a>
-          </Col>
-        </Row>}
+            }}>编辑</a></Row>
+        }
+
+
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
         {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}
