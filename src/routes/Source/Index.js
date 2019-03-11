@@ -81,7 +81,7 @@ export default class Index extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
-          <div>将当前Rainbond平台和云应用市场进行互联，同步应用，插件，数据中心等资源</div>
+          <div>将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源</div>
           <div>应用下载完成后，方可在 <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`}>从应用市场安装</Link> 直接安装 </div>
         </div>
       </div>
