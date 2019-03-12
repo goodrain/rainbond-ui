@@ -75,14 +75,14 @@ export default class CloudApp extends PureComponent {
       type: "global/syncMarketAppDetail",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        body: [
+        body: 
           {
             group_key: data.group_key,
-            version: data.version,
+            // version: data.version,
             group_version: this.state.version ? [this.state.version] : [data.version[0]],
             template_version: data.template_version
           }
-        ]
+        
       },
       callback: data => {
         notification.success({ message: "操作成功" });

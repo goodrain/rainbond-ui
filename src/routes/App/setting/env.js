@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Form, Modal, Input, notification,Select } from "antd";
+import { Form, Modal, Input, notification, Select } from "antd";
 import { connect } from "dva";
 import globalUtil from "../../../utils/global";
 
@@ -49,10 +49,10 @@ export default class AddVarModal extends PureComponent {
 
   handleList = (attr_name, attr_value) => {
 
-    if(attr_name==null&&attr_value==null){
+    if (attr_name == null && attr_value == null) {
       return false;
     }
-    
+
     this.props.dispatch({
       type: "appControl/getVariableList",
       payload: {
@@ -61,7 +61,7 @@ export default class AddVarModal extends PureComponent {
         attr_value
       },
       callback: (res) => {
-        let arr = res.list?res.list:[];
+        let arr = res.list ? res.list : [];
         arr.unshift(attr_name ? attr_name + "" : attr_value + "")
         Array.from(new Set(arr))
         if (arr && arr.length > 0 && arr[0] == "null") {
@@ -81,7 +81,7 @@ export default class AddVarModal extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const data = this.props.data || {};
+    const data = this.props.data || "";
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -100,13 +100,13 @@ export default class AddVarModal extends PureComponent {
         },
       },
     };
-    const {list}=this.state;
+    const { list } = this.state;
     return (
-      <Modal title="添加变量" onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
+      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
             {getFieldDecorator("attr_name", {
-              initialValue: data.attr_name || "",
+              initialValue: data&&data.attr_name || "",
               rules: [
                 {
                   required: true,
@@ -118,21 +118,24 @@ export default class AddVarModal extends PureComponent {
                 },
               ],
             })(
-              <Select
-                placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
-                showSearch
-                onSearch={(val) => { this.handleList(val, null) }}
-              >
-                {list && list.map((item) => {
-                  return <Option key={item} value={item}>{item}</Option>
-                })}
-              </Select>
+
+              <Input disabled={data&&data.attr_name?true:false} placeholder="请输入变量名称 格式/^[A-Za-z].*$/" />
+
+              // <Select
+              //   placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
+              //   showSearch
+              //   onSearch={(val) => { this.handleList(val, null) }}
+              // >
+              //   {list && list.map((item) => {
+              //     return <Option key={item} value={item}>{item}</Option>
+              //   })}
+              // </Select>
 
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
             {getFieldDecorator("attr_value", {
-              initialValue: data.attr_value || "",
+              initialValue: data&&data.attr_value || "",
               rules: [
                 {
                   required: true,
@@ -140,23 +143,25 @@ export default class AddVarModal extends PureComponent {
                 },
               ],
             })(
-              <Select
-                showSearch
-                onSearch={(val) => { this.handleList(null, val) }}
-                placeholder="请输入变量值"
-              >
-                {list && list.map((item) => {
-                  return <Option key={item} value={item}>{item}</Option>
-                })}
-              </Select>
+              // <Select
+              //   showSearch
+              //   onSearch={(val) => { this.handleList(null, val) }}
+              //   placeholder="请输入变量值"
+              // >
+              //   {list && list.map((item) => {
+              //     return <Option key={item} value={item}>{item}</Option>
+              //   })}
+              // </Select>
+              <Input placeholder="请输入变量值" />
+
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="说明">
             {getFieldDecorator("name", {
-              initialValue: data.name || "",
+              initialValue: data&&data.name || "",
               rules: [
                 {
-                  required: true,
+                  required: false,
                   message: "请输入变量说明",
                 },
               ],

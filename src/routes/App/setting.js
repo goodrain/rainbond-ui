@@ -21,6 +21,7 @@ import DescriptionList from "../../components/DescriptionList";
 import ChangeBuildSource from "./setting/edit-buildsource";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 const FormItem = Form.Item;
+const { Search } = Input;
 import {
   getStatus,
   restart
@@ -72,6 +73,10 @@ export default class Index extends React.Component {
       visibleAppSetting: false,
       tags: [],
       isInput: false,
+      page: 1,
+      page_size: 5,
+      total: 0,
+      env_name: ""
     };
   }
   componentDidMount() {
@@ -132,12 +137,22 @@ export default class Index extends React.Component {
       },
     });
   };
+  // 变量信息
   fetchInnerEnvs = () => {
+    const { page, page_size, env_name } = this.state;
     this.props.dispatch({
       type: "appControl/fetchInnerEnvs",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
+        page,
+        page_size,
+        env_name
+      },
+      callback: (res) => {
+        if(res._code==200){
+          this.setState({ total: res.bean.total });
+        }
       },
     });
   };
@@ -573,7 +588,7 @@ export default class Index extends React.Component {
 
 
 
-  handleState = (data)=>{
+  handleState = (data) => {
     if (appProbeUtil.isStartProbeUsed(data)) {
       if (appProbeUtil.isStartProbeStart(data)) {
         return "已启用";
@@ -581,6 +596,24 @@ export default class Index extends React.Component {
       return "已禁用";
     }
     return "未设置";
+  }
+
+
+  onPageChange = (page) => {
+    this.setState({
+      page
+    }, () => {
+      this.fetchInnerEnvs()
+    })
+  }
+
+  handleSearch = (env_name) => {
+    this.setState({
+      page:1,
+      env_name
+    }, () => {
+      this.fetchInnerEnvs()
+    })
   }
 
   render() {
@@ -710,6 +743,23 @@ export default class Index extends React.Component {
           }}
           title="自定义环境变量"
         >
+
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "20px"
+          }}
+          >
+            <Search
+              style={{ width: "260px" }}
+              placeholder="请输入变量名进行搜索"
+              onSearch={this.handleSearch}
+            />
+            <Button onClick={this.handleAddVar}>
+                <Icon type="plus" />添加变量
+            </Button>
+          </div>
+
           <ScrollerX sm={600}>
             <Table
               columns={[
@@ -755,20 +805,16 @@ export default class Index extends React.Component {
                   ),
                 },
               ]}
-              pagination={false}
               dataSource={innerEnvs}
+              pagination={{
+                current: this.state.page,
+                pageSize: this.state.page_size,
+                total: this.state.total,
+                onChange: this.onPageChange,
+              }}
             />
           </ScrollerX>
-          <div
-            style={{
-              textAlign: "right",
-              paddingTop: 20,
-            }}
-          >
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />添加变量
-            </Button>
-          </div>
+
         </Card>
         <Card
           style={{
@@ -782,18 +828,18 @@ export default class Index extends React.Component {
                   <a onClick={() => {
                     this.setState({ editStartHealth: startProbe });
                   }}
-                  style={{marginRight:"5px"}}
-                  >{JSON.stringify(startProbe)!="{}"?"编辑":"设置"}</a>
+                    style={{ marginRight: "5px" }}
+                  >{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>
 
-                  {JSON.stringify(startProbe)!="{}"&&<a
+                  {JSON.stringify(startProbe) != "{}" && <a
                     href="javascript:;"
                     onClick={() => {
                       this.showViewStartHealth(startProbe);
                     }}
-                    style={{marginRight:"5px"}}
+                    style={{ marginRight: "5px" }}
                   >查看</a>}
 
-                  {JSON.stringify(startProbe)!="{}"&&appProbeUtil.isStartProbeStart(startProbe) ? (
+                  {JSON.stringify(startProbe) != "{}" && appProbeUtil.isStartProbeStart(startProbe) ? (
                     <a
                       onClick={() => {
                         this.handleStartProbeStart(false);
@@ -802,16 +848,16 @@ export default class Index extends React.Component {
                     >
                       禁用
                             </a>
-                  ) :JSON.stringify(startProbe)!="{}"&& (
-                      <a
-                        onClick={() => {
-                          this.handleStartProbeStart(true);
-                        }}
-                        href="javascript:;"
-                      >
-                        启用
+                  ) : JSON.stringify(startProbe) != "{}" && (
+                    <a
+                      onClick={() => {
+                        this.handleStartProbeStart(true);
+                      }}
+                      href="javascript:;"
+                    >
+                      启用
                             </a>
-                    )}
+                  )}
                 </div>}
             </div>}
         >
@@ -986,7 +1032,7 @@ export default class Index extends React.Component {
 
           {startProbe && <div style={{ display: "flex" }}>
             <div style={{ width: "33%", textAlign: "center" }}>当前状态:{this.handleState(startProbe)}</div>
-            <div style={{ width: "33%", textAlign: "center" }}>检测方式:{startProbe.scheme?startProbe.scheme:"未设置"}</div>
+            <div style={{ width: "33%", textAlign: "center" }}>检测方式:{startProbe.scheme ? startProbe.scheme : "未设置"}</div>
             <div style={{ width: "33%", textAlign: "center" }}>不健康处理方式:{startProbe.mode == "readiness" ? "下线" : startProbe.mode == "liveness" ? "重启" : startProbe.mode == "ignore" ? "忽略" : "未设置"}</div>
           </div>}
         </Card>

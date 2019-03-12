@@ -180,6 +180,81 @@ export async function getRegionSource(body = { team_name, region }) {
     },
   });
 }
+/* 获取团队应用模块 */
+export async function getTeamList(body = {
+  team_name, region, page,
+  page_size
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/overview/app/over`, {
+    method: "get",
+    params: {
+      team_name: body.team_name,
+      page: body.page,
+      page_size: body.page_size,
+      team_name: ""
+    },
+  });
+}
+
+
+/* 获取热门域名访问模块 */
+export async function getDomainName(body = { team_name, region_name, page, page_size,id  }) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_domain/query?repo=${body.id}`, {
+    method: "get",
+    params: {
+      // query:`sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (host))`,
+      // query:`sort_desc(sum( ceil(increase(gateway_requests{namespace=”765738e17a294a74a704e381e018de80”}[1h]))) by (service))`,
+      // query:`sort_desc(sum(ceil(increase(app_request{tenant_id=”765738e17a294a74a704e381e018de80”,method=”total”}[1h])))by (service_id))`,
+
+
+        page: body.page,
+        page_size: body.page_size,
+    },
+  });
+}
+
+
+/* 获取热门服务访问模块 */
+export async function getService(body = { team_name, region_name, page, page_size }) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_service/query`, {
+    method: "get",
+    params: {
+      // query:`sort_desc(sum(ceil(increase(app_request{method="total"}[1h])))by (service_id))`,
+      // query: `sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (service))`,
+      page: body.page,
+      page_size: body.page_size,
+    },
+  });
+}
+// https://console.goodrain.com/console/teams/23ehgni5/apps/gr3698ab/monitor/query_range?query=sum(ceil(increase(app_request%7Bservice_id%3D%22dde947ccc8cc6fe46c734dddd13698ab%22,method%3D%22total%22%7D[1m])%2F12))
+/*
+	 获取应用吞吐率监控数据(一段时间内数据)
+*/
+export async function getDomainTime(body = {
+  team_name,
+  app_alias,
+  tenant_id
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/query_range/query`, {
+      method: "get",
+      showMessage: false,
+      params: {
+        query:
+          `ceil(sum(increase(gateway_requests{namespace=”${
+            body.tenant_id
+            }”}[1h])))`,
+        // start: body.start,
+        // end: body.end || new Date().getTime() / 1000,
+        // step: body.step,
+      }
+    },
+  );
+}
+
+
+
 
 /* 获取企业详情 */
 export async function getCompanyInfo(body = { team_name }) {

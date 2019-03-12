@@ -768,11 +768,17 @@ export async function getInnerEnvs(body = {
   team_name,
   app_alias,
   env_type,
+  page,
+  page_size,
+  env_name
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
     method: "get",
     params: {
       env_type: body.env_type ? body.env_type : "inner",
+      page:body.page?body.page:1,
+      page_size:body.page_size?body.page_size:5,
+      env_name:body.env_name?body.env_name:""
     },
   });
 }
@@ -2295,6 +2301,38 @@ export async function getAppBuidSource(body = {
     },
   );
 }
+
+/*
+  语言检测 
+*/
+export async function getLanguage(body = {
+  team_name,
+  service_alias,
+  check_uuid
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/check?check_uuid=${body.check_uuid}`,
+    {
+      method: "get",
+    },
+  );
+}
+
+export async function putLanguage(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/check`,
+    {
+      method: "post",
+    },
+  );
+}
+
+
 
 /*
   获取标签信息

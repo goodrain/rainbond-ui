@@ -88,26 +88,15 @@ export default class Index extends PureComponent {
         const form = this.props.form;
         form.validateFields((err, fieldsValue) => {
             if (err) {
-                if (err.type) {
-                    return;
-                } else {
-                    if (err.endpoints || err.key) {
+                if (fieldsValue.type!=""&&fieldsValue.type!=undefined&& (fieldsValue.endpoints == "" || fieldsValue.endpoints == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
                         this.setState({
                             visible: true,
                         });
-                    }
                 }
-                return;
             }
-
-            if (fieldsValue.endpoints_type == "discovery" && (fieldsValue.endpoints == "" || fieldsValue.endpoints == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
-                this.setState({
-                    visible: true,
-                });
-                return
+            if (!err) {
+                this.props.onSubmit && this.props.onSubmit(fieldsValue);
             }
-
-            this.props.onSubmit && this.props.onSubmit(fieldsValue);
         });
     };
     handleChangeEndpointsType = (types) => {
@@ -251,9 +240,9 @@ export default class Index extends PureComponent {
                             initialValue: this.state.endpointsType
                         })(
                             <RadioGroup onChange={this.handleChangeEndpointsType} value={endpointsType}>
-                                 <Radio value="static">静态注册</Radio>
-                                 <Radio value="discovery">动态注册</Radio>
-                                 <Radio value="api">API注册</Radio>
+                                <Radio value="static">静态注册</Radio>
+                                <Radio value="discovery">动态注册</Radio>
+                                <Radio value="api">API注册</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
@@ -264,7 +253,7 @@ export default class Index extends PureComponent {
                     >
                         {getFieldDecorator('static', {
                             rules: [{ validator: this.validAttrName }],
-                            initialValue: [""],
+                            initialValue: "",
                         })(
                             <div>
                                 {staticList.map((item, index) => {
@@ -299,7 +288,7 @@ export default class Index extends PureComponent {
                         })(
                             <Select onChange={this.handleChange} placeholder="请选择类型" style={{ display: "inline-block", width: 265, marginRight: 15 }}>
                                 {
-                                    (["Zookeeper", "Etcd", "Consul"]).map((port, index) => {
+                                    (["Etcd"]).map((port, index) => {
                                         return <Option value={port} key={index}>{port}</Option>
                                     })
                                 }
@@ -310,7 +299,7 @@ export default class Index extends PureComponent {
                         <Modal
                             title={this.props.form.getFieldValue('type')}
                             visible={this.state.visible}
-                            onOk={this.handleSubmit}
+                            onOk={this.handleCancel}
                             onCancel={this.handleCancel}
                         >
                             <FormItem
@@ -319,9 +308,9 @@ export default class Index extends PureComponent {
                                 style={{ textAlign: "right" }}
                             >
                                 {getFieldDecorator('endpoints', {
-                                    rules: [{ required: true},{ validator: this.validAttrName }],
+                                    rules: [{ required: true }, { validator: this.validAttrName }],
                                     // rules: [{ required: true, message: '请输入服务地址!' }],
-                                    initialValue: [""],
+                                    initialValue: "",
                                 })(
                                     <div>
                                         {staticList.map((item, index) => {

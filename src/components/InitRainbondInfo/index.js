@@ -38,4 +38,4 @@ class Index extends React.PureComponent {
   }
 }
 
-export default connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))(Index);
+export default connect(({ global }) => ({ rainbondInfo: global&&global.rainbondInfo }))(Index);
