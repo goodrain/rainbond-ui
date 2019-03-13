@@ -485,9 +485,12 @@ class Main extends PureComponent {
           marginRight: 10,
         }}
         >
-          {this.state.running == false ? <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
-            : <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>}
-          <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button>
+          {/* {this.state.running == false ? <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
+            : <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>} */}
+          {/* <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button> */}
+          <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
+          <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>
+          <Button onClick={this.handleTopology.bind(this, "upgrade")}>更新</Button>
           <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "deploy")}>构建</Button>
           {(teamUtil.canShareApp(team) && hasService && this.state.recordShare)
             ? <Button onClick={this.handleShare}>继续发布到市场</Button>
