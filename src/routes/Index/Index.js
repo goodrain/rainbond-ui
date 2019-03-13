@@ -81,6 +81,9 @@ export default class Index extends PureComponent {
         }
     }
 
+    componentWillMount(){
+        this.getTeam();
+    }
 
     getTeam = () => {
         const { page, page_size } = this.state;
@@ -103,8 +106,8 @@ export default class Index extends PureComponent {
         });
     }
 
-    onPageChange = (page) => {
-        this.setState({ page }, () => {
+    onPageChange = (page,pageSize) => {
+        this.setState({ page,pageSize }, () => {
             this.getTeam();
         });
     };
@@ -124,7 +127,8 @@ export default class Index extends PureComponent {
                 if (res._code == 200) {
                     this.setState({
                         domainTotal: res.bean && res.bean.total,
-                        domainList: res.list
+                        domainList: res.list,
+                        num: res.bean && res.bean.total_traffic,
                     })
                 }
             },
@@ -164,7 +168,6 @@ export default class Index extends PureComponent {
                         }
                     }
                     this.setState({
-                        num: res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values.length > 1 && res.bean.data.result[0].values.length,
                         visitData: arr
                     })
                 }
@@ -391,11 +394,15 @@ export default class Index extends PureComponent {
             callback: () => {
                 notification.success({ message: "添加成功" });
                 this.handleCancelApplication();
+                this.getTeam();
                 dispatch({
                     type: "global/fetchGroups",
                     payload: {
                         team_name: globalUtil.getCurrTeamName(),
                     },
+                    callback: () => {
+                this.getTeam();
+                    }
                 });
             },
         });
@@ -406,6 +413,30 @@ export default class Index extends PureComponent {
             addApplication: false
         })
     ]
+    // justify_appStatus = (record) => {
+    //     let winHandler = window.open('', '_blank');
+    //     const that = this;
+    //     this.props.dispatch({
+    //         type: 'gateWay/query_app_status',
+    //         payload: {
+    //             team_name: globalUtil.getCurrTeamName(),
+    //             app_alias: record.service_alias,
+    //         },
+    //         callback: (data) => {
+    //             if (data && data.bean.status == "closed") {
+    //                 this.setState({ appStatusVisable: true, record })
+    //                 winHandler.close()
+    //             }else if(data && data.bean.status == "undeploy"){
+    //                 notification.warning({message:"当前服务属于未部署状态", duration: 5});
+    //                 that.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}`))
+    //             } 
+    //             else {
+    //                 winHandler.location.href = record.domain_name;
+    //             }
+    //         }
+    //     })
+    // }
+
 
     render() {
         const handleHost = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`
@@ -422,7 +453,7 @@ export default class Index extends PureComponent {
                         wordBreak: "break-all",
                         wordWrap: "break-word"
                     }}>
-                        {record.metric.host}
+                    <a href={record.metric.host}>{record.metric.host}</a>
                     </Link>
 
                 </Tooltip>,
@@ -493,19 +524,9 @@ export default class Index extends PureComponent {
                 <div className={styles.statItem}>
                     <p><Badge status="success" />应用数量</p>
                     <div>
-                        {
-                            index.overviewInfo.team_app_num && index.overviewInfo.team_app_num > 0 ?
-                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/1`} style={{
-                                    wordBreak: "break-all",
-                                    wordWrap: "break-word",
-                                    color: "rgba(0,0,0,.85)"
-                                }}>
-                                    {index.overviewInfo.team_app_num || 0}
-                                </Link>
-                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
-                                    {index.overviewInfo.team_app_num || 0}
-                                </div>
-                        }
+                        <div style={{ color: "rgba(0,0,0,.85)" }}>
+                            {index.overviewInfo.team_app_num || 0}
+                        </div>
                     </div>
                 </div>
                 <div className={styles.statItem}>
@@ -517,19 +538,14 @@ export default class Index extends PureComponent {
                 <div className={styles.statItem}>
                     <p><Badge status="error" />网关策略</p>
                     <div>
-                        {
-                            index.overviewInfo.total_http_domain && index.overviewInfo.total_http_domain > 0 ?
-                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`} style={{
-                                    wordBreak: "break-all",
-                                    wordWrap: "break-word",
-                                    color: "rgba(0,0,0,.85)"
-                                }}>
-                                    {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
-                                </Link>
-                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
-                                    {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
-                                </div>
-                        }
+                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`} style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word",
+                            color: "#1890ff"
+                        }}>
+                            {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
+                        </Link>
+
                     </div>
                 </div>
                 <div className={styles.statItem}>
@@ -552,20 +568,13 @@ export default class Index extends PureComponent {
                 <div className={styles.statItem}>
                     <p><Badge status="default" />分享应用</p>
                     <div>
-                        {
-                            index.overviewInfo.share_app_num && index.overviewInfo.share_app_num > 0 ?
-                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`} style={{
-                                    wordBreak: "break-all",
-                                    wordWrap: "break-word",
-                                    color: "rgba(0,0,0,.85)"
-                                }}>
-                                    {index.overviewInfo.share_app_num || 0}
-                                </Link>
-
-                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
-                                    {index.overviewInfo.share_app_num || 0}
-                                </div>
-                        }
+                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`} style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word",
+                            color: "#1890ff"
+                        }}>
+                            {index.overviewInfo.share_app_num || 0}
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -614,37 +623,40 @@ export default class Index extends PureComponent {
                                         return <div key={index} style={{ borderBottom: "1px solid #e8e8e8" }}>
                                             <div style={{ padding: "10px 20px" }}>
 
-                                                {
-                                                    group_id && group_id != 0 ? <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${item.group_id}`} style={{
-                                                        wordBreak: "break-all",
-                                                        wordWrap: "break-word",
-                                                        color: "rgba(0,0,0,.85)"
-                                                    }}>
-                                                        <a style={{ fontSize: "16px" }}>{group_name}</a>
-                                                    </Link> :
-                                                        <a style={{ fontSize: "16px" }}>{group_name}</a>
-                                                }
+                                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${item.group_id}`} style={{
+                                                    wordBreak: "break-all",
+                                                    wordWrap: "break-word",
+                                                    color: "rgba(0,0,0,.85)"
+                                                }}>
+                                                    <a style={{ fontSize: "16px" }}>{group_name}</a>
+                                                </Link>
+
                                                 <div className={styles.teamListStyle}>
                                                     <div>
                                                         <span>服务：</span>
-                                                        <a>{run_service_num ? run_service_num + "/" : ""}{services_num}</a>
+                                                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${item.group_id}`} style={{
+                                                            wordBreak: "break-all",
+                                                            wordWrap: "break-word",
+                                                            color: "rgba(0,0,0,.85)"
+                                                        }}>
+                                                            <a>{run_service_num ? run_service_num + "/" : ""}{services_num}</a>
+                                                        </Link>
+
+
                                                     </div>
                                                     <div>
                                                         <span>备份记录：</span>
-                                                        {
-                                                            backup_record_num && backup_record_num != 0 ? <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${item.group_id}`} style={{
-                                                                wordBreak: "break-all",
-                                                                wordWrap: "break-word",
-                                                                color: "rgba(0,0,0,.85)"
-                                                            }}>
-                                                                <a style={{ fontSize: "16px" }}>{backup_record_num}</a>
-                                                            </Link> :
-                                                                <a style={{ fontSize: "16px" }}>{backup_record_num}</a>
-                                                        }
+                                                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${item.group_id}`} style={{
+                                                            wordBreak: "break-all",
+                                                            wordWrap: "break-word",
+                                                            color: "rgba(0,0,0,.85)"
+                                                        }}>
+                                                            <a style={{ fontSize: "16px" }}>{backup_record_num}</a>
+                                                        </Link>
                                                     </div>
                                                     <div>
                                                         <span>分享记录：</span>
-                                                        <a>{share_record_num}</a>
+                                                        <a style={{ color: "rgba(0, 0, 0, 0.65)" }}>{share_record_num}</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -652,11 +664,11 @@ export default class Index extends PureComponent {
                                     })
                                 }
 
-                                {teamList && teamList.length > 0 ? <div style={{ textAlign: "right", margin: "15px" }}>
+                                {teamList && teamList.length > 0&&this.state.total>0 ? <div style={{ textAlign: "right", margin: "15px" }}>
                                     <Pagination size="small"
                                         current={this.state.page}
-                                        pageSize={this.state.total > this.state.pageSize ? this.state.pageSize : this.state.total}
-                                        total={this.state.total}
+                                        pageSize={this.state.page_size}
+                                        total={Number(this.state.total)}
                                         onChange={this.onPageChange}
                                     />
                                 </div> : <List />}

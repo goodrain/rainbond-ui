@@ -361,7 +361,7 @@ class JAVA extends PureComponent {
         }
     }
     componentWillReceiveProps(nextProps) {
-        if (nextProps.runtimeInfo !== this.props.runtimeInfo) {
+        if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
             this.handleRuntimeInfo(nextProps)
         }
     }
@@ -374,6 +374,7 @@ class JAVA extends PureComponent {
             NO_CACHE: runtimeInfo.NO_CACHE ? true : false,
             BUILD_MAVEN_MIRROR_DISABLE: runtimeInfo.BUILD_MAVEN_MIRROR_DISABLE ? true : false,
             BUILD_ENABLE_ORACLEJDK: runtimeInfo.BUILD_ENABLE_ORACLEJDK ? true : false,
+            languageType: props.language,
           
         })
     }
@@ -760,7 +761,7 @@ class JAVA extends PureComponent {
                         }
 
                         {
-                            ( languageType == "Golang" || languageType == "go") && <Form.Item {...formItemLayout} label="Golang版本">
+                            ( languageType == "Golang" || languageType == "go"|| languageType == "golang") && <Form.Item {...formItemLayout} label="Golang版本">
                                 {getFieldDecorator('BUILD_RUNTIMES', {
                                     initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "go1.11.2",
                                 })(
@@ -777,7 +778,7 @@ class JAVA extends PureComponent {
                             </Form.Item>
                         }
 {
-    (languageType == "Gradle"||languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
+    (languageType == "Gradle"||languageType == "gradle"|| languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
         <div>
 
     <Form.Item {...formItemLayout} label="选择JDK版本">
@@ -912,7 +913,7 @@ class JAVA extends PureComponent {
                     </div>
                     }
 {
-                    ( languageType == "NodeJSStatic" || languageType == "static") && <Form.Item {...formItemLayout} label="web服务器支持">
+                    ( languageType == "nodejsstatic" || languageType == "static") && <Form.Item {...formItemLayout} label="web服务器支持">
                         {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
                             initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER || "nginx",
                         })(

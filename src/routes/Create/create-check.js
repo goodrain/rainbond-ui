@@ -399,7 +399,6 @@ export default class CreateCheck extends PureComponent {
   };
 
   renderSuccessInfo = (item) => {
-    console.log("item", item)
     if (typeof item.value === "string") {
       return (
         <div>
@@ -455,17 +454,17 @@ export default class CreateCheck extends PureComponent {
   renderSuccess = () => {
     const { ServiceGetData, is_deploy, appDetail } = this.state;
     const serviceInfo = this.state.serviceInfo;
-    const extra =  serviceInfo && serviceInfo.length > 0 ?
-          serviceInfo.map(item => (
-            <div
-              style={{
-                marginBottom: 16,
-              }}
-            >
-              {this.renderSuccessInfo(item)}
-            </div>
-          )):""
-    
+    const extra = serviceInfo && serviceInfo.length > 0 ?
+      serviceInfo.map(item => (
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          {this.renderSuccessInfo(item)}
+        </div>
+      )) : ""
+
     let actions = []
     ServiceGetData ?
       actions = [
@@ -540,10 +539,12 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title="应用检测通过"
+        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" :"应用检测通过"}
         description={
+          appDetail.service_source == "third_party" ? "" :
           <div>
-            <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+         
+              <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
               href="http://www.rainbond.com/docs/stable/user-manual/create-an-app.html"
@@ -554,212 +555,207 @@ export default class CreateCheck extends PureComponent {
             对代码包进行调整。
           </div>
         }
-        extra={extra}
-        actions={ServiceGetData ? "" : actions}
-        style={{ marginTop: 48, marginBottom: 16 }}
-      />
+  extra = { extra }
+  actions = { ServiceGetData? "": actions }
+  style = {{ marginTop: 48, marginBottom: 16 }}
+/>
     );
   };
 
 
-
-
-
-
-
-  renderChecking = () => {
-    const { ServiceGetData } = this.state;
-    const actions = (
-      <Button onClick={this.showDelete} type="default">
-        放弃创建
+renderChecking = () => {
+  const { ServiceGetData } = this.state;
+  const actions = (
+    <Button onClick={this.showDelete} type="default">
+      放弃创建
       </Button>
-    );
-    ServiceGetData && this.props.ButtonGroupState && this.props.handleServiceBotton(actions, false)
+  );
+  ServiceGetData && this.props.ButtonGroupState && this.props.handleServiceBotton(actions, false)
 
-    const extra = (
-      <div>
-        {this.state.eventId && (
-          <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
-        )}
-      </div>
-    );
-    return (
-      <Result
-        type="ing"
-        title="应用检测中..."
-        extra={extra}
-        description="此过程可能比较耗时，请耐心等待"
-        actions={ServiceGetData ? "" : actions}
-        style={{
-          marginTop: 48,
-          marginBottom: 16,
-        }}
-      />
-    );
-  };
+  const extra = (
+    <div>
+      {this.state.eventId && (
+        <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
+      )}
+    </div>
+  );
+  return (
+    <Result
+      type="ing"
+      title="应用检测中..."
+      extra={extra}
+      description="此过程可能比较耗时，请耐心等待"
+      actions={ServiceGetData ? "" : actions}
+      style={{
+        marginTop: 48,
+        marginBottom: 16,
+      }}
+    />
+  );
+};
 
-  renderEdit = () => {
-    // 判断应用创建方式
-    const appDetail = this.state.appDetail;
-    // 源码创建
-    if (appDetail.service_source === "source_code") {
-      // 指定源码
-      if (appDetail.code_from === "gitlab_manual") {
-        return (
-          <EditCreateCodeCustom
-            data={appDetail}
-            onSubmit={this.handleCodeSubmit}
-            onCancel={this.handleCancelEdit}
-          />
-        );
-      }
-      // 源码demo
-      if (appDetail.code_from === "gitlab_demo") {
-      }
-      // 好雨git仓库
-      if (appDetail.code_from === "gitlab_exit") {
-      }
-      // github项目
-      if (appDetail.code_from === "github") {
-      }
+renderEdit = () => {
+  // 判断应用创建方式
+  const appDetail = this.state.appDetail;
+  // 源码创建
+  if (appDetail.service_source === "source_code") {
+    // 指定源码
+    if (appDetail.code_from === "gitlab_manual") {
+      return (
+        <EditCreateCodeCustom
+          data={appDetail}
+          onSubmit={this.handleCodeSubmit}
+          onCancel={this.handleCancelEdit}
+        />
+      );
     }
-
-    // compose创建
-    if (appDetail.service_source === "docker_compose") {
+    // 源码demo
+    if (appDetail.code_from === "gitlab_demo") {
     }
-    return null;
-  };
-  render() {
-    const status = this.state.status;
-    const appDetail = this.state.appDetail;
-    const { ServiceGetData } = this.state;
-    return (
-      <div>
-        {ServiceGetData ?
-          <div>
-            <Card bordered={false}>
-              <div
-                style={{
-                  minHeight: 400,
-                }}
-              >
-                {status === "checking" ? this.renderChecking() : null}
-                {status === "success" ? this.renderSuccess() : null}
-                {status === "failure" ? this.renderError() : null}
-              </div>
-            </Card>
-
-            {this.state.modifyUrl ? (
-              <ModifyUrl
-                data={appDetail}
-                onSubmit={this.handleModifyUrl}
-                onCancel={this.cancelModifyUrl}
-              />
-            ) : null}
-
-            {this.state.modifyImageName ? (
-              <ModifyImageName
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
-                onSubmit={this.handleModifyImageName}
-                onCancel={this.cancelModifyImageName}
-              />
-            ) : null}
-            {this.state.modifyImageCmd ? (
-              <ModifyImageCmd
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
-                onSubmit={this.handleModifyImageCmd}
-                onCancel={this.cancelModifyImageCmd}
-              />
-            ) : null}
-
-            {this.state.modifyUserpass ? (
-              <ModifyUrl
-                showUsernameAndPass
-                data={appDetail}
-                onSubmit={this.handleModifyUserpass}
-                onCancel={this.cancelModifyUserpass}
-              />
-            ) : null}
-            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
-            {this.state.showDelete && (
-              <ConfirmModal
-                onOk={this.handleDelete}
-                title="放弃创建"
-                subDesc="此操作不可恢复"
-                desc="确定要放弃创建此应用吗？"
-                onCancel={() => {
-                  this.setState({ showDelete: false });
-                }}
-              />)
-            }
-          </div> :
-          <PageHeaderLayout>
-            <Card bordered={false}>
-              <div
-                style={{
-                  minHeight: 400,
-                }}
-              >
-                {status === "checking" ? this.renderChecking() : null}
-                {status === "success" ? this.renderSuccess() : null}
-                {status === "failure" ? this.renderError() : null}
-              </div>
-            </Card>
-
-            {this.state.modifyUrl ? (
-              <ModifyUrl
-                data={appDetail}
-                onSubmit={this.handleModifyUrl}
-                onCancel={this.cancelModifyUrl}
-              />
-            ) : null}
-
-            {this.state.modifyImageName ? (
-              <ModifyImageName
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
-                onSubmit={this.handleModifyImageName}
-                onCancel={this.cancelModifyImageName}
-              />
-            ) : null}
-            {this.state.modifyImageCmd ? (
-              <ModifyImageCmd
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
-                onSubmit={this.handleModifyImageCmd}
-                onCancel={this.cancelModifyImageCmd}
-              />
-            ) : null}
-
-            {this.state.modifyUserpass ? (
-              <ModifyUrl
-                showUsernameAndPass
-                data={appDetail}
-                onSubmit={this.handleModifyUserpass}
-                onCancel={this.cancelModifyUserpass}
-              />
-            ) : null}
-            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
-            {this.state.showDelete && (
-              <ConfirmModal
-                onOk={this.handleDelete}
-                title="放弃创建"
-                subDesc="此操作不可恢复"
-                desc="确定要放弃创建此应用吗？"
-                onCancel={() => {
-                  this.setState({ showDelete: false });
-                }}
-              />
-            )}
-          </PageHeaderLayout>
-        }
-      </div>
-    );
+    // 好雨git仓库
+    if (appDetail.code_from === "gitlab_exit") {
+    }
+    // github项目
+    if (appDetail.code_from === "github") {
+    }
   }
+
+  // compose创建
+  if (appDetail.service_source === "docker_compose") {
+  }
+  return null;
+};
+render() {
+  const status = this.state.status;
+  const appDetail = this.state.appDetail;
+  const { ServiceGetData } = this.state;
+  return (
+    <div>
+      {ServiceGetData ?
+        <div>
+          <Card bordered={false}>
+            <div
+              style={{
+                minHeight: 400,
+              }}
+            >
+              {status === "checking" ? this.renderChecking() : null}
+              {status === "success" ? this.renderSuccess() : null}
+              {status === "failure" ? this.renderError() : null}
+            </div>
+          </Card>
+
+          {this.state.modifyUrl ? (
+            <ModifyUrl
+              data={appDetail}
+              onSubmit={this.handleModifyUrl}
+              onCancel={this.cancelModifyUrl}
+            />
+          ) : null}
+
+          {this.state.modifyImageName ? (
+            <ModifyImageName
+              data={{
+                docker_cmd: appDetail.docker_cmd,
+              }}
+              onSubmit={this.handleModifyImageName}
+              onCancel={this.cancelModifyImageName}
+            />
+          ) : null}
+          {this.state.modifyImageCmd ? (
+            <ModifyImageCmd
+              data={{
+                docker_cmd: appDetail.docker_cmd,
+              }}
+              onSubmit={this.handleModifyImageCmd}
+              onCancel={this.cancelModifyImageCmd}
+            />
+          ) : null}
+
+          {this.state.modifyUserpass ? (
+            <ModifyUrl
+              showUsernameAndPass
+              data={appDetail}
+              onSubmit={this.handleModifyUserpass}
+              onCancel={this.cancelModifyUserpass}
+            />
+          ) : null}
+          {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+          {this.state.showDelete && (
+            <ConfirmModal
+              onOk={this.handleDelete}
+              title="放弃创建"
+              subDesc="此操作不可恢复"
+              desc="确定要放弃创建此应用吗？"
+              onCancel={() => {
+                this.setState({ showDelete: false });
+              }}
+            />)
+          }
+        </div> :
+        <PageHeaderLayout>
+          <Card bordered={false}>
+            <div
+              style={{
+                minHeight: 400,
+              }}
+            >
+              {status === "checking" ? this.renderChecking() : null}
+              {status === "success" ? this.renderSuccess() : null}
+              {status === "failure" ? this.renderError() : null}
+            </div>
+          </Card>
+
+          {this.state.modifyUrl ? (
+            <ModifyUrl
+              data={appDetail}
+              onSubmit={this.handleModifyUrl}
+              onCancel={this.cancelModifyUrl}
+            />
+          ) : null}
+
+          {this.state.modifyImageName ? (
+            <ModifyImageName
+              data={{
+                docker_cmd: appDetail.docker_cmd,
+              }}
+              onSubmit={this.handleModifyImageName}
+              onCancel={this.cancelModifyImageName}
+            />
+          ) : null}
+          {this.state.modifyImageCmd ? (
+            <ModifyImageCmd
+              data={{
+                docker_cmd: appDetail.docker_cmd,
+              }}
+              onSubmit={this.handleModifyImageCmd}
+              onCancel={this.cancelModifyImageCmd}
+            />
+          ) : null}
+
+          {this.state.modifyUserpass ? (
+            <ModifyUrl
+              showUsernameAndPass
+              data={appDetail}
+              onSubmit={this.handleModifyUserpass}
+              onCancel={this.cancelModifyUserpass}
+            />
+          ) : null}
+          {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+          {this.state.showDelete && (
+            <ConfirmModal
+              onOk={this.handleDelete}
+              title="放弃创建"
+              subDesc="此操作不可恢复"
+              desc="确定要放弃创建此应用吗？"
+              onCancel={() => {
+                this.setState({ showDelete: false });
+              }}
+            />
+          )}
+        </PageHeaderLayout>
+      }
+    </div>
+  );
+}
 }
