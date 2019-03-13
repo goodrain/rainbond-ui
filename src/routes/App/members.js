@@ -464,7 +464,7 @@ export default class Index extends React.Component {
                         }
                     >
                         {startProbe && <div style={{ display: "flex" }}>
-                            <div style={{ width: "33%", textAlign: "center" }}>当前状态:{this.handleStates(startProbe)} {this.handleState()}</div>
+                            <div style={{ width: "33%", textAlign: "center" }}>当前状态:{this.handleState()}</div>
                             <div style={{ width: "33%", textAlign: "center" }}>检测方式:{startProbe.scheme ? startProbe.scheme : "未设置"}</div>
                             <div style={{ width: "33%", textAlign: "center" }}>不健康处理方式:{startProbe.mode == "readiness" ? "下线" : startProbe.mode == "liveness" ? "重启" : startProbe.mode == "ignore" ? "忽略" : "未设置"}</div>
                         </div>}

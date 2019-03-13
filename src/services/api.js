@@ -198,20 +198,21 @@ export async function getTeamList(body = {
 
 
 /* 获取热门域名访问模块 */
-export async function getDomainName(body = { team_name, region_name, page, page_size,id  }) {
+export async function getDomainName(body = { team_name, region_name, page, page_size, id, start, step,end }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_domain/query?repo=${body.id}`, {
-    method: "get",
-    params: {
-      // query:`sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (host))`,
-      // query:`sort_desc(sum( ceil(increase(gateway_requests{namespace=”765738e17a294a74a704e381e018de80”}[1h]))) by (service))`,
-      // query:`sort_desc(sum(ceil(increase(app_request{tenant_id=”765738e17a294a74a704e381e018de80”,method=”total”}[1h])))by (service_id))`,
-
-
+      method: "get",
+      params: {
+        // query:`sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (host))`,
+        // query:`sort_desc(sum( ceil(increase(gateway_requests{namespace=”765738e17a294a74a704e381e018de80”}[1h]))) by (service))`,
+        // query:`sort_desc(sum(ceil(increase(app_request{tenant_id=”765738e17a294a74a704e381e018de80”,method=”total”}[1h])))by (service_id))`,
+        end: body.end || new Date().getTime() / 1000,
+        start: body.start,
+        step: body.step,
         page: body.page,
         page_size: body.page_size,
-    },
-  });
+      },
+    });
 }
 
 
@@ -243,8 +244,8 @@ export async function getDomainTime(body = {
       params: {
         query:
           `ceil(sum(increase(gateway_requests{namespace=”${
-            body.tenant_id
-            }”}[1h])))`,
+          body.tenant_id
+          }”}[1h])))`,
         // start: body.start,
         // end: body.end || new Date().getTime() / 1000,
         // step: body.step,

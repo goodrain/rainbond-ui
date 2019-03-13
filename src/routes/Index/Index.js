@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link } from "dva/router";
-import { Row, Col, Card, List,Modal, Form, Input, Select,Button, Badge, Pagination, Icon, Tooltip, Table, notification } from "antd";
+import { Row, Col, Card, List, Modal, Form, Input, Select, Button, Badge, Pagination, Icon, Tooltip, Table, notification } from "antd";
 
 import { MiniArea, ChartCard } from '../../components/Charts';
 
@@ -55,13 +55,16 @@ export default class Index extends PureComponent {
             servicePage: 1,
             servicePage_size: 5,
             serviceTotal: 0,
-            num:""
+            num: "",
+            visitData: []
         };
     }
     componentDidMount() {
+
         this.getTeam();
+
+
         this.getDomainName();
-        // this.getDomainTime();
         this.getDomain();
         this.getService();
         this.loadOverview();
@@ -81,7 +84,6 @@ export default class Index extends PureComponent {
 
     getTeam = () => {
         const { page, page_size } = this.state;
-
         this.props.dispatch({
             type: "global/getTeamList",
             payload: {
@@ -107,31 +109,6 @@ export default class Index extends PureComponent {
         });
     };
 
-    getDomainTime = () => {
-        const {
-            currUser,
-        } = this.props;
-        const team_name = globalUtil.getCurrTeamName();
-        const team = userUtil.getTeamByTeamName(currUser, team_name);
-        this.props.dispatch({
-            type: "global/getDomainTime",
-            payload: {
-                team_name: globalUtil.getCurrTeamName(),
-                region_name: globalUtil.getCurrRegionName(),
-                // serviceId: this.props.appDetail&&this.props.appDetail.service.service_id,
-                tenant_id:team.tenant_id
-            },
-            callback: (res) => {
-                if (res._code == 200) {
-                    console.log("res",res)
-                }
-            },
-        });
-    }
-
-
-
-
     getDomainName = () => {
         const { domainPage, domainPage_size, } = this.state;
         this.props.dispatch({
@@ -141,7 +118,7 @@ export default class Index extends PureComponent {
                 region_name: globalUtil.getCurrRegionName(),
                 page: domainPage,
                 page_size: domainPage_size,
-                id:1
+                id: 1
             },
             callback: (res) => {
                 if (res._code == 200) {
@@ -154,7 +131,12 @@ export default class Index extends PureComponent {
         });
     }
 
-
+    getStartTime() {
+        return (new Date().getTime() / 1000) - (60 * 60)
+    }
+    getStep() {
+        return 60;
+    }
     getDomain = () => {
         const { domainPage, domainPage_size, } = this.state;
         this.props.dispatch({
@@ -164,12 +146,26 @@ export default class Index extends PureComponent {
                 region_name: globalUtil.getCurrRegionName(),
                 page: domainPage,
                 page_size: domainPage_size,
-                id:0
+                id: 0,
+                start: this.getStartTime(),
+                step: this.getStep(),
+                end: new Date().getTime() / 1000
             },
             callback: (res) => {
                 if (res._code == 200) {
+                    const visitDatas = res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values;
+                    let arr = [];
+                    if (visitDatas && visitDatas.length > 0) {
+                        for (let i = 0; i < visitDatas.length; i += 1) {
+                            arr.push({
+                                x: moment(new Date(visitDatas[i][0] * 1000)).format('YYYY-MM-DD hh:mm'),
+                                y: visitDatas[i][1],
+                            });
+                        }
+                    }
                     this.setState({
-                        num:res.bean&&res.bean.data&&res.bean.data.result&&res.bean.data.result.length>0&&res.bean.data.result[0].value&&res.bean.data.result[0].value.length>1&&res.bean.data.result[0].value[1]
+                        num: res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values.length > 1 && res.bean.data.result[0].values.length,
+                        visitData: arr
                     })
                 }
             },
@@ -487,7 +483,6 @@ export default class Index extends PureComponent {
                 y: Math.floor(Math.random() * 100) + 10,
             });
         }
-
         const {
             index, projectLoading, activitiesLoading, currUser, pagination,
         } = this.props;
@@ -498,13 +493,19 @@ export default class Index extends PureComponent {
                 <div className={styles.statItem}>
                     <p><Badge status="success" />应用数量</p>
                     <div>
-                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/1`} style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word",
-                            color: "rgba(0,0,0,.85)"
-                        }}>
-                            {index.overviewInfo.team_app_num || 0}
-                        </Link>
+                        {
+                            index.overviewInfo.team_app_num && index.overviewInfo.team_app_num > 0 ?
+                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/1`} style={{
+                                    wordBreak: "break-all",
+                                    wordWrap: "break-word",
+                                    color: "rgba(0,0,0,.85)"
+                                }}>
+                                    {index.overviewInfo.team_app_num || 0}
+                                </Link>
+                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
+                                    {index.overviewInfo.team_app_num || 0}
+                                </div>
+                        }
                     </div>
                 </div>
                 <div className={styles.statItem}>
@@ -516,42 +517,55 @@ export default class Index extends PureComponent {
                 <div className={styles.statItem}>
                     <p><Badge status="error" />网关策略</p>
                     <div>
-                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`} style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word",
-                            color: "rgba(0,0,0,.85)"
-                        }}>
-                            {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
-                        </Link>
+                        {
+                            index.overviewInfo.total_http_domain && index.overviewInfo.total_http_domain > 0 ?
+                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`} style={{
+                                    wordBreak: "break-all",
+                                    wordWrap: "break-word",
+                                    color: "rgba(0,0,0,.85)"
+                                }}>
+                                    {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
+                                </Link>
+                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
+                                    {index.overviewInfo.total_http_domain + index.overviewInfo.total_tcp_domain || 0}
+                                </div>
+                        }
                     </div>
                 </div>
                 <div className={styles.statItem}>
                     <p><Badge status="warning" />使用内存</p>
                     <div>
-                        <Tooltip style={{ color: "rgba(0,0,0,.85)" }}    title={`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}>
-                        {`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}
+                        <Tooltip style={{ color: "rgba(0,0,0,.85)" }} title={`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}>
+                            {`${sourceUtil.unit(index.overviewInfo.team_service_memory_count || 0, "MB")}`}
                         </Tooltip>
                     </div>
                 </div>
                 <div className={styles.statItem}>
                     <p><Badge status="warning" />使用磁盘</p>
                     <div>
-                    <Tooltip style={{ color: "rgba(0,0,0,.85)" }} title={`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}>
-                    {`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}
+                        <Tooltip style={{ color: "rgba(0,0,0,.85)" }} title={`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}>
+                            {`${sourceUtil.unit(index.overviewInfo.team_service_total_disk || 0, "MB")}`}
                         </Tooltip>
-                    
+
                     </div>
                 </div>
                 <div className={styles.statItem}>
                     <p><Badge status="default" />分享应用</p>
                     <div>
-                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`} style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word",
-                            color: "rgba(0,0,0,.85)"
-                        }}>
-                            {index.overviewInfo.share_app_num || 0}
-                        </Link>
+                        {
+                            index.overviewInfo.share_app_num && index.overviewInfo.share_app_num > 0 ?
+                                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`} style={{
+                                    wordBreak: "break-all",
+                                    wordWrap: "break-word",
+                                    color: "rgba(0,0,0,.85)"
+                                }}>
+                                    {index.overviewInfo.share_app_num || 0}
+                                </Link>
+
+                                : <div style={{ color: "rgba(0,0,0,.85)" }}>
+                                    {index.overviewInfo.share_app_num || 0}
+                                </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -566,8 +580,6 @@ export default class Index extends PureComponent {
                 span: 19,
             },
         };
-
-
         const { teamList, total, domainList, serviceList } = this.state;
         return (
 
@@ -598,10 +610,20 @@ export default class Index extends PureComponent {
                             >
                                 {teamList && teamList.length > 0 &&
                                     teamList.map((item, index) => {
-                                        const { backup_record_num, group_name, run_service_num, services_num, share_record_num } = item;
+                                        const { backup_record_num, group_name, run_service_num, services_num, share_record_num, group_id } = item;
                                         return <div key={index} style={{ borderBottom: "1px solid #e8e8e8" }}>
                                             <div style={{ padding: "10px 20px" }}>
-                                                <a style={{fontSize:"16px"}}>{group_name}</a>
+
+                                                {
+                                                    group_id && group_id != 0 ? <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${item.group_id}`} style={{
+                                                        wordBreak: "break-all",
+                                                        wordWrap: "break-word",
+                                                        color: "rgba(0,0,0,.85)"
+                                                    }}>
+                                                        <a style={{ fontSize: "16px" }}>{group_name}</a>
+                                                    </Link> :
+                                                        <a style={{ fontSize: "16px" }}>{group_name}</a>
+                                                }
                                                 <div className={styles.teamListStyle}>
                                                     <div>
                                                         <span>服务：</span>
@@ -609,7 +631,16 @@ export default class Index extends PureComponent {
                                                     </div>
                                                     <div>
                                                         <span>备份记录：</span>
-                                                        <a>{backup_record_num}</a>
+                                                        {
+                                                            backup_record_num && backup_record_num != 0 ? <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${item.group_id}`} style={{
+                                                                wordBreak: "break-all",
+                                                                wordWrap: "break-word",
+                                                                color: "rgba(0,0,0,.85)"
+                                                            }}>
+                                                                <a style={{ fontSize: "16px" }}>{backup_record_num}</a>
+                                                            </Link> :
+                                                                <a style={{ fontSize: "16px" }}>{backup_record_num}</a>
+                                                        }
                                                     </div>
                                                     <div>
                                                         <span>分享记录：</span>
@@ -620,15 +651,15 @@ export default class Index extends PureComponent {
                                         </div>
                                     })
                                 }
-                               
-                                 {teamList && teamList.length > 0 ?<div style={{ textAlign: "right", margin: "15px" }}>
+
+                                {teamList && teamList.length > 0 ? <div style={{ textAlign: "right", margin: "15px" }}>
                                     <Pagination size="small"
                                         current={this.state.page}
-                                        pageSize={this.state.total>this.state.pageSize?this.state.pageSize:this.state.total}
+                                        pageSize={this.state.total > this.state.pageSize ? this.state.pageSize : this.state.total}
                                         total={this.state.total}
                                         onChange={this.onPageChange}
                                     />
-                                </div>: <List/>}
+                                </div> : <List />}
                             </Card>
 
                             <Card
@@ -675,13 +706,13 @@ export default class Index extends PureComponent {
                                         }
                                         gap={8}
                                         total={numeral(this.state.num).format('0,0')}
-                                        status="up"
-                                        subTotal={17.1}
+                                    // status="up"
+                                    // subTotal={17.1}
                                     />
                                     <MiniArea
                                         line
                                         height={45}
-                                        data={visitData}
+                                        data={this.state.visitData}
                                     />
                                     <Table
                                         rowKey={record => record.index}
@@ -716,7 +747,7 @@ export default class Index extends PureComponent {
                                             border: "none"
                                         }}
                                     >
-                                        <NumberInfo
+                                        {/* <NumberInfo
                                             subTitle={
                                                 <span>
                                                     运行服务数量
@@ -731,20 +762,21 @@ export default class Index extends PureComponent {
                                             total={numeral(12321).format('0,0')}
                                             status="up"
                                             subTotal={17.1}
-                                        />
+                                        /> */}
                                         <Table
                                             style={{ marginTop: "10px" }}
                                             rowKey={record => record.index}
                                             size="small"
                                             columns={columnTwo}
                                             dataSource={serviceList}
-                                            // pagination={{
-                                            //     style: { marginBottom: 0 },
-                                            //     current: this.state.domainPage,
-                                            //     pageSize: this.state.domainPage_size,
-                                            //     total: this.state.domainTotal,
-                                            //     onChange: this.onServicePageChange
-                                            // }}
+                                            pagination={false}
+                                        // pagination={{
+                                        //     style: { marginBottom: 0 },
+                                        //     current: this.state.domainPage,
+                                        //     pageSize: this.state.domainPage_size,
+                                        //     total: this.state.domainTotal,
+                                        //     onChange: this.onServicePageChange
+                                        // }}
                                         />
                                     </ChartCard>
 
