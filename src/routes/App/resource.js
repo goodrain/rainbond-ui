@@ -396,6 +396,7 @@ class JAVA extends PureComponent {
                 BUILD_MAVEN_MIRROR_OF,
                 BUILD_MAVEN_MIRROR_URL,
                 BUILD_MAVEN_CUSTOM_OPTS,
+                BUILD_MAVEN_CUSTOM_GOALS,
                 BUILD_MAVEN_JAVA_OPTS,
                 BUILD_PROCFILE,
                 OpenJDK,
@@ -415,6 +416,7 @@ class JAVA extends PureComponent {
             BUILD_MAVEN_MIRROR_OF ? subObject.BUILD_MAVEN_MIRROR_OF = BUILD_MAVEN_MIRROR_OF : ""
             BUILD_MAVEN_MIRROR_URL ? subObject.BUILD_MAVEN_MIRROR_URL = BUILD_MAVEN_MIRROR_URL : ""
             BUILD_MAVEN_CUSTOM_OPTS ? subObject.BUILD_MAVEN_CUSTOM_OPTS = BUILD_MAVEN_CUSTOM_OPTS : ""
+            BUILD_MAVEN_CUSTOM_GOALS ? subObject.BUILD_MAVEN_CUSTOM_GOALS = BUILD_MAVEN_CUSTOM_GOALS : ""
             BUILD_MAVEN_JAVA_OPTS ? subObject.BUILD_MAVEN_JAVA_OPTS = BUILD_MAVEN_JAVA_OPTS : ""
             BUILD_PROCFILE ? subObject.BUILD_PROCFILE = BUILD_PROCFILE : ""
             OpenJDK ? subObject.OpenJDK = OpenJDK : ""
@@ -545,7 +547,6 @@ class JAVA extends PureComponent {
                                     <Radio value='3.0'>3.0.5</Radio>
                                     <Radio value='3.1.1'>3.1.1</Radio>
                                     <Radio value='3.2.5'>3.2.5</Radio>
-                                    <Radio value='3.3.1'>3.3.1</Radio>
                                     <Radio value='3.3.9'>3.3.9</Radio>
                                 </RadioGroup>
                             )}
@@ -591,16 +592,16 @@ class JAVA extends PureComponent {
                         </Form.Item>
 
                         <Form.Item {...formItemLayout} label="Maven构建参数">
-                            {getFieldDecorator('BUILD_MAVEN_MIRROR_URL', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_MIRROR_URL || "-DskipTests	",
+                            {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_OPTS || "-DskipTests	",
                             })(
                                 <Input placeholder=""></Input>
                             )}
                         </Form.Item>
 
                         <Form.Item {...formItemLayout} label="Maven构建全局参数">
-                            {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_OPTS || "clean dependency:list install",
+                            {getFieldDecorator('BUILD_MAVEN_CUSTOM_GOALS', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_GOALS || "clean dependency:list install",
                             })(
                                 <Input placeholder=""></Input>
                             )}
