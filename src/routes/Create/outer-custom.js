@@ -87,7 +87,7 @@ export default class Index extends PureComponent {
       endpoints=value.api
     }else{
       endpoints.type=value.type
-      endpoints.endpoints=value.endpoints
+      endpoints.servers=value.servers
       endpoints.key=value.key
       endpoints.username=value.username
       endpoints.password=value.password

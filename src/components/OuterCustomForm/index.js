@@ -88,7 +88,7 @@ export default class Index extends PureComponent {
         const form = this.props.form;
         form.validateFields((err, fieldsValue) => {
             if (err) {
-                if (fieldsValue.type!=""&&fieldsValue.type!=undefined&& (fieldsValue.endpoints == "" || fieldsValue.endpoints == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
+                if (fieldsValue.type!=""&&fieldsValue.type!=undefined&& (fieldsValue.servers == "" || fieldsValue.servers == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
                         this.setState({
                             visible: true,
                         });
@@ -307,7 +307,7 @@ export default class Index extends PureComponent {
                                 label="服务地址"
                                 style={{ textAlign: "right" }}
                             >
-                                {getFieldDecorator('endpoints', {
+                                {getFieldDecorator('servers', {
                                     rules: [{ required: true }, { validator: this.validAttrName }],
                                     // rules: [{ required: true, message: '请输入服务地址!' }],
                                     initialValue: "",
@@ -316,11 +316,11 @@ export default class Index extends PureComponent {
                                         {staticList.map((item, index) => {
                                             return (<Row key={index}>
                                                 <Col span={20}>
-                                                    <Input onChange={this.onKeyChange.bind(this, index, "endpoints")} value={item} placeholder={"请输入服务地址"} />
+                                                    <Input onChange={this.onKeyChange.bind(this, index, "servers")} value={item} placeholder={"请输入服务地址"} />
                                                 </Col>
                                                 <Col span={4} style={{ textAlign: 'center' }}>
-                                                    {index == 0 ? <Icon type="plus-circle" onClick={() => { this.add("endpoints") }} style={{ fontSize: "20px" }} />
-                                                        : <Icon type="minus-circle" style={{ fontSize: "20px" }} onClick={this.remove.bind(this, index, "endpoints")} />}
+                                                    {index == 0 ? <Icon type="plus-circle" onClick={() => { this.add("servers") }} style={{ fontSize: "20px" }} />
+                                                        : <Icon type="minus-circle" style={{ fontSize: "20px" }} onClick={this.remove.bind(this, index, "servers")} />}
                                                 </Col>
                                             </Row>)
                                         })}
