@@ -13,7 +13,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import EditableLinkGroup from "../../components/EditableLinkGroup";
 import ScrollerX from "../../components/ScrollerX";
 import EditGroupName from "../../components/AddOrEditGroup"
-import styles from "./index.less";
+import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
