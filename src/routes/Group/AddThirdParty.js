@@ -191,9 +191,9 @@ export default class AddThirdParty extends PureComponent {
     );
     return (
       <div>
-        <Button type="primary" onClick={this.toAddService} style={{ marginLeft: "12px" }}><Icon type="plus" />创建第三方服务</Button>
+        <Button type="default" onClick={this.toAddService} style={{ }}><Icon type="plus" />添加第三方服务</Button>
         <Drawer
-          title="创建第三方服务"
+          title="添加第三方服务"
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}

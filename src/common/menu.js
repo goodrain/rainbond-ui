@@ -26,7 +26,7 @@ const menuData = function () {
           path: "market",
         },
         {
-          name: "创建第三方服务",
+          name: "添加第三方服务",
           path: "outer",
         },
       ],

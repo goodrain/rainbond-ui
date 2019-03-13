@@ -474,7 +474,9 @@ class Main extends PureComponent {
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
-          <div className={styles.contentTitle}>{groupDetail.group_name || "-"}</div>
+          <div className={styles.contentTitle}>
+              {groupDetail.group_name || "-"}
+          </div>
         </div>
       </div>
     );

@@ -428,7 +428,7 @@ export default class Index extends PureComponent {
                 </Tooltip>,
             },
             {
-                title: "请求数/时",
+                title: "请求量/时",
                 dataIndex: 'value',
                 key: 'value',
                 width: "30%",
@@ -461,7 +461,7 @@ export default class Index extends PureComponent {
                 </Tooltip>,
             },
             {
-                title: "请求数/时",
+                title: "请求量/时",
                 dataIndex: 'value',
                 key: 'value',
                 width: "30%",
@@ -682,7 +682,7 @@ export default class Index extends PureComponent {
                                     marginBottom: 10,
                                     border: "none",
                                 }}
-                                title="热门域名访问"
+                                title="热门访问域名"
                                 bordered={false}
                                 bodyStyle={{
                                     padding: 0,
@@ -734,7 +734,7 @@ export default class Index extends PureComponent {
                                 style={{
                                     marginBottom: 10,
                                 }}
-                                title="热门服务访问"
+                                title="热门访问服务"
                                 bordered={false}
                                 bodyStyle={{
                                     padding: 0,
