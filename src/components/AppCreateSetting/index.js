@@ -345,7 +345,7 @@ class JAVA extends PureComponent {
       DEBUG: false,
       BUILD_DEBUG_INFO: false,
       BUILD_ENABLE_ORACLEJDK: false,
-      JDKType: props.form.getFieldValue('RUNTIMES'),
+      JDKType: props.form.getFieldValue('RUNTIMESSSS'),
       languageType: this.props.language,
       BUILD_ONLINE: false,
       NODE_MODULES_CACHE: false,
@@ -386,7 +386,6 @@ class JAVA extends PureComponent {
             BUILD_RUNTIMES_MAVEN,
             BUILD_RUNTIMES_SERVER,
             BUILD_DOTNET_SDK_VERSION,
-            RUNTIMES,
             BUILD_MAVEN_MIRROR_OF,
             BUILD_MAVEN_MIRROR_URL,
             BUILD_MAVEN_CUSTOM_OPTS,
@@ -394,13 +393,12 @@ class JAVA extends PureComponent {
             BUILD_PROCFILE,
             OpenJDK,
             BUILD_PIP_INDEX_URL,
-            BUILD_RUNTIMES_HHVM,
+            // BUILD_RUNTIMES_HHVM,
             BUILD_DOTNET_RUNTIME_VERSION,
         } = fieldsValue
 
         NO_CACHE ? subObject.NO_CACHE = true : ""
         BUILD_MAVEN_MIRROR_DISABLE ? subObject.BUILD_MAVEN_MIRROR_DISABLE = true : ""
-        RUNTIMES ? subObject.RUNTIMES = RUNTIMES : ""
         BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : ""
         BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : ""
         BUILD_ENABLE_ORACLEJDK && BUILD_ORACLEJDK_URL ? subObject.BUILD_ORACLEJDK_URL = BUILD_ORACLEJDK_URL : ""
@@ -414,7 +412,7 @@ class JAVA extends PureComponent {
         BUILD_PROCFILE ? subObject.BUILD_PROCFILE = BUILD_PROCFILE : ""
         OpenJDK ? subObject.OpenJDK = OpenJDK : ""
         BUILD_PIP_INDEX_URL ? subObject.BUILD_PIP_INDEX_URL = BUILD_PIP_INDEX_URL : ""
-        BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
+        // BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
         BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
         this.props.onSubmit && this.props.onSubmit(subObject)
     });
@@ -486,7 +484,7 @@ class JAVA extends PureComponent {
                   )}
               </Form.Item>
            <Form.Item {...formItemLayout} label="选择JDK版本">
-              {getFieldDecorator('RUNTIMES', {
+              {getFieldDecorator('RUNTIMESSSS', {
                   initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
               })(
                   <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
@@ -627,7 +625,7 @@ class JAVA extends PureComponent {
               <div>
 
           <Form.Item {...formItemLayout} label="选择JDK版本">
-              {getFieldDecorator('RUNTIMES', {
+              {getFieldDecorator('RUNTIMESSSS', {
                   initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
               })(
                   <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
@@ -684,7 +682,7 @@ class JAVA extends PureComponent {
               <div>
 
           <Form.Item {...formItemLayout} label="选择JDK版本">
-              {getFieldDecorator('RUNTIMES', {
+              {getFieldDecorator('RUNTIMESSSS', {
                   initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
               })(
                   <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
@@ -752,11 +750,11 @@ class JAVA extends PureComponent {
               }
 
 {
-(languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
+(languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle" || languageType == "Gradle") &&
 <div>
 
 <Form.Item {...formItemLayout} label="选择JDK版本">
-{getFieldDecorator('RUNTIMES', {
+{getFieldDecorator('RUNTIMESSSS', {
   initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
 })(
   <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
@@ -867,7 +865,7 @@ class JAVA extends PureComponent {
                   </RadioGroup>
               )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="HHVM版本">
+          {/* <Form.Item {...formItemLayout} label="HHVM版本">
               {getFieldDecorator('BUILD_RUNTIMES_HHVM', {
                   initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_HHVM || "3.5.1",
               })(
@@ -875,7 +873,7 @@ class JAVA extends PureComponent {
                       <Radio value="3.5.1" selected="selected">3.5.1(默认)</Radio>
                   </RadioGroup>
               )}
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item {...formItemLayout} label="开启清除构建缓存">
                   {getFieldDecorator('NO_CACHE', {
                       initialValue: ""
@@ -898,6 +896,29 @@ class JAVA extends PureComponent {
               )}
           </Form.Item>
       }
+
+
+
+{
+          ( languageType == "Golang" || languageType == "go") && <Form.Item {...formItemLayout} label="Golang版本">
+              {getFieldDecorator('BUILD_RUNTIMES', {
+                  initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "go1.11.2",
+              })(
+                <RadioGroup className={styles.ant_radio_disabled}>
+                  <Radio value="go1.11.2" selected="selected">go1.11.2(默认)</Radio>
+                  <Radio value="go1.9.7">go1.9.7</Radio>
+                  <Radio value="go1.8.7">go1.8.7</Radio>
+                  <Radio value="go1.11">go1.11</Radio>
+                  <Radio value="go1.11.1">go1.11.1</Radio>
+                  <Radio value="go1.10.5">go1.10.5</Radio>
+                  <Radio value="go1.10.4">go1.10.4</Radio>
+              </RadioGroup>
+              )}
+          </Form.Item>
+      }
+
+
+
 {
           (languageType == "nodejs" || languageType == "Node" || languageType == "node") && 
           <div>
@@ -927,7 +948,7 @@ class JAVA extends PureComponent {
               </Form.Item>
 
 
-              <Form.Item {...formItemLayout} label="web服务器支持">
+              {/* <Form.Item {...formItemLayout} label="web服务器支持">
                   {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
                       initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER || "nginx",
                   })(
@@ -936,7 +957,7 @@ class JAVA extends PureComponent {
                           <Radio value='apache'>apache</Radio>
                       </RadioGroup>
                   )}
-              </Form.Item>
+              </Form.Item> */}
 
 
           </div>
