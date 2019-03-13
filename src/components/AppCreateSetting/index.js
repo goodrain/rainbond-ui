@@ -751,7 +751,7 @@ class JAVA extends PureComponent {
               }
 
 {
-(languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle" || languageType == "Gradle") &&
+(languageType == "Gradle" ||languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
 <div>
 
 <Form.Item {...formItemLayout} label="选择JDK版本">

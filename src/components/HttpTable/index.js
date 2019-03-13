@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Link, routerRedux } from 'dva/router';
 import Search from '../Search';
 import DrawerForm from '../DrawerForm';
+import ParameterForm from '../ParameterForm';
 import InfoConnectModal from '../InfoConnectModal';
 import { connect } from 'dva';
 import {
@@ -44,7 +45,9 @@ export default class HttpTable extends PureComponent {
             values: '',
             group_name: '',
             appStatusVisable: false,
-            record: ''
+            record: '',
+            parameterVisible:false,
+            parameterList:null
         }
     }
     componentWillMount() {
@@ -88,6 +91,24 @@ export default class HttpTable extends PureComponent {
                 this.load();
             })
         }
+    }
+    handleParameterVisibleClick = (values) => {
+
+        const { dispatch } = this.props;
+        dispatch({
+            type: "gateWay/getParameter",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                rule_id:values.http_rule_id,
+            },
+            callback: (res) => {
+                if(res._code==200){
+                    this.setState({parameterVisible:values,parameterList:res.bean&&res.bean.value})
+                }
+            }
+        })
+
+        
     }
     handleClick = () => {
         this.setState({ drawerVisible: true })
@@ -163,6 +184,24 @@ export default class HttpTable extends PureComponent {
             this.handleOk(values, group_name, { whether_open: true })
         })
     }
+
+
+    handleOkParameter = (values)=>{
+        const { dispatch } = this.props;
+        dispatch({
+            type: "gateWay/editParameter",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                rule_id:this.state.parameterVisible.http_rule_id,
+                value:values
+            },
+            callback: (data) => {
+               this.handleCloseParameter()
+            }
+        })
+    }
+
+
     /**获取连接信息 */
     handleConectInfo = (record) => {
         const { dispatch } = this.props;
@@ -340,8 +379,15 @@ export default class HttpTable extends PureComponent {
             appStatusVisable: false
         })
     }
+
+    handleCloseParameter = () =>{
+        this.setState({
+            parameterVisible: false,
+            parameterList:null
+        })
+    }
     render() {
-        const { dataList, loading, drawerVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable } = this.state;
+        const { dataList, loading, drawerVisible,parameterVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable ,parameterList} = this.state;
         const {addHttpLoading} = this.props;
         const columns = [{
             title: '域名',
@@ -409,7 +455,7 @@ export default class HttpTable extends PureComponent {
             render: (data, record, index) => {
                 return (
                     record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-around" }}>
-                        <a onClick={this.handleParameterInfo.bind(this, record)}>参数配置</a>
+                        <a onClick={this.handleParameterVisibleClick.bind(this, record)}>参数配置</a>
                         <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                         <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
@@ -449,6 +495,9 @@ export default class HttpTable extends PureComponent {
                     ref={this.saveForm}
                     editInfo={this.state.editInfo}
                 />}
+                {parameterVisible&&
+                    <ParameterForm  onOk={this.handleOkParameter}   onClose={this.handleCloseParameter} visible={parameterVisible} editInfo={parameterList}/>
+                }
                 {information_connect && <InfoConnectModal visible={information_connect} dataSource={outerEnvs} onCancel={this.handleCancel} />}
                 {whether_open_form && <Modal
                     title="确认要添加吗？"

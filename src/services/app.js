@@ -2328,6 +2328,7 @@ export async function putLanguage(body = {
     }/console/teams/${body.team_name}/apps/${body.service_alias}/check`,
     {
       method: "post",
+      is_again:true
     },
   );
 }

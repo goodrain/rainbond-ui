@@ -828,16 +828,16 @@ export default class Index extends React.Component {
                   <a onClick={() => {
                     this.setState({ editStartHealth: startProbe });
                   }}
-                    style={{ marginRight: "5px" }}
+                    style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
                   >{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>
 
-                  {JSON.stringify(startProbe) != "{}" && <a
+                  {/* {JSON.stringify(startProbe) != "{}" && <a
                     href="javascript:;"
                     onClick={() => {
                       this.showViewStartHealth(startProbe);
                     }}
                     style={{ marginRight: "5px" }}
-                  >查看</a>}
+                  >查看</a>} */}
 
                   {JSON.stringify(startProbe) != "{}" && appProbeUtil.isStartProbeStart(startProbe) ? (
                     <a
@@ -845,6 +845,7 @@ export default class Index extends React.Component {
                         this.handleStartProbeStart(false);
                       }}
                       href="javascript:;"
+                      style={{ fontSize: "14px", fontWeight: 400 }}
                     >
                       禁用
                             </a>
@@ -854,6 +855,7 @@ export default class Index extends React.Component {
                         this.handleStartProbeStart(true);
                       }}
                       href="javascript:;"
+                      style={{ fontSize: "14px", fontWeight: 400 }}
                     >
                       启用
                             </a>
