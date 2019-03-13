@@ -577,7 +577,7 @@ class JAVA extends PureComponent {
 
                         <Form.Item {...formItemLayout} label="MAVEN MIRROR OF配置">
                             {getFieldDecorator('BUILD_MAVEN_MIRROR_OF', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_MIRROR_OF || "*",
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_MIRROR_OF || "central",
                             })(
                                 <Input placeholder=""></Input>
                             )}
@@ -585,7 +585,7 @@ class JAVA extends PureComponent {
 
                         <Form.Item {...formItemLayout} label="MAVEN MIRROR_URL">
                             {getFieldDecorator('BUILD_MAVEN_MIRROR_URL', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_MIRROR_URL || "maven.goodrain.me	",
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_MIRROR_URL || "maven.goodrain.me",
                             })(
                                 <Input placeholder=""></Input>
                             )}
@@ -593,7 +593,7 @@ class JAVA extends PureComponent {
 
                         <Form.Item {...formItemLayout} label="Maven构建参数">
                             {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_OPTS || "-DskipTests	",
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_OPTS || "-DskipTests",
                             })(
                                 <Input placeholder=""></Input>
                             )}
@@ -777,7 +777,7 @@ class JAVA extends PureComponent {
                             </Form.Item>
                         }
 {
-    (languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle"|| languageType == "Gradle") &&
+    (languageType == "Gradle"||languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
         <div>
 
     <Form.Item {...formItemLayout} label="选择JDK版本">
