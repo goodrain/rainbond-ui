@@ -540,18 +540,18 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title="应用检测通过"
+        title="服务构建源检测通过"
         description={
           <div>
-            <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+            <div>服务构建源检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
-              href="http://www.rainbond.com/docs/stable/user-manual/create-an-app.html"
+              href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
               target="_blank"
             >
-              rainbond文档
+              Rainbond源码支持规范
             </a>{" "}
-            对代码包进行调整。
+            对代码进行调整。
           </div>
         }
         extra={extra}
@@ -586,7 +586,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="ing"
-        title="应用检测中..."
+        title="服务构建源检测中..."
         extra={extra}
         description="此过程可能比较耗时，请耐心等待"
         actions={ServiceGetData ? "" : actions}

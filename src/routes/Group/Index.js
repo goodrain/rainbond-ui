@@ -569,14 +569,13 @@ class Main extends PureComponent {
           </Col>
         </Row>
         {hasService && this.state.type !== "list" &&
-          <Row  style={{ textAlign: "right", paddingRight: "20px",background:"#fff" }}>
-            <a style={{ color: this.state.type === "shapes" ? "" : "black" }} onClick={() => {
+          <Row  style={{ textAlign: "right",paddingTop:"16px", paddingRight: "20px",background:"#fff" }}>
+            {this.state.type==="shapes"?<a onClick={() => {
               this.changeType("shape");
-            }}>展示</a>
-            /
- <a style={{ color: this.state.type === "shape" ? "" : "black" }} onClick={() => {
+            }}>切换到展示模式</a>:<a onClick={() => {
               this.changeType("shapes");
-            }}>编辑</a></Row>
+            }}>切换到编辑模式</a>}
+          </Row>
         }
 
 
