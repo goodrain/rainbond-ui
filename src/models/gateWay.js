@@ -1,6 +1,8 @@
 import {
     queryHttpData,
     fetchEnvs,
+    editParameter,
+    getParameter,
     fetchAllLicense,
     addLicense,
     deleteLicense,
@@ -38,6 +40,19 @@ export default {
         },
         *fetchEnvs({ callback, payload }, { call }) {
             const response = yield call(fetchEnvs, payload);
+            if (response && callback) {
+                callback(response)
+            }
+        },
+        
+        *getParameter({ callback, payload }, { call }) {
+            const response = yield call(getParameter, payload);
+            if (response && callback) {
+                callback(response)
+            }
+        },
+        *editParameter({ callback, payload }, { call }) {
+            const response = yield call(editParameter, payload);
             if (response && callback) {
                 callback(response)
             }

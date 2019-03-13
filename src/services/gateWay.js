@@ -21,7 +21,26 @@ export async function fetchEnvs(params) {
         },
     });
 }
+/**获取参数配置 */
+export async function getParameter(params) {
+    return request(`${config.baseUrl}/console/teams/${params.team_name}/domain/${params.rule_id}/put_gateway`, {
+        method: "get",
+        params: {
+            rule_id: params.rule_id,
+        }
+    });
+}
 
+/**设置参数配置 */
+export async function editParameter(params) {
+    return request(`${config.baseUrl}/console/teams/${params.team_name}/domain/${params.rule_id}/put_gateway`, {
+        method: "PUT",
+        data: {
+            rule_id: params.rule_id,
+            value: params.value,
+        },
+    });
+}
 /**获取所证书列表 */
 export async function fetchAllLicense(params) {
     return request(`${config.baseUrl}/console/teams/${params.team_name}/certificates`, {
