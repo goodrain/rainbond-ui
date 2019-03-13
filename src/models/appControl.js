@@ -88,6 +88,8 @@ import {
   putAutoDeploySecret,
   putAutoDeployCommand,
   getAppBuidSource,
+  getLanguage,
+  putLanguage,
   putAppBuidSource,
   updateAppStatus,
   getTagInformation,
@@ -827,9 +829,21 @@ export default {
         callback && callback(response);
       }
     },
-
+    
     * getAppBuidSource({ payload, callback }, { call, put }) {
       const response = yield call(getAppBuidSource, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * getLanguage({ payload, callback }, { call, put }) {
+      const response = yield call(getLanguage, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * putLanguage({ payload, callback }, { call, put }) {
+      const response = yield call(putLanguage, payload);
       if (response) {
         callback && callback(response);
       }

@@ -45,6 +45,7 @@ export default class Index extends PureComponent {
     super(props);
     this.state = {
       addGroup: false,
+      demoHref:  this.props.data.git_url || "http://code.goodrain.com/demo/2048.git"
     };
   }
   onAddGroup = () => {
@@ -97,26 +98,32 @@ export default class Index extends PureComponent {
   };
 
 
-   handleOpenDemo =()=> {
+  handleOpenDemo = () => {
     Modal.warning({
       title: '查看Dmeo源码',
       content: <div>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="http://code.goodrain.com/demo/2048.git">2048小游戏</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/static-demo.git">静态Web：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/php-demo.git">PHP：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/python-demo.git">Python：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/nodejs-demo.git">Node.js：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/go-demo.git">Golang：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/java-maven-demo.git">Java-Maven：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/java-jar-demo.git">Java-Jar：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/java-war-demo.git">Java-War：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/java-gradle-demo.git">Java-Gradle：hello world !</a></Tag>
-         <Tag color="blue" style={{marginBottom:"5px"}}><a target="_blank" style={{color:"#1990FF"}} href="https://github.com/goodrain/dotnet-demo.git">.NetCore Demo</a></Tag>
+        <Tag color="magenta" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#EA2E96" }} href="http://code.goodrain.com/demo/2048.git">2048小游戏</a></Tag>
+        <Tag color="green" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#74CC49" }} href="https://github.com/goodrain/static-demo.git">静态Web：hello world !</a></Tag>
+        <Tag color="volcano" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#FA541B" }} href="https://github.com/goodrain/php-demo.git">PHP Demo</a></Tag>
+        <Tag color="blue" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#1990FF" }} href="https://github.com/goodrain/python-demo.git">Python Demo</a></Tag>
+        <Tag color="orange" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#FA8E14" }} href="https://github.com/goodrain/nodejs-demo.git">Node.js Demo</a></Tag>
+        <Tag color="gold" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#FCAD15" }} href="https://github.com/goodrain/go-demo.git">Golang Demo</a></Tag>
+        <Tag color="lime" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#A0D912" }} href="https://github.com/goodrain/java-maven-demo.git">Java-Maven Demo</a></Tag>
+        <Tag color="geekblue" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#3054EB" }} href="https://github.com/goodrain/java-jar-demo.git">Java-Jar Demo</a></Tag>
+        <Tag color="purple" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#722DD1" }} href="https://github.com/goodrain/java-war-demo.git">Java-War Demo</a></Tag>
+        <Tag color="volcano" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#FA541B" }} href="https://github.com/goodrain/java-gradle-demo.git">Java-Gradle Demo</a></Tag>
+        <Tag color="gold" style={{ marginBottom: "10px" }}><a target="_blank" style={{ color: "#FCAD15" }} href="https://github.com/goodrain/dotnet-demo.git">.NetCore Demo</a></Tag>
       </div>,
     });
   }
 
 
+  handleChangeDemo = (value) => {
+    console.log(`selected ${value}`);
+    this.setState({
+      demoHref: value
+    })
+  }
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -135,7 +142,7 @@ export default class Index extends PureComponent {
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...formItemLayout} label="应用">
           {getFieldDecorator("group_id", {
-            initialValue: data.groupd_id,
+            initialValue: data.groupd_id ? data.groupd_id : undefined,
             rules: [{ required: true, message: "请选择" }],
           })(<Select style={{ display: "inline-block", width: 292, marginRight: 15 }}>
             {(groups || []).map(group => <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>)}
@@ -148,46 +155,52 @@ export default class Index extends PureComponent {
             rules: [{ required: true, message: "要创建的服务组件还没有名字" }],
           })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
         </Form.Item>
-       
+
         <Form.Item {...formItemLayout} label={
-          <Tooltip placement="topLeft" title="查看Demo源码">
-           <span onClick={()=>{this.handleOpenDemo()}}>Demo<HeartIcon style={{ color: '#1890ff' }} /></span>
-          </Tooltip>}>
+          // <Tooltip placement="topLeft" title="查看Demo源码">
+          //   <span onClick={() => { this.handleOpenDemo() }}>Demo<HeartIcon style={{ color: '#1890ff' }} /></span>
+          // </Tooltip>
+          <span>Demo</span>
+        }
+          >
+
           {getFieldDecorator("git_url", {
             initialValue: data.git_url || "http://code.goodrain.com/demo/2048.git",
             rules: [{ required: true, message: "请选择" }],
-          })(<Select>
+          })(<Select style={{ display: "inline-block", width: 292, marginRight: 15 }} onChange={this.handleChangeDemo}>
             <Option value="http://code.goodrain.com/demo/2048.git">2048小游戏</Option>
             <Option value="https://github.com/goodrain/static-demo.git">
               静态Web：hello world !
             </Option>
             <Option value="https://github.com/goodrain/php-demo.git">
-              PHP：hello world !
+              PHP Dmeo
             </Option>
             <Option value="https://github.com/goodrain/python-demo.git">
-              Python：hello world !
+              Python Dmeo
             </Option>
             <Option value="https://github.com/goodrain/nodejs-demo.git">
-              Node.js：hello world !
+              Node.js Dmeo
             </Option>
             <Option value="https://github.com/goodrain/go-demo.git">
-              Golang：hello world !
+              Golang Dmeo
             </Option>
             <Option value="https://github.com/goodrain/java-maven-demo.git">
-              Java-Maven：hello world !
+              Java-Maven Dmeo
             </Option>
             <Option value="https://github.com/goodrain/java-jar-demo.git">
-              Java-Jar：hello world !
+              Java-Jar Dmeo
             </Option>
             <Option value="https://github.com/goodrain/java-war-demo.git">
-              Java-war：hello world !
+              Java-war Dmeo
             </Option>
             <Option value="https://github.com/goodrain/java-gradle-demo.git">
-              Java-gradle：hello world !
+              Java-gradle Dmeo
             </Option>
             <Option value="https://github.com/goodrain/dotnet-demo.git">.NetCore Demo</Option>
           </Select>)}
-
+          {this.state.demoHref && <a target="_blank"  href={this.state.demoHref}>
+            查看源码
+          </a>}
         </Form.Item>
         <Form.Item
           wrapperCol={{

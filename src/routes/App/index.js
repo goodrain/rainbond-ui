@@ -367,7 +367,9 @@ class Main extends PureComponent {
                         this.setState({ isShowThirdParty: appDetail.is_third ? appDetail.is_third : false })
                     }
                     if (!appUtil.isCreateComplete(appDetail) && !appUtil.isMarketApp(appDetail)) {
-                        if (!appUtil.isCreateFromCompose(appDetail)) {
+                        if (appDetail.service && appDetail.service.create_status == "checked") {
+                            this.getStatus();
+                        } else if (!appUtil.isCreateFromCompose(appDetail)) {
                             this
                                 .props
                                 .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appDetail.service.service_alias}`));

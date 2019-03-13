@@ -181,6 +181,11 @@ export default class HttpTable extends PureComponent {
         })
         this.setState({ InfoConnectModal: true })
     }
+
+    handleParameterInfo = () =>{
+
+    }
+    
     handleCancel = () => {
         this.setState({ information_connect: false })
     }
@@ -404,6 +409,7 @@ export default class HttpTable extends PureComponent {
             render: (data, record, index) => {
                 return (
                     record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-around" }}>
+                        <a onClick={this.handleParameterInfo.bind(this, record)}>参数配置</a>
                         <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                         <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>

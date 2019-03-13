@@ -4,9 +4,9 @@
   "description": "rainbond front-end project. ",
   "private": true,
   "scripts": {
-    "start": "cross-env DISABLE_ESLINT=true NODE_ENV=dev PORT=9001 roadhog dev",
-    "dev": "cross-env DISABLE_ESLINT=true NODE_ENV=development PORT=9001 roadhog dev",
-    "start:no-proxy": "cross-env NO_PROXY=true DISABLE_ESLINT=true roadhog dev",
+    "start": "cross-env ESLINT=none NODE_ENV=dev PORT=9001 roadhog dev",
+    "dev": "cross-env ESLINT=none NODE_ENV=development PORT=9001 roadhog dev",
+    "start:no-proxy": "cross-env NO_PROXY=true ESLINT=none roadhog dev",
     "build": "cross-env ESLINT=none roadhog build",
     "site": "roadhog-api-doc static && gh-pages -d dist",
     "analyze": "cross-env ANALYZE=true roadhog build"

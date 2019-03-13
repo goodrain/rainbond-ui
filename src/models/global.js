@@ -10,6 +10,10 @@ import {
   getCompanyInfo,
   getRegionOneDayMoney,
   getRegionSource,
+  getTeamList,
+  getDomainName,
+  getDomainTime,
+  getService,
   offlineMarketApp,
   getuserMessage,
   putMsgAction,
@@ -175,6 +179,31 @@ export default {
     },
     * getRegionSource({ payload, callback }, { call, put }) {
       const data = yield call(getRegionSource, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getTeamList({ payload, callback }, { call, put }) {
+      const data = yield call(getTeamList, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getDomainName({ payload, callback }, { call, put }) {
+      const data = yield call(getDomainName, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getDomainTime({ payload, callback }, { call, put }) {
+      const data = yield call(getDomainTime, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    
+    * getService({ payload, callback }, { call, put }) {
+      const data = yield call(getService, payload);
       if (data && callback) {
         callback(data);
       }
