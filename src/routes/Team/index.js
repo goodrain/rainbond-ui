@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link, routerRedux } from "dva/router";
-import { List, Avatar, Button, Icon } from "antd";
+import { List, Avatar, Button, Icon, notification } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "./index.less";
@@ -55,6 +55,10 @@ export default class Index extends PureComponent {
   };
   handleExitTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
+    if (team_name == "jdgn6pk5") {
+        notification.warning({ message: "当前为演示团队，不能退出！" });
+        return
+    }
     this.props.dispatch({
       type: "teamControl/exitTeam",
       payload: {
