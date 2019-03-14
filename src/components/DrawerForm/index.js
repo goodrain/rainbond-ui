@@ -259,7 +259,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo.g_id,
+                                initialValue: editInfo.g_id.toString(),
                             })(
                                 <Select placeholder="请选择要所属应用组" onChange={this.handleServices}>
                                     {

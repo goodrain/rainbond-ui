@@ -799,8 +799,8 @@ class Main extends PureComponent {
             <div>
                 <ButtonGroup>
 
-                    {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="" app_alias={appAlias} />)}
-                    {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias} />)}
+                    {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty&&(<VisitBtn btntype="" app_alias={appAlias} />)}
+                    {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty&&(<VisitBtn btntype="default" app_alias={appAlias} />)}
 
                     {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
 
@@ -826,7 +826,7 @@ class Main extends PureComponent {
                         : null} */}
 
 
-                    {(appUtil.canManageContainter(appDetail)) && appStatusUtil.canManageDocker(status)
+                    {(appUtil.canManageContainter(appDetail)) && appStatusUtil.canManageDocker(status)&&!isShowThirdParty
                         ? <ManageContainer app_alias={appDetail.service.service_alias} />
                         : null
                     }

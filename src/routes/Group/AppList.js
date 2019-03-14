@@ -55,6 +55,12 @@ export default class AppList extends PureComponent {
       type: "groupControl/clearApps"
     });
   }
+
+
+shouldComponentUpdate(){
+  return true
+}
+
   updateApp = () => {
     this.loadApps();
     const { clearTime } = this.props
@@ -183,10 +189,13 @@ export default class AppList extends PureComponent {
     this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
   };
   hideBatchDelete = () => {
-    this.setState({ batchDeleteApps: [], batchDeleteShow: false });
+    this.setState({ batchDeleteApps: [], batchDeleteShow: false ,selectedRowKeys:[]});
     this.loadApps();
     //update menus data
     this.updateGroupMenu()
+  };
+  handleBatchDeletes = () => {
+    this.setState({ batchDeleteApps: [], batchDeleteShow: false });
   };
   updateGroupMenu = () => {
     this.props.dispatch({
@@ -421,12 +430,13 @@ export default class AppList extends PureComponent {
               dataSource={apps || []}
               footer={() => footer}
               style={{ position: "relative" }}
-            />{" "}
+            />
+
           </ScrollerX>{" "}
           {this.state.batchDeleteShow && (
             <BatchDelete
               batchDeleteApps={this.state.batchDeleteApps}
-              onCancel={this.hideBatchDelete}
+              onCancel={this.handleBatchDeletes}
               onOk={this.hideBatchDelete}
             />
           )}

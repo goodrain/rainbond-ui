@@ -393,7 +393,8 @@ setArr = (props)=>{
 
   handleSubmit = (e) => {
       const form = this.props.form;
-      const {languageType,runtimeInfo}=this.props;
+      const {runtimeInfo}=this.props;
+      const {languageType}=this.state;
       let subObject = {};
       const { NO_CACHE,
           BUILD_ENABLE_ORACLEJDK,
@@ -454,11 +455,11 @@ setArr = (props)=>{
           // BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
           BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
 
-
-          if(languageType&&languageType == "dockerfile"){
-              setObj?subObject=setObj:subObject=runtimeInfo
-          }
-          this.props.onSubmit && this.props.onSubmit(subObject)
+             if (languageType && languageType == "dockerfile") {
+                this.props.onSubmit && this.props.onSubmit(setObj ? setObj :runtimeInfo)
+            }else{
+                this.props.onSubmit && this.props.onSubmit(subObject)
+            }
       });
   }
 
@@ -805,7 +806,7 @@ setArr = (props)=>{
                       </Form.Item>
                       <Form.Item {...formItemLayout} label="启动命令">
                           {getFieldDecorator('BUILD_PROCFILE', {
-                              initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.war"
+                              initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war"
                           })(
                               <Input placeholder="" ></Input>
                           )}
@@ -1031,7 +1032,7 @@ setArr = (props)=>{
                           })(
                               <RadioGroup className={styles.ant_radio_disabled}>
                                   <Radio value="2.2-sdk-alpine" selected="selected">2.2-sdk-alpine(默认)</Radio>
-                                  <Radio value="2.1-sdk">2.1-sdk</Radio>
+                                  <Radio value="2.1-sdk-alpine">2.1-sdk-alpine</Radio>
                               </RadioGroup>
                           )}
                       </Form.Item>
@@ -1042,7 +1043,6 @@ setArr = (props)=>{
                               <RadioGroup className={styles.ant_radio_disabled}>
                                   <Radio value="2.2-aspnetcore-runtime" selected="selected">2.2-aspnetcore-runtime(默认)</Radio>
                                   <Radio value="2.1-aspnetcore-runtime">2.1-aspnetcore-runtime</Radio>
-                                  <Radio value="3.0-aspnetcore-runtime">3.0-aspnetcore-runtime</Radio>
                               </RadioGroup>
                           )}
                       </Form.Item>
@@ -1053,7 +1053,7 @@ setArr = (props)=>{
               {
 
                   languageType == "dockerfile" && <div>
-                      <Form.Item {...formItemLayout} label="dockerfile版本">
+                      <Form.Item {...formItemLayout} label="ARG参数">
                           {getFieldDecorator("set_dockerfile", { initialValue:"" })(<Dockerinput onChange={(value)=>{this.onSetObj(value)}} editInfo={arr} />)}
                       </Form.Item>
                   </div>
@@ -1580,7 +1580,7 @@ class RenderDeploy extends PureComponent {
 
         {language && runtimeInfo&&<JAVA
           appDetail={this.props.appDetail}
-          onSubmit={(val) => { this.handleEditRuntime(val) }}
+          onSubmit={this.handleEditRuntime}
           language={language}
           // userRunTimeInfo={runtimeInfo.user_dependency || {}}
           runtimeInfo={this.state.runtimeInfo} />}
