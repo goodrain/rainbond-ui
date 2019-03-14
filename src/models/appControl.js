@@ -94,7 +94,7 @@ import {
   updateAppStatus,
   getTagInformation,
   updateServiceName,
-  // onlyOpenPortOuter,
+  onlyOpenPortOuter,
   openExternalPort,
   changeApplicationState,
   getInstanceList,
@@ -425,12 +425,12 @@ export default {
         callback && callback();
       }
     },
-    // * onlyOpenPortOuter({ payload, callback }, { call, put }) {
-    //   const response = yield call(onlyOpenPortOuter, payload);
-    //   if (response) {
-    //     callback && callback();
-    //   }
-    // },
+    * onlyOpenPortOuter({ payload, callback }, { call, put }) {
+      const response = yield call(onlyOpenPortOuter, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     *openExternalPort({ payload, callback }, { call, put }) {
       const response = yield call(openExternalPort, payload);
       if (response) {

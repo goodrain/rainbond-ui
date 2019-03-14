@@ -363,37 +363,41 @@ class JAVA extends PureComponent {
             BUILD_ONLINE: false,
             NODE_MODULES_CACHE: false,
             NODE_VERBOSE: false,
-            arr:[]
+            arr: [],
+            setObj: props.runtimeInfo ? props.runtimeInfo : ""
         }
     }
     componentWillReceiveProps(nextProps) {
-        if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
+        if ( (nextProps.runtimeInfo !== this.props.runtimeInfo) || (nextProps.languageType !== this.state.languageType)) {
             this.handleRuntimeInfo(nextProps)
             this.setArr(nextProps)
         }
+    }
+    shouldComponentUpdate(){
+        return true
     }
     componentDidMount() {
         this.handleRuntimeInfo(this.props)
         this.setArr(this.props)
     }
 
-setArr = (props)=>{
-    const {runtimeInfo,language}=props
-    if(language=="dockerfile"&&runtimeInfo!=""){
-        let arr =[];
-        for (let i in runtimeInfo) {
-            let keyName = i + ""
-            if (keyName.startsWith("BUILD_ARG_")) {
-                keyName = keyName.substr(10, i.length)
+    setArr = (props) => {
+        const { runtimeInfo, language } = props
+        if (language == "dockerfile" && runtimeInfo != "") {
+            let arr = [];
+            for (let i in runtimeInfo) {
+                let keyName = i + ""
+                if (keyName.startsWith("BUILD_ARG_")) {
+                    keyName = keyName.substr(10, i.length)
+                }
+                arr.push({ key: keyName, value: runtimeInfo[i] })
             }
-            arr.push({ key: keyName, value: runtimeInfo[i] })
+            this.setState({
+                arr
+            })
         }
-        this.setState({
-            arr
-        })
+
     }
-  
-}
     handleRuntimeInfo = (props) => {
         this.setState({
             languageType: props.language,
@@ -402,11 +406,12 @@ setArr = (props)=>{
 
     handleSubmit = (e) => {
         const form = this.props.form;
+        const { languageType, runtimeInfo } = this.props;
         let subObject = {};
         const { NO_CACHE,
             BUILD_ENABLE_ORACLEJDK,
             BUILD_MAVEN_MIRROR_DISABLE,
-            DEBUG, BUILD_DEBUG_INFO, BUILD_ONLINE, NODE_MODULES_CACHE, NODE_VERBOSE } = this.state;
+            DEBUG, BUILD_DEBUG_INFO, BUILD_ONLINE, NODE_MODULES_CACHE, NODE_VERBOSE, setObj } = this.state;
         form.validateFields((err, fieldsValue) => {
             // if (err) return;
             const {
@@ -428,20 +433,24 @@ setArr = (props)=>{
                 RUNTIMES
             } = fieldsValue
 
+
+
+
             NO_CACHE ? subObject.NO_CACHE = true : ""
             BUILD_MAVEN_MIRROR_DISABLE ? subObject.BUILD_MAVEN_MIRROR_DISABLE = true : ""
 
-            RUNTIMES ? RUNTIMES == "OpenJDK" ? // OpenJDK
-                BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : "" :
-                // Jdk
-                BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : "" : ""
+            if (languageType == "java-maven" || languageType == "Java-maven" || languageType == "java-jar" || languageType == "Java-jar" ||
+                languageType == "java-war" || languageType == "Java-war" || languageType == "Gradle" || languageType == "gradle" || languageType == "java-gradle" || languageType == "Java-gradle" || languageType == "JAVAGradle"
+            ) {
+                RUNTIMES ? RUNTIMES == "OpenJDK" ? // OpenJDK
+                    BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : "" :
+                    // Jdk
+                    BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : "" : ""
 
-            BUILD_ENABLE_ORACLEJDK && BUILD_ORACLEJDK_URL ? subObject.BUILD_ORACLEJDK_URL = BUILD_ORACLEJDK_URL : ""
-
-
-
-
-
+                BUILD_ENABLE_ORACLEJDK && BUILD_ORACLEJDK_URL ? subObject.BUILD_ORACLEJDK_URL = BUILD_ORACLEJDK_URL : ""
+            } else {
+                BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : ""
+            }
 
 
             BUILD_RUNTIMES_MAVEN ? subObject.BUILD_RUNTIMES_MAVEN = BUILD_RUNTIMES_MAVEN : ""
@@ -459,6 +468,9 @@ setArr = (props)=>{
             BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
 
 
+            if (languageType && languageType == "dockerfile") {
+                setObj ? subObject = setObj : subObject = runtimeInfo
+            }
             this.props.onSubmit && this.props.onSubmit(subObject)
         });
     }
@@ -505,9 +517,16 @@ setArr = (props)=>{
         });
     }
 
-    onSetArr = (value) =>{
-        console.log("value",value)
+    onSetObj = (value) => {
+        let obj = {}
+        value.map((item) => {
+            obj["BUILD_ARG_" + item.key] = item.value
+        })
+        this.setState({ setObj: obj })
     }
+
+
+
     render() {
         const runtimeInfo = this.props.runtimeInfo || "";
         const language = this.props.language;
@@ -530,26 +549,10 @@ setArr = (props)=>{
             },
         };
 
-        // if (!this.isShowJdk() && !this.isShowService()) {
-        //     return null;
-        // }
-
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { userRunTimeInfo } = this.props;
         const { JDKType, languageType, arr } = this.state;
-        // console.log("runtimeInfo", runtimeInfo)
 
-        // let arr = [];
-        // if(languageType=="dockerfile"&&runtimeInfo!=""){
-        //     for (let i in runtimeInfo) {
-        //         let keyName = i + ""
-        //         if (keyName.startsWith("BUILD_ARG_")) {
-        //             keyName = keyName.substr(10, i.length)
-        //         }
-        //         arr.push({ key: keyName, value: runtimeInfo[i] })
-        //     }
-        // }
-      
         return (
             <Card title="构建运行环境设置">
                 {
@@ -557,7 +560,7 @@ setArr = (props)=>{
                     <div>
                         <Form.Item {...formItemLayout} label="开启清除构建缓存">
                             {getFieldDecorator('NO_CACHE', {
-                                initialValue: ""
+                                initialValue:  ""
                             })(
                                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
                             )}
@@ -1065,7 +1068,7 @@ setArr = (props)=>{
 
                     languageType == "dockerfile" && <div>
                         <Form.Item {...formItemLayout} label="dockerfile版本">
-                            {getFieldDecorator("set_dockerfile", { initialValue:"" })(<Dockerinput onChange={(value)=>{this.onSetArr(value)}} editInfo={arr} />)}
+                            {getFieldDecorator("set_dockerfile", { initialValue: "" })(<Dockerinput onChange={(value) => { this.onSetObj(value) }} editInfo={arr} />)}
                         </Form.Item>
                     </div>
                 }
@@ -1368,7 +1371,7 @@ export default class Index extends PureComponent {
     constructor(arg) {
         super(arg);
         this.state = {
-            runtimeInfo: [],
+            runtimeInfo: "",
             changeBuildSource: false,
             buildSource: null,
             showMarketAppDetail: false,
@@ -1448,7 +1451,7 @@ export default class Index extends PureComponent {
                 app_alias: this.props.appDetail.service.service_alias
             },
             callback: (data) => {
-                this.setState({ runtimeInfo: data.bean })
+                this.setState({ runtimeInfo: data.bean? data.bean:{} })
             }
         })
     }
@@ -1480,25 +1483,27 @@ export default class Index extends PureComponent {
         return { group_id: this.props.match.params.groupId, compose_id: this.props.match.params.composeId }
     }
     handleToDetect = () => {
-        getStatus({
-            team_name: globalUtil.getCurrTeamName(),
-            app_alias: this.props.appDetail.service.service_alias,
-        }).then((res) => {
-            if (res._code == 200) {
-                this.setState({
-                    check_uuid: res.bean && res.bean.check_uuid
-                }, () => {
-                    this.setState({ languageBox: true })
-                })
-            }
-        })
+        this.setState({ languageBox: true })
+
+        // getStatus({
+        //     team_name: globalUtil.getCurrTeamName(),
+        //     app_alias: this.props.appDetail.service.service_alias,
+        // }).then((res) => {
+        //     if (res._code == 200) {
+        //         this.setState({
+        //             check_uuid: res.bean && res.bean.check_uuid
+        //         }, () => {
+        //         })
+        //     }
+        // })
+
     }
     handlelanguageBox = () => {
-        this.setState({ languageBox: false })
+        this.setState({ languageBox: false, create_status: "" })
     }
     handleDetectGetLanguage = () => {
         const { dispatch } = this.props;
-
+        const _th =this;
         dispatch({
             type: "appControl/getLanguage",
             payload: {
@@ -1507,11 +1512,19 @@ export default class Index extends PureComponent {
                 check_uuid: this.state.check_uuid
             },
             callback: (res) => {
+                
                 if (res._code == 200) {
-                    this.setState({
-                        create_status: res.bean && res.bean.check_status,
-                        service_info: res.bean && res.bean.service_info,
-                    })
+                    if (res.bean && res.bean.check_status != "success") {
+                        setTimeout(function(){
+                            _th.handleDetectGetLanguage();
+                        },3000);
+                    } else {
+                        this.loadBuildSourceInfo();
+                        this.setState({
+                            create_status: res.bean && res.bean.check_status,
+                            service_info: res.bean && res.bean.service_info,
+                        })
+                    }
                 }
             },
         });
@@ -1519,7 +1532,6 @@ export default class Index extends PureComponent {
 
     handleDetectPutLanguage = () => {
         const { dispatch } = this.props;
-
         dispatch({
             type: "appControl/putLanguage",
             payload: {
@@ -1528,11 +1540,11 @@ export default class Index extends PureComponent {
             },
             callback: (res) => {
                 this.setState({
-                    create_status: res.bean && res.bean.create_status
+                    create_status: res.bean && res.bean.create_status,
+                    check_uuid: res.bean && res.bean.check_uuid,
                 }, () => {
                     this.handleDetectGetLanguage()
                 })
-
             },
         });
     }
@@ -1738,14 +1750,14 @@ export default class Index extends PureComponent {
                                 ]
                                 :
                                 [
-                                    <Button key="back" onClick={this.handlelanguageBox}>关闭</Button>
+                                    <Button key="back">关闭</Button>
                                 ]
                     }
                 >
 
                     <div>
                         {
-                            this.state.create_status == 'checking' ?
+                            this.state.create_status == 'checking'|| this.state.create_status =="complete" ?
                                 <div>
                                     <p style={{ textAlign: 'center' }}>
                                         <Spin />
@@ -1797,12 +1809,12 @@ export default class Index extends PureComponent {
                 </Modal>}
 
 
-                {language && <JAVA
+                {language && runtimeInfo&&<JAVA
                     appDetail={this.props.appDetail}
                     onSubmit={(val) => { this.handleEditRuntime(val) }}
                     language={language}
                     // userRunTimeInfo={runtimeInfo.user_dependency || {}}
-                    runtimeInfo={runtimeInfo || ""} />}
+                    runtimeInfo={this.state.runtimeInfo} />}
 
 
                 {/* {(language === 'php')

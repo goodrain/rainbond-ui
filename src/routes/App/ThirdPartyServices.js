@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Link, Switch, Route } from "dva/router";
+import { routerRedux } from "dva/router";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
     Row,
@@ -20,7 +21,7 @@ import {
 } from "antd";
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
-
+const confirm = Modal.confirm;
 
 import DescriptionList from "../../components/DescriptionList";
 const { Description } = DescriptionList;
@@ -57,6 +58,23 @@ export default class Index extends PureComponent {
         this.handleGetList()
     }
 
+
+     showConfirm =()=> {
+         const _th=this;
+        confirm({
+          title: '端口未开启',
+          content: '是否开启端口',
+          onOk() {
+            _th.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${_th.props.appAlias}/port`)) 
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+      }
+
+      
+
     handleGetList = () => {
         this.props.dispatch({
             type: "appControl/getInstanceList",
@@ -67,7 +85,7 @@ export default class Index extends PureComponent {
             callback: (res) => {
                 if (res._code == 200) {
                     this.setState({
-                        endpoint_num: res.bean.endpoint_num>0?res.bean.endpoint_num:"",
+                        endpoint_num: res.bean.endpoint_num > 0 ? res.bean.endpoint_num : "",
                         list: res.list
                     })
                 }
@@ -110,8 +128,12 @@ export default class Index extends PureComponent {
             },
             callback: (res) => {
                 if (res._code == "200") {
-                    this.handleGetList();
-                    this.cancelDeleteVar();
+                    if(res.bean&&res.bean.port_closed){
+                        this.showConfirm()
+                    }else{
+                        this.handleGetList();
+                        this.cancelDeleteVar();
+                    }
                 }
             },
         });
@@ -222,7 +244,7 @@ export default class Index extends PureComponent {
             key: '2',
             render: (data) => {
                 return <span style={{ color: data == "healthy" ? "green" : data == "unhealthy" ? "red" : "" }}>
-                {data == "healthy" ? "健康" : data == "unhealthy" ? "不健康" :data == "unknown"?"未知": "-"}</span>;
+                    {data == "healthy" ? "健康" : data == "unhealthy" ? "不健康" : data == "unknown" ? "未知" : "-"}</span>;
             }
         }, {
             title: '是否上线',
@@ -236,10 +258,14 @@ export default class Index extends PureComponent {
             dataIndex: 'ep_id',
             key: '4',
             render: (ep_id, status) => (
+
                 <div>
-                    <a style={{ marginRight: "5px" }} onClick={() => { this.openDeleteVar(ep_id) }}>删除</a>
-                    <a onClick={() => { this.handleModify(status) }}>{status.is_online ? "下线" : "上线"}</a>
-                    <a onClick={() => { this.handleGetList() }}>刷新</a>
+                    {
+                        status.is_static && <div>
+                            <a style={{ marginRight: "5px" }} onClick={() => { this.openDeleteVar(ep_id) }}>删除</a>
+                            <a onClick={() => { this.handleModify(status) }}>{status.is_online ? "下线" : "上线"}</a>
+                        </div>
+                    }
                 </div>
             )
         }];
@@ -281,11 +307,16 @@ export default class Index extends PureComponent {
                     {appDetail.service.service_source = "third_party" &&
                         <Card
                             title="服务实例"
-                            extra={<Button onClick={() => { this.addInstance() }}>新增</Button>}
+                            extra={
+                                [
+                                    <Button style={{ marginRight: "5px" }} onClick={() => { this.addInstance() }}>新增</Button>,
+                                    <Button onClick={() => { this.handleGetList() }}>刷新</Button>
+                                ]
+                            }
                         >
                             <p>注册方式： {appDetail.register_way ? appDetail.register_way : ""}</p>
                             {appDetail.api_url && <p>API地址： {appDetail.api_url ? appDetail.api_url : ""}
-                                <div style={{margin:"5px 0"}}>
+                                <div style={{ margin: "5px 0" }}>
                                     <span>
                                         秘钥： <a>{api_service_key ? api_service_key : appDetail.api_service_key ? appDetail.api_service_key : ""}</a>
                                         <CopyToClipboard
@@ -298,12 +329,12 @@ export default class Index extends PureComponent {
                                         </CopyToClipboard>
                                         {/* </Description> */}
                                     </span>
-                                    <Button size="small"  onClick={() => {
+                                    <Button size="small" onClick={() => {
                                         this.handleUpDatekey();
                                     }}>重置密钥</Button>
                                 </div>
                             </p>}
-                            {endpoint_num &&<p>当前实例数: {endpoint_num>0?endpoint_num:""}</p>}
+                            {endpoint_num && <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ""}</p>}
                             {appDetail.discovery_type && <p>动态类型: {appDetail.discovery_type}</p>}
                             {appDetail.discovery_key && <p>动态key: {appDetail.discovery_key}</p>}
                         </Card>

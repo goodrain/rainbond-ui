@@ -20,7 +20,7 @@ import globalUtil from '../../utils/global';
 import styles from './index.less';
 
 @connect(
-    ({ user, global, loading}) => ({
+    ({ user, global, loading }) => ({
         currUser: user.currentUser,
         groups: global.groups,
         addTcpLoading: loading.effects["gateWay/querydomain_port"]
@@ -162,7 +162,7 @@ export default class TcpTable extends PureComponent {
 
     handleOk = (values, obj) => {
         const { dispatch } = this.props;
-        const { editInfo,end_point,tcpType } = this.state;
+        const { editInfo, end_point, tcpType } = this.state;
         if (obj && obj.whether_open) {
             values.whether_open = true;
         }
@@ -193,8 +193,8 @@ export default class TcpTable extends PureComponent {
         } else {
             // let end_points= `${values.end_point.ip}:${values.end_point.port}`.replace(/\s+/g, "")
             let end_pointArr = editInfo.end_point.split(":");
-            values.default_port=end_pointArr[1]
-            values.end_point.port==end_pointArr[1] ?values.type=tcpType:values.type=1
+            values.default_port = end_pointArr[1]
+            values.end_point.port == end_pointArr[1] ? values.type = tcpType : values.type = 1
             dispatch({
                 type: "gateWay/editTcp",
                 payload: {
@@ -233,7 +233,7 @@ export default class TcpTable extends PureComponent {
                     editInfo: data.bean,
                     TcpDrawerVisible: true,
                     tcpType: values.type,
-                    end_point:values.end_point
+                    end_point: values.end_point
                 })
             }
         })
@@ -255,11 +255,12 @@ export default class TcpTable extends PureComponent {
     }
     openService = (record) => {
         this.props.dispatch({
-            type: 'appControl/onlyOpenPortOuter',
+            type: 'appControl/openPortOuter',
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 app_alias: record.service_alias,
-                port: record.container_port
+                port: record.container_port,
+                action: "only_open_outer"
             },
             callback: () => {
                 this.load()
@@ -275,14 +276,14 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                const dataList = data.list.filter((item)=>{
+                const dataList = data.list.filter((item) => {
                     // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
-                    return (!item.attr_name.endsWith("_HOST")&&!item.attr_name.endsWith("_PORT")) 
+                    return (!item.attr_name.endsWith("_HOST") && !item.attr_name.endsWith("_PORT"))
                 })
                 this.setState({
                     visibleModal: true,
                     agreement: record,
-                    NotHttpConnectInfo: dataList||[]
+                    NotHttpConnectInfo: dataList || []
                 })
             }
         })
@@ -358,7 +359,9 @@ export default class TcpTable extends PureComponent {
             align: "center",
             render: (text, record) => {
                 return (
-                    record.is_outer_service == 0 ? <a href="javascript:void(0)" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>
+                    record.is_outer_service == 0 ?
+                        <a href="javascript:void(0)" disabled>{text}</a> :
+                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>
                 )
             }
         }, {
@@ -368,7 +371,9 @@ export default class TcpTable extends PureComponent {
             align: "center",
             // width: "10%",
             render: (text, record) => {
-                return (record.is_outer_service == 0 ? <a href="javascript:void(0)" disabled>{record.service_cname}({text})</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{record.service_cname}({text})</Link>)
+                return (record.is_outer_service == 0 ?
+                    <a href="javascript:void(0)" disabled>{record.service_cname}({text})</a> :
+                    <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{record.service_cname}({text})</Link>)
             }
         }, {
             title: '操作',
@@ -385,7 +390,7 @@ export default class TcpTable extends PureComponent {
                     </div> :
                         <Tooltip placement="topLeft" title="请点击开启对外服务方可操作" arrowPointAtCenter>
                             <div>
-                                <a style={{ marginRight: "10px" }} onClick={this.openService.bind(this, record)}>开启</a>
+                                <a style={{ marginRight: "10px" }} onClick={() => { this.openService(record) }}>开启</a>
                             </div>
                         </Tooltip>
                 )

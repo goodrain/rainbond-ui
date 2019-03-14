@@ -188,12 +188,19 @@ export default class HttpTable extends PureComponent {
 
     handleOkParameter = (values)=>{
         const { dispatch } = this.props;
+        let value={
+            proxy_body_size:Number(values.proxy_body_size),
+            proxy_connect_timeout:Number(values.proxy_connect_timeout),
+            proxy_read_timeout:Number(values.proxy_read_timeout),
+            proxy_send_timeout:Number(values.proxy_send_timeout),
+            set_headers:values.set_headers,
+        }
         dispatch({
             type: "gateWay/editParameter",
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
                 rule_id:this.state.parameterVisible.http_rule_id,
-                value:values
+                value
             },
             callback: (data) => {
                this.handleCloseParameter()
