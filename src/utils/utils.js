@@ -170,14 +170,15 @@ export function isUrl(path) {
 }
 
 export const languageObj = {
-  "Dockefile": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/dockerfile.html",
-  "Java": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/java.html",
-  "PHP": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/php.html",
-  "Python": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/python.html",
-  "Nodejs": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/nodejs.html",
-  "Go": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/golang.html",
-  "Netcore": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/netcore.html",
-  "Html": "https://www.rainbond.com/docs/stable/user-manual/app-creation/language-support/html.html",
+  "Dockefile": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/dockerfile/",
+  "Java": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/java/",
+  "PHP": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/php/",
+  "Python": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/python/",
+  "Nodejs": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/nodejs/",
+  "NodeJSStatic": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/nodejs-static/",
+  "Go": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/golang/",
+  "Netcore": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/netcore/",
+  "Html": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/html/",
 }
 
 export const volumeTypeObj = {

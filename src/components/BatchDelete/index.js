@@ -32,6 +32,7 @@ export default class MoveGroup extends PureComponent {
       serviceIds: ids.join(",")
     }).then(data => {
       if (data) {
+        console.log("apps",data.list )
         this.setState({ apps: data.list });
       }
     });

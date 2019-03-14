@@ -58,12 +58,12 @@ export default class Index extends PureComponent {
         this.handleGetList()
     }
 
-
      showConfirm =()=> {
          const _th=this;
         confirm({
           title: '端口未开启',
-          content: '是否开启端口',
+          content: '上线前必须开启端口对内或对外属性',
+          okText:"去配置",
           onOk() {
             _th.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${_th.props.appAlias}/port`)) 
           },

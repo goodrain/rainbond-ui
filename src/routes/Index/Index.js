@@ -83,7 +83,7 @@ export default class Index extends PureComponent {
         }
     }
 
-    componentWillMount(){
+    componentWillMount() {
         this.getTeam();
     }
 
@@ -108,8 +108,8 @@ export default class Index extends PureComponent {
         });
     }
 
-    onPageChange = (page,pageSize) => {
-        this.setState({ page,pageSize }, () => {
+    onPageChange = (page, pageSize) => {
+        this.setState({ page, pageSize }, () => {
             this.getTeam();
         });
     };
@@ -406,7 +406,7 @@ export default class Index extends PureComponent {
                         team_name: globalUtil.getCurrTeamName(),
                     },
                     callback: () => {
-                this.getTeam();
+                        this.getTeam();
                     }
                 });
             },
@@ -454,13 +454,7 @@ export default class Index extends PureComponent {
                 key: 'metric',
                 width: "70%",
                 render: (text, record) => <Tooltip title={record.metric.host}>
-                    <Link to={handleHost} style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                    }}>
-                    <a href={record.metric.host}>{record.metric.host}</a>
-                    </Link>
-
+                    <a href={`http://${record.metric.host}`} target="_blank">{record.metric.host}</a>
                 </Tooltip>,
             },
             {
@@ -661,7 +655,7 @@ export default class Index extends PureComponent {
                                     })
                                 }
 
-                                {teamList && teamList.length > 0&&this.state.total>0 ? <div style={{ textAlign: "right", margin: "15px" }}>
+                                {teamList && teamList.length > 0 && this.state.total > 0 ? <div style={{ textAlign: "right", margin: "15px" }}>
                                     <Pagination size="small"
                                         current={this.state.page}
                                         pageSize={this.state.page_size}
@@ -726,7 +720,7 @@ export default class Index extends PureComponent {
                                     <Table
                                         rowKey={record => record.index}
                                         size="small"
-                                        style={{ marginTop: "10px" }}
+                                        style={{ marginTop: "10px", height: "346px", overflow: "auto" }}
                                         columns={columns}
                                         dataSource={domainList}
                                         pagination={{

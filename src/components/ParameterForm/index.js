@@ -161,7 +161,7 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_body_size : "1"
                             })(
-                                <Input addonAfter={"兆"}  />
+                                <Input addonAfter={"Mb"}  />
                             )}
                         </FormItem>
 

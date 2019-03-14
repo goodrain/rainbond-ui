@@ -264,7 +264,7 @@ class Index extends React.Component {
               {
                 (data.status == 'failed') ?
                   <Fragment>
-                    <a href="javascript:;" onClick={this.handleDel.bind(this, data)}>删除</a>
+                    <a href="javascript:;" onClick={this.handleDelete.bind(this, data)}>删除</a>
                   </Fragment>
                   : ''
               }
