@@ -261,7 +261,7 @@ export default class Index extends PureComponent {
             payload: {
                 team_name,
                 page: 1,
-                page_size: 6,
+                page_size: 5,
             },
         });
     };
@@ -605,16 +605,18 @@ export default class Index extends PureComponent {
                             <Card
                                 style={{
                                     marginBottom: 10,
+                                    height: 475,
                                 }}
                                 title={
                                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                                         <span>团队应用</span>
                                         <a style={{ fontSize: "14px", fontWeight: 400 }} onClick={() => { this.setState({ addApplication: true }) }}>增加应用</a>
                                     </div>
-                                }
+                                } 
                                 bordered={false}
                                 bodyStyle={{
                                     padding: 0,
+                                    height: "100%"
                                 }}
                             >
                                 {teamList && teamList.length > 0 &&
@@ -677,6 +679,7 @@ export default class Index extends PureComponent {
                             <Card
                                 bodyStyle={{
                                     padding: 0,
+                                    height: 410,
                                 }}
                                 bordered={false}
                                 className={styles.activeCard}
@@ -693,6 +696,7 @@ export default class Index extends PureComponent {
                                 style={{
                                     marginBottom: 10,
                                     border: "none",
+                                    height: "562px",
                                 }}
                                 title="热门访问域名"
                                 bordered={false}
@@ -718,8 +722,6 @@ export default class Index extends PureComponent {
                                         }
                                         gap={8}
                                         total={numeral(this.state.num).format('0,0')}
-                                    // status="up"
-                                    // subTotal={17.1}
                                     />
                                     <MiniArea
                                         line
@@ -745,6 +747,7 @@ export default class Index extends PureComponent {
                             <Card
                                 style={{
                                     marginBottom: 10,
+                                    height: 468,
                                 }}
                                 title="热门访问服务"
                                 bordered={false}
