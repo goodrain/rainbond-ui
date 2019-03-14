@@ -20,6 +20,7 @@ export default class EditHealthCheck extends PureComponent {
     super(props);
     this.state = {
       list: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
+      prolist: this.props.ports ? this.handleHeavyList(this.props.ports) : [],
     };
   }
 
@@ -117,13 +118,28 @@ export default class EditHealthCheck extends PureComponent {
       },
     };
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { list } = this.state;
+    const { list,prolist } = this.state;
     const scheme = getFieldValue("scheme") || "tcp";
     return (
       <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
         <Form onSubmit={this.handleSubmit}>
+        {prolist && prolist.length>0 ? 
           <FormItem {...formItemLayout} label="检测端口">
-            {getFieldDecorator("port", {
+            { getFieldDecorator("port", {
+              initialValue: appProbeUtil.getPort(data) || (list && list.length ? list[0] : ""),
+              rules: [{ required: true, message: "请输入" }],
+            })(<Select onSearch={(val) => { this.handleList(val) }}>
+              {list && list.map(port =>
+                <Option key={port}
+                  value={port}
+                >{port}
+                </Option>)
+              }
+            </Select>)}
+          </FormItem>:
+        
+        <FormItem {...formItemLayout} label="检测端口">
+            { getFieldDecorator("port", {
               initialValue: appProbeUtil.getPort(data) || (list && list.length ? list[0] : ""),
               rules: [{ required: true, message: "请输入" }],
             })(<Select showSearch onSearch={(val) => { this.handleList(val) }}>
@@ -135,6 +151,11 @@ export default class EditHealthCheck extends PureComponent {
               }
             </Select>)}
           </FormItem>
+        
+        }
+
+
+
           <FormItem {...formItemLayout} label="探针协议">
             {getFieldDecorator("scheme", {
               initialValue: data.scheme || "tcp",
