@@ -386,7 +386,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="error"
-        title="应用检测未通过"
+        title="服务构建源检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
         actions={ServiceGetData ? "" : actions}
@@ -539,20 +539,19 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" :"应用检测通过"}
+        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" :"服务构建源检测通过"}
         description={
           appDetail.service_source == "third_party" ? "" :
           <div>
-         
-              <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+            <div>服务构建源检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
-              href="http://www.rainbond.com/docs/stable/user-manual/create-an-app.html"
+              href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
               target="_blank"
             >
-              rainbond文档
+              Rainbond源码支持规范
             </a>{" "}
-            对代码包进行调整。
+            对代码进行调整。
           </div>
         }
   extra = { extra }
@@ -582,7 +581,7 @@ renderChecking = () => {
   return (
     <Result
       type="ing"
-      title="应用检测中..."
+      title="服务构建源检测中..."
       extra={extra}
       description="此过程可能比较耗时，请耐心等待"
       actions={ServiceGetData ? "" : actions}
@@ -608,23 +607,30 @@ renderEdit = () => {
           onCancel={this.handleCancelEdit}
         />
       );
-    }
-    // 源码demo
-    if (appDetail.code_from === "gitlab_demo") {
-    }
-    // 好雨git仓库
-    if (appDetail.code_from === "gitlab_exit") {
-    }
-    // github项目
-    if (appDetail.code_from === "github") {
-    }
-  }
+    );
+    ServiceGetData && this.props.ButtonGroupState && this.props.handleServiceBotton(actions, false)
 
-  // compose创建
-  if (appDetail.service_source === "docker_compose") {
-  }
-  return null;
-};
+    const extra = (
+      <div>
+        {this.state.eventId && (
+          <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
+        )}
+      </div>
+    );
+    return (
+      <Result
+        type="ing"
+        title="服务构建源检测中..."
+        extra={extra}
+        description="此过程可能比较耗时，请耐心等待"
+        actions={ServiceGetData ? "" : actions}
+        style={{
+          marginTop: 48,
+          marginBottom: 16,
+        }}
+      />
+    );
+  };
 render() {
   const status = this.state.status;
   const appDetail = this.state.appDetail;
@@ -686,7 +692,7 @@ render() {
               onOk={this.handleDelete}
               title="放弃创建"
               subDesc="此操作不可恢复"
-              desc="确定要放弃创建此应用吗？"
+              desc="确定要放弃创建此服务吗？"
               onCancel={() => {
                 this.setState({ showDelete: false });
               }}
@@ -747,7 +753,7 @@ render() {
               onOk={this.handleDelete}
               title="放弃创建"
               subDesc="此操作不可恢复"
-              desc="确定要放弃创建此应用吗？"
+              desc="确定要放弃创建此服务吗？"
               onCancel={() => {
                 this.setState({ showDelete: false });
               }}

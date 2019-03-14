@@ -14,19 +14,22 @@ class Index extends React.PureComponent {
       type: "global/fetchRainbondInfo",
       callback: (info) => {
         this.setState({ inited: true });
-        this.putLog(info.eid || "");
+        this.putLog(info.eid || "", info.enterprise_name || "");
       },
     });
   }
-  putLog = (eid) => {
-    const defaultOptions = {
-      credentials: "same-origin",
-    };
-    defaultOptions.url = "https://log.rainbond.com/log";
-    defaultOptions.method = "post";
-    defaultOptions.data = JSON.stringify({ url: window.location.href, eid });
-    defaultOptions.credentials = "same-origin";
-    axios(defaultOptions);
+  putLog = (eid, enterprise_name) => {
+    try{
+      const defaultOptions = {
+        credentials: "same-origin",
+      };
+      defaultOptions.url = "https://log.rainbond.com/log";
+      defaultOptions.method = "post";
+      defaultOptions.data = JSON.stringify({ url: window.location.href, eid:eid, e_name:enterprise_name });
+      defaultOptions.credentials = "same-origin";
+      axios(defaultOptions);
+    }catch(e){      
+    }  
   };
   render() {
     const { rainbondInfo } = this.props;

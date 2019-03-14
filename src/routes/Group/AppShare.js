@@ -631,7 +631,7 @@ export default class Main extends PureComponent {
                       })(<RadioGroup>
                         <Radio value="team">团队</Radio>
                         <Radio value="enterprise">公司</Radio>
-                        <Radio value="goodrain">好雨公有云市</Radio>
+                        <Radio value="goodrain">公有云应用市场</Radio>
                       </RadioGroup>)}
                     </Form.Item>
                   </Col>

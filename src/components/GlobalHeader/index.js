@@ -362,10 +362,10 @@ export default class GlobalHeader extends PureComponent {
         </div>
 
         <div className={styles.right}>
-          <Tooltip title="使用文档">
+          <Tooltip title="平台使用手册">
             <a
               target="_blank"
-              href="https://www.rainbond.com/docs/stable/getting-started/rainbond-overview.html"
+              href="https://www.rainbond.com/docs/user-manual/"
               rel="noopener noreferrer"
               className={styles.action}
             >

@@ -159,11 +159,11 @@ export default class Index extends PureComponent {
     }
     validAttrName = (rule, value, callback) => {
         if (!value) {
-            callback("请输入ip");
+            callback("请输入正确的IP地址");
             return;
         }
         if (value == "") {
-            callback("请输入ip");
+            callback("请输入正确的IP地址");
             return;
         }
         if (
@@ -171,12 +171,12 @@ export default class Index extends PureComponent {
         ) {
             if ((!/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]):\d{0,5}$/.test(value || ""))
             ) {
-                callback("请输入正确的地址");
+                callback("请输入正确的IP地址");
                 return;
             } else {
                 callback();
             }
-            callback("请输入正确的ip");
+            callback("请输入正确的IP地址");
             return;
         }
         callback();
@@ -254,13 +254,13 @@ export default class Index extends PureComponent {
                     >
                         <FormItem
                             {...formItemLayout}
-                            label="ip"
+                            label="实例IP地址"
                         >
                             {getFieldDecorator('ip', {
                                 rules: [{ required: true, }, { validator: this.validAttrName }],
                                 initialValue: undefined,
                             })(
-                                <Input placeholder="请输入ip" />
+                                <Input placeholder="请输入实例IP地址" />
                             )}
                         </FormItem>
                         <FormItem
