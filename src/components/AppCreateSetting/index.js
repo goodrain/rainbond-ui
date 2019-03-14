@@ -1032,7 +1032,7 @@ setArr = (props)=>{
                           })(
                               <RadioGroup className={styles.ant_radio_disabled}>
                                   <Radio value="2.2-sdk-alpine" selected="selected">2.2-sdk-alpine(默认)</Radio>
-                                  <Radio value="2.1-sdk">2.1-sdk</Radio>
+                                  <Radio value="2.1-sdk-alpine">2.1-sdk-alpine</Radio>
                               </RadioGroup>
                           )}
                       </Form.Item>
@@ -1043,7 +1043,6 @@ setArr = (props)=>{
                               <RadioGroup className={styles.ant_radio_disabled}>
                                   <Radio value="2.2-aspnetcore-runtime" selected="selected">2.2-aspnetcore-runtime(默认)</Radio>
                                   <Radio value="2.1-aspnetcore-runtime">2.1-aspnetcore-runtime</Radio>
-                                  <Radio value="3.0-aspnetcore-runtime">3.0-aspnetcore-runtime</Radio>
                               </RadioGroup>
                           )}
                       </Form.Item>
