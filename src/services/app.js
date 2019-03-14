@@ -583,19 +583,20 @@ export async function changePortProtocal(body = {
 }
 
 /*
-	打开端口外部访问
+	打开端口外部访问 only_open_outer
 */
 export async function openPortOuter(body = {
   team_name,
   app_alias,
   port,
+  action
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
       method: "put",
       data: {
-        action: "open_outer",
+        action: body.action?body.action:"open_outer",
       },
     },
   );

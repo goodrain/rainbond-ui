@@ -73,6 +73,8 @@ export default class Index extends PureComponent {
         this.timer = setInterval(() => {
             this.loadApps();
             this.loadOverview();
+            this.getDomain();
+            this.getDomainName();
         }, 10000);
 
         if (this.isPublicRegion()) {
@@ -141,6 +143,9 @@ export default class Index extends PureComponent {
     getStep() {
         return 60;
     }
+
+
+
     getDomain = () => {
         const { domainPage, domainPage_size, } = this.state;
         this.props.dispatch({
@@ -506,14 +511,6 @@ export default class Index extends PureComponent {
             },
         ];
 
-        const visitData = [];
-        const beginDay = new Date().getTime();
-        for (let i = 0; i < 20; i += 1) {
-            visitData.push({
-                x: moment(new Date(beginDay + (1000 * 60 * 60 * 24 * i))).format('YYYY-MM-DD'),
-                y: Math.floor(Math.random() * 100) + 10,
-            });
-        }
         const {
             index, projectLoading, activitiesLoading, currUser, pagination,
         } = this.props;

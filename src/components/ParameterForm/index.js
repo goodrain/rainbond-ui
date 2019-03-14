@@ -104,9 +104,9 @@ class ParameterForm extends PureComponent {
                                         message: "请输入超时时间",
                                     }
                                 ],
-                                initialValue: editInfo ? editInfo.proxy_connect_timeout : "60"
+                                initialValue: editInfo ? editInfo.proxy_connect_timeout : "75"
                             })(
-                                    <Input addonAfter={"S"}  />
+                                    <Input addonAfter={"秒"}  />
                             )}
                         </FormItem>
 
@@ -125,7 +125,7 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_send_timeout : "60"
                             })(
-                                <Input addonAfter={"S"}  />
+                                <Input addonAfter={"秒"}  />
                             )}
                         </FormItem>
 
@@ -143,13 +143,13 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_read_timeout : "60"
                             })(
-                                <Input addonAfter={"S"}  />
+                                <Input addonAfter={"秒"}  />
                             )}
                         </FormItem>
 
                         <FormItem
                             {...formItemLayout}
-                            label="最大请求正文"
+                            label="上传限制"
                             className={styles.antd_form}
                         >
                             {getFieldDecorator('proxy_body_size', {
@@ -161,12 +161,12 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_body_size : "1"
                             })(
-                                <Input addonAfter={"S"}  />
+                                <Input addonAfter={"兆"}  />
                             )}
                         </FormItem>
 
 
-                        <FormItem
+                        {/* <FormItem
                             {...formItemLayout}
                             label="响应缓存数量"
                             className={styles.antd_form}
@@ -221,7 +221,7 @@ class ParameterForm extends PureComponent {
                             })(
                                 <Checkbox onChange={this.onChange}></Checkbox>
                             )}
-                        </FormItem>
+                        </FormItem> */}
 
                         <FormItem
                             {...formItemLayout}

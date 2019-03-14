@@ -367,7 +367,6 @@ class Main extends PureComponent {
                         this.setState({ isShowThirdParty: appDetail.is_third ? appDetail.is_third : false })
                     }
                     if (!appUtil.isCreateComplete(appDetail) && !appUtil.isMarketApp(appDetail)) {
-                        console.log("appDetail.service",appDetail.service && appDetail.service.create_status)
                         if (appDetail.service && appDetail.service.create_status == "complete") {
                             this.getStatus();
                         } else if (!appUtil.isCreateFromCompose(appDetail)) {
@@ -803,7 +802,7 @@ class Main extends PureComponent {
                     {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="" app_alias={appAlias} />)}
                     {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="default" app_alias={appAlias} />)}
 
-                    {isShowThirdParty && <VisitBtn btntype="default" app_alias={appAlias} />}
+                    {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
 
 
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
@@ -848,7 +847,7 @@ class Main extends PureComponent {
                     : ''} */}
 
 
-                {this.state.BuildState ?
+                {isShowThirdParty?"":this.state.BuildState ?
                     <Tooltip title={"有新版本"}>
                         <Button onClick={this.handleOpenBuild} >
                             <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
@@ -867,10 +866,12 @@ class Main extends PureComponent {
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 } */}
-                {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" ?
+                {status.status == "undeploy" || status.status == "closed" || status.status == "stopping"||isShowThirdParty ?
                     '' : <Button type="primary" onClick={this.handleUpdateRolling} loading={this.state.rollingCanClick}>更新(滚动)</Button>
                 }
-                {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)}
+
+
+                {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
             </div>
         );
 
