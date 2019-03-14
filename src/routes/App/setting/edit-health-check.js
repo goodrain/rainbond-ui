@@ -174,7 +174,7 @@ export default class EditHealthCheck extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="不健康处理方式:">
             {getFieldDecorator("mode", {
-              initialValue: data.mode || "readiness",
+              initialValue: data.mode || this.props.types&&"ignore"|| "readiness",
               rules: [{ required: true, message: "请选择" }],
             })(
               <RadioGroup onChange={this.onChanges}>

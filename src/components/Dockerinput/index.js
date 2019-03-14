@@ -6,7 +6,7 @@ class Parameterinput extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            values: this.props.editInfo?this.props.editInfo : [{ key: '', value: '' }]
+            values: this.props.editInfo ? this.props.editInfo : [{ key: '', value: '' }]
         }
         // this.initFromProps();
     }
@@ -14,12 +14,11 @@ class Parameterinput extends Component {
         var values = this.state.values;
         this.setState({ values: values.concat({ key: '', value: '' }) })
     }
-    // componentWillReceiveProps(nextProps) {
-    //     if ('value' in nextProps) {
-    //         const value = nextProps.value;
-    //         this.initFromProps(value);
-    //     }
-    // }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.editInfo.length !== this.props.editInfo.length) {
+            this.initFromProps(nextProps.editInfo)
+        }
+    }
 
     initFromProps(values) {
         this.setState({ values })
@@ -71,10 +70,11 @@ class Parameterinput extends Component {
         const keyPlaceholder = this.props.keyPlaceholder || '请输入key值';
         const valuePlaceholder = this.props.valuePlaceholder || '请输入value值';
         const values = this.state.values;
+        const {editInfo}=this.props
         return (
             <div>
                 {
-                    values&&values.length>0&&values.map((item, index) => {
+                    values && values.length > 0 && values.map((item, index) => {
                         uuid++;
                         return (<Row key={index}>
                             <Col span={9}><Input name="key" onChange={this.onKeyChange.bind(this, index)} value={item.key} placeholder={keyPlaceholder} /></Col>
