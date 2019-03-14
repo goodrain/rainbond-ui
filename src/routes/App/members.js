@@ -439,7 +439,7 @@ export default class Index extends React.Component {
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 健康检测
                                 <div>
-                                    {startProbe && <a style={{marginRight:"5px"}} onClick={() => { this.openCancel() }}>{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>}
+                                    {startProbe && <a style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }} onClick={() => { this.openCancel() }}>{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>}
                                     {JSON.stringify(startProbe) != "{}" && appProbeUtil.isStartProbeStart(startProbe) ? (
                                         <a
                                             onClick={() => {

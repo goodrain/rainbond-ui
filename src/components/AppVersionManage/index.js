@@ -250,6 +250,7 @@ export default class Index extends PureComponent {
                   var map = {
                     success: "成功",
                     failed: "失败",
+                    failure:"失败",
                     timeout: "超时"
                   };
                   return <Tooltip title={v}>
@@ -279,7 +280,7 @@ export default class Index extends PureComponent {
                         >
                           升级
                         </a>
-                      ) : data.upgrade_or_rollback == -1 ? (
+                      ) : (data.upgrade_or_rollback == -1 &&data.status=="success"&&data.build_version!=bean.current_version)? (
                         <a
                           href="javascript:;"
                           onClick={() => {
@@ -297,7 +298,8 @@ export default class Index extends PureComponent {
                           this.handleDel(data);
                         }}
                       >
-                        <a href="javascript:;">删除</a>
+                      {data.build_version!=bean.current_version&&
+                        <a href="javascript:;">删除</a>}
                       </Popconfirm>
                     </Fragment>
                   );

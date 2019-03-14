@@ -48,7 +48,7 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
-
+const confirm = Modal.confirm;
 //node.js
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
 @Form.create()
@@ -491,7 +491,6 @@ class JAVA extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { userRunTimeInfo } = this.props;
     const { JDKType, languageType } = this.state;
-    console.log("JDKType", JDKType)
     return (
       <Card title="构建运行环境设置">
         {
@@ -687,7 +686,7 @@ class JAVA extends PureComponent {
 
             <Form.Item {...formItemLayout} label="启动命令">
               {getFieldDecorator('BUILD_PROCFILE', {
-                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
+                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.jar"
               })(
                 <Input placeholder="" ></Input>
               )}
@@ -758,7 +757,7 @@ class JAVA extends PureComponent {
             </Form.Item>
             <Form.Item {...formItemLayout} label="启动命令">
               {getFieldDecorator('BUILD_PROCFILE', {
-                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
+                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.war"
               })(
                 <Input placeholder="" ></Input>
               )}
