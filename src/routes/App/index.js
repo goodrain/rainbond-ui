@@ -367,16 +367,14 @@ class Main extends PureComponent {
                         this.setState({ isShowThirdParty: appDetail.is_third ? appDetail.is_third : false })
                     }
                     if (!appUtil.isCreateComplete(appDetail) && !appUtil.isMarketApp(appDetail)) {
-                        if (appDetail.service && appDetail.service.create_status == "checked") {
+                        console.log("appDetail.service",appDetail.service && appDetail.service.create_status)
+                        if (appDetail.service && appDetail.service.create_status == "complete") {
                             this.getStatus();
                         } else if (!appUtil.isCreateFromCompose(appDetail)) {
-                            this
-                                .props
-                                .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appDetail.service.service_alias}`));
-                        } else {
-                            this
-                                .props
-                                .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${appDetail.service.group_id}/${appDetail.service.compose_id}`));
+                            this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appDetail.service.service_alias}`));
+                        } 
+                        else {
+                            this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${appDetail.service.group_id}/${appDetail.service.compose_id}`));
                         }
                     } else {
                         this.getStatus();

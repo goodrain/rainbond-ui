@@ -46,6 +46,8 @@ const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
+
 import AutoDeploy from "./setting/auto-deploy";
 
 //node.js
@@ -349,33 +351,32 @@ class JAVA extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            NO_CACHE: false,
+            NO_CACHE: this.props.runtimeInfo.NO_CACHE ? true : false,
+            BUILD_MAVEN_MIRROR_DISABLE: this.props.runtimeInfo.BUILD_MAVEN_MIRROR_DISABLE ? true : false,
             DEBUG: false,
             BUILD_DEBUG_INFO: false,
-            BUILD_ENABLE_ORACLEJDK: false,
-            JDKType:(props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (props.runtimeInfo && props.runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK",
+            BUILD_ENABLE_ORACLEJDK:  this.props.runtimeInfo.BUILD_ENABLE_ORACLEJDK ? true : false,
+            JDKType:(props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (props.runtimeInfo && props.runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": props.form.getFieldValue('RUNTIMES')?props.form.getFieldValue('RUNTIMES'):"OpenJDK",
             languageType: this.props.language,
             BUILD_ONLINE: false,
             NODE_MODULES_CACHE: false,
             NODE_VERBOSE: false
         }
     }
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
-            this.handleRuntimeInfo(nextProps)
-        }
-    }
+    // componentWillReceiveProps(nextProps) {
+    //     if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
+    //         this.handleRuntimeInfo(nextProps)
+    //     }
+    // }
     componentDidMount() {
         this.handleRuntimeInfo(this.props)
     }
+
+
+   
     handleRuntimeInfo = (props) => {
-        const runtimeInfo = props.runtimeInfo
         this.setState({
-            NO_CACHE: runtimeInfo.NO_CACHE ? true : false,
-            BUILD_MAVEN_MIRROR_DISABLE: runtimeInfo.BUILD_MAVEN_MIRROR_DISABLE ? true : false,
-            BUILD_ENABLE_ORACLEJDK: runtimeInfo.BUILD_ENABLE_ORACLEJDK ? true : false,
             languageType: props.language,
-          
         })
     }
 
@@ -404,13 +405,25 @@ class JAVA extends PureComponent {
                 BUILD_PIP_INDEX_URL,
                 // BUILD_RUNTIMES_HHVM,
                 BUILD_DOTNET_RUNTIME_VERSION,
+                RUNTIMES
             } = fieldsValue
 
             NO_CACHE ? subObject.NO_CACHE = true : ""
             BUILD_MAVEN_MIRROR_DISABLE ? subObject.BUILD_MAVEN_MIRROR_DISABLE = true : ""
-            BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : ""
-            BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : ""
+
+            RUNTIMES? RUNTIMES=="OpenJDK"? // OpenJDK
+            BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : "":
+            // Jdk
+            BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : "":""
+
             BUILD_ENABLE_ORACLEJDK && BUILD_ORACLEJDK_URL ? subObject.BUILD_ORACLEJDK_URL = BUILD_ORACLEJDK_URL : ""
+
+
+
+
+
+
+
             BUILD_RUNTIMES_MAVEN ? subObject.BUILD_RUNTIMES_MAVEN = BUILD_RUNTIMES_MAVEN : ""
             BUILD_RUNTIMES_SERVER ? subObject.BUILD_RUNTIMES_SERVER = BUILD_RUNTIMES_SERVER : ""
             BUILD_DOTNET_SDK_VERSION ? subObject.BUILD_DOTNET_SDK_VERSION = BUILD_DOTNET_SDK_VERSION : ""
@@ -424,6 +437,8 @@ class JAVA extends PureComponent {
             BUILD_PIP_INDEX_URL ? subObject.BUILD_PIP_INDEX_URL = BUILD_PIP_INDEX_URL : ""
             // BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
             BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
+
+
             this.props.onSubmit && this.props.onSubmit(subObject)
         });
     }
@@ -454,6 +469,23 @@ class JAVA extends PureComponent {
             JDKType: e.target.value,
         });
     }
+
+
+    showConfirm = ()=>{
+        const _th=this;
+        confirm({
+            title: '确认修改吗?',
+            content: '',
+            onOk() {
+            _th.handleSubmit()
+            },
+            onCancel() {
+              console.log('Cancel');
+            },
+          });
+    }
+
+
     render() {
         const runtimeInfo = this.props.runtimeInfo || "";
         const language = this.props.language;
@@ -482,7 +514,7 @@ class JAVA extends PureComponent {
 
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { userRunTimeInfo } = this.props;
-        const { JDKType, languageType } = this.state;
+        const { JDKType, languageType,NO_CACHE } = this.state;
         return (
             <Card title="构建运行环境设置">
                 {
@@ -620,10 +652,7 @@ class JAVA extends PureComponent {
                             {getFieldDecorator('BUILD_PROCFILE', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || ""
                             })(
-                                <Input placeholder="	War包:
-                                web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT target/*.war;
-                                Jar包:
-                                web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar" ></Input>
+                                <Input placeholder="web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war" ></Input>
                             )}
                         </Form.Item>
                     </div>
@@ -681,9 +710,9 @@ class JAVA extends PureComponent {
 
                         <Form.Item {...formItemLayout} label="启动命令">
                             {getFieldDecorator('BUILD_PROCFILE', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || ""
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
                             })(
-                                <Input placeholder="	web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar" ></Input>
+                                <Input placeholder="" ></Input>
                             )}
                         </Form.Item>
                         </div>
@@ -752,9 +781,9 @@ class JAVA extends PureComponent {
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="启动命令">
                             {getFieldDecorator('BUILD_PROCFILE', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || ""
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
                             })(
-                                <Input placeholder="web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar" ></Input>
+                                <Input placeholder="" ></Input>
                             )}
                         </Form.Item>
                         </div>
@@ -1000,7 +1029,7 @@ class JAVA extends PureComponent {
                 <Row>
                     <Col span="5"></Col>
                     <Col span="19">
-                        <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
+                        <Button onClick={this.showConfirm} type={'primary'}>确认修改</Button>
                     </Col>
                 </Row>
 
