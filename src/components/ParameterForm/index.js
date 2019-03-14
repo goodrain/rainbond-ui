@@ -75,7 +75,6 @@ class ParameterForm extends PureComponent {
             }
         };
         const { editInfo } = this.props
-
         return (
             <div>
                 <Drawer
@@ -120,7 +119,7 @@ class ParameterForm extends PureComponent {
                                 rules: [
                                     {
                                         required: true,
-                                        message: "请添加域名",
+                                        message: "请输入请求超时时间",
                                     }
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_send_timeout : "60"
@@ -138,7 +137,7 @@ class ParameterForm extends PureComponent {
                                 rules: [
                                     {
                                         required: true,
-                                        message: "请添加域名",
+                                        message: "请输入响应超时时间",
                                     }
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_read_timeout : "60"
@@ -156,7 +155,7 @@ class ParameterForm extends PureComponent {
                                 rules: [
                                     {
                                         required: true,
-                                        message: "请添加域名",
+                                        message: "请输入",
                                     }
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_body_size : "1"

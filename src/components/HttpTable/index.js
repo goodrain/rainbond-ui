@@ -193,7 +193,7 @@ export default class HttpTable extends PureComponent {
             proxy_connect_timeout:Number(values.proxy_connect_timeout),
             proxy_read_timeout:Number(values.proxy_read_timeout),
             proxy_send_timeout:Number(values.proxy_send_timeout),
-            set_headers:values.set_headers,
+            set_headers:values.set_headers?values.set_headers:[],
         }
         dispatch({
             type: "gateWay/editParameter",
@@ -477,7 +477,7 @@ export default class HttpTable extends PureComponent {
         return (
             <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
-                    <Search onSearch={this.handleSearch} />
+                    <Search onSearch={this.handleSearch}/>
                     <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick} loading={addHttpLoading}>
                         添加策略
                     </Button>
