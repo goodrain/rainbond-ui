@@ -20,6 +20,7 @@ import {
     getComposeByComposeId
 } from '../../services/createApp';
 import appUtil from '../../utils/app';
+import Dockerinput from '../../components/Dockerinput'
 import { languageObj } from '../../utils/utils';
 import {
     Button,
@@ -49,6 +50,7 @@ const FormItem = Form.Item;
 const confirm = Modal.confirm;
 
 import AutoDeploy from "./setting/auto-deploy";
+import { width } from "window-size";
 
 //node.js
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })
@@ -355,25 +357,43 @@ class JAVA extends PureComponent {
             BUILD_MAVEN_MIRROR_DISABLE: this.props.runtimeInfo.BUILD_MAVEN_MIRROR_DISABLE ? true : false,
             DEBUG: false,
             BUILD_DEBUG_INFO: false,
-            BUILD_ENABLE_ORACLEJDK:  this.props.runtimeInfo.BUILD_ENABLE_ORACLEJDK ? true : false,
-            JDKType:(props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (props.runtimeInfo && props.runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": props.form.getFieldValue('RUNTIMES')?props.form.getFieldValue('RUNTIMES'):"OpenJDK",
+            BUILD_ENABLE_ORACLEJDK: this.props.runtimeInfo.BUILD_ENABLE_ORACLEJDK ? true : false,
+            JDKType: (props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (props.runtimeInfo && props.runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : props.form.getFieldValue('RUNTIMES') ? props.form.getFieldValue('RUNTIMES') : "OpenJDK",
             languageType: this.props.language,
             BUILD_ONLINE: false,
             NODE_MODULES_CACHE: false,
-            NODE_VERBOSE: false
+            NODE_VERBOSE: false,
+            arr:[]
         }
     }
-    // componentWillReceiveProps(nextProps) {
-    //     if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
-    //         this.handleRuntimeInfo(nextProps)
-    //     }
-    // }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.runtimeInfo !== this.props.runtimeInfo||nextProps.languageType !== this.state.languageType) {
+            this.handleRuntimeInfo(nextProps)
+            this.setArr(nextProps)
+        }
+    }
     componentDidMount() {
         this.handleRuntimeInfo(this.props)
+        this.setArr(this.props)
     }
 
-
-   
+setArr = (props)=>{
+    const {runtimeInfo,language}=props
+    if(language=="dockerfile"&&runtimeInfo!=""){
+        let arr =[];
+        for (let i in runtimeInfo) {
+            let keyName = i + ""
+            if (keyName.startsWith("BUILD_ARG_")) {
+                keyName = keyName.substr(10, i.length)
+            }
+            arr.push({ key: keyName, value: runtimeInfo[i] })
+        }
+        this.setState({
+            arr
+        })
+    }
+  
+}
     handleRuntimeInfo = (props) => {
         this.setState({
             languageType: props.language,
@@ -384,9 +404,9 @@ class JAVA extends PureComponent {
         const form = this.props.form;
         let subObject = {};
         const { NO_CACHE,
-                BUILD_ENABLE_ORACLEJDK,
-                BUILD_MAVEN_MIRROR_DISABLE,
-                DEBUG, BUILD_DEBUG_INFO, BUILD_ONLINE, NODE_MODULES_CACHE, NODE_VERBOSE } = this.state;
+            BUILD_ENABLE_ORACLEJDK,
+            BUILD_MAVEN_MIRROR_DISABLE,
+            DEBUG, BUILD_DEBUG_INFO, BUILD_ONLINE, NODE_MODULES_CACHE, NODE_VERBOSE } = this.state;
         form.validateFields((err, fieldsValue) => {
             // if (err) return;
             const {
@@ -411,10 +431,10 @@ class JAVA extends PureComponent {
             NO_CACHE ? subObject.NO_CACHE = true : ""
             BUILD_MAVEN_MIRROR_DISABLE ? subObject.BUILD_MAVEN_MIRROR_DISABLE = true : ""
 
-            RUNTIMES? RUNTIMES=="OpenJDK"? // OpenJDK
-            BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : "":
-            // Jdk
-            BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : "":""
+            RUNTIMES ? RUNTIMES == "OpenJDK" ? // OpenJDK
+                BUILD_RUNTIMES ? subObject.BUILD_RUNTIMES = BUILD_RUNTIMES : "" :
+                // Jdk
+                BUILD_ENABLE_ORACLEJDK ? subObject.BUILD_ENABLE_ORACLEJDK = true : "" : ""
 
             BUILD_ENABLE_ORACLEJDK && BUILD_ORACLEJDK_URL ? subObject.BUILD_ORACLEJDK_URL = BUILD_ORACLEJDK_URL : ""
 
@@ -471,21 +491,23 @@ class JAVA extends PureComponent {
     }
 
 
-    showConfirm = ()=>{
-        const _th=this;
+    showConfirm = () => {
+        const _th = this;
         confirm({
             title: '确认修改吗?',
             content: '',
             onOk() {
-            _th.handleSubmit()
+                _th.handleSubmit()
             },
             onCancel() {
-              console.log('Cancel');
+                console.log('Cancel');
             },
-          });
+        });
     }
 
-
+    onSetArr = (value) =>{
+        console.log("value",value)
+    }
     render() {
         const runtimeInfo = this.props.runtimeInfo || "";
         const language = this.props.language;
@@ -514,7 +536,20 @@ class JAVA extends PureComponent {
 
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { userRunTimeInfo } = this.props;
-        const { JDKType, languageType,NO_CACHE } = this.state;
+        const { JDKType, languageType, arr } = this.state;
+        // console.log("runtimeInfo", runtimeInfo)
+
+        // let arr = [];
+        // if(languageType=="dockerfile"&&runtimeInfo!=""){
+        //     for (let i in runtimeInfo) {
+        //         let keyName = i + ""
+        //         if (keyName.startsWith("BUILD_ARG_")) {
+        //             keyName = keyName.substr(10, i.length)
+        //         }
+        //         arr.push({ key: keyName, value: runtimeInfo[i] })
+        //     }
+        // }
+      
         return (
             <Card title="构建运行环境设置">
                 {
@@ -527,19 +562,19 @@ class JAVA extends PureComponent {
                                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
                             )}
                         </Form.Item>
-                     <Form.Item {...formItemLayout} label="选择JDK版本">
-                        {getFieldDecorator('RUNTIMES', {
-                            initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
-                        })(
-                            <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
-                                <Radio value='OpenJDK'>OpenJDK</Radio>
-                                <Radio value='Jdk'>OracleJDK</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
+                        <Form.Item {...formItemLayout} label="选择JDK版本">
+                            {getFieldDecorator('RUNTIMES', {
+                                initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
+                                    <Radio value='OpenJDK'>OpenJDK</Radio>
+                                    <Radio value='Jdk'>OracleJDK</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
 
 
-                    {JDKType == "OpenJDK" &&    <Form.Item {...formItemLayout} label="OpenJDK版本">
+                        {JDKType == "OpenJDK" && <Form.Item {...formItemLayout} label="OpenJDK版本">
                             {getFieldDecorator('BUILD_RUNTIMES', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "1.8",
                             })(
@@ -554,7 +589,7 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>}
 
-                        {JDKType == "Jdk" &&   <Form.Item {...formItemLayout} label="启用OracleJDK">
+                        {JDKType == "Jdk" && <Form.Item {...formItemLayout} label="启用OracleJDK">
                             {getFieldDecorator('BUILD_ENABLE_ORACLEJDK', {
                                 initialValue: "",
                             })(<div>
@@ -662,21 +697,21 @@ class JAVA extends PureComponent {
 
                 {
                     (languageType == "java-jar" || languageType == "Java-jar") &&
-                        <div>
+                    <div>
 
-                    <Form.Item {...formItemLayout} label="选择JDK版本">
-                        {getFieldDecorator('RUNTIMES', {
-                            initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
-                        })(
-                            <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
-                                <Radio value='OpenJDK'>OpenJDK</Radio>
-                                <Radio value='Jdk'>OracleJDK</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
+                        <Form.Item {...formItemLayout} label="选择JDK版本">
+                            {getFieldDecorator('RUNTIMES', {
+                                initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
+                                    <Radio value='OpenJDK'>OpenJDK</Radio>
+                                    <Radio value='Jdk'>OracleJDK</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
 
 
-                    {JDKType == "OpenJDK" &&    <Form.Item {...formItemLayout} label="OpenJDK版本">
+                        {JDKType == "OpenJDK" && <Form.Item {...formItemLayout} label="OpenJDK版本">
                             {getFieldDecorator('BUILD_RUNTIMES', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "1.8",
                             })(
@@ -691,7 +726,7 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>}
 
-                        {JDKType == "Jdk" &&   <Form.Item {...formItemLayout} label="启用OracleJDK">
+                        {JDKType == "Jdk" && <Form.Item {...formItemLayout} label="启用OracleJDK">
                             {getFieldDecorator('BUILD_ENABLE_ORACLEJDK', {
                                 initialValue: "",
                             })(<div>
@@ -710,30 +745,30 @@ class JAVA extends PureComponent {
 
                         <Form.Item {...formItemLayout} label="启动命令">
                             {getFieldDecorator('BUILD_PROCFILE', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.jar"
                             })(
                                 <Input placeholder="" ></Input>
                             )}
                         </Form.Item>
-                        </div>
-                        }
-{
+                    </div>
+                }
+                {
                     (languageType == "java-war" || languageType == "Java-war") &&
-                        <div>
+                    <div>
 
-                    <Form.Item {...formItemLayout} label="选择JDK版本">
-                        {getFieldDecorator('RUNTIMES', {
-                            initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
-                        })(
-                            <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
-                                <Radio value='OpenJDK'>OpenJDK</Radio>
-                                <Radio value='Jdk'>OracleJDK</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
+                        <Form.Item {...formItemLayout} label="选择JDK版本">
+                            {getFieldDecorator('RUNTIMES', {
+                                initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
+                                    <Radio value='OpenJDK'>OpenJDK</Radio>
+                                    <Radio value='Jdk'>OracleJDK</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
 
 
-                    {JDKType == "OpenJDK" &&    <Form.Item {...formItemLayout} label="OpenJDK版本">
+                        {JDKType == "OpenJDK" && <Form.Item {...formItemLayout} label="OpenJDK版本">
                             {getFieldDecorator('BUILD_RUNTIMES', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "1.8",
                             })(
@@ -748,7 +783,7 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>}
 
-                        {JDKType == "Jdk" &&   <Form.Item {...formItemLayout} label="启用OracleJDK">
+                        {JDKType == "Jdk" && <Form.Item {...formItemLayout} label="启用OracleJDK">
                             {getFieldDecorator('BUILD_ENABLE_ORACLEJDK', {
                                 initialValue: "",
                             })(<div>
@@ -781,104 +816,104 @@ class JAVA extends PureComponent {
                         </Form.Item>
                         <Form.Item {...formItemLayout} label="启动命令">
                             {getFieldDecorator('BUILD_PROCFILE', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar"
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_PROCFILE || "web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.war"
                             })(
                                 <Input placeholder="" ></Input>
                             )}
                         </Form.Item>
-                        </div>
-                        }
+                    </div>
+                }
 
-                        {
-                            ( languageType == "Golang" || languageType == "go"|| languageType == "golang") && <Form.Item {...formItemLayout} label="Golang版本">
-                                {getFieldDecorator('BUILD_RUNTIMES', {
-                                    initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "go1.11.2",
-                                })(
-                                  <RadioGroup className={styles.ant_radio_disabled}>
-                                    <Radio value="go1.11.2" selected="selected">go1.11.2(默认)</Radio>
-                                    <Radio value="go1.9.7">go1.9.7</Radio>
-                                    <Radio value="go1.8.7">go1.8.7</Radio>
-                                    <Radio value="go1.11">go1.11</Radio>
-                                    <Radio value="go1.11.1">go1.11.1</Radio>
-                                    <Radio value="go1.10.5">go1.10.5</Radio>
-                                    <Radio value="go1.10.4">go1.10.4</Radio>
-                                </RadioGroup>
-                                )}
-                            </Form.Item>
-                        }
-{
-    (languageType == "Gradle"||languageType == "gradle"|| languageType == "java-gradle" || languageType == "Java-gradle"|| languageType == "JAVAGradle") &&
-        <div>
-
-    <Form.Item {...formItemLayout} label="选择JDK版本">
-        {getFieldDecorator('RUNTIMES', {
-            initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES )? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK )? "Jdk": "OpenJDK"
-        })(
-            <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
-                <Radio value='OpenJDK'>OpenJDK</Radio>
-                <Radio value='Jdk'>OracleJDK</Radio>
-            </RadioGroup>
-        )}
-    </Form.Item>
-
-
-    {JDKType == "OpenJDK" &&    <Form.Item {...formItemLayout} label="OpenJDK版本">
-            {getFieldDecorator('BUILD_RUNTIMES', {
-                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "1.8",
-            })(
-                <RadioGroup >
-                    <Radio value='1.8'>1.8(默认)</Radio>
-                    <Radio value='1.6'>1.6</Radio>
-                    <Radio value='1.7'>1.7</Radio>
-                    <Radio value='1.9'>1.9</Radio>
-                    <Radio value='10'>10</Radio>
-                    <Radio value='11'>11</Radio>
-                </RadioGroup>
-            )}
-        </Form.Item>}
-
-        {JDKType == "Jdk" &&   <Form.Item {...formItemLayout} label="启用OracleJDK">
-            {getFieldDecorator('BUILD_ENABLE_ORACLEJDK', {
-                initialValue: "",
-            })(<div>
-                <Radio onClick={() => { this.handleRadio("BUILD_ENABLE_ORACLEJDK") }} checked={this.state.BUILD_ENABLE_ORACLEJDK} >启用</Radio>
-                <div>ORACLEJDK下载路径</div>
-                <Form.Item {...formItemLayout} label="">
-                    {getFieldDecorator('BUILD_ORACLEJDK_URL', {
-                        initialValue: runtimeInfo && runtimeInfo.BUILD_ORACLEJDK_URL || "",
-                    })(
-                        <Input placeholder="" disabled={this.state.BUILD_ENABLE_ORACLEJDK ? false : true}></Input>
-                    )}
-                </Form.Item>
-            </div>
-            )}
-        </Form.Item>}
-        </div>
-        }
-{
-                    (languageType == "python" || languageType == "Python") && 
-                    
-                    <div>
-
-                    <Form.Item {...formItemLayout} label="Python支持">
+                {
+                    (languageType == "Golang" || languageType == "go" || languageType == "golang") && <Form.Item {...formItemLayout} label="Golang版本">
                         {getFieldDecorator('BUILD_RUNTIMES', {
-                            initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "python-3.6.6",
+                            initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "go1.11.2",
                         })(
                             <RadioGroup className={styles.ant_radio_disabled}>
-                                <Radio value="python-3.6.6" selected="selected">python-3.6.6</Radio>
-                                <Radio value="python-3.6.1">python-3.6.1</Radio>
-                                <Radio value="python-3.6.2">python-3.6.2</Radio>
-                                <Radio value="python-3.6.3">python-3.6.3</Radio>
-                                <Radio value="python-3.6.4">python-3.6.4</Radio>
-                                <Radio value="python-3.6.5">python-3.6.5</Radio>
-                                <Radio value="python-2.7.9">python-2.7.9</Radio>
-                                <Radio value="python-2.7.10">python-2.7.10</Radio>
-                                <Radio value="python-2.7.13">python-2.7.13</Radio>
-                                <Radio value="python-2.7.14 ">python-2.7.14</Radio>
+                                <Radio value="go1.11.2" selected="selected">go1.11.2(默认)</Radio>
+                                <Radio value="go1.9.7">go1.9.7</Radio>
+                                <Radio value="go1.8.7">go1.8.7</Radio>
+                                <Radio value="go1.11">go1.11</Radio>
+                                <Radio value="go1.11.1">go1.11.1</Radio>
+                                <Radio value="go1.10.5">go1.10.5</Radio>
+                                <Radio value="go1.10.4">go1.10.4</Radio>
                             </RadioGroup>
                         )}
                     </Form.Item>
-                    <Form.Item {...formItemLayout} label="Pypi源">
+                }
+                {
+                    (languageType == "Gradle" || languageType == "gradle" || languageType == "java-gradle" || languageType == "Java-gradle" || languageType == "JAVAGradle") &&
+                    <div>
+
+                        <Form.Item {...formItemLayout} label="选择JDK版本">
+                            {getFieldDecorator('RUNTIMES', {
+                                initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
+                                    <Radio value='OpenJDK'>OpenJDK</Radio>
+                                    <Radio value='Jdk'>OracleJDK</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
+
+
+                        {JDKType == "OpenJDK" && <Form.Item {...formItemLayout} label="OpenJDK版本">
+                            {getFieldDecorator('BUILD_RUNTIMES', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "1.8",
+                            })(
+                                <RadioGroup >
+                                    <Radio value='1.8'>1.8(默认)</Radio>
+                                    <Radio value='1.6'>1.6</Radio>
+                                    <Radio value='1.7'>1.7</Radio>
+                                    <Radio value='1.9'>1.9</Radio>
+                                    <Radio value='10'>10</Radio>
+                                    <Radio value='11'>11</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>}
+
+                        {JDKType == "Jdk" && <Form.Item {...formItemLayout} label="启用OracleJDK">
+                            {getFieldDecorator('BUILD_ENABLE_ORACLEJDK', {
+                                initialValue: "",
+                            })(<div>
+                                <Radio onClick={() => { this.handleRadio("BUILD_ENABLE_ORACLEJDK") }} checked={this.state.BUILD_ENABLE_ORACLEJDK} >启用</Radio>
+                                <div>ORACLEJDK下载路径</div>
+                                <Form.Item {...formItemLayout} label="">
+                                    {getFieldDecorator('BUILD_ORACLEJDK_URL', {
+                                        initialValue: runtimeInfo && runtimeInfo.BUILD_ORACLEJDK_URL || "",
+                                    })(
+                                        <Input placeholder="" disabled={this.state.BUILD_ENABLE_ORACLEJDK ? false : true}></Input>
+                                    )}
+                                </Form.Item>
+                            </div>
+                            )}
+                        </Form.Item>}
+                    </div>
+                }
+                {
+                    (languageType == "python" || languageType == "Python") &&
+
+                    <div>
+
+                        <Form.Item {...formItemLayout} label="Python支持">
+                            {getFieldDecorator('BUILD_RUNTIMES', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "python-3.6.6",
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled}>
+                                    <Radio value="python-3.6.6" selected="selected">python-3.6.6</Radio>
+                                    <Radio value="python-3.6.1">python-3.6.1</Radio>
+                                    <Radio value="python-3.6.2">python-3.6.2</Radio>
+                                    <Radio value="python-3.6.3">python-3.6.3</Radio>
+                                    <Radio value="python-3.6.4">python-3.6.4</Radio>
+                                    <Radio value="python-3.6.5">python-3.6.5</Radio>
+                                    <Radio value="python-2.7.9">python-2.7.9</Radio>
+                                    <Radio value="python-2.7.10">python-2.7.10</Radio>
+                                    <Radio value="python-2.7.13">python-2.7.13</Radio>
+                                    <Radio value="python-2.7.14 ">python-2.7.14</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
+                        <Form.Item {...formItemLayout} label="Pypi源">
                             {getFieldDecorator('BUILD_PIP_INDEX_URL', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_PIP_INDEX_URL || "https://pypi.tuna.tsinghua.edu.cn/simple"
                             })(
@@ -886,7 +921,7 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>
 
-                    <Form.Item {...formItemLayout} label="开启清除构建缓存">
+                        <Form.Item {...formItemLayout} label="开启清除构建缓存">
                             {getFieldDecorator('NO_CACHE', {
                                 initialValue: ""
                             })(
@@ -895,11 +930,11 @@ class JAVA extends PureComponent {
                         </Form.Item>
 
                     </div>
-                    }
-{
-                    (languageType == "php" || languageType == "PHP") && 
+                }
+                {
+                    (languageType == "php" || languageType == "PHP") &&
                     <div>
-                             <Form.Item {...formItemLayout} label="web服务器支持">
+                        <Form.Item {...formItemLayout} label="web服务器支持">
                             {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER || "apache",
                             })(
@@ -910,19 +945,19 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>
 
-                    <Form.Item {...formItemLayout} label="PHP版本">
-                        {getFieldDecorator('BUILD_RUNTIMES', {
-                            initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "5.6.35",
-                        })(
-                            <RadioGroup className={styles.ant_radio_disabled}>
-                                <Radio value="5.6.35" selected="selected">5.6.35(默认)</Radio>
-                                <Radio value="5.5.38">5.5.38</Radio>
-                                <Radio value="7.0.29">7.0.29</Radio>
-                                <Radio value="7.1.16">7.1.16</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
-                    {/* <Form.Item {...formItemLayout} label="HHVM版本">
+                        <Form.Item {...formItemLayout} label="PHP版本">
+                            {getFieldDecorator('BUILD_RUNTIMES', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "5.6.35",
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled}>
+                                    <Radio value="5.6.35" selected="selected">5.6.35(默认)</Radio>
+                                    <Radio value="5.5.38">5.5.38</Radio>
+                                    <Radio value="7.0.29">7.0.29</Radio>
+                                    <Radio value="7.1.16">7.1.16</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
+                        {/* <Form.Item {...formItemLayout} label="HHVM版本">
                         {getFieldDecorator('BUILD_RUNTIMES_HHVM', {
                             initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_HHVM || "3.5.1",
                         })(
@@ -931,7 +966,7 @@ class JAVA extends PureComponent {
                             </RadioGroup>
                         )}
                     </Form.Item> */}
-                    <Form.Item {...formItemLayout} label="开启清除构建缓存">
+                        <Form.Item {...formItemLayout} label="开启清除构建缓存">
                             {getFieldDecorator('NO_CACHE', {
                                 initialValue: ""
                             })(
@@ -940,9 +975,9 @@ class JAVA extends PureComponent {
                         </Form.Item>
 
                     </div>
-                    }
-{
-                    ( languageType == "nodejsstatic" || languageType == "static") && <Form.Item {...formItemLayout} label="web服务器支持">
+                }
+                {
+                    (languageType == "nodejsstatic" || languageType == "static") && <Form.Item {...formItemLayout} label="web服务器支持">
                         {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
                             initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER || "nginx",
                         })(
@@ -953,27 +988,27 @@ class JAVA extends PureComponent {
                         )}
                     </Form.Item>
                 }
-{
-                    (languageType == "nodejs" || languageType == "Node" || languageType == "node") && 
+                {
+                    (languageType == "nodejs" || languageType == "Node" || languageType == "node") &&
                     <div>
-                    <Form.Item {...formItemLayout} label="Node版本">
-                        {getFieldDecorator('BUILD_RUNTIMES', {
-                            initialValue: runtimeInfo && runtimeInfo.Node || "8.12.0",
-                        })(
-                            <RadioGroup className={styles.ant_radio_disabled}>
-                                <Radio value="8.12.0" selected="selected">8.12.0(默认)</Radio>
-                                <Radio value="4.9.1">4.9.1</Radio>
-                                <Radio value="5.12.0">5.12.0</Radio>
-                                <Radio value="6.14.4">6.14.4</Radio>
-                                <Radio value="7.10.1">7.10.1</Radio>
-                                <Radio value="9.11.2">9.11.2</Radio>
-                                <Radio value="10.13.0">10.13.0</Radio>
-                                <Radio value="11.1.0">11.1.0</Radio>
-                            </RadioGroup>
-                        )}
-                    </Form.Item>
+                        <Form.Item {...formItemLayout} label="Node版本">
+                            {getFieldDecorator('BUILD_RUNTIMES', {
+                                initialValue: runtimeInfo && runtimeInfo.Node || "8.12.0",
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled}>
+                                    <Radio value="8.12.0" selected="selected">8.12.0(默认)</Radio>
+                                    <Radio value="4.9.1">4.9.1</Radio>
+                                    <Radio value="5.12.0">5.12.0</Radio>
+                                    <Radio value="6.14.4">6.14.4</Radio>
+                                    <Radio value="7.10.1">7.10.1</Radio>
+                                    <Radio value="9.11.2">9.11.2</Radio>
+                                    <Radio value="10.13.0">10.13.0</Radio>
+                                    <Radio value="11.1.0">11.1.0</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
 
-                    <Form.Item {...formItemLayout} label="开启清除构建缓存">
+                        <Form.Item {...formItemLayout} label="开启清除构建缓存">
                             {getFieldDecorator('NO_CACHE', {
                                 initialValue: ""
                             })(
@@ -995,36 +1030,47 @@ class JAVA extends PureComponent {
 
 
                     </div>
-                    
-                    }
 
-{
-    (languageType == "NetCore" || languageType == "netCore" || languageType == "netcore") && 
-    <div>
-    <Form.Item {...formItemLayout} label="编译环境版本">
-        {getFieldDecorator('BUILD_DOTNET_SDK_VERSION', {
-            initialValue: runtimeInfo && runtimeInfo.BUILD_DOTNET_SDK_VERSION || "2.2-sdk-alpine",
-        })(
-            <RadioGroup className={styles.ant_radio_disabled}>
-                <Radio value="2.2-sdk-alpine" selected="selected">2.2-sdk-alpine(默认)</Radio>
-                <Radio value="2.1-sdk">2.1-sdk</Radio>
-            </RadioGroup>
-        )}
-    </Form.Item>
-    <Form.Item {...formItemLayout} label="运行环境版本">
-            {getFieldDecorator('BUILD_DOTNET_RUNTIME_VERSION', {
-                initialValue: runtimeInfo && runtimeInfo.BUILD_DOTNET_RUNTIME_VERSION || "2.2-aspnetcore-runtime",
-            })(
-                <RadioGroup className={styles.ant_radio_disabled}>
-                <Radio value="2.2-aspnetcore-runtime" selected="selected">2.2-aspnetcore-runtime(默认)</Radio>
-                <Radio value="2.1-aspnetcore-runtime">2.1-aspnetcore-runtime</Radio>
-                <Radio value="3.0-aspnetcore-runtime">3.0-aspnetcore-runtime</Radio>
-            </RadioGroup>
-            )}
-        </Form.Item>
-    </div>
-    
-    }
+                }
+
+                {
+                    (languageType == "NetCore" || languageType == "netCore" || languageType == "netcore") &&
+                    <div>
+                        <Form.Item {...formItemLayout} label="编译环境版本">
+                            {getFieldDecorator('BUILD_DOTNET_SDK_VERSION', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_DOTNET_SDK_VERSION || "2.2-sdk-alpine",
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled}>
+                                    <Radio value="2.2-sdk-alpine" selected="selected">2.2-sdk-alpine(默认)</Radio>
+                                    <Radio value="2.1-sdk">2.1-sdk</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
+                        <Form.Item {...formItemLayout} label="运行环境版本">
+                            {getFieldDecorator('BUILD_DOTNET_RUNTIME_VERSION', {
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_DOTNET_RUNTIME_VERSION || "2.2-aspnetcore-runtime",
+                            })(
+                                <RadioGroup className={styles.ant_radio_disabled}>
+                                    <Radio value="2.2-aspnetcore-runtime" selected="selected">2.2-aspnetcore-runtime(默认)</Radio>
+                                    <Radio value="2.1-aspnetcore-runtime">2.1-aspnetcore-runtime</Radio>
+                                    <Radio value="3.0-aspnetcore-runtime">3.0-aspnetcore-runtime</Radio>
+                                </RadioGroup>
+                            )}
+                        </Form.Item>
+                    </div>
+
+                }
+
+                {
+
+                    languageType == "dockerfile" && <div>
+                        <Form.Item {...formItemLayout} label="dockerfile版本">
+                            {getFieldDecorator("set_dockerfile", { initialValue:"" })(<Dockerinput onChange={(value)=>{this.onSetArr(value)}} editInfo={arr} />)}
+                        </Form.Item>
+                    </div>
+                }
+
+
 
                 <Row>
                     <Col span="5"></Col>

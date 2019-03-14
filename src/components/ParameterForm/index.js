@@ -74,7 +74,7 @@ class ParameterForm extends PureComponent {
                 sm: { span: 16 }
             }
         };
-        const {editInfo}=this.props
+        const { editInfo } = this.props
 
         return (
             <div>
@@ -83,7 +83,7 @@ class ParameterForm extends PureComponent {
                     placement="right"
                     width={500}
                     closable={false}
-                    // onClose={onClose}
+                    onClose={this.props.onClose}
                     visible={this.props.visible}
                     maskClosable={true}
                     closable={true}
@@ -104,9 +104,9 @@ class ParameterForm extends PureComponent {
                                         message: "请输入超时时间",
                                     }
                                 ],
-                                initialValue: editInfo?editInfo.proxy_connect_timeout:"60"
+                                initialValue: editInfo ? editInfo.proxy_connect_timeout : "60"
                             })(
-                                <InputNumber formatter={value => `${value}S`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                    <Input addonAfter={"S"}  />
                             )}
                         </FormItem>
 
@@ -123,9 +123,9 @@ class ParameterForm extends PureComponent {
                                         message: "请添加域名",
                                     }
                                 ],
-                                initialValue: editInfo?editInfo.proxy_send_timeout:"60"
+                                initialValue: editInfo ? editInfo.proxy_send_timeout : "60"
                             })(
-                                <InputNumber formatter={value => `${value}S`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                <Input addonAfter={"S"}  />
                             )}
                         </FormItem>
 
@@ -141,9 +141,9 @@ class ParameterForm extends PureComponent {
                                         message: "请添加域名",
                                     }
                                 ],
-                                initialValue:editInfo?editInfo.proxy_read_timeout: "60"
+                                initialValue: editInfo ? editInfo.proxy_read_timeout : "60"
                             })(
-                                <InputNumber formatter={value => `${value}S`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                <Input addonAfter={"S"}  />
                             )}
                         </FormItem>
 
@@ -159,9 +159,9 @@ class ParameterForm extends PureComponent {
                                         message: "请添加域名",
                                     }
                                 ],
-                                initialValue:editInfo?editInfo.proxy_body_size: "1"
+                                initialValue: editInfo ? editInfo.proxy_body_size : "1"
                             })(
-                                <InputNumber formatter={value => `${value}S`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                <Input addonAfter={"S"}  />
                             )}
                         </FormItem>
 
@@ -178,9 +178,9 @@ class ParameterForm extends PureComponent {
                                         message: "请添加域名",
                                     }
                                 ],
-                                initialValue:editInfo?editInfo.proxy_buffers_number: "4"
+                                initialValue: editInfo ? editInfo.proxy_buffers_number : "4"
                             })(
-                                <InputNumber formatter={value => `${value}`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                <InputNumber  placeholder="请输入域名" style={{ width: "100%" }} />
                             )}
                         </FormItem>
 
@@ -199,9 +199,9 @@ class ParameterForm extends PureComponent {
                                         message: "请添加域名",
                                     }
                                 ],
-                                initialValue: editInfo?editInfo.proxy_buffer_size:"1"
+                                initialValue: editInfo ? editInfo.proxy_buffer_size : "1"
                             })(
-                                <InputNumber formatter={value => `${value}k`} placeholder="请输入域名" style={{ width: "100%" }} />
+                                <Input addonAfter={"K"}  />
                             )}
                         </FormItem>
 
@@ -214,10 +214,10 @@ class ParameterForm extends PureComponent {
                                 rules: [
                                     {
                                         required: true,
-                                        message: "请添加域名",
+                                        message: "是否开启响应缓存",
                                     }
                                 ],
-                                initialValue:editInfo?editInfo.proxy_buffering: ""
+                                initialValue: editInfo ? editInfo.proxy_buffering : ""
                             })(
                                 <Checkbox onChange={this.onChange}></Checkbox>
                             )}
@@ -227,7 +227,7 @@ class ParameterForm extends PureComponent {
                             {...formItemLayout}
                             label="自定义请求头"
                         >
-                            {getFieldDecorator("set_headers", { initialValue:editInfo?editInfo.set_headers: "" })(<Parameterinput editInfo={editInfo}/>)}
+                            {getFieldDecorator("set_headers", { initialValue: editInfo ? editInfo.set_headers : "" })(<Parameterinput editInfo={ editInfo ? editInfo.set_headers : ""} />)}
                         </FormItem>
                     </Form>
                     <div
@@ -248,7 +248,7 @@ class ParameterForm extends PureComponent {
                             style={{
                                 marginRight: 8,
                             }}
-                        onClick={this.props.onClose}
+                            onClick={this.props.onClose}
                         >
                             取消
                         </Button>

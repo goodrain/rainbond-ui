@@ -239,6 +239,7 @@ export default class Index extends PureComponent {
                 <div>
                     <a style={{ marginRight: "5px" }} onClick={() => { this.openDeleteVar(ep_id) }}>删除</a>
                     <a onClick={() => { this.handleModify(status) }}>{status.is_online ? "下线" : "上线"}</a>
+                    <a onClick={() => { this.handleGetList() }}>刷新</a>
                 </div>
             )
         }];
