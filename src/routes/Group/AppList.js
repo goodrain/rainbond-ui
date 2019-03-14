@@ -96,8 +96,6 @@ shouldComponentUpdate(){
     });
   };
   onSelectChange = (selectedRowKeys, selectedRow) => {
-    console.log("selectedRowKeys",selectedRowKeys)
-    console.log("selectedRow",selectedRow)
     this.setState({
       selectedRowKeys
     });

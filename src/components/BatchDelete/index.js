@@ -25,6 +25,7 @@ export default class MoveGroup extends PureComponent {
   handleDelete = () => {
     this.setState({ confirm: true });
     let ids = this.props.batchDeleteApps.map(item => {
+
       return item.service_id;
     });
     batchDelete({
@@ -32,11 +33,12 @@ export default class MoveGroup extends PureComponent {
       serviceIds: ids.join(",")
     }).then(data => {
       if (data) {
-        console.log("apps",data.list )
         this.setState({ apps: data.list });
       }
     });
   };
+
+
   reDelete = service_id => {
     reDelete({
       team_name: globalUtil.getCurrTeamName(),
@@ -104,9 +106,10 @@ export default class MoveGroup extends PureComponent {
           />
         ) : (
           <div style={{ textAlign: "center" }}>
-            <p>即将删除以下应用：</p>
+            <p>{this.state.apps&&this.state.apps.length&&this.state.apps[0]!=undefined?"即将删除以下应用":"请刷新数据后删除"}</p>
             <Row>
               {this.state.apps.map(item => {
+                if(item==undefined)return null
                 return (
                   <Col
                     span={8}
@@ -118,9 +121,9 @@ export default class MoveGroup extends PureComponent {
                 );
               })}
             </Row>
-            <Button type="primary" onClick={this.handleDelete}>
+           { this.state.apps&&this.state.apps.length&&this.state.apps[0]!=undefined?<Button type="primary" onClick={this.handleDelete}>
               确实批量删除
-            </Button>
+            </Button>:""}
           </div>
         )}
       </Modal>
