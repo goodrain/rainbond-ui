@@ -11,8 +11,6 @@ if (process.env.NODE_ENV === "dev") {
   // baseUrl = "http://39.104.78.149:7070";
   baseUrl = "http://39.104.24.43:7070";
 
-  
- 
 } else if (process.env.NODE_ENV === "production") {
   baseUrl = "";
 }
