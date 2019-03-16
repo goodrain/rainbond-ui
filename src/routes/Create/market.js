@@ -532,6 +532,7 @@ export default class Main extends PureComponent {
           )}
         </div> :
 
+
           <PageHeaderLayout
             content={mainSearch}
             tabList={tabList}
