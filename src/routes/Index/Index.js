@@ -162,6 +162,7 @@ export default class Index extends PureComponent {
             },
             callback: (res) => {
                 if (res._code == 200) {
+                    // console.log("Res",res)
                     const visitDatas = res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values;
                     let arr = [];
                     if (visitDatas && visitDatas.length > 0) {
@@ -454,7 +455,12 @@ export default class Index extends PureComponent {
                 key: 'metric',
                 width: "70%",
                 render: (text, record) => <Tooltip title={record.metric.host}>
-                    <a href={`http://${record.metric.host}`} target="_blank">{record.metric.host}</a>
+                    <a style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word",
+                        display: "inline-block",
+                        minHeight: "35px"
+                    }} href={`http://${record.metric.host}`} target="_blank">{record.metric.host}</a>
                 </Tooltip>,
             },
             {
@@ -465,7 +471,13 @@ export default class Index extends PureComponent {
                 sorter: (a, b) => a.range - b.range,
                 render: (text, record) => (
                     // <Trend flag={record.status === 1 ? 'down' : 'up'}>
-                    <span style={{ marginRight: 4 }}>{record.value[1]}</span>
+                    <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word", 
+                        marginRight: 4,
+                        display: "inline-block",
+                        minHeight: "35px"
+                    }}>{record.value[1]}</span>
                     // </Trend>
                 ),
                 align: 'right',
@@ -481,11 +493,13 @@ export default class Index extends PureComponent {
                 key: 'metric',
                 width: "70%",
                 render: (text, record) => <Tooltip title={record.metric.service_cname}>
-                    <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.metric.service_alias}`} style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                    }}>
-                        {record.metric.service_cname}
+                    <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.metric.service_alias}`} >
+                        <a style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word",
+                            display: "inline-block",
+                            minHeight: "35px",
+                        }}>{record.metric.service_cname} </a>
                     </Link>
 
                 </Tooltip>,
@@ -498,7 +512,12 @@ export default class Index extends PureComponent {
                 sorter: (a, b) => a.range - b.range,
                 render: (text, record) => (
                     // <Trend flag={record.status === 1 ? 'down' : 'up'}>
-                    <span style={{ marginRight: 4 }}>{record.value[1]}</span>
+                    <span style={{ 
+                    display: "inline-block",
+                    marginRight: 4, 
+                    wordBreak: "break-all",
+                    wordWrap: "break-word",
+                    minHeight: "35px" }}>{record.value[1]}</span>
                     // </Trend>
                 ),
                 align: 'right',
@@ -580,7 +599,8 @@ export default class Index extends PureComponent {
                 span: 19,
             },
         };
-        const { teamList, total, domainList, serviceList } = this.state;
+        const { teamList, visitData, domainList, serviceList } = this.state;
+
         return (
 
             <div style={{ margin: '-24px -24px 0' }} >
@@ -603,7 +623,7 @@ export default class Index extends PureComponent {
                                         <span>团队应用</span>
                                         <a style={{ fontSize: "14px", fontWeight: 400 }} onClick={() => { this.setState({ addApplication: true }) }}>增加应用</a>
                                     </div>
-                                } 
+                                }
                                 bordered={false}
                                 bodyStyle={{
                                     padding: 0,
@@ -671,6 +691,7 @@ export default class Index extends PureComponent {
                                 bodyStyle={{
                                     padding: 0,
                                     height: 410,
+                                    overflow:"auto"
                                 }}
                                 bordered={false}
                                 className={styles.activeCard}
@@ -688,6 +709,7 @@ export default class Index extends PureComponent {
                                     marginBottom: 10,
                                     border: "none",
                                     height: "562px",
+                                    overflow: "auto"
                                 }}
                                 title="热门访问域名"
                                 bordered={false}
@@ -770,7 +792,7 @@ export default class Index extends PureComponent {
                                             subTotal={17.1}
                                         /> */}
                                         <Table
-                                            style={{ marginTop: "10px" }}
+                                            style={{ marginTop: "-20px", height: "390px", overflow: "auto" }}
                                             rowKey={record => record.index}
                                             size="small"
                                             columns={columnTwo}

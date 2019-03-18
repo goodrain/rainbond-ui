@@ -445,6 +445,7 @@ export default class Index extends React.Component {
                                             onClick={() => {
                                                 this.handleStartProbeStart(false);
                                             }}
+                                           style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
                                             href="javascript:;"
                                         >
                                             禁用
@@ -454,6 +455,7 @@ export default class Index extends React.Component {
                                             onClick={() => {
                                                 this.handleStartProbeStart(true);
                                             }}
+                                            style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
                                             href="javascript:;"
                                         >
                                             启用

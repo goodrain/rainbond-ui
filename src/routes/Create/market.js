@@ -3,7 +3,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input, Modal, Button, Tooltip, Radio,Select,Tag } from "antd";
+import { Card, Form, List, Input, Modal, Button, Tooltip, Radio, Select, Tag } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -15,7 +15,7 @@ import GoodrainRZ from "../../components/GoodrainRenzheng";
 const Option = Select.Option;
 
 @connect(
-  ({ global, loading,appControl }) => ({
+  ({ global, loading, appControl }) => ({
     rainbondInfo: global.rainbondInfo,
     loading,
     appDetail: appControl.appDetail,
@@ -41,7 +41,7 @@ export default class Main extends PureComponent {
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
-      group_version:"",
+      group_version: "",
       installBounced: false,
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
@@ -123,44 +123,51 @@ export default class Main extends PureComponent {
     if (handleType) {
       this.setState({ installBounced: app });
     } else {
-    console.log("app",app)
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = () => {
-    const { installBounced, is_deploy } = this.state;
-    this.props.dispatch({
-      type: "createApp/installApp",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.props.groupId ? this.props.groupId : 0,
-        app_id: installBounced.ID,
-        is_deploy
-      },
-      callback: () => {
-        // 刷新左侧按钮
-        this.props.dispatch({
-          type: "global/fetchGroups",
-          payload: {
-            team_name: globalUtil.getCurrTeamName()
-          }
-        });
+  handleInstallBounced = (e) => {
 
-        // 关闭弹框
-        this.setState({ installBounced: false, is_deploy: true });
-        this.state.handleType && this.props.refreshCurrent()
-        this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-            this.props.groupId ? this.props.groupId : 0
-            }`
-          )
-        );
-      }
+    e.preventDefault();
+    const form = this.props.form;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      const { installBounced, is_deploy } = this.state;
+      this.props.dispatch({
+        type: "createApp/installApp",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          group_id: this.props.groupId ? this.props.groupId : 0,
+          app_id: installBounced.ID,
+          is_deploy,
+          group_key: installBounced.group_key,
+          group_version: fieldsValue.group_version,
+        },
+        callback: () => {
+          // 刷新左侧按钮
+          this.props.dispatch({
+            type: "global/fetchGroups",
+            payload: {
+              team_name: globalUtil.getCurrTeamName()
+            }
+          });
+
+          // 关闭弹框
+          this.setState({ installBounced: false, is_deploy: true });
+          this.state.handleType && this.props.refreshCurrent()
+          this.props.dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              this.props.groupId ? this.props.groupId : 0
+              }`
+            )
+          );
+        }
+      });
     });
   }
   handleCreate = (vals, is_deploy) => {
-    const {group_version}=this.state;
+    const { group_version } = this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
       type: "createApp/installApp",
@@ -227,7 +234,7 @@ export default class Main extends PureComponent {
           maxWidth: "200px",
           overflow: "hidden",
           whiteSpace: "nowrap",
-          textOverflow:"ellipsis"
+          textOverflow: "ellipsis"
         }}
         onClick={() => {
           this.showMarketAppDetail(item);
@@ -249,112 +256,124 @@ export default class Main extends PureComponent {
         {item.is_official && (
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
-        {handleType?
-        <Card
-          className={PluginStyles.card}
-          actions={[
-            <div onClick={() => {
-              this.showCreate(item);
-            }}>
-              <div className={PluginStyles.cardTitle}> 
-              <span title={item.group_name}>{item.group_name}</span>
-              <span>安装</span>
+        {handleType ?
+          <Card
+            className={PluginStyles.card}
+            actions={[
+              <div onClick={() => {
+                this.showCreate(item);
+              }}>
+                <div className={PluginStyles.cardTitle}>
+                  <span title={item.group_name}>{item.group_name}</span>
+                  <span>安装</span>
+                </div>
+                <div title={item.version}> <span>版本:&nbsp;</span>
+                  {
+                    item.group_version_list && item.group_version_list.map((item, index) => {
+                      return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
+                    })}
+                </div>
               </div>
-              <div className={PluginStyles.cardVersion} title={item.version}>版本:{item.version}</div>
-              </div>
-          ]}
-        >
-          <Card.Meta
-            style={{ height:80, overflow: "hidden",display:"flex",justifyContent:"center",cursor:"pointer" }}
-            className={PluginStyles.CardMeta}
-            avatar={
-              <img
-                style={{ width: 80, height:80, margin: "auto" }}
-                alt={item.title}
-                src={item.pic || require("../../../public/images/app_icon.jpg")}
-               
-              />
-            }
-            onClick={() => {
-              this.showMarketAppDetail(item);
-            }}
-            title=""
-            description={""}
-          />
-        </Card>:
-         <Card
-         className={PluginStyles.card}
-         actions={[
-             <span onClick={() => {
-             this.showCreate(item);
-           }}>安装</span>
-         ]}
-       >
-         <Card.Meta
-           style={{ height: 112, overflow: "auto" }}
-           avatar={
-             <img
-               style={{ width: 110, height: 110, margin: " 0 auto" }}
-               alt={item.title}
-               src={item.pic || require("../../../public/images/app_icon.jpg")}
-               height={154}
-               onClick={() => {
-                 this.showMarketAppDetail(item);
-               }}
-             />
-           }
+            ]}
+          >
+            <Card.Meta
+              style={{ height: 80, overflow: "hidden", display: "flex", justifyContent: "center", cursor: "pointer" }}
+              className={PluginStyles.CardMeta}
+              avatar={
+                <img
+                  style={{ width: 80, height: 80, margin: "auto" }}
+                  alt={item.title}
+                  src={item.pic || require("../../../public/images/app_icon.jpg")}
 
-           title={title(item)}
-           description={
-             <Fragment>
-               <span
-                 style={{
-                   display: "block",
-                   color: "rgb(200, 200, 200)",
-                   marginBottom: 2,
-                   fontSize: 12
-                 }}
-               >
-                <div style={{lineHeight:"18px",display:"flex",alignItems:"center",marginBottom:"5px",flexWrap:"wrap"}}>
-                    {/* 版本：<Select defaultValue={item.group_version_list && item.group_version_list[0]}
+                />
+              }
+              onClick={() => {
+                this.showMarketAppDetail(item);
+              }}
+              title=""
+              description={""}
+            />
+          </Card> :
+          <Card
+            className={PluginStyles.card}
+            actions={[
+              <span onClick={() => {
+                this.showCreate(item);
+              }}>安装</span>
+            ]}
+          >
+            <Card.Meta
+              style={{ height: 112, overflow: "auto" }}
+              avatar={
+                <img
+                  style={{ width: 110, height: 110, margin: " 0 auto" }}
+                  alt={item.title}
+                  src={item.pic || require("../../../public/images/app_icon.jpg")}
+                  height={154}
+                  onClick={() => {
+                    this.showMarketAppDetail(item);
+                  }}
+                />
+              }
+
+              title={title(item)}
+              description={
+                <Fragment>
+                  <span
+                    style={{
+                      display: "block",
+                      color: "rgb(200, 200, 200)",
+                      marginBottom: 2,
+                      fontSize: 12
+                    }}
+                  >
+                    <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}>
+                      {/* 版本：<Select defaultValue={item.group_version_list && item.group_version_list[0]}
                       onChange={this.handleChangeVersion}
                       size="small">
                       {item.group_version_list && item.group_version_list.map((item, index) => {
                         return <Option key={index} value={item}>{item}</Option>
                       })}
                     </Select> */}
-                       <span>版本:&nbsp;</span> 
-                            {
-                            item.group_version_list &&item.group_version_list.map((item, index) => {
-                              return <Tag style={{ height: "17px", lineHeight: "16px",marginBottom:"3px" }} color="green" size="small" key={index}> {item}</Tag>
-                            })}
-                  </div>
+                      <span>版本:&nbsp;</span>
+                      {
+                        item.group_version_list && item.group_version_list.map((item, index) => {
+                          return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
+                        })}
+                    </div>
 
-                 内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
-               </span>
-               <Ellipsis className={PluginStyles.item} lines={3}>
-                 <span title={item.describe}>{item.describe}</span>
-               </Ellipsis>
-             </Fragment>
-           }
-         />
-       </Card>
-      }
+                    内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
+                  </span>
+                  <Ellipsis className={PluginStyles.item} lines={3}>
+                    <span title={item.describe}>{item.describe}</span>
+                  </Ellipsis>
+                </Fragment>
+              }
+            />
+          </Card>
+        }
       </Fragment>
     );
   };
 
   handleChangeVersion = (value) => {
     this.setState({
-      group_version:value
+      group_version: value
     })
   }
 
   render() {
-    const { form,appDetail } = this.props;
+    const { form, appDetail } = this.props;
     const { getFieldDecorator } = form;
     const { handleType, moreState, installBounced, list } = this.state;
-    const formItemLayout = {};
+    const formItemLayout = {
+      labelCol: {
+        span: 5,
+      },
+      wrapperCol: {
+        span: 19,
+      },
+    };
     const paginationProps = {
       current: this.state.moreState ? 1 : this.state.page,
       pageSize: this.state.moreState ? 3 : this.state.pageSize,
@@ -462,7 +481,7 @@ export default class Main extends PureComponent {
             footer={
               <div>
                 <Button onClick={() => { this.setState({ installBounced: false, is_deploy: true }) }}>取消</Button>
-                <Button onClick={this.handleInstallBounced} type="primary" style={{marginRight:"5px"}} loading={loading.effects["createApp/installApp"]}>
+                <Button onClick={this.handleInstallBounced} type="primary" style={{ marginRight: "5px" }} loading={loading.effects["createApp/installApp"]}>
                   安装
                 </Button>
                 {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
@@ -472,6 +491,29 @@ export default class Main extends PureComponent {
             }
           >
             <p>{installBounced.describe}</p>
+            <Form onSubmit={this.handleInstallBounced} layout="horizontal" hideRequiredMark>
+              <Form.Item {...formItemLayout} label="安装版本">
+                {getFieldDecorator('group_version', {
+                  initialValue: installBounced && installBounced.group_version_list && installBounced.group_version_list[0],
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择版本',
+                    },
+                  ],
+                })(
+
+                  <Select
+                    onChange={this.handleChangeVersion}
+                    style={{ width: "220px" }}
+                  >
+                    {this.state.installBounced && this.state.installBounced.group_version_list && this.state.installBounced.group_version_list.map((item, index) => {
+                      return <Option key={index} value={item}>{item}</Option>
+                    })}
+                  </Select>
+                )}
+              </Form.Item>
+            </Form>
           </Modal>}
           {this.state.showCreate && (
             <CreateAppFromMarketForm
@@ -490,6 +532,7 @@ export default class Main extends PureComponent {
           )}
         </div> :
 
+
           <PageHeaderLayout
             content={mainSearch}
             tabList={tabList}
@@ -502,7 +545,7 @@ export default class Main extends PureComponent {
                 disabled={loading.effects["createApp/installApp"]}
                 onSubmit={this.handleCreate}
                 onCancel={this.onCancelCreate}
-              showCreate={this.state.showCreate}
+                showCreate={this.state.showCreate}
               />
             )}
             {this.state.showMarketAppDetail && (
