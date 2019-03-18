@@ -59,7 +59,7 @@ export default class AddVarModal extends PureComponent {
           <FormItem {...formItemLayout} label="说明">
             {getFieldDecorator("name", {
               initialValue: data.name || "",
-              rules: [{ required: true, message: "请输入变量说明" }],
+              rules: [{ required: false, message: "请输入变量说明" }],
             })(<Input placeholder="请输入变量说明" />)}
           </FormItem>
         </Form>
