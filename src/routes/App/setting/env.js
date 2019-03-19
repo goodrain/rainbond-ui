@@ -38,7 +38,7 @@ export default class AddVarModal extends PureComponent {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.props.onSubmit && this.props.onSubmit(values);
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        notification.success({ message: "操作成功" });
         this.props.isShowRestartTips(true);
       }
     });

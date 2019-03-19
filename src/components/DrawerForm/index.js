@@ -41,7 +41,8 @@ class DrawerForm extends PureComponent {
             service_id: "",
             group_name: "",
             descriptionVisible: false,
-            rule_extensions_visible: false
+            rule_extensions_visible: false,
+            isPerform: true
         }
     }
     componentWillMount() {
@@ -59,8 +60,8 @@ class DrawerForm extends PureComponent {
             }
         })
         if (editInfo) {
-            this.handleServices(editInfo.g_id)
-            this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
+            this.handleServices( editInfo.g_id)
+            // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
         }
     }
     handleOk = (e) => {
@@ -75,13 +76,14 @@ class DrawerForm extends PureComponent {
     }
     /**获取服务组件 */
     handleServices = (group_id) => {
-        const { dispatch } = this.props;
+        const { isPerform } = this.state
+        const { dispatch, editInfo } = this.props;
         const team_name = globalUtil.getCurrTeamName();
         /**获取对应的group_name */
         const group_obj = this.props.groups.filter((item) => {
             return item.group_id == group_id
         })
-        if(group_obj&&group_obj.length>0){
+        if (group_obj && group_obj.length > 0) {
             this.setState({ group_name: group_obj[0].group_name })
         }
         dispatch({
@@ -91,10 +93,15 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list },()=>{
-                    if(data.list&&data.list.length>0){
-                        this.handlePorts(data.list[0].service_id);
-                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                this.setState({ serviceComponentList: data.list }, () => {
+                    if (data.list && data.list.length > 0) {
+                        if (isPerform && editInfo) {
+                            this.handlePorts(editInfo.service_id, true);
+                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                        } else {
+                            this.handlePorts(data.list[0].service_id, false);
+                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                        }
                     }
                 })
             }
@@ -102,7 +109,8 @@ class DrawerForm extends PureComponent {
     }
     /**获取端口 */
     handlePorts = (service_id) => {
-        const { dispatch } = this.props;
+        const { dispatch, editInfo } = this.props;
+        const { isPerform } = this.state
         const team_name = globalUtil.getCurrTeamName();
         const service_obj = this.state.serviceComponentList.filter((item) => {
             return item.service_id == service_id
@@ -110,13 +118,20 @@ class DrawerForm extends PureComponent {
         dispatch({
             type: "appControl/fetchPorts",
             payload: {
-                app_alias: service_obj[0].service_alias,
+                app_alias: service_obj && service_obj.length > 0 && service_obj[0].service_alias && service_obj[0].service_alias,
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list },()=>{
-                    if(data.list&&data.list.length>0){
-                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                this.setState({ portList: data.list }, () => {
+                    if (data.list && data.list.length > 0) {
+                        if (isPerform && editInfo) {
+                            this.setState({
+                                isPerform: false
+                            })
+                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                        } else {
+                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                        }
                     }
                 })
             }
@@ -240,7 +255,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
                                 <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
-                                {this.state.licenseList&&this.state.licenseList.length>0&&<Option value={""} key={99}>不绑定</Option>}
+                                    {this.state.licenseList && this.state.licenseList.length > 0 && <Option value={""} key={99}>不绑定</Option>}
                                     {
                                         (this.state.licenseList).map((license, index) => {
                                             return <Option value={license.id} key={index}>{license.alias}</Option>
@@ -255,11 +270,11 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
-                            style={{ zIndex: 999}}
+                            style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo&&editInfo.g_id.toString()||undefined,
+                                initialValue: editInfo && editInfo.g_id.toString() || undefined,
                             })(
                                 <Select placeholder="请选择要所属应用组" onChange={this.handleServices}>
                                     {
@@ -277,7 +292,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
+                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : "",
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts} >
                                     {
@@ -295,7 +310,7 @@ class DrawerForm extends PureComponent {
                             style={{ zIndex: 999 }}
                         >
                             {getFieldDecorator('container_port', {
-                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
+                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : "",
                                 rules: [{ required: true, message: '请选择端口号' }],
                             })(
                                 <Select placeholder="请选择端口号">
@@ -321,7 +336,7 @@ class DrawerForm extends PureComponent {
                                 </Checkbox.Group>
                             )}
                             <FormItem>
-                                {getFieldDecorator("rule_extensions_round", { initialValue: rule_round||'round-robin' })(
+                                {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
                                     <Select placeholder="请选择负载均衡类型">
                                         <Option value="round-robin">轮询</Option>
                                         {/* <Option value="random">random</Option>
@@ -342,7 +357,7 @@ class DrawerForm extends PureComponent {
                             left: 0,
                             background: '#fff',
                             borderRadius: '0 0 4px 4px',
-                            zIndex:9999,
+                            zIndex: 9999,
                         }}
                     >
                         <Button

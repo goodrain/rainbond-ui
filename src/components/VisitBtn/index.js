@@ -1,11 +1,13 @@
 import React, { PureComponent, Fragment } from "react";
-import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip } from "antd";
+import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip, Icon,notification } from "antd";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
-import {openInNewTab} from "../../utils/utils";
+import { openInNewTab } from "../../utils/utils";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { link } from "fs";
+import styles from './index.less';
 
 const { Description } = DescriptionList;
 
@@ -38,7 +40,6 @@ export default class Index extends PureComponent {
   fetchVisitInfo = () => {
     if (!this.mount) return;
     const appAlias = this.props.app_alias;
-    // console.log(appAlias)
     this.props.dispatch({
       type: "appControl/fetchVisitInfo",
       payload: {
@@ -114,6 +115,39 @@ export default class Index extends PureComponent {
       </Fragment>
     );
   };
+
+  showConnectInfo = (infoArr) => {
+    return (
+      <Table
+        rowKey={this.rowKey}
+        className={styles.tdPadding}
+        bordered
+        columns={[
+          {
+            title: '变量名',
+            dataIndex: 'attr_name',
+            key: "attr_name",
+            align: 'center',
+          },
+          {
+            title: '变量值',
+            dataIndex: 'attr_value',
+            key: "attr_value",
+            align: 'center',
+          },
+          {
+            title: '说明',
+            dataIndex: 'name',
+            key: "name",
+            align: 'center',
+          },
+        ]}
+        pagination={false}
+        dataSource={infoArr}
+        bordered={false}
+      />
+    )
+  }
   renderHttpPort = (visitInfo) => {
     const { showModal } = this.state;
     const demo = visitInfo;
@@ -217,7 +251,6 @@ export default class Index extends PureComponent {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
-    // console.log(appAlias)
     const res = demo.access_info || [];
     const btn = <Button onClick={this.hiddenModal}>关闭</Button>;
     const btns = [btn];
@@ -236,20 +269,39 @@ export default class Index extends PureComponent {
           >
             {res.map((item, i) => {
               let connect_info = item.connect_info || [];
-              connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
+              // connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
               return (
                 <Card
                   type="inner"
                   style={{
                     marginBottom: 24,
                   }}
-                  title={this.renderNoHttpOuterTitle(item)}
+                // title={this.renderNoHttpOuterTitle(item)}
                 >
                   {!item.connect_info.length ? (
                     "-"
                   ) : (
                       <Fragment>
-                        <table
+
+                        <ul className={styles.ul}>
+                          {item.protocol == 'tcp' || item.protocol == 'udp' ? <li style={{ fontWeight: "bold" }}>您当前的访问协议是{item.protocol}</li> : <li style={{ fontWeight: "bold" }}>您当前的访问协议是{item.protocol},打开MySQL客户端访问</li>}
+                          <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{item.access_urls[0]}</a>
+                            <CopyToClipboard
+                              // text={item.access_urls.replace(/\s+/g, "")}
+                              text={item.access_urls[0]}
+                              onCopy={() => {
+                                notification.success({ message: "复制成功" });
+                              }}
+                            >
+                              <Button size="small" type="primary"><Icon type="copy" />复制</Button>
+                            </CopyToClipboard>
+                          </li>
+                          {this.showConnectInfo(connect_info)}
+                        </ul>
+
+
+
+                        {/* <table
                           style={{
                             width: "100%",
                           }}
@@ -263,12 +315,12 @@ export default class Index extends PureComponent {
                           </thead>
                           <tbody>
                             {connect_info.map((item) => {
-                              if (
-                                item.attr_name.indexOf("_PORT") > -1 ||
-                                item.attr_name.indexOf("_HOST") > -1
-                              ) {
-                                return null;
-                              }
+                              // if (
+                              //   item.attr_name.indexOf("_PORT") > -1 ||
+                              //   item.attr_name.indexOf("_HOST") > -1
+                              // ) {
+                              //   return null;
+                              // }
                               return (
                                 <tr>
                                   <td width="150">{item.attr_name}</td>
@@ -290,7 +342,7 @@ export default class Index extends PureComponent {
                               </tr>
                             ) : null}
                           </tbody>
-                        </table>
+                        </table> */}
                       </Fragment>
                     )}
                 </Card>
