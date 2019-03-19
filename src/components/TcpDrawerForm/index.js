@@ -32,16 +32,17 @@ class DrawerForm extends PureComponent {
             serviceComponentList: [],
             portList: [],
             domain_port: '',
-            end_point: ''
+            end_point: '',
+            isPerform: true
         }
     }
     resolveOk = (e) => {
         e.preventDefault();
-        const { onOk ,editInfo} = this.props
-        const {domain_port}=this.state
+        const { onOk, editInfo } = this.props
+        const { domain_port } = this.state
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                values.default_port=domain_port[0].port
+                values.default_port = domain_port[0].port
                 onOk && onOk(values);
             }
         });
@@ -61,12 +62,13 @@ class DrawerForm extends PureComponent {
         const { editInfo } = this.props;
         if (editInfo) {
             this.handleServices({ key: editInfo.g_id })
-            this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
+            // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
         }
     }
     /**获取服务组件 */
     handleServices = (groupObj) => {
-        const { dispatch } = this.props;
+        const { isPerform } = this.state
+        const { dispatch, editInfo } = this.props;
         const team_name = globalUtil.getCurrTeamName();
         /**获取对应的group_name */
         dispatch({
@@ -76,10 +78,15 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list },()=>{
-                    if(data.list&&data.list.length>0){
-                        this.handlePorts(data.list[0].service_id);
-                        this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                this.setState({ serviceComponentList: data.list }, () => {
+                    if (data.list && data.list.length > 0) {
+                        if (isPerform && editInfo) {
+                            this.handlePorts(editInfo.service_id, true);
+                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                        } else {
+                            this.handlePorts(data.list[0].service_id, false);
+                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                        }
                     }
                 })
             }
@@ -87,21 +94,30 @@ class DrawerForm extends PureComponent {
     }
     /**获取端口 */
     handlePorts = (service_id) => {
-        const { dispatch } = this.props;
+        const { dispatch, editInfo } = this.props;
+        const { isPerform } = this.state
         const team_name = globalUtil.getCurrTeamName();
         const service_obj = this.state.serviceComponentList.filter((item) => {
             return item.service_id == service_id
         })
+
         dispatch({
             type: "appControl/fetchPorts",
             payload: {
-                app_alias: service_obj[0].service_alias,
+                app_alias: service_obj && service_obj.length > 0 && service_obj[0].service_alias && service_obj[0].service_alias,
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list },()=>{
-                    if(data.list&&data.list.length>0){
-                        this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                this.setState({ portList: data.list }, () => {
+                    if (data.list && data.list.length > 0) {
+                        if (isPerform && editInfo) {
+                            this.setState({
+                                isPerform: false
+                            })
+                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                        } else {
+                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                        }
                     }
                 })
             }
@@ -182,7 +198,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('end_point', {
                                 rules: [{ required: true, validator: this.checkport }],
-                                initialValue: editInfo?current_enpoint[0]:domain_port[0],
+                                initialValue: editInfo ? current_enpoint[0] : domain_port[0],
                             })(
                                 <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange} />
                             )}
@@ -213,7 +229,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue:this.state.serviceComponentList&&this.state.serviceComponentList.length>0?this.state.serviceComponentList[0].service_id:editInfo.service_id,
+                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : "",
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
                                     {
@@ -232,7 +248,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
-                                initialValue:this.state.portList&&this.state.portList.length>0?this.state.portList[0].container_port: editInfo.container_port,
+                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : "",
                             })(
                                 <Select placeholder="请选择端口号">
                                     {
@@ -268,7 +284,7 @@ class DrawerForm extends PureComponent {
                             left: 0,
                             background: '#fff',
                             borderRadius: '0 0 4px 4px',
-                            zIndex:99999,
+                            zIndex: 99999,
                         }}
                     >
                         <Button

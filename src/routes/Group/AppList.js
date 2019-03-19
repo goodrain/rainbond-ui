@@ -47,7 +47,7 @@ export default class AppList extends PureComponent {
   }
   componentDidMount() {
     this.updateApp();
-    document.querySelector('.ant-table-footer').setAttribute('style','position:absolute;background:#fff')
+    document.querySelector('.ant-table-footer').setAttribute('style', 'position:absolute;background:#fff')
   }
   componentWillUnmount() {
     clearInterval(this.timer);
@@ -57,15 +57,15 @@ export default class AppList extends PureComponent {
   }
 
 
-shouldComponentUpdate(){
-  return true
-}
+  shouldComponentUpdate() {
+    return true
+  }
 
   updateApp = () => {
     this.loadApps();
     const { clearTime } = this.props
     this.timer = setInterval(() => {
-      if (!clearTime){
+      if (!clearTime) {
         this.loadApps();
       }
     }, 5000)
@@ -85,16 +85,47 @@ shouldComponentUpdate(){
         page_size: 10
       },
       callback: data => {
-        if(data._code==200){
+        if (data._code == 200) {
           this.setState({
             apps: data.list || [],
             teamAction: data.bean || {},
-            total: data.total||0
+            total: data.total || 0
           });
         }
       }
     });
   };
+
+  deleteData = () => {
+    const { dispatch, form, index } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+
+    dispatch({
+      type: "groupControl/fetchApps",
+      payload: {
+        team_name,
+        region_name,
+        group_id: this.props.groupId,
+        page: this.state.current,
+        page_size: 10
+      },
+      callback: data => {
+        if (data._code == 200) {
+          this.setState({
+            apps: data.list || [],
+            teamAction: data.bean || {},
+            total: data.total || 0
+          }, () => {
+            this.handleBatchDeletes()
+            this.hideMoveGroup();
+          });
+        }
+      }
+    });
+  };
+
+
   onSelectChange = (selectedRowKeys, selectedRow) => {
     this.setState({
       selectedRowKeys
@@ -189,13 +220,12 @@ shouldComponentUpdate(){
     this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
   };
   hideBatchDelete = () => {
-    this.setState({ batchDeleteApps: [], batchDeleteShow: false ,selectedRowKeys:[]});
-    this.loadApps();
     //update menus data
+    this.deleteData();
     this.updateGroupMenu()
   };
   handleBatchDeletes = () => {
-    this.setState({ batchDeleteApps: [], batchDeleteShow: false });
+    this.setState({ batchDeleteApps: [], batchDeleteShow: false, selectedRowKeys: [] });
   };
   updateGroupMenu = () => {
     this.props.dispatch({
@@ -217,9 +247,7 @@ shouldComponentUpdate(){
         notification.success({
           message: "批量移动中"
         });
-        this.hideMoveGroup();
-        this.loadApps();
-        this.updateGroupMenu();
+       this.hideBatchDelete();
       }
     });
   };
@@ -268,7 +296,7 @@ shouldComponentUpdate(){
   };
 
   render() {
-    const { apps, teamAction} = this.state;
+    const { apps, teamAction } = this.state;
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -418,8 +446,8 @@ shouldComponentUpdate(){
           }}
           bordered={false}
           bodyStyle={{ padding: "10px 10px" }}
-          // headStyle={{ borderBottom: "0px" ,float:"right"}}
-          // title={}
+        // headStyle={{ borderBottom: "0px" ,float:"right"}}
+        // title={}
         >
 
           <ScrollerX sm={750}>
@@ -436,7 +464,7 @@ shouldComponentUpdate(){
           {this.state.batchDeleteShow && (
             <BatchDelete
               batchDeleteApps={this.state.batchDeleteApps}
-              onCancel={this.handleBatchDeletes}
+              onCancel={this.hideBatchDelete}
               onOk={this.hideBatchDelete}
             />
           )}

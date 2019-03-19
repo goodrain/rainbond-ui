@@ -38,7 +38,7 @@ export default class MoveGroup extends PureComponent {
 
                     <FormItem label="">
                         {getFieldDecorator('group_id', {
-                            initialValue: initValue || '',
+                            initialValue: initValue&&Number(initValue) || '',
                             rules: [
                                 {
                                     required: true,

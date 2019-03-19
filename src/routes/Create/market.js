@@ -375,9 +375,9 @@ export default class Main extends PureComponent {
       },
     };
     const paginationProps = {
-      current: this.state.moreState ? 1 : this.state.page,
+      current:  this.state.moreState ? 1 : this.state.page,
       pageSize: this.state.moreState ? 3 : this.state.pageSize,
-      total: this.state.moreState ? 0 : this.state.total,
+      total:  this.state.moreState ? 1 : this.state.total,
       onChange: v => {
         this.hanldePageChange(v);
       }
@@ -460,7 +460,9 @@ export default class Main extends PureComponent {
       <div>
         {handleType ? <div>
           {!moreState && mainSearch}
-          <div style={{ marginBottom: !moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>{cardList}</div>
+          <div style={{ marginBottom: !moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>
+            {cardList}
+          </div>
           {moreState && list && list.length > 0 &&
             <div style={{
               textAlign: "right",

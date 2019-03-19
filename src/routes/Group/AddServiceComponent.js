@@ -269,7 +269,7 @@ export default class AddServiceComponent extends PureComponent {
                       )
                     })}
                       等语言规范</p>} type="info"
-                    style={{ height: "40px" }}
+                    style={{ height: "50px" }}
                     showIcon />
                 </Row>
               </div>

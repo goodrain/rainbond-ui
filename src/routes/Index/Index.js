@@ -114,6 +114,7 @@ export default class Index extends PureComponent {
         });
     };
 
+    //热门访问域名
     getDomainName = () => {
         const { domainPage, domainPage_size, } = this.state;
         this.props.dispatch({
@@ -169,7 +170,7 @@ export default class Index extends PureComponent {
                         for (let i = 0; i < visitDatas.length; i += 1) {
                             arr.push({
                                 x: moment(new Date(visitDatas[i][0] * 1000)).format('YYYY-MM-DD hh:mm'),
-                                y: visitDatas[i][1],
+                                y: Math.floor(visitDatas[i][1]),
                             });
                         }
                     }
@@ -189,6 +190,8 @@ export default class Index extends PureComponent {
         });
     };
 
+
+    // 热门访问服务
     getService = () => {
         const { servicePage, servicePage_size, } = this.state;
         this.props.dispatch({
@@ -209,6 +212,9 @@ export default class Index extends PureComponent {
             },
         });
     }
+
+
+
     onServicePageChange = (servicePage) => {
         this.setState({ servicePage }, () => {
             this.getService();
@@ -455,12 +461,15 @@ export default class Index extends PureComponent {
                 key: 'metric',
                 width: "70%",
                 render: (text, record) => <Tooltip title={record.metric.host}>
-                    <a style={{
+                    <div style={{
                         wordBreak: "break-all",
                         wordWrap: "break-word",
-                        display: "inline-block",
-                        minHeight: "35px"
-                    }} href={`http://${record.metric.host}`} target="_blank">{record.metric.host}</a>
+                        height: "38px",
+                        lineHeight: "17px",
+                        overflow: "auto"
+                    }}>
+                        <a href={`http://${record.metric.host}`} target="_blank">{record.metric.host}</a>
+                    </div>
                 </Tooltip>,
             },
             {
@@ -473,10 +482,10 @@ export default class Index extends PureComponent {
                     // <Trend flag={record.status === 1 ? 'down' : 'up'}>
                     <span style={{
                         wordBreak: "break-all",
-                        wordWrap: "break-word", 
+                        wordWrap: "break-word",
                         marginRight: 4,
                         display: "inline-block",
-                        minHeight: "35px"
+                        // minHeight: "35px"
                     }}>{record.value[1]}</span>
                     // </Trend>
                 ),
@@ -495,10 +504,12 @@ export default class Index extends PureComponent {
                 render: (text, record) => <Tooltip title={record.metric.service_cname}>
                     <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.metric.service_alias}`} >
                         <a style={{
+                            display: "inline-block",
                             wordBreak: "break-all",
                             wordWrap: "break-word",
-                            display: "inline-block",
-                            minHeight: "35px",
+                            height: "38px",
+                            lineHeight: "17px",
+                            overflow: "auto",
                         }}>{record.metric.service_cname} </a>
                     </Link>
 
@@ -512,12 +523,13 @@ export default class Index extends PureComponent {
                 sorter: (a, b) => a.range - b.range,
                 render: (text, record) => (
                     // <Trend flag={record.status === 1 ? 'down' : 'up'}>
-                    <span style={{ 
-                    display: "inline-block",
-                    marginRight: 4, 
-                    wordBreak: "break-all",
-                    wordWrap: "break-word",
-                    minHeight: "35px" }}>{record.value[1]}</span>
+                    <span style={{
+                        display: "inline-block",
+                        marginRight: 4,
+                        wordBreak: "break-all",
+                        wordWrap: "break-word",
+                        minHeight: "35px"
+                    }}>{record.value[1]}</span>
                     // </Trend>
                 ),
                 align: 'right',
@@ -691,7 +703,7 @@ export default class Index extends PureComponent {
                                 bodyStyle={{
                                     padding: 0,
                                     height: 410,
-                                    overflow:"auto"
+                                    overflow: "auto"
                                 }}
                                 bordered={false}
                                 className={styles.activeCard}
@@ -709,7 +721,7 @@ export default class Index extends PureComponent {
                                     marginBottom: 10,
                                     border: "none",
                                     height: "562px",
-                                    overflow: "auto"
+                                    overflow: "hidden"
                                 }}
                                 title="热门访问域名"
                                 bordered={false}
@@ -744,14 +756,14 @@ export default class Index extends PureComponent {
                                     <Table
                                         rowKey={record => record.index}
                                         size="small"
-                                        style={{ marginTop: "10px", height: "346px", overflow: "auto" }}
+                                        style={{ marginTop: "15px", height: "346px" }}
                                         columns={columns}
                                         dataSource={domainList}
                                         pagination={{
                                             style: { marginBottom: 0 },
-                                            current: this.state.servicePage,
-                                            pageSize: this.state.servicePage_size,
-                                            total: this.state.serviceTotal,
+                                            current: this.state.domainPage,
+                                            pageSize: this.state.domainPage_size,
+                                            total: this.state.domainTotal,
                                             onChange: this.onDomainPageChange
                                         }}
                                     />
@@ -800,9 +812,9 @@ export default class Index extends PureComponent {
                                             pagination={false}
                                         // pagination={{
                                         //     style: { marginBottom: 0 },
-                                        //     current: this.state.domainPage,
-                                        //     pageSize: this.state.domainPage_size,
-                                        //     total: this.state.domainTotal,
+                                        // current: this.state.servicePage,
+                                        // pageSize: this.state.servicePage_size,
+                                        // total: this.state.serviceTotal,
                                         //     onChange: this.onServicePageChange
                                         // }}
                                         />

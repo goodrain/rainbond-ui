@@ -267,7 +267,7 @@ export default class Index extends React.Component {
       callback: () => {
         this.cancelDeleteVar();
         this.fetchInnerEnvs();
-        notification.success({ message: "操作成功，需要更新才能生效" });
+        notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
