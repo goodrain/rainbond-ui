@@ -1,4 +1,4 @@
-import { Badge, Button, Card, notification, Table } from "antd";
+import { Badge, Button, Card, notification, Table, Tag } from "antd";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import moment from "moment";
@@ -247,7 +247,7 @@ export default class AppList extends PureComponent {
         notification.success({
           message: "批量移动中"
         });
-       this.hideBatchDelete();
+        this.hideBatchDelete();
       }
     });
   };
@@ -330,7 +330,10 @@ export default class AppList extends PureComponent {
               }/overview`}
           >
             {" "}
-            {val}{" "}
+            {data.service_source && data.service_source == "third_party" ?
+              <Tag color={"green"} >{val}</Tag>
+              : val}{" "}
+
           </Link>
         )
       },
