@@ -208,7 +208,7 @@ export default class Index extends PureComponent {
                             initialValue: data.service_cname || "",
                             rules: [
                                 { required: true, message: "请输入服务名称" },
-                                { min: 4, message: "服务名称必须大于4位" },
+                                // { min: 4, message: "服务名称必须大于4位" },
                             ],
                         })(<Input placeholder="请输入服务名称"
                             style={{ display: "inline-block", width: (this.props.handleType && this.props.handleType === "Service") ? 350 : 277, marginRight: 15 }}
