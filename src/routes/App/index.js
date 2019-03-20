@@ -115,7 +115,7 @@ class MoveGroup extends PureComponent {
                             ]
                         })(
                             <Select>
-                                {groups.map((group) => {
+                                {groups && groups.length > 0 && groups.map((group) => {
                                     return <Option key={group.group_id} value={group.group_id.toString()}>{group.group_name}</Option>
                                 })}
                             </Select>
@@ -232,7 +232,7 @@ class ManageContainer extends PureComponent {
         const pods = this.props.pods || [];
         const renderPods = (
             <Menu onClick={this.handlePodClick}>
-                {(pods || []).map((item, index) => {
+                {pods && pods.length > 0 && pods.map((item, index) => {
                     return <Menu.Item key={item.pod_name + '_' + item.manage_name + '_' + item.pod_status}>实例{index + 1}</Menu.Item>
                 })
                 }
@@ -371,7 +371,7 @@ class Main extends PureComponent {
                             this.getStatus();
                         } else if (!appUtil.isCreateFromCompose(appDetail)) {
                             this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appDetail.service.service_alias}`));
-                        } 
+                        }
                         else {
                             this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${appDetail.service.group_id}/${appDetail.service.compose_id}`));
                         }
@@ -799,22 +799,20 @@ class Main extends PureComponent {
             <div>
                 <ButtonGroup>
 
-                    {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty&&(<VisitBtn btntype="" app_alias={appAlias} />)}
-                    {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty&&(<VisitBtn btntype="default" app_alias={appAlias} />)}
-
+                    {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="" app_alias={appAlias} />)}
+                    {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="default" app_alias={appAlias} />)}
                     {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
-
-
+                    
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
-                        : null}
+                        : status && status.status && status.status == "upgrade" ?
+                            <Button onClick={this.handleStop}>关闭</Button>
+                            :
+                            null}
+
                     {(appUtil.canStartApp(appDetail)) && !appStatusUtil.canStop(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStart(status)} onClick={this.handleStart}>启动</Button>
                         : null}
-
-
-
-
 
                     {/* {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Tooltip title="应用配置已更改，重启后生效">
@@ -826,7 +824,7 @@ class Main extends PureComponent {
                         : null} */}
 
 
-                    {(appUtil.canManageContainter(appDetail)) && appStatusUtil.canManageDocker(status)&&!isShowThirdParty
+                    {(appUtil.canManageContainter(appDetail)) && appStatusUtil.canManageDocker(status) && !isShowThirdParty
                         ? <ManageContainer app_alias={appDetail.service.service_alias} />
                         : null
                     }
@@ -847,7 +845,7 @@ class Main extends PureComponent {
                     : ''} */}
 
 
-                {isShowThirdParty?"":this.state.BuildState ?
+                {isShowThirdParty ? "" : this.state.BuildState ?
                     <Tooltip title={"有新版本"}>
                         <Button onClick={this.handleOpenBuild} >
                             <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
@@ -866,7 +864,7 @@ class Main extends PureComponent {
                         <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
                     )
                 } */}
-                {status.status == "undeploy" || status.status == "closed" || status.status == "stopping"||isShowThirdParty ?
+                {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" || isShowThirdParty ?
                     '' : <Button type="primary" onClick={this.handleUpdateRolling} loading={this.state.rollingCanClick}>更新(滚动)</Button>
                 }
 

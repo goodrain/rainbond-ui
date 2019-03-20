@@ -256,7 +256,7 @@ export default class CreateCheck extends PureComponent {
     this.setState({ modifyUrl: false });
   };
   handleCancelEdit = () => {
-    this.setState({ showEdit: false });
+    this.setState({ showEdit: false,modifyUrl: false });
   };
   handleCancelShowKey = () => {
     this.setState({ showKey: false });
@@ -275,6 +275,8 @@ export default class CreateCheck extends PureComponent {
     this.props.dispatch({
       type: "appControl/editAppCreateInfo",
       payload: {
+        service_cname:values.service_cname?values.service_cname:"",
+        git_url:values.git_url?values.git_url:"",
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
@@ -289,6 +291,7 @@ export default class CreateCheck extends PureComponent {
     });
   };
   handleModifyUrl = (values) => {
+    
     const appDetail = this.state.appDetail;
     this.props.dispatch({
       type: "appControl/editAppCreateInfo",
