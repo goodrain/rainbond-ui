@@ -334,7 +334,7 @@ class LogItem extends PureComponent {
               eventId={data.event_id}
               opened={opened}
             />}
-            {(logs || []).map((item) => <p key={item.message}>
+            {logs&&logs.length>0&&logs.map((item,index) => <p key={index}>
               <span style={{
                 marginRight: 10
               }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
