@@ -1,4 +1,4 @@
-import { Badge, Button, Card, notification, Table, Tag } from "antd";
+import { Badge, Button, Card, notification, Table, Tag, Tooltip } from "antd";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import moment from "moment";
@@ -331,12 +331,14 @@ export default class AppList extends PureComponent {
           >
             {" "}
             {data.service_source && data.service_source == "third_party" ?
-              <div>
-                <span style={{ borderRadius: "50%", height: "20px", width: "20px", display: "inline-block", background: "#1890ff", verticalAlign: "top", marginRight: "3px" }}>
-                  <span style={{ display: "block", color: "#FFFFFF", height: "20px", lineHeight: "20px", textAlign: "center" }}>3</span>
-                </span>
-                {val}
-              </div>
+              <span>
+                <Tooltip title={"第三方服务"}>
+                  <span style={{ borderRadius: "50%", height: "20px", width: "20px", display: "inline-block", background: "#1890ff", verticalAlign: "top", marginRight: "3px" }}>
+                    <span style={{ display: "block", color: "#FFFFFF", height: "20px", lineHeight: "20px", textAlign: "center" }}>3</span>
+                  </span>
+                  {val}
+                </Tooltip>
+              </span>
               :
               <span>{val}</span>
             }
