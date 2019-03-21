@@ -181,7 +181,7 @@ export default class AutoDeploy extends PureComponent {
             </div>
           }
         >
-          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#webhooks" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="0">
+          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="0">
             {!tabLoading[0] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }} 
@@ -238,7 +238,7 @@ export default class AutoDeploy extends PureComponent {
               </div>
             }
           </TabPane>}
-          <TabPane  tab={<span><Icon type="api" />自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#api" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}  key="1" >
+          <TabPane  tab={<span><Icon type="api" />自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}  key="1" >
             {!tabLoading[1] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small" 
@@ -283,7 +283,7 @@ export default class AutoDeploy extends PureComponent {
                 </DescriptionList>
               </div>}
           </TabPane>
-          {service_source == "镜像" && <TabPane  tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/stable/user-manual/app-manage/service-manage/auto-deploy.html#webhooks" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
+          {service_source == "镜像" && <TabPane  tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
             {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small"
