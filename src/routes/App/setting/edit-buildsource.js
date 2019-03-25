@@ -23,10 +23,11 @@ export default class ChangeBuildSource extends PureComponent {
       serverType: this.props.buildSource.server_type,
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
-      isUserPass: true,
+      isUserPass: true
     };
   }
   componentDidMount() {
+    // this.changeURL(this.props.buildSource.git_url||null);
     if (appUtil.isCodeAppByBuildSource(this.state.buildSource)) {
       this.loadBranch();
     }
@@ -59,8 +60,10 @@ export default class ChangeBuildSource extends PureComponent {
     }
   };
   changeURL = (value) => {
-    this.setState({ gitUrl: value });
-    this.setState({ isUserPass: this.isUserPass() });
+    this.setState({ gitUrl: this.props.form.getFieldValue("git_url") }, () => {
+      this.setState({ isUserPass: this.isUserPass() });
+    });
+
   };
   loadBranch() {
     getCodeBranch({
@@ -98,6 +101,14 @@ export default class ChangeBuildSource extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return true
+  }
+
+
+
+
   render() {
     const { title, onCancel } = this.props;
     const branch = this.state.branch;
@@ -120,6 +131,17 @@ export default class ChangeBuildSource extends PureComponent {
         },
       },
     };
+
+    const gitUrl = getFieldValue("git_url");
+    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
+    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
+    if (this.state.serverType == "svn") {
+      isHttp = true;
+      urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+    }
+    const isSSH = !isHttp;
+
+
     const prefixSelector = getFieldDecorator("server_type", {
       initialValue: this.state.buildSource.server_type,
     })(<Select onChange={this.changeServerType} style={{ width: 100 }}>
@@ -200,8 +222,9 @@ export default class ChangeBuildSource extends PureComponent {
               })(<Input addonBefore={versionSelector} placeholder="请输入代码版本" />)}
             </Form.Item>
           )}
-          {!this.state.isUserPass ? (
-            <div style={{ textAlign: "left", marginRight: 32 }}>
+
+          {gitUrl && isSSH ? (
+            <div style={{ textAlign: "left" }}>
               这是一个私有仓库?{" "}
               <a
                 onClick={() => {
@@ -213,7 +236,10 @@ export default class ChangeBuildSource extends PureComponent {
               </a>
             </div>
           ) : (
-            <div style={{ textAlign: "left", marginRight: 32 }}>
+              ""
+            )}
+          {gitUrl && isHttp ? (
+            <div style={{ textAlign: "left" }}>
               这是一个私有仓库?{" "}
               <a
                 onClick={() => {
@@ -224,7 +250,10 @@ export default class ChangeBuildSource extends PureComponent {
                 填写仓库账号密码
               </a>
             </div>
-          )}
+          ) : (
+              ""
+            )}
+
           <Form.Item
             style={{ display: showUsernameAndPass ? "" : "none" }}
             {...formItemLayout}
