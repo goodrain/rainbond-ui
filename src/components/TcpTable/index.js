@@ -176,7 +176,7 @@ export default class TcpTable extends PureComponent {
                 callback: (data) => {
                     if (data && data.bean.is_outer_service == false) {
                         this.setState({
-                            values
+                            values,
                         })
                         this.whether_open(values);
                         return;
@@ -185,7 +185,7 @@ export default class TcpTable extends PureComponent {
                         notification.success({ message: data.msg_show || '添加成功' })
                     }
                     this.setState({
-                        TcpDrawerVisible: false
+                        TcpDrawerVisible: false,
                     })
                     this.reload()
                 }
