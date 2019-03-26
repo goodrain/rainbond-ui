@@ -714,8 +714,9 @@ class Main extends PureComponent {
         const serviceAlias = appDetail.service.service_alias;
         const buildType = appDetail.service.service_source
         const text = appDetail.rain_app_name
-
-        if (buildType == "market") {
+        const {status}=this.state
+        
+        if (buildType == "market"&&(status&&status.status != "undeploy")) {
             this.props.dispatch({
                 type: 'appControl/getBuildInformation',
                 payload: {
@@ -802,7 +803,7 @@ class Main extends PureComponent {
                     {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="" app_alias={appAlias} />)}
                     {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="default" app_alias={appAlias} />)}
                     {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
-                    
+
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
                         : status && status.status && status.status == "upgrade" ?
@@ -844,20 +845,17 @@ class Main extends PureComponent {
                             <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                     : ''} */}
 
-
                 {isShowThirdParty ? "" : this.state.BuildState ?
                     <Tooltip title={"有新版本"}>
                         <Button onClick={this.handleOpenBuild} >
                             <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
                             构建</Button>
                     </Tooltip>
-                    : <Button onClick={this.handleOpenBuild} >构建</Button>
+                    : status && status.status == "undeploy" ?
+                        <Button onClick={this.handleOpenBuild} >构建</Button>
+                        :
+                        <Button onClick={this.handleOpenBuild} >构建</Button>
                 }
-
-
-
-
-
 
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
