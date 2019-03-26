@@ -13,6 +13,7 @@ import Stopping from "../../../public/images/stopping.svg";
 import Unusual from "../../../public/images/unusual.svg";
 import Upgrade from "../../../public/images/upgrade.svg";
 import Building from "../../../public/images/building.svg";
+import Third_party from "../../../public/images/third_party.svg";
 
 @connect()
 class EditorToplogy extends PureComponent {
@@ -43,6 +44,7 @@ class EditorToplogy extends PureComponent {
         "building",
         "build_failure",
         "creating",
+        'third_party',
       ],
     }
   }
@@ -62,7 +64,7 @@ class EditorToplogy extends PureComponent {
         const y = -height / 2;
         const borderRadius = 3;
         const xnums = type == "The Internet" ? 23 : 16;
-        const ynums = type == "The Internet" ? 22: 20;
+        const ynums = type == "The Internet" ? 22 : 20;
         const keyShape = group.addShape("rect", {
           attrs: {
             x: x + xnums,
@@ -77,7 +79,7 @@ class EditorToplogy extends PureComponent {
         // 类型 logo
         group.addShape("image", {
           attrs: {
-            img: type == "The Internet" ? Yun : type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting :type == "creating"?Building: type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknown" ? Unusual : type == "unknown" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
+            img: type == "third_party" ? Third_party : type == "The Internet" ? Yun : type == "running" ? Running : type == "closed" ? Closed : type == "undeploy" ? Undeploy : type == "starting" ? Starting : type == "checking" ? Starting : type == "stoping" ? Starting : type == "creating" ? Building : type == "upgrade" ? Upgrade : type == "unusual" ? Unusual : type == "Owed" ? Unusual : type == "expired" ? Unusual : type == "Expired" ? Unusual : type == "Unknown" ? Unusual : type == "unknown" ? Unusual : type == "Unknow" ? Unusual : type == "unknow" ? Unusual : type == "stopping" ? Stopping : type == "abnormal" ? Unusual : type == "some_abnormal" ? Unusual : type == "building" ? Building : type == "build_failure" ? Unusual : "",
             x: x,
             y: y,
             width: type == "The Internet" ? 53 : 38,
@@ -90,7 +92,7 @@ class EditorToplogy extends PureComponent {
         group.addShape("text", {
           attrs: {
             text: label,
-            x: x+xnum ,
+            x: x + xnum,
             y: y + 46,
             textAlign: "left",
             textBaseline: "top",

@@ -368,12 +368,12 @@ class JAVA extends PureComponent {
         }
     }
     componentWillReceiveProps(nextProps) {
-        if ( (nextProps.runtimeInfo !== this.props.runtimeInfo) || (nextProps.languageType !== this.state.languageType)) {
+        if ((nextProps.runtimeInfo !== this.props.runtimeInfo) || (nextProps.languageType !== this.state.languageType)) {
             this.handleRuntimeInfo(nextProps)
             this.setArr(nextProps)
         }
     }
-    shouldComponentUpdate(){
+    shouldComponentUpdate() {
         return true
     }
     componentDidMount() {
@@ -407,7 +407,7 @@ class JAVA extends PureComponent {
     handleSubmit = (e) => {
         const form = this.props.form;
         const { runtimeInfo } = this.props;
-        const {languageType}=this.state;
+        const { languageType } = this.state;
         let subObject = {};
         const { NO_CACHE,
             BUILD_ENABLE_ORACLEJDK,
@@ -467,10 +467,10 @@ class JAVA extends PureComponent {
             BUILD_PIP_INDEX_URL ? subObject.BUILD_PIP_INDEX_URL = BUILD_PIP_INDEX_URL : ""
             // BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
             BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
-    
+
             if (languageType && languageType == "dockerfile") {
-                this.props.onSubmit && this.props.onSubmit(setObj ? setObj :runtimeInfo)
-            }else{
+                this.props.onSubmit && this.props.onSubmit(setObj ? setObj : runtimeInfo)
+            } else {
                 this.props.onSubmit && this.props.onSubmit(subObject)
             }
         });
@@ -561,7 +561,7 @@ class JAVA extends PureComponent {
                     <div>
                         <Form.Item {...formItemLayout} label="开启清除构建缓存">
                             {getFieldDecorator('NO_CACHE', {
-                                initialValue:  ""
+                                initialValue: ""
                             })(
                                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
                             )}
@@ -1378,7 +1378,8 @@ export default class Index extends PureComponent {
             showApp: {},
             create_status: "",
             languageBox: false,
-            service_info: ""
+            service_info: "",
+            error_infos: ""
         };
     }
     componentDidMount() {
@@ -1386,7 +1387,6 @@ export default class Index extends PureComponent {
         this.loadBuildSourceInfo();
     }
     handleEditRuntime = (build_env_dict) => {
-        console.log("build_env_dict",build_env_dict)
         // this
         //     .props
         //     .dispatch({
@@ -1452,7 +1452,7 @@ export default class Index extends PureComponent {
                 app_alias: this.props.appDetail.service.service_alias
             },
             callback: (data) => {
-                this.setState({ runtimeInfo: data.bean? data.bean:{} })
+                this.setState({ runtimeInfo: data.bean ? data.bean : {} })
             }
         })
     }
@@ -1504,7 +1504,7 @@ export default class Index extends PureComponent {
     }
     handleDetectGetLanguage = () => {
         const { dispatch } = this.props;
-        const _th =this;
+        const _th = this;
         dispatch({
             type: "appControl/getLanguage",
             payload: {
@@ -1513,17 +1513,18 @@ export default class Index extends PureComponent {
                 check_uuid: this.state.check_uuid
             },
             callback: (res) => {
-                
+
                 if (res._code == 200) {
-                    if (res.bean && res.bean.check_status != "success") {
-                        setTimeout(function(){
+                    if (res.bean && res.bean.check_status != "success" && res.bean.check_status != "failure") {
+                        setTimeout(function () {
                             _th.handleDetectGetLanguage();
-                        },3000);
+                        }, 3000);
                     } else {
                         this.loadBuildSourceInfo();
                         this.setState({
                             create_status: res.bean && res.bean.check_status,
                             service_info: res.bean && res.bean.service_info,
+                            error_infos: res.bean && res.bean.error_infos,
                         })
                     }
                 }
@@ -1544,7 +1545,11 @@ export default class Index extends PureComponent {
                     create_status: res.bean && res.bean.create_status,
                     check_uuid: res.bean && res.bean.check_uuid,
                 }, () => {
-                    this.handleDetectGetLanguage()
+                    if (this.state.create_status == 'failure') {
+                        return
+                    } else {
+                        this.handleDetectGetLanguage()
+                    }
                 })
             },
         });
@@ -1758,7 +1763,7 @@ export default class Index extends PureComponent {
 
                     <div>
                         {
-                            this.state.create_status == 'checking'|| this.state.create_status =="complete" ?
+                            this.state.create_status == 'checking' || this.state.create_status == "complete" ?
                                 <div>
                                     <p style={{ textAlign: 'center' }}>
                                         <Spin />
@@ -1769,6 +1774,31 @@ export default class Index extends PureComponent {
                                 </div>
                                 : ''
 
+                        }
+                        {
+                            this.state.create_status == 'failure' ?
+                                <div>
+                                    <p style={{ textAlign: 'center', color: "#28cb75", fontSize: '36px' }}>
+                                        <Icon
+                                            style={{
+                                                color: "#f5222d",
+                                                marginRight: 8,
+                                            }}
+                                            type="close-circle-o"
+                                        />
+                                    </p>
+                                    {this.state.error_infos && this.state.error_infos.map((item) => {
+                                        return <div>
+                                            <span
+                                                dangerouslySetInnerHTML={{
+                                                    __html: `<span>${item.error_info || ""} ${item.solve_advice || ""}</span>`,
+                                                }}
+                                            />
+                                        </div>
+                                        // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
+                                    })}
+                                </div>
+                                : ''
                         }
                         {
                             this.state.create_status == 'success' ?
@@ -1810,7 +1840,7 @@ export default class Index extends PureComponent {
                 </Modal>}
 
 
-                {language && runtimeInfo&&<JAVA
+                {language && runtimeInfo && <JAVA
                     appDetail={this.props.appDetail}
                     onSubmit={this.handleEditRuntime}
                     language={language}

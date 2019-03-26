@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Form, Button, Select, Input, Radio, Alert, Modal, Row, Col, Icon } from "antd";
+import { Form, Button, Select, Input, Radio, Alert, Modal, Row, Col, Icon,Tooltip } from "antd";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import ShowRegionKey from "../../components/ShowRegionKey";
@@ -88,10 +88,10 @@ export default class Index extends PureComponent {
         const form = this.props.form;
         form.validateFields((err, fieldsValue) => {
             if (err) {
-                if (fieldsValue.type!=""&&fieldsValue.type!=undefined&& (fieldsValue.servers == "" || fieldsValue.servers == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
-                        this.setState({
-                            visible: true,
-                        });
+                if (fieldsValue.type != "" && fieldsValue.type != undefined && (fieldsValue.servers == "" || fieldsValue.servers == undefined || fieldsValue.key == "" || fieldsValue.key == undefined)) {
+                    this.setState({
+                        visible: true,
+                    });
                 }
             }
             if (!err) {
@@ -168,6 +168,8 @@ export default class Index extends PureComponent {
                     callback("请输入服务地址");
                     return;
                 }
+
+
                 // if (
                 //     (!/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(item || ""))
                 // ) {
@@ -182,6 +184,9 @@ export default class Index extends PureComponent {
                 //     return;
                 // }
             })
+        }
+        if (value && value == "127.0.0.1") {
+            callback("此地址不能使用");
         }
         callback();
     };
@@ -249,7 +254,7 @@ export default class Index extends PureComponent {
 
                     {endpointsType == "static" && <FormItem
                         {...formItemLayout}
-                        label="服务地址"
+                        label={<span>服务地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
                     >
                         {getFieldDecorator('static', {
                             rules: [{ validator: this.validAttrName }],
@@ -268,7 +273,6 @@ export default class Index extends PureComponent {
                                     </Row>)
                                 })}
                             </div>
-
                             //         <div>
                             //             <div>192.168.1.1:8888 （输入方式1示例）</div>
                             //             <div>192.168.1.3      （输入方式2示例）</div>
@@ -304,7 +308,7 @@ export default class Index extends PureComponent {
                         >
                             <FormItem
                                 {...formItemLayout}
-                                label="服务地址"
+                                label={<span>服务地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
                                 style={{ textAlign: "right" }}
                             >
                                 {getFieldDecorator('servers', {

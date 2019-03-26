@@ -46,7 +46,11 @@ class DrawerForm extends PureComponent {
         }
     }
     componentWillMount() {
-        const { dispatch, editInfo, form } = this.props;
+        this.heandleEditInfo(this.props)
+    }
+
+    heandleEditInfo = (props) => {
+        const { dispatch, editInfo, form } = props;
         const team_name = globalUtil.getCurrTeamName();
         dispatch({
             type: "appControl/fetchCertificates",
@@ -60,10 +64,15 @@ class DrawerForm extends PureComponent {
             }
         })
         if (editInfo) {
-            this.handleServices( editInfo.g_id)
+            this.handleServices(editInfo.g_id)
             // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
         }
     }
+    // componentWillReceiveProps(nextPro) {
+    //     if (nextPro.editInfo !== this.props.editInfo) {
+    //         this.heandleEditInfo(nextPro);
+    //     }
+    // }
     handleOk = (e) => {
         e.preventDefault();
         const { onOk } = this.props
