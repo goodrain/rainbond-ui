@@ -436,7 +436,7 @@ class Main extends PureComponent {
     handleshowDeployTips = (showonoff) => {
         this.setState({ showDeployTips: showonoff });
     }
-    handleDeploy = (group_version) => {
+    handleDeploy = (group_version,is_upgrate) => {
         this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
@@ -447,7 +447,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
             group_version: group_version ? group_version : "",
-            is_upgrate: build_upgrade
+            is_upgrate: is_upgrate?false:build_upgrade
         }).then((data) => {
             this.setState({ deployCanClick: false })
             if (data) {
@@ -459,7 +459,6 @@ class Main extends PureComponent {
                     child.onAction(data.bean);
                 }
             }
-
         })
     }
 
@@ -715,7 +714,7 @@ class Main extends PureComponent {
         const buildType = appDetail.service.service_source
         const text = appDetail.rain_app_name
         const {status}=this.state
-        
+      
         if (buildType == "market"&&(status&&status.status != "undeploy")) {
             this.props.dispatch({
                 type: 'appControl/getBuildInformation',
@@ -739,6 +738,8 @@ class Main extends PureComponent {
                 }
             })
         } else {
+            buildType == "market"?
+            this.handleDeploy("",true):
             this.handleDeploy()
         }
     };
@@ -778,6 +779,7 @@ class Main extends PureComponent {
         if (!appDetail.service) {
             return null;
         }
+        console.log("status",appDetail.service.service_source)
         const menu = (
             <Menu onClick={this.handleDropClick}>
                 {!appDetail.is_third && <Menu.Item
@@ -964,8 +966,7 @@ class Main extends PureComponent {
                 span: 23,
             },
         };
-        const { BuildList } = this.state;
-
+        const { BuildList,BuildState } = this.state;
         return (
             <PageHeaderLayout
                 breadcrumbList={[{

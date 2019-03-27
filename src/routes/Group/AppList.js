@@ -376,7 +376,7 @@ export default class AppList extends PureComponent {
         render: (val, data) => (
           <Fragment>
             {" "}
-            {appStatusUtil.canRestart(data) ? (
+            {appStatusUtil.canRestart(data)&&data.service_source && data.service_source != "third_party"  ? (
               <a
                 onClick={() => {
                   this.handleReStart(data);
@@ -389,7 +389,7 @@ export default class AppList extends PureComponent {
                 重启{" "}
               </a>
             ) : null}{" "}
-            {appStatusUtil.canStart(data) ? (
+            {appStatusUtil.canStart(data)&&data.service_source && data.service_source != "third_party" ? (
               <a
                 onClick={() => {
                   this.handleStart(data);

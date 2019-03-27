@@ -501,19 +501,19 @@ export default class Index extends PureComponent {
                 dataIndex: 'metric',
                 key: 'metric',
                 width: "70%",
-                render: (text, record) => <Tooltip title={record.metric.service_cname}>
+                render: (text, record) =>
                     <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.metric.service_alias}`} >
-                        <a style={{
-                            display: "inline-block",
-                            wordBreak: "break-all",
-                            wordWrap: "break-word",
-                            height: "38px",
-                            lineHeight: "17px",
-                            overflow: "auto",
-                        }}>{record.metric.service_cname} </a>
-                    </Link>
-
-                </Tooltip>,
+                        <Tooltip title={record.metric.service_cname}>
+                            <a style={{
+                                display: "inline-block",
+                                wordBreak: "break-all",
+                                wordWrap: "break-word",
+                                height: "38px",
+                                lineHeight: "17px",
+                                overflow: "auto",
+                            }}>{record.metric.service_cname} </a>
+                        </Tooltip>
+                    </Link >
             },
             {
                 title: "请求量/时",

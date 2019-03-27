@@ -83,7 +83,8 @@ export default class AddServiceComponent extends PureComponent {
         moreState: true,
         ButtonGroup: false,
         ServiceComponentThreePage: false
-      })
+      });
+  
     });
   }
 
@@ -334,7 +335,7 @@ export default class AddServiceComponent extends PureComponent {
             ButtonGroupState={ButtonGroupState}
             refreshCurrent={() => { this.refreshCurrent() }}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
-            handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data) }} />}
+            handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data);this.props.onload&&this.props.onload() }  } />}
 
           {ServiceComponentTwoPage === "imageName" && <ImageName
             groupId={this.props.groupId}
