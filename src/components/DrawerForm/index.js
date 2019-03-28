@@ -233,7 +233,19 @@ class DrawerForm extends PureComponent {
                             {...formItemLayout}
                             label="Path"
                         >
-                            {getFieldDecorator('domain_path', { initialValue: editInfo.domain_path })(
+                            {getFieldDecorator('domain_path', {
+                                rules: [
+                                    {
+                                        required: false,
+                                        message: "/",
+                                    },
+                                    {
+                                        pattern: /^\/+.*/,
+                                        message: "请输入绝对路径",
+                                    },
+                                ],
+                                initialValue: editInfo.domain_path
+                            })(
                                 <Input placeholder="/" />
                             )}
                         </FormItem>
