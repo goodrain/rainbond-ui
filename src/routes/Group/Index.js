@@ -13,6 +13,7 @@ import {
   Modal,
   notification,
   Radio,
+  Spin
 } from "antd";
 import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
@@ -554,10 +555,10 @@ class Main extends PureComponent {
 
         <Row style={{ display: "flex", background: "#FFFAFA", height: "60px", alignItems: "center" }}>
           <Col span={4}>
-            <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
+            <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={()=>{this.setState({type:"spin"},()=>{this.setState({type:this.state.size=="large"?"shape":"list"})})}} />
           </Col>
           <Col span={4}>
-            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} />
+            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={()=>{this.setState({type:"spin"},()=>{this.setState({type:this.state.size=="large"?"shape":"list"})})}} />
           </Col>
           <Col span={16} style={{ textAlign: "right", paddingRight: "12px" }}>
 
@@ -586,6 +587,7 @@ class Main extends PureComponent {
 
         {(!hasService || this.state.type === "list") && <AppList groupId={this.getGroupId()} />}
         {(hasService && this.state.type === "shape") && <AppShape group_id={group_id} />}
+        {(hasService && this.state.type === "spin") && <Spin />}
         {(hasService && this.state.type === "shapes") && <EditorTopology changeType={(type) => { this.changeType(type) }} group_id={group_id} />}
         {this.state.toDelete && <ConfirmModal
           title="删除应用"
