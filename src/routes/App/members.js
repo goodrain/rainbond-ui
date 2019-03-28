@@ -301,21 +301,6 @@ export default class Index extends React.Component {
         });
     };
     handleSubmit = (vals) => {
-        const { startProbe } = this.props
-        if (appProbeUtil.isStartProbeUsed(startProbe)) {
-            this.props.dispatch({
-                type: "appControl/editStartProbe",
-                payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    app_alias: this.props.appAlias,
-                    ...vals,
-                },
-                callback: () => {
-                    this.handleCancel();
-                    this.fetchStartProbe();
-                },
-            });
-        } else {
             this.props.dispatch({
                 type: "appControl/addStartProbe",
                 payload: {
@@ -328,7 +313,23 @@ export default class Index extends React.Component {
                     this.fetchStartProbe();
                 },
             });
-        }
+    }
+
+    handleSubmitEdit = (vals) => {
+        const { startProbe } = this.props
+            this.props.dispatch({
+                type: "appControl/editStartProbe",
+                payload: {
+                    team_name: globalUtil.getCurrTeamName(),
+                    app_alias: this.props.appAlias,
+                    ...vals,
+                    old_mode:startProbe.mode
+                },
+                callback: () => {
+                    this.handleCancel();
+                    this.fetchStartProbe();
+                },
+            });
     }
 
     handleCancel = () => {
@@ -524,7 +525,7 @@ export default class Index extends React.Component {
                 {this.state.showHealth && (
                     <EditHealthCheck
                         ports={ports}
-                        onOk={this.handleSubmit}
+                        onOk={this.handleSubmitEdit}
                         title="健康检测"
                         data={startProbe}
                         onCancel={this.handleCancel}

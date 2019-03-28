@@ -1,5 +1,7 @@
 import React, { PureComponent } from "react";
 import { Form, Select, Modal, Input, Alert } from "antd";
+import { Link } from "dva/router";
+import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -129,6 +131,19 @@ export default class AddDomain extends PureComponent {
               </a>
             </p>
           </FormItem>}
+
+          <div>
+          如果需要设置更多路由策略参数 ：
+          <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/http/true`} style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word",
+                            color: "#1890ff"
+                        }}>
+                           点击进入访问策略设置
+                        </Link>
+
+
+          </div>
         </Form>
       </Modal>
     );

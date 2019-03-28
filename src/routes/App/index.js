@@ -447,7 +447,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
             group_version: group_version ? group_version : "",
-            is_upgrate: is_upgrate?false:build_upgrade
+            is_upgrate:build_upgrade
         }).then((data) => {
             this.setState({ deployCanClick: false })
             if (data) {
@@ -779,7 +779,6 @@ class Main extends PureComponent {
         if (!appDetail.service) {
             return null;
         }
-        console.log("status",appDetail.service.service_source)
         const menu = (
             <Menu onClick={this.handleDropClick}>
                 {!appDetail.is_third && <Menu.Item

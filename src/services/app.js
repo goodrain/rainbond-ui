@@ -1189,6 +1189,7 @@ export async function editStartProbe(body = {
       timeout_second: body.timeout_second,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
+      old_mode:body.old_mode?body.old_mode:""
     },
   });
 }
