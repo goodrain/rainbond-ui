@@ -43,12 +43,14 @@ class Control extends Component {
         page_size
       },
       callback: (data) => {
-        this.setState({
-          licenseList: data.list,
-          total: data.bean.nums,
-          editData: '',
-          licenseLoading: false
-        })
+        if(data){
+          this.setState({
+            licenseList: data.list,
+            total: data.bean.nums,
+            editData: '',
+            licenseLoading: false
+          })
+        }
       }
     })
   }

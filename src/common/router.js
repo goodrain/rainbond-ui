@@ -184,7 +184,7 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/exception/500": {
       component: dynamicWrapper(app, [], () => import("../routes/Exception/500")),
     },
-    '/team/:team/region/:region/gateway/control': {
+    '/team/:team/region/:region/gateway/control/:types?/:isopen?': {
       component: dynamicWrapper(app, ["gateWay",'appControl'], () => import('../routes/GateWay/control')),
     },
     '/team/:team/region/:region/gateway/license': {
