@@ -1080,7 +1080,7 @@ export async function getRunningProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "get",
     params: {
-      mode: "liveness",
+      // mode: "liveness",
     },
   });
 }
@@ -1095,7 +1095,7 @@ export async function getStartProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "get",
     params: {
-      mode: "readiness",
+      // mode: "readiness",
     },
   });
 }

@@ -378,7 +378,7 @@ export default class Index extends PureComponent {
                 {/*  */}
               </div>
             </td>
-            {console.log(showDomain, appPortUtil.canBindDomain(port))}
+            {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
             {showDomain && <td>
               {appPortUtil.canBindDomain(port)
                 ? <div>
@@ -408,7 +408,8 @@ export default class Index extends PureComponent {
                     </div>
                   })
                   }
-                  <Button size="small" onClick={this.onAddDomain}>添加域名</Button>
+                  
+                 {port&&port.protocol!=="http"&& <Button size="small" style={{marginTop:"5px"}} onClick={this.onAddDomain}>添加域名</Button>}
                 </div>
                 : null
               }
@@ -443,7 +444,7 @@ export default class Index extends PureComponent {
                     wordWrap: "break-word",
                     color: "#1890ff"
                   }}>
-                    <Button size="small">
+                    <Button size="small" >
                       管理访问策略
                   </Button>
                   </Link>
