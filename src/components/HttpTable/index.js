@@ -29,7 +29,7 @@ export default class HttpTable extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            drawerVisible: this.props.open?this.props.open:false,
+            drawerVisible: this.props.open ? this.props.open : false,
             information_connect: false,
             outerEnvs: [],
             dataList: [],
@@ -64,11 +64,13 @@ export default class HttpTable extends PureComponent {
                 page_size
             },
             callback: (data) => {
-                this.setState({
-                    dataList: data.list,
-                    loading: false,
-                    total: data.bean.total
-                })
+                if (data) {
+                    this.setState({
+                        dataList: data.list,
+                        loading: false,
+                        total: data.bean.total
+                    })
+                }
             }
         })
     }
@@ -102,7 +104,7 @@ export default class HttpTable extends PureComponent {
                 rule_id: values.http_rule_id,
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
                 }
             }
@@ -205,7 +207,9 @@ export default class HttpTable extends PureComponent {
                 value
             },
             callback: (data) => {
-                this.handleCloseParameter()
+                if (data) {
+                    this.handleCloseParameter()
+                }
             }
         })
     }
@@ -221,10 +225,12 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias
             },
             callback: (data) => {
-                this.setState({
-                    outerEnvs: data.list || [],
-                    information_connect: true
-                })
+                if (data) {
+                    this.setState({
+                        outerEnvs: data.list || [],
+                        information_connect: true
+                    })
+                }
             }
         })
         this.setState({ InfoConnectModal: true })
@@ -247,10 +253,12 @@ export default class HttpTable extends PureComponent {
                 service_alias: values.service_alias
             },
             callback: (data) => {
-                this.setState({
-                    editInfo: data.bean,
-                    drawerVisible: true
-                })
+                if (data) {
+                    this.setState({
+                        editInfo: data.bean,
+                        drawerVisible: true
+                    })
+                }
             }
         })
     }
@@ -269,8 +277,8 @@ export default class HttpTable extends PureComponent {
             callback: (data) => {
                 if (data) {
                     notification.success({ message: data ? data.msg_show : '删除成功' })
+                    this.reload()
                 }
-                this.reload()
             }
         })
     }
@@ -294,13 +302,15 @@ export default class HttpTable extends PureComponent {
                 page_num,
             },
             callback: (data) => {
-                this.setState({
-                    total: data.bean.total,
-                    dataList: data.list,
-                    page_num: 1,
-                    http_search: search_conditions,
-                    loading: false
-                })
+                if (data) {
+                    this.setState({
+                        total: data.bean.total,
+                        dataList: data.list,
+                        page_num: 1,
+                        http_search: search_conditions,
+                        loading: false
+                    })
+                }
             }
         })
     }

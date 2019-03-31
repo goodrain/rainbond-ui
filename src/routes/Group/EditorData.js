@@ -67,7 +67,7 @@ class EditorData extends PureComponent {
         groupId: group_id
       },
       callback: (res) => {
-        if (res._code == 200) {
+        if (res&&res._code == 200) {
           const data = this.goodrainData2scopeData(res.bean)
           this.setState({
             data,

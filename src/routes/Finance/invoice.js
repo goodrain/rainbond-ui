@@ -58,7 +58,7 @@ export default class BasicList extends PureComponent {
         selectedRowKeys: [],
       },
       callback: (data) => {
-        this.setState({ data: data.list || [] });
+        this.setState({ data: data&&data.list || [] });
       },
     });
   }
@@ -73,7 +73,7 @@ export default class BasicList extends PureComponent {
         orders: this.state.selectedRowKeys.join(','),
       },
       callback: (data) => {
-        this.setState({ invoiceInfo: data.bean || {}, showForm: true });
+        this.setState({ invoiceInfo: data&&data.bean || {}, showForm: true });
       },
     });
   };

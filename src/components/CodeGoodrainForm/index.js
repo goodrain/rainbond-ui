@@ -159,10 +159,12 @@ export default class Index extends PureComponent {
         ...value,
       },
       callback: (bean) => {
-        this.setState({ gitlabUrl: bean.http_repo_url, gitlabId: bean.project_id });
-        this.handleCancelCreateProject();
-        this.showCreateProjectOk();
-      },
+        if (bean) {
+          this.setState({ gitlabUrl: bean.http_repo_url, gitlabId: bean.project_id });
+          this.handleCancelCreateProject();
+          this.showCreateProjectOk();
+        }
+      }
     });
   };
   showCreateProjectOk = () => {
@@ -242,13 +244,13 @@ export default class Index extends PureComponent {
       <Form layout="horizontal" hideRequiredMark>
         <Form.Item {...formItemLayout} label="应用">
           {getFieldDecorator("group_id", {
-            initialValue:(this.props.handleType && this.props.handleType === "Service") ? Number(this.props.groupId) :  data.groupd_id,
+            initialValue: (this.props.handleType && this.props.handleType === "Service") ? Number(this.props.groupId) : data.groupd_id,
             rules: [{ required: true, message: "请选择" }],
-          })(<Select style={{ display: "inline-block", width:  (this.props.handleType && this.props.handleType === "Service") ?"":290, marginRight: 15 }}
-          disabled={(this.props.handleType && this.props.handleType === "Service") ?true:false} >
+          })(<Select style={{ display: "inline-block", width: (this.props.handleType && this.props.handleType === "Service") ? "" : 290, marginRight: 15 }}
+            disabled={(this.props.handleType && this.props.handleType === "Service") ? true : false} >
             {(groups || []).map(group => <Option key={group.group_id} value={group.group_id}>{group.group_name}</Option>)}
           </Select>)}
-          {(this.props.handleType && this.props.handleType === "Service") ?null:<Button onClick={this.onAddGroup}>新建应用</Button> }
+          {(this.props.handleType && this.props.handleType === "Service") ? null : <Button onClick={this.onAddGroup}>新建应用</Button>}
         </Form.Item>
         <Form.Item {...formItemLayout} label="服务组件名称">
           {getFieldDecorator("service_cname", {
@@ -266,7 +268,7 @@ export default class Index extends PureComponent {
             style={{ display: "inline-block", width: 290, marginRight: 15 }}
           >
             {codeList.map(item => <Option value={item.code_id}>{item.code_project_name}</Option>)}
-             </Select>)}
+          </Select>)}
           <Button onClick={this.onCreateProject}>新建项目</Button>
         </Form.Item>
         <Form.Item {...formItemLayout} label="代码分支">
@@ -275,7 +277,7 @@ export default class Index extends PureComponent {
             rules: [{ required: true, message: "请选择" }],
           })(<Select>
             {branchs.map(item => <Option value={item}>{item}</Option>)}
-             </Select>)}
+          </Select>)}
         </Form.Item>
         <Form.Item
           wrapperCol={{
@@ -284,15 +286,15 @@ export default class Index extends PureComponent {
           }}
           label=""
         >
-          
+
           {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-						this.props.handleServiceBotton(<Button disabled={!codeList.length} onClick={this.handleSubmit} type="primary">
-            新建服务
+            this.props.handleServiceBotton(<Button disabled={!codeList.length} onClick={this.handleSubmit} type="primary">
+              新建服务
           </Button>, false) :
-						!this.props.handleType && <Button disabled={!codeList.length} onClick={this.handleSubmit} type="primary">
-            新建应用
+            !this.props.handleType && <Button disabled={!codeList.length} onClick={this.handleSubmit} type="primary">
+              新建应用
           </Button>}
-            
+
         </Form.Item>
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />

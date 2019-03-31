@@ -121,7 +121,7 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
       },
       callback: (res) => {
-        if (res._code == 200) {
+        if (rse&&res._code == 200) {
           this.setState({
             instances: res.list,
             loading: false

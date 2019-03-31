@@ -1,36 +1,36 @@
-import React, {PureComponent} from 'react';
-import {connect} from 'dva';
-import {Link, Switch, Route, routerRedux} from 'dva/router';
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Link, Switch, Route, routerRedux } from 'dva/router';
 import {
-				Row,
-				Col,
-				Card,
-				Form,
-				Button,
-				Icon,
-				Menu,
-				Dropdown,
-				notification,
-				Select,
-				Input,
-				Modal
+	Row,
+	Col,
+	Card,
+	Form,
+	Button,
+	Icon,
+	Menu,
+	Dropdown,
+	notification,
+	Select,
+	Input,
+	Modal
 } from 'antd';
 import styles from './Index.less';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import ImageCmdForm from '../../components/ImageCmdForm';
-const {Option} = Select;
+const { Option } = Select;
 
 const formItemLayout = {
-				labelCol: {
-								span: 5
-				},
-				wrapperCol: {
-								span: 19
-				}
+	labelCol: {
+		span: 5
+	},
+	wrapperCol: {
+		span: 19
+	}
 };
 
-@connect(({user, global}) => ({currUser: user.currentUser, groups: global.groups}))
+@connect(({ user, global }) => ({ currUser: user.currentUser, groups: global.groups }))
 
 export default class Index extends PureComponent {
 	constructor(props) {
@@ -43,13 +43,13 @@ export default class Index extends PureComponent {
 		}
 	}
 	onAddGroup = () => {
-		this.setState({addGroup: true})
+		this.setState({ addGroup: true })
 	}
 	cancelAddGroup = () => {
-		this.setState({addGroup: false})
+		this.setState({ addGroup: false })
 	}
 	handleAddGroup = (vals) => {
-		const {setFieldsValue} = this.props.form;
+		const { setFieldsValue } = this.props.form;
 		this
 			.props
 			.dispatch({
@@ -72,7 +72,7 @@ export default class Index extends PureComponent {
 									region_name: globalUtil.getCurrRegionName()
 								},
 								callback: () => {
-									setFieldsValue({group_id: group.ID});
+									setFieldsValue({ group_id: group.ID });
 									this.cancelAddGroup();
 								}
 							});
@@ -82,7 +82,7 @@ export default class Index extends PureComponent {
 			})
 	}
 	hideShowKey = () => {
-		this.setState({showKey: false})
+		this.setState({ showKey: false })
 	}
 	handleSubmit = (value) => {
 		const teamName = globalUtil.getCurrTeamName();
@@ -96,18 +96,20 @@ export default class Index extends PureComponent {
 					...value
 				},
 				callback: (data) => {
-					const appAlias = data.bean.service_alias;
-					this.props.handleType&&this.props.handleType==="Service"?this.props.handleServiceGetData(appAlias):
-					this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
+					if (data) {
+						const appAlias = data.bean.service_alias;
+						this.props.handleType && this.props.handleType === "Service" ? this.props.handleServiceGetData(appAlias) :
+							this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
+					}
 				}
 			})
 	}
 	render() {
-		const image = decodeURIComponent(this.props.handleType&&this.props.handleType==="Service"?"":(this.props.match.params.image || ""));
+		const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.image || ""));
 		return (
 			<Card >
-				<div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
-					<ImageCmdForm data={{docker_cmd: image||''}} onSubmit={this.handleSubmit} {...this.props}/>
+				<div className={styles.formWrap} style={{ width: this.props.handleType && this.props.handleType === "Service" ? "auto" : "500px" }}>
+					<ImageCmdForm data={{ docker_cmd: image || '' }} onSubmit={this.handleSubmit} {...this.props} />
 				</div>
 			</Card>
 		)

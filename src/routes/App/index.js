@@ -341,7 +341,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res._code == 200) {
+                    if (res&&res._code == 200) {
                         this.setState({
                             BuildState: res.list && res.list.length > 0 ? res.list.length : null
                         })
@@ -723,7 +723,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res._code == 200) {
+                    if (res&&res._code == 200) {
                         this.setState({
                             BuildList: res.list,
                             visibleBuild: true,

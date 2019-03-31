@@ -35,7 +35,7 @@ class MarketPlugin extends PureComponent {
       },
       callback: data => {
         this.setState({
-          list: data.list || []
+          list: data && data.list || []
         });
       }
     });
@@ -197,9 +197,11 @@ class PluginList extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        this.state.downstream_net_plugin = data.bean.downstream_net_plugin;
-        this.state.perf_analyze_plugin = data.bean.perf_analyze_plugin;
-        this.fetchPlugins();
+        if (data) {
+          this.state.downstream_net_plugin = data.bean.downstream_net_plugin;
+          this.state.perf_analyze_plugin = data.bean.perf_analyze_plugin;
+          this.fetchPlugins();
+        }
       }
     });
   };
@@ -210,16 +212,18 @@ class PluginList extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        var list = data.list || [];
-        if (this.state.downstream_net_plugin === false) {
-          list.unshift(this.state.downstream_net_pluginData);
+        if (data) {
+          var list = data.list || [];
+          if (this.state.downstream_net_plugin === false) {
+            list.unshift(this.state.downstream_net_pluginData);
+          }
+          if (this.state.perf_analyze_plugin === false) {
+            list.unshift(this.state.perf_analyze_pluginData);
+          }
+          this.setState({
+            list: data.list || []
+          });
         }
-        if (this.state.perf_analyze_plugin === false) {
-          list.unshift(this.state.perf_analyze_pluginData);
-        }
-        this.setState({
-          list: data.list || []
-        });
       }
     });
   };
@@ -267,7 +271,7 @@ class PluginList extends PureComponent {
         <Link
           to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
             item.plugin_id
-          }`}
+            }`}
         >
           {" "}
           {item.plugin_alias}{" "}
@@ -290,7 +294,7 @@ class PluginList extends PureComponent {
         <Link
           to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
             item.plugin_id
-          }`}
+            }`}
         >
           管理
         </Link>
@@ -369,17 +373,17 @@ class PluginList extends PureComponent {
                   </Card>
                 </List.Item>
               ) : (
-                <List.Item>
-                  <Button
-                    type="dashed"
-                    onClick={this.handleCreate}
-                    className={styles.newButton}
-                  >
-                    <Icon type="plus" />
-                    新建插件
+                  <List.Item>
+                    <Button
+                      type="dashed"
+                      onClick={this.handleCreate}
+                      className={styles.newButton}
+                    >
+                      <Icon type="plus" />
+                      新建插件
                   </Button>
-                </List.Item>
-              )
+                  </List.Item>
+                )
             }
           />
           {this.state.deletePlugin && (

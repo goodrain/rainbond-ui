@@ -1,4 +1,4 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
   Button,
   Icon,
@@ -8,8 +8,8 @@ import {
   Input,
   Select
 } from 'antd';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import Result from '../../components/Result';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -19,7 +19,7 @@ import LogProcress from '../../components/LogProcress';
 import userUtil from '../../utils/user';
 import regionUtil from '../../utils/region';
 
-@connect(({user, appControl, loading}) => ({currUser: user.currentUser, loading: loading}))
+@connect(({ user, appControl, loading }) => ({ currUser: user.currentUser, loading: loading }))
 class ShareEvent extends React.Component {
   constructor(props) {
     super(props);
@@ -71,11 +71,11 @@ class ShareEvent extends React.Component {
       .onFail(this);
   }
   reStart = () => {
-    this.setState({eventId: ''})
+    this.setState({ eventId: '' })
     this.startShareEvent();
   }
   getShareStatus = () => {
-    if (this.state.status !== 'start' || !this.mount) 
+    if (this.state.status !== 'start' || !this.mount)
       return;
     this
       .props
@@ -87,24 +87,26 @@ class ShareEvent extends React.Component {
           eventId: this.state.data.ID
         },
         callback: (data) => {
-          this.setState({
-            status: data.bean.event_status
-          }, () => {
-            if (this.state.status === 'success') {
-              this.onSuccess()
-            }
-            if (this.state.status === 'failure') {
-              this.onFail()
-            }
-            setTimeout(() => {
-              this.getShareStatus()
-            }, 5000)
-          })
+          if (data) {
+            this.setState({
+              status: data.bean.event_status
+            }, () => {
+              if (this.state.status === 'success') {
+                this.onSuccess()
+              }
+              if (this.state.status === 'failure') {
+                this.onFail()
+              }
+              setTimeout(() => {
+                this.getShareStatus()
+              }, 5000)
+            })
+          }
         }
       })
   }
   startShareEvent = () => {
-    
+
     this
       .props
       .dispatch({
@@ -115,27 +117,29 @@ class ShareEvent extends React.Component {
           eventId: this.state.data.ID
         },
         callback: (data) => {
-          this.setState({
-            eventId: data.bean.event_id,
-            status: data.bean.event_status
-          }, () => {
-            this.getShareStatus();
-            this.props.onStartSuccess && this.props.onStartSuccess()
-          })
+          if (data) {
+            this.setState({
+              eventId: data.bean.event_id,
+              status: data.bean.event_status
+            }, () => {
+              this.getShareStatus();
+              this.props.onStartSuccess && this.props.onStartSuccess()
+            })
+          }
         }
       })
   }
   renderStatus = () => {
     if (this.state.status === 'start') {
-      return <Icon type="sync" className="roundloading"/>
+      return <Icon type="sync" className="roundloading" />
     }
     if (this.state.status === 'success') {
       return <Icon type="check-circle" style={{
         color: '#52c41a'
-      }}/>
+      }} />
     }
     if (this.state.status === 'failure') {
-      return <Icon type="close-circle"/>
+      return <Icon type="close-circle" />
     }
     return null;
   }
@@ -149,7 +153,7 @@ class ShareEvent extends React.Component {
         <h4>插件名称: {data.plugin_name}
           {this.renderStatus()}</h4>
         <div>
-          {eventId && <LogProcress socketUrl={this.socketUrl} eventId={eventId}/>}
+          {eventId && <LogProcress socketUrl={this.socketUrl} eventId={eventId} />}
         </div>
       </div>
     )
@@ -157,7 +161,7 @@ class ShareEvent extends React.Component {
 
 }
 
-@connect(({user, appControl, loading}) => ({loading: loading}))
+@connect(({ user, appControl, loading }) => ({ loading: loading }))
 export default class shareCheck extends PureComponent {
   constructor(props) {
     super(props);
@@ -174,17 +178,17 @@ export default class shareCheck extends PureComponent {
     this.mount = false;
   }
   receiveStartShare = (callback) => {
-     this.state.startShareCallback.push(callback);
-     if(!this.state.isStart){
-        this.state.isStart = true;
-        callback();
-     }
+    this.state.startShareCallback.push(callback);
+    if (!this.state.isStart) {
+      this.state.isStart = true;
+      callback();
+    }
   }
   handleStartShareSuccess = () => {
-     this.state.startShareCallback.shift();
-     if(this.state.startShareCallback[0]){
+    this.state.startShareCallback.shift();
+    if (this.state.startShareCallback[0]) {
       this.state.startShareCallback[0]();
-     }
+    }
   }
   componentDidMount() {
     this.mount = true;
@@ -203,17 +207,19 @@ export default class shareCheck extends PureComponent {
           shareId: params.shareId
         },
         callback: (data) => {
-          this.setState({
-            shareEventList: data.bean.event_list || [],
-            status: !data.bean.is_compelte
-              ? 'checking'
-              : 'success'
-          })
+          if (data) {
+            this.setState({
+              shareEventList: data.bean.event_list || [],
+              status: !data.bean.is_compelte
+                ? 'checking'
+                : 'success'
+            })
+          }
         }
       })
   }
   getParams = () => {
-    return {shareId: this.props.match.params.shareId, groupId: this.props.match.params.groupId}
+    return { shareId: this.props.match.params.shareId, groupId: this.props.match.params.groupId }
   }
   componentWillUnmount() {
     this.mount = false;
@@ -222,183 +228,183 @@ export default class shareCheck extends PureComponent {
   handleSuccess = () => {
     this.state.successNum++;
     if (this.state.successNum === this.state.shareEventList.length) {
-      this.setState({status: 'success'})
+      this.setState({ status: 'success' })
     }
   }
   handleFail = (com) => {
     this
       .fails
       .push(com);
-    this.setState({status: 'failure'})
+    this.setState({ status: 'failure' })
   }
-  renderChecking = () => {}
+  renderChecking = () => { }
   renderError = () => {
     const extra = (
       <div></div>
     );
-    const actions = [< Button onClick = {
-        this.showDelete
-      }
-      type = "default" > 放弃创建 < /Button>, 
+    const actions = [< Button onClick={
+      this.showDelete
+    }
+      type="default" > 放弃创建 < /Button>,
         <Button onClick={this.recheck} type="primary">重新检测</Button >];
 
     return <Result
-      type="error"
-      title="插件分享失败"
-      description="请核对并修改以下信息后，再重新检测。"
-      extra={extra}
-      actions={actions}
-      style={{
-      marginTop: 48,
-      marginBottom: 16
-    }}/>
-  }
+        type="error"
+        title="插件分享失败"
+        description="请核对并修改以下信息后，再重新检测。"
+        extra={extra}
+        actions={actions}
+        style={{
+          marginTop: 48,
+          marginBottom: 16
+        }} />
+      }
   renderSuccess = () => {
     const extra = (
       <div></div>
-    );
-    const actions = [ < Button onClick = {
+      );
+    const actions = [ < Button onClick={
         this.handleBuild
       }
-      type = "primary" > 完成分享流程 < /Button>,
-         < Button onClick = {
-        this.showDelete
-      }
-      type = "default" > 放弃创建 < /Button>];
+        type="primary" > 完成分享流程 < /Button>,
+         < Button onClick={
+          this.showDelete
+        }
+          type="default" > 放弃创建 < /Button>];
         return <Result
-              type="success"
-              title="插件分享成功"
-              description="您可以执行以下操作"
-              extra={extra}
-              actions={actions}
-              style={{ marginTop: 48, marginBottom: 16 }}
-            / >
-    }
+            type="success"
+            title="插件分享成功"
+            description="您可以执行以下操作"
+            extra={extra}
+            actions={actions}
+            style={{ marginTop: 48, marginBottom: 16 }}
+          />
+          }
     handleReStart = () => {
-      if (!this.fails.length) 
-        return;
-      this
-        .fails
+      if (!this.fails.length)
+                    return;
+                  this
+                    .fails
         .forEach((item, index) => {
-          item.reStart();
-        })
-      this.fails = [];
+            item.reStart();
+          })
+        this.fails = [];
       this.setState({status: 'checking'});
-    }
+                }
     handleCompleteShare = () => {
       const params = this.getParams();
-      const list = this.state.shareEventList;
-      this
-        .props
+                  const list = this.state.shareEventList;
+                  this
+                    .props
         .dispatch({
-          type: 'global/complatePluginShare',
+            type: 'global/complatePluginShare',
           payload: {
             team_name: globalUtil.getCurrTeamName(),
-            share_id: params.shareId
-          },
+      share_id: params.shareId
+    },
           callback: (data) => {
             this
               .props
               .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source/plugin/${encodeURIComponent(list[0].plugin_name)}`))
           }
-        })
-    }
+          })
+      }
     handleGiveup = () => {
         var pluginId = this.props.match.params.pluginId;
         const {dispatch} = this.props;
         dispatch({
-        type: 'plugin/giveupSharePlugin',
+            type: 'plugin/giveupSharePlugin',
         payload: {
             team_name: globalUtil.getCurrTeamName(),
-            share_id: this.props.match.params.shareId
-        },
+      share_id: this.props.match.params.shareId
+  },
         callback: (data) => {
             dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${pluginId}`))
-        }
-        })
-    }
+          }
+          })
+      }
     renderBody = () => {
       const params = this.getParams();
-      const eventList = this.state.shareEventList;
-      const status = this.state.status;
-      const loading = this.props.loading;
-      const extra = (
+                  const eventList = this.state.shareEventList;
+                  const status = this.state.status;
+                  const loading = this.props.loading;
+                  const extra = (
         <div>
-          {(eventList || []).map((item) => {
-            return <ShareEvent
-              receiveStartShare = {this.receiveStartShare}
-              onStartSuccess = {this.handleStartShareSuccess}
-              onFail={this.handleFail}
-              onSuccess={this.handleSuccess}
-              share_id={params.shareId}
-              data={item}/>
-          })
-}
-        </div>
-      );
-      var type = '';
-      var title = '';
-      var desc = '';
-      var actions = [];
+            {(eventList || []).map((item) => {
+              return <ShareEvent
+                receiveStartShare={this.receiveStartShare}
+                onStartSuccess={this.handleStartShareSuccess}
+                onFail={this.handleFail}
+                onSuccess={this.handleSuccess}
+                share_id={params.shareId}
+                data={item} />
+            })
+            }
+          </div>
+          );
+          var type = '';
+          var title = '';
+          var desc = '';
+          var actions = [];
       if (status === 'success') {
-        type = 'success';
-        title = "插件发布成功"
-        desc = ""
-        actions = [ < Button onClick = {
+            type = 'success';
+          title = "插件发布成功"
+          desc = ""
+        actions = [ < Button onClick={
             this.handleCompleteShare
           }
-          type = "primary" > 确认发布 < /Button>];
-         }
+            type="primary" > 确认发布 < /Button>];
+           }
          if(status === 'checking'){
-           type = 'ing'
+              type = 'ing'
            title="插件发布中"
-           desc = "此过程可能比较耗时，请耐心等待";
+              desc = "此过程可能比较耗时，请耐心等待";
            actions = [<Button onClick={this.showDelete} type="default">放弃发布</Button >];
-      }
+         }
       if (status === 'failure') {
-        type = 'error';
-        desc = "请查看以下日志确认问题后重新同步";
-        actions = [< Button onClick = {
-            this.handleReStart
+              type = 'error';
+            desc = "请查看以下日志确认问题后重新同步";
+        actions = [< Button onClick={
+              this.handleReStart
+            }
+              type="primary" > 重新发布 < /Button>, <Button onClick={this.showDelete} type="default">放弃发布</Button >];
           }
-          type = "primary" > 重新发布 < /Button>, <Button  onClick={this.showDelete} type="default">放弃发布</Button >];
-      }
       return <Result
-        type={type}
-        title={title}
-        extra={extra}
-        description={desc}
-        actions={actions}
-        style={{
-        marginTop: 48,
-        marginBottom: 16
-      }}/ >
-        }
+                type={type}
+                title={title}
+                extra={extra}
+                description={desc}
+                actions={actions}
+                style={{
+                  marginTop: 48,
+                  marginBottom: 16
+                }} />
+              }
         showDelete = () => {
-          this.setState({showDelete: true})
-        }
-        hideShowDelete = () => {
-          this.setState({showDelete: false})
-        }
-        render() {
+                this.setState({ showDelete: true })
+              }
+              hideShowDelete = () => {
+                this.setState({ showDelete: false })
+              }
+              render() {
           const loading = this.props.loading;
-          const shareEventList = this.state.shareEventList;
-          if (!shareEventList.length) 
-            return null;
+                      const shareEventList = this.state.shareEventList;
+                      if (!shareEventList.length)
+                        return null;
           return <PageHeaderLayout>
-            <Card bordered={false}>
-              {this.renderBody()}
-              
-              {status === 'checking' && this.renderChecking()}
-              {status === 'failure' && this.renderSuccess()}
-              {status === 'failure' && this.renderError()}
-            </Card>
-            {this.state.showDelete && <ConfirmModal
-              disabled={loading.effects['groupControl/giveupShare']}
-              onOk={this.handleGiveup}
-              onCancel={this.hideShowDelete}
-              title="放弃分享"
-              desc="确定要放弃此次分享吗?"/>}
-          </PageHeaderLayout>
-        }
+                <Card bordered={false}>
+                  {this.renderBody()}
+
+                  {status === 'checking' && this.renderChecking()}
+                  {status === 'failure' && this.renderSuccess()}
+                  {status === 'failure' && this.renderError()}
+                </Card>
+                {this.state.showDelete && <ConfirmModal
+                  disabled={loading.effects['groupControl/giveupShare']}
+                  onOk={this.handleGiveup}
+                  onCancel={this.hideShowDelete}
+                  title="放弃分享"
+                  desc="确定要放弃此次分享吗?" />}
+              </PageHeaderLayout>
+              }
       }

@@ -84,10 +84,12 @@ export default class Main extends PureComponent {
         page: this.state.page
       },
       callback: data => {
-        this.setState({
-          list: data.list || [],
-          total: data.total
-        });
+        if (data) {
+          this.setState({
+            list: data.list || [],
+            total: data.total
+          });
+        }
       }
     });
   };
@@ -375,9 +377,9 @@ export default class Main extends PureComponent {
       },
     };
     const paginationProps = {
-      current:  this.state.moreState ? 1 : this.state.page,
+      current: this.state.moreState ? 1 : this.state.page,
       pageSize: this.state.moreState ? 3 : this.state.pageSize,
-      total:  this.state.moreState ? 1 : this.state.total,
+      total: this.state.moreState ? 1 : this.state.total,
       onChange: v => {
         this.hanldePageChange(v);
       }

@@ -1185,7 +1185,9 @@ class PHP extends PureComponent {
         this.props.dispatch({
             type: 'appControl/getPhpConfig',
             callback: (data) => {
-                this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+                if (data) {
+                    this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+                }
             }
         })
     }
@@ -1413,7 +1415,7 @@ export default class Index extends PureComponent {
                 build_env_dict
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     notification.success({ message: "修改成功." });
                     this.getRuntimeInfo()
                 }
@@ -1458,7 +1460,9 @@ export default class Index extends PureComponent {
                 app_alias: this.props.appDetail.service.service_alias
             },
             callback: (data) => {
-                this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+                if (data) {
+                    this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+                }
             }
         })
     }
@@ -1482,7 +1486,9 @@ export default class Index extends PureComponent {
                 service_alias: this.props.appDetail.service.service_alias,
             },
             callback: (data) => {
-                this.setState({ buildSource: data.bean });
+                if (data) {
+                    this.setState({ buildSource: data.bean });
+                }
             },
         });
     };
@@ -1519,19 +1525,20 @@ export default class Index extends PureComponent {
                 check_uuid: this.state.check_uuid
             },
             callback: (res) => {
-
-                if (res._code == 200) {
-                    if (res.bean && res.bean.check_status != "success" && res.bean.check_status != "failure") {
-                        setTimeout(function () {
-                            _th.handleDetectGetLanguage();
-                        }, 3000);
-                    } else {
-                        this.loadBuildSourceInfo();
-                        this.setState({
-                            create_status: res.bean && res.bean.check_status,
-                            service_info: res.bean && res.bean.service_info,
-                            error_infos: res.bean && res.bean.error_infos,
-                        })
+                if (res) {
+                    if (res._code == 200) {
+                        if (res.bean && res.bean.check_status != "success" && res.bean.check_status != "failure") {
+                            setTimeout(function () {
+                                _th.handleDetectGetLanguage();
+                            }, 3000);
+                        } else {
+                            this.loadBuildSourceInfo();
+                            this.setState({
+                                create_status: res.bean && res.bean.check_status,
+                                service_info: res.bean && res.bean.service_info,
+                                error_infos: res.bean && res.bean.error_infos,
+                            })
+                        }
                     }
                 }
             },
@@ -1547,16 +1554,18 @@ export default class Index extends PureComponent {
                 service_alias: this.props.appDetail.service.service_alias,
             },
             callback: (res) => {
-                this.setState({
-                    create_status: res.bean && res.bean.create_status,
-                    check_uuid: res.bean && res.bean.check_uuid,
-                }, () => {
-                    if (this.state.create_status == 'failure') {
-                        return
-                    } else {
-                        this.handleDetectGetLanguage()
-                    }
-                })
+                if (res) {
+                    this.setState({
+                        create_status: res.bean && res.bean.create_status,
+                        check_uuid: res.bean && res.bean.check_uuid,
+                    }, () => {
+                        if (this.state.create_status == 'failure') {
+                            return
+                        } else {
+                            this.handleDetectGetLanguage()
+                        }
+                    })
+                }
             },
         });
     }

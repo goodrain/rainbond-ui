@@ -24,7 +24,9 @@ export default class JoinTeam extends PureComponent {
       type: "global/getAllTeams",
       payload: { user_id: this.props.currUser.user_id, page_size: 100 },
       callback: (data) => {
-        this.setState({ teams: data.list });
+        if (data) {
+          this.setState({ teams: data.list });
+        }
       },
     });
   };
@@ -70,7 +72,7 @@ export default class JoinTeam extends PureComponent {
               <Option value="">请选择一个团队</Option>
               {this.state.teams.map(team => (
                 <Option value={team.team_name}>{team.team_alias}</Option>
-                ))}
+              ))}
             </Select>)}
           </FormItem>
         </Form>

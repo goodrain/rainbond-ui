@@ -85,7 +85,7 @@ export default class AppList extends PureComponent {
         page_size: 10
       },
       callback: data => {
-        if (data._code == 200) {
+        if (data&&data._code == 200) {
           this.setState({
             apps: data.list || [],
             teamAction: data.bean || {},
@@ -111,7 +111,7 @@ export default class AppList extends PureComponent {
         page_size: 10
       },
       callback: data => {
-        if (data._code == 200) {
+        if (data&&data._code == 200) {
           this.setState({
             apps: data.list || [],
             teamAction: data.bean || {},

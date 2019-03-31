@@ -33,7 +33,9 @@ export default class Index extends PureComponent {
       type: "global/getAllTeams",
       payload: { user_id: this.props.currUser.user_id, page_size: 100 },
       callback: (data) => {
-        this.setState({ teams: data.list });
+        if (data) {
+          this.setState({ teams: data.list });
+        }
       },
     });
   };
@@ -42,12 +44,14 @@ export default class Index extends PureComponent {
       type: "global/getJoinTeams",
       payload: { user_id: this.props.currUser.user_id },
       callback: (data) => {
-        this.setState({ joinTeams: data.list });
-        if (data.list && data.list.length > 0) {
-          const exitShow = data.list.filter((item => {
-            return item.is_pass == 2
-          }))
-          this.setState({ current: 1, exitShow: exitShow.length > 0 ? true : false });
+        if (data) {
+          this.setState({ joinTeams: data.list });
+          if (data.list && data.list.length > 0) {
+            const exitShow = data.list.filter((item => {
+              return item.is_pass == 2
+            }))
+            this.setState({ current: 1, exitShow: exitShow.length > 0 ? true : false });
+          }
         }
       },
     });
@@ -68,12 +72,12 @@ export default class Index extends PureComponent {
         team_name: str
       },
       callback: (data) => {
-          cookie.remove("token");
-          cookie.remove("token", { domain: "" });
-          cookie.remove("team", { domain: "" });
-          cookie.remove("region_name", { domain: "" });
-          localStorage.clear();
-          this.props.dispatch(routerRedux.replace("/user/login"));
+        cookie.remove("token");
+        cookie.remove("token", { domain: "" });
+        cookie.remove("team", { domain: "" });
+        cookie.remove("region_name", { domain: "" });
+        localStorage.clear();
+        this.props.dispatch(routerRedux.replace("/user/login"));
       },
     });
   }
@@ -130,7 +134,7 @@ export default class Index extends PureComponent {
                   <Step title="加入已存在的团队" description="" />
                   <Step title="等待审核" description="" />
                 </Steps>
-                <div style={{ marginTop: "20px" ,textAlign: "left",paddingLeft:"166px" }}>
+                <div style={{ marginTop: "20px", textAlign: "left", paddingLeft: "166px" }}>
                   <Select
                     value={this.state.selectedTeam}
                     style={{ width: "32%", marginRight: "10px" }}
@@ -145,15 +149,15 @@ export default class Index extends PureComponent {
                     </Button>
                   </Fragment>
                 </div>
-                <div style={{ textAlign: "left",paddingLeft:"166px",paddingTop:"10px" }}>
-                    {this.state.joinTeams.map((join, index) => (
-                      <div style={{ marginTop: "10px" }} key={index}>
-                        <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）<span style={{color:join.is_pass==0?"#009B62":join.is_pass==2?"#DD1144":"#FAFAFA"}}>{this.change(join.is_pass)}</span>
-                      </div>
-                    ))}
+                <div style={{ textAlign: "left", paddingLeft: "166px", paddingTop: "10px" }}>
+                  {this.state.joinTeams.map((join, index) => (
+                    <div style={{ marginTop: "10px" }} key={index}>
+                      <Icon type="right" style={{ marginRight: 8 }} />已申请加入团队（{join.team_alias}）<span style={{ color: join.is_pass == 0 ? "#009B62" : join.is_pass == 2 ? "#DD1144" : "#FAFAFA" }}>{this.change(join.is_pass)}</span>
+                    </div>
+                  ))}
                 </div>
-                {this.state.joinTeams&&this.state.joinTeams.length>0&&
-                  <div style={{ marginTop: "20px" ,textAlign: "left",paddingLeft:"244px"}}>
+                {this.state.joinTeams && this.state.joinTeams.length > 0 &&
+                  <div style={{ marginTop: "20px", textAlign: "left", paddingLeft: "244px" }}>
                     <Button onClick={this.deleteJoinTeams}>退出登录</Button>
                   </div>}
               </div>

@@ -67,13 +67,15 @@ export default class Index extends PureComponent {
         page_size
       },
       callback: data => {
-        this.setState({
-          list: data.list || [],
-          bean: data.bean || "",
-          buildTotal:data.total,
-          loading: false,
-          total: data.total
-        });
+        if (data) {
+          this.setState({
+            list: data.list || [],
+            bean: data.bean || "",
+            buildTotal: data.total,
+            loading: false,
+            total: data.total
+          });
+        }
       }
     });
   };
@@ -89,10 +91,12 @@ export default class Index extends PureComponent {
         version_id: data.build_version
       },
       callback: data => {
-        notification.success({
-          message: "删除成功"
-        });
-        this.getVersionList();
+        if (data) {
+          notification.success({
+            message: "删除成功"
+          });
+          this.getVersionList();
+        }
       }
     });
   };
@@ -102,7 +106,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const { total, page_num, page_size, bean} = this.state;
+    const { total, page_num, page_size, bean } = this.state;
     return (
       <Modal
         title={
@@ -115,22 +119,22 @@ export default class Index extends PureComponent {
       >
         <div className={styles.tdPadding}>
 
-            {bean.success_num && total && (
-              <span className={styles.floatright}>
-                成功率：<a>{(Math.round(Number(bean.success_num) / (total== "0" ? 1 : Number(total)) * 10000) / 100.00)+"%"}</a>
-              </span>
-            )}
-             {bean.failure_num && (
-              <span className={styles.floatright}>
-                失败次数：<a>{Number(bean.failure_num)}</a>
-              </span>
-            )}
-            {bean.success_num && (
-              <span className={styles.floatright}>
-                成功次数：<a>{Number(bean.success_num)}</a>
-              </span>
-            )}
-            
+          {bean.success_num && total && (
+            <span className={styles.floatright}>
+              成功率：<a>{(Math.round(Number(bean.success_num) / (total == "0" ? 1 : Number(total)) * 10000) / 100.00) + "%"}</a>
+            </span>
+          )}
+          {bean.failure_num && (
+            <span className={styles.floatright}>
+              失败次数：<a>{Number(bean.failure_num)}</a>
+            </span>
+          )}
+          {bean.success_num && (
+            <span className={styles.floatright}>
+              成功次数：<a>{Number(bean.success_num)}</a>
+            </span>
+          )}
+
           <Table
             loading={this.loading}
             pagination={{
@@ -148,17 +152,17 @@ export default class Index extends PureComponent {
                 width: 200,
                 align: "left",
                 render: (text) => (
-                  <Tooltip title={bean.current_version ? `${text}(当前版本)`:text}>
-                      <div style={{
-                          width: 200,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>
-                      {text == bean.current_version ? (<span style={{color:"#2593fb"}}>{`${text}(当前版本)`}</span>):(<span>{text}</span>)}
-                      </div>
+                  <Tooltip title={bean.current_version ? `${text}(当前版本)` : text}>
+                    <div style={{
+                      width: 200,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>
+                      {text == bean.current_version ? (<span style={{ color: "#2593fb" }}>{`${text}(当前版本)`}</span>) : (<span>{text}</span>)}
+                    </div>
                   </Tooltip>
-              )
+                )
               },
               {
                 title: "构建人",
@@ -167,14 +171,14 @@ export default class Index extends PureComponent {
                 align: "center",
                 render: (v) => (
                   <Tooltip title={v}>
-                      <div style={{
-                          width: 100,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{v}</div>
+                    <div style={{
+                      width: 100,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{v}</div>
                   </Tooltip>
-              )
+                )
               },
               {
                 title: "构建时间",
@@ -183,14 +187,14 @@ export default class Index extends PureComponent {
                 align: "left",
                 render: (v) => (
                   <Tooltip title={v}>
-                      <div style={{
-                          width: 205,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{v}</div>
+                    <div style={{
+                      width: 205,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{v}</div>
                   </Tooltip>
-              )
+                )
               },
               {
                 title: "构建类型",
@@ -199,14 +203,14 @@ export default class Index extends PureComponent {
                 align: "center",
                 render: (v) => (
                   <Tooltip title={v}>
-                      <div style={{
-                          width: 100,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{v}</div>
+                    <div style={{
+                      width: 100,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{v}</div>
                   </Tooltip>
-              )
+                )
 
               },
               {
@@ -216,14 +220,14 @@ export default class Index extends PureComponent {
                 align: "center",
                 render: (v) => (
                   <Tooltip title={v}>
-                      <div style={{
-                          width: 120,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{v}</div>
+                    <div style={{
+                      width: 120,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{v}</div>
                   </Tooltip>
-              )
+                )
               },
               {
                 title: "镜像/源码地址",
@@ -232,14 +236,14 @@ export default class Index extends PureComponent {
                 align: "left",
                 render: (v, data) => (
                   <Tooltip title={v}>
-                      <div style={{
-                        width: 120,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{data.repo_url || data.image_url}</div>
+                    <div style={{
+                      width: 120,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{data.repo_url || data.image_url}</div>
                   </Tooltip>
-              )
+                )
               },
               {
                 title: "构建状态",
@@ -250,16 +254,16 @@ export default class Index extends PureComponent {
                   var map = {
                     success: "成功",
                     failed: "失败",
-                    failure:"失败",
+                    failure: "失败",
                     timeout: "超时"
                   };
                   return <Tooltip title={v}>
-                      <div style={{
-                        width: 90,
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden"
-                      }}>{map[v] || v}</div>
+                    <div style={{
+                      width: 90,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden"
+                    }}>{map[v] || v}</div>
                   </Tooltip>
                 }
               },
@@ -280,7 +284,7 @@ export default class Index extends PureComponent {
                         >
                           升级
                         </a>
-                      ) : (data.upgrade_or_rollback == -1 &&data.status=="success"&&data.build_version!=bean.current_version)? (
+                      ) : (data.upgrade_or_rollback == -1 && data.status == "success" && data.build_version != bean.current_version) ? (
                         <a
                           href="javascript:;"
                           onClick={() => {
@@ -290,16 +294,16 @@ export default class Index extends PureComponent {
                           回滚
                         </a>
                       ) : (
-                        ""
-                      )}
+                            ""
+                          )}
                       <Popconfirm
                         title="确定要删除此版本吗?"
                         onConfirm={() => {
                           this.handleDel(data);
                         }}
                       >
-                      {data.build_version!=bean.current_version&&
-                        <a href="javascript:;">删除</a>}
+                        {data.build_version != bean.current_version &&
+                          <a href="javascript:;">删除</a>}
                       </Popconfirm>
                     </Fragment>
                   );

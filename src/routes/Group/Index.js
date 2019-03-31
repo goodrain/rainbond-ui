@@ -148,7 +148,7 @@ class Main extends PureComponent {
         groupId
       },
       callback: (res) => {
-        if (res._code == 200) {
+        if (res&&res._code == 200) {
           let data = res.bean
           if (JSON.stringify(data) == "{}") {
             return
@@ -185,7 +185,7 @@ class Main extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          linkList: data.list || []
+          linkList: data&&data.list || []
         })
       }
     })
@@ -250,7 +250,7 @@ class Main extends PureComponent {
           group_id: this.getGroupId(),
         },
         callback: (res) => {
-          if (res._code == 200) {
+          if (res&&res._code == 200) {
             notification.success({ message: "删除成功" });
             this.cancelDelete();
             this.newAddress(grid)
@@ -353,7 +353,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
       },
       callback: (data) => {
-        if (data._code == 20021) {
+        if (data&&data._code == 20021) {
           this.setState({ recordShare: true });
           notification.info({ message: "分享未完成", description: "您有分享未完成，可以点击继续分享" });
         } else {
@@ -372,10 +372,10 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
       },
       callback: (data) => {
-        if (data.bean.step === 1) {
+        if (data&&data.bean.step === 1) {
           dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/one/${data.bean.group_id}/${data.bean.ID}`));
         }
-        if (data.bean.step === 2) {
+        if (data&&data.bean.step === 2) {
           dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${data.bean.group_id}/${data.bean.ID}`));
         }
       },

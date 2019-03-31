@@ -77,22 +77,24 @@ class ShareEvent extends React.Component {
         event_id: this.state.data.ID,
       },
       callback: (data) => {
-        this.setState(
-          {
-            status: data.bean.event_status,
-          },
-          () => {
-            if (this.state.status === "success") {
-              this.onSuccess();
-            }
-            if (this.state.status === "failure") {
-              this.onFail();
-            }
-            setTimeout(() => {
-              this.getShareStatus();
-            }, 5000);
-          },
-        );
+        if (data) {
+          this.setState(
+            {
+              status: data.bean.event_status,
+            },
+            () => {
+              if (this.state.status === "success") {
+                this.onSuccess();
+              }
+              if (this.state.status === "failure") {
+                this.onFail();
+              }
+              setTimeout(() => {
+                this.getShareStatus();
+              }, 5000);
+            },
+          );
+        }
       },
     });
   };
@@ -110,16 +112,18 @@ class ShareEvent extends React.Component {
         event_id: event.ID,
       },
       callback: (data) => {
-        this.setState(
-          {
-            eventId: data.bean.event_id,
-            status: data.bean.event_status,
-          },
-          () => {
-            this.getShareStatus();
-            this.props.onStartSuccess && this.props.onStartSuccess();
-          },
-        );
+        if (data) {
+          this.setState(
+            {
+              eventId: data.bean.event_id,
+              status: data.bean.event_status,
+            },
+            () => {
+              this.getShareStatus();
+              this.props.onStartSuccess && this.props.onStartSuccess();
+            },
+          );
+        }
       },
     });
   };
@@ -204,10 +208,12 @@ export default class shareCheck extends PureComponent {
         share_id: params.shareId,
       },
       callback: (data) => {
-        this.setState({
-          shareEventList: data.bean.event_list || [],
-          status: !data.bean.is_compelte ? "checking" : "success",
-        });
+        if (data) {
+          this.setState({
+            shareEventList: data.bean.event_list || [],
+            status: !data.bean.is_compelte ? "checking" : "success",
+          });
+        }
       },
     });
   };
@@ -225,7 +231,7 @@ export default class shareCheck extends PureComponent {
     this.fails.push(com);
     this.setState({ status: "failure" });
   };
-  renderChecking = () => {};
+  renderChecking = () => { };
   renderError = () => {
     const extra = <div />;
     const actions = [
@@ -295,12 +301,12 @@ export default class shareCheck extends PureComponent {
         share_id: params.shareId,
       },
       callback: (data) => {
-        if (data.app_market_url) {
+        if (data&&data.app_market_url) {
           openInNewTab(data.app_market_url)
         }
         this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
           params.groupId
-        }`));
+          }`));
       },
     });
   };
@@ -316,7 +322,7 @@ export default class shareCheck extends PureComponent {
         this.hideShowDelete();
         this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
           params.groupId
-        }`));
+          }`));
       },
     });
   };
@@ -336,7 +342,7 @@ export default class shareCheck extends PureComponent {
             share_id={params.shareId}
             data={item}
           />
-          ))}
+        ))}
       </div>
     );
     let type = "";
