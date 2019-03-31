@@ -20,10 +20,9 @@ export default class ChangeBuildSource extends PureComponent {
       showUsernameAndPass: false,
       showKey: false,
       gitUrl: this.props.buildSource.git_url,
-      serverType: this.props.buildSource.server_type,
+      serverType: this.props.buildSource.server_type?this.props.buildSource.server_type:"git",
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
-      isUserPass: true
     };
   }
   componentDidMount() {
@@ -38,18 +37,8 @@ export default class ChangeBuildSource extends PureComponent {
     }
     return /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
   }
-  isUserPass = () => {
-    if (this.state.serverType == "svn") {
-      return true;
-    }
-    if (this.state.showImage) {
-      return true;
-    }
-    return /^(http:\/\/|https:\/\/)/.test(this.state.gitUrl || "");
-  };
   changeServerType = (value) => {
-    this.setState({ serverType: value });
-    this.setState({ isUserPass: this.isUserPass() });
+    this.setState({ serverType: value ,showUsernameAndPass:false});
   };
   checkURL = (rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
@@ -58,12 +47,6 @@ export default class ChangeBuildSource extends PureComponent {
     } else {
       callback("非法仓库地址");
     }
-  };
-  changeURL = (value) => {
-    this.setState({ gitUrl: this.props.form.getFieldValue("git_url") }, () => {
-      this.setState({ isUserPass: this.isUserPass() });
-    });
-
   };
   loadBranch() {
     getCodeBranch({
@@ -113,6 +96,7 @@ export default class ChangeBuildSource extends PureComponent {
     const { title, onCancel } = this.props;
     const branch = this.state.branch;
     const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { showUsernameAndPass, showKey } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -131,7 +115,6 @@ export default class ChangeBuildSource extends PureComponent {
         },
       },
     };
-
     const gitUrl = getFieldValue("git_url");
     let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
@@ -167,7 +150,6 @@ export default class ChangeBuildSource extends PureComponent {
     if (this.state.showImage) {
       getFieldDecorator("service_source", { initialValue: "docker_run" });
     }
-    const { showUsernameAndPass } = this.state;
     return (
       <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
         <Form onSubmit={this.handleSubmit}>
@@ -204,7 +186,6 @@ export default class ChangeBuildSource extends PureComponent {
                   { validator: this.checkURL, message: "仓库地址不合法" },
                 ],
               })(<Input
-                onChange={this.changeURL}
                 addonBefore={prefixSelector}
                 placeholder="请输入仓库地址"
               />)}
@@ -255,7 +236,7 @@ export default class ChangeBuildSource extends PureComponent {
             )}
 
           <Form.Item
-            style={{ display: showUsernameAndPass ? "" : "none" }}
+            style={{ display:(showUsernameAndPass && isHttp) ? "" : "none" }}
             {...formItemLayout}
             label="用户名"
           >
@@ -265,7 +246,7 @@ export default class ChangeBuildSource extends PureComponent {
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
-            style={{ display: showUsernameAndPass ? "" : "none" }}
+            style={{ display:(showUsernameAndPass && isHttp) ? "" : "none" }}s
             {...formItemLayout}
             label="密码"
           >
@@ -275,8 +256,7 @@ export default class ChangeBuildSource extends PureComponent {
             })(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
           </Form.Item>
         </Form>
-        {this.state.showKey &&
-          !this.state.isUserPass && <ShowRegionKey onCancel={this.hideShowKey} />}
+        {showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />}
       </Modal>
     );
   }
