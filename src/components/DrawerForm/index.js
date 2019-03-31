@@ -59,7 +59,7 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                if (data.list) {
+                if (data && data.list) {
                     this.setState({ licenseList: data.list })
                 }
             }
@@ -103,17 +103,19 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.handlePorts(editInfo.service_id, true);
-                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
-                        } else {
-                            this.handlePorts(data.list[0].service_id, false);
-                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                if (data) {
+                    this.setState({ serviceComponentList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.handlePorts(editInfo.service_id, true);
+                                this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                            } else {
+                                this.handlePorts(data.list[0].service_id, false);
+                                this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -132,18 +134,20 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.setState({
-                                isPerform: false
-                            })
-                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
-                        } else {
-                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                if (data) {
+                    this.setState({ portList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.setState({
+                                    isPerform: false
+                                })
+                                this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                            } else {
+                                this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -164,9 +168,9 @@ class DrawerForm extends PureComponent {
         }
     }
 
-    handleRoutingConfiguration = ()=>{
+    handleRoutingConfiguration = () => {
         this.setState({
-            routingConfiguration:!this.state.routingConfiguration 
+            routingConfiguration: !this.state.routingConfiguration
         })
     }
     render() {
@@ -215,7 +219,7 @@ class DrawerForm extends PureComponent {
                     }}
                 >
                     <Form >
-                        <h3 style={{ borderBottom: "1px solid #BBBBBB",marginBottom:"10px" }}>路由规则</h3>
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>路由规则</h3>
                         <FormItem
                             {...formItemLayout}
                             label="域名"
@@ -260,7 +264,7 @@ class DrawerForm extends PureComponent {
                         </FormItem>
 
                         {!routingConfiguration && <div>
-                            <p style={{ textAlign: "center" }}>更多高级路由参数<br></br><Icon type="down" onClick={this.handleRoutingConfiguration}/></p>
+                            <p style={{ textAlign: "center" }}>更多高级路由参数<br></br><Icon type="down" onClick={this.handleRoutingConfiguration} /></p>
                         </div>}
 
                         {routingConfiguration && <div>
@@ -327,11 +331,11 @@ class DrawerForm extends PureComponent {
                                 </FormItem>
                             </FormItem>
 
-                            <div style={{ textAlign: "center" }}><Icon type="up" onClick={this.handleRoutingConfiguration}/></div>
+                            <div style={{ textAlign: "center" }}><Icon type="up" onClick={this.handleRoutingConfiguration} /></div>
 
                         </div>
                         }
-                        <h3 style={{ borderBottom: "1px solid #BBBBBB",marginBottom:"10px"  }}>访问目标</h3>
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>访问目标</h3>
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
@@ -372,7 +376,7 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{ zIndex: 999,marginBottom:"150px" }}
+                            style={{ zIndex: 999, marginBottom: "150px" }}
                         >
                             {getFieldDecorator('container_port', {
                                 initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : undefined,

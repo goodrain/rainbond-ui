@@ -43,7 +43,7 @@ export default class PluginList extends PureComponent {
       showOfflinePlugin: null,
       showCloudPlugin: false,
       showMarketPluginDetail: false,
-      showPlugin:{},
+      showPlugin: {},
     };
   }
   getParams = () => {
@@ -94,11 +94,13 @@ export default class PluginList extends PureComponent {
             is_complete: this.state.type
           },
           callback: data => {
-            this.setState({
-              plugins: data.list || [],
-              loading: false,
-              total: data.total
-            });
+            if (data) {
+              this.setState({
+                plugins: data.list || [],
+                loading: false,
+                total: data.total
+              });
+            }
           }
         });
       }
@@ -160,11 +162,11 @@ export default class PluginList extends PureComponent {
   hideOfflinePlugin = () => {
     this.setState({ showOfflinePlugin: null });
   };
-  hideMarketPluginDetail = () =>{
-    this.setState({showMarketPluginDetail: false, showPlugin: {}})
+  hideMarketPluginDetail = () => {
+    this.setState({ showMarketPluginDetail: false, showPlugin: {} })
   }
-  showMarketPluginDetail = (plugin) =>{
-    this.setState({showMarketPluginDetail: true, showPlugin: plugin})
+  showMarketPluginDetail = (plugin) => {
+    this.setState({ showMarketPluginDetail: true, showPlugin: plugin })
   }
   render() {
     const extraContent = (
@@ -252,29 +254,29 @@ export default class PluginList extends PureComponent {
                   this.state.showCloudPlugin
                     ? null
                     : [
-                        item.is_complete ? (
-                          <Fragment>
-                            {item.source === "market" && (
-                              <a
-                                style={{ marginRight: 8 }}
-                                href="javascript:;"
-                                onClick={() => {
-                                  this.handleLoadPluginDetail(item);
-                                }}
-                              >
-                                云端更新
-                              </a>
-                            )}
+                      item.is_complete ? (
+                        <Fragment>
+                          {item.source === "market" && (
                             <a
+                              style={{ marginRight: 8 }}
                               href="javascript:;"
                               onClick={() => {
-                                this.showOfflinePlugin(item);
+                                this.handleLoadPluginDetail(item);
                               }}
                             >
-                              删除
+                              云端更新
+                              </a>
+                          )}
+                          <a
+                            href="javascript:;"
+                            onClick={() => {
+                              this.showOfflinePlugin(item);
+                            }}
+                          >
+                            删除
                             </a>
-                          </Fragment>
-                        ) : (
+                        </Fragment>
+                      ) : (
                           <a
                             href="javascript:;"
                             onClick={() => {
@@ -284,7 +286,7 @@ export default class PluginList extends PureComponent {
                             下载应用
                           </a>
                         )
-                      ]
+                    ]
                 }
               >
                 <List.Item.Meta
@@ -296,12 +298,12 @@ export default class PluginList extends PureComponent {
                       }
                       shape="square"
                       size="large"
-                      onClick={() =>{
+                      onClick={() => {
                         this.showMarketPluginDetail(item)
                       }}
                     />
                   }
-                  title={<a style={{color:"#1890ff"}} href="javascript:;" onClick={() =>{
+                  title={<a style={{ color: "#1890ff" }} href="javascript:;" onClick={() => {
                     this.showMarketPluginDetail(item)
                   }}>{item.plugin_name}</a>}
                   description={item.desc || "-"}

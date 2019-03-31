@@ -122,7 +122,7 @@ export default class AutoDeploy extends PureComponent {
           keyword: deploy_keyword,
         },
         callback: (data) => {
-          if(data._code==200){
+          if(data&&data._code==200){
           notification.success({ message: "更新成功" });
             this.setState({
               deploy_keyword:data.bean.deploy_keyword

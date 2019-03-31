@@ -54,7 +54,9 @@ export default class Index extends PureComponent {
         msg_type: '',
       },
       callback: (data) => {
-        this.setState({ list: data.list || [], total: data.total });
+        if (data) {
+          this.setState({ list: data.list || [], total: data.total });
+        }
       },
     });
   };
@@ -79,8 +81,8 @@ export default class Index extends PureComponent {
         owner, createdAt, percent, status,
       },
     }) => (
-      <div className={BasicListStyles.listContent} />
-    );
+        <div className={BasicListStyles.listContent} />
+      );
 
     return (
       <PageHeaderLayout

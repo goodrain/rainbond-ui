@@ -54,9 +54,11 @@ class DrawerForm extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                this.setState({
-                    domain_port: data.list
-                })
+                if (data) {
+                    this.setState({
+                        domain_port: data.list
+                    })
+                }
             }
         })
         const { editInfo } = this.props;
@@ -78,17 +80,19 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.handlePorts(editInfo.service_id, true);
-                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
-                        } else {
-                            this.handlePorts(data.list[0].service_id, false);
-                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                if (data) {
+                    this.setState({ serviceComponentList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.handlePorts(editInfo.service_id, true);
+                                this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                            } else {
+                                this.handlePorts(data.list[0].service_id, false);
+                                this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -108,18 +112,20 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.setState({
-                                isPerform: false
-                            })
-                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
-                        } else {
-                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                if (data) {
+                    this.setState({ portList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.setState({
+                                    isPerform: false
+                                })
+                                this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                            } else {
+                                this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }

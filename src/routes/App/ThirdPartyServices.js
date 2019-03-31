@@ -83,7 +83,7 @@ export default class Index extends PureComponent {
                 app_alias: this.props.appAlias,
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res&&res._code == 200) {
                     this.setState({
                         endpoint_num: res.bean.endpoint_num > 0 ? res.bean.endpoint_num : "",
                         list: res.list
@@ -109,7 +109,7 @@ export default class Index extends PureComponent {
                 ep_id
             },
             callback: (res) => {
-                if (res._code == "200") {
+                if (res&&res._code == "200") {
                     this.handleGetList();
                     this.cancelDeleteVar();
                 }
@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
                 is_online: !status.is_online
             },
             callback: (res) => {
-                if (res._code == "200") {
+                if (res&&res._code == "200") {
                     if(res.bean&&res.bean.port_closed){
                         this.showConfirm()
                     }else{
@@ -159,7 +159,7 @@ export default class Index extends PureComponent {
                     is_online: fieldsValue.is_online
                 },
                 callback: (res) => {
-                    if (res._code == "200") {
+                    if (res&&res._code == "200") {
                         this.setState({ visible: false })
                         this.handleGetList();
                     }
@@ -212,7 +212,7 @@ export default class Index extends PureComponent {
                 app_alias: this.props.appAlias,
             },
             callback: (res) => {
-                if (res._code == "200") {
+                if (res&&res._code == "200") {
                     this.setState({
                         api_service_key: res.bean.api_service_key
                     })

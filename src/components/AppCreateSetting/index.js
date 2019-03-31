@@ -1181,7 +1181,9 @@ class PHP extends PureComponent {
     this.props.dispatch({
       type: 'appControl/getPhpConfig',
       callback: (data) => {
-        this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+        if (data) {
+          this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+        }
       }
     })
   }
@@ -1529,7 +1531,7 @@ class RenderDeploy extends PureComponent {
         build_env_dict
       },
       callback: (res) => {
-        if (res._code == 200) {
+        if (res && res._code == 200) {
           notification.success({ message: "修改成功." });
           this.getRuntimeInfo()
         }
@@ -1574,7 +1576,9 @@ class RenderDeploy extends PureComponent {
         app_alias: this.props.appDetail.service.service_alias
       },
       callback: (data) => {
-        this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+        }
       }
     })
   }
@@ -1684,9 +1688,11 @@ class Mnt extends PureComponent {
           app_alias: this.props.appDetail.service.service_alias
         },
         callback: (data) => {
-          this.setState({
-            volumes: data.list || []
-          })
+          if (data) {
+            this.setState({
+              volumes: data.list || []
+            })
+          }
         }
       })
   }

@@ -41,7 +41,7 @@ export default class Index extends React.Component {
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
-      outerEnvs:[]
+      outerEnvs: []
     };
   }
   componentDidMount() {
@@ -69,12 +69,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        env_type:"outer"
+        env_type: "outer"
       },
       callback: (res) => {
-        this.setState({
-          outerEnvs: res.list || []
-        })
+        if (res) {
+          this.setState({
+            outerEnvs: res.list || []
+          })
+        }
       }
     });
   };
@@ -125,7 +127,7 @@ export default class Index extends React.Component {
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
         name: vals.name,
-        scope:"outer"
+        scope: "outer"
       },
       callback: () => {
         this.handleCancelAddVar();
@@ -147,7 +149,7 @@ export default class Index extends React.Component {
         >
           <ScrollerX sm={600}>
             <Table
-             style={{ width: "100%", overflowX: "auto" }}
+              style={{ width: "100%", overflowX: "auto" }}
               columns={[
                 {
                   title: "变量名",
@@ -223,7 +225,7 @@ export default class Index extends React.Component {
                 },
               ]}
               pagination={false}
-             dataSource={this.state.outerEnvs}
+              dataSource={this.state.outerEnvs}
             />
           </ScrollerX>
           <div

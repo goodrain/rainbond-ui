@@ -74,20 +74,22 @@ export default class BasicList extends PureComponent {
         region: regionName,
       },
       callback: (data) => {
-        const endDateStr = data.bean.disk.expire_date || data.bean.memory.expire_date;
-        const datas = {
-          dataCenter: data.bean,
-          disk: data.bean.disk,
-          memory: data.bean.memory,
-          buydisk: data.bean.disk.limit || 1,
-          buymemory: data.bean.memory.limit || 1024,
-        };
-        if (endDateStr) {
-          datas.defaultEndDate = moment(endDateStr).format('YYYY-MM-DD');
+        if (data) {
+          const endDateStr = data.bean.disk.expire_date || data.bean.memory.expire_date;
+          const datas = {
+            dataCenter: data.bean,
+            disk: data.bean.disk,
+            memory: data.bean.memory,
+            buydisk: data.bean.disk.limit || 1,
+            buymemory: data.bean.memory.limit || 1024,
+          };
+          if (endDateStr) {
+            datas.defaultEndDate = moment(endDateStr).format('YYYY-MM-DD');
+          }
+          this.setState(datas, () => {
+            this.getResPrice();
+          });
         }
-        this.setState(datas, () => {
-          this.getResPrice();
-        });
       },
     });
   }
@@ -111,7 +113,9 @@ export default class BasicList extends PureComponent {
         ),
       },
       callback: (data) => {
-        this.setState({ money: data.bean });
+        if (data) {
+          this.setState({ money: data.bean });
+        }
       },
     });
   }

@@ -67,8 +67,10 @@ export default class CreateCheck extends PureComponent {
         app_alias: this.getAppAlias(),
       },
       callback: (appDetail) => {
-        this.setState({ appDetail: appDetail.service });
-        this.getCheckuuid();
+        if (appDetail) {
+          this.setState({ appDetail: appDetail.service });
+          this.getCheckuuid();
+        }
       },
     });
   };
@@ -248,13 +250,13 @@ export default class CreateCheck extends PureComponent {
       },
       callback: () => {
         this
-        .props
-        .dispatch({
+          .props
+          .dispatch({
             type: 'global/fetchGroups',
             payload: {
-                team_name: globalUtil.getCurrTeamName()
+              team_name: globalUtil.getCurrTeamName()
             }
-        });
+          });
 
         ServiceGetData ? this.props.handleServiceDataState(true, null, null, null) :
           this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
@@ -265,7 +267,7 @@ export default class CreateCheck extends PureComponent {
     this.setState({ modifyUrl: false });
   };
   handleCancelEdit = () => {
-    this.setState({ showEdit: false,modifyUrl: false });
+    this.setState({ showEdit: false, modifyUrl: false });
   };
   handleCancelShowKey = () => {
     this.setState({ showKey: false });
@@ -284,8 +286,8 @@ export default class CreateCheck extends PureComponent {
     this.props.dispatch({
       type: "appControl/editAppCreateInfo",
       payload: {
-        service_cname:values.service_cname?values.service_cname:"",
-        git_url:values.git_url?values.git_url:"",
+        service_cname: values.service_cname ? values.service_cname : "",
+        git_url: values.git_url ? values.git_url : "",
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
@@ -300,7 +302,7 @@ export default class CreateCheck extends PureComponent {
     });
   };
   handleModifyUrl = (values) => {
-    
+
     const appDetail = this.state.appDetail;
     this.props.dispatch({
       type: "appControl/editAppCreateInfo",
@@ -644,137 +646,137 @@ export default class CreateCheck extends PureComponent {
       );
     };
   }
-    render() {
-      const status = this.state.status;
-      const appDetail = this.state.appDetail;
-      const { ServiceGetData } = this.state;
-      return (
-        <div>
-          {ServiceGetData ?
-            <div>
-              <Card bordered={false}>
-                <div
-                  style={{
-                    minHeight: 400,
-                  }}
-                >
-                  {status === "checking" ? this.renderChecking() : null}
-                  {status === "success" ? this.renderSuccess() : null}
-                  {status === "failure" ? this.renderError() : null}
-                </div>
-              </Card>
+  render() {
+    const status = this.state.status;
+    const appDetail = this.state.appDetail;
+    const { ServiceGetData } = this.state;
+    return (
+      <div>
+        {ServiceGetData ?
+          <div>
+            <Card bordered={false}>
+              <div
+                style={{
+                  minHeight: 400,
+                }}
+              >
+                {status === "checking" ? this.renderChecking() : null}
+                {status === "success" ? this.renderSuccess() : null}
+                {status === "failure" ? this.renderError() : null}
+              </div>
+            </Card>
 
-              {this.state.modifyUrl ? (
-                <ModifyUrl
-                  data={appDetail}
-                  onSubmit={this.handleModifyUrl}
-                  onCancel={this.cancelModifyUrl}
-                />
-              ) : null}
+            {this.state.modifyUrl ? (
+              <ModifyUrl
+                data={appDetail}
+                onSubmit={this.handleModifyUrl}
+                onCancel={this.cancelModifyUrl}
+              />
+            ) : null}
 
-              {this.state.modifyImageName ? (
-                <ModifyImageName
-                  data={{
-                    docker_cmd: appDetail.docker_cmd,
-                  }}
-                  onSubmit={this.handleModifyImageName}
-                  onCancel={this.cancelModifyImageName}
-                />
-              ) : null}
-              {this.state.modifyImageCmd ? (
-                <ModifyImageCmd
-                  data={{
-                    docker_cmd: appDetail.docker_cmd,
-                  }}
-                  onSubmit={this.handleModifyImageCmd}
-                  onCancel={this.cancelModifyImageCmd}
-                />
-              ) : null}
+            {this.state.modifyImageName ? (
+              <ModifyImageName
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageName}
+                onCancel={this.cancelModifyImageName}
+              />
+            ) : null}
+            {this.state.modifyImageCmd ? (
+              <ModifyImageCmd
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageCmd}
+                onCancel={this.cancelModifyImageCmd}
+              />
+            ) : null}
 
-              {this.state.modifyUserpass ? (
-                <ModifyUrl
-                  showUsernameAndPass
-                  data={appDetail}
-                  onSubmit={this.handleModifyUserpass}
-                  onCancel={this.cancelModifyUserpass}
-                />
-              ) : null}
-              {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
-              {this.state.showDelete && (
-                <ConfirmModal
-                  onOk={this.handleDelete}
-                  title="放弃创建"
-                  subDesc="此操作不可恢复"
-                  desc="确定要放弃创建此服务吗？"
-                  onCancel={() => {
-                    this.setState({ showDelete: false });
-                  }}
-                />)
-              }
-            </div> :
-            <PageHeaderLayout>
-              <Card bordered={false}>
-                <div
-                  style={{
-                    minHeight: 400,
-                  }}
-                >
-                  {status === "checking" ? this.renderChecking() : null}
-                  {status === "success" ? this.renderSuccess() : null}
-                  {status === "failure" ? this.renderError() : null}
-                </div>
-              </Card>
+            {this.state.modifyUserpass ? (
+              <ModifyUrl
+                showUsernameAndPass
+                data={appDetail}
+                onSubmit={this.handleModifyUserpass}
+                onCancel={this.cancelModifyUserpass}
+              />
+            ) : null}
+            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+            {this.state.showDelete && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                title="放弃创建"
+                subDesc="此操作不可恢复"
+                desc="确定要放弃创建此服务吗？"
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />)
+            }
+          </div> :
+          <PageHeaderLayout>
+            <Card bordered={false}>
+              <div
+                style={{
+                  minHeight: 400,
+                }}
+              >
+                {status === "checking" ? this.renderChecking() : null}
+                {status === "success" ? this.renderSuccess() : null}
+                {status === "failure" ? this.renderError() : null}
+              </div>
+            </Card>
 
-              {this.state.modifyUrl ? (
-                <ModifyUrl
-                  data={appDetail}
-                  onSubmit={this.handleModifyUrl}
-                  onCancel={this.cancelModifyUrl}
-                />
-              ) : null}
+            {this.state.modifyUrl ? (
+              <ModifyUrl
+                data={appDetail}
+                onSubmit={this.handleModifyUrl}
+                onCancel={this.cancelModifyUrl}
+              />
+            ) : null}
 
-              {this.state.modifyImageName ? (
-                <ModifyImageName
-                  data={{
-                    docker_cmd: appDetail.docker_cmd,
-                  }}
-                  onSubmit={this.handleModifyImageName}
-                  onCancel={this.cancelModifyImageName}
-                />
-              ) : null}
-              {this.state.modifyImageCmd ? (
-                <ModifyImageCmd
-                  data={{
-                    docker_cmd: appDetail.docker_cmd,
-                  }}
-                  onSubmit={this.handleModifyImageCmd}
-                  onCancel={this.cancelModifyImageCmd}
-                />
-              ) : null}
+            {this.state.modifyImageName ? (
+              <ModifyImageName
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageName}
+                onCancel={this.cancelModifyImageName}
+              />
+            ) : null}
+            {this.state.modifyImageCmd ? (
+              <ModifyImageCmd
+                data={{
+                  docker_cmd: appDetail.docker_cmd,
+                }}
+                onSubmit={this.handleModifyImageCmd}
+                onCancel={this.cancelModifyImageCmd}
+              />
+            ) : null}
 
-              {this.state.modifyUserpass ? (
-                <ModifyUrl
-                  showUsernameAndPass
-                  data={appDetail}
-                  onSubmit={this.handleModifyUserpass}
-                  onCancel={this.cancelModifyUserpass}
-                />
-              ) : null}
-              {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
-              {this.state.showDelete && (
-                <ConfirmModal
-                  onOk={this.handleDelete}
-                  title="放弃创建"
-                  subDesc="此操作不可恢复"
-                  desc="确定要放弃创建此服务吗？"
-                  onCancel={() => {
-                    this.setState({ showDelete: false });
-                  }}
-                />
-              )}
-            </PageHeaderLayout>
-          }
-        </div>
-      );
-    }
+            {this.state.modifyUserpass ? (
+              <ModifyUrl
+                showUsernameAndPass
+                data={appDetail}
+                onSubmit={this.handleModifyUserpass}
+                onCancel={this.cancelModifyUserpass}
+              />
+            ) : null}
+            {this.state.showKey ? <ShowRegionKey onCancel={this.handleCancelShowKey} /> : null}
+            {this.state.showDelete && (
+              <ConfirmModal
+                onOk={this.handleDelete}
+                title="放弃创建"
+                subDesc="此操作不可恢复"
+                desc="确定要放弃创建此服务吗？"
+                onCancel={() => {
+                  this.setState({ showDelete: false });
+                }}
+              />
+            )}
+          </PageHeaderLayout>
+        }
+      </div>
+    );
   }
+}

@@ -1,7 +1,7 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
-import {connect} from 'dva';
-import {Link} from 'dva/router';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -24,7 +24,7 @@ import {
   InputNumber,
   Upload
 } from 'antd';
-import {routerRedux} from 'dva/router';
+import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import Ellipsis from '../../components/Ellipsis';
@@ -35,11 +35,11 @@ import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import styles from '../../components/PageHeader/index.less';
 const FormItem = Form.Item;
-const {TextArea} = Input;
+const { TextArea } = Input;
 const ButtonGroup = Button.Group;
 const RadioGroup = Radio.Group;
-const {Option} = Select;
-const {SubMenu} = Menu;
+const { Option } = Select;
+const { SubMenu } = Menu;
 const formItemLayout = {
   labelCol: {
     span: 8
@@ -64,9 +64,9 @@ const tailFormItemLayout = {
 const token = cookie.get('token');
 let myheaders = {}
 if (token) {
-   myheaders.Authorization = `GRJWT ${token}`;
-   myheaders['X_REGION_NAME'] = globalUtil.getCurrRegionName();
-   myheaders['X_TEAM_NAME'] = globalUtil.getCurrTeamName();
+  myheaders.Authorization = `GRJWT ${token}`;
+  myheaders['X_REGION_NAME'] = globalUtil.getCurrRegionName();
+  myheaders['X_TEAM_NAME'] = globalUtil.getCurrTeamName();
 }
 
 const uploadButton = (
@@ -76,7 +76,7 @@ const uploadButton = (
   </div>
 );
 
-@connect(({user, groupControl, loading}) => ({
+@connect(({ user, groupControl, loading }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
@@ -94,17 +94,17 @@ export default class Main extends PureComponent {
       ID: 0,
       info: null,
       key: '',
-      fileList:[]
+      fileList: []
     }
   }
   getParams() {
-    return {pluginId: this.props.match.params.pluginId, shareId: this.props.match.params.shareId}
+    return { pluginId: this.props.match.params.pluginId, shareId: this.props.match.params.shareId }
   }
   componentDidMount() {
     this.getShareInfo();
   }
   getShareInfo() {
-    const {dispatch, form, index} = this.props;
+    const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     const params = this.getParams();
@@ -115,33 +115,37 @@ export default class Main extends PureComponent {
         ...params
       },
       callback: (data) => {
-        this.setState({info: data.bean.share_plugin_info})
-        if(data.bean.share_plugin_info.pic){
-          this.setState({fileList:[{
-             uid: -1,
-             name: data.bean.share_plugin_info.pic,
-             status: 'done',
-             url: data.bean.share_plugin_info.pic
-          }]})
+        if (data) {
+          this.setState({ info: data.bean.share_plugin_info })
+          if (data.bean.share_plugin_info.pic) {
+            this.setState({
+              fileList: [{
+                uid: -1,
+                name: data.bean.share_plugin_info.pic,
+                status: 'done',
+                url: data.bean.share_plugin_info.pic
+              }]
+            })
+          }
         }
       },
       handleError: (res) => {
         if (res && res.status === 404) {
-            
+
         }
       }
     })
   }
 
   handleSubmit = (e) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     var newinfo = {}
     this
       .props
       .form
       .validateFields((err, values) => {
-        
-        
+
+
         var url = (values.pic && values.pic.file && values.pic.file.response && values.pic.file.response.data && values.pic.file.response.data.bean) ? values.pic.file.response.data.bean.file_url : '';
         const share_plugin_info = {
           ...this.state.info,
@@ -149,7 +153,7 @@ export default class Main extends PureComponent {
           pic: url ? url : this.state.info.pic
         };
         if (!err) {
-          const {dispatch} = this.props;
+          const { dispatch } = this.props;
           const param = this.getParams();
           dispatch({
             type: 'plugin/submitSharePlugin',
@@ -168,7 +172,7 @@ export default class Main extends PureComponent {
 
   handleGiveup = () => {
     var pluginId = this.props.match.params.pluginId;
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'plugin/giveupSharePlugin',
       payload: {
@@ -180,31 +184,31 @@ export default class Main extends PureComponent {
       }
     })
   }
-  handleLogoChange = ({ fileList }) =>{
-      this.setState({ fileList })
+  handleLogoChange = ({ fileList }) => {
+    this.setState({ fileList })
   }
   handleLogoRemove = () => {
-    this.setState({fileList: []})
+    this.setState({ fileList: [] })
   }
-  componentWillUnmount() {}
+  componentWillUnmount() { }
   render() {
     const info = this.state.info;
-    const {getFieldDecorator, getFieldValue} = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
-    if(info === null) return null;
+    if (info === null) return null;
     return (
       <PageHeaderLayout>
         <div>
           <Card
             style={{
-            marginBottom: 24
-          }}
+              marginBottom: 24
+            }}
             title="基本信息"
             bordered={false}
             bodyStyle={{
-            padding: 0
-          }}>
+              padding: 0
+            }}>
             <div style={{
               padding: "24px"
             }}>
@@ -220,7 +224,7 @@ export default class Main extends PureComponent {
                             message: '插件名不能为空'
                           }
                         ]
-                      })(<Input placeholder="默认使用上次插件名"/>)}
+                      })(<Input placeholder="默认使用上次插件名" />)}
                     </Form.Item>
 
                   </Col>
@@ -234,10 +238,10 @@ export default class Main extends PureComponent {
                             message: '版本不能为空'
                           }
                         ]
-                      })(<Input placeholder="默认使用上次的版本"/>)}
+                      })(<Input placeholder="默认使用上次的版本" />)}
                     </Form.Item>
                   </Col>
-                   <Col span="12">
+                  <Col span="12">
                     <Form.Item {...formItemLayout} label='分享范围'>
                       {getFieldDecorator('scope', {
                         initialValue: info.scope || 'team',
@@ -265,34 +269,34 @@ export default class Main extends PureComponent {
                             message: '请输入插件说明'
                           }
                         ]
-                      })(<TextArea placeholder="请输入插件说明"/>)}
+                      })(<TextArea placeholder="请输入插件说明" />)}
                     </Form.Item>
                   </Col>
-                   <Col span="12">
+                  <Col span="12">
                     <Form.Item {...formItemLayout} label='图标'>
-                        {getFieldDecorator('pic', {
-                          rules: [
-                            {
-                              required: false,
-                              message: '请上传图标'
-                            }
-                          ]
-                        })(
-                          <Upload
-                            className="logo-uploader"
-                            name="file"
-                            accept="image/jpg,image/jpeg,image/png"
-                                action={config.imageUploadUrl}
-                                listType="picture-card"
-                                fileList={fileList}
-                                headers = {myheaders}
-                                onChange={this.handleLogoChange}
-                                onRemove={this.handleLogoRemove}
-                              >
-                                {fileList.length > 0? null:uploadButton}
-                              </Upload>
-                        )}
-                      </Form.Item>
+                      {getFieldDecorator('pic', {
+                        rules: [
+                          {
+                            required: false,
+                            message: '请上传图标'
+                          }
+                        ]
+                      })(
+                        <Upload
+                          className="logo-uploader"
+                          name="file"
+                          accept="image/jpg,image/jpeg,image/png"
+                          action={config.imageUploadUrl}
+                          listType="picture-card"
+                          fileList={fileList}
+                          headers={myheaders}
+                          onChange={this.handleLogoChange}
+                          onRemove={this.handleLogoRemove}
+                        >
+                          {fileList.length > 0 ? null : uploadButton}
+                        </Upload>
+                      )}
+                    </Form.Item>
                   </Col>
                 </Row>
               </Form>

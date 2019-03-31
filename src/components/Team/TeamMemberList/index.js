@@ -58,7 +58,7 @@ export default class MemberList extends PureComponent {
     });
   };
 
-  updateCurrentUser=()=>{
+  updateCurrentUser = () => {
     this.props.dispatch({
       type: "user/fetchCurrent",
     })
@@ -132,10 +132,12 @@ export default class MemberList extends PureComponent {
         page: this.state.page,
       },
       callback: (data) => {
-        this.setState({
-          members: data.list || [],
-          total: data.total,
-        });
+        if (data) {
+          this.setState({
+            members: data.list || [],
+            total: data.total,
+          });
+        }
       },
     });
   };

@@ -47,7 +47,7 @@ export default class AppExporter extends PureComponent {
         format,
       },
       callback: (data) => {
-        if (data.bean) {
+        if (data && data.bean) {
           notification.success({ message: '操作成功，开始导出，请稍等！' });
           this.queryExport();
         }
@@ -71,22 +71,24 @@ export default class AppExporter extends PureComponent {
         },
       },
       callback: (data) => {
-        if ((data.list && data.list.length > 0 && data.list[0].rainbond_app && data.list[0].rainbond_app.status == "exporting") ||
-          (data.list && data.list.length > 0 && data.list[0].docker_compose && data.list[0].docker_compose.status == "exporting")
-        ) {
-          this.props.setIsExporting(true)
-          setTimeout(() => {
-            this.queryExport();
-          }, 5000);
-        }
+        if (data) {
+          if ((data.list && data.list.length > 0 && data.list[0].rainbond_app && data.list[0].rainbond_app.status == "exporting") ||
+            (data.list && data.list.length > 0 && data.list[0].docker_compose && data.list[0].docker_compose.status == "exporting")
+          ) {
+            this.props.setIsExporting(true)
+            setTimeout(() => {
+              this.queryExport();
+            }, 5000);
+          }
 
-        if ((data.list && data.list.length > 0 && data.list[0].rainbond_app && data.list[0].rainbond_app.status != "exporting") ||
-          (data.list && data.list.length > 0 && data.list[0].docker_compose && data.list[0].docker_compose.status != "exporting")
-        ) {
+          if ((data.list && data.list.length > 0 && data.list[0].rainbond_app && data.list[0].rainbond_app.status != "exporting") ||
+            (data.list && data.list.length > 0 && data.list[0].docker_compose && data.list[0].docker_compose.status != "exporting")
+          ) {
 
-          this.props.setIsExporting(false)
+            this.props.setIsExporting(false)
+          }
+          this.setState({ app_exporte_status: data.list && data.list.length > 0 && data.list[0] })
         }
-        this.setState({ app_exporte_status: data.list && data.list.length > 0 && data.list[0] })
       }
     });
   };
@@ -126,7 +128,7 @@ export default class AppExporter extends PureComponent {
         this.handleExporter(type)
       }}>导出</Button>)
     }
-    
+
     if (app_status.status == "success") {
       return (
         <div>
@@ -145,7 +147,7 @@ export default class AppExporter extends PureComponent {
           <Button disabled type="primary" size="small" onClick={() => {
             this.download(downloadPath)
           }}>下载</Button>
-          <Button disabled style={{ marginLeft: 16 }}  size="small" onClick={() => {
+          <Button disabled style={{ marginLeft: 16 }} size="small" onClick={() => {
             this.handleExporter(type)
           }}>重新导出</Button>
         </div>
@@ -157,7 +159,7 @@ export default class AppExporter extends PureComponent {
           <Button disabled type="primary" size="small" onClick={() => {
             this.download(downloadPath)
           }}>下载</Button>
-          <Button style={{ marginLeft: 16 }} size="small"  onClick={() => {
+          <Button style={{ marginLeft: 16 }} size="small" onClick={() => {
             this.handleExporter(type)
           }}>重新导出</Button>
         </div>
@@ -198,7 +200,7 @@ export default class AppExporter extends PureComponent {
     })
   }
 
-  
+
   render() {
     return (
       <Modal title="导出云市应用" onOk={this.props.onOk} visible onCancel={this.props.onCancel}>
@@ -207,7 +209,7 @@ export default class AppExporter extends PureComponent {
           message="导出云市应用适用于交付环境"
           type="success"
         />
-        <div style={{marginBottom:"10px"}}>
+        <div style={{ marginBottom: "10px" }}>
           导出版本：<Select defaultValue={this.state.exportVersion} onChange={this.handleChange} size="small">
             {this.state.exportVersionList.map((item, index) => {
               return <Option key={index} value={item}>{item}</Option>

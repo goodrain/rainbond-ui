@@ -86,9 +86,11 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				// notification.success({message: "开始恢复中",duration:'2'});
-				this.setState({ restore_id: data.bean.restore_id }, () => {
-					this.queryMigrateApp()
-				})
+				if (data) {
+					this.setState({ restore_id: data.bean.restore_id }, () => {
+						this.queryMigrateApp()
+					})
+				}
 			}
 		})
 	}
@@ -102,8 +104,10 @@ export default class Index extends PureComponent {
 				new_group_id: this.state.new_group_id
 			},
 			callback: (data) => {
-				notification.success({ message: "删除成功", duration: '2' });
-				this.props.onCancel & this.props.onCancel()
+				if (data) {
+					notification.success({ message: "删除成功", duration: '2' });
+					this.props.onCancel & this.props.onCancel()
+				}
 			}
 		})
 	}
@@ -120,11 +124,13 @@ export default class Index extends PureComponent {
 				group_id: this.props.groupId
 			},
 			callback: (data) => {
-				this.setState({ showRestore: true, restore_status: data.bean.status, new_group_id: data.bean.group_id })
-				if (data.bean.status == 'starting') {
-					setTimeout(() => {
-						this.queryMigrateApp();
-					}, 2000)
+				if (data) {
+					this.setState({ showRestore: true, restore_status: data.bean.status, new_group_id: data.bean.group_id })
+					if (data.bean.status == 'starting') {
+						setTimeout(() => {
+							this.queryMigrateApp();
+						}, 2000)
+					}
 				}
 			}
 		})

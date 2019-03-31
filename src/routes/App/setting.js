@@ -133,7 +133,9 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
       },
       callback: (data) => {
-        this.setState({ tags: data.used_labels });
+        if (data) {
+          this.setState({ tags: data.used_labels });
+        }
       },
     });
   };
@@ -150,7 +152,7 @@ export default class Index extends React.Component {
         env_name
       },
       callback: (res) => {
-        if(res._code==200){
+        if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }
       },
@@ -186,7 +188,9 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
       },
       callback: (data) => {
-        this.setState({ memberslist: data.list });
+        if (data) {
+          this.setState({ memberslist: data.list });
+        }
       },
     });
   };
@@ -201,7 +205,9 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
       },
       callback: (data) => {
-        this.setState({ members: data.list });
+        if (data) {
+          this.setState({ members: data.list });
+        }
       },
     });
   };
@@ -422,10 +428,12 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
       },
       callback: (data) => {
-        this.setState({
-          addTag: true,
-          tabData: data.list
-        })
+        if (data) {
+          this.setState({
+            addTag: true,
+            tabData: data.list
+          })
+        }
       }
     })
   };
@@ -609,7 +617,7 @@ export default class Index extends React.Component {
 
   handleSearch = (env_name) => {
     this.setState({
-      page:1,
+      page: 1,
       env_name
     }, () => {
       this.fetchInnerEnvs()
@@ -756,7 +764,7 @@ export default class Index extends React.Component {
               onSearch={this.handleSearch}
             />
             <Button onClick={this.handleAddVar}>
-                <Icon type="plus" />添加变量
+              <Icon type="plus" />添加变量
             </Button>
           </div>
 
@@ -828,7 +836,7 @@ export default class Index extends React.Component {
                   <a onClick={() => {
                     this.setState({ editStartHealth: startProbe });
                   }}
-                    style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
+                    style={{ marginRight: "5px", fontSize: "14px", fontWeight: 400 }}
                   >{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>
 
                   {/* {JSON.stringify(startProbe) != "{}" && <a

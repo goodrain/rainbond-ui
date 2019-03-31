@@ -98,7 +98,7 @@ export default class Index extends PureComponent {
                 page_size,
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     this.setState({
                         teamList: res.list,
                         total: res.bean && res.bean.total
@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
                 id: 1
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     this.setState({
                         domainTotal: res.bean && res.bean.total,
                         domainList: res.list,
@@ -162,7 +162,7 @@ export default class Index extends PureComponent {
                 end: new Date().getTime() / 1000
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     // console.log("Res",res)
                     const visitDatas = res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values;
                     let arr = [];
@@ -203,7 +203,7 @@ export default class Index extends PureComponent {
                 page_size: servicePage_size
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     this.setState({
                         serviceTotal: res.bean && res.bean.total,
                         serviceList: res.list
@@ -238,7 +238,9 @@ export default class Index extends PureComponent {
                 region: globalUtil.getCurrRegionName(),
             },
             callback: (data) => {
-                this.setState({ memory: data.bean.memory || {}, disk: data.bean.disk });
+                if (data) {
+                    this.setState({ memory: data.bean.memory || {}, disk: data.bean.disk });
+                }
             },
         });
     }
@@ -250,7 +252,9 @@ export default class Index extends PureComponent {
                 enterprise_id: this.props.currUser.enterprise_id,
             },
             callback: (data) => {
+                if (data) {
                 this.setState({ companyInfo: data.bean });
+                }
             },
         });
     };

@@ -103,7 +103,7 @@ export default class Index extends React.Component {
                 app_alias: this.props.appAlias,
             },
             callback: (res) => {
-                if (res._code == 200) {
+                if (res && res._code == 200) {
                     this.setState({
                         list: res.list
                     })
@@ -122,7 +122,7 @@ export default class Index extends React.Component {
                 app_alias: this.props.appAlias,
             },
             callback: (data) => {
-                if (data._code == "200") {
+                if (data && data._code == "200") {
                     this.setState({ healthList: JSON.stringify(data.bean) == "{}" ? null : data.bean, isScheme: data.bean.Scheme });
                 }
             },
@@ -158,7 +158,9 @@ export default class Index extends React.Component {
                 app_alias: this.props.appAlias,
             },
             callback: (data) => {
-                this.setState({ tags: data.used_labels });
+                if (data) {
+                    this.setState({ tags: data.used_labels });
+                }
             },
         });
     };
@@ -183,7 +185,9 @@ export default class Index extends React.Component {
                 app_alias: this.props.appAlias,
             },
             callback: (data) => {
-                this.setState({ memberslist: data.list });
+                if (data) {
+                    this.setState({ memberslist: data.list });
+                }
             },
         });
     };
@@ -198,7 +202,9 @@ export default class Index extends React.Component {
                 app_alias: this.props.appAlias,
             },
             callback: (data) => {
-                this.setState({ members: data.list });
+                if (data) {
+                    this.setState({ members: data.list });
+                }
             },
         });
     };
@@ -208,7 +214,7 @@ export default class Index extends React.Component {
             payload: {
             },
             callback: (res) => {
-                if (res._code == "200") {
+                if (res&&res._code == "200") {
                     this.setState({
                         Permissions: res.list,
                         showAddMember: true
@@ -301,35 +307,35 @@ export default class Index extends React.Component {
         });
     };
     handleSubmit = (vals) => {
-            this.props.dispatch({
-                type: "appControl/addStartProbe",
-                payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    app_alias: this.props.appAlias,
-                    ...vals,
-                },
-                callback: () => {
-                    this.handleCancel();
-                    this.fetchStartProbe();
-                },
-            });
+        this.props.dispatch({
+            type: "appControl/addStartProbe",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: this.props.appAlias,
+                ...vals,
+            },
+            callback: () => {
+                this.handleCancel();
+                this.fetchStartProbe();
+            },
+        });
     }
 
     handleSubmitEdit = (vals) => {
         const { startProbe } = this.props
-            this.props.dispatch({
-                type: "appControl/editStartProbe",
-                payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    app_alias: this.props.appAlias,
-                    ...vals,
-                    old_mode:startProbe.mode
-                },
-                callback: () => {
-                    this.handleCancel();
-                    this.fetchStartProbe();
-                },
-            });
+        this.props.dispatch({
+            type: "appControl/editStartProbe",
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                app_alias: this.props.appAlias,
+                ...vals,
+                old_mode: startProbe.mode
+            },
+            callback: () => {
+                this.handleCancel();
+                this.fetchStartProbe();
+            },
+        });
     }
 
     handleCancel = () => {
@@ -362,18 +368,18 @@ export default class Index extends React.Component {
                 healthy++
             } else if (status == "unhealthy") {
                 unhealthy++
-            } else if (status == "Unknown"||status == "unknown") {
+            } else if (status == "Unknown" || status == "unknown") {
                 Unknown++
             } else {
                 nos = "-"
             }
         })
         if (healthy != 0 && unhealthy == 0 && Unknown == 0 && Unknown == 0 && nos == "") {
-            return <span>(<span style={{color:"green"}}>健康</span>)</span>
+            return <span>(<span style={{ color: "green" }}>健康</span>)</span>
         } else if (healthy != 0 && (unhealthy != 0 || Unknown != 0)) {
-            return <span>(<span style={{color:"green"}}>部分健康</span>)</span>
+            return <span>(<span style={{ color: "green" }}>部分健康</span>)</span>
         } else if (healthy == 0 && unhealthy != 0 && Unknown == 0 && nos == "") {
-            return <span>(<span style={{color:"red"}}>不健康</span>)</span>
+            return <span>(<span style={{ color: "red" }}>不健康</span>)</span>
         } else if (healthy == 0 && unhealthy == 0 && Unknown != 0 && nos == "") {
             return "(未知)"
         } else {
@@ -440,13 +446,13 @@ export default class Index extends React.Component {
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 健康检测
                                 <div>
-                                    {startProbe && <a style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }} onClick={() => { this.openCancel() }}>{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>}
+                                    {startProbe && <a style={{ marginRight: "5px", fontSize: "14px", fontWeight: 400 }} onClick={() => { this.openCancel() }}>{JSON.stringify(startProbe) != "{}" ? "编辑" : "设置"}</a>}
                                     {JSON.stringify(startProbe) != "{}" && appProbeUtil.isStartProbeStart(startProbe) ? (
                                         <a
                                             onClick={() => {
                                                 this.handleStartProbeStart(false);
                                             }}
-                                           style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
+                                            style={{ marginRight: "5px", fontSize: "14px", fontWeight: 400 }}
                                             href="javascript:;"
                                         >
                                             禁用
@@ -456,7 +462,7 @@ export default class Index extends React.Component {
                                             onClick={() => {
                                                 this.handleStartProbeStart(true);
                                             }}
-                                            style={{ marginRight: "5px" ,fontSize: "14px", fontWeight: 400 }}
+                                            style={{ marginRight: "5px", fontSize: "14px", fontWeight: 400 }}
                                             href="javascript:;"
                                         >
                                             启用

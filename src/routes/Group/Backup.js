@@ -78,13 +78,15 @@ class BackupStatus extends PureComponent {
 				group_id: this.props.group_id
 			},
 			callback: (data) => {
-				const bean = data.bean;
-				if (bean.status === 'starting') {
-					this.timer = setTimeout(() => {
-						this.startLoopStatus();
-					}, 10000)
-				} else {
-					this.props.onEnd && this.props.onEnd();
+				if (data) {
+					const bean = data.bean;
+					if (bean.status === 'starting') {
+						this.timer = setTimeout(() => {
+							this.startLoopStatus();
+						}, 10000)
+					} else {
+						this.props.onEnd && this.props.onEnd();
+					}
 				}
 			}
 		})
@@ -217,7 +219,9 @@ export default class AppList extends PureComponent {
 				page_size: this.state.pageSize
 			},
 			callback: (data) => {
-				this.setState({ list: data.list || [], total: data.total, is_configed: data.bean.is_configed })
+				if (data) {
+					this.setState({ list: data.list || [], total: data.total, is_configed: data.bean.is_configed })
+				}
 			}
 		})
 	}
@@ -285,7 +289,7 @@ export default class AppList extends PureComponent {
 	}
 	// 迁移应用备份
 	handleMove = (data, e) => {
-		this.setState({ showMove: true, backup_id: data.backup_id,group_uuid: data.group_uuid });
+		this.setState({ showMove: true, backup_id: data.backup_id, group_uuid: data.group_uuid });
 	}
 	handleMoveBackup = () => {
 		this.setState({ showMove: false });

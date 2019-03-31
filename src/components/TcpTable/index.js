@@ -62,12 +62,14 @@ export default class TcpTable extends PureComponent {
                 page_size
             },
             callback: (data) => {
-                this.setState({
-                    dataList: data.list,
-                    loading: false,
-                    total: data.bean.total,
-                    tcpLoading: false
-                })
+                if (data) {
+                    this.setState({
+                        dataList: data.list,
+                        loading: false,
+                        total: data.bean.total,
+                        tcpLoading: false
+                    })
+                }
             }
         })
     }
@@ -104,13 +106,15 @@ export default class TcpTable extends PureComponent {
                 page_size: this.state.page_size
             },
             callback: (data) => {
-                this.setState({
-                    total: data.bean.total,
-                    dataList: data.list,
-                    page_num: 1,
-                    tcp_search: search_conditions,
-                    tcpLoading: false,
-                })
+                if (data) {
+                    this.setState({
+                        total: data.bean.total,
+                        dataList: data.list,
+                        page_num: 1,
+                        tcp_search: search_conditions,
+                        tcpLoading: false,
+                    })
+                }
             }
         })
     }
@@ -124,10 +128,12 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                this.setState({
-                    innerEnvs: data.list || [],
-                    information_connect_visible: true
-                })
+                if (data) {
+                    this.setState({
+                        innerEnvs: data.list || [],
+                        information_connect_visible: true
+                    })
+                }
             }
         })
         this.setState({ InfoConnectModal: true })
@@ -147,8 +153,8 @@ export default class TcpTable extends PureComponent {
             callback: (data) => {
                 if (data) {
                     notification.success({ message: '删除成功' })
+                    this.reload()
                 }
-                this.reload()
             }
         })
     }
@@ -229,12 +235,14 @@ export default class TcpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                this.setState({
-                    editInfo: data.bean,
-                    TcpDrawerVisible: true,
-                    tcpType: values.type,
-                    end_point: values.end_point
-                })
+                if (data) {
+                    this.setState({
+                        editInfo: data.bean,
+                        TcpDrawerVisible: true,
+                        tcpType: values.type,
+                        end_point: values.end_point
+                    })
+                }
             }
         })
     }
@@ -276,15 +284,17 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                const dataList = data.list.filter((item) => {
-                    // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
-                    return (!item.attr_name.endsWith("_HOST") && !item.attr_name.endsWith("_PORT"))
-                })
-                this.setState({
-                    visibleModal: true,
-                    agreement: record,
-                    NotHttpConnectInfo: dataList || []
-                })
+                if (data) {
+                    const dataList = data.list.filter((item) => {
+                        // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
+                        return (!item.attr_name.endsWith("_HOST") && !item.attr_name.endsWith("_PORT"))
+                    })
+                    this.setState({
+                        visibleModal: true,
+                        agreement: record,
+                        NotHttpConnectInfo: dataList || []
+                    })
+                }
             }
         })
     }

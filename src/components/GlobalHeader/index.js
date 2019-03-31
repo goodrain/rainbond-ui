@@ -19,52 +19,52 @@ import { Route, Redirect, Switch, routerRedux } from "dva/router";
 class DialogMessage extends PureComponent {
   constructor(props) {
     super(props);
-    this.modal="";
+    this.modal = "";
   }
   componentDidMount() {
-  this.loadin(this.props.data)
+    this.loadin(this.props.data)
   }
-    componentWillReceiveProps(nextProps){
-      if(nextProps.data&&nextProps.data[0].ID!==this.props.data[0].ID){
-        this.modal.destroy();
-        this.loadin(nextProps.data);
-      }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data && nextProps.data[0].ID !== this.props.data[0].ID) {
+      this.modal.destroy();
+      this.loadin(nextProps.data);
     }
-gbdd = ()=>{
-  Modal.destroyAll();
-}
-    loadin=(data)=>{
-      if (data && data.length) {
-        const ids = data.map(item => item.ID);
-  
-        this.props.dispatch({
-          type: "global/putMsgAction",
-          payload: {
-            team_name: globalUtil.getCurrTeamName(),
-            msg_ids: ids.join(","),
-            action: "mark_read",
-          },
-          callback: (data) => {},
-        });
-  
-        this.modal=Modal.info({
-          title: data[0].title,
-          okText: "知道了",
-          width: 500,
-          style:{left:"-100px"},
-          onOk: () => {
-            this.gbdd()
-            this.props.onCancel();
-          },
-          content: (
-            <div
-              dangerouslySetInnerHTML={{ __html: data[0].content }}
-              style={{ whiteSpace: "pre-wrap" }}
-            />
-          ),
-        });
-      }
+  }
+  gbdd = () => {
+    Modal.destroyAll();
+  }
+  loadin = (data) => {
+    if (data && data.length) {
+      const ids = data.map(item => item.ID);
+
+      this.props.dispatch({
+        type: "global/putMsgAction",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          msg_ids: ids.join(","),
+          action: "mark_read",
+        },
+        callback: (data) => { },
+      });
+
+      this.modal = Modal.info({
+        title: data[0].title,
+        okText: "知道了",
+        width: 500,
+        style: { left: "-100px" },
+        onOk: () => {
+          this.gbdd()
+          this.props.onCancel();
+        },
+        content: (
+          <div
+            dangerouslySetInnerHTML={{ __html: data[0].content }}
+            style={{ whiteSpace: "pre-wrap" }}
+          />
+        ),
+      });
     }
+  }
   render() {
     return null;
   }
@@ -134,7 +134,7 @@ export default class GlobalHeader extends PureComponent {
     return groupBy(newNotices, "msg_type");
   }
   handleVisibleChange = (flag) => {
-    this.setState({ popupVisible: flag, total: 0 }, () => {});
+    this.setState({ popupVisible: flag, total: 0 }, () => { });
   };
   onClear = () => {
     this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/message`));
@@ -150,26 +150,28 @@ export default class GlobalHeader extends PureComponent {
         is_read: 0,
       },
       callback: (data) => {
-        const datalist = data.list;
-        let ids = "";
-        datalist.map((order) => {
-          ids += `${order.ID},`;
-        });
-        ids = ids.slice(0, ids.length - 1);
-        const newTotal = datalist.filter(item => item.is_read === false).length;
+        if (data) {
+          const datalist = data.list;
+          let ids = "";
+          datalist.map((order) => {
+            ids += `${order.ID},`;
+          });
+          ids = ids.slice(0, ids.length - 1);
+          const newTotal = datalist.filter(item => item.is_read === false).length;
 
-        this.setState(
-          {
-            total: newTotal,
-            noticeList: data.list,
-            msg_ids: ids,
-            showDialogMessage: data.list.filter(item => item.level === "high" && item.is_read === false),
-          },
-          () => {
-            const newNotices = this.getNoticeData(this.state.noticeList);
-            this.setState({ newNoticeList: newNotices });
-          },
-        );
+          this.setState(
+            {
+              total: newTotal,
+              noticeList: data.list,
+              msg_ids: ids,
+              showDialogMessage: data.list.filter(item => item.level === "high" && item.is_read === false),
+            },
+            () => {
+              const newNotices = this.getNoticeData(this.state.noticeList);
+              this.setState({ newNoticeList: newNotices });
+            },
+          );
+        }
       },
     });
   };
@@ -307,7 +309,7 @@ export default class GlobalHeader extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-    
+
     return (
       <Header className={styles.header}>
         {isMobile && [
@@ -408,13 +410,13 @@ export default class GlobalHeader extends PureComponent {
               </span>
             </Dropdown>
           ) : (
-            <Spin
-              size="small"
-              style={{
-                marginLeft: 8,
-              }}
-            />
-          )}
+              <Spin
+                size="small"
+                style={{
+                  marginLeft: 8,
+                }}
+              />
+            )}
         </div>
         {this.state.showDialogMessage && this.state.showDialogMessage.length ? (
           <DialogMessage
