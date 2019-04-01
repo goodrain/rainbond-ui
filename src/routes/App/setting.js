@@ -331,6 +331,7 @@ export default class Index extends React.Component {
     });
   };
   handleEditHealth = (vals) => {
+    const { startProbe } = this.props
     if (appProbeUtil.isStartProbeUsed(this.state.editStartHealth)) {
       this.props.dispatch({
         type: "appControl/editStartProbe",
@@ -338,6 +339,7 @@ export default class Index extends React.Component {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
           ...vals,
+          old_mode: startProbe.mode
         },
         callback: () => {
           this.onCancelEditStartProbe();
