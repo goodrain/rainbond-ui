@@ -113,7 +113,9 @@ export default class BasicList extends PureComponent {
         enterprise_id: this.props.user.enterprise_id,
       },
       callback: (data) => {
-        this.setState({ companyInfo: data.bean });
+        if(data){
+          this.setState({ companyInfo: data.bean });
+        }
       },
     });
   };
@@ -128,7 +130,7 @@ export default class BasicList extends PureComponent {
         region: globalUtil.getCurrRegionName(),
       },
       callback: (data) => {
-        this.setState({ list: data.list || [] });
+        this.setState({ list: data&&data.list || [] });
       },
     });
   };
@@ -189,10 +191,12 @@ export default class BasicList extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: (data) => {
-        this.setState({
-          teamList: data.list || [],
-          teamsTotal: data.total,
-        });
+        if(data){
+          this.setState({
+            teamList: data.list || [],
+            teamsTotal: data.total,
+          });
+        }
       },
     });
   };
@@ -410,7 +414,7 @@ export default class BasicList extends PureComponent {
         ...values
       },
       callback:(data)=>{
-        if(data._condition==200){
+        if(data&&data._condition==200){
           notification.success({ message: data.msg_show});
         }else{
           notification.error({ message: data.msg_show });
