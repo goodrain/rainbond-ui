@@ -255,7 +255,7 @@ export default class Index extends React.Component {
             payload: {
             },
             callback: (res) => {
-                if (res._code == "200") {
+                if (res&&res._code == "200") {
                     this.setState({
                         Permissions: res.list,
                         toEditAction: member

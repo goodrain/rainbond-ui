@@ -2075,10 +2075,12 @@ class Env extends PureComponent {
           env_name
         },
         callback: (res) => {
-          this.setState({
-            innerEnvs: res.list || [],
-            total: res.bean.total
-          })
+          if (res) {
+            this.setState({
+              innerEnvs: res.list || [],
+              total: res.bean.total
+            })
+          }
         }
       })
   }
@@ -2266,7 +2268,7 @@ class Ports extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          ports: data.list || []
+          ports: data&&data.list || []
         })
       }
     })

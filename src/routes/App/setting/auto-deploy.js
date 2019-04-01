@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { connect } from "dva";
-import { Card, Form, Button, Divider, Input, Alert, notification, Tabs, Tooltip, Icon} from "antd";
+import { Card, Form, Button, Divider, Input, Alert, notification, Tabs, Tooltip, Icon } from "antd";
 import DescriptionList from "../../../components/DescriptionList";
 import globalUtil from "../../../utils/global";
 
@@ -26,7 +26,7 @@ export default class AutoDeploy extends PureComponent {
       deployment_way: this.props.service_source == "镜像" ? "api_webhooks" : "code_Webhooks",
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
-      deploy_keyword:"deploy"
+      deploy_keyword: "deploy"
     };
   }
   componentDidMount() {
@@ -45,22 +45,24 @@ export default class AutoDeploy extends PureComponent {
         deployment_way: deployment_way
       },
       callback: (data) => {
-        let statusing = status
-        let tabLoad = tabLoading
-        let activeKey = setTabActiveKey ? setTabActiveKey : data.bean.support_type == 1 ? 0 : data.bean.support_type == 2 ? 1 : 2
-        statusing.splice(activeKey, 1, (data.bean.status || false))
-        tabLoad.splice(activeKey, 1, (data.bean.status || false))
-        this.setState({
-          display: data.bean.display,
-          status: statusing,
-          tabLoading: tabLoad,
-          url: data.bean.url,
-          custom_url: data.bean.custom_url,
-          secret_key: data.bean.secret_key,
-          support_type: data.bean.support_type,
-          tabActiveKey: activeKey,
-          deploy_keyword:data.bean.deploy_keyword
-        });
+        if (data) {
+          let statusing = status
+          let tabLoad = tabLoading
+          let activeKey = setTabActiveKey ? setTabActiveKey : data.bean.support_type == 1 ? 0 : data.bean.support_type == 2 ? 1 : 2
+          statusing.splice(activeKey, 1, (data.bean.status || false))
+          tabLoad.splice(activeKey, 1, (data.bean.status || false))
+          this.setState({
+            display: data.bean.display,
+            status: statusing,
+            tabLoading: tabLoad,
+            url: data.bean.url,
+            custom_url: data.bean.custom_url,
+            secret_key: data.bean.secret_key,
+            support_type: data.bean.support_type,
+            tabActiveKey: activeKey,
+            deploy_keyword: data.bean.deploy_keyword
+          });
+        }
         //this.props.form.setFieldsValue({ secret_key: data.bean.secret_key });
       },
     });
@@ -110,7 +112,7 @@ export default class AutoDeploy extends PureComponent {
   };
 
 
-  handleCommandSubmit= () => {
+  handleCommandSubmit = () => {
     this.props.form.validateFields((err, fieldsValue) => {
       if (err) return;
       const deploy_keyword = this.props.form.getFieldValue("deploy_keyword");
@@ -122,10 +124,10 @@ export default class AutoDeploy extends PureComponent {
           keyword: deploy_keyword,
         },
         callback: (data) => {
-          if(data&&data._code==200){
-          notification.success({ message: "更新成功" });
+          if (data && data._code == 200) {
+            notification.success({ message: "更新成功" });
             this.setState({
-              deploy_keyword:data.bean.deploy_keyword
+              deploy_keyword: data.bean.deploy_keyword
             })
           }
         },
@@ -162,9 +164,9 @@ export default class AutoDeploy extends PureComponent {
         <path style={{ fill: "#0288D1" }} d="M 16 24 L 11 24 L 11 19 L 16 19 Z M 26 19 L 21 19 L 21 24 L 26 24 Z M 26 9 L 21 9 L 21 14 L 26 14 Z M 21 14 L 16 14 L 16 19 L 21 19 Z " />
       </svg>
     );
-    
+
     return (
-     
+
       <Card
         style={{
           marginBottom: 24,
@@ -181,12 +183,12 @@ export default class AutoDeploy extends PureComponent {
             </div>
           }
         >
-          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="0">
+          {support_type === 1 && service_source == "源码" && <TabPane tab={<span><Icon type="github" />Git-Webhook<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="0">
             {!tabLoading[0] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
-                <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }} 
-                title="" col="1">
-                
+                <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
+                  title="" col="1">
+
                   <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
                   <Description term="Webhook">
                     <a>{this.state.url}{" "}</a>
@@ -199,53 +201,53 @@ export default class AutoDeploy extends PureComponent {
                       <Button size="small">复制</Button>
                     </CopyToClipboard>
                   </Description>
-                  
+
                   <Description term="触发关键字&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
-                  <div style={{display:"flex"}}>
-                  <div style={{paddingTop:"10px",margin:"0 15px 0 -30px"}}>
-                    <Tooltip title ={<div>当Commit信息包含“@{this.state.deploy_keyword}”时将自动触发应用自动部署</div>}>
-                     <Icon type="question-circle-o" />
-                     </Tooltip>
-                     </div>
-                  <span style={{paddingTop:"10px"}}>
-                  @
+                    <div style={{ display: "flex" }}>
+                      <div style={{ paddingTop: "10px", margin: "0 15px 0 -30px" }}>
+                        <Tooltip title={<div>当Commit信息包含“@{this.state.deploy_keyword}”时将自动触发应用自动部署</div>}>
+                          <Icon type="question-circle-o" />
+                        </Tooltip>
+                      </div>
+                      <span style={{ paddingTop: "10px" }}>
+                        @
                   </span>
-                  <FormItem>
-                      {getFieldDecorator("deploy_keyword", {
-                        initialValue: this.state.deploy_keyword,
-                        rules: [
-                          {
-                            required: true,
-                            message: "关键字不能为空",
-                          },
-                        ],
-                      })(<Input style={{ width:100 }} />)}
-                      <Button
-                        onClick={()=>{this.handleCommandSubmit()}}
-                        style={{
-                          marginLeft: 10,
-                        }}
-                        type="primary"
-                      >
-                        更新
+                      <FormItem>
+                        {getFieldDecorator("deploy_keyword", {
+                          initialValue: this.state.deploy_keyword,
+                          rules: [
+                            {
+                              required: true,
+                              message: "关键字不能为空",
+                            },
+                          ],
+                        })(<Input style={{ width: 100 }} />)}
+                        <Button
+                          onClick={() => { this.handleCommandSubmit() }}
+                          style={{
+                            marginLeft: 10,
+                          }}
+                          type="primary"
+                        >
+                          更新
                   </Button>
-                    </FormItem>
-                   
-                  </div>
+                      </FormItem>
+
+                    </div>
                   </Description>
                 </DescriptionList>
                 <Divider style={{ margin: "16px 0" }} />
               </div>
             }
           </TabPane>}
-          <TabPane  tab={<span><Icon type="api" />自定义API<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}  key="1" >
+          <TabPane tab={<span><Icon type="api" />自定义API<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>} key="1" >
             {!tabLoading[1] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
-                <DescriptionList size="small" 
-                title="" 
-                style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
-                col="1">
-                
+                <DescriptionList size="small"
+                  title=""
+                  style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
+                  col="1">
+
                   <Description term="API">
                     <a>{this.state.url}{" "}</a>
                     <CopyToClipboard
@@ -258,7 +260,7 @@ export default class AutoDeploy extends PureComponent {
                     </CopyToClipboard>
                   </Description>
                   <Description term="秘钥">
-                    <FormItem style={{marginTop:"-6px"}}>
+                    <FormItem style={{ marginTop: "-6px" }}>
                       {getFieldDecorator("secret_key", {
                         initialValue: this.state.secret_key || "",
                         rules: [
@@ -283,13 +285,13 @@ export default class AutoDeploy extends PureComponent {
                 </DescriptionList>
               </div>}
           </TabPane>
-          {service_source == "镜像" && <TabPane  tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title ={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank"  style={{color:"#fff"}}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
+          {service_source == "镜像" && <TabPane tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
             {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
               <div>
                 <DescriptionList size="small"
-                title="" 
-                style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
-                col="1">
+                  title=""
+                  style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
+                  col="1">
                   <Description term="Webhook">
                     <a>{this.state.url}{" "}</a>
                     <CopyToClipboard
