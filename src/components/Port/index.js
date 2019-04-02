@@ -408,11 +408,10 @@ export default class Index extends PureComponent {
                     </div>
                   })
                   }
-                  
-                 {port&&port.protocol!=="http"&& <Button size="small" style={{marginTop:"5px"}} onClick={this.onAddDomain}>添加域名</Button>}
                 </div>
                 : null
               }
+
               {outerUrl ?
                 <div>
                   {tcp_domains.map((domain) => {
@@ -438,20 +437,18 @@ export default class Index extends PureComponent {
                       }
                     </div>
                   })}
-
-                  <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`} style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word",
-                    color: "#1890ff"
-                  }}>
-                    <Button size="small" >
-                      管理访问策略
-                  </Button>
-                  </Link>
-
-
                 </div>
               }
+              {port && port.protocol == "http" && <Button size="small" style={{ marginTop: "5px" }} onClick={this.onAddDomain}>添加域名</Button>}
+              {port && port.protocol != "http" && <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`} style={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+                color: "#1890ff"
+              }}>
+                <Button size="small" >
+                  管理访问策略
+                  </Button>
+              </Link>}
             </td>
             }
             <td>
