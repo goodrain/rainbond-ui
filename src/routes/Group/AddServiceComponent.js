@@ -59,6 +59,7 @@ export default class AddServiceComponent extends PureComponent {
       handleType: null,
       moreState: true,
       BackType: null,
+      errState:true,
     };
   }
   cancelDelete = () => {
@@ -124,8 +125,8 @@ export default class AddServiceComponent extends PureComponent {
     }
   }
   //底部按钮组
-  handleServiceBotton = (ButtonGroup, ButtonGroupState) => {
-    this.setState({ ButtonGroup, ButtonGroupState })
+  handleServiceBotton = (ButtonGroup, ButtonGroupState,errState) => {
+    this.setState({ ButtonGroup, ButtonGroupState,errState })
   }
   //刷新
   refreshCurrent = () => {
@@ -333,8 +334,9 @@ export default class AddServiceComponent extends PureComponent {
           {ServiceComponentThreePage === "check" && ServiceGetData && <Check ServiceGetData={ServiceGetData}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
+            ErrState={this.state.errState}
             refreshCurrent={() => { this.refreshCurrent() }}
-            handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
+            handleServiceBotton={(ButtonGroup, ButtonGroupState,errState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState,errState) }}
             handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data);this.props.onload&&this.props.onload() }  } />}
 
           {ServiceComponentTwoPage === "imageName" && <ImageName

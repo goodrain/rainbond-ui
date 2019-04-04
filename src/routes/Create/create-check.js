@@ -385,18 +385,19 @@ export default class CreateCheck extends PureComponent {
 
     const { ServiceGetData } = this.state
 
-    const actions = [
-      <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
-        重新检测
-      </Button>,
-      <Button onClick={this.showDelete} type="default">
-        {" "}
-        放弃创建{" "}
-      </Button>,
+    const actions =<div>
+        <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
+          重新检测
+      </Button>
+        <Button onClick={this.showDelete} type="default">
+          放弃创建
+      </Button>
+      </div>
 
-    ];
-    ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
 
+    if( ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)){
+      this.props.handleServiceBotton(actions, true,true)
+    }
     return (
       <Result
         type="error"

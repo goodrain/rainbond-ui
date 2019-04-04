@@ -479,6 +479,7 @@ export default class HttpTable extends PureComponent {
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                     </div> : <Tooltip placement="topLeft" title="请开启对外服务方可操作" arrowPointAtCenter>
                             <div style={{ display: "flex", justifyContent: "center" }}>
+                                <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                                 <a onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
