@@ -306,7 +306,6 @@ export default class HttpTable extends PureComponent {
                     this.setState({
                         total: data.bean.total,
                         dataList: data.list,
-                        page_num: 1,
                         http_search: search_conditions,
                         loading: false
                     })
