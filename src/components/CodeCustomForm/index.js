@@ -158,7 +158,6 @@ export default class Index extends PureComponent {
               initialValue: data.service_cname || "",
               rules: [
                 { required: true, message: "要创建的服务组件还没有名字"},
-                // { min: 4, message: "服务名称必须大于4位" },
               ],
             })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
           </Form.Item>

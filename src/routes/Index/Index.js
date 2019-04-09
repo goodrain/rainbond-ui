@@ -3,6 +3,7 @@ import moment from "moment";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import { Row, Col, Card, List, Modal, Form, Input, Select, Button, Badge, Pagination, Icon, Tooltip, Table, notification } from "antd";
+import cookie from "../../utils/cookie";
 
 import { MiniArea, ChartCard } from '../../components/Charts';
 
@@ -18,6 +19,8 @@ import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import { link } from "fs";
+import guide from "../../../public/images/guide.png";
+
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -56,14 +59,14 @@ export default class Index extends PureComponent {
             servicePage_size: 5,
             serviceTotal: 0,
             num: "",
-            visitData: []
+            visitData: [],
+            guidevisible:cookie.get('guide')?false:true
         };
     }
     componentDidMount() {
+        cookie.setGuide('guide', "true");
 
         this.getTeam();
-
-
         this.getDomainName();
         this.getDomain();
         this.getService();
@@ -253,7 +256,7 @@ export default class Index extends PureComponent {
             },
             callback: (data) => {
                 if (data) {
-                this.setState({ companyInfo: data.bean });
+                    this.setState({ companyInfo: data.bean });
                 }
             },
         });
@@ -342,6 +345,7 @@ export default class Index extends PureComponent {
             this.loadApps();
         });
     };
+    
     renderActivities() {
         const list = this.props.events || [];
 
@@ -453,7 +457,16 @@ export default class Index extends PureComponent {
     //     })
     // }
 
-
+    handleOkGuidevisible = () =>{
+        this.setState({
+            guidevisible: false,
+          });
+    };
+    handleCancelGuidevisible= () =>{
+        this.setState({
+            guidevisible: false,
+          });
+    };
     render() {
         const handleHost = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`
         const columns = [
@@ -625,6 +638,31 @@ export default class Index extends PureComponent {
                         <div className={styles.contentTitle}>{team.team_alias}</div>
                     </div>
                 </div>
+                <Modal
+                    title={<h1 style={{color:"#1890FF",textAlign:"center",border:"none",marginBottom:"0px",marginTop:"10px"}}>欢迎使用Rainbond云应用操作系统</h1>}
+                    visible={this.state.guidevisible}
+                    onOk={this.handleOkGuidevisible}
+                    onCancel={this.handleCancelGuidevisible}
+                    width={1000}
+                    footer={null}
+                    className={styles.modals}
+                >
+                    <p style={{fontSize:"17px"}}>Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。</p>
+                    {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
+                    <p><img style={{width:"100%"}} src={guide}></img></p>
+                    <p style={{textAlign:"center"}}>
+                    <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`} style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word",
+                            color: "#1890ff"
+                        }}>
+                           <Button type="primary">查看详情</Button>
+                        </Link>
+                    </p>
+                </Modal>
+
+
+
                 <div className={styles.contents}>
                     <Row>
                         <Col xs={14} sm={14} md={14} lg={14} xl={14} style={{ paddingRight: "10px" }}>

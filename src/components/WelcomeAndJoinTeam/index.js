@@ -73,7 +73,9 @@ export default class Index extends PureComponent {
       },
       callback: (data) => {
         cookie.remove("token");
+        cookie.remove("guide");
         cookie.remove("token", { domain: "" });
+        cookie.remove("guide", { domain: "" });
         cookie.remove("team", { domain: "" });
         cookie.remove("region_name", { domain: "" });
         localStorage.clear();
