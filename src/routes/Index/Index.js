@@ -60,11 +60,13 @@ export default class Index extends PureComponent {
             serviceTotal: 0,
             num: "",
             visitData: [],
-            guidevisible:cookie.get('guide')?false:true
+            current: null,
+            guidevisible: false,
+            GuideList: []
         };
     }
     componentDidMount() {
-        cookie.setGuide('guide', "true");
+
 
         this.getTeam();
         this.getDomainName();
@@ -86,8 +88,40 @@ export default class Index extends PureComponent {
         }
     }
 
+    getGuideState = () => {
+        this.props.dispatch({
+          type: "global/getGuideState",
+          payload: {
+            enterprise_id: this.props.currUser.enterprise_id,
+          },
+          callback: (res) => {
+            if (res && res._code == 200) {
+              this.setState({
+                    GuideList: res.list,
+                current: res.list && res.list.length > 0 &&
+                  !res.list[0].status ? 0 :
+                  !res.list[1].status ? 1 :
+                    !res.list[2].status ? 2 :
+                      !res.list[3].status ? 3 :
+                        !res.list[4].status ? 4 :
+                          !res.list[5].status ? 5 :
+                            !res.list[6].status ? 6 : 7
+              },()=>{
+                let isGuidevisible =this.state.current==7?false:cookie.get('guide')?false:true
+                this.setState({
+                    guidevisible:isGuidevisible
+                })
+                this.state.current==7?false:cookie.get('guide')?false:cookie.setGuide('guide', "true");
+              })
+            }
+          },
+        });
+      }
+
+
     componentWillMount() {
         this.getTeam();
+        this.getGuideState()
     }
 
     getTeam = () => {
@@ -166,7 +200,6 @@ export default class Index extends PureComponent {
             },
             callback: (res) => {
                 if (res && res._code == 200) {
-                    // console.log("Res",res)
                     const visitDatas = res.bean && res.bean.data && res.bean.data.result && res.bean.data.result.length > 0 && res.bean.data.result[0].values && res.bean.data.result[0].values;
                     let arr = [];
                     if (visitDatas && visitDatas.length > 0) {
@@ -345,7 +378,7 @@ export default class Index extends PureComponent {
             this.loadApps();
         });
     };
-    
+
     renderActivities() {
         const list = this.props.events || [];
 
@@ -457,15 +490,15 @@ export default class Index extends PureComponent {
     //     })
     // }
 
-    handleOkGuidevisible = () =>{
+    handleOkGuidevisible = () => {
         this.setState({
             guidevisible: false,
-          });
+        });
     };
-    handleCancelGuidevisible= () =>{
+    handleCancelGuidevisible = () => {
         this.setState({
             guidevisible: false,
-          });
+        });
     };
     render() {
         const handleHost = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`
@@ -628,8 +661,36 @@ export default class Index extends PureComponent {
                 span: 19,
             },
         };
-        const { teamList, visitData, domainList, serviceList } = this.state;
+        const { teamList, GuideList, domainList, serviceList } = this.state;
+        const steps = [{
+            title: '创建应用',
+            status: false
+        }, {
+            title: '基于源码创建服务',
+            status: false
+        }, {
+            title: '基于应用市场安装数据库',
+            status: false
+        }, {
+            title: '服务连接数据库',
+            status: false
+        }, {
+            title: '发布应用到应用市场',
+            status: false
+        }, {
+            title: '配置应用访问策略',
+            status: false
+        }, {
+            title: '安装性能分析插件',
+            status: false
+        }];
 
+        if (GuideList.length > 0) {
+            for (let i = 0; i < GuideList.length; i++) {
+                steps[i].status = GuideList[i].status
+                steps[i].key = GuideList[i].key
+            }
+        }
         return (
 
             <div style={{ margin: '-24px -24px 0' }} >
@@ -639,7 +700,7 @@ export default class Index extends PureComponent {
                     </div>
                 </div>
                 <Modal
-                    title={<h1 style={{color:"#1890FF",textAlign:"center",border:"none",marginBottom:"0px",marginTop:"10px"}}>欢迎使用Rainbond云应用操作系统</h1>}
+                    title={<h1 style={{ color: "#1890FF", textAlign: "center", border: "none", marginBottom: "0px", marginTop: "10px" }}>欢迎使用Rainbond云应用操作系统</h1>}
                     visible={this.state.guidevisible}
                     onOk={this.handleOkGuidevisible}
                     onCancel={this.handleCancelGuidevisible}
@@ -647,16 +708,39 @@ export default class Index extends PureComponent {
                     footer={null}
                     className={styles.modals}
                 >
-                    <p style={{fontSize:"17px"}}>Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。</p>
+                    <p style={{ fontSize: "17px" }}>Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。</p>
                     {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
-                    <p><img style={{width:"100%"}} src={guide}></img></p>
-                    <p style={{textAlign:"center"}}>
-                    <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`} style={{
+                    <p>
+                        <div className={styles.stepsbox}>
+                            {steps.map((item, index) => {
+                                const { status } = item;
+                                return <div className={status ? styles.stepssuccess : styles.stepsinfo} key={index}>
+                                    <div className={status ? styles.stepssuccesslux : styles.stepsinfolux} style={{
+                                        marginLeft: index == 0 ? "53px" : index == 1 ? "80px" : index == 2 ? "100px" : index == 3 ? "72px" : index == 4 ? "82px" : index == 5 ? "77px" : "53px",
+                                        width: index == 1 ? "86%" : index == 2 ? "60%" : index == 3 ? "86%" : index == 4 ? "78%" : index == 5 ? "77%" : "100%", display: index == 6 ? "none" : ""
+                                    }}></div>
+                                    <div className={status ? styles.stepssuccessbj : styles.stepsinfobj}>
+                                        <span>
+                                            {status && <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"></path></svg>}
+                                        </span>
+                                    </div>
+                                    <div className={status ? styles.stepssuccesscontent : styles.stepsinfocontent}>
+                                        <div>{item.title}</div>
+                                    </div>
+                                    <div>
+                                    </div>
+                                </div>
+                            })}
+                        </div>
+
+                    </p>
+                    <p style={{ textAlign: "center" }}>
+                        <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`} style={{
                             wordBreak: "break-all",
                             wordWrap: "break-word",
                             color: "#1890ff"
                         }}>
-                           <Button type="primary">查看详情</Button>
+                            <Button type="primary">查看详情</Button>
                         </Link>
                     </p>
                 </Modal>
