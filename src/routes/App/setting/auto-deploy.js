@@ -26,7 +26,9 @@ export default class AutoDeploy extends PureComponent {
       deployment_way: this.props.service_source == "镜像" ? "api_webhooks" : "code_Webhooks",
       tabLoading: [false, false, false],
       service_source: this.props.service_source,
-      deploy_keyword: "deploy"
+      deploy_keyword: "deploy",
+      deploy_mirror: "",
+      mirror_url: ""
     };
   }
   componentDidMount() {
@@ -60,7 +62,8 @@ export default class AutoDeploy extends PureComponent {
             secret_key: data.bean.secret_key,
             support_type: data.bean.support_type,
             tabActiveKey: activeKey,
-            deploy_keyword: data.bean.deploy_keyword
+            deploy_keyword: data.bean.deploy_keyword,
+            deploy_mirror: data.bean.secret_key
           });
         }
         //this.props.form.setFieldsValue({ secret_key: data.bean.secret_key });
@@ -135,6 +138,51 @@ export default class AutoDeploy extends PureComponent {
     });
   };
 
+
+  handleMirrorSubmit = () => {
+    this.props.form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      const deploy_mirror = this.props.form.getFieldValue("deploy_mirror");
+      this.props.dispatch({
+        type: "appControl/putMirrorCommand",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          service_alias: this.props.app.service.service_alias,
+          trigger: deploy_mirror,
+        },
+        callback: (data) => {
+          if (data && data._code == 200) {
+            notification.success({ message: "更新成功" });
+            console.log("data", data)
+            this.setState({
+              deploy_mirror: data.bean.deploy_mirror
+            })
+          }
+        },
+      });
+    });
+  };
+
+  getMirrorInfo = () => {
+    this.props.dispatch({
+      type: "appControl/getMirrorCommand",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.props.app.service.service_alias,
+      },
+      callback: (data) => {
+        if (data && data._code == 200) {
+          notification.success({ message: "更新成功" });
+          console.log("data", data)
+          this.setState({
+            url: data.bean.url,
+            deploy_mirror: data.bean.secret_key
+          })
+        }
+      },
+    });
+  };
+
   handleTabs = (activeKey) => {
     this.setState({
       setTabActiveKey: activeKey,
@@ -189,17 +237,20 @@ export default class AutoDeploy extends PureComponent {
                 <DescriptionList size="small" style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
                   title="" col="1">
 
-                  <Description term="支持类型">Gitlab,Github,Gitee,Gogs</Description>
+                  <Description term="支持类型">
+                    <div style={{ marginLeft: "38px" }}>Gitlab,Github,Gitee,Gogs,Coding</div>
+                  </Description>
                   <Description term="Webhook">
-                    <a>{this.state.url}{" "}</a>
-                    <CopyToClipboard
-                      text={this.state.url}
-                      onCopy={() => {
-                        notification.success({ message: "复制成功" });
-                      }}
-                    >
-                      <Button size="small">复制</Button>
-                    </CopyToClipboard>
+                    <div style={{ marginLeft: "34px" }}><a>{this.state.url}{" "}</a>
+                      <CopyToClipboard
+                        text={this.state.url}
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
+                        }}
+                      >
+                        <Button size="small">复制</Button>
+                      </CopyToClipboard>
+                    </div>
                   </Description>
 
                   <Description term="触发关键字&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
@@ -227,14 +278,19 @@ export default class AutoDeploy extends PureComponent {
                           style={{
                             marginLeft: 10,
                           }}
-                          type="primary"
+                          size="small"
                         >
                           更新
                   </Button>
+                        <p>注意：当Commit信息包含@{this.state.deploy_keyword}，则Webhook触发。</p>
+
                       </FormItem>
 
                     </div>
                   </Description>
+
+
+
                 </DescriptionList>
                 <Divider style={{ margin: "16px 0" }} />
               </div>
@@ -285,27 +341,61 @@ export default class AutoDeploy extends PureComponent {
                 </DescriptionList>
               </div>}
           </TabPane>
-          {service_source == "镜像" && <TabPane tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
-            {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
-              <div>
-                <DescriptionList size="small"
-                  title=""
-                  style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
-                  col="1">
-                  <Description term="Webhook">
-                    <a>{this.state.url}{" "}</a>
-                    <CopyToClipboard
-                      text={this.state.url}
-                      onCopy={() => {
-                        notification.success({ message: "复制成功" });
-                      }}
-                    >
-                      <Button size="small">复制</Button>
-                    </CopyToClipboard>
-                  </Description>
-                </DescriptionList>
-              </div>}
-          </TabPane>
+          {service_source == "镜像" &&
+
+            <TabPane tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
+              {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
+                <div>
+                  <DescriptionList size="small"
+                    title=""
+                    style={{ borderLeft: "10px solid #38AA56", paddingLeft: "10px", marginBottom: 16 }}
+                    col="1">
+                    <Description term="Webhook">
+                      <a>{this.state.url}{" "}</a>
+                      <CopyToClipboard
+                        text={this.state.url}
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
+                        }}
+                      >
+                        <Button size="small">复制</Button>
+                      </CopyToClipboard>
+                    </Description>
+                    <Description term="Tag触发&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;">
+                      <div style={{ display: "flex" }}>
+                        <div style={{ paddingTop: "10px", margin: "0 15px 0 -30px" }}>
+                          <Icon type="question-circle-o" />
+                        </div>
+                        <FormItem>
+                          {getFieldDecorator("deploy_mirror", {
+                            initialValue: this.state.deploy_mirror,
+                            rules: [
+                              {
+                                required: true,
+                                message: "关键字不能为空",
+                              },
+                            ],
+                          })(
+                            <Input style={{ width: 300 }} placeholder="支持正则表达式,如:release-v.*" />
+                          )
+                          }
+                          <Button
+                            onClick={() => { this.handleMirrorSubmit() }}
+                            style={{
+                              marginLeft: 10,
+                            }}
+                            size="small"
+                          >
+                            更新
+                       </Button>
+                          <p>注意：如果输入不匹配表达式，则Webhook不触发。</p>
+                        </FormItem>
+
+                      </div>
+                    </Description>
+                  </DescriptionList>
+                </div>}
+            </TabPane>
           }
         </Tabs>
       </Card>

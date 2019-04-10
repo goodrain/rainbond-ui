@@ -2285,7 +2285,51 @@ export async function putAutoDeployCommand(body = {
 }
 
 
+/*
+   修改镜像构建命令
+*/
+export async function putMirrorCommand(body = {
+  team_name,
+  service_alias,
+  trigger,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/trigger'`,
+    {
+      method: "put",
+      data: {
+        tenantName: body.keyword,
+        trigger: body.trigger,
+        serviceAlias:body.service_alias,
+      },
+    },
+  );
+}
 
+
+
+    
+
+
+/*
+  获取应用镜像构建源信息
+*/
+export async function getMirrorCommand(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/get-url`,
+    {
+      method: "get",
+      params: {
+        tenantName: body.team_name,
+        serviceAlias: body.service_alias,
+      },
+    },
+  );
+}
 
 
 /*
