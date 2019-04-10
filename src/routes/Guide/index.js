@@ -272,7 +272,7 @@ export default class Index extends PureComponent {
   ReleaseMarket = () => {
     return <div style={{ padding: "20px 0" }}>
       <p>将前置任务创建的应用分享到应用市场，从而让你的业务系统支持一键交付能力。完成当前任务用户会关注以下功能：</p>
-      <p>1. 应用发布到企业应用市场  <a href="" target="_blank">[参考文档]</a></p>
+      <p>1. 应用发布到企业应用市场  <a href="https://www.rainbond.com/docs/user-manual/app-manage/share-app/" target="_blank">[参考文档]</a></p>
       <p>2. 应用支持基于应用市场一键安装的关键因素 <a href="" target="_blank">[参考文档]</a></p>
       <p>3. SaaS化应用市场如何建立 <a href="" target="_blank">[联系商业支持]</a></p>
       <p style={{ textAlign: "center" }}>
@@ -285,9 +285,9 @@ export default class Index extends PureComponent {
   AccessStrategy = () => {
     return <div style={{ padding: "20px 0" }}>
       <p>需要被外网访问的服务需要配置网关访问策略，Rainbond网关支持HTTP/WebSocket/TCP/UDP服务访问协议。HTTP类策略根据域名等信息进行路由匹配，TCP类策略通过IP+端口进行路由匹配。完成当前任务用户会关注以下功能：</p>
-      <p>1. HTTP策略配置 <a href="" target="_blank">[参考文档]</a></p>
-      <p>2. HTTPs证书管理 <a href="" target="_blank">[参考文档]</a></p>
-      <p>3. TCP策略配置 <a href="" target="_blank">[参考文档]</a></p>
+      <p>1. HTTP策略配置 <a href="https://www.rainbond.com/docs/user-manual/gateway/traffic-control/#添加-http-策略" target="_blank">[参考文档]</a></p>
+      <p>2. HTTPs证书管理 <a href="https://www.rainbond.com/docs/user-manual/gateway/cert-management/" target="_blank">[参考文档]</a></p>
+      <p>3. TCP策略配置 <a href="https://www.rainbond.com/docs/user-manual/gateway/traffic-control/#tcp-访问策略" target="_blank">[参考文档]</a></p>
       <p style={{ textAlign: "center" }}>
         {/* <Button style={{ marginRight: "10px" }}>查看视频教程</Button> */}
         <Button type="primary" onClick={
