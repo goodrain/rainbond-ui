@@ -79,14 +79,10 @@ export default class Index extends PureComponent {
 			                  { required: true, message: '请输入DockerCompose配置内容' }
 			                ],
 			              })(
-											<div>
-												<CodeMirror options={options} placeholder="" />
-												<span>注意：Rainbond将解析DockerCompose配置中的服务相关属性用来便捷创建服务，其中的动态变量不支持解析赋值</span>
-											</div>
+											<CodeMirror options={options} placeholder="" />
 			              )}
-			              
 			          </Form.Item>
-			          
+			          <span style={{marginLeft: 200}}>注意：Rainbond将解析DockerCompose配置中的服务相关属性用来便捷创建服务，其中的动态变量不支持解析赋值</span>
 			          {
 			          showSubmitBtn ? 
 			          <Form.Item

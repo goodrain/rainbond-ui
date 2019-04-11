@@ -179,7 +179,6 @@ export const languageObj = {
   "Go": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/golang/",
   "Netcore": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/netcore/",
   "Html": "https://www.rainbond.com/docs/user-manual/app-creation/language-support/html/",
-  'Rainbond':"https://www.rainbond.com/"
 }
 
 export const volumeTypeObj = {
