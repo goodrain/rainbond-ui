@@ -2274,7 +2274,7 @@ export async function putAutoDeployCommand(body = {
 }) {
   return request(
     `${config.baseUrl
-    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword'`,
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword`,
     {
       method: "put",
       data: {
