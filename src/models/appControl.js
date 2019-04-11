@@ -87,7 +87,6 @@ import {
   delAppVersion,
   putAutoDeploySecret,
   putAutoDeployCommand,
-  getMirrorCommand,
   putMirrorCommand,
   getAppBuidSource,
   getLanguage,
@@ -827,12 +826,6 @@ export default {
     },
     * putAutoDeployCommand({ payload, callback }, { call, put }) {
       const response = yield call(putAutoDeployCommand, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-    * getMirrorCommand({ payload, callback }, { call, put }) {
-      const response = yield call(getMirrorCommand, payload);
       if (response) {
         callback && callback(response);
       }

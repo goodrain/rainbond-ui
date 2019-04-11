@@ -2286,7 +2286,7 @@ export async function putAutoDeployCommand(body = {
 
 
 /*
-   修改镜像构建命令
+   修改镜像Tag触发值
 */
 export async function putMirrorCommand(body = {
   team_name,

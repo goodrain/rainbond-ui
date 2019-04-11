@@ -163,25 +163,6 @@ export default class AutoDeploy extends PureComponent {
     });
   };
 
-  getMirrorInfo = () => {
-    this.props.dispatch({
-      type: "appControl/getMirrorCommand",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.app.service.service_alias,
-      },
-      callback: (data) => {
-        if (data && data._code == 200) {
-          notification.success({ message: "更新成功" });
-          this.setState({
-            url: data.bean.url,
-            deploy_mirror: data.bean.secret_key
-          })
-        }
-      },
-    });
-  };
-
   handleTabs = (activeKey) => {
     this.setState({
       setTabActiveKey: activeKey,
@@ -386,7 +367,7 @@ export default class AutoDeploy extends PureComponent {
                             >
                               更新
                        </Button>
-                            <p>注意：如果输入不匹配表达式，则Webhook不触发。</p>
+                            <p>注意：表达式为空时更新事件的tag与当前服务镜像tag一致时触发，不为空时表达式匹配正确触发</p>
                           </FormItem>
                         </Form>
                       </div>
