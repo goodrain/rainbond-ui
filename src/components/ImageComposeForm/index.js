@@ -1,6 +1,5 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link, Switch, Route, routerRedux } from 'dva/router';
 import { Row, Col, Card, Form, Button, Icon, Menu, Dropdown, notification, Select, Input, Modal} from 'antd';
 
 import globalUtil from '../../utils/global';
@@ -8,9 +7,6 @@ import CodeMirror from 'react-codemirror';
 require('codemirror/mode/yaml/yaml');
 require('codemirror/lib/codemirror.css');
 require('../../styles/codemirror.less');
-
-const { Option } = Select;
-const { TextArea } = Input;
 
 
 const formItemLayout = {
@@ -75,15 +71,18 @@ export default class Index extends PureComponent {
 			          </Form.Item>
 			          <Form.Item
 			            {...formItemLayout}
-			            label="compose内容"
+			            label="DockerCompose配置"
 			          >
 			          	{getFieldDecorator('yaml_content', {
 			                initialValue: data.yaml_content || '',
 			                rules: [
-			                  { required: true, message: '请输入内容' }
+			                  { required: true, message: '请输入DockerCompose配置内容' }
 			                ],
 			              })(
-			                <CodeMirror options={options} placeholder="" />
+											<div>
+												<CodeMirror options={options} placeholder="" />
+												<span>注意：Rainbond将解析DockerCompose配置中的服务相关属性用来便捷创建服务，其中的动态变量不支持解析赋值</span>
+											</div>
 			              )}
 			              
 			          </Form.Item>
