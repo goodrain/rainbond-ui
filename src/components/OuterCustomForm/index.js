@@ -262,7 +262,7 @@ export default class Index extends PureComponent {
                         })(
                             <div>
                                 {staticList.map((item, index) => {
-                                    return (<Row key={index}>
+                                    return (<Row style={{width:370}} key={index}>
                                         <Col span={18}>
                                             <Input onChange={this.onKeyChange.bind(this, index, "static")} value={item} placeholder={"请输入服务地址"} />
                                         </Col>
