@@ -196,6 +196,15 @@ export async function getTeamList(body = {
   });
 }
 
+/* 获取团队应用模块 */
+export async function getGuideState(body = {
+  team_name, 
+}) {
+  return request(`${config.baseUrl}/console/enterprise/${body.enterprise_id}/base-guidance`, {
+    method: "get",
+  });
+}
+
 
 /* 获取热门域名访问模块 */
 export async function getDomainName(body = { team_name, region_name, page, page_size, id, start, step,end }) {

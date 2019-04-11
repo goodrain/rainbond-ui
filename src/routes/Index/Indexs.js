@@ -119,7 +119,9 @@ export default class Index extends PureComponent {
         region: globalUtil.getCurrRegionName(),
       },
       callback: (data) => {
-        this.setState({ memory: data.bean.memory || {}, disk: data.bean.disk });
+        if (data) {
+          this.setState({ memory: data.bean.memory || {}, disk: data.bean.disk });
+        }
       },
     });
   }
@@ -131,7 +133,9 @@ export default class Index extends PureComponent {
         enterprise_id: this.props.currUser.enterprise_id,
       },
       callback: (data) => {
-        this.setState({ companyInfo: data.bean });
+        if (data) {
+          this.setState({ companyInfo: data.bean });
+        }
       },
     });
   };

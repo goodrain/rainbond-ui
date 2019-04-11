@@ -585,7 +585,7 @@ export default class Index extends PureComponent {
           app_alias: this.props.appAlias
         },
         callback: (data) => {
-          const list = data.list || [];
+          const list = data&&data.list || [];
           this.setState({anaPlugins: list});
         }
       })

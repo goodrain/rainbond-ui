@@ -77,7 +77,7 @@ export default class Index extends PureComponent {
         ...value,
       },
       callback: (data) => {
-        const appAlias = data.bean.service_alias;
+        const appAlias = data&&data.bean.service_alias;
         this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`));
       },
     });

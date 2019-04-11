@@ -2274,7 +2274,7 @@ export async function putAutoDeployCommand(body = {
 }) {
   return request(
     `${config.baseUrl
-    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword'`,
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword`,
     {
       method: "put",
       data: {
@@ -2285,7 +2285,51 @@ export async function putAutoDeployCommand(body = {
 }
 
 
+/*
+   修改镜像Tag触发值
+*/
+export async function putMirrorCommand(body = {
+  team_name,
+  service_alias,
+  trigger,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/trigger'`,
+    {
+      method: "put",
+      data: {
+        tenantName: body.keyword,
+        trigger: body.trigger,
+        serviceAlias:body.service_alias,
+      },
+    },
+  );
+}
 
+
+
+    
+
+
+/*
+  获取应用镜像构建源信息
+*/
+export async function getMirrorCommand(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/get-url`,
+    {
+      method: "get",
+      params: {
+        tenantName: body.team_name,
+        serviceAlias: body.service_alias,
+      },
+    },
+  );
+}
 
 
 /*

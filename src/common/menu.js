@@ -71,6 +71,11 @@ const menuData = function () {
       icon: "red-envelope",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`,
     },
+    {
+      name: "任务引导",
+      icon: "exclamation-circle",
+      path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`,
+    },
   ];
 };
 

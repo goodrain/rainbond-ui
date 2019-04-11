@@ -147,6 +147,8 @@ export default {
     tologout(state, action) {
       cookie.remove("token");
       cookie.remove("token", { domain: "" });
+      cookie.remove("guide");
+      cookie.remove("guide", { domain: "" });
     },
     save(state, action) {
       return {

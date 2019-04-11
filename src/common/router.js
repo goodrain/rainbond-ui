@@ -166,6 +166,9 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/create/create-setting/:appAlias": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/create-setting")),
     },
+    "/team/:team/region/:region/guide": {
+      component: dynamicWrapper(app,  ["index"], () => import("../routes/Guide/index")),
+    },
     "/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/create-compose-setting")),
     },
