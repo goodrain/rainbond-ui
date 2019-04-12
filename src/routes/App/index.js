@@ -341,7 +341,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res._code == 200) {
+                    if (res&&res._code == 200) {
                         this.setState({
                             BuildState: res.list && res.list.length > 0 ? res.list.length : null
                         })
@@ -436,7 +436,7 @@ class Main extends PureComponent {
     handleshowDeployTips = (showonoff) => {
         this.setState({ showDeployTips: showonoff });
     }
-    handleDeploy = (group_version) => {
+    handleDeploy = (group_version,is_upgrate) => {
         this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
@@ -447,7 +447,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
             group_version: group_version ? group_version : "",
-            is_upgrate: build_upgrade
+            is_upgrate:build_upgrade
         }).then((data) => {
             this.setState({ deployCanClick: false })
             if (data) {
@@ -459,7 +459,6 @@ class Main extends PureComponent {
                     child.onAction(data.bean);
                 }
             }
-
         })
     }
 
@@ -714,8 +713,9 @@ class Main extends PureComponent {
         const serviceAlias = appDetail.service.service_alias;
         const buildType = appDetail.service.service_source
         const text = appDetail.rain_app_name
-
-        if (buildType == "market") {
+        const {status}=this.state
+      
+        if (buildType == "market"&&(status&&status.status != "undeploy")) {
             this.props.dispatch({
                 type: 'appControl/getBuildInformation',
                 payload: {
@@ -723,7 +723,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res._code == 200) {
+                    if (res&&res._code == 200) {
                         this.setState({
                             BuildList: res.list,
                             visibleBuild: true,
@@ -738,6 +738,8 @@ class Main extends PureComponent {
                 }
             })
         } else {
+            buildType == "market"?
+            this.handleDeploy("",true):
             this.handleDeploy()
         }
     };
@@ -802,7 +804,7 @@ class Main extends PureComponent {
                     {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="" app_alias={appAlias} />)}
                     {(appDetail.service.service_source != "market" && appStatusUtil.canVisit(status)) && !isShowThirdParty && (<VisitBtn btntype="default" app_alias={appAlias} />)}
                     {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
-                    
+
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
                         ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
                         : status && status.status && status.status == "upgrade" ?
@@ -844,20 +846,17 @@ class Main extends PureComponent {
                             <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
                     : ''} */}
 
-
                 {isShowThirdParty ? "" : this.state.BuildState ?
                     <Tooltip title={"有新版本"}>
                         <Button onClick={this.handleOpenBuild} >
                             <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
                             构建</Button>
                     </Tooltip>
-                    : <Button onClick={this.handleOpenBuild} >构建</Button>
+                    : status && status.status == "undeploy" ?
+                        <Button onClick={this.handleOpenBuild} >构建</Button>
+                        :
+                        <Button onClick={this.handleOpenBuild} >构建</Button>
                 }
-
-
-
-
-
 
                 {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
@@ -966,8 +965,7 @@ class Main extends PureComponent {
                 span: 23,
             },
         };
-        const { BuildList } = this.state;
-
+        const { BuildList,BuildState } = this.state;
         return (
             <PageHeaderLayout
                 breadcrumbList={[{

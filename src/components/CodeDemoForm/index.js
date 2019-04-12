@@ -153,7 +153,7 @@ export default class Index extends PureComponent {
           {getFieldDecorator("service_cname", {
             initialValue: data.service_cname || "",
             rules: [{ required: true, message: "要创建的服务组件还没有名字" }],
-          })(<Input placeholder="请为创建的服务组件起个名字吧" />)}
+          })(<Input style={{width: 292}} placeholder="请为创建的服务组件起个名字吧" />)}
         </Form.Item>
 
         <Form.Item {...formItemLayout} label={
@@ -173,28 +173,28 @@ export default class Index extends PureComponent {
               静态Web：hello world !
             </Option>
             <Option value="https://github.com/goodrain/php-demo.git">
-              PHP Dmeo
+              PHP Demo
             </Option>
             <Option value="https://github.com/goodrain/python-demo.git">
-              Python Dmeo
+              Python Demo
             </Option>
             <Option value="https://github.com/goodrain/nodejs-demo.git">
-              Node.js Dmeo
+              Node.js Demo
             </Option>
             <Option value="https://github.com/goodrain/go-demo.git">
-              Golang Dmeo
+              Golang Demo
             </Option>
             <Option value="https://github.com/goodrain/java-maven-demo.git">
-              Java-Maven Dmeo
+              Java-Maven Demo
             </Option>
             <Option value="https://github.com/goodrain/java-jar-demo.git">
-              Java-Jar Dmeo
+              Java-Jar Demo
             </Option>
             <Option value="https://github.com/goodrain/java-war-demo.git">
-              Java-war Dmeo
+              Java-war Demo
             </Option>
             <Option value="https://github.com/goodrain/java-gradle-demo.git">
-              Java-gradle Dmeo
+              Java-gradle Demo
             </Option>
             <Option value="https://github.com/goodrain/dotnet-demo.git">.NetCore Demo</Option>
           </Select>)}

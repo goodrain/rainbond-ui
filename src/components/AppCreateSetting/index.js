@@ -745,7 +745,23 @@ class JAVA extends PureComponent {
         {
           (languageType == "java-war" || languageType == "Java-war") &&
           <div>
-
+            <Form.Item {...formItemLayout} label="开启清除构建缓存">
+              {getFieldDecorator('NO_CACHE', {
+                initialValue: ""
+              })(
+                <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
+              )}
+            </Form.Item>
+            <Form.Item {...formItemLayout} label="选择JDK版本">
+              {getFieldDecorator('RUNTIMES', {
+                initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
+              })(
+                <RadioGroup className={styles.ant_radio_disabled} onChange={this.onRadioGroupChange}>
+                  <Radio value='OpenJDK'>OpenJDK</Radio>
+                  <Radio value='Jdk'>OracleJDK</Radio>
+                </RadioGroup>
+              )}
+            </Form.Item>
             <Form.Item {...formItemLayout} label="选择JDK版本">
               {getFieldDecorator('RUNTIMES', {
                 initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
@@ -1165,7 +1181,9 @@ class PHP extends PureComponent {
     this.props.dispatch({
       type: 'appControl/getPhpConfig',
       callback: (data) => {
-        this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+        if (data) {
+          this.setState({ versions: data.bean.versions, default_version: data.bean.default_version, unablePlugs: data.bean.extends })
+        }
       }
     })
   }
@@ -1513,7 +1531,7 @@ class RenderDeploy extends PureComponent {
         build_env_dict
       },
       callback: (res) => {
-        if (res._code == 200) {
+        if (res && res._code == 200) {
           notification.success({ message: "修改成功." });
           this.getRuntimeInfo()
         }
@@ -1558,7 +1576,9 @@ class RenderDeploy extends PureComponent {
         app_alias: this.props.appDetail.service.service_alias
       },
       callback: (data) => {
-        this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} })
+        }
       }
     })
   }
@@ -1668,9 +1688,11 @@ class Mnt extends PureComponent {
           app_alias: this.props.appDetail.service.service_alias
         },
         callback: (data) => {
-          this.setState({
-            volumes: data.list || []
-          })
+          if (data) {
+            this.setState({
+              volumes: data.list || []
+            })
+          }
         }
       })
   }
@@ -2053,10 +2075,12 @@ class Env extends PureComponent {
           env_name
         },
         callback: (res) => {
-          this.setState({
-            innerEnvs: res.list || [],
-            total: res.bean.total
-          })
+          if (res) {
+            this.setState({
+              innerEnvs: res.list || [],
+              total: res.bean.total
+            })
+          }
         }
       })
   }
@@ -2244,7 +2268,7 @@ class Ports extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          ports: data.list || []
+          ports: data&&data.list || []
         })
       }
     })

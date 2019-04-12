@@ -28,7 +28,7 @@ export default class Index extends PureComponent {
                receipt_id: id
            },
            callback: (data) => {
-             this.setState({bean: data.bean || {}})
+             this.setState({bean: data&&data.bean || {}})
            }
        })
    }

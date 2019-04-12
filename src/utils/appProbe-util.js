@@ -55,7 +55,7 @@ const appProbeUtil = {
 
   // 是否设置了启动时检测, 未设置则bean为空对象
   isStartProbeUsed(probeBean) {
-    return probeBean.mode === 'readiness';
+    return (probeBean.mode === 'readiness'||probeBean.mode === 'liveness');
   },
   // 是否启用了启动时检测
   isStartProbeStart(probeBean) {

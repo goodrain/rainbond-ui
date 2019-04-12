@@ -270,7 +270,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancalDeletePort();
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -294,7 +294,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.cancalDeleteDomain();
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -312,8 +312,8 @@ export default class Index extends PureComponent {
         port: port.container_port,
       },
       callback: (data) => {
-        const portlist = data.list;
-        if (portlist.length == 0) {
+        const portlist = data && data.list;
+        if (portlist && portlist.length == 0) {
           notification.info({ message: "端口不能修改" });
         } else {
           this.setState({
@@ -356,7 +356,9 @@ export default class Index extends PureComponent {
         service_alias: this.props.appAlias,
       },
       callback: (data) => {
-        this.setState({ sld_suffix: data.bean.sld_suffix });
+        if (data) {
+          this.setState({ sld_suffix: data.bean.sld_suffix });
+        }
       },
     });
   };
@@ -395,7 +397,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.onCancelAddPort();
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -438,7 +440,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -453,7 +455,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -468,7 +470,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -483,7 +485,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         this.fetchPorts();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -533,7 +535,7 @@ export default class Index extends PureComponent {
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
-        this.props.appDetail&&this.props.appDetail.is_third?"":notification.success({ message: "操作成功" });
+        this.props.appDetail && this.props.appDetail.is_third ? "" : notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });

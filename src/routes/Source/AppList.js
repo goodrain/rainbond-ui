@@ -115,7 +115,7 @@ class ExportBtn extends PureComponent {
       callback: (data) => {
         // 点击导出平台应用
         if (type === 'rainbond-app') {
-          const rainbond_app = data.bean.rainbond_app || {};
+          const rainbond_app = data && data.bean.rainbond_app || {};
           if (rainbond_app.status === 'success') {
             this.setState({ is_rainbond_app_exporting: false });
             this.download(item.ID, type);
@@ -141,7 +141,7 @@ class ExportBtn extends PureComponent {
 
           // 点击导出compose
         } else {
-          const docker_compose = data.bean.docker_compose || {};
+          const docker_compose = data && data.bean.docker_compose || {};
           if (docker_compose.status === 'success' && docker_compose.file_path) {
             this.setState({ is_docker_compose_exporting: false });
             this.download(item.ID, type);
@@ -240,15 +240,17 @@ export default class AppList extends PureComponent {
         page: this.state.page,
       },
       callback: (data) => {
-        this.setState({
-          apps: data.list || [],
-          total: data.total,
-          visiblebox: datavisible,
-          querydatabox: dataquery,
-          exportTit: dataexportTit,
-          importingList: data.list || [],
-          loading: false,
-        });
+        if (data) {
+          this.setState({
+            apps: data.list || [],
+            total: data.total,
+            visiblebox: datavisible,
+            querydatabox: dataquery,
+            exportTit: dataexportTit,
+            importingList: data.list || [],
+            loading: false,
+          });
+        }
       },
     });
   };
@@ -259,7 +261,7 @@ export default class AppList extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
       },
       callback: (data) => {
-        if (data.list && data.list.length) {
+        if (data&&data.list && data.list.length) {
           this.setState({ importingApps: data.list });
           if (this.mounted) {
             setTimeout(() => {
@@ -701,7 +703,7 @@ export default class AppList extends PureComponent {
                       <div>
                         <p>版本:&nbsp;
                             {
-                            item.group_version_list&&item.group_version_list.map((item, index) => {
+                            item.group_version_list && item.group_version_list.map((item, index) => {
                               return <Tag style={{ height: "17px", lineHeight: "16px" }} color="green" size="small" key={index}> {item}</Tag>
                             })}
                         </p>

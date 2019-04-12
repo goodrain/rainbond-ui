@@ -59,12 +59,14 @@ export default class CloudApp extends PureComponent {
             pageSize: this.state.pageSize
           },
           callback: data => {
-            this.setState({
-              apps: data.list || [],
-              loading: false,
-              total: data.total,
-              version: null
-            });
+            if (data) {
+              this.setState({
+                apps: data.list || [],
+                loading: false,
+                total: data.total,
+                version: null
+              });
+            }
           }
         });
       }
@@ -75,14 +77,14 @@ export default class CloudApp extends PureComponent {
       type: "global/syncMarketAppDetail",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        body: 
-          {
-            group_key: data.group_key,
-            // version: data.version,
-            group_version: this.state.version ? [this.state.version] : [data.version[0]],
-            template_version: data.template_version
-          }
-        
+        body:
+        {
+          group_key: data.group_key,
+          // version: data.version,
+          group_version: this.state.version ? [this.state.version] : [data.version[0]],
+          template_version: data.template_version
+        }
+
       },
       callback: data => {
         notification.success({ message: "操作成功" });
@@ -92,7 +94,7 @@ export default class CloudApp extends PureComponent {
     });
   };
 
-  shouldComponentUpdate =()=> {
+  shouldComponentUpdate = () => {
     return true
   }
 
@@ -108,8 +110,8 @@ export default class CloudApp extends PureComponent {
         version: version,
       },
       callback: res => {
-        if (res._code == 200 ) {
-          if(res.list && res.list.length>0){
+        if (res&&res._code == 200) {
+          if (res.list && res.list.length > 0) {
             let arr = this.state.apps
             arr[index].is_complete = res.list[0].is_complete
             arr[index].is_upgrade = res.list[0].is_upgrade
@@ -222,7 +224,7 @@ export default class CloudApp extends PureComponent {
           loading={this.state.loading}
           pagination={paginationProps}
           dataSource={this.state.apps}
-          renderItem={(item,index) => (
+          renderItem={(item, index) => (
             <List.Item actions={[this.getAction(item)]}>
               <List.Item.Meta
                 avatar={
@@ -253,12 +255,12 @@ export default class CloudApp extends PureComponent {
                   <div>
                     {!this.state.loading && <p>版本: &nbsp;
                       <Select
-                         defaultValue={item.version[0]} 
-                         onChange={(version) => { this.handleChange(version, item, index) }}
-                         size="small"
+                        defaultValue={item.version[0]}
+                        onChange={(version) => { this.handleChange(version, item, index) }}
+                        size="small"
                       >
                         {
-                          item.version&&item.version.map((item, index) => {
+                          item.version && item.version.map((item, index) => {
                             return <Option value={item} key={index}>{item}</Option>
                           })}
                       </Select></p>}

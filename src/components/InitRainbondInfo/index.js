@@ -13,23 +13,25 @@ class Index extends React.PureComponent {
     this.props.dispatch({
       type: "global/fetchRainbondInfo",
       callback: (info) => {
-        this.setState({ inited: true });
-        this.putLog(info.eid || "", info.enterprise_name || "");
+        if (info) {
+          this.setState({ inited: true });
+          this.putLog(info.eid || "", info.enterprise_name || "");
+        }
       },
     });
   }
   putLog = (eid, enterprise_name) => {
-    try{
+    try {
       const defaultOptions = {
         credentials: "same-origin",
       };
       defaultOptions.url = "https://log.rainbond.com/log";
       defaultOptions.method = "post";
-      defaultOptions.data = JSON.stringify({ url: window.location.href, eid:eid, e_name:enterprise_name });
+      defaultOptions.data = JSON.stringify({ url: window.location.href, eid: eid, e_name: enterprise_name });
       defaultOptions.credentials = "same-origin";
       axios(defaultOptions);
-    }catch(e){      
-    }  
+    } catch (e) {
+    }
   };
   render() {
     const { rainbondInfo } = this.props;
@@ -41,4 +43,4 @@ class Index extends React.PureComponent {
   }
 }
 
-export default connect(({ global }) => ({ rainbondInfo: global&&global.rainbondInfo }))(Index);
+export default connect(({ global }) => ({ rainbondInfo: global && global.rainbondInfo }))(Index);

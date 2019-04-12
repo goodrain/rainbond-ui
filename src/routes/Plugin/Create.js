@@ -29,7 +29,7 @@ export default class Index extends PureComponent {
         callback: ((data) => {
           this
             .props
-            .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${data.bean.plugin_id}`))
+            .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${data&&data.bean.plugin_id}`))
         })
       })
   }

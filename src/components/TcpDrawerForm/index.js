@@ -54,9 +54,11 @@ class DrawerForm extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                this.setState({
-                    domain_port: data.list
-                })
+                if (data) {
+                    this.setState({
+                        domain_port: data.list
+                    })
+                }
             }
         })
         const { editInfo } = this.props;
@@ -78,17 +80,19 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.handlePorts(editInfo.service_id, true);
-                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
-                        } else {
-                            this.handlePorts(data.list[0].service_id, false);
-                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                if (data) {
+                    this.setState({ serviceComponentList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.handlePorts(editInfo.service_id, true);
+                                this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                            } else {
+                                this.handlePorts(data.list[0].service_id, false);
+                                this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -108,18 +112,20 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.setState({
-                                isPerform: false
-                            })
-                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
-                        } else {
-                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                if (data) {
+                    this.setState({ portList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.setState({
+                                    isPerform: false
+                                })
+                                this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                            } else {
+                                this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -192,6 +198,8 @@ class DrawerForm extends PureComponent {
                     }}
                 >
                     <Form>
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>路由规则</h3>
+
                         <FormItem
                             {...formItemLayout}
                             label="IP"
@@ -203,6 +211,8 @@ class DrawerForm extends PureComponent {
                                 <PortInput domain_port={editInfo && editInfo.end_point ? current_enpoint : domain_port} onChange={this.handleChange} />
                             )}
                         </FormItem>
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>访问目标</h3>
+
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
@@ -229,7 +239,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : "",
+                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : undefined,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
                                     {
@@ -248,7 +258,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('container_port', {
                                 rules: [{ required: true, message: '请选择端口号' }],
-                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : "",
+                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : undefined,
                             })(
                                 <Select placeholder="请选择端口号">
                                     {

@@ -42,11 +42,16 @@ class DrawerForm extends PureComponent {
             group_name: "",
             descriptionVisible: false,
             rule_extensions_visible: false,
-            isPerform: true
+            isPerform: true,
+            routingConfiguration: false
         }
     }
     componentWillMount() {
-        const { dispatch, editInfo, form } = this.props;
+        this.heandleEditInfo(this.props)
+    }
+
+    heandleEditInfo = (props) => {
+        const { dispatch, editInfo, form } = props;
         const team_name = globalUtil.getCurrTeamName();
         dispatch({
             type: "appControl/fetchCertificates",
@@ -54,16 +59,21 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                if (data.list) {
+                if (data && data.list) {
                     this.setState({ licenseList: data.list })
                 }
             }
         })
         if (editInfo) {
-            this.handleServices( editInfo.g_id)
+            this.handleServices(editInfo.g_id)
             // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
         }
     }
+    // componentWillReceiveProps(nextPro) {
+    //     if (nextPro.editInfo !== this.props.editInfo) {
+    //         this.heandleEditInfo(nextPro);
+    //     }
+    // }
     handleOk = (e) => {
         e.preventDefault();
         const { onOk } = this.props
@@ -93,17 +103,19 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ serviceComponentList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.handlePorts(editInfo.service_id, true);
-                            this.props.form.setFieldsValue({ service_id: editInfo.service_id });
-                        } else {
-                            this.handlePorts(data.list[0].service_id, false);
-                            this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                if (data) {
+                    this.setState({ serviceComponentList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.handlePorts(editInfo.service_id, true);
+                                this.props.form.setFieldsValue({ service_id: editInfo.service_id });
+                            } else {
+                                this.handlePorts(data.list[0].service_id, false);
+                                this.props.form.setFieldsValue({ service_id: data.list[0].service_id });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -122,18 +134,20 @@ class DrawerForm extends PureComponent {
                 team_name
             },
             callback: (data) => {
-                this.setState({ portList: data.list }, () => {
-                    if (data.list && data.list.length > 0) {
-                        if (isPerform && editInfo) {
-                            this.setState({
-                                isPerform: false
-                            })
-                            this.props.form.setFieldsValue({ container_port: editInfo.container_port });
-                        } else {
-                            this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                if (data) {
+                    this.setState({ portList: data.list }, () => {
+                        if (data.list && data.list.length > 0) {
+                            if (isPerform && editInfo) {
+                                this.setState({
+                                    isPerform: false
+                                })
+                                this.props.form.setFieldsValue({ container_port: editInfo.container_port });
+                            } else {
+                                this.props.form.setFieldsValue({ container_port: data.list[0].container_port });
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
         })
     }
@@ -153,17 +167,23 @@ class DrawerForm extends PureComponent {
             this.setState({ rule_extensions_visible: true })
         }
     }
+
+    handleRoutingConfiguration = () => {
+        this.setState({
+            routingConfiguration: !this.state.routingConfiguration
+        })
+    }
     render() {
         const { onClose, onOk, groups, editInfo, addHttpStrategyLoading, editHttpStrategyLoading } = this.props;
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
-                xs: { span: 24 },
-                sm: { span: 4 }
+                xs: { span: 5 },
+                sm: { span: 5 }
             },
             wrapperCol: {
-                xs: { span: 24 },
-                sm: { span: 18 }
+                xs: { span: 19 },
+                sm: { span: 19 }
             }
         };
         // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
@@ -182,6 +202,7 @@ class DrawerForm extends PureComponent {
         const currentRegion = region.filter((item) => {
             return item.team_region_name == globalUtil.getCurrRegionName();
         })
+        const { routingConfiguration } = this.state;
         return (
             <div>
                 <Drawer
@@ -198,6 +219,7 @@ class DrawerForm extends PureComponent {
                     }}
                 >
                     <Form >
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>路由规则</h3>
                         <FormItem
                             {...formItemLayout}
                             label="域名"
@@ -222,51 +244,98 @@ class DrawerForm extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="Path"
+                            label="Location"
                         >
-                            {getFieldDecorator('domain_path', { initialValue: editInfo.domain_path })(
+                            {getFieldDecorator('domain_path', {
+                                rules: [
+                                    {
+                                        required: false,
+                                        message: "/",
+                                    },
+                                    {
+                                        pattern: /^\/+.*/,
+                                        message: "请输入绝对路径",
+                                    },
+                                ],
+                                initialValue: editInfo.domain_path
+                            })(
                                 <Input placeholder="/" />
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="请求头"
-                        >
-                            {getFieldDecorator("domain_heander", { initialValue: editInfo.domain_heander })(<DAinput />)}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="Cookie"
-                        >
-                            {getFieldDecorator("domain_cookie", { initialValue: editInfo.domain_cookie })(<DAinput />)}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="权重"
-                        >
-                            {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 100 })(
-                                <InputNumber min={1} max={100} style={{ width: "100%" }} />
-                            )}
-                        </FormItem>
-                        {this.state.licenseList && <FormItem
-                            {...formItemLayout}
-                            label="绑定证书"
-                            style={{ zIndex: 999 }}
-                        >
-                            {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
-                                <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
-                                    {this.state.licenseList && this.state.licenseList.length > 0 && <Option value={""} key={99}>不绑定</Option>}
-                                    {
-                                        (this.state.licenseList).map((license, index) => {
-                                            return <Option value={license.id} key={index}>{license.alias}</Option>
-                                        })
-                                    }
-                                    {/* {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
+
+                        {!routingConfiguration && <div>
+                            <p style={{ textAlign: "center" }}>更多高级路由参数<br></br><Icon type="down" onClick={this.handleRoutingConfiguration} /></p>
+                        </div>}
+
+                        {routingConfiguration && <div>
+                            <FormItem
+                                {...formItemLayout}
+                                label="请求头"
+                            >
+                                {getFieldDecorator("domain_heander", { initialValue: editInfo.domain_heander })(<DAinput />)}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="Cookie"
+                            >
+                                {getFieldDecorator("domain_cookie", { initialValue: editInfo.domain_cookie })(<DAinput />)}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="权重"
+                            >
+                                {getFieldDecorator("the_weight", { initialValue: editInfo.the_weight || 100 })(
+                                    <InputNumber min={1} max={100} style={{ width: "100%" }} />
+                                )}
+                            </FormItem>
+                            {this.state.licenseList && <FormItem
+                                {...formItemLayout}
+                                label="HTTPs证书"
+                                style={{ zIndex: 999 }}
+                            >
+                                {getFieldDecorator('certificate_id', { initialValue: editInfo.certificate_id })(
+                                    <Select placeholder="请绑定证书" onSelect={this.handeCertificateSelect}>
+                                        {this.state.licenseList && this.state.licenseList.length > 0 && <Option value={""} key={99}>不绑定</Option>}
+                                        {
+                                            (this.state.licenseList).map((license, index) => {
+                                                return <Option value={license.id} key={index}>{license.alias}</Option>
+                                            })
+                                        }
+                                        {/* {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
                                         return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
                                     }) : <Option value={editInfo.certificate_id} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>} */}
-                                </Select>
-                            )}
-                        </FormItem>}
+                                    </Select>
+                                )}
+                            </FormItem>}
+                            <FormItem
+                                {...formItemLayout}
+                                label="扩展功能"
+                            >
+                                {(this.state.rule_extensions_visible || (editInfo.certificate_id && rule_http)) && getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
+                                    <Checkbox.Group>
+                                        <Row>
+                                            <Col span={24}>
+                                                <Checkbox value="httptohttps">HTTP Rewrite HTTPs</Checkbox>
+                                            </Col>
+                                        </Row>
+                                    </Checkbox.Group>
+                                )}
+                                <FormItem>
+                                    {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
+                                        <Select placeholder="请选择负载均衡类型">
+                                            <Option value="round-robin">轮询</Option>
+                                            {/* <Option value="random">random</Option>
+                                    <Option value="consistence-hash">consistence-hash</Option> */}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            </FormItem>
+
+                            <div style={{ textAlign: "center" }}><Icon type="up" onClick={this.handleRoutingConfiguration} /></div>
+
+                        </div>
+                        }
+                        <h3 style={{ borderBottom: "1px solid #BBBBBB", marginBottom: "10px" }}>访问目标</h3>
                         <FormItem
                             {...formItemLayout}
                             label="应用(组)"
@@ -292,7 +361,7 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : "",
+                                initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : undefined,
                             })(
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts} >
                                     {
@@ -307,10 +376,10 @@ class DrawerForm extends PureComponent {
                         <FormItem
                             {...formItemLayout}
                             label="端口号"
-                            style={{ zIndex: 999 }}
+                            style={{ zIndex: 999, marginBottom: "150px" }}
                         >
                             {getFieldDecorator('container_port', {
-                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : "",
+                                initialValue: editInfo && editInfo.container_port ? editInfo.container_port : this.state.portList && this.state.portList.length > 0 ? this.state.portList[0].container_port : undefined,
                                 rules: [{ required: true, message: '请选择端口号' }],
                             })(
                                 <Select placeholder="请选择端口号">
@@ -322,29 +391,7 @@ class DrawerForm extends PureComponent {
                                 </Select>
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="扩展功能"
-                        >
-                            {(this.state.rule_extensions_visible || (editInfo.certificate_id && rule_http)) && getFieldDecorator("rule_extensions_http", { initialValue: [rule_http] })(
-                                <Checkbox.Group>
-                                    <Row>
-                                        <Col span={24}>
-                                            <Checkbox value="httptohttps">HTTP Rewrite HTTPs</Checkbox>
-                                        </Col>
-                                    </Row>
-                                </Checkbox.Group>
-                            )}
-                            <FormItem>
-                                {getFieldDecorator("rule_extensions_round", { initialValue: rule_round || 'round-robin' })(
-                                    <Select placeholder="请选择负载均衡类型">
-                                        <Option value="round-robin">轮询</Option>
-                                        {/* <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option> */}
-                                    </Select>
-                                )}
-                            </FormItem>
-                        </FormItem>
+
                     </Form>
                     <div
                         style={{

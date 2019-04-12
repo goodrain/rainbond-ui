@@ -352,10 +352,10 @@ export default class Index extends PureComponent {
                                 <a
                                   href={(domain.protocol === 'http'
                                     ? 'http'
-                                    : 'https') + '://' + domain.domain_name}
+                                    : 'https') + '://' + domain.domain_name + (domain.domain_path ? domain.domain_path : "/")}
                                   target="_blank">{(domain.protocol === 'http'
                                     ? 'http'
-                                    : 'https') + '://' + domain.domain_name}</a>
+                                    : 'https') + '://' + domain.domain_name + (domain.domain_path ? domain.domain_path : "/")}</a>
                                 <a
                                   title="解绑"
                                   onClick={() => {
@@ -378,7 +378,7 @@ export default class Index extends PureComponent {
                 {/*  */}
               </div>
             </td>
-            {console.log(showDomain, appPortUtil.canBindDomain(port))}
+            {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
             {showDomain && <td>
               {appPortUtil.canBindDomain(port)
                 ? <div>
@@ -390,10 +390,10 @@ export default class Index extends PureComponent {
                             <a
                               href={(domain.protocol === 'http'
                                 ? 'http'
-                                : 'https') + '://' + domain.domain_name}
+                                : 'https') + '://' + domain.domain_name + (domain.domain_path ? domain.domain_path : "/")}
                               target="_blank">{(domain.protocol === 'http'
                                 ? 'http'
-                                : 'https') + '://' + domain.domain_name}</a>
+                                : 'https') + '://' + domain.domain_name + (domain.domain_path ? domain.domain_path : "/")}</a>
                             <a
                               title="解绑"
                               onClick={() => {
@@ -408,11 +408,11 @@ export default class Index extends PureComponent {
                     </div>
                   })
                   }
-                  <Button size="small" onClick={this.onAddDomain}>新增域名</Button>
                 </div>
                 : null
               }
-              {outerUrl?
+
+              {outerUrl ?
                 <div>
                   {tcp_domains.map((domain) => {
                     return <div>
@@ -426,19 +426,29 @@ export default class Index extends PureComponent {
                       }
                     </div>
                   })}
-                </div>:
+                </div> :
                 <div>
-                {tcp_domains.map((domain) => {
-                  return <div>
-                    {
-                      <p>
+                  {tcp_domains.map((domain) => {
+                    return <div>
+                      {
+                        <p>
                           <a href="javascript:void(0)" disabled>{domain.end_point}</a>
-                      </p>
-                    }
-                  </div>
-                })}
-              </div>
+                        </p>
+                      }
+                    </div>
+                  })}
+                </div>
               }
+              {port && port.protocol == "http" && <Button size="small" style={{ marginTop: "5px" }} onClick={this.onAddDomain}>添加域名</Button>}
+              {port && port.protocol != "http" && <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`} style={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+                color: "#1890ff"
+              }}>
+                <Button size="small" >
+                  管理访问策略
+                  </Button>
+              </Link>}
             </td>
             }
             <td>

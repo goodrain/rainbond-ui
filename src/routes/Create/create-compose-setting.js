@@ -55,7 +55,7 @@ export default class Index extends PureComponent {
                 },
                 callback: (data) => {
                     this.setState({
-                        apps: (data.list || []).map((item) => {
+                        apps: (data&&data.list || []).map((item) => {
                             //为了兼容数据结构，  需要优化 TODO
                             return {service: item};
                         })
@@ -123,6 +123,14 @@ export default class Index extends PureComponent {
                     ...params
                 },
                 callback: () => {
+                    this
+                    .props
+                    .dispatch({
+                        type: 'global/fetchGroups',
+                        payload: {
+                            team_name: globalUtil.getCurrTeamName()
+                        }
+                    });
                     this
                         .props
                         .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))

@@ -36,10 +36,12 @@ export default class EventList extends PureComponent {
         page: this.state.page,
       },
       callback: (data) => {
-        this.setState({
-          events: data.list || [],
-          total: data.total || data.list.length,
-        });
+        if (data) {
+          this.setState({
+            events: data.list || [],
+            total: data.total || data.list.length,
+          });
+        }
       },
     });
   };
@@ -51,9 +53,11 @@ export default class EventList extends PureComponent {
         team_name: teamName,
       },
       callback: (data) => {
-        this.setState({
-          joinUsers: data.list || [],
-        });
+        if (data) {
+          this.setState({
+            joinUsers: data.list || [],
+          });
+        }
       },
     });
   }
@@ -118,7 +122,7 @@ export default class EventList extends PureComponent {
     return list.map((item) => {
       const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
         item.service_alias
-      }/overview`;
+        }/overview`;
       return (
         <List.Item key={item.event_id}>
           <List.Item.Meta

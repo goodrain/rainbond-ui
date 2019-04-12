@@ -139,7 +139,7 @@ class AddVarModal extends PureComponent {
         attr_value
       },
       callback: (res) => {
-        let arr = res.list ? res.list : [];
+        let arr = res&&res.list ? res.list : [];
         arr.unshift(attr_name ? attr_name + "" : attr_value + "")
         Array.from(new Set(arr))
 

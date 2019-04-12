@@ -169,6 +169,9 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/create/create-moreService/:appAlias/:check_uuid": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/create-moreService")),
     },
+    "/team/:team/region/:region/guide": {
+      component: dynamicWrapper(app,  ["index"], () => import("../routes/Guide/index")),
+    },
     "/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId": {
       component: dynamicWrapper(app, [], () => import("../routes/Create/create-compose-setting")),
     },
@@ -187,7 +190,7 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/exception/500": {
       component: dynamicWrapper(app, [], () => import("../routes/Exception/500")),
     },
-    '/team/:team/region/:region/gateway/control': {
+    '/team/:team/region/:region/gateway/control/:types?/:isopen?': {
       component: dynamicWrapper(app, ["gateWay",'appControl'], () => import('../routes/GateWay/control')),
     },
     '/team/:team/region/:region/gateway/license': {

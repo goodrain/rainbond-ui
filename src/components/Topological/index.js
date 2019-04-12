@@ -1,8 +1,8 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import debounce from 'lodash.debounce';
 import globalUtil from '../../utils/global';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import config from '../../config/config'
 
 @connect()
@@ -10,8 +10,8 @@ class Index extends React.Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount(){
-  
+  componentDidMount() {
+
   }
   componentWillMount() {
     const team_name = globalUtil.getCurrTeamName();
@@ -20,22 +20,24 @@ class Index extends React.Component {
     try {
 
       window.iframeGetNodeUrl = function () {
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId+'&region='+globalUtil.getCurrRegionName();
+        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetMonitor = function (fn) {
         self.props.dispatch({
-            type: 'groupControl/groupMonitorData',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              group_id: groupId
-            },
-            callback: (data) => {
+          type: 'groupControl/groupMonitorData',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            group_id: groupId
+          },
+          callback: (data) => {
+            if (data) {
               fn && fn(data || {})
             }
+          }
         })
 
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId+'&region='+globalUtil.getCurrRegionName();
+        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetTenantName = function () {
@@ -64,16 +66,16 @@ class Index extends React.Component {
           .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${relation.service_alias}/overview`))
       }
 
-    } catch (e) {}
+    } catch (e) { }
   }
   render() {
     return ((
       <iframe
         src={config.baseUrl + '/static/www/weavescope/index.html'}
         style={{
-        width: '100%',
-        height: '500px'
-      }}
+          width: '100%',
+          height: '500px'
+        }}
         frameBorder="no"
         border="0"
         marginWidth="0"

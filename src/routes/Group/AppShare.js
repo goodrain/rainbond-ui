@@ -138,45 +138,45 @@ class AppInfo extends PureComponent {
               <Col span={8}>
                 <FormItem label={item.attr_name} style={{ padding: 16 }}>
                   {getFieldDecorator(`connect||${item.attr_name}||attr_value`, {
-                      initialValue: item.attr_value,
-                      rules: [
-                        {
-                          required: true,
-                          message: "不能为空",
-                        },
-                      ],
-                    })(<Input placeholder={item.attr_value} />)}
+                    initialValue: item.attr_value,
+                    rules: [
+                      {
+                        required: true,
+                        message: "不能为空",
+                      },
+                    ],
+                  })(<Input placeholder={item.attr_value} />)}
                   {getFieldDecorator(`connect||${item.attr_name}||random`, {
-                      valuePropName: "checked",
-                      rules: [
-                        {
-                          required: false,
-                          message: "",
-                        },
-                      ],
-                      initialValue: false,
-                    })(<Checkbox
-                      onChange={this.handleCheckChange.bind(
-                          this,
-                          `connect||${item.attr_name}||attr_value`,
-                          item.attr_value,
-                        )}
-                    >
-                        生成随机值
+                    valuePropName: "checked",
+                    rules: [
+                      {
+                        required: false,
+                        message: "",
+                      },
+                    ],
+                    initialValue: false,
+                  })(<Checkbox
+                    onChange={this.handleCheckChange.bind(
+                      this,
+                      `connect||${item.attr_name}||attr_value`,
+                      item.attr_value,
+                    )}
+                  >
+                    生成随机值
                        </Checkbox>)}
                   {getFieldDecorator(`connect||${item.attr_name}||is_change`, {
-                      valuePropName: "checked",
-                      initialValue: item.is_change,
-                      rules: [
-                        {
-                          required: false,
-                          message: "",
-                        },
-                      ],
-                    })(<Checkbox>可修改</Checkbox>)}
+                    valuePropName: "checked",
+                    initialValue: item.is_change,
+                    rules: [
+                      {
+                        required: false,
+                        message: "",
+                      },
+                    ],
+                  })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
               </Col>
-              ))}
+            ))}
           </Row>
         </div>
       );
@@ -206,27 +206,27 @@ class AppInfo extends PureComponent {
               <Col span={8}>
                 <FormItem label={item.attr_name} style={{ padding: 16 }}>
                   {getFieldDecorator(`env||${item.attr_name}||attr_value`, {
-                      initialValue: item.attr_value,
-                      rules: [
-                        {
-                          required: true,
-                          message: "不能为空",
-                        },
-                      ],
-                    })(<Input />)}
+                    initialValue: item.attr_value,
+                    rules: [
+                      {
+                        required: true,
+                        message: "不能为空",
+                      },
+                    ],
+                  })(<Input />)}
                   {getFieldDecorator(`env||${item.attr_name}||is_change`, {
-                      valuePropName: "checked",
-                      initialValue: item.is_change,
-                      rules: [
-                        {
-                          required: false,
-                          message: "",
-                        },
-                      ],
-                    })(<Checkbox>可修改</Checkbox>)}
+                    valuePropName: "checked",
+                    initialValue: item.is_change,
+                    rules: [
+                      {
+                        required: false,
+                        message: "",
+                      },
+                    ],
+                  })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
               </Col>
-              ))}
+            ))}
           </Row>
         </div>
       );
@@ -252,7 +252,7 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-          <Col span={6}>
+            <Col span={6}>
               <FormItem label="最小节点(个)" style={{ padding: 16 }}>
                 {getFieldDecorator("extend||min_node", {
                   initialValue: app.extend_method_map.min_node,
@@ -389,28 +389,30 @@ export default class Main extends PureComponent {
       },
       callback: (data) => {
         let selectedApp = "";
-        if (data.bean.share_service_list[0]) {
-          selectedApp = data.bean.share_service_list[0].service_alias;
-        }
-        this.setState({
-          info: data.bean,
-          selectedApp,
-          key: data.bean.share_service_list[0].service_alias,
-        });
-        if (data.bean.share_group_info.pic) {
+        if (data) {
+          if (data && data.bean.share_service_list[0]) {
+            selectedApp = data && data.bean.share_service_list[0].service_alias;
+          }
           this.setState({
-            fileList: [
-              {
-                uid: -1,
-                name: data.bean.share_group_info.pic,
-                status: "done",
-                url: data.bean.share_group_info.pic,
-              },
-            ],
+            info: data.bean,
+            selectedApp,
+            key: data.bean.share_service_list[0].service_alias,
           });
+          if (data.bean.share_group_info.pic) {
+            this.setState({
+              fileList: [
+                {
+                  uid: -1,
+                  name: data.bean.share_group_info.pic,
+                  status: "done",
+                  url: data.bean.share_group_info.pic,
+                },
+              ],
+            });
+          }
+          this.share_group_info = data.bean.share_group_info;
+          this.share_service_list = data.bean.share_service_list;
         }
-        this.share_group_info = data.bean.share_group_info;
-        this.share_service_list = data.bean.share_service_list;
       },
       handleError: (res) => {
         if (res && res.status === 404) {
@@ -546,7 +548,7 @@ export default class Main extends PureComponent {
     this.setState({ fileList: [] });
   };
 
-  componentWillUnmount() {}
+  componentWillUnmount() { }
   save = (val) => {
     this.com.push(val);
   };
@@ -669,7 +671,7 @@ export default class Main extends PureComponent {
                         onRemove={this.handleLogoRemove}
                       >
                         {fileList.length > 0 ? null : uploadButton}
-                         </Upload>)}
+                      </Upload>)}
                     </Form.Item>
                   </Col>
                 </Row>
@@ -703,7 +705,7 @@ export default class Main extends PureComponent {
                     >
                       {apptit.service_cname}
                     </a>
-                    ) : (
+                  ) : (
                       <a
                         tab={apptit.service_cname}
                         key={apptit.service_alias}
@@ -718,7 +720,7 @@ export default class Main extends PureComponent {
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                   </div>
-                  ) : (
+                ) : (
                     <div
                       style={{
                         display: "none",
@@ -738,27 +740,27 @@ export default class Main extends PureComponent {
             title="插件信息"
             bordered={false}
           >
-           <Table
-          size="middle"
-          dataSource={plugins}
-          columns={[
-            {
-              title: "插件名",
-              dataIndex: "plugin_alias",
-            },
-            {
-              title: "分类",
-              dataIndex: "category",
-              render: (v, data) => {
-                return pluginUtil.getCategoryCN(v)
-              }
-            },
-            {
-              title: "版本",
-              dataIndex: "build_version",
-            },
-          ]}
-        />
+            <Table
+              size="middle"
+              dataSource={plugins}
+              columns={[
+                {
+                  title: "插件名",
+                  dataIndex: "plugin_alias",
+                },
+                {
+                  title: "分类",
+                  dataIndex: "category",
+                  render: (v, data) => {
+                    return pluginUtil.getCategoryCN(v)
+                  }
+                },
+                {
+                  title: "版本",
+                  dataIndex: "build_version",
+                },
+              ]}
+            />
           </Card>
 
           <FooterToolbar>

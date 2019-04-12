@@ -68,8 +68,10 @@ export default class CreateCheck extends PureComponent {
         app_alias: this.getAppAlias(),
       },
       callback: (appDetail) => {
-        this.setState({ appDetail: appDetail.service });
-        this.getCheckuuid();
+        if (appDetail) {
+          this.setState({ appDetail: appDetail.service });
+          this.getCheckuuid();
+        }
       },
     });
   };
@@ -256,6 +258,15 @@ export default class CreateCheck extends PureComponent {
         is_force: true,
       },
       callback: () => {
+        this
+          .props
+          .dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name: globalUtil.getCurrTeamName()
+            }
+          });
+
         ServiceGetData ? this.props.handleServiceDataState(true, null, null, null) :
           this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
       },
@@ -383,18 +394,19 @@ export default class CreateCheck extends PureComponent {
 
     const { ServiceGetData } = this.state
 
-    const actions = [
-      <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
-        重新检测
-      </Button>,
-      <Button onClick={this.showDelete} type="default">
-        {" "}
-        放弃创建{" "}
-      </Button>,
+    const actions =<div>
+        <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
+          重新检测
+      </Button>
+        <Button onClick={this.showDelete} type="default">
+          放弃创建
+      </Button>
+      </div>
 
-    ];
-    ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
 
+    if( ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)){
+      this.props.handleServiceBotton(actions, true,true)
+    }
     return (
       <Result
         type="error"

@@ -100,10 +100,12 @@ export default class RoleList extends PureComponent {
         page: this.state.page,
       },
       callback: (data) => {
-        this.setState({
-          roles: data.list || [],
-          total: data.total,
-        });
+        if (data) {
+          this.setState({
+            roles: data.list || [],
+            total: data.total,
+          });
+        }
       },
     });
   };

@@ -458,6 +458,15 @@ export default class CreateCheck extends PureComponent {
                     },
                     callback: () => {
                         this
+                        .props
+                        .dispatch({
+                            type: 'global/fetchGroups',
+                            payload: {
+                                team_name: globalUtil.getCurrTeamName()
+                            }
+                        });
+                        
+                        this
                             .props
                             .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
                     }
