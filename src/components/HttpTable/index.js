@@ -105,13 +105,35 @@ export default class HttpTable extends PureComponent {
             },
             callback: (res) => {
                 if (res && res._code == 200) {
-                    this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
+                    let arr = []
+                    if (res.bean && res.bean.value) {
+                        if (res.bean.value.set_headers && res.bean.value.set_headers.length > 1) {
+                            res.bean.value.set_headers.map((item) => {
+                                if (item.key != "set-header-Upgrade" && item.key != "set-header-Connection") {
+                                    arr.push(item)
+                                }
+                            })
+                            res.bean.value.set_headers=arr
+                            res.bean.value.WebSocket=true
+                            this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
+                        }else{
+                            res.bean.value.WebSocket=false
+                            this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
+                        }
+
+                    }
+
+                   
                 }
             }
         })
-
-
     }
+
+
+
+
+
+
     handleClick = () => {
         this.setState({ drawerVisible: true })
     }
@@ -192,12 +214,19 @@ export default class HttpTable extends PureComponent {
 
     handleOkParameter = (values) => {
         const { dispatch } = this.props;
+        const arr = [{ key: "set-header-Upgrade", value: "$http_upgrade" }, { key: "set-header-Connection", value: "upgrade" }]
         let value = {
             proxy_body_size: Number(values.proxy_body_size),
             proxy_connect_timeout: Number(values.proxy_connect_timeout),
             proxy_read_timeout: Number(values.proxy_read_timeout),
             proxy_send_timeout: Number(values.proxy_send_timeout),
-            set_headers: values.set_headers ? values.set_headers : [],
+            proxy_buffering: values.proxy_buffering ? "on" : "off",
+            set_headers: (values.set_headers && values.WebSocket) ?
+
+                values.set_headers.length == 1 && values.set_headers[0].key == "" ? arr :
+                    values.set_headers.concat(arr) :
+
+                values.set_headers ? values.set_headers : [],
         }
         dispatch({
             type: "gateWay/editParameter",
