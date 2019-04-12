@@ -76,6 +76,7 @@ class ConfirmModal extends PureComponent{
             width={800}
             onOk={this.handleSubmit}
             onCancel={onCancel}
+            maskClosable={false} 
           >
 
              <Form onSubmit={this.handleSubmit}>

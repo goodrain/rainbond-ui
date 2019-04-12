@@ -102,7 +102,7 @@ export default class AddVarModal extends PureComponent {
     };
     const { list } = this.state;
     return (
-      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
+      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} maskClosable={false} onCancel={this.handleCancel} visible>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
             {getFieldDecorator("attr_name", {

@@ -117,7 +117,7 @@ class LicenseDrawer extends PureComponent {
                     closable={true}
                     onClose={onClose}
                     visible={this.props.visible}
-                    maskClosable={true}
+                    maskClosable={false}
                     style={{
                         overflow: 'auto',
                     }}
