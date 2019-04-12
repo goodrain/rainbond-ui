@@ -219,7 +219,7 @@ export default class Index extends PureComponent {
   CreateApp = () => {
     const { GuideList } = this.state
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[0].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "22px", color: GuideList && GuideList.length > 0 && GuideList[0].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.icono} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[0].status ? "#1890ff" : "#A8A2A2" }} />
       <p>应用是<a href={languageObj.Rainbond} target="_blank">Rainbond</a>核心抽象，由N个服务组件构成，它类似于Maven或Dotnet中的Project。在应用级抽象中用户通常关注以下功能：</p>
       <p>1. 应用拓扑图可视化，便捷观察所有服务的运行状态 <a href="https://www.rainbond.com/docs/user-manual/app-manage/app-topology/" target="_blank">[参考文档]</a></p>
       <p>2. 应用生命周期管理，涉及启停、升级和构建<a href="https://www.rainbond.com/docs/user-manual/app-manage/operation/" target="_blank">[参考文档]</a></p>
@@ -236,7 +236,7 @@ export default class Index extends PureComponent {
   CreateSourceCode = () => {
     const { GuideList } = this.state
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[1].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "130px", color: GuideList && GuideList.length > 0 && GuideList[1].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.icont} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[1].status ? "#1890ff" : "#A8A2A2" }} />
 
       <p>基于源码创建并持续构建服务是面向开发者的最常用的功能，<a href={languageObj.Rainbond} target="_blank">Rainbond</a>支持
       <a href={languageObj.Java} target="_blank">Java</a>/
@@ -267,7 +267,7 @@ export default class Index extends PureComponent {
     const { GuideList } = this.state
 
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[2].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "282px", color: GuideList && GuideList.length > 0 && GuideList[2].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.icons} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[2].status ? "#1890ff" : "#A8A2A2" }} />
 
       <p>从应用市场安装应用是最便捷的云应用安装交付方式，目前<a href={languageObj.Rainbond} target="_blank">Rainbond</a>公有市场中提供了部分数据库类中间件和一些开源应用。完成当前任务用户会关注以下功能:</p>
       <p>1. 从公有应用市场同步应用</p>
@@ -291,7 +291,7 @@ export default class Index extends PureComponent {
     const { GuideList } = this.state
 
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[3].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "428px", color: GuideList && GuideList.length > 0 && GuideList[3].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.iconf} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[3].status ? "#1890ff" : "#A8A2A2" }} />
 
       <p>当前任务以服务连接数据库为例学习<a href={languageObj.Rainbond} target="_blank">Rainbond</a>服务之间内网通信机制，完成当前任务用户会关注以下功能：</p>
       <p>1. 服务建立依赖关系包含的通信原理（服务注册/服务发现) <a href="https://www.rainbond.com/docs/user-manual/app-service-manage/service-rely/#%E6%9C%8D%E5%8A%A1%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86" target="_blank">[参考文档]</a></p>
@@ -307,7 +307,7 @@ export default class Index extends PureComponent {
     const { GuideList } = this.state
 
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[4].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "560px", color: GuideList && GuideList.length > 0 && GuideList[4].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.iconr} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[4].status ? "#1890ff" : "#A8A2A2" }} />
 
       <p>将前置任务创建的应用分享到应用市场，从而让你的业务系统支持一键交付能力。完成当前任务用户会关注以下功能：</p>
       <p>1. 应用发布到企业应用市场  <a href="https://www.rainbond.com/docs/user-manual/app-manage/share-app/" target="_blank">[参考文档]</a></p>
@@ -324,7 +324,7 @@ export default class Index extends PureComponent {
     const { GuideList } = this.state
 
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[5].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "698px", color: GuideList && GuideList.length > 0 && GuideList[5].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.icona} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[5].status ? "#1890ff" : "#A8A2A2" }} />
 
       <p>需要被外网访问的服务需要配置网关访问策略，<a href={languageObj.Rainbond} target="_blank">Rainbond</a>网关支持HTTP/WebSocket/TCP/UDP服务访问协议。HTTP类策略根据域名等信息进行路由匹配，TCP类策略通过IP+端口进行路由匹配。完成当前任务用户会关注以下功能：</p>
       <p>1. HTTP策略配置 <a href="https://www.rainbond.com/docs/user-manual/gateway/traffic-control/#%E6%B7%BB%E5%8A%A0-http-%E7%AD%96%E7%95%A5" target="_blank">[参考文档]</a></p>
@@ -344,10 +344,10 @@ export default class Index extends PureComponent {
   }
 
   AnalysisPlugin = () => {
-    const { GuideList, SpinState } = this.state
+    const { GuideList } = this.state
 
     return <div className={styles.connect} style={{ borderColor: GuideList && GuideList.length > 0 && GuideList[6].status ? "#1890ff" : "#A8A2A2" }}>
-      <Icon className={styles.icon} type="caret-up" theme="filled" style={{ left: "830px", color: GuideList && GuideList.length > 0 && GuideList[6].status ? "#1890ff" : "#A8A2A2" }} />
+      <Icon className={styles.iconq} type="caret-up" theme="filled" style={{ color: GuideList && GuideList.length > 0 && GuideList[6].status ? "#1890ff" : "#A8A2A2" }} />
       <p>服务插件体系是对服务治理功能的扩展方式，<a href={languageObj.Rainbond} target="_blank">Rainbond</a>默认提供了性能分析插件和网络治理插件。当前任务为前置任务安装的Java服务安装性能分析插件为例。完成当前任务用户会关注以下功能：</p>
       <p>1. 性能分析插件的安装</p>
       <p>2. 服务开通性能分析插件</p>
@@ -416,7 +416,12 @@ export default class Index extends PureComponent {
           paddingTop: 12,
         }}
         bordered={false}
-        title={<div style={{ display: "flex", justifyContent: "space-between" }}><span>基础任务</span><span>{num}/7<span style={{ color: num == 7 ? 'rgb(82, 196, 26)' : "red", marginLeft: "10px" }}>{num == 7 ? "已完成" : "未完成"}</span></span></div>}
+        title={<div style={{ display: "flex", justifyContent: "space-between" }}><span>基础任务</span>
+          {SpinState ? "" :
+            <span>{num}/7<span style={{ color: num == 7 ? 'rgb(82, 196, 26)' : "red", marginLeft: "10px" }}>{num == 7 ? "已完成" : "未完成"}</span>
+            </span>
+          }
+        </div>}
       >
         {SpinState ? <div style={{ textAlign: "center", height: "400px", lineHeight: "400px" }}><Spin size="large" /> </div> :
           <div>
@@ -424,10 +429,21 @@ export default class Index extends PureComponent {
               {steps.map((item, index) => {
                 const { status } = item;
                 return <div className={status ? styles.stepssuccess : styles.stepsinfo} key={index} onClick={() => { this.setState({ current: index }) }}>
-                  <div className={status ? styles.stepssuccesslux : styles.stepsinfolux} style={{
-                    marginLeft: index == 0 ? "53px" : index == 1 ? "80px" : index == 2 ? "100px" : index == 3 ? "72px" : index == 4 ? "82px" : index == 5 ? "77px" : "53px",
-                    width: index == 1 ? "86%" : index == 2 ? "60%" : index == 3 ? "86%" : index == 4 ? "78%" : index == 5 ? "77%" : "100%", display: index == 6 ? "none" : ""
-                  }}></div>
+                  <div className={status ?
+                    index == 0 ? styles.stepssuccesslux1 :
+                      index == 1 ? styles.stepssuccesslux2 :
+                        index == 2 ? styles.stepssuccesslux3 :
+                          index == 3 ? styles.stepssuccesslux4 :
+                            index == 4 ? styles.stepssuccesslux5 :
+                              index == 5 ? styles.stepssuccesslux6 :
+                                styles.stepssuccesslux7 :
+                    index == 0 ? styles.stepsinfolux1 :
+                      index == 1 ? styles.stepsinfolux2 :
+                        index == 2 ? styles.stepsinfolux3 :
+                          index == 3 ? styles.stepsinfolux4 :
+                            index == 4 ? styles.stepsinfolux5 :
+                              index == 5 ? styles.stepsinfolux6 :
+                                styles.stepsinfolux7}></div>
                   <div className={status ? styles.stepssuccessbj : styles.stepsinfobj}>
                     <span>
                       {status && <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"></path></svg>}
