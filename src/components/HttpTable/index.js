@@ -320,15 +320,16 @@ export default class HttpTable extends PureComponent {
             }
         }
     }
-    handleSearch = (search_conditions, page_num) => {
+    handleSearch = (search_conditions, page) => {
         this.setState({ loading: true })
         const { dispatch } = this.props;
+        this.setState({page_num:page?page:1})
         dispatch({
             type: "gateWay/searchHttp",
             payload: {
                 search_conditions,
                 team_name: globalUtil.getCurrTeamName(),
-                page_num,
+                page,
             },
             callback: (data) => {
                 if (data) {

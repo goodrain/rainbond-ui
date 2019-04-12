@@ -320,7 +320,7 @@ export default class AutoDeploy extends PureComponent {
                 </DescriptionList>
               </div>}
           </TabPane>
-          {service_source == "镜像" &&
+          { (service_source == "镜像" || service_source == "DockerCompose"|| service_source == "DockerRun") &&
             <TabPane tab={<span> <Icon component={dockerSvg} />镜像仓库Webhook<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} ><Icon type="question-circle-o" /></Tooltip></span>} key="2">
               {!tabLoading[2] ? <div style={{ textAlign: "center", height: "80px", lineHeight: "80px" }}>暂未开启自动构建</div> :
                 <div>
