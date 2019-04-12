@@ -30,7 +30,7 @@ export default class Index extends PureComponent {
 			codeType: 'Git',
 			showUsernameAndPass: false,
 			showKey: false,
-			addGroup: false
+			addGroup: false,
 		}
 	}
 	onAddGroup = () => {
@@ -140,6 +140,37 @@ export default class Index extends PureComponent {
 						)}
 					</Form.Item>
 
+					<div style={{ textAlign: "right" }}>
+						这是一个私有仓库?{" "}
+						<a
+							onClick={() => {
+								this.setState({ showUsernameAndPass: true });
+							}}
+							href="javascript:;"
+						>
+							填写仓库账号密码
+            </a>
+					</div>
+					<Form.Item
+						style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
+						{...formItemLayout}
+						label="仓库用户名"
+					>
+						{getFieldDecorator("user_name", {
+							initialValue: data.user_name || "",
+							rules: [{ required: false, message: "请输入仓库用户名" }],
+						})(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+					</Form.Item>
+					<Form.Item
+						style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
+						{...formItemLayout}
+						label="仓库密码"
+					>
+						{getFieldDecorator("password", {
+							initialValue: data.password || "",
+							rules: [{ required: false, message: "请输入仓库密码" }],
+						})(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
+					</Form.Item>
 					{
 						showSubmitBtn ?
 							<Form.Item
