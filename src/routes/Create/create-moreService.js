@@ -228,7 +228,7 @@ export default class Index extends PureComponent {
                 }}
                 onClick={this.handleBuild}
                 loading={buildState}
-                type="primary">确认构建</Button>
+                type="primary">确认创建</Button>
               <div>
                 <Tooltip placement="topLeft" title={<p>取消本选项,不构建启动。</p>} >
                   <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
