@@ -26,14 +26,14 @@ export async function createAppByCode(body = { team_name }) {
 /*
    源码创建应用
 */
-export async function createThirdPartyServices(body = { team_name,group_id,service_cname,endpoints_type,endpoints }) {
+export async function createThirdPartyServices(body = { team_name, group_id, service_cname, endpoints_type, endpoints }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/third_party`, {
     method: "post",
     data: {
       group_id: body.group_id,
       service_cname: body.service_cname,
-      endpoints_type:body.endpoints_type,
-      endpoints:body.endpoints?body.endpoints:""
+      endpoints_type: body.endpoints_type,
+      endpoints: body.endpoints ? body.endpoints : ""
     },
   });
 }
@@ -41,13 +41,15 @@ export async function createThirdPartyServices(body = { team_name,group_id,servi
 /*
    compose创建应用
 */
-export async function createAppByCompose(body = { team_name, group_name, yaml_content }) {
+export async function createAppByCompose(body = { team_name, group_name, yaml_content, user_name, password }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`, {
     method: "post",
     data: {
       group_name: body.group_name,
       image_type: "docker_image",
       yaml_content: body.yaml_content,
+      user_name: body.user_name,
+      password: body.password,
     },
   });
 }
@@ -61,6 +63,8 @@ export async function createAppByDockerrun(body = {
   docker_cmd,
   service_cname,
   image_type,
+  user_name,
+  password
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_run`, {
     method: "post",
@@ -136,7 +140,7 @@ export function getCreateComposeCheckResult(body = {
 /*
    构建应用
 */
-export function buildApp(body = { team_name, app_alias,is_deploy }) {
+export function buildApp(body = { team_name, app_alias, is_deploy }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`, {
     method: "post",
     data: {
@@ -204,7 +208,7 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
-  export async function installApp(body = { team_name, group_id, app_id,group_key,group_version }) {
+export async function installApp(body = { team_name, group_id, app_id, group_key, group_version }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
     method: "post",
     data: {
@@ -212,7 +216,7 @@ export function getMarketApp(body = {}) {
       app_id: body.app_id,
       group_key: body.group_key,
       group_version: body.group_version,
-      is_deploy:body.is_deploy
+      is_deploy: body.is_deploy
     },
   });
 }
