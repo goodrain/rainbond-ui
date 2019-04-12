@@ -65,6 +65,8 @@ import {
   editRuntimeBuildInfo,
   editAppCreateInfo,
   deleteApp,
+  getMultipleModulesInfo,
+  createService,
   getPlugins,
   installPlugin,
   unInstallPlugin,
@@ -395,6 +397,13 @@ export default {
         callback && callback(response.bean);
       }
     },
+    * createService({ payload, callback }, { call, put }) {
+      const response = yield call(createService, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    
     * fetchApps({ payload }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {
@@ -809,19 +818,25 @@ export default {
     * editMemberAction({ payload, callback }, { call, put }) {
       const response = yield call(editMemberAction, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * deleteApp({ payload, callback }, { call, put }) {
       const response = yield call(deleteApp, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
+      }
+    },
+    * getMultipleModulesInfo({ payload, callback }, { call, put }) {
+      const response = yield call(getMultipleModulesInfo, payload);
+      if (response) {
+        callback && callback(response);
       }
     },
     * putAutoDeploySecret({ payload, callback }, { call, put }) {
       const response = yield call(putAutoDeploySecret, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * putAutoDeployCommand({ payload, callback }, { call, put }) {

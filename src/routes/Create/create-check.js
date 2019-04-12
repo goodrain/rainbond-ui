@@ -43,7 +43,8 @@ export default class CreateCheck extends PureComponent {
       modifyImageCmd: false,
       is_deploy: true,
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
-      buildAppLoading: false
+      buildAppLoading: false,
+      is_multi: false
     };
     this.mount = false;
     this.socketUrl = "";
@@ -110,7 +111,7 @@ export default class CreateCheck extends PureComponent {
           const status = data.bean.check_status;
           const error_infos = data.bean.error_infos || [];
           const serviceInfo = data.bean.service_info || [];
-          this.setState({ status, errorInfo: error_infos, serviceInfo });
+          this.setState({ status, errorInfo: error_infos, serviceInfo, is_multi: data.bean.is_multi });
         }
       })
       .finally(() => {
@@ -149,6 +150,14 @@ export default class CreateCheck extends PureComponent {
     const appAlias = this.getAppAlias();
     this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-setting/${appAlias}`));
   };
+  // 进入多模块构建
+  handleMoreService = () => {
+    const { ServiceGetData,check_uuid } = this.state;
+    const appAlias = this.getAppAlias();
+    ServiceGetData ? this.props.handleServiceDataState(true, null, null, null) :
+      this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${check_uuid}`));
+  };
+
   handleBuild = () => {
     const appAlias = this.getAppAlias();
     const team_name = globalUtil.getCurrTeamName();
@@ -577,6 +586,106 @@ export default class CreateCheck extends PureComponent {
   };
 
 
+  renderMoreService = () => {
+    const { ServiceGetData, is_deploy, appDetail } = this.state;
+    const serviceInfo = this.state.serviceInfo;
+    const extra = serviceInfo && serviceInfo.length > 0 ?
+      serviceInfo.map(item => (
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          {this.renderSuccessInfo(item)}
+        </div>
+      )) : ""
+
+    let actions = []
+    ServiceGetData ?
+      actions = [
+        <div style={{ display: 'flex' }}>
+          <Button onClick={this.showDelete} type="default" style={{ marginRight: "8px" }}>
+            {" "}
+            放弃创建{" "}
+          </Button>
+          <div style={{ display: 'flex', alignItems: "center" }}>
+            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading} >
+              {" "}创建{" "}
+            </Button>
+            <div>
+              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+                <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
+              </Tooltip>
+            </div>
+          </div>
+        </div>,
+      ] :
+      appDetail.service_source == "third_party" ?
+        actions = [
+          <div style={{ display: 'flex', justifyContent: "center" }}>
+            <div style={{ display: 'flex', alignItems: "center" }}>
+              <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading}>
+                {" "}
+                创建{" "}
+              </Button>
+            </div>
+          </div>
+        ] :
+        actions = [
+          <div style={{ display: 'flex', justifyContent: "center" }}>
+            <Button onClick={this.showDelete} type="default">
+              {" "}
+              放弃创建{" "}
+            </Button>
+            <Button type="primary" onClick={this.handleMoreService}>
+              进入多服务构建
+              </Button>
+          </div>
+        ];
+    if (appDetail.service_source == "third_party") {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: "center" }}>
+          <div style={{ display: 'flex', alignItems: "center" }}>
+            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading}>
+              {" "}
+              创建{" "}
+            </Button>
+          </div>
+        </div>
+      ]
+    }
+
+    if (is_deploy) {
+      ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
+    } else {
+      ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
+    }
+
+    return (
+      <Result
+        type="success"
+        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" : "服务构建源检测出多模块构建"}
+        description={
+          appDetail.service_source == "third_party" ? "" :
+            <div>
+              <div>服务构建源检测通过仅代表平台可以检测到多模块构建。</div>
+              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
+              <a
+                href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
+                target="_blank"
+              >
+                Rainbond源码支持规范
+              </a>{" "}
+              对代码进行调整。
+      </div>
+        }
+        extra={""}
+        actions={ServiceGetData ? "" : actions}
+        style={{ marginTop: 48, marginBottom: 16 }}
+      />
+    );
+  };
+
   renderChecking = () => {
     const { ServiceGetData } = this.state;
     const actions = (
@@ -648,7 +757,7 @@ export default class CreateCheck extends PureComponent {
     };
   }
   render() {
-    const status = this.state.status;
+    const { status, is_multi } = this.state;
     const appDetail = this.state.appDetail;
     const { ServiceGetData } = this.state;
     return (
@@ -662,7 +771,8 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === "checking" ? this.renderChecking() : null}
-                {status === "success" ? this.renderSuccess() : null}
+                {status === "success" && is_multi != true ? this.renderSuccess() : null}
+                {status === "success" && is_multi == true ? this.renderMoreService() : null}
                 {status === "failure" ? this.renderError() : null}
               </div>
             </Card>
@@ -723,7 +833,8 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === "checking" ? this.renderChecking() : null}
-                {status === "success" ? this.renderSuccess() : null}
+                {status === "success" && is_multi != true ? this.renderSuccess() : null}
+                {status === "success" && is_multi == true ? this.renderMoreService() : null}
                 {status === "failure" ? this.renderError() : null}
               </div>
             </Card>

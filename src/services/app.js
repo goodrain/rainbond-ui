@@ -1298,6 +1298,8 @@ export async function editorVolume(body = {
 }
 
 
+
+
 /*
 	删除应用的某个持久化目录
 */
@@ -2011,6 +2013,45 @@ export async function getPlugins(body = {
   );
 }
 
+
+/*
+	获取JavaMaven多模块信息
+*/
+export async function getMultipleModulesInfo(body = {
+  team_name,
+  check_uuid,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/multi/check?check_uuid=${body.check_uuid}`,
+    {
+      method: "get",
+    },
+  );
+}
+
+
+
+/*
+  创建JavaMaven多模块信息
+http://192.168.1.200:7070/console/teams/{tenant_name}/groups/{group_id}/multi/create
+  http://192.168.1.200:7070/console/teams/nxkwpqt2/apps/gr73604f/multi/create
+*/
+export async function createService(body = {
+  team_name,
+  app_alias,
+  service_infos
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.app_alias}/multi/create`,
+    {
+      method: "post",
+      data: {
+        service_infos: body.service_infos,
+      },
+    },
+  );
+}
 /*
 	开通插件
 */

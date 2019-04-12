@@ -1,10 +1,5 @@
 #!/bin/bash
-
-if [ -z "$TRAVIS_TAG" ]; then
-	VERSION=$TRAVIS_BRANCH-dev
-else
-	VERSION=$TRAVIS_TAG
-fi
+VERSION=master
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 docker build -t rainbond/rainbond-ui:$VERSION .
 docker push rainbond/rainbond-ui:$VERSION
