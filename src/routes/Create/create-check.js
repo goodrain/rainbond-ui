@@ -152,9 +152,9 @@ export default class CreateCheck extends PureComponent {
   };
   // 进入多模块构建
   handleMoreService = () => {
-    const { ServiceGetData,check_uuid } = this.state;
+    const { ServiceGetData,check_uuid,is_multi } = this.state;
     const appAlias = this.getAppAlias();
-    ServiceGetData ? this.props.handleServiceDataState(true, null, null, null) :
+    ServiceGetData&&!is_multi ? this.props.handleServiceDataState(true, null, null, null) :
       this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${check_uuid}`));
   };
 
@@ -549,6 +549,10 @@ export default class CreateCheck extends PureComponent {
               {" "}
               创建{" "}
             </Button>
+            <Button onClick={this.showDelete} type="default">
+              {" "}
+              放弃创建{" "}
+            </Button>
           </div>
         </div>
       ]
@@ -587,7 +591,7 @@ export default class CreateCheck extends PureComponent {
 
 
   renderMoreService = () => {
-    const { ServiceGetData, is_deploy, appDetail } = this.state;
+    const { ServiceGetData, is_deploy, appDetail,is_multi } = this.state;
     const serviceInfo = this.state.serviceInfo;
     const extra = serviceInfo && serviceInfo.length > 0 ?
       serviceInfo.map(item => (
@@ -601,7 +605,18 @@ export default class CreateCheck extends PureComponent {
       )) : ""
 
     let actions = []
-    ServiceGetData ?
+    ServiceGetData &&is_multi?
+    actions = [
+      <div style={{ display: 'flex', justifyContent: "center" }}>
+        <Button onClick={this.showDelete} type="default">
+          {" "}
+          放弃创建{" "}
+        </Button>
+        <Button type="primary" onClick={this.handleMoreService}>
+          进入多服务构建
+          </Button>
+      </div>
+    ]:ServiceGetData?
       actions = [
         <div style={{ display: 'flex' }}>
           <Button onClick={this.showDelete} type="default" style={{ marginRight: "8px" }}>
