@@ -95,7 +95,7 @@ export default class TcpTable extends PureComponent {
         }
     }
     handleSearch = (search_conditions, page_num) => {
-        this.setState({ tcpLoading: true })
+        this.setState({ tcpLoading: true,page_num:page_num?page_num:1 })
         const { dispatch } = this.props;
         dispatch({
             type: "gateWay/searchTcp",
@@ -110,7 +110,6 @@ export default class TcpTable extends PureComponent {
                     this.setState({
                         total: data.bean.total,
                         dataList: data.list,
-                        page_num: 1,
                         tcp_search: search_conditions,
                         tcpLoading: false,
                     })

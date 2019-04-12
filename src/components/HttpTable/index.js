@@ -323,6 +323,7 @@ export default class HttpTable extends PureComponent {
     handleSearch = (search_conditions, page) => {
         this.setState({ loading: true })
         const { dispatch } = this.props;
+        this.setState({page_num:page?page:1})
         dispatch({
             type: "gateWay/searchHttp",
             payload: {
