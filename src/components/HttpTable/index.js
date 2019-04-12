@@ -320,7 +320,7 @@ export default class HttpTable extends PureComponent {
             }
         }
     }
-    handleSearch = (search_conditions, page_num) => {
+    handleSearch = (search_conditions, page) => {
         this.setState({ loading: true })
         const { dispatch } = this.props;
         dispatch({
@@ -328,7 +328,7 @@ export default class HttpTable extends PureComponent {
             payload: {
                 search_conditions,
                 team_name: globalUtil.getCurrTeamName(),
-                page_num,
+                page,
             },
             callback: (data) => {
                 if (data) {
