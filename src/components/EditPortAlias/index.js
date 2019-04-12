@@ -43,6 +43,7 @@ export default class EditAlias extends PureComponent {
               onOk={this.handleSubmit}
               visible={true}
               onCancel={this.handleCancel}
+              maskClosable={false}
           >
 
             <Form onSubmit={this.handleSubmit}>

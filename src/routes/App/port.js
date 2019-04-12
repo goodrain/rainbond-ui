@@ -81,7 +81,7 @@ class EditAlias extends PureComponent {
     };
     const port = this.props.port || {};
     return (
-      <Modal title="编辑别名" onOk={this.handleSubmit} visible onCancel={this.handleCancel}>
+      <Modal title="编辑别名" onOk={this.handleSubmit}  maskClosable={false} visible onCancel={this.handleCancel}>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="别名">
             {getFieldDecorator("alias", {
