@@ -15,6 +15,14 @@ export default class ModifyImageCmd extends PureComponent {
     });
   };
   render() {
+    const formItemLayout = {
+      labelCol: {
+        span: 5,
+      },
+      wrapperCol: {
+        span: 19,
+      },
+    };
     const { getFieldDecorator } = this.props.form;
     const data = this.props.data || {};
     return (
