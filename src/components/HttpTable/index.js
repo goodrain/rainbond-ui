@@ -53,6 +53,7 @@ export default class HttpTable extends PureComponent {
     componentWillMount() {
         this.load();
     }
+
     load = () => {
         const { dispatch } = this.props;
         const { page_num, page_size } = this.state;
@@ -120,6 +121,9 @@ export default class HttpTable extends PureComponent {
                             res.bean.value.WebSocket=false
                             this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
                         }
+
+                    }else{
+                        this.setState({ parameterVisible: values, parameterList: null })
 
                     }
 
