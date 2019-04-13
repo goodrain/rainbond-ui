@@ -559,9 +559,17 @@ export default class CreateCheck extends PureComponent {
     }
 
     if (is_deploy) {
-      ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
+      // ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
+
+      if( ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)){
+        this.props.handleServiceBotton(actions, true,true)
+      }
     } else {
-      ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
+      // ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
+
+      if( ServiceGetData && (this.props.ButtonGroupState || this.props.ErrState)){
+        this.props.handleServiceBotton(actions, false,false)
+      }
     }
 
     return (
