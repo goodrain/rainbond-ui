@@ -242,9 +242,9 @@ export default class Index extends PureComponent {
       <a href={languageObj.Java} target="_blank">Java</a>/
       <a href={languageObj.PHP} target="_blank">PHP</a>/
       <a href={languageObj.Python} target="_blank">Python</a>/
-      <a href={languageObj.NodeJS} target="_blank">NodeJS</a>/
-      <a href={languageObj.Golang} target="_blank">Golang</a>/
-      <a href={languageObj.NetCore} target="_blank">.NetCore</a>等开发语言的持续构建。当前任务以<a href={languageObj.Java} target="_blank">Java</a>源码为例，用户通常关注以下功能：</p>
+      <a href={languageObj.Nodejs} target="_blank">NodeJS</a>/
+      <a href={languageObj.Go} target="_blank">Golang</a>/
+      <a href={languageObj.Netcore} target="_blank">.NetCore</a>等开发语言的持续构建。当前任务以<a href={languageObj.Java} target="_blank">Java</a>源码为例，用户通常关注以下功能：</p>
       <p>1. Maven私服仓库如何对接到Rainbond<a href="https://www.rainbond.com/docs/advanced-scenarios/devops/connection-maven-repository/" target="_blank">[参考文档]</a></p>
       <p>2. 基于Git代码仓库的自动化持续构建<a href="https://www.rainbond.com/docs/advanced-scenarios/devops/autobuild/" target="_blank">[参考文档]</a></p>
       <p>3. 服务配置文件动态配置 <a href="https://www.rainbond.com/docs/user-manual/app-service-manage/service-volume/#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6" target="_blank">[参考文档]</a></p>
