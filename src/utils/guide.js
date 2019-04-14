@@ -1,6 +1,6 @@
 const guideutil = {
     getStatus(key, info) {
-       status = false
+       var status = false
        info.map((item)=>{
           if (item.key == key) {
              status = item.status
