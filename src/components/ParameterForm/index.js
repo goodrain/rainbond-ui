@@ -167,69 +167,9 @@ class ParameterForm extends PureComponent {
                                 <Input addonAfter={"Mb"} />
                             )}
                         </FormItem>
-
-
-                        {/* <FormItem
-                            {...formItemLayout}
-                            label="响应缓存数量"
-                            className={styles.antd_form}
-                        >
-                            {getFieldDecorator('proxy_buffers_number', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: "请添加域名",
-                                    }
-                                ],
-                                initialValue: editInfo ? editInfo.proxy_buffers_number : "4"
-                            })(
-                                <InputNumber  placeholder="请输入域名" style={{ width: "100%" }} />
-                            )}
-                        </FormItem>
-
-
-
-
                         <FormItem
                             {...formItemLayout}
-                            label="响应缓存单位"
-                            className={styles.antd_form}
-                        >
-                            {getFieldDecorator('proxy_buffer_size', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: "请添加域名",
-                                    }
-                                ],
-                                initialValue: editInfo ? editInfo.proxy_buffer_size : "1"
-                            })(
-                                <Input addonAfter={"K"}  />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            {...formItemLayout}
-                            label="是否开启响应缓存"
-                            className={styles.antd_form}
-                        >
-                            {getFieldDecorator('proxy_buffering', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: "是否开启响应缓存",
-                                    }
-                                ],
-                                initialValue: editInfo ? editInfo.proxy_buffering : ""
-                            })(
-                                <Checkbox onChange={this.onChange}></Checkbox>
-                            )}
-                        </FormItem> */}
-
-
-                        <FormItem
-                            {...formItemLayout}
-                            label="WebSocket"    
+                            label="WebSocket支持"    
                             className={styles.antd_form}
                         >
                             {getFieldDecorator('WebSocket', {
@@ -240,12 +180,12 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: WebSocket
                             })(
-                                <Checkbox onClick={()=>{this.onChangeWebSocket()}} checked={WebSocket}></Checkbox>
+                                <Switch checkedChildren="开" unCheckedChildren="关" checked={WebSocket} onClick={()=>{this.onChangeWebSocket()}} />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="后端响应缓冲区"
+                            label="开启ProxyBuffer"
                             className={styles.antd_form}
                         >
                             {getFieldDecorator('proxy_buffering', {

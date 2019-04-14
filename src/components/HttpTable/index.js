@@ -109,13 +109,20 @@ export default class HttpTable extends PureComponent {
                     let arr = []
                     if (res.bean && res.bean.value) {
                         if (res.bean.value.set_headers && res.bean.value.set_headers.length > 1) {
+                            var haveUpgrade, haveConnection = false
                             res.bean.value.set_headers.map((item) => {
                                 if (item.key != "set-header-Upgrade" && item.key != "set-header-Connection") {
                                     arr.push(item)
                                 }
+                                if (item.key == "set-header-Upgrade") {
+                                    haveUpgrade = true
+                                }
+                                if (item.key == "set-header-Connection") {
+                                    haveConnection = true
+                                }
                             })
                             res.bean.value.set_headers=arr
-                            res.bean.value.WebSocket=true
+                            res.bean.value.WebSocket=haveUpgrade && haveConnection
                             this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
                         }else{
                             res.bean.value.WebSocket=false
