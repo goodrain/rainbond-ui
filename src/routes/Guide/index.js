@@ -471,7 +471,7 @@ export default class Index extends PureComponent {
         style={{ borderColor: grade.status ? "#1890ff" : "#A8A2A2" }}
       >
         <Icon
-          className={styles.icono}
+          className={styles.icons}
           type="caret-up"
           theme="filled"
           style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
