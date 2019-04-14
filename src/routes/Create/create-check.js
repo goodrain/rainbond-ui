@@ -152,9 +152,9 @@ export default class CreateCheck extends PureComponent {
   };
   // 进入多模块构建
   handleMoreService = () => {
-    const { ServiceGetData,check_uuid,is_multi } = this.state;
+    const { ServiceGetData, check_uuid, is_multi } = this.state;
     const appAlias = this.getAppAlias();
-    ServiceGetData&&!is_multi ? this.props.handleServiceDataState(true, null, null, null) :
+    ServiceGetData && !is_multi ? this.props.handleServiceDataState(true, null, null, null) :
       this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${check_uuid}`));
   };
 
@@ -234,11 +234,13 @@ export default class CreateCheck extends PureComponent {
       if (actionType === "modify_image") {
         // 指定镜像
         if (appDetail.service_source === "docker_image") {
+          this.startCheck(false);
           this.setState({ modifyImageName: true });
           return;
         }
         // docker_run命令
         if (appDetail.service_source === "docker_run") {
+          this.startCheck(false);
           this.setState({ modifyImageCmd: true });
           return;
         }
@@ -336,6 +338,8 @@ export default class CreateCheck extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
+        user_name: values.username,
+        password: values.password
       },
       callback: (data) => {
         if (data) {
@@ -353,9 +357,12 @@ export default class CreateCheck extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
+        user_name: values.username,
+        password: values.password
       },
       callback: (data) => {
         if (data) {
+          this.startCheck(false);
           this.cancelModifyImageCmd();
         }
       },
@@ -394,18 +401,18 @@ export default class CreateCheck extends PureComponent {
 
     const { ServiceGetData } = this.state
 
-    const actions =<div>
-        <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
-          重新检测
+    const actions = <div>
+      <Button onClick={this.recheck} type="primary" style={{ marginRight: "8px" }}>
+        重新检测
       </Button>
-        <Button onClick={this.showDelete} type="default">
-          放弃创建
+      <Button onClick={this.showDelete} type="default">
+        放弃创建
       </Button>
-      </div>
+    </div>
 
 
-    if( ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)){
-      this.props.handleServiceBotton(actions, true,true)
+    if (ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)) {
+      this.props.handleServiceBotton(actions, true, true)
     }
     return (
       <Result
@@ -561,14 +568,14 @@ export default class CreateCheck extends PureComponent {
     if (is_deploy) {
       // ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
 
-      if( ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)){
-        this.props.handleServiceBotton(actions, true,true)
+      if (ServiceGetData && (!this.props.ButtonGroupState || !this.props.ErrState)) {
+        this.props.handleServiceBotton(actions, true, true)
       }
     } else {
       // ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
 
-      if( ServiceGetData && (this.props.ButtonGroupState || this.props.ErrState)){
-        this.props.handleServiceBotton(actions, false,false)
+      if (ServiceGetData && (this.props.ButtonGroupState || this.props.ErrState)) {
+        this.props.handleServiceBotton(actions, false, false)
       }
     }
 
@@ -599,7 +606,7 @@ export default class CreateCheck extends PureComponent {
 
 
   renderMoreService = () => {
-    const { ServiceGetData, is_deploy, appDetail,is_multi } = this.state;
+    const { ServiceGetData, is_deploy, appDetail, is_multi } = this.state;
     const serviceInfo = this.state.serviceInfo;
     const extra = serviceInfo && serviceInfo.length > 0 ?
       serviceInfo.map(item => (
@@ -613,58 +620,58 @@ export default class CreateCheck extends PureComponent {
       )) : ""
 
     let actions = []
-    ServiceGetData &&is_multi?
-    actions = [
-      <div style={{ display: 'flex', justifyContent: "center" }}>
-        <Button onClick={this.showDelete} type="default">
-          {" "}
-          放弃创建{" "}
-        </Button>
-        <Button type="primary" onClick={this.handleMoreService}>
-          进入多服务构建
-          </Button>
-      </div>
-    ]:ServiceGetData?
+    ServiceGetData && is_multi ?
       actions = [
-        <div style={{ display: 'flex' }}>
-          <Button onClick={this.showDelete} type="default" style={{ marginRight: "8px" }}>
+        <div style={{ display: 'flex', justifyContent: "center" }}>
+          <Button onClick={this.showDelete} type="default">
             {" "}
             放弃创建{" "}
           </Button>
-          <div style={{ display: 'flex', alignItems: "center" }}>
-            <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading} >
-              {" "}创建{" "}
-            </Button>
-            <div>
-              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
-                <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
-              </Tooltip>
-            </div>
-          </div>
-        </div>,
-      ] :
-      appDetail.service_source == "third_party" ?
+          <Button type="primary" onClick={this.handleMoreService}>
+            进入多服务构建
+          </Button>
+        </div>
+      ] : ServiceGetData ?
         actions = [
-          <div style={{ display: 'flex', justifyContent: "center" }}>
-            <div style={{ display: 'flex', alignItems: "center" }}>
-              <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading}>
-                {" "}
-                创建{" "}
-              </Button>
-            </div>
-          </div>
-        ] :
-        actions = [
-          <div style={{ display: 'flex', justifyContent: "center" }}>
-            <Button onClick={this.showDelete} type="default">
+          <div style={{ display: 'flex' }}>
+            <Button onClick={this.showDelete} type="default" style={{ marginRight: "8px" }}>
               {" "}
               放弃创建{" "}
             </Button>
-            <Button type="primary" onClick={this.handleMoreService}>
-              进入多服务构建
+            <div style={{ display: 'flex', alignItems: "center" }}>
+              <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading} >
+                {" "}创建{" "}
               </Button>
-          </div>
-        ];
+              <div>
+                <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+                  <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
+                </Tooltip>
+              </div>
+            </div>
+          </div>,
+        ] :
+        appDetail.service_source == "third_party" ?
+          actions = [
+            <div style={{ display: 'flex', justifyContent: "center" }}>
+              <div style={{ display: 'flex', alignItems: "center" }}>
+                <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading}>
+                  {" "}
+                  创建{" "}
+                </Button>
+              </div>
+            </div>
+          ] :
+          actions = [
+            <div style={{ display: 'flex', justifyContent: "center" }}>
+              <Button onClick={this.showDelete} type="default">
+                {" "}
+                放弃创建{" "}
+              </Button>
+              <Button type="primary" onClick={this.handleMoreService}>
+                进入多服务构建
+              </Button>
+            </div>
+          ];
     if (appDetail.service_source == "third_party") {
       actions = [
         <div style={{ display: 'flex', justifyContent: "center" }}>
@@ -780,8 +787,7 @@ export default class CreateCheck extends PureComponent {
     };
   }
   render() {
-    const { status, is_multi } = this.state;
-    const appDetail = this.state.appDetail;
+    const { status, is_multi,appDetail } = this.state;
     const { ServiceGetData } = this.state;
     return (
       <div>
@@ -810,18 +816,14 @@ export default class CreateCheck extends PureComponent {
 
             {this.state.modifyImageName ? (
               <ModifyImageName
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
+                data={appDetail}
                 onSubmit={this.handleModifyImageName}
                 onCancel={this.cancelModifyImageName}
               />
             ) : null}
             {this.state.modifyImageCmd ? (
               <ModifyImageCmd
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
+                data={appDetail}
                 onSubmit={this.handleModifyImageCmd}
                 onCancel={this.cancelModifyImageCmd}
               />
@@ -872,18 +874,14 @@ export default class CreateCheck extends PureComponent {
 
             {this.state.modifyImageName ? (
               <ModifyImageName
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
+                data={appDetail}
                 onSubmit={this.handleModifyImageName}
                 onCancel={this.cancelModifyImageName}
               />
             ) : null}
             {this.state.modifyImageCmd ? (
               <ModifyImageCmd
-                data={{
-                  docker_cmd: appDetail.docker_cmd,
-                }}
+                data={appDetail}
                 onSubmit={this.handleModifyImageCmd}
                 onCancel={this.cancelModifyImageCmd}
               />
