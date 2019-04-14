@@ -20,7 +20,7 @@ import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import { link } from "fs";
 import guide from "../../../public/images/guide.png";
-
+import guideutil from "../../utils/guide"
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -662,35 +662,7 @@ export default class Index extends PureComponent {
             },
         };
         const { teamList, GuideList, domainList, serviceList } = this.state;
-        const steps = [{
-            title: '创建应用',
-            status: false
-        }, {
-            title: '基于源码创建服务',
-            status: false
-        }, {
-            title: '基于应用市场安装数据库',
-            status: false
-        }, {
-            title: '服务连接数据库',
-            status: false
-        }, {
-            title: '发布应用到应用市场',
-            status: false
-        }, {
-            title: '配置应用访问策略',
-            status: false
-        }, {
-            title: '安装性能分析插件',
-            status: false
-        }];
-
-        if (GuideList.length > 0) {
-            for (let i = 0; i < GuideList.length; i++) {
-                steps[i].status = GuideList[i].status
-                steps[i].key = GuideList[i].key
-            }
-        }
+        const steps = guideutil.getStep(GuideList)
         return (
 
             <div style={{ margin: '-24px -24px 0' }} >

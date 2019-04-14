@@ -20,8 +20,7 @@ import {
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import DescriptionList from "../../components/DescriptionList";
 import styles from "./index.less";
-const { Description } = DescriptionList;
-const RadioGroup = Radio.Group;
+import guideUtil from "../../utils/guide"
 import globalUtil from "../../utils/global";
 import EditGroupName from "../../components/AddOrEditGroup";
 import { languageObj } from "../../utils/utils";
@@ -844,53 +843,50 @@ export default class Index extends PureComponent {
   };
 
   render() {
+   
+    const { current, GuideList, SpinState } = this.state;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
+    let num = 0;
     const steps = [
       {
         title: "创建应用",
         content: this.CreateApp(),
-        status: false
+        status: guideUtil.getStatus("app_create", GuideList)
       },
       {
         title: "基于源码创建服务",
         content: this.CreateSourceCode(),
-        status: false
+        status: guideUtil.getStatus("source_code_service_create", GuideList)
       },
       {
         title: "基于镜像安装数据库",
         content: this.CreateByImageTaskShow(),
-        status: false
+        status: guideUtil.getStatus("image_service_create", GuideList)
       },
       {
         title: "服务连接数据库",
         content: this.Service(),
-        status: false
+        status: guideUtil.getStatus("service_connect_db", GuideList)
       },
       {
         title: "发布应用到应用市场",
         content: this.ReleaseMarket(),
-        status: false
+        status: guideUtil.getStatus("share_app", GuideList)
       },
       {
         title: "配置应用访问策略",
         content: this.AccessStrategy(),
-        status: false
+        status: guideUtil.getStatus("custom_gw_rule", GuideList)
       },
       {
         title: "安装性能分析插件",
         content: this.AnalysisPlugin(),
-        status: false
+        status: guideUtil.getStatus("install_plugin", GuideList)
       }
     ];
-
-    const { current, GuideList, SpinState } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    let num = 0;
-    if (GuideList.length > 0) {
-      for (let i = 0; i < GuideList.length; i++) {
-        steps[i].status = GuideList[i].status;
-        steps[i].key = GuideList[i].key;
-
-        if (GuideList[i].status) {
+    if (steps.length > 0) {
+      for (let i = 0; i < steps.length; i++) {
+        if (steps[i].status) {
           num++;
         }
       }
