@@ -341,7 +341,7 @@ export default class Index extends PureComponent {
   };
 
   CreateSourceCode = () => {
-    const grade = this.getGuide("app_create");
+    const grade = this.getGuide("source_code_service_create");
     if (!grade) {
       return "";
     }
@@ -643,7 +643,7 @@ export default class Index extends PureComponent {
     );
   };
   ReleaseMarket = () => {
-    const grade = this.getGuide("service_connect_db");
+    const grade = this.getGuide("share_app");
     if (!grade) {
       return "";
     }
@@ -703,7 +703,7 @@ export default class Index extends PureComponent {
   };
 
   AccessStrategy = () => {
-    const grade = this.getGuide("service_connect_db");
+    const grade = this.getGuide("custom_gw_rule");
     if (!grade) {
       return "";
     }
@@ -785,7 +785,7 @@ export default class Index extends PureComponent {
   };
 
   AnalysisPlugin = () => {
-    const grade = this.getGuide("service_connect_db");
+    const grade = this.getGuide("install_plugin");
     if (!grade) {
       return "";
     }
