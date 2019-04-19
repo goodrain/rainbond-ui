@@ -616,7 +616,7 @@ class JAVA extends PureComponent {
                             })(
                                 <RadioGroup >
                                     <Radio value='3.3.1'>3.3.1(默认)</Radio>
-                                    <Radio value='3.0'>3.0.5</Radio>
+                                    <Radio value='3.0.5'>3.0.5</Radio>
                                     <Radio value='3.1.1'>3.1.1</Radio>
                                     <Radio value='3.2.5'>3.2.5</Radio>
                                     <Radio value='3.3.9'>3.3.9</Radio>
