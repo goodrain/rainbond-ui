@@ -61,7 +61,11 @@ class ParameterForm extends PureComponent {
     }
 
     onChangeWebSocket = (e) => {
-        this.setState({WebSocket:!this.state.WebSocket})
+        const { setFieldsValue } = this.props.form;
+        this.setState({WebSocket:!this.state.WebSocket},()=>{
+            setFieldsValue({ WebSocket: this.state.WebSocket });
+        })
+
     }
 
 

@@ -226,7 +226,7 @@ class DrawerForm extends PureComponent {
                                     <Option value="-1">请选择应用(组)</Option>
                                     {
                                         (this.props.groups || []).map((group, index) => {
-                                            return <Option value={group.group_id.toString()} key={index}>{group.group_name}</Option>
+                                            return <Option value={group.group_id+""} key={index}>{group.group_name}</Option>
                                         })
                                     }
                                 </Select>
@@ -244,7 +244,7 @@ class DrawerForm extends PureComponent {
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
                                     {
                                         (this.state.serviceComponentList || []).map((service, index) => {
-                                            return <Option value={service.service_id.toString()} key={index}>{service.service_cname}</Option>
+                                            return <Option value={service.service_id+""} key={index}>{service.service_cname}</Option>
                                         })
                                     }
 

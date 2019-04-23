@@ -121,20 +121,20 @@ export default class HttpTable extends PureComponent {
                                     haveConnection = true
                                 }
                             })
-                            res.bean.value.set_headers=arr
-                            res.bean.value.WebSocket=haveUpgrade && haveConnection
+                            res.bean.value.set_headers = arr
+                            res.bean.value.WebSocket = haveUpgrade && haveConnection
                             this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
-                        }else{
-                            res.bean.value.WebSocket=false
+                        } else {
+                            res.bean.value.WebSocket = false
                             this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
                         }
 
-                    }else{
+                    } else {
                         this.setState({ parameterVisible: values, parameterList: null })
 
                     }
 
-                   
+
                 }
             }
         })
@@ -233,11 +233,11 @@ export default class HttpTable extends PureComponent {
             proxy_send_timeout: Number(values.proxy_send_timeout),
             proxy_buffering: values.proxy_buffering ? "on" : "off",
             set_headers: (values.set_headers && values.WebSocket) ?
-
                 values.set_headers.length == 1 && values.set_headers[0].key == "" ? arr :
                     values.set_headers.concat(arr) :
-
-                values.set_headers ? values.set_headers : [],
+                values.set_headers ? values.set_headers :
+                    values.WebSocket ? arr :
+                        [],
         }
         dispatch({
             type: "gateWay/editParameter",
@@ -334,7 +334,7 @@ export default class HttpTable extends PureComponent {
     handleSearch = (search_conditions, page) => {
         this.setState({ loading: true })
         const { dispatch } = this.props;
-        this.setState({page_num:page?page:1})
+        this.setState({ page_num: page ? page : 1 })
         dispatch({
             type: "gateWay/searchHttp",
             payload: {
@@ -519,7 +519,7 @@ export default class HttpTable extends PureComponent {
                         <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                     </div> : <Tooltip placement="topLeft" title="请开启对外服务方可操作" arrowPointAtCenter>
-                            <div style={{ display: "flex", justifyContent: "center" }}>
+                            <div style={{ display: "flex", justifyContent: "space-around" }}>
                                 <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                                 <a onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
