@@ -17,7 +17,8 @@ import {
     InputNumber,
     Checkbox,
     Icon,
-    Modal
+    Modal,
+    Switch
 } from 'antd';
 import globalUtil from '../../utils/global';
 import styles from './index.less'
@@ -43,7 +44,9 @@ class ParameterForm extends PureComponent {
             service_id: "",
             group_name: "",
             descriptionVisible: false,
-            rule_extensions_visible: false
+            rule_extensions_visible: false,
+            proxy_buffering: (props.editInfo &&props.editInfo.proxy_buffering&&props.editInfo.proxy_buffering=="on")?  true : false,
+            WebSocket:props.editInfo &&props.editInfo.WebSocket ?true: false
         }
     }
 
@@ -57,8 +60,8 @@ class ParameterForm extends PureComponent {
         });
     }
 
-    onChange = (e) => {
-        // console.log(`checked = ${e.target.checked}`);
+    onChangeWebSocket = (e) => {
+        this.setState({WebSocket:!this.state.WebSocket})
     }
 
 
@@ -75,6 +78,7 @@ class ParameterForm extends PureComponent {
             }
         };
         const { editInfo } = this.props
+        const { proxy_buffering,WebSocket } = this.state
         return (
             <div>
                 <Drawer
@@ -84,7 +88,7 @@ class ParameterForm extends PureComponent {
                     closable={false}
                     onClose={this.props.onClose}
                     visible={this.props.visible}
-                    maskClosable={true}
+                    maskClosable={false}
                     closable={true}
                     style={{
                         overflow: 'auto',
@@ -105,7 +109,7 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_connect_timeout : "75"
                             })(
-                                    <Input addonAfter={"秒"}  />
+                                <Input addonAfter={"秒"} />
                             )}
                         </FormItem>
 
@@ -124,7 +128,7 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_send_timeout : "60"
                             })(
-                                <Input addonAfter={"秒"}  />
+                                <Input addonAfter={"秒"} />
                             )}
                         </FormItem>
 
@@ -142,7 +146,7 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_read_timeout : "60"
                             })(
-                                <Input addonAfter={"秒"}  />
+                                <Input addonAfter={"秒"} />
                             )}
                         </FormItem>
 
@@ -160,74 +164,49 @@ class ParameterForm extends PureComponent {
                                 ],
                                 initialValue: editInfo ? editInfo.proxy_body_size : "1"
                             })(
-                                <Input addonAfter={"Mb"}  />
+                                <Input addonAfter={"Mb"} />
                             )}
                         </FormItem>
-
-
-                        {/* <FormItem
-                            {...formItemLayout}
-                            label="响应缓存数量"
-                            className={styles.antd_form}
-                        >
-                            {getFieldDecorator('proxy_buffers_number', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: "请添加域名",
-                                    }
-                                ],
-                                initialValue: editInfo ? editInfo.proxy_buffers_number : "4"
-                            })(
-                                <InputNumber  placeholder="请输入域名" style={{ width: "100%" }} />
-                            )}
-                        </FormItem>
-
-
-
-
                         <FormItem
                             {...formItemLayout}
-                            label="响应缓存单位"
+                            label="WebSocket支持"    
                             className={styles.antd_form}
                         >
-                            {getFieldDecorator('proxy_buffer_size', {
+                            {getFieldDecorator('WebSocket', {
                                 rules: [
                                     {
-                                        required: true,
-                                        message: "请添加域名",
+                                        required: false,
                                     }
                                 ],
-                                initialValue: editInfo ? editInfo.proxy_buffer_size : "1"
+                                initialValue: WebSocket
                             })(
-                                <Input addonAfter={"K"}  />
+                                <Switch checkedChildren="开" unCheckedChildren="关" checked={WebSocket} onClick={()=>{this.onChangeWebSocket()}} />
                             )}
                         </FormItem>
-
                         <FormItem
                             {...formItemLayout}
-                            label="是否开启响应缓存"
+                            label="开启ProxyBuffer"
                             className={styles.antd_form}
                         >
                             {getFieldDecorator('proxy_buffering', {
                                 rules: [
                                     {
-                                        required: true,
-                                        message: "是否开启响应缓存",
+                                        required: false,
                                     }
                                 ],
-                                initialValue: editInfo ? editInfo.proxy_buffering : ""
+                                initialValue: proxy_buffering
                             })(
-                                <Checkbox onChange={this.onChange}></Checkbox>
+                                <Switch checkedChildren="开" unCheckedChildren="关" checked={proxy_buffering} onClick={() => { this.setState({ proxy_buffering: !proxy_buffering }) }} />
                             )}
-                        </FormItem> */}
+                        </FormItem>
 
                         <FormItem
                             {...formItemLayout}
                             label="自定义请求头"
                         >
-                            {getFieldDecorator("set_headers", { initialValue: editInfo ? editInfo.set_headers : "" })(<Parameterinput editInfo={ editInfo ? editInfo.set_headers : ""} />)}
+                            {getFieldDecorator("set_headers", { initialValue: editInfo ? editInfo.set_headers : "" })(<Parameterinput editInfo={editInfo ? editInfo.set_headers : ""} />)}
                         </FormItem>
+
                     </Form>
                     <div
                         style={{

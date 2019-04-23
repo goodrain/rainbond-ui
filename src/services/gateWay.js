@@ -95,7 +95,7 @@ export async function searchHttp(params) {
         params: {
             search_conditions: params.search_conditions,
             page_size: params.page_size || 10,
-            page_num: params.page_num || 1,
+            page: params.page || 1,
         }
     });
 }
@@ -181,7 +181,7 @@ export async function searchTcp(params) {
         params: {
             search_conditions: params.search_conditions,
             page_size: params.page_size || 10,
-            page_num: params.page_num || 1,
+            page: params.page_num || 1,
         }
     });
 }

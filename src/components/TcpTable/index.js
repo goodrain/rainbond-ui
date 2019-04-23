@@ -62,12 +62,14 @@ export default class TcpTable extends PureComponent {
                 page_size
             },
             callback: (data) => {
-                this.setState({
-                    dataList: data.list,
-                    loading: false,
-                    total: data.bean.total,
-                    tcpLoading: false
-                })
+                if (data) {
+                    this.setState({
+                        dataList: data.list,
+                        loading: false,
+                        total: data.bean.total,
+                        tcpLoading: false
+                    })
+                }
             }
         })
     }
@@ -93,7 +95,7 @@ export default class TcpTable extends PureComponent {
         }
     }
     handleSearch = (search_conditions, page_num) => {
-        this.setState({ tcpLoading: true })
+        this.setState({ tcpLoading: true,page_num:page_num?page_num:1 })
         const { dispatch } = this.props;
         dispatch({
             type: "gateWay/searchTcp",
@@ -104,13 +106,14 @@ export default class TcpTable extends PureComponent {
                 page_size: this.state.page_size
             },
             callback: (data) => {
-                this.setState({
-                    total: data.bean.total,
-                    dataList: data.list,
-                    page_num: 1,
-                    tcp_search: search_conditions,
-                    tcpLoading: false,
-                })
+                if (data) {
+                    this.setState({
+                        total: data.bean.total,
+                        dataList: data.list,
+                        tcp_search: search_conditions,
+                        tcpLoading: false,
+                    })
+                }
             }
         })
     }
@@ -124,10 +127,12 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                this.setState({
-                    innerEnvs: data.list || [],
-                    information_connect_visible: true
-                })
+                if (data) {
+                    this.setState({
+                        innerEnvs: data.list || [],
+                        information_connect_visible: true
+                    })
+                }
             }
         })
         this.setState({ InfoConnectModal: true })
@@ -147,8 +152,8 @@ export default class TcpTable extends PureComponent {
             callback: (data) => {
                 if (data) {
                     notification.success({ message: '删除成功' })
+                    this.reload()
                 }
-                this.reload()
             }
         })
     }
@@ -176,7 +181,7 @@ export default class TcpTable extends PureComponent {
                 callback: (data) => {
                     if (data && data.bean.is_outer_service == false) {
                         this.setState({
-                            values
+                            values,
                         })
                         this.whether_open(values);
                         return;
@@ -185,7 +190,7 @@ export default class TcpTable extends PureComponent {
                         notification.success({ message: data.msg_show || '添加成功' })
                     }
                     this.setState({
-                        TcpDrawerVisible: false
+                        TcpDrawerVisible: false,
                     })
                     this.reload()
                 }
@@ -229,12 +234,14 @@ export default class TcpTable extends PureComponent {
                 team_name: globalUtil.getCurrTeamName(),
             },
             callback: (data) => {
-                this.setState({
-                    editInfo: data.bean,
-                    TcpDrawerVisible: true,
-                    tcpType: values.type,
-                    end_point: values.end_point
-                })
+                if (data) {
+                    this.setState({
+                        editInfo: data.bean,
+                        TcpDrawerVisible: true,
+                        tcpType: values.type,
+                        end_point: values.end_point
+                    })
+                }
             }
         })
     }
@@ -276,15 +283,17 @@ export default class TcpTable extends PureComponent {
                 app_alias: record.service_alias,
             },
             callback: (data) => {
-                const dataList = data.list.filter((item) => {
-                    // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
-                    return (!item.attr_name.endsWith("_HOST") && !item.attr_name.endsWith("_PORT"))
-                })
-                this.setState({
-                    visibleModal: true,
-                    agreement: record,
-                    NotHttpConnectInfo: dataList || []
-                })
+                if (data) {
+                    const dataList = data.list.filter((item) => {
+                        // !item.attr_name.endsWith("_HOST") || !item.attr_name.endsWith("_PORT");
+                        return (!item.attr_name.endsWith("_HOST") && !item.attr_name.endsWith("_PORT"))
+                    })
+                    this.setState({
+                        visibleModal: true,
+                        agreement: record,
+                        NotHttpConnectInfo: dataList || []
+                    })
+                }
             }
         })
     }

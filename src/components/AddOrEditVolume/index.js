@@ -94,7 +94,7 @@ export default class AddVolumes extends PureComponent {
         closable={false}
         onClose={this.handleCancel}
         visible={true}
-        maskClosable={true}
+        maskClosable={false}
         closable={true}
         style={{
           height: 'calc(100% - 55px)',

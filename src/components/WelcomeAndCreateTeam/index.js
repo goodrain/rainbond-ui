@@ -26,7 +26,9 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: 'global/getAllRegion',
       callback: (data) => {
-        this.setState({ regions: data.list });
+        if (data) {
+          this.setState({ regions: data.list });
+        }
       },
     });
   };
@@ -121,7 +123,7 @@ export default class Index extends PureComponent {
                     <Option value="">请为团队选择一个数据中心</Option>
                     {this.state.regions.map(region => (
                       <Option value={region.region_name}>{region.region_alias}</Option>
-                      ))}
+                    ))}
                   </Select>)}
                   {this.showRegionTip() && (
                     <p className={userStyles.desc}>

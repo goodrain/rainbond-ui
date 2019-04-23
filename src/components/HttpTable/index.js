@@ -29,7 +29,7 @@ export default class HttpTable extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            drawerVisible: false,
+            drawerVisible: this.props.open ? this.props.open : false,
             information_connect: false,
             outerEnvs: [],
             dataList: [],
@@ -46,13 +46,14 @@ export default class HttpTable extends PureComponent {
             group_name: '',
             appStatusVisable: false,
             record: '',
-            parameterVisible:false,
-            parameterList:null
+            parameterVisible: false,
+            parameterList: null
         }
     }
     componentWillMount() {
         this.load();
     }
+
     load = () => {
         const { dispatch } = this.props;
         const { page_num, page_size } = this.state;
@@ -64,11 +65,13 @@ export default class HttpTable extends PureComponent {
                 page_size
             },
             callback: (data) => {
-                this.setState({
-                    dataList: data.list,
-                    loading: false,
-                    total: data.bean.total
-                })
+                if (data) {
+                    this.setState({
+                        dataList: data.list,
+                        loading: false,
+                        total: data.bean.total
+                    })
+                }
             }
         })
     }
@@ -99,17 +102,49 @@ export default class HttpTable extends PureComponent {
             type: "gateWay/getParameter",
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
-                rule_id:values.http_rule_id,
+                rule_id: values.http_rule_id,
             },
             callback: (res) => {
-                if(res._code==200){
-                    this.setState({parameterVisible:values,parameterList:res.bean&&res.bean.value})
+                if (res && res._code == 200) {
+                    let arr = []
+                    if (res.bean && res.bean.value) {
+                        if (res.bean.value.set_headers && res.bean.value.set_headers.length > 1) {
+                            var haveUpgrade, haveConnection = false
+                            res.bean.value.set_headers.map((item) => {
+                                if (item.key != "set-header-Upgrade" && item.key != "set-header-Connection") {
+                                    arr.push(item)
+                                }
+                                if (item.key == "set-header-Upgrade") {
+                                    haveUpgrade = true
+                                }
+                                if (item.key == "set-header-Connection") {
+                                    haveConnection = true
+                                }
+                            })
+                            res.bean.value.set_headers=arr
+                            res.bean.value.WebSocket=haveUpgrade && haveConnection
+                            this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
+                        }else{
+                            res.bean.value.WebSocket=false
+                            this.setState({ parameterVisible: values, parameterList: res.bean && res.bean.value })
+                        }
+
+                    }else{
+                        this.setState({ parameterVisible: values, parameterList: null })
+
+                    }
+
+                   
                 }
             }
         })
-
-        
     }
+
+
+
+
+
+
     handleClick = () => {
         this.setState({ drawerVisible: true })
     }
@@ -140,12 +175,13 @@ export default class HttpTable extends PureComponent {
                     }
                     if (data) {
                         notification.success({ message: data.msg_show || '添加成功' })
+                        this.setState({
+                            drawerVisible: false,
+                            editInfo: ''
+                        })
+                        this.reload()
                     }
-                    this.setState({
-                        drawerVisible: false,
-                        editInfo: ''
-                    })
-                    this.reload()
+
                 }
             })
         } else {
@@ -160,11 +196,12 @@ export default class HttpTable extends PureComponent {
                 callback: (data) => {
                     if (data) {
                         notification.success({ message: data.msg_show || '编辑成功' })
+                        this.setState({
+                            drawerVisible: false,
+                            editInfo: ''
+                        })
+                        this.load()
                     }
-                    this.setState({
-                        drawerVisible: false
-                    })
-                    this.load()
                 }
             })
         }
@@ -186,24 +223,33 @@ export default class HttpTable extends PureComponent {
     }
 
 
-    handleOkParameter = (values)=>{
+    handleOkParameter = (values) => {
         const { dispatch } = this.props;
-        let value={
-            proxy_body_size:Number(values.proxy_body_size),
-            proxy_connect_timeout:Number(values.proxy_connect_timeout),
-            proxy_read_timeout:Number(values.proxy_read_timeout),
-            proxy_send_timeout:Number(values.proxy_send_timeout),
-            set_headers:values.set_headers?values.set_headers:[],
+        const arr = [{ key: "set-header-Upgrade", value: "$http_upgrade" }, { key: "set-header-Connection", value: "upgrade" }]
+        let value = {
+            proxy_body_size: Number(values.proxy_body_size),
+            proxy_connect_timeout: Number(values.proxy_connect_timeout),
+            proxy_read_timeout: Number(values.proxy_read_timeout),
+            proxy_send_timeout: Number(values.proxy_send_timeout),
+            proxy_buffering: values.proxy_buffering ? "on" : "off",
+            set_headers: (values.set_headers && values.WebSocket) ?
+
+                values.set_headers.length == 1 && values.set_headers[0].key == "" ? arr :
+                    values.set_headers.concat(arr) :
+
+                values.set_headers ? values.set_headers : [],
         }
         dispatch({
             type: "gateWay/editParameter",
             payload: {
                 team_name: globalUtil.getCurrTeamName(),
-                rule_id:this.state.parameterVisible.http_rule_id,
+                rule_id: this.state.parameterVisible.http_rule_id,
                 value
             },
             callback: (data) => {
-               this.handleCloseParameter()
+                if (data) {
+                    this.handleCloseParameter()
+                }
             }
         })
     }
@@ -219,19 +265,21 @@ export default class HttpTable extends PureComponent {
                 app_alias: record.service_alias
             },
             callback: (data) => {
-                this.setState({
-                    outerEnvs: data.list || [],
-                    information_connect: true
-                })
+                if (data) {
+                    this.setState({
+                        outerEnvs: data.list || [],
+                        information_connect: true
+                    })
+                }
             }
         })
         this.setState({ InfoConnectModal: true })
     }
 
-    handleParameterInfo = () =>{
+    handleParameterInfo = () => {
 
     }
-    
+
     handleCancel = () => {
         this.setState({ information_connect: false })
     }
@@ -245,10 +293,12 @@ export default class HttpTable extends PureComponent {
                 service_alias: values.service_alias
             },
             callback: (data) => {
-                this.setState({
-                    editInfo: data.bean,
-                    drawerVisible: true
-                })
+                if (data) {
+                    this.setState({
+                        editInfo: data.bean,
+                        drawerVisible: true
+                    })
+                }
             }
         })
     }
@@ -267,8 +317,8 @@ export default class HttpTable extends PureComponent {
             callback: (data) => {
                 if (data) {
                     notification.success({ message: data ? data.msg_show : '删除成功' })
+                    this.reload()
                 }
-                this.reload()
             }
         })
     }
@@ -281,24 +331,26 @@ export default class HttpTable extends PureComponent {
             }
         }
     }
-    handleSearch = (search_conditions, page_num) => {
+    handleSearch = (search_conditions, page) => {
         this.setState({ loading: true })
         const { dispatch } = this.props;
+        this.setState({page_num:page?page:1})
         dispatch({
             type: "gateWay/searchHttp",
             payload: {
                 search_conditions,
                 team_name: globalUtil.getCurrTeamName(),
-                page_num,
+                page,
             },
             callback: (data) => {
-                this.setState({
-                    total: data.bean.total,
-                    dataList: data.list,
-                    page_num: 1,
-                    http_search: search_conditions,
-                    loading: false
-                })
+                if (data) {
+                    this.setState({
+                        total: data.bean.total,
+                        dataList: data.list,
+                        http_search: search_conditions,
+                        loading: false
+                    })
+                }
             }
         })
     }
@@ -351,10 +403,10 @@ export default class HttpTable extends PureComponent {
                 if (data && data.bean.status == "closed") {
                     this.setState({ appStatusVisable: true, record })
                     winHandler.close()
-                }else if(data && data.bean.status == "undeploy"){
-                    notification.warning({message:"当前服务属于未部署状态", duration: 5});
+                } else if (data && data.bean.status == "undeploy") {
+                    notification.warning({ message: "当前服务属于未部署状态", duration: 5 });
                     that.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}`))
-                } 
+                }
                 else {
                     winHandler.location.href = record.domain_name;
                 }
@@ -387,15 +439,15 @@ export default class HttpTable extends PureComponent {
         })
     }
 
-    handleCloseParameter = () =>{
+    handleCloseParameter = () => {
         this.setState({
             parameterVisible: false,
-            parameterList:null
+            parameterList: null
         })
     }
     render() {
-        const { dataList, loading, drawerVisible,parameterVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable ,parameterList} = this.state;
-        const {addHttpLoading} = this.props;
+        const { dataList, loading, drawerVisible, parameterVisible, information_connect, outerEnvs, total, page_num, page_size, whether_open_form, appStatusVisable, parameterList } = this.state;
+        const { addHttpLoading } = this.props;
         const columns = [{
             title: '域名',
             dataIndex: 'domain_name',
@@ -463,11 +515,12 @@ export default class HttpTable extends PureComponent {
                 return (
                     record.is_outer_service == 1 ? <div style={{ display: "flex", justifyContent: "space-around" }}>
                         <a onClick={this.handleParameterVisibleClick.bind(this, record)}>参数配置</a>
-                        <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
+                        {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
                         <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                         <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                     </div> : <Tooltip placement="topLeft" title="请开启对外服务方可操作" arrowPointAtCenter>
                             <div style={{ display: "flex", justifyContent: "center" }}>
+                                <a onClick={this.handleDelete.bind(this, record)}>删除</a>
                                 <a onClick={this.openService.bind(this, record)}>开启</a>
                             </div>
                         </Tooltip>
@@ -477,7 +530,7 @@ export default class HttpTable extends PureComponent {
         return (
             <div className={styles.tdPadding}>
                 <Row style={{ display: "flex", alignItems: "center", width: "100%", marginBottom: "20px" }}>
-                    <Search onSearch={this.handleSearch}/>
+                    <Search onSearch={this.handleSearch} />
                     <Button type="primary" icon="plus" style={{ position: "absolute", right: "0" }} onClick={this.handleClick} loading={addHttpLoading}>
                         添加策略
                     </Button>
@@ -502,8 +555,8 @@ export default class HttpTable extends PureComponent {
                     ref={this.saveForm}
                     editInfo={this.state.editInfo}
                 />}
-                {parameterVisible&&
-                    <ParameterForm  onOk={this.handleOkParameter}   onClose={this.handleCloseParameter} visible={parameterVisible} editInfo={parameterList}/>
+                {parameterVisible &&
+                    <ParameterForm onOk={this.handleOkParameter} onClose={this.handleCloseParameter} visible={parameterVisible} editInfo={parameterList} />
                 }
                 {information_connect && <InfoConnectModal visible={information_connect} dataSource={outerEnvs} onCancel={this.handleCancel} />}
                 {whether_open_form && <Modal

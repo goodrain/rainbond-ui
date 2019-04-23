@@ -116,9 +116,11 @@ export default class Index extends PureComponent {
 			},
 			callback: (data) => {
 				// notification.success({message: "开始迁移应用",duration:'2'});
-				this.setState({ restore_id: data.bean.restore_id }, () => {
-					this.queryMigrateApp()
-				})
+				if (data) {
+					this.setState({ restore_id: data.bean.restore_id }, () => {
+						this.queryMigrateApp()
+					})
+				}
 			}
 		})
 	}
@@ -135,20 +137,22 @@ export default class Index extends PureComponent {
 				group_id: this.props.groupId
 			},
 			callback: (data) => {
-				this.setState({ showRestore: true, restore_status: data.bean.status })
-				if (data.bean.status == 'success') {
-					this
-						.props
-						.dispatch(routerRedux.push(`/team/${data.bean.migrate_team}/region/${data.bean.migrate_region}/groups/${data.bean.group_id}`));
-					location.reload();
-				}
-				if (data.bean.status == 'failed') {
-					//this.props.onCancel && this.props.onCancel()
-				}
-				if (data.bean.status == 'starting') {
-					setTimeout(() => {
-						this.queryMigrateApp();
-					}, 2000)
+				if (data) {
+					this.setState({ showRestore: true, restore_status: data.bean.status })
+					if (data.bean.status == 'success') {
+						this
+							.props
+							.dispatch(routerRedux.push(`/team/${data.bean.migrate_team}/region/${data.bean.migrate_region}/groups/${data.bean.group_id}`));
+						location.reload();
+					}
+					if (data.bean.status == 'failed') {
+						//this.props.onCancel && this.props.onCancel()
+					}
+					if (data.bean.status == 'starting') {
+						setTimeout(() => {
+							this.queryMigrateApp();
+						}, 2000)
+					}
 				}
 			}
 		})

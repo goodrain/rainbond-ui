@@ -62,7 +62,7 @@ class UpdateMemory extends PureComponent {
 
 @Form.create()
 class ConfigItems extends PureComponent {
-  componentWillReceiveProps() {}
+  componentWillReceiveProps() { }
   onChange = (val, index) => {
     const data = this.props.data;
     data.map((item, i) => {
@@ -193,18 +193,18 @@ class ConfigDownstreamPort extends PureComponent {
     const apps = this.getAppByName(currApp);
     return apps.filter(item => item.port === currPort)[0];
   };
-  getApps = () =>{
+  getApps = () => {
     const data = this.props.data;
     let n = []
     let apps = []
     data.map(item => {
-      if(n.indexOf(item.dest_service_alias) == -1) {
-         n.push(item.dest_service_alias);
-         apps.push({
-           dest_service_alias: item.dest_service_alias,
-           dest_service_cname: item.dest_service_cname,
-           port: item.port,
-         })
+      if (n.indexOf(item.dest_service_alias) == -1) {
+        n.push(item.dest_service_alias);
+        apps.push({
+          dest_service_alias: item.dest_service_alias,
+          dest_service_cname: item.dest_service_cname,
+          port: item.port,
+        })
       }
     });
     console.log(apps)
@@ -233,7 +233,7 @@ class ConfigDownstreamPort extends PureComponent {
               下游应用:{" "}
               <Select onChange={this.handleAppChange} value={currApp}>
                 {apps.map(item => (
-                  item && <Option key={item.dest_service_alias+item.port} value={item.dest_service_alias}>{item.dest_service_cname}</Option>
+                  item && <Option key={item.dest_service_alias + item.port} value={item.dest_service_alias}>{item.dest_service_cname}</Option>
                 ))}
               </Select>
             </span>{" "}
@@ -393,13 +393,15 @@ export default class Index extends PureComponent {
         category: this.state.category,
       },
       callback: (data) => {
-        const installedList = data.bean.installed_plugins || [];
-        const unInstalledList = data.bean.not_install_plugins || [];
-        this.setState({ installedList, unInstalledList });
-        if (this.isInit) {
-          this.isInit = false;
-          if (!installedList.length) {
-            this.setState({ type: "uninstalled" });
+        if (data) {
+          const installedList = data.bean.installed_plugins || [];
+          const unInstalledList = data.bean.not_install_plugins || [];
+          this.setState({ installedList, unInstalledList });
+          if (this.isInit) {
+            this.isInit = false;
+            if (!installedList.length) {
+              this.setState({ type: "uninstalled" });
+            }
           }
         }
       },
@@ -467,8 +469,10 @@ export default class Index extends PureComponent {
         build_version: plugin.build_version,
       },
       callback: (data) => {
-        this.state.openedPlugin[plugin.plugin_id] = data.bean || {};
-        this.forceUpdate();
+        if (data) {
+          this.state.openedPlugin[plugin.plugin_id] = data.bean || {};
+          this.forceUpdate();
+        }
       },
     });
   };
@@ -522,15 +526,15 @@ export default class Index extends PureComponent {
                     隐藏配置
                   </a>
                 ) : (
-                  <a
-                    onClick={() => {
-                      this.openPlugin(item);
-                    }}
-                    href="javascript:;"
-                  >
-                    查看配置
+                    <a
+                      onClick={() => {
+                        this.openPlugin(item);
+                      }}
+                      href="javascript:;"
+                    >
+                      查看配置
                   </a>
-                ),,
+                  ), ,
                 appPluginUtil.isStart(item) ? (
                   <a
                     onClick={() => {
@@ -541,15 +545,15 @@ export default class Index extends PureComponent {
                     停用
                   </a>
                 ) : (
-                  <a
-                    onClick={() => {
-                      this.handleStartPlugin(item);
-                    }}
-                    href="javascript:;"
-                  >
-                    启用
+                    <a
+                      onClick={() => {
+                        this.handleStartPlugin(item);
+                      }}
+                      href="javascript:;"
+                    >
+                      启用
                   </a>
-                ),
+                  ),
                 <a
                   onClick={() => {
                     this.onUpdateMemory(item);
@@ -558,7 +562,7 @@ export default class Index extends PureComponent {
                 >
                   {" "}
                   更新内存{" "}
-                </a>,,
+                </a>, ,
                 <a
                   onClick={() => {
                     this.onDeletePlugin(item);
@@ -578,7 +582,7 @@ export default class Index extends PureComponent {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
                         item.plugin_id
-                      }`}
+                        }`}
                     >
                       {item.plugin_alias}
                     </Link>{" "}
@@ -691,7 +695,7 @@ export default class Index extends PureComponent {
                   <Link
                     to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
                       item.plugin_id
-                    }`}
+                      }`}
                   >
                     {item.plugin_alias}
                   </Link>{" "}

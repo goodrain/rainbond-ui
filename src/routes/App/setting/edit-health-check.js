@@ -121,7 +121,7 @@ export default class EditHealthCheck extends PureComponent {
     const { list,prolist } = this.state;
     const scheme = getFieldValue("scheme") || "tcp";
     return (
-      <Modal width={700} title={title} onOk={this.handleSubmit} onCancel={onCancel} visible>
+      <Modal width={700} title={title} onOk={this.handleSubmit} maskClosable={false} onCancel={onCancel} visible>
         <Form onSubmit={this.handleSubmit}>
         {prolist && prolist.length>0 ? 
           <FormItem {...formItemLayout} label="检测端口">

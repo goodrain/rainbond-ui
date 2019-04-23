@@ -61,7 +61,7 @@ export default class AddVarModal extends PureComponent {
         attr_value
       },
       callback: (res) => {
-        let arr = res.list ? res.list : [];
+        let arr = res&&res.list ? res.list : [];
         arr.unshift(attr_name ? attr_name + "" : attr_value + "")
         Array.from(new Set(arr))
         if (arr && arr.length > 0 && arr[0] == "null") {
@@ -102,7 +102,7 @@ export default class AddVarModal extends PureComponent {
     };
     const { list } = this.state;
     return (
-      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
+      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} maskClosable={false} onCancel={this.handleCancel} visible>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
             {getFieldDecorator("attr_name", {

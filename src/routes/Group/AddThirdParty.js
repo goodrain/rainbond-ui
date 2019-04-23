@@ -103,12 +103,19 @@ export default class AddThirdParty extends PureComponent {
     if (ServiceComponentOnePage === false || ServiceComponentTwoPage === null || ServiceComponentThreePage === null) {
       this.setState({ ButtonGroup: null, ButtonGroupState: true, })
     }
+    if(ServiceComponentOnePage){
+      this.setState({
+        ServiceComponentTwoPage: "outerCustom",
+        ServiceComponentOnePage: false,
+      })
+    }
     if (ServiceComponentTwoPage) {
       this.setState({ BackType: ServiceComponentTwoPage })
     }
     if (ServiceComponentTwoPage !== "market") {
       this.setState({ moreState: true })
     }
+
   }
 
   //上一步
@@ -206,7 +213,9 @@ export default class AddThirdParty extends PureComponent {
             ButtonGroupState={ButtonGroupState}
             refreshCurrent={() => { this.refreshCurrent() }}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
-            handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data) }} />}
+            handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data);
+            this.props.onload&&this.props.onload()
+            }} />}
 
        
           {ServiceComponentTwoPage === "market" && <Market

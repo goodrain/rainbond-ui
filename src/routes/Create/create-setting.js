@@ -111,6 +111,14 @@ export default class Index extends PureComponent {
         },
         callback: () => {
           this
+          .props
+          .dispatch({
+              type: 'global/fetchGroups',
+              payload: {
+                  team_name: globalUtil.getCurrTeamName()
+              }
+          });
+          this
             .props
             .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
         }
@@ -153,7 +161,7 @@ export default class Index extends PureComponent {
               marginRight: 8
             }}
               onClick={this.handleBuild}
-              type="primary">确认构建</Button>
+              type="primary">确认创建</Button>
             <Button onClick={this.showDelete} type="default">放弃创建</Button>
           </div>
           {this.state.showDelete && <ConfirmModal

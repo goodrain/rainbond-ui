@@ -43,12 +43,14 @@ class Control extends Component {
         page_size
       },
       callback: (data) => {
-        this.setState({
-          licenseList: data.list,
-          total: data.bean.nums,
-          editData: '',
-          licenseLoading: false
-        })
+        if (data) {
+          this.setState({
+            licenseList: data.list,
+            total: data.bean.nums,
+            editData: '',
+            licenseLoading: false
+          })
+        }
       }
     })
   }
@@ -72,7 +74,7 @@ class Control extends Component {
           team_name: globalUtil.getCurrTeamName()
         },
         callback: (data) => {
-          if (data._code == 200) {
+          if (data && data._code == 200) {
             notification.success({ message: "添加成功" })
             this.setState({ visibleDrawer: false }, () => {
               this.load()
@@ -92,7 +94,7 @@ class Control extends Component {
           certifiate_id: this.state.id
         },
         callback: (data) => {
-          if (data._code == 200) {
+          if (data && data._code == 200) {
             notification.success({ message: data ? "修改成功" : "修改失败" })
             this.setState({ visibleDrawer: false }, () => {
               this.load()
@@ -111,7 +113,7 @@ class Control extends Component {
         certifiate_id: record.id
       },
       callback: (data) => {
-        notification.success({ message: data.msg_show || '删除成功' })
+        notification.success({ message: data && data.msg_show || '删除成功' })
         this.load()
       }
     })
@@ -125,11 +127,13 @@ class Control extends Component {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: (data) => {
-        this.setState({
-          visibleDrawer: true,
-          editData: data.bean,
-          id: data.bean.id,
-        })
+        if (data) {
+          this.setState({
+            visibleDrawer: true,
+            editData: data.bean,
+            id: data.bean.id,
+          })
+        }
       }
     })
   }
@@ -228,7 +232,7 @@ class Control extends Component {
             loading={this.state.licenseLoading}
           />
         </Card>
-        {this.state.visibleDrawer && <LicenseDrawer ref={this.saveForm} visible={this.state.visibleDrawer} onClose={this.handleClose} onOk={(values)=>{this.handleOk(values)}} editData={this.state.editData} />}
+        {this.state.visibleDrawer && <LicenseDrawer ref={this.saveForm} visible={this.state.visibleDrawer} onClose={this.handleClose} onOk={(values) => { this.handleOk(values) }} editData={this.state.editData} />}
       </PageHeaderLayout>
     );
   }

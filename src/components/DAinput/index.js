@@ -8,6 +8,8 @@ class DAinput extends Component {
         this.state = {
             values: [{ key: '', value: '' }]
         }
+    }
+    componentDidMount(){
         this.initFromProps();
     }
     add = () => {

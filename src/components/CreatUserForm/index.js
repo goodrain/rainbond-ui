@@ -1,60 +1,62 @@
 import React, { PureComponent } from 'react';
 import { connect } from "dva";
 import TenantSelect from "../../components/TenantSelect"
-import { Form, Input, Select, Modal} from 'antd';
+import { Form, Input, Select, Modal } from 'antd';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-@connect(({  }) => ({
-    
-  }))
+@connect(({ }) => ({
+
+}))
 class CreateUserForm extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            authorityList:[],
-            tenant_name:""
+            authorityList: [],
+            tenant_name: ""
         }
     }
     /**
      * 表单
      */
-    handleChange=(tenant_name)=>{
-		this.setState({tenant_name})
-	}
-    handleSelect=(selectedTeam)=>{
-        const {dispatch} = this.props
+    handleChange = (tenant_name) => {
+        this.setState({ tenant_name })
+    }
+    handleSelect = (selectedTeam) => {
+        const { dispatch } = this.props
         dispatch({
-            type:"global/requestAuthority",
-            payload:{
+            type: "global/requestAuthority",
+            payload: {
                 selectedTeam
             },
-            callback:(data)=>{
-                this.setState({
-                    authorityList:data.list
-                })
+            callback: (data) => {
+                if (data) {
+                    this.setState({
+                        authorityList: data.list
+                    })
+                }
             }
         })
     }
-    checkAccount=(rule, value, callback)=>{
-        if(value.length<8){
+    checkAccount = (rule, value, callback) => {
+        if (value.length < 8) {
             callback('密码长度至少为8位');
-        }else{
+        } else {
             callback()
         }
     }
-    handleSubmit=()=>{
+    handleSubmit = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
-              this.props.onOk && this.props.onOk(values);
+                this.props.onOk && this.props.onOk(values);
             }
-          });
+        });
     }
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { onOk, onCancel }= this.props;
-        const {authorityList} = this.state;
+        const { onOk, onCancel } = this.props;
+        const { authorityList } = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -86,7 +88,7 @@ class CreateUserForm extends PureComponent {
                         label="所属团队"
                     >
                         {getFieldDecorator('tenant_name', { rules: [{ required: true, message: '请选择团队!', }] })(
-                            <TenantSelect placeholder="请输入团队名称进行查询" onChange={this.handleChange} onSelect={this.handleSelect}/>
+                            <TenantSelect placeholder="请输入团队名称进行查询" onChange={this.handleChange} onSelect={this.handleSelect} />
                             // <Input type="text" placeholder="请输入团队名称!" />
                         )}
                     </FormItem>
@@ -95,7 +97,7 @@ class CreateUserForm extends PureComponent {
                         label="密码"
                         hasFeedback
                     >
-                        {getFieldDecorator('password', { rules: [{ required: true, message: '密码长度至少为8位!',validator: this.checkAccount }] })(
+                        {getFieldDecorator('password', { rules: [{ required: true, message: '密码长度至少为8位!', validator: this.checkAccount }] })(
                             <Input type="text" placeholder="请填写密码!" />
                         )}
                     </FormItem>
@@ -129,15 +131,15 @@ class CreateUserForm extends PureComponent {
                             rules: [{ required: true, message: '请选择用户角色!' }]
                         })(
                             <Select
-                                 mode="multiple"
+                                mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="请选择用户角色"
                             >
                                 {
                                     authorityList.map((item, index) => {
-                                    	return (
-                                    		<Option key={index} value={item.role_id}>{item.role_name}</Option>
-                                    	)
+                                        return (
+                                            <Option key={index} value={item.role_id}>{item.role_name}</Option>
+                                        )
                                     })
                                 }
                             </Select>

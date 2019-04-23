@@ -85,7 +85,7 @@ export default class AppList extends PureComponent {
         page_size: 10
       },
       callback: data => {
-        if (data._code == 200) {
+        if (data&&data._code == 200) {
           this.setState({
             apps: data.list || [],
             teamAction: data.bean || {},
@@ -111,7 +111,7 @@ export default class AppList extends PureComponent {
         page_size: 10
       },
       callback: data => {
-        if (data._code == 200) {
+        if (data&&data._code == 200) {
           this.setState({
             apps: data.list || [],
             teamAction: data.bean || {},
@@ -359,10 +359,15 @@ export default class AppList extends PureComponent {
         title: "状态",
         dataIndex: "status_cn",
         render: (val, data) => (
-          <Badge
-            status={appUtil.appStatusToBadgeStatus(data.status)}
-            text={val}
-          />
+            data.service_source && data.service_source == "third_party" ?
+              <Badge
+                status={appUtil.appStatusToBadgeStatus(data.status)}
+                text={val=="运行中"?"健康":val=="运行异常"?"不健康":val=="已关闭"?"下线":val}
+              /> :
+              <Badge
+                status={appUtil.appStatusToBadgeStatus(data.status)}
+                text={val}
+              />
         )
       },
       {
@@ -376,7 +381,7 @@ export default class AppList extends PureComponent {
         render: (val, data) => (
           <Fragment>
             {" "}
-            {appStatusUtil.canRestart(data) ? (
+            {appStatusUtil.canRestart(data) && (data.service_source && data.service_source != "third_party") ? (
               <a
                 onClick={() => {
                   this.handleReStart(data);
@@ -389,7 +394,7 @@ export default class AppList extends PureComponent {
                 重启{" "}
               </a>
             ) : null}{" "}
-            {appStatusUtil.canStart(data) ? (
+            {appStatusUtil.canStart(data) && (data.service_source && data.service_source != "third_party") ? (
               <a
                 onClick={() => {
                   this.handleStart(data);
@@ -402,7 +407,7 @@ export default class AppList extends PureComponent {
                 启动{" "}
               </a>
             ) : null}{" "}
-            {appStatusUtil.canStop(data) ? (
+            {appStatusUtil.canStop(data)&& (data.service_source && data.service_source != "third_party")  ? (
               <a
                 onClick={() => {
                   this.handleStop(data);

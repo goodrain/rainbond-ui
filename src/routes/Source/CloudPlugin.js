@@ -35,12 +35,14 @@ export default class CloudPlugin extends PureComponent {
             team_name: globalUtil.getCurrTeamName()
           },
           callback: data => {
-            this.setState({
-              sync: false,
-              plugins: data.list || [],
-              loading: false,
-              total: data.total
-            });
+            if (data) {
+              this.setState({
+                sync: false,
+                plugins: data.list || [],
+                loading: false,
+                total: data.total
+              });
+            }
           }
         });
       }
@@ -139,15 +141,15 @@ export default class CloudPlugin extends PureComponent {
                     <span>已同步</span>
                   </Fragment>
                 ) : (
-                  <a
-                    href="javascript:;"
-                    onClick={() => {
-                      this.handleLoadPluginDetail(item);
-                    }}
-                  >
-                    同步到市场
+                    <a
+                      href="javascript:;"
+                      onClick={() => {
+                        this.handleLoadPluginDetail(item);
+                      }}
+                    >
+                      同步到市场
                   </a>
-                )
+                  )
               ]}
             >
               <List.Item.Meta

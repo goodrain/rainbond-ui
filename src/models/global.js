@@ -11,6 +11,7 @@ import {
   getRegionOneDayMoney,
   getRegionSource,
   getTeamList,
+  getGuideState,
   getDomainName,
   getDomainTime,
   getService,
@@ -185,6 +186,12 @@ export default {
     },
     * getTeamList({ payload, callback }, { call, put }) {
       const data = yield call(getTeamList, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getGuideState({ payload, callback }, { call, put }) {
+      const data = yield call(getGuideState, payload);
       if (data && callback) {
         callback(data);
       }

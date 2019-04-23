@@ -49,9 +49,11 @@ export default class Index extends PureComponent {
         region: '',
       },
       callback: (data) => {
-        this.setState({ datalist: data.list }, () => {
-          const datalist = this.state.datalist;
-        });
+        if (data) {
+          this.setState({ datalist: data.list }, () => {
+            const datalist = this.state.datalist;
+          });
+        }
       },
     });
   }
@@ -74,8 +76,8 @@ export default class Index extends PureComponent {
                     {!hasDate ? (
                       '未包月'
                     ) : (
-                      <span>包月到期: {order.disk.expire_date || '无限期'}</span>
-                    )}
+                        <span>包月到期: {order.disk.expire_date || '无限期'}</span>
+                      )}
                   </p>
                   <Row>
                     <Col span="12">
@@ -262,7 +264,7 @@ export default class Index extends PureComponent {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/resources/buy/${
                         order.name
-                      }`}
+                        }`}
                     >
                       <Button type="primary">{hasDate ? '修改包月' : '购买包月'}</Button>
                     </Link>

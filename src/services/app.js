@@ -1080,7 +1080,7 @@ export async function getRunningProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "get",
     params: {
-      mode: "liveness",
+      // mode: "liveness",
     },
   });
 }
@@ -1095,7 +1095,7 @@ export async function getStartProbe(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`, {
     method: "get",
     params: {
-      mode: "readiness",
+      // mode: "readiness",
     },
   });
 }
@@ -1189,6 +1189,7 @@ export async function editStartProbe(body = {
       timeout_second: body.timeout_second,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
+      old_mode:body.old_mode?body.old_mode:""
     },
   });
 }
@@ -1295,6 +1296,8 @@ export async function editorVolume(body = {
     },
   );
 }
+
+
 
 
 /*
@@ -2010,6 +2013,45 @@ export async function getPlugins(body = {
   );
 }
 
+
+/*
+	获取JavaMaven多模块信息
+*/
+export async function getMultipleModulesInfo(body = {
+  team_name,
+  check_uuid,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/multi/check?check_uuid=${body.check_uuid}`,
+    {
+      method: "get",
+    },
+  );
+}
+
+
+
+/*
+  创建JavaMaven多模块信息
+http://192.168.1.200:7070/console/teams/{tenant_name}/groups/{group_id}/multi/create
+  http://192.168.1.200:7070/console/teams/nxkwpqt2/apps/gr73604f/multi/create
+*/
+export async function createService(body = {
+  team_name,
+  app_alias,
+  service_infos
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.app_alias}/multi/create`,
+    {
+      method: "post",
+      data: {
+        service_infos: body.service_infos,
+      },
+    },
+  );
+}
 /*
 	开通插件
 */
@@ -2273,7 +2315,7 @@ export async function putAutoDeployCommand(body = {
 }) {
   return request(
     `${config.baseUrl
-    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword'`,
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/keyword`,
     {
       method: "put",
       data: {
@@ -2284,7 +2326,51 @@ export async function putAutoDeployCommand(body = {
 }
 
 
+/*
+   修改镜像Tag触发值
+*/
+export async function putMirrorCommand(body = {
+  team_name,
+  service_alias,
+  trigger,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/trigger'`,
+    {
+      method: "put",
+      data: {
+        tenantName: body.keyword,
+        trigger: body.trigger,
+        serviceAlias:body.service_alias,
+      },
+    },
+  );
+}
 
+
+
+    
+
+
+/*
+  获取应用镜像构建源信息
+*/
+export async function getMirrorCommand(body = {
+  team_name,
+  service_alias,
+}) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/get-url`,
+    {
+      method: "get",
+      params: {
+        tenantName: body.team_name,
+        serviceAlias: body.service_alias,
+      },
+    },
+  );
+}
 
 
 /*

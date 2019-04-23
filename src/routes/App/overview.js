@@ -429,8 +429,8 @@ export default class Index extends PureComponent {
           app_alias: this.props.appAlias,
         },
         callback: (data) => {
-          const list = data.list || [];
-          if (list.length) {
+          const list = data&&data.list || [];
+          if (list&&list.length) {
             this.setState({ anaPlugins: list });
             this.fetchRequestTime();
             this.fetchRequestTimeRange();

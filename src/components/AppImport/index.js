@@ -58,8 +58,10 @@ export default class Index extends PureComponent {
         event_id: this.state.event_id
       },
       callback: data => {
-        notification.success({ message: `取消成功` });
-        this.props.cancelImport && this.props.cancelImport();
+        if (data) {
+          notification.success({ message: `取消成功` });
+          this.props.cancelImport && this.props.cancelImport();
+        }
       }
     });
   };
@@ -97,8 +99,10 @@ export default class Index extends PureComponent {
         file_name: file_name
       },
       callback: data => {
-        notification.success({ message: `操作成功，正在导入` });
-        this.props.onOk && this.props.onOk(data);
+        if (data) {
+          notification.success({ message: `操作成功，正在导入` });
+          this.props.onOk && this.props.onOk(data);
+        }
       }
     });
   };
@@ -148,11 +152,13 @@ export default class Index extends PureComponent {
         file_name: fileStr
       },
       callback: data => {
-        notification.success({
-          message: "开始导入应用"
-        });
-        this.closeAutoQuery();
-        this.openQueryImportStatus();
+        if (data) {
+          notification.success({
+            message: "开始导入应用"
+          });
+          this.closeAutoQuery();
+          this.openQueryImportStatus();
+        }
       }
     });
   };
@@ -163,11 +169,13 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        this.setState({ record: data.bean });
-        this.setState({ event_id: data.bean.event_id }, () => {
-          this.openQueryImportStatus();
-          this.handleQueryImportDir();
-        });
+        if (data) {
+          this.setState({ record: data.bean });
+          this.setState({ event_id: data.bean.event_id }, () => {
+            this.openQueryImportStatus();
+            this.handleQueryImportDir();
+          });
+        }
       }
     });
   };
@@ -180,32 +188,34 @@ export default class Index extends PureComponent {
         event_id: this.state.event_id
       },
       callback: data => {
-        this.setState({ import_file_status: data.list });
-        if (data.bean&&data.bean.status == "uploading") {
-           return
-        }
-        if (data.bean&&data.bean.status=="partial_success") {
-          notification.success({
-            message: "部分应用导入失败，你可以重试或取消导入"
-          });
-          return
-        }
-        if (data.bean&&data.bean.status=="success") {
-          notification.success({
-             message: "导入完成"
-          });
-          this.props.onOK && this.props.onOK()
-          return
-        }
-        if (data.bean&&data.bean.status=="failed") {
-          notification.success({
-             message: "应用导入失败"
-          });
-          return
-        }
-        setTimeout(() => {
+        if (data) {
+          this.setState({ import_file_status: data.list });
+          if (data.bean && data.bean.status == "uploading") {
+            return
+          }
+          if (data.bean && data.bean.status == "partial_success") {
+            notification.success({
+              message: "部分应用导入失败，你可以重试或取消导入"
+            });
+            return
+          }
+          if (data.bean && data.bean.status == "success") {
+            notification.success({
+              message: "导入完成"
+            });
+            this.props.onOK && this.props.onOK()
+            return
+          }
+          if (data.bean && data.bean.status == "failed") {
+            notification.success({
+              message: "应用导入失败"
+            });
+            return
+          }
+          setTimeout(() => {
             this.queryImportStatus();
-        }, 2000);
+          }, 2000);
+        }
       }
     });
   };
@@ -241,10 +251,12 @@ export default class Index extends PureComponent {
         file_name: file_name
       },
       callback: data => {
-        notification.success({
-          message: "开始重新导入"
-        });
-        this.openQueryImportStatus()
+        if (data) {
+          notification.success({
+            message: "开始重新导入"
+          });
+          this.openQueryImportStatus()
+        }
       }
     });
   };
@@ -301,15 +313,15 @@ export default class Index extends PureComponent {
                     </p>
                   </div>
                 ) : (
-                  <a
-                    style={{ fontSize: 16 }}
-                    onClick={() => {
-                      this.openAutoQuery();
-                    }}
-                  >
-                    打开自动识别
+                    <a
+                      style={{ fontSize: 16 }}
+                      onClick={() => {
+                        this.openAutoQuery();
+                      }}
+                    >
+                      打开自动识别
                   </a>
-                )}
+                  )}
                 {this.state.existFileList.length > 0 && (
                   <Checkbox.Group
                     onChange={this.onFileChange}
@@ -330,34 +342,34 @@ export default class Index extends PureComponent {
                 )}
               </div>
             ) : (
-              <div style={{ paddingBottom: 16 }}>
-                <p style={{ fontSize: 16 }}>正在导入应用:</p>
-                <ul>
-                  {this.state.import_file_status.map(app => {
-                    return (
-                      <li style={{ lineHeight: "30px", paddingBottom: "5px" }}>
-                        {app.file_name}
-                        <span style={{ padding: "0 5px" }}>
-                          {appstatus[app.status]}
-                        </span>
-                        {app.status == "failed" ? (
-                          <Button
-                            onClick={()=>{
-                              this.reImportApp(app.file_name)
-                            }}
-                            size="small"
-                          >
-                            重新导入
+                <div style={{ paddingBottom: 16 }}>
+                  <p style={{ fontSize: 16 }}>正在导入应用:</p>
+                  <ul>
+                    {this.state.import_file_status.map(app => {
+                      return (
+                        <li style={{ lineHeight: "30px", paddingBottom: "5px" }}>
+                          {app.file_name}
+                          <span style={{ padding: "0 5px" }}>
+                            {appstatus[app.status]}
+                          </span>
+                          {app.status == "failed" ? (
+                            <Button
+                              onClick={() => {
+                                this.reImportApp(app.file_name)
+                              }}
+                              size="small"
+                            >
+                              重新导入
                           </Button>
-                        ) : (
-                          ""
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+                          ) : (
+                              ""
+                            )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
 
             <div style={{ textAlign: "center", marginTop: 32 }}>
               {this.state.import_file_status.length == 0 && (

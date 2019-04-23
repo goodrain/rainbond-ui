@@ -39,7 +39,7 @@ export default class Index extends PureComponent {
             limit: this.state.pageSize
         },
         callback: (data) => {
-            this.setState({data: data.list || []})
+            this.setState({data: data&&data.list || []})
         }
     })
   }

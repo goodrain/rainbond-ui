@@ -20,7 +20,7 @@ export default class EditActions extends PureComponent {
     const { actions, value } = this.props;
 
     return (
-      <Modal title="编辑权限" visible onOk={this.handleSubmit} onCancel={this.onCancel}>
+      <Modal title="编辑权限" visible onOk={this.handleSubmit} maskClosable={false} onCancel={this.onCancel}>
         <Form onSubmit={this.handleSubmit}>
           <FormItem label="">
             {getFieldDecorator('identity', {

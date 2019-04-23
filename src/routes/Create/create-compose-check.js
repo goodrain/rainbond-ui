@@ -1,4 +1,4 @@
-import React, {PureComponent, Fragment} from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import {
     Button,
     Icon,
@@ -7,12 +7,14 @@ import {
     Form,
     Input
 } from 'antd';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import Result from '../../components/Result';
-import {routerRedux} from 'dva/router';
+import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import {getCreateComposeCheckInfo, getCreateComposeCheckResult, getComposeCheckuuid,
-getComposeByComposeId} from '../../services/createApp';
+import {
+    getCreateComposeCheckInfo, getCreateComposeCheckResult, getComposeCheckuuid,
+    getComposeByComposeId
+} from '../../services/createApp';
 import globalUtil from '../../utils/global';
 import CodeCustomForm from '../../components/CodeCustomForm';
 import LogProcress from '../../components/LogProcress';
@@ -29,19 +31,19 @@ require('../../styles/codemirror.less');
 
 @Form.create()
 class ModifyCompose extends PureComponent {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
-            compose:''
+            compose: ''
         }
     }
-    componentDidMount(){
+    componentDidMount() {
         getComposeByComposeId({
             team_name: globalUtil.getCurrTeamName(),
             compose_id: this.props.compose_id
-        }).then((data)=>{
-            if(data && data.bean){
-                this.setState({compose: data.bean.compose_content})
+        }).then((data) => {
+            if (data && data.bean) {
+                this.setState({ compose: data.bean.compose_content })
             }
         })
     }
@@ -49,7 +51,7 @@ class ModifyCompose extends PureComponent {
         e.preventDefault();
         const form = this.props.form;
         form.validateFields((err, fieldsValue) => {
-            if (err) 
+            if (err)
                 return;
             this.props.onSubmit && this
                 .props
@@ -57,7 +59,7 @@ class ModifyCompose extends PureComponent {
         });
     }
     render() {
-        const {getFieldDecorator, getFieldValue} = this.props.form;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
         const data = this.props.data || {};
         var options = {
             lineNumbers: true,
@@ -65,7 +67,7 @@ class ModifyCompose extends PureComponent {
             mode: 'yaml'
         };
 
-        if(!this.state.compose){
+        if (!this.state.compose) {
             return null;
         }
 
@@ -85,7 +87,7 @@ class ModifyCompose extends PureComponent {
                                     message: '请输入内容'
                                 }
                             ]
-                        })(<CodeMirror options={options} placeholder=""/>)}
+                        })(<CodeMirror options={options} placeholder="" />)}
 
                     </Form.Item>
                 </Form>
@@ -94,7 +96,7 @@ class ModifyCompose extends PureComponent {
     }
 }
 
-@connect(({user, appControl}) => ({currUser: user.currentUser}))
+@connect(({ user, appControl }) => ({ currUser: user.currentUser }))
 export default class CreateCheck extends PureComponent {
     constructor(props) {
         super(props);
@@ -163,7 +165,7 @@ export default class CreateCheck extends PureComponent {
         }).then((data) => {
             if (data) {
                 this.state.check_uuid = data.bean.check_uuid;
-                this.setState({eventId: data.bean.check_event_id, appDetail: data.bean})
+                this.setState({ eventId: data.bean.check_event_id, appDetail: data.bean })
                 if (loopStatus !== false) {
                     this.loopStatus();
                 }
@@ -174,7 +176,7 @@ export default class CreateCheck extends PureComponent {
         return this.props.match.params.appAlias;
     }
     loopStatus = () => {
-        if (!this.mount) 
+        if (!this.mount)
             return;
         const params = this.getParams();
         const team_name = globalUtil.getCurrTeamName();
@@ -187,9 +189,9 @@ export default class CreateCheck extends PureComponent {
                 var status = data.bean.check_status;
                 var error_infos = data.bean.error_infos || [];
                 var serviceInfo = data.bean.service_info || [];
-                this.setState({status: status, errorInfo: error_infos, serviceInfo: serviceInfo})
+                this.setState({ status: status, errorInfo: error_infos, serviceInfo: serviceInfo })
             }
-        }). finally(() => {
+        }).finally(() => {
             if (this.mount && this.state.status === 'checking') {
                 setTimeout(() => {
                     this.loopStatus();
@@ -203,13 +205,13 @@ export default class CreateCheck extends PureComponent {
         this.unbindEvent();
     }
     getParams() {
-        return {group_id: this.props.match.params.groupId, compose_id: this.props.match.params.composeId}
+        return { group_id: this.props.match.params.groupId, compose_id: this.props.match.params.composeId }
     }
     handleCreate = () => {
         const appAlias = this.getAppAlias();
     }
     showModifyCompose = () => {
-        this.setState({modifyCompose: true})
+        this.setState({ modifyCompose: true })
     }
     renderError = () => {
         const errorInfo = this.state.errorInfo;
@@ -221,112 +223,111 @@ export default class CreateCheck extends PureComponent {
                     }}>
                         <Icon
                             style={{
-                            color: '#f5222d',
-                            marginRight: 8
-                        }}
-                            type="close-circle-o"/>
+                                color: '#f5222d',
+                                marginRight: 8
+                            }}
+                            type="close-circle-o" />
                         <span
                             dangerouslySetInnerHTML={{
-                            __html: '<span>' + (item.error_info || '') + ' ' + (item.solve_advice || '') + '</span>'
-                        }}></span>
+                                __html: '<span>' + (item.error_info || '') + ' ' + (item.solve_advice || '') + '</span>'
+                            }}></span>
                     </div>
                 })
-}
+                }
             </div>
         );
-        const actions = [< Button onClick = {
-                this.showDelete
-            }
-            type = "default" > 放弃创建 < /Button>,
-            <Button onClick={this.recheck} type="primary">重新检测</Button >];
+        const actions = [
+                         <Button onClick={ this.showDelete} type="default" > 放弃创建 </Button>,
+                         <Button onClick={this.recheck} type="primary">重新检测</Button >
+                        ];
 
         return <Result
-            type="error"
-            title="应用检测未通过"
-            description="请核对并修改以下信息后，再重新检测。"
-            extra={extra}
-            actions={actions}
-            style={{
-            marginTop: 48,
-            marginBottom: 16
-        }}/>
-    }
+                type="error"
+                title="应用检测未通过"
+                description="请核对并修改以下信息后，再重新检测。"
+                extra={extra}
+                actions={actions}
+                style={{
+                    marginTop: 48,
+                    marginBottom: 16
+                }} />
+            }
     handleSetting = () => {
         const params = this.getParams();
-        this
-            .props
+            this
+                .props
             .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-setting/${params.group_id}/${params.compose_id}`));
     }
     handleBuild = () => {
         const team_name = globalUtil.getCurrTeamName();
-        const appDetail = this.state.appDetail;
-        const params = this.getParams();
-        this
-            .props
+            const appDetail = this.state.appDetail;
+            const params = this.getParams();
+            this
+                .props
             .dispatch({
                 type: 'groupControl/buildCompose',
                 payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    ...params
-                },
+                team_name: globalUtil.getCurrTeamName(),
+            ...params
+        },
                 callback: () => {
-                    this
+                this
                     .props
                     .dispatch({
                         type: 'global/fetchGroups',
                         payload: {
-                        team_name: team_name
+                            team_name: team_name
                         }
                     });
-                    this
-                        .props
+            this
+                .props
                         .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${params.group_id}`))
-                }
-            })
     }
+})
+}
     renderSuccessInfo = (item) => {
 
         if (item.value) {
             if (typeof item.value === 'string') {
                 return <div style={{
-                    paddingLeft: 32
-                }}>
-                    <span
-                        style={{
+                paddingLeft: 32
+            }}>
+                <span
+                    style={{
                         verticalAlign: 'top',
                         display: 'inline-block',
                         fontWeight: 'bold'
                     }}>{item.key}：</span>{item.value}</div>
             } else {
                 return <div style={{
-                    paddingLeft: 32
-                }}>
-                    <span
-                        style={{
+                paddingLeft: 32
+            }}>
+                <span
+                    style={{
                         verticalAlign: 'top',
                         display: 'inline-block',
                         fontWeight: 'bold'
                     }}>{item.key}：</span>
-                    <div
-                        style={{
+                <div
+                    style={{
                         display: 'inline-block'
                     }}>
-                        {(item.value || []).map((item) => {
-                            return <p
-                                style={{
+                    {(item.value || []).map((item) => {
+                        return <p
+                            style={{
                                 marginBottom: 0
                             }}>{item}</p>
-                        })
-}
-                    </div>
+                    })
+                    }
                 </div>
+            </div>
             }
         }
 
     }
     renderSuccess = () => {
         const serviceInfo = this.state.serviceInfo || [];
-        const extra = (
+            const extra = (
             <div>
                 {serviceInfo.map((item) => {
                     return <div style={{
@@ -337,169 +338,173 @@ export default class CreateCheck extends PureComponent {
 
                             return <div
                                 style={{
-                                marginBottom: 16
-                            }}>
+                                    marginBottom: 16
+                                }}>
                                 {this.renderSuccessInfo(item)
-}
+                                }
 
                             </div>
                         })
-}
+                        }
                     </div>
                 })
-}
+                }
             </div>
-        );
-        const actions = [ < Button onClick = {
-                this.handleBuild
-            }
-            type = "primary" > 构建应用 < /Button>,
-            <Button type="default" onClick={this.handleSetting}>高级设置</Button >, < Button onClick = {
-                this.showDelete
-            }
-            type = "default" > 放弃创建 < /Button>
-        ];
+            );
+        const actions = [ <Button onClick={this.handleBuild} type="primary" > 构建应用 </Button>,
+            <Button type="default" onClick={this.handleSetting}>高级设置</Button >, 
+            <Button onClick={this.showDelete} type="default" > 放弃创建 </Button>
+                ];
         return <Result
-              type="success"
-              title="应用检测通过"
-              description={
-                <div>
-                  <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
-                  90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考  <a href="https://www.rainbond.com/docs/user-manual/app-creation/language-support/" target="_blank">rainbond文档</a>   对代码包进行调整。
+                        type="success"
+                        title="应用检测通过"
+                        description={
+                            <div>
+                                <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+                                90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考  <a href="https://www.rainbond.com/docs/user-manual/app-creation/language-support/" target="_blank">rainbond文档</a>   对代码包进行调整。
                 </div>
-              }
-              extra={extra}
-              actions={actions}
-              style={{ marginTop: 48, marginBottom: 16 }}
-            / >
-        }
+                        }
+                        extra={extra}
+                        actions={actions}
+                        style={{ marginTop: 48, marginBottom: 16 }}
+                    />
+                    }
         renderChecking = () => {
             const actions = <Button onClick={this.showDelete} type="default">放弃创建</Button>;
-
-            const extra = (
+        
+                    const extra = (
                 <div>
-                    {this.state.eventId && <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId}/>
-}
-                </div>
-            );
+                        {this.state.eventId && <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
+                        }
+                    </div>
+                    );
             return <Result
-                type="ing"
-                title="服务构建源检测中..."
-                extra={extra}
-                description="此过程可能比较耗时，请耐心等待"
-                actions={actions}
-                style={{
-                marginTop: 48,
-                marginBottom: 16
-            }}/>
-        }
+                        type="ing"
+                        title="服务构建源检测中..."
+                        extra={extra}
+                        description="此过程可能比较耗时，请耐心等待"
+                        actions={actions}
+                        style={{
+                            marginTop: 48,
+                            marginBottom: 16
+                        }} />
+                    }
         recheck = () => {
-            this.setState({
-                status: 'checking'
-            }, () => {
-                this.startCheck();
-            })
-        }
-        cancelModifyCompose = () => {
-            this.setState({modifyCompose: false})
-        }
-        handleClick = (e) => {
+                        this.setState({
+                            status: 'checking'
+                        }, () => {
+                            this.startCheck();
+                        })
+                    }
+                    cancelModifyCompose = () => {
+                        this.setState({ modifyCompose: false })
+                    }
+                    handleClick = (e) => {
             var parent = e.target;
-
+        
             while (parent) {
                 if (parent === document.body) {
-                    return;
+                    return ;
                 }
                 var actionType = parent.getAttribute('action_type');
                 if (actionType === 'modify_compose') {
-                    this.setState({modifyCompose: true})
-                    return;
+                        this.setState({ modifyCompose: true })
+                    return ;
                 }
                 parent = parent.parentNode
             }
         }
         handleModifyCompose = (vals) => {
             const params = this.getParams();
-            this
-                .props
+                    this
+                        .props
                 .dispatch({
-                    type: 'groupControl/editAppCreateCompose',
+                        type: 'groupControl/editAppCreateCompose',
                     payload: {
                         team_name: globalUtil.getCurrTeamName(),
-                        group_id: params.group_id,
-                        compose_content: vals.yaml_content
-                    },
+                    group_id: params.group_id,
+                    compose_content: vals.yaml_content
+                },
                     callback: (data) => {
                         this.cancelModifyCompose();
                     }
                 })
         }
         handleCancelEdit = () => {
-            this.setState({showEdit: false})
-        }
-        handleCancelShowKey = () => {
-            this.setState({showKey: false})
-        }
-        bindEvent = () => {
-            document.addEventListener('click', this.handleClick, false);
-        }
+                        this.setState({ showEdit: false })
+                    }
+                    handleCancelShowKey = () => {
+                        this.setState({ showKey: false })
+                    }
+                    bindEvent = () => {
+                        document.addEventListener('click', this.handleClick, false);
+                    }
         unbindEvent = () => {
-            document.removeEventListener('click', this.handleClick);
-        }
+                        document.removeEventListener('click', this.handleClick);
+                    }
         handleDelete = () => {
             const params = this.getParams();
-            this
-                .props
+                    this
+                        .props
                 .dispatch({
-                    type: 'groupControl/deleteCompose',
+                        type: 'groupControl/deleteCompose',
                     payload: {
                         team_name: globalUtil.getCurrTeamName(),
-                        ...params
-                    },
+                    ...params
+                },
                     callback: () => {
                         this
                             .props
+                            .dispatch({
+                                type: 'global/fetchGroups',
+                                payload: {
+                                    team_name: globalUtil.getCurrTeamName()
+                                }
+                            });
+
+                    this
+                        .props
                             .dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`))
-                    }
-                })
-        }
+            }
+        })
+}
         showDelete = () => {
-            this.setState({showDelete: true})
-        }
-        render() {
+                        this.setState({ showDelete: true })
+                    }
+                    render() {
             const status = this.state.status;
-            const params = this.getParams();
+                    const params = this.getParams();
             return <PageHeaderLayout>
 
-                <Card bordered={false}>
-                    <div style={{
-                        minHeight: 400
-                    }}>
-                        {(status === 'checking')
-                            ? this.renderChecking()
+                        <Card bordered={false}>
+                            <div style={{
+                                minHeight: 400
+                            }}>
+                                {(status === 'checking')
+                                    ? this.renderChecking()
+                                    : null}
+                                {status === 'success'
+                                    ? this.renderSuccess()
+                                    : null}
+                                {status === 'failure'
+                                    ? this.renderError()
+                                    : null}
+                            </div>
+                        </Card>
+                        {this.state.modifyCompose
+                            ? <ModifyCompose
+                                compose_id={params.compose_id}
+                                onSubmit={this.handleModifyCompose}
+                                onCancel={this.cancelModifyCompose} />
                             : null}
-                        {status === 'success'
-                            ? this.renderSuccess()
-                            : null}
-                        {status === 'failure'
-                            ? this.renderError()
-                            : null}
-                    </div>
-                </Card>
-                {this.state.modifyCompose
-                    ? <ModifyCompose
-                            compose_id={params.compose_id}
-                            onSubmit={this.handleModifyCompose}
-                            onCancel={this.cancelModifyCompose}/>
-                    : null}
-                {this.state.showDelete && <ConfirmModal
-                    onOk={this.handleDelete}
-                    title="放弃创建"
-                    subDesc="此操作不可恢复"
-                    desc="确定要放弃创建此应用吗？"
-                    onCancel={() => {
-                    this.setState({showDelete: false})
-                }}/>}
-            </PageHeaderLayout>
-        }
-    }
+                        {this.state.showDelete && <ConfirmModal
+                            onOk={this.handleDelete}
+                            title="放弃创建"
+                            subDesc="此操作不可恢复"
+                            desc="确定要放弃创建此应用吗？"
+                            onCancel={() => {
+                                this.setState({ showDelete: false })
+                            }} />}
+                    </PageHeaderLayout>
+                    }
+                }

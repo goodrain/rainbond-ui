@@ -68,13 +68,15 @@ class BackupStatus extends PureComponent {
         group_id: this.props.group_id
       },
       callback: (data) => {
-        const bean = data.bean;
-        if (bean.status === 'starting') {
-          this.timer = setTimeout(() => {
-            this.startLoopStatus();
-          }, 10000)
-        } else {
-          this.props.onEnd && this.props.onEnd();
+        if (data) {
+          const bean = data.bean;
+          if (bean.status === 'starting') {
+            this.timer = setTimeout(() => {
+              this.startLoopStatus();
+            }, 10000)
+          } else {
+            this.props.onEnd && this.props.onEnd();
+          }
         }
       }
     })

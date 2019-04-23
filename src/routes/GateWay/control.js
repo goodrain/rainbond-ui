@@ -12,11 +12,12 @@ class Control extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            tabKey:"http"
+            tabKey:(props.match&&props.match.params&&props.match.params.types&&props.match.params.types)?props.match.params.types:"http",
+            open:(this.props.match&&this.props.match.params&&this.props.match.params.types&&this.props.match.params.types)?this.props.match.params.types:false
         }
     }
     handleTabChange=(key)=>{
-        this.setState({ tabKey: key });
+        this.setState({ tabKey: key ,open:false});
     }
     renderContent=()=>{
         const { currUser } = this.props;
@@ -27,7 +28,7 @@ class Control extends Component {
     //   }
         const {tabKey} = this.state;
         if(tabKey=="http"){
-            return <HttpTable/>
+            return <HttpTable open={this.state.open}/>
         }else if(tabKey=="tcp"){
             return <TcpTable/>
         }
