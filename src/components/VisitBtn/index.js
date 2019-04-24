@@ -278,9 +278,9 @@ export default class Index extends PureComponent {
                   }}
                 // title={this.renderNoHttpOuterTitle(item)}
                 >
-                  {!item.connect_info.length ? (
+                  {/* {!item.connect_info.length ? (
                     "-"
-                  ) : (
+                  ) : ( */}
                       <Fragment>
 
                         <ul className={styles.ul}>
@@ -344,7 +344,7 @@ export default class Index extends PureComponent {
                           </tbody>
                         </table> */}
                       </Fragment>
-                    )}
+                    {/* )} */}
                 </Card>
               );
             })}
