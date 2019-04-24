@@ -999,7 +999,7 @@ class JAVA extends PureComponent {
           <div>
             <Form.Item {...formItemLayout} label="Node版本">
               {getFieldDecorator('BUILD_RUNTIMES', {
-                initialValue: runtimeInfo && runtimeInfo.Node || "8.12.0",
+                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "8.12.0",
               })(
                 <RadioGroup className={styles.ant_radio_disabled}>
                   <Radio value="8.12.0" selected="selected">8.12.0(默认)</Radio>
