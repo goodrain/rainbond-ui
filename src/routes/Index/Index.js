@@ -108,6 +108,7 @@ export default class Index extends PureComponent {
                             !res.list[6].status ? 6 : 7
               },()=>{
                 let isGuidevisible =this.state.current==7?false:cookie.get('guide')?false:true
+                console.log("isGuidevisible",isGuidevisible)
                 this.setState({
                     guidevisible:isGuidevisible
                 })
@@ -679,6 +680,7 @@ export default class Index extends PureComponent {
                     width={1000}
                     footer={null}
                     className={styles.modals}
+                    maskClosable={false}
                 >
                     <p style={{ fontSize: "17px" }}>Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。</p>
                     {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
