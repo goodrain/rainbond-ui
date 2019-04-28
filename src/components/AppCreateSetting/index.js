@@ -2174,17 +2174,42 @@ class Env extends PureComponent {
           columns={[
             {
               title: '变量名',
-              dataIndex: 'attr_name'
+              dataIndex: 'attr_name',
+              key: "1",
+              width: "30%",
+              render: (v) => (
+                  <div style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word",
+                  }}>{v}</div>
+              )
             }, {
               title: '变量值',
               dataIndex: 'attr_value',
-              width: '20%'
+              key: "2",
+              width: "30%",
+              render: (v) => (
+                  <div style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word"
+                  }}>{v}</div>
+              )
             }, {
               title: '说明',
-              dataIndex: 'name'
+              dataIndex: 'name',
+              key: "3",
+              width: "25%",
+              render: (v) => (
+                  <div style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word"
+                  }}>{v}</div>
+              )
             }, {
               title: '操作',
               dataIndex: 'action',
+              key: "4",
+              width: "15%",
               render: (val, data) => {
                 return (
                   <Fragment>

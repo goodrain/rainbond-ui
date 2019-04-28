@@ -157,12 +157,10 @@ export default class Index extends React.Component {
                   key: "1",
                   width: "30%",
                   render: (v) => (
-                    <Tooltip title={v}>
                       <div style={{
                         wordBreak: "break-all",
                         wordWrap: "break-word"
                       }}>{v}</div>
-                    </Tooltip>
                   )
                 },
                 {
@@ -171,12 +169,10 @@ export default class Index extends React.Component {
                   key: "2",
                   width: "30%",
                   render: (v) => (
-                    <Tooltip title={v}>
                       <div style={{
                         wordBreak: "break-all",
                         wordWrap: "break-word"
                       }}>{v}</div>
-                    </Tooltip>
                   )
                 },
                 {
@@ -185,12 +181,10 @@ export default class Index extends React.Component {
                   key: "3",
                   width: "25%",
                   render: (v) => (
-                    <Tooltip title={v}>
                       <div style={{
                         wordBreak: "break-all",
                         wordWrap: "break-word"
                       }}>{v}</div>
-                    </Tooltip>
                   )
                 },
                 {
