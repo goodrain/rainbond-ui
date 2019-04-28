@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import LogSocket from "../../utils/logSocket";
 import domUtil from "../../utils/dom-util";
+import dateUtil from "../../utils/date-util";
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -106,8 +107,22 @@ export default class Index extends PureComponent {
   saveRef = (ref) => {
     this.ref = ref;
   };
+  shouldComponentUpdate() {
+    return true
+  }
   render() {
     const datas = this.state.datas || [];
-    return <div style={{ maxHeight: this.props.opened?350:30, overflowY: "auto" }} id="box" ref={this.saveRef} />;
+    const logs = this.props.list || []
+
+    return <div style={{ maxHeight: this.props.opened ? 350 : 30, overflowY: "auto" }} id="box" ref={this.saveRef} >
+      {logs && logs.length > 0 && logs.map((item, index) => <p key={index}>
+        <span style={{
+          marginRight: 10
+        }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
+        <span>{item.message}</span>
+      </p>)
+      }
+
+    </div>
   }
 }
