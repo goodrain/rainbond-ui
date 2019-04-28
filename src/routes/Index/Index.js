@@ -108,7 +108,6 @@ export default class Index extends PureComponent {
                             !res.list[6].status ? 6 : 7
               },()=>{
                 let isGuidevisible =this.state.current==7?false:cookie.get('guide')?false:true
-                console.log("isGuidevisible",isGuidevisible)
                 this.setState({
                     guidevisible:isGuidevisible
                 })
