@@ -688,7 +688,14 @@ class JAVA extends PureComponent {
         {
           (languageType == "java-jar" || languageType == "Java-jar") &&
           <div>
-
+            <Form.Item {...formItemLayout} label="开启清除构建缓存">
+              {getFieldDecorator('NO_CACHE', {
+                initialValue: ""
+              })(
+                <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
+              )}
+            </Form.Item>
+            
             <Form.Item {...formItemLayout} label="选择JDK版本">
               {getFieldDecorator('RUNTIMES', {
                 initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
@@ -2178,10 +2185,10 @@ class Env extends PureComponent {
               key: "1",
               width: "30%",
               render: (v) => (
-                  <div style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word",
-                  }}>{v}</div>
+                <div style={{
+                  wordBreak: "break-all",
+                  wordWrap: "break-word",
+                }}>{v}</div>
               )
             }, {
               title: '变量值',
@@ -2189,10 +2196,10 @@ class Env extends PureComponent {
               key: "2",
               width: "30%",
               render: (v) => (
-                  <div style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{v}</div>
+                <div style={{
+                  wordBreak: "break-all",
+                  wordWrap: "break-word"
+                }}>{v}</div>
               )
             }, {
               title: '说明',
@@ -2200,10 +2207,10 @@ class Env extends PureComponent {
               key: "3",
               width: "25%",
               render: (v) => (
-                  <div style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{v}</div>
+                <div style={{
+                  wordBreak: "break-all",
+                  wordWrap: "break-word"
+                }}>{v}</div>
               )
             }, {
               title: '操作',
@@ -2293,7 +2300,7 @@ class Ports extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          ports: data&&data.list || []
+          ports: data && data.list || []
         })
       }
     })
