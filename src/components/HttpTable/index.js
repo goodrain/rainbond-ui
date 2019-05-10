@@ -111,13 +111,13 @@ export default class HttpTable extends PureComponent {
                         if (res.bean.value.set_headers && res.bean.value.set_headers.length > 1) {
                             var haveUpgrade, haveConnection = false
                             res.bean.value.set_headers.map((item) => {
-                                if (item.key != "set-header-Upgrade" && item.key != "set-header-Connection") {
+                                if (item.key != "Connection" && item.key != "Upgrade") {
                                     arr.push(item)
                                 }
-                                if (item.key == "set-header-Upgrade") {
+                                if (item.key == "Connection") {
                                     haveUpgrade = true
                                 }
-                                if (item.key == "set-header-Connection") {
+                                if (item.key == "Upgrade") {
                                     haveConnection = true
                                 }
                             })
@@ -225,7 +225,7 @@ export default class HttpTable extends PureComponent {
 
     handleOkParameter = (values) => {
         const { dispatch } = this.props;
-        const arr = [{ key: "set-header-Upgrade", value: "$http_upgrade" }, { key: "set-header-Connection", value: "upgrade" }]
+        const arr = [{ key: "Connection", value: "\"Upgrade\"" }, { key: "Upgrade", value: "$http_upgrade" }]
         let value = {
             proxy_body_size: Number(values.proxy_body_size),
             proxy_connect_timeout: Number(values.proxy_connect_timeout),
