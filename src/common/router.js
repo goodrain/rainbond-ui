@@ -109,6 +109,10 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/team": {
       component: dynamicWrapper(app, ["teamControl"], () => import("../routes/Team")),
     },
+    "/team/:team/region/:region/groups/upgrade/:groupId/": {
+      component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Upgrade")),
+      title: "云市应用升级",
+    },
     "/team/:team/region/:region/groups/backup/:groupId/": {
       component: dynamicWrapper(app, ["groupControl"], () => import("../routes/Group/Backup")),
       title: "备份管理",

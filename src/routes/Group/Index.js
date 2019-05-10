@@ -13,7 +13,9 @@ import {
   Modal,
   notification,
   Radio,
-  Spin
+  Spin,
+  Badge,
+  Tooltip
 } from "antd";
 import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
@@ -117,6 +119,7 @@ class Main extends PureComponent {
       code: '',
       clearTime: false,
       size: 'large',
+      applicationList: []
     };
   }
   getGroupId() {
@@ -127,11 +130,13 @@ class Main extends PureComponent {
   }
 
   loading = () => {
+    this.getApplication()
     this.fetchGroupDetail();
     this.recordShare();
     this.loadTopology()
     this.timer = setInterval(() => {
       this.loadTopology()
+      this.getApplication()
     }, 10000);
   }
 
@@ -148,7 +153,7 @@ class Main extends PureComponent {
         groupId
       },
       callback: (res) => {
-        if (res&&res._code == 200) {
+        if (res && res._code == 200) {
           let data = res.bean
           if (JSON.stringify(data) == "{}") {
             return
@@ -185,7 +190,7 @@ class Main extends PureComponent {
       },
       callback: (data) => {
         this.setState({
-          linkList: data&&data.list || []
+          linkList: data && data.list || []
         })
       }
     })
@@ -250,7 +255,7 @@ class Main extends PureComponent {
           group_id: this.getGroupId(),
         },
         callback: (res) => {
-          if (res&&res._code == 200) {
+          if (res && res._code == 200) {
             notification.success({ message: "删除成功" });
             this.cancelDelete();
             this.newAddress(grid)
@@ -353,7 +358,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
       },
       callback: (data) => {
-        if (data&&data._code == 20021) {
+        if (data && data._code == 20021) {
           this.setState({ recordShare: true });
           notification.info({ message: "分享未完成", description: "您有分享未完成，可以点击继续分享" });
         } else {
@@ -372,10 +377,10 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
       },
       callback: (data) => {
-        if (data&&data.bean.step === 1) {
+        if (data && data.bean.step === 1) {
           dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/one/${data.bean.group_id}/${data.bean.ID}`));
         }
-        if (data&&data.bean.step === 2) {
+        if (data && data.bean.step === 2) {
           dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${data.bean.group_id}/${data.bean.ID}`));
         }
       },
@@ -419,6 +424,30 @@ class Main extends PureComponent {
   handleSizeChange = (e) => {
     this.setState({ size: e.target.value });
   }
+
+
+
+  // 查询当前组下的云市应用
+  getApplication = () => {
+    const group_id = this.getGroupId();
+    this.props.dispatch({
+      type: 'global/application',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id
+      },
+      callback: (res) => {
+        if (res && res._code == 200) {
+          this.setState({
+            applicationList: res.list
+          })
+        }
+      }
+    });
+  }
+
+
+
   render() {
     const {
       currUser,
@@ -429,12 +458,26 @@ class Main extends PureComponent {
     } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
+    const { applicationList } = this.state;
+    let num = 0;
+
+    if (applicationList.length > 0) {
+      for (let i = 0; i < applicationList.length; i++) {
+        if (applicationList[i].can_upgrade) {
+          num++;
+        }
+      }
+    }
+
     if (!groups.length) { return null; }
     const currGroup = groups.filter((group) => group.group_id === Number(group_id))[0];
     let hasService = false;
     if (currGroup && currGroup.service_list && currGroup.service_list.length) {
       hasService = true;
     }
+
+
+
 
     const codeObj = {
       "start": "启动",
@@ -476,7 +519,7 @@ class Main extends PureComponent {
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
-              {groupDetail.group_name || "-"}
+            {groupDetail.group_name || "-"}
           </div>
         </div>
       </div>
@@ -501,7 +544,28 @@ class Main extends PureComponent {
           {(teamUtil.canShareApp(team) && hasService && !this.state.recordShare)
             ? <Button onClick={this.handleShare}>发布到市场</Button>
             : ""}
-          <Button><Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}>备份&迁移</Link></Button>
+
+
+          {num > 0 ?
+            <Tooltip title={"有新版本"}>
+              <Button>
+                <Badge className={styles.badge} status="success" text="" count="有更新版本" title="有更新版本" />
+                <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
+                  云市应用升级
+                  </Link>
+              </Button>
+            </Tooltip>
+            : <Button>
+              <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
+                云市应用升级
+              </Link>
+            </Button>}
+          <Button>
+            <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}>
+              备份&迁移
+            </Link>
+          </Button>
+
           <Dropdown
             overlay={(
               <Menu>
@@ -555,10 +619,10 @@ class Main extends PureComponent {
 
         <Row style={{ display: "flex", background: "#FFFAFA", height: "60px", alignItems: "center" }}>
           <Col span={4}>
-            <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={()=>{this.setState({type:"spin"},()=>{this.setState({type:this.state.size=="large"?"shape":"list"})})}} />
+            <AddServiceComponent groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={() => { this.setState({ type: "spin" }, () => { this.setState({ type: this.state.size == "large" ? "shape" : "list" }) }) }} />
           </Col>
           <Col span={4}>
-            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={()=>{this.setState({type:"spin"},()=>{this.setState({type:this.state.size=="large"?"shape":"list"})})}} />
+            <AddThirdParty groupId={this.getGroupId()} refreshCurrent={() => { this.loading() }} onload={() => { this.setState({ type: "spin" }, () => { this.setState({ type: this.state.size == "large" ? "shape" : "list" }) }) }} />
           </Col>
           <Col span={16} style={{ textAlign: "right", paddingRight: "12px" }}>
 
@@ -575,10 +639,10 @@ class Main extends PureComponent {
           </Col>
         </Row>
         {hasService && this.state.type !== "list" &&
-          <Row  style={{ textAlign: "right",paddingTop:"16px", paddingRight: "20px",background:"#fff" }}>
-            {this.state.type==="shapes"?<a onClick={() => {
+          <Row style={{ textAlign: "right", paddingTop: "16px", paddingRight: "20px", background: "#fff" }}>
+            {this.state.type === "shapes" ? <a onClick={() => {
               this.changeType("shape");
-            }}>切换到展示模式</a>:<a onClick={() => {
+            }}>切换到展示模式</a> : <a onClick={() => {
               this.changeType("shapes");
             }}>切换到编辑模式</a>}
           </Row>
