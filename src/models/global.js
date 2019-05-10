@@ -8,6 +8,7 @@ import {
   syncMarketAppDetail,
   authEnterprise,
   getCompanyInfo,
+  getApplication,
   getRegionOneDayMoney,
   getRegionSource,
   getTeamList,
@@ -46,7 +47,14 @@ import {
   toQueryTopology,
   toQueryLinks,
   getVersion,
-  toSearchTenant
+  toSearchTenant,
+  postUpdateOrder,
+  getUpdatedVersion,
+  getUpdatedInfo,
+  postUpdatedTasks,
+  getUpdateRecordsList,
+  getUpdateRecordsInfo,
+  getUpdateRollback
 } from "../services/api";
 import { getTeamRegionGroups } from "../services/team";
 
@@ -320,6 +328,70 @@ export default {
         yield put({
           type: "saveGroups",
           payload: response.list || [],
+        });
+      }
+    },
+    * application({ payload, callback }, { put, call }) {
+      const response = yield call(getApplication, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdateOrder({ payload, callback }, { put, call }) {
+      const response = yield call(postUpdateOrder, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdatedVersion({ payload, callback }, { put, call }) {
+      const response = yield call(getUpdatedVersion, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdatedInfo({ payload, callback }, { put, call }) {
+      const response = yield call(getUpdatedInfo, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdatedTasks({ payload, callback }, { put, call }) {
+      const response = yield call(postUpdatedTasks, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdateRecordsList({ payload, callback }, { put, call }) {
+      const response = yield call(getUpdateRecordsList, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdateRecordsInfo({ payload, callback }, { put, call }) {
+      const response = yield call(getUpdateRecordsInfo, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
+        });
+      }
+    },
+    * CloudAppUpdateRollback({ payload, callback }, { put, call }) {
+      const response = yield call(getUpdateRollback, payload);
+      if (response) {
+        setTimeout(() => {
+          callback && callback(response);
         });
       }
     },

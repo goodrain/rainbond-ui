@@ -263,7 +263,15 @@ export async function getDomainTime(body = {
   );
 }
 
-
+/* 查询当前组下的云市应用 */
+export async function getApplication(body = { team_name,group_id }) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps`, {
+    method: "get",
+    // params: {
+    //   team_name: body.team_name,
+    // },
+  });
+}
 
 
 /* 获取企业详情 */
@@ -275,6 +283,7 @@ export async function getCompanyInfo(body = { team_name }) {
     },
   });
 }
+
 
 /* 获取某数据中心下某一天的资源费用数据 */
 export async function getRegionOneDayMoney(body = { team_name, date, region }) {
@@ -305,6 +314,133 @@ export async function authEnterprise(body = {
     },
   });
 }
+
+
+
+
+/* 生成升级订单 */
+
+export async function postUpdateOrder(body = {
+  team_name,
+  group_id,
+  group_key
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
+    method: "post",
+    data: {
+      group_key: body.group_key,
+    },
+  });
+}
+
+
+
+/* 创建升级任务 */
+
+export async function postUpdatedTasks(body = {
+  team_name,
+  group_id,
+  group_key,
+  services,
+  version,
+  upgrade_record_id
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-tasks`, {
+    method: "post",
+    data: {
+      upgrade_record_id: body.upgrade_record_id,
+      group_key: body.group_key,
+      version: body.version,
+      services: body.services,
+    },
+  });
+}
+
+
+/* 查询某云市应用的更新版本*/
+
+export async function getUpdatedVersion(body = {
+  group_key,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-versions`, {
+    method: "get",
+    params: {
+      group_key: body.group_key,
+    },
+  });
+}
+
+
+/* 查询某云市应用下服务的更新信息*/
+
+export async function getUpdatedInfo(body = {
+  team_name,
+  group_id,
+  group_key,
+  version
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`, {
+    method: "get",
+    params: {
+      group_key: body.group_key,
+      version: body.version,
+    },
+  });
+}
+
+
+/* 查询某应用的更新记录列表*/
+
+export async function getUpdateRecordsList(body = {
+  team_name,
+  group_id,
+  group_key,
+  version,
+  page,
+  pageSize,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
+    method: "get",
+    params: {
+      group_key: body.group_key?body.group_key:null,
+      version: body.version?body.version:null,
+      page: body.page?body.page:"",
+      page_size: body.pageSize?body.pageSize:"",
+    },
+  });
+}
+
+
+/* 查询某应用的更新记录列表*/
+
+export async function getUpdateRecordsInfo(body = {
+  team_name,
+  group_id,
+  record_id,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`, {
+    method: "get",
+    params: {
+    },
+  });
+}
+
+
+/* 查询某应用的更新记录列表*/
+export async function getUpdateRollback(body = {
+  team_name,
+  group_id,
+  record_id,
+  service_ids
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback`, {
+    method: "post",
+    data: {
+      service_ids:body.service_ids,
+    },
+  });
+}
+
 /* 从云市同步应用的详细模板 */
 export async function getVersion(body = {
   app_name,
