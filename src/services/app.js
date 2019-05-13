@@ -1186,7 +1186,7 @@ export async function editStartProbe(body = {
       http_header: body.http_header,
       initial_delay_second: body.initial_delay_second,
       period_second: body.period_second,
-      timeout_second: body.timeout_second,
+      timeout_second: body.timeout_second?Number(body.timeout_second):0,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
       old_mode:body.old_mode?body.old_mode:""
