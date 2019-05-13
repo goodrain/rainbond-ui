@@ -54,6 +54,7 @@ export default class Index extends React.Component {
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
+      transfer: null,
       viewStartHealth: null,
       editStartHealth: null,
       viewRunHealth: null,
@@ -101,6 +102,11 @@ export default class Index extends React.Component {
     dispatch({ type: "appControl/clearRunningProbe" });
     dispatch({ type: "appControl/clearMembers" });
   }
+
+  onTransfer = (data) => {
+    this.setState({ transfer: data });
+  };
+
   onDeleteVar = (data) => {
     this.setState({ deleteVar: data });
   };
@@ -262,6 +268,11 @@ export default class Index extends React.Component {
   cancelDeleteVar = () => {
     this.setState({ deleteVar: null });
   };
+  cancelTransfer = () => {
+    this.setState({ transfer: null });
+  };
+
+
   handleDeleteVar = () => {
     this.props.dispatch({
       type: "appControl/deleteEnvs",
@@ -278,6 +289,27 @@ export default class Index extends React.Component {
       },
     });
   };
+
+
+  handleTransfer = () => {
+    const { transfer } = this.state;
+    this.props.dispatch({
+      type: "appControl/putTransfer",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        attr_name: transfer.attr_name,
+        scope:transfer.scope=="inner"?"outer":"inner"
+      },
+      callback: (res) => {
+        console.log("res", res)
+        this.cancelTransfer();
+        this.fetchInnerEnvs();
+        notification.success({ message: "操作成功" });
+      },
+    });
+  };
+
   onEditVar = (data) => {
     this.setState({ showEditVar: data });
   };
@@ -776,19 +808,50 @@ export default class Index extends React.Component {
                 {
                   title: "变量名",
                   dataIndex: "attr_name",
+                  key: "1",
+                  width: "20%",
+                  render: (v) => (
+                    <Tooltip title={v}>
+                      <div style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{v}</div>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "变量值",
                   dataIndex: "attr_value",
-                  // width: "40%",
+                  key: "2",
+                  width: "40%",
+                  render: (v) => (
+                    <Tooltip title={v}>
+                      <div style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{v}</div>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "说明",
                   dataIndex: "name",
+                  key: "3",
+                  width: "20%",
+                  render: (v) => (
+                    <Tooltip title={v}>
+                      <div style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{v}</div>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "操作",
                   dataIndex: "action",
+                  key: "4",
+                  width: "20%",
                   render: (v, data) => (
                     <Fragment>
                       <a
@@ -796,8 +859,18 @@ export default class Index extends React.Component {
                         onClick={() => {
                           this.onDeleteVar(data);
                         }}
+                        style={{ marginRight: "5px" }}
                       >
                         删除
+                      </a>
+                      <a
+                        href="javascript:;"
+                        onClick={() => {
+                          this.onTransfer(data);
+                        }}
+                        style={{ marginRight: "5px" }}
+                      >
+                        转移
                       </a>
                       {data.is_change ? (
                         <a
@@ -1157,6 +1230,7 @@ export default class Index extends React.Component {
             }}
           />
         )}
+
         {this.state.deleteVar && (
           <ConfirmModal
             onOk={this.handleDeleteVar}
@@ -1166,6 +1240,21 @@ export default class Index extends React.Component {
             subDesc="此操作不可恢复"
           />
         )}
+
+        {
+          this.state.transfer && (
+            <ConfirmModal
+              onOk={this.handleTransfer}
+              onCancel={this.cancelTransfer}
+              title="转移环境变量"
+              desc="确定要转移此变量吗？"
+              subDesc="此操作不可恢复"
+            />
+          )
+        }
+
+
+
         {this.state.viewStartHealth && (
           <ViewHealthCheck
             title="健康检查查看"

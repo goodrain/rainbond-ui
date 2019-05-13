@@ -44,7 +44,7 @@ export default class Index extends PureComponent {
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
-      editor:null
+      editor: null
     };
   }
 
@@ -94,19 +94,19 @@ export default class Index extends PureComponent {
     });
   };
   handleCancelAddVar = () => {
-    this.setState({ showAddVar: null,editor:null });
+    this.setState({ showAddVar: null, editor: null });
   };
   handleSubmitAddVar = (vals) => {
-    const {editor}=this.state
-    if(editor){
+    const { editor } = this.state
+    if (editor) {
       this.props.dispatch({
         type: "appControl/editorVolume",
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          new_volume_path:vals.volume_path,
-          new_file_content:vals.file_content,
-          ID:editor.ID
+          new_volume_path: vals.volume_path,
+          new_file_content: vals.file_content,
+          ID: editor.ID
         },
         callback: () => {
           this.fetchVolumes();
@@ -115,7 +115,7 @@ export default class Index extends PureComponent {
           this.props.onshowRestartTips(true);
         },
       });
-    }else{
+    } else {
       this.props.dispatch({
         type: "appControl/addVolume",
         payload: {
@@ -159,7 +159,7 @@ export default class Index extends PureComponent {
     this.setState({ toDeleteVolume: data });
   };
   onEditVolume = (data) => {
-    this.setState({ showAddVar: data,editor:data });
+    this.setState({ showAddVar: data, editor: data });
   };
   onCancelDeleteVolume = () => {
     this.setState({ toDeleteVolume: null });
@@ -254,7 +254,7 @@ export default class Index extends PureComponent {
                       >
                         删除
                     </a>
-                    <a
+                      <a
                         onClick={() => {
                           this.onEditVolume(data);
                         }}
@@ -288,18 +288,50 @@ export default class Index extends PureComponent {
                 {
                   title: "本地挂载路径",
                   dataIndex: "local_vol_path",
+                  key: "1",
+                  width: "20%",
+                  render: (data, index) => (
+                    <Tooltip title={data}>
+                      <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{data}</span>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "目标存储名称",
                   dataIndex: "dep_vol_name",
+                  key: "2",
+                  width: "15%",
+                  render: (data, index) => (
+                    <Tooltip title={data}>
+                      <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{data}</span>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "目标挂载路径",
                   dataIndex: "dep_vol_path",
+                  key: "3",
+                  width: "15%",
+                  render: (data, index) => (
+                    <Tooltip title={data}>
+                      <span style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}>{data}</span>
+                    </Tooltip>
+                  )
                 },
                 {
                   title: "目标存储类型",
                   dataIndex: "dep_vol_type",
+                  key: "4",
+                  width: "10%",
                   render: (text, record) => {
                     return <span>{volumeTypeObj[text]}</span>
                   }
@@ -307,6 +339,8 @@ export default class Index extends PureComponent {
                 {
                   title: "目标所属服务",
                   dataIndex: "dep_app_name",
+                  key: "5",
+                  width: "10%",
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
@@ -320,6 +354,8 @@ export default class Index extends PureComponent {
                 {
                   title: "目标服务所属应用",
                   dataIndex: "dep_app_group",
+                  key: "6",
+                  width: "15%",
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
@@ -333,6 +369,8 @@ export default class Index extends PureComponent {
                 {
                   title: "操作",
                   dataIndex: "action",
+                  key: "7",
+                  width: "15%",
                   render: (v, data) => (
                     <a
                       onClick={() => {
