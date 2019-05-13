@@ -152,7 +152,7 @@ export default class AppList extends PureComponent {
         );
     };
 
-    shouldComponentUpdate = ()=>{
+    shouldComponentUpdate = () => {
         return true
     }
     render() {
@@ -165,12 +165,12 @@ export default class AppList extends PureComponent {
             page
         };
 
-        const ListContent = ({ data: { group_version_list, min_memory } }) => (
+        const ListContent = ({ data: { upgrade_versions, min_memory } }) => (
             <div className={styles.listContent}>
                 <div className={styles.listContentItem}>
                     <span>版本</span>
                     <p>{
-                        group_version_list && group_version_list.map((item, index) => {
+                        upgrade_versions && upgrade_versions.map((item, index) => {
                             return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
                         })}</p>
                 </div>
@@ -186,25 +186,38 @@ export default class AppList extends PureComponent {
             title: '创建时间',
             dataIndex: 'create_time',
             key: '1',
-            width: "30%",
-            render: text => <span href="javascript:;">{text}</span>,
+            width: "20%",
+            render: text => <span >{text}</span>,
         }, {
             title: '名字',
             dataIndex: 'group_name',
             key: '2',
+            width: "20%",
+            render: text => <span >{text}</span>,
+        }, {
+            title: '版本',
+            dataIndex: 'version',
+            key: '3',
             width: "30%",
-            render: text => <span href="javascript:;">{text}</span>,
+            render: (text, data) => <span>
+                {data.old_version && data.version ?
+                    <span>
+                        <a href="javascript:;">{data.old_version}</a>升级到<a href="javascript:;">{data.version}</a>
+                    </span>
+                    :"-"
+                }
+            </span>,
         }, {
             title: '状态',
             dataIndex: 'status',
-            key: '3',
-            width: "20%",
-            render: status => <span href="javascript:;">{infoUtil.getStatusCN(status)}</span>,
+            key: '4',
+            width: "15%",
+            render: status => <span >{infoUtil.getStatusCN(status)}</span>,
         }, {
             title: '服务详情',
             dataIndex: 'tenant_id',
-            key: '4',
-            width: "20%",
+            key: '5',
+            width: "15%",
             render: (text, item) =>
                 <a
                     onClick={e => {
@@ -300,7 +313,7 @@ export default class AppList extends PureComponent {
 
                 {infoShow && <Info data={infoData} activeKey={this.state.activeKey} group_id={this.getGroupId()}
                     setInfoShow={() => {
-                        this.setState({ infoShow: false },()=>{
+                        this.setState({ infoShow: false }, () => {
                             this.state.activeKey == "2" ? this.getUpgradeRecordsList() : this.getApplication()
                         });
                     }} />}
