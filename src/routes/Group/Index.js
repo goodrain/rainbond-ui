@@ -546,7 +546,7 @@ class Main extends PureComponent {
             : ""}
 
 
-          {num > 0 &&
+          {num > 0 ?
             <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
               <Tooltip title={"有新版本"}>
                 <Button style={{ top: "-1px" }}>
@@ -555,13 +555,13 @@ class Main extends PureComponent {
               </Button>
               </Tooltip>
             </Link>
-
-          }
-          {/* <Button>
-            <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
-              云市应用升级
+            :
+            <Button>
+              <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
+                云市应用升级
                </Link>
-          </Button> */}
+            </Button>
+          }
           <Button>
             <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}>
               备份&迁移
