@@ -555,7 +555,7 @@ class Main extends PureComponent {
               </Button>
               </Tooltip>
             </Link>
-            :
+            : this.state.applicationList&&this.state.applicationList.length>0&&
             <Button>
               <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}>
                 云市应用升级
