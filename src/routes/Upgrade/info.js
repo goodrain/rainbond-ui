@@ -2,9 +2,9 @@ import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Col, Card, Button, List, Checkbox, Select,  Form, Tooltip, Icon } from 'antd';
+import { Row, Col, Card, Button, List, Checkbox, Select, Form, Tooltip, Icon } from 'antd';
 import globalUtil from '../../utils/global';
-
+import infoUtil from './info-util';
 import styles from "./index.less";
 
 
@@ -23,7 +23,8 @@ export default class AppList extends PureComponent {
             upgradeInfo: [],
             upgrade_info: "",
             upgradeRecords: [],
-            text: this.props.activeKey == 2 ? "回滚" :"升级",
+            text: this.props.activeKey == 2 ? "回滚" : "升级",
+            upgradeText: "升级",
             textState: 1,
             service_id: []
         }
@@ -57,6 +58,17 @@ export default class AppList extends PureComponent {
                     } else {
                         this.setState({
                             textState: this.props.data.status
+                        })
+                    }
+                    if (this.props.activeKey == 2 && (infoObj.status == 4)) {
+                        this.setState({
+                            record_id: infoObj.ID
+                        }, () => {
+                            this.getUpgradeRecordsInfo("Rollback")
+                        })
+                    } else if (this.props.activeKey == 2) {
+                        this.setState({
+                            text: infoUtil.getStatusCN(infoObj.status)
                         })
                     }
 
@@ -232,7 +244,7 @@ export default class AppList extends PureComponent {
 
 
     // 查询某应用的更新记录详情
-    getUpgradeRecordsInfo = () => {
+    getUpgradeRecordsInfo = (Rollback) => {
         const { group_id } = this.props;
         const { record_id } = this.state;
         this.props.dispatch({
@@ -247,21 +259,19 @@ export default class AppList extends PureComponent {
                     this.setState({
                         upgradeRecords: res.bean.service_record,
                         textState: res.bean.status,
-                        text: res.bean.status == 1 ? "未升级" :
-                            res.bean.status == 2 ? "升级中" :
-                                res.bean.status == 3 ? "已升级" :
-                                    res.bean.status == 4 ? "回滚中" :
-                                        res.bean.status == 5 ? "已回滚" :
-                                            res.bean.status == 6 ? "部分升级" :
-                                                res.bean.status == 7 ? "部分回滚" :
-                                                    res.bean.status == 8 ? "升级失败" :
-                                                        res.bean.status == 9 ? "回滚失败" : "升级"
+                        text:  infoUtil.getStatusCN(res.bean.status),
+                        upgradeText: Rollback ? this.state.upgradeText :
+                            res.bean.status == 1 ? "未升级" :
+                                res.bean.status == 2 ? "升级中" :
+                                    res.bean.status == 3 ? "已升级" :
+                                        res.bean.status == 6 ? "部分升级" :
+                                            res.bean.status == 8 ? "升级失败" : "升级",
                     }, () => {
-                        if (res.bean.status != (3 || 5 || 6 || 7 || 8 || 9)) {
+                        if ((res.bean.status != 3 && res.bean.status != 5 && res.bean.status != 6 && res.bean.status != 7 && res.bean.status != 8 && res.bean.status != 9)) {
                             setTimeout(() => {
-                                this.getUpgradeRecordsInfo();
+                                this.getUpgradeRecordsInfo(Rollback);
                             }, 3000)
-                        } else if (res.bean.status = (1 || 2 || 4)) {
+                        } else {
                             this.getUpdatedVersion()
                         }
                     })
@@ -498,7 +508,7 @@ export default class AppList extends PureComponent {
             ]
         }
     }
-  //  回滚某次更新Rollback
+    //  回滚某次更新Rollback
     getUpgradeRollback = () => {
         const services = this.props.form.getFieldValue('services');
         const { group_id } = this.props;
@@ -515,7 +525,7 @@ export default class AppList extends PureComponent {
                     this.setState({
                         record_id: res.bean.ID
                     }, () => {
-                        this.getUpgradeRecordsInfo()
+                        this.getUpgradeRecordsInfo("Rollback")
                     })
                 }
             }
@@ -525,7 +535,7 @@ export default class AppList extends PureComponent {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { type, infoObj, upgradeVersions, upgradeInfo, upgradeRecords, text, textState, service_id } = this.state;
+        const { type, infoObj, upgradeVersions, upgradeInfo, upgradeRecords, text, upgradeText, textState, service_id } = this.state;
 
         const formItemLayout = {
             labelCol: {
@@ -560,7 +570,7 @@ export default class AppList extends PureComponent {
                                             { required: false, message: "请选择" },
                                         ],
                                     })(
-                                        <Select disabled={textState== 1 ? false : true}
+                                        <Select disabled={textState == 1 ? false : true}
                                             size="small" style={{ width: 80 }}
                                             onChange={this.handleChangeVersions}
                                         >
@@ -606,10 +616,13 @@ export default class AppList extends PureComponent {
                                                                         (
                                                                             upgradeRecords[index].status == 1 ||
                                                                             upgradeRecords[index].status == 2 ||
-                                                                            upgradeRecords[index].status == 4 ||
-                                                                            upgradeRecords[index].status == 5) ?
+                                                                            upgradeRecords[index].status == 4) ?
                                                                             <Icon type="sync" style={{ color: "#1890ff" }} spin /> :
-                                                                            (upgradeRecords[index].status == 3 || upgradeRecords[index].status == 6) ?
+                                                                            (upgradeRecords[index].status == 3 ||
+                                                                                upgradeRecords[index].status == 6 ||
+                                                                                upgradeRecords[index].status == 5 ||
+                                                                                upgradeRecords[index].status == 7
+                                                                            ) ?
                                                                                 <Icon type="check" style={{ color: "#239B24" }} />
                                                                                 :
                                                                                 <Icon type="close" style={{ color: "red" }} />
@@ -630,7 +643,6 @@ export default class AppList extends PureComponent {
                     <Col xs={{ span: 18, offset: 0 }} lg={{ span: 18, offset: 0 }} style={{ background: "#fff" }}>
                         <div className={styles.zslbor}>
                             <div className={styles.zslcen}>服务属性变更详情</div>
-
                             <Row gutter={24} style={{ margin: "10px 20px 20px", height: "400px", overflow: "auto" }}>
                                 <List
                                     itemLayout="horizontal"
@@ -643,7 +655,6 @@ export default class AppList extends PureComponent {
                                     )}
                                 />
                             </Row>
-
                         </div>
                     </Col>
                 </Row>
@@ -653,14 +664,14 @@ export default class AppList extends PureComponent {
                         <Button type="primary"
                             onClick={this.getUpgradeRollback}
                             style={{ marginRight: "5px" }}
-                            disabled={(textState != 1 && textState != 2 && textState != 4) ? false : true}
-                        >{text}</Button>
+                            disabled={(textState != 3) ? true : false}
+                        >{(textState == 3 || textState == 6 || textState == 8) ? "回滚" : text}</Button>
                     }
                     {
                         this.props.activeKey == 1 && <Button type="primary" onClick={this.handleSubmit}
                             disabled={textState != 1 ? true : false}
                             style={{ marginRight: "5px" }}
-                        >{text}</Button>
+                        >{upgradeText}</Button>
                     }
 
 

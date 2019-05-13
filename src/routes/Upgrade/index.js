@@ -151,6 +151,10 @@ export default class AppList extends PureComponent {
             }
         );
     };
+
+    shouldComponentUpdate = ()=>{
+        return true
+    }
     render() {
         const { groupName, loading, list, showMarketAppDetail, showApp, infoShow, infoData, activeKey, page, total, pageSize, dataList } = this.state;
 
@@ -275,72 +279,6 @@ export default class AppList extends PureComponent {
                                         />
                                         <ListContent data={item} />
                                     </List.Item>
-
-
-
-                                    // <List.Item key={item.id} >
-                                    //     <Card
-                                    //         hoverable className={PluginStyles.card} actions={[
-                                    //             <a onClick={() => {
-                                    //                 this.setState({
-                                    //                     infoData: item
-                                    //                 }, () => {
-                                    //                     this.setState({
-                                    //                         infoShow: item.not_upgrade_record_id ? true : !item.can_upgrade ? false : true,
-                                    //                     })
-                                    //                 })
-                                    //             }}>
-
-                                    //                 {item.not_upgrade_record_id ? '升级(如果上次流程未完成，继续进入)' :
-                                    //                     item.can_upgrade ? "升级" : "无可升级的变更"}</a>]}>
-                                    //         <Card.Meta
-                                    //             style={{ height: 130, overflow: "auto" }}
-                                    //             // avatar={<img alt="" className={styles.cardAvatar}
-                                    //             //     // src={item.avatar} 
-                                    //             //     src={require("../../../public/images/app_icon.jpg")}
-                                    //             // />}
-                                    //             avatar={
-                                    //                 <img
-                                    //                     style={{ width: 110, height: 110, margin: " 0 auto" }}
-                                    //                     alt={item.title}
-                                    //                     src={item.pic || require("../../../public/images/app_icon.jpg")}
-                                    //                     height={154}
-                                    //                 />
-                                    //             }
-                                    //             title={
-                                    //                 <a>{item.group_name}</a>
-                                    //             }
-                                    // onClick={() => {
-                                    //     this.showMarketAppDetail(item);
-                                    // }}
-                                    //             description={
-                                    // <Fragment>
-                                    //     <span
-                                    //         style={{
-                                    //             display: "block",
-                                    //             color: "rgb(200, 200, 200)",
-                                    //             marginBottom: 2,
-                                    //             fontSize: 12
-                                    //         }}
-                                    //     >
-                                    //         <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}>
-                                    //             <span>版本:&nbsp;</span>
-                                    //             {
-                                    //                 item.group_version_list && item.group_version_list.map((item, index) => {
-                                    //                     return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                                    //                 })}
-                                    //         </div>
-
-                                    //         内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
-                                    //     </span>
-                                    //     <Ellipsis className={PluginStyles.item} lines={3}>
-                                    //         <span title={item.describe}>{item.describe}</span>
-                                    //     </Ellipsis>
-                                    // </Fragment>
-                                    //             }
-                                    //         />
-                                    //     </Card>
-                                    // </List.Item>
                                 }
                             />
                         </div>
@@ -362,8 +300,9 @@ export default class AppList extends PureComponent {
 
                 {infoShow && <Info data={infoData} activeKey={this.state.activeKey} group_id={this.getGroupId()}
                     setInfoShow={() => {
-                        this.setState({ infoShow: false });
-                        activeKey == "1" ? this.getUpgradeRecordsList() : this.getApplication()
+                        this.setState({ infoShow: false },()=>{
+                            this.state.activeKey == "2" ? this.getUpgradeRecordsList() : this.getApplication()
+                        });
                     }} />}
             </PageHeaderLayout>
         );
