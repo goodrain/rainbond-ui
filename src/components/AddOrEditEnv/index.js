@@ -41,7 +41,8 @@ export default class AddVarModal extends PureComponent {
               rules: [
                 { required: true, message: "请输入变量名称" },
                 {
-                  pattern: /^[A-Za-z].*$/,
+                  // pattern: /^[A-Za-z].*$/,
+                  pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
                   message: "格式不正确， /^[A-Za-z].*$/",
                 },
               ],
