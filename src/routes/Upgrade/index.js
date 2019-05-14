@@ -151,6 +151,10 @@ export default class AppList extends PureComponent {
             }
         );
     };
+
+    shouldComponentUpdate = () => {
+        return true
+    }
     render() {
         const { groupName, loading, list, showMarketAppDetail, showApp, infoShow, infoData, activeKey, page, total, pageSize, dataList } = this.state;
 
@@ -161,14 +165,16 @@ export default class AppList extends PureComponent {
             page
         };
 
-        const ListContent = ({ data: { group_version_list, min_memory } }) => (
+        const ListContent = ({ data: { upgrade_versions,current_version, min_memory } }) => (
             <div className={styles.listContent}>
                 <div className={styles.listContentItem}>
                     <span>版本</span>
                     <p>{
-                        group_version_list && group_version_list.map((item, index) => {
+                        upgrade_versions &&upgrade_versions.length>0?upgrade_versions.map((item, index) => {
                             return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                        })}</p>
+                        }):
+                         <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" > {current_version}</Tag>
+                    }</p>
                 </div>
                 <div className={styles.listContentItem}>
                     <span>内存</span>
@@ -182,25 +188,38 @@ export default class AppList extends PureComponent {
             title: '创建时间',
             dataIndex: 'create_time',
             key: '1',
-            width: "30%",
-            render: text => <span href="javascript:;">{text}</span>,
+            width: "20%",
+            render: text => <span >{text}</span>,
         }, {
             title: '名字',
             dataIndex: 'group_name',
             key: '2',
+            width: "20%",
+            render: text => <span >{text}</span>,
+        }, {
+            title: '版本',
+            dataIndex: 'version',
+            key: '3',
             width: "30%",
-            render: text => <span href="javascript:;">{text}</span>,
+            render: (text, data) => <span>
+                {data.old_version && data.version ?
+                    <span>
+                        <a href="javascript:;">{data.old_version}</a>升级到<a href="javascript:;">{data.version}</a>
+                    </span>
+                    :"-"
+                }
+            </span>,
         }, {
             title: '状态',
             dataIndex: 'status',
-            key: '3',
-            width: "20%",
-            render: status => <span href="javascript:;">{infoUtil.getStatusCN(status)}</span>,
+            key: '4',
+            width: "15%",
+            render: status => <span >{infoUtil.getStatusCN(status)}</span>,
         }, {
             title: '服务详情',
             dataIndex: 'tenant_id',
-            key: '4',
-            width: "20%",
+            key: '5',
+            width: "15%",
             render: (text, item) =>
                 <a
                     onClick={e => {
@@ -275,72 +294,6 @@ export default class AppList extends PureComponent {
                                         />
                                         <ListContent data={item} />
                                     </List.Item>
-
-
-
-                                    // <List.Item key={item.id} >
-                                    //     <Card
-                                    //         hoverable className={PluginStyles.card} actions={[
-                                    //             <a onClick={() => {
-                                    //                 this.setState({
-                                    //                     infoData: item
-                                    //                 }, () => {
-                                    //                     this.setState({
-                                    //                         infoShow: item.not_upgrade_record_id ? true : !item.can_upgrade ? false : true,
-                                    //                     })
-                                    //                 })
-                                    //             }}>
-
-                                    //                 {item.not_upgrade_record_id ? '升级(如果上次流程未完成，继续进入)' :
-                                    //                     item.can_upgrade ? "升级" : "无可升级的变更"}</a>]}>
-                                    //         <Card.Meta
-                                    //             style={{ height: 130, overflow: "auto" }}
-                                    //             // avatar={<img alt="" className={styles.cardAvatar}
-                                    //             //     // src={item.avatar} 
-                                    //             //     src={require("../../../public/images/app_icon.jpg")}
-                                    //             // />}
-                                    //             avatar={
-                                    //                 <img
-                                    //                     style={{ width: 110, height: 110, margin: " 0 auto" }}
-                                    //                     alt={item.title}
-                                    //                     src={item.pic || require("../../../public/images/app_icon.jpg")}
-                                    //                     height={154}
-                                    //                 />
-                                    //             }
-                                    //             title={
-                                    //                 <a>{item.group_name}</a>
-                                    //             }
-                                    // onClick={() => {
-                                    //     this.showMarketAppDetail(item);
-                                    // }}
-                                    //             description={
-                                    // <Fragment>
-                                    //     <span
-                                    //         style={{
-                                    //             display: "block",
-                                    //             color: "rgb(200, 200, 200)",
-                                    //             marginBottom: 2,
-                                    //             fontSize: 12
-                                    //         }}
-                                    //     >
-                                    //         <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}>
-                                    //             <span>版本:&nbsp;</span>
-                                    //             {
-                                    //                 item.group_version_list && item.group_version_list.map((item, index) => {
-                                    //                     return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                                    //                 })}
-                                    //         </div>
-
-                                    //         内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
-                                    //     </span>
-                                    //     <Ellipsis className={PluginStyles.item} lines={3}>
-                                    //         <span title={item.describe}>{item.describe}</span>
-                                    //     </Ellipsis>
-                                    // </Fragment>
-                                    //             }
-                                    //         />
-                                    //     </Card>
-                                    // </List.Item>
                                 }
                             />
                         </div>
@@ -362,8 +315,9 @@ export default class AppList extends PureComponent {
 
                 {infoShow && <Info data={infoData} activeKey={this.state.activeKey} group_id={this.getGroupId()}
                     setInfoShow={() => {
-                        this.setState({ infoShow: false });
-                        activeKey == "1" ? this.getUpgradeRecordsList() : this.getApplication()
+                        this.setState({ infoShow: false }, () => {
+                            this.state.activeKey == "2" ? this.getUpgradeRecordsList() : this.getApplication()
+                        });
                     }} />}
             </PageHeaderLayout>
         );
