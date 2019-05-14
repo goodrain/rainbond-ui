@@ -22,6 +22,7 @@ export default class AppList extends PureComponent {
             upgradeVersions: [],
             upgradeInfo: [],
             upgrade_info: "",
+            upgrade_info_two: [],
             upgradeRecords: [],
             text: this.props.activeKey == 2 ? "回滚" : "升级",
             upgradeText: "升级",
@@ -66,7 +67,13 @@ export default class AppList extends PureComponent {
                         }, () => {
                             this.getUpgradeRecordsInfo("Rollback")
                         })
-                    } else if (this.props.activeKey == 2) {
+                    } else if (this.props.activeKey == 2 && (infoObj.status == 2)) {
+                        this.setState({
+                            record_id: infoObj.ID
+                        }, () => {
+                            this.getUpgradeRecordsInfo()
+                        })
+                    }else if (this.props.activeKey == 2) {
                         this.setState({
                             text: infoUtil.getStatusCN(infoObj.status)
                         })
@@ -88,7 +95,7 @@ export default class AppList extends PureComponent {
 
     //  查询某云市应用的更新版本
 
-    getUpdatedVersion = () => {
+    getUpdatedVersion = (Rollback) => {
         const { group_id } = this.props;
         const { infoObj } = this.state;
         this.props.dispatch({
@@ -103,7 +110,30 @@ export default class AppList extends PureComponent {
                     this.setState({
                         upgradeVersions: res.list
                     }, () => {
-                        this.getUpdatedInfo(res.list.length > 0 && res.list[0])
+                        if (!Rollback && this.props.activeKey == 2) {
+                            const { service_record } = infoObj;
+                            const { indexs } = this.state;
+                            if (service_record && service_record.length > 0) {
+                                let service_ids = [];
+
+                                for (let i = 0; i < service_record.length; i++) {
+                                    service_ids.push(service_record[i].service_id)
+                                }
+                                let type = service_record[indexs>service_record.length-1?0:indexs].service_id
+
+
+                                
+                                let upgrade_info = service_record[indexs]
+                                this.setState({
+                                    upgradeInfo: service_record,
+                                    type,
+                                    upgrade_info,
+                                    service_id: service_ids
+                                })
+                            }
+                        } else {
+                            this.getUpdatedInfo(res.list.length > 0 && res.list[0])
+                        }
                     })
                 }
             }
@@ -128,14 +158,12 @@ export default class AppList extends PureComponent {
                 if (res && res._code == 200) {
                     const { indexs } = this.state;
                     const { list } = res;
-
                     if (list && list.length > 0) {
                         let service_id = [];
-
                         for (let i = 0; i < res.list.length; i++) {
                             service_id.push(res.list[i].service.service_id)
                         }
-                        let type = list[indexs].service.service_id
+                        let type = list[indexs>list.length-1?0:indexs].service.service_id
                         let upgrade_info = list[indexs]
                         this.setState({
                             upgradeInfo: list,
@@ -144,11 +172,11 @@ export default class AppList extends PureComponent {
                             service_id
                         })
                     }
-
                 }
             }
         });
     }
+
     handleChangeVersions = (value) => {
         this.props.form.setFieldsValue({ upgradeVersions: value });
         this.getUpdatedInfo(value)
@@ -259,7 +287,7 @@ export default class AppList extends PureComponent {
                     this.setState({
                         upgradeRecords: res.bean.service_record,
                         textState: res.bean.status,
-                        text:  infoUtil.getStatusCN(res.bean.status),
+                        text: infoUtil.getStatusCN(res.bean.status),
                         upgradeText: Rollback ? this.state.upgradeText :
                             res.bean.status == 1 ? "未升级" :
                                 res.bean.status == 2 ? "升级中" :
@@ -272,7 +300,7 @@ export default class AppList extends PureComponent {
                                 this.getUpgradeRecordsInfo(Rollback);
                             }, 3000)
                         } else {
-                            this.getUpdatedVersion()
+                            this.getUpdatedVersion(Rollback)
                         }
                     })
                 }
@@ -283,17 +311,14 @@ export default class AppList extends PureComponent {
 
     getData = () => {
         if (this.state.upgrade_info && JSON.stringify(this.state.upgrade_info) != "{}") {
-            const { upgrade_info, service, } = this.state.upgrade_info;
+            const { upgrade_info, update, service } = this.state.upgrade_info;
 
-            const { deploy_version,
-                image,
-                ports,
-                volumes,
-                dep_services,
-                dep_volumes,
-                plugins
-            } = upgrade_info
 
+            if (upgrade_info) {
+                return this.setData(upgrade_info)
+            } else if (update) {
+                return this.setData(update)
+            }
 
             // if (service.type == "add") {
             //     let images = deploy_version ? {
@@ -357,148 +382,7 @@ export default class AppList extends PureComponent {
             //     title: '运行环境版本',
             //     description: (<div>从{deploy_version.old}变更为{deploy_version.new}</div>),
             // } : ""
-            let images = {
-                title: '镜像',
-                description: (<div>
-                    {image && image.is_change ?
-                        <div className={styles.textzt}>
-                            从 <span>{image.old}</span> 变更为 <span>{image.new}</span>
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>),
-                // actions: [<a>删除</a>],
-            }
-            let envs = {
-                title: '环境变量',
-                description: (<div>
-                    {envs && envs.add && envs.add.length > 0 ?
-                        <div className={styles.textzt}>
-                            新增变量：{envs.add.map((item, index) => {
-                                return <span key={index}>{item.name}</span>
-                            }
-                            )}
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>
-                ),
-            }
-            let portss = {
-                title: '端口',
-                description: (<div>
-                    {ports && ports.add && ports.add.length > 0 ?
-                        <div className={styles.textzt}>
-                            新增端口：{ports.add.map((item, index) => {
-                                return <span key={index}>{item.container_port}</span>
-                            })}
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>),
-            }
 
-            let volumess = {
-                title: '存储',
-                description: (<div>
-                    {volumes ?
-                        <div>
-                            {volumes.add && volumes.add.length > 0 &&
-                                <div className={styles.textzt}>
-                                    新增存储挂载：{volumes.add.map((item, index) => {
-                                        return <span key={index}>{item.volume_name}</span>
-                                    }
-                                    )}
-                                </div>}
-                            {volumes.upd && volumes.upd.length > 0 &&
-                                <div className={styles.textzt}>
-                                    更新存储挂载：{volumes.upd.map((item, index) => {
-                                        return <span key={index}>{item.volume_name}</span>
-                                    }
-                                    )}
-                                </div>
-                            }
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>),
-            }
-
-
-            let yl = {
-                title: '依赖服务',
-                description: (<div>
-                    {dep_services ?
-                        <div>
-                            {dep_services.add && dep_services.add.length > 0 &&
-                                <div className={styles.textzt}>
-                                    新增对
-                                            {dep_services.add.map((item, index) => {
-                                        return <span key={index}>{item.service_cname}</span>
-                                    })}
-                                    服务的依赖
-                                        </div>}
-                            {dep_services.del && dep_services.del.length > 0 &&
-                                <div className={styles.textzt}>
-                                    移除对{dep_services.del.map((item, index) => {
-                                        return <span key={index}>{item.service_cname}</span>
-                                    }
-                                    )}服务的依赖
-                                        </div>
-                            }
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>
-                ),
-            }
-
-            let dep_volumess = {
-                title: '依赖的存储',
-                description: (<div>
-                    {dep_volumes && dep_volumes.add && dep_volumes.add.length > 0 ?
-                        <div className={styles.textzt}>
-                            新增存储挂载：{dep_volumes.add.map((item, index) => {
-                                return <span key={index}>{item.mnt_name}</span>
-                            })}
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>
-                )
-            }
-
-            let pluginss = {
-                title: '插件',
-                description: (<div>
-                    {plugins && plugins.add && plugins.add.length > 0 ?
-                        <div className={styles.textzt}>
-                            新增插件版本：{plugins.add.map((item, index) => {
-                                return <span key={index}>{item.build_version}</span>
-                            })}
-                        </div>
-                        : <div>暂无变化</div>
-                    }
-                </div>
-                )
-            }
-
-            let arr = [
-                volumess,
-                dep_volumess,
-                envs,
-                images,
-                yl,
-                portss,
-                pluginss,
-            ]
-            // for (var i = 0; i < arr.length; i++) {
-            //     if (arr[i] == "" || typeof (arr[i]) == "undefined") {
-            //         arr.splice(i, 1);
-            //         i = i - 1;
-            //     }
-            // }
-            return arr
 
         } else {
             return [
@@ -508,6 +392,165 @@ export default class AppList extends PureComponent {
             ]
         }
     }
+
+
+
+
+    setData = (data) => {
+        const {
+            deploy_version,
+            image,
+            ports,
+            volumes,
+            dep_services,
+            dep_volumes,
+            plugins
+        } = data
+
+        let images = {
+            title: '镜像',
+            description: (<div>
+                {image && image.is_change ?
+                    <div className={styles.textzt}>
+                        从 <span>{image.old}</span> 变更为 <span>{image.new}</span>
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>),
+            // actions: [<a>删除</a>],
+        }
+        let envs = {
+            title: '环境变量',
+            description: (<div>
+                {envs && envs.add && envs.add.length > 0 ?
+                    <div className={styles.textzt}>
+                        新增变量：{envs.add.map((item, index) => {
+                            return <span key={index}>{item.name}</span>
+                        }
+                        )}
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>
+            ),
+        }
+        let portss = {
+            title: '端口',
+            description: (<div>
+                {ports && ports.add && ports.add.length > 0 ?
+                    <div className={styles.textzt}>
+                        新增端口：{ports.add.map((item, index) => {
+                            return <span key={index}>{item.container_port}</span>
+                        })}
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>),
+        }
+
+        let volumess = {
+            title: '存储',
+            description: (<div>
+                {volumes ?
+                    <div>
+                        {volumes.add && volumes.add.length > 0 &&
+                            <div className={styles.textzt}>
+                                新增存储挂载：{volumes.add.map((item, index) => {
+                                    return <span key={index}>{item.volume_name}</span>
+                                }
+                                )}
+                            </div>}
+                        {volumes.upd && volumes.upd.length > 0 &&
+                            <div className={styles.textzt}>
+                                更新存储挂载：{volumes.upd.map((item, index) => {
+                                    return <span key={index}>{item.volume_name}</span>
+                                }
+                                )}
+                            </div>
+                        }
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>),
+        }
+
+
+        let yl = {
+            title: '依赖服务',
+            description: (<div>
+                {dep_services ?
+                    <div>
+                        {dep_services.add && dep_services.add.length > 0 &&
+                            <div className={styles.textzt}>
+                                新增对
+                                        {dep_services.add.map((item, index) => {
+                                    return <span key={index}>{item.service_cname}</span>
+                                })}
+                                服务的依赖
+                                    </div>}
+                        {dep_services.del && dep_services.del.length > 0 &&
+                            <div className={styles.textzt}>
+                                移除对{dep_services.del.map((item, index) => {
+                                    return <span key={index}>{item.service_cname}</span>
+                                }
+                                )}服务的依赖
+                                    </div>
+                        }
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>
+            ),
+        }
+
+        let dep_volumess = {
+            title: '依赖的存储',
+            description: (<div>
+                {dep_volumes && dep_volumes.add && dep_volumes.add.length > 0 ?
+                    <div className={styles.textzt}>
+                        新增存储挂载：{dep_volumes.add.map((item, index) => {
+                            return <span key={index}>{item.mnt_name}</span>
+                        })}
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>
+            )
+        }
+
+        let pluginss = {
+            title: '插件',
+            description: (<div>
+                {plugins && plugins.add && plugins.add.length > 0 ?
+                    <div className={styles.textzt}>
+                        新增插件版本：{plugins.add.map((item, index) => {
+                            return <span key={index}>{item.build_version}</span>
+                        })}
+                    </div>
+                    : <div>暂无变化</div>
+                }
+            </div>
+            )
+        }
+
+        let arr = [
+            volumess,
+            dep_volumess,
+            envs,
+            images,
+            yl,
+            portss,
+            pluginss,
+        ]
+        // for (var i = 0; i < arr.length; i++) {
+        //     if (arr[i] == "" || typeof (arr[i]) == "undefined") {
+        //         arr.splice(i, 1);
+        //         i = i - 1;
+        //     }
+        // }
+        return arr
+    }
+
     //  回滚某次更新Rollback
     getUpgradeRollback = () => {
         const services = this.props.form.getFieldValue('services');
@@ -547,7 +590,6 @@ export default class AppList extends PureComponent {
                 sm: { span: 16 },
             },
         };
-
         const arr = this.getData()
         return (
             <div style={{ padding: "10px", background: "#fff", }}>
@@ -594,40 +636,58 @@ export default class AppList extends PureComponent {
                                         <Checkbox.Group onChange={this.onChange} className={styles.zslGroup} >
                                             <Row gutter={24} style={{ height: "400px", overflow: "auto" }}>
                                                 {upgradeInfo && upgradeInfo.length > 0 && upgradeInfo.map((item, index) => {
-                                                    const { service, upgrade_info } = item;
-                                                    return <Col span={24} className={styles.zslMt + ' ' + (type === service.service_id ? styles.active : '')}
+
+
+                                                    const { service, upgrade_info, update } = item;
+
+
+                                                    return <Col span={24} className={styles.zslMt + ' ' + (type === (service ? service.service_id : item.service_id) ? styles.active : '')}
                                                         onClick={() => {
-                                                            this.handleType(service.service_id, index)
+                                                            this.handleType(service ? service.service_id : item.service_id, index)
                                                         }}>
+
+
                                                         <div style={{ width: "100%" }}>
                                                             <Checkbox
-                                                                disabled={JSON.stringify(upgrade_info) == "{}" ? true : false}
-                                                                value={service.service_id}
+                                                                disabled={JSON.stringify(upgrade_info ? upgrade_info : update) == "{}" ? true : false}
+                                                                value={service ? service.service_id : item.service_id}
                                                                 style={{ width: "30px" }}
                                                             >
                                                             </Checkbox>
-                                                            {service.service_cname}
+                                                            {service ? service.service_cname : item.service_cname}
                                                         </div>
+
+
+
+
+
                                                         <div>
                                                             {
-                                                                upgradeRecords && upgradeRecords.length > 0 &&
-                                                                <div>
-                                                                    {
-                                                                        (
-                                                                            upgradeRecords[index].status == 1 ||
-                                                                            upgradeRecords[index].status == 2 ||
-                                                                            upgradeRecords[index].status == 4) ?
-                                                                            <Icon type="sync" style={{ color: "#1890ff" }} spin /> :
-                                                                            (upgradeRecords[index].status == 3 ||
-                                                                                upgradeRecords[index].status == 6 ||
-                                                                                upgradeRecords[index].status == 5 ||
-                                                                                upgradeRecords[index].status == 7
-                                                                            ) ?
-                                                                                <Icon type="check" style={{ color: "#239B24" }} />
-                                                                                :
-                                                                                <Icon type="close" style={{ color: "red" }} />
-                                                                    }
-                                                                </div>
+                                                                upgradeRecords && upgradeRecords.length > 0 ?
+                                                                    <div>
+                                                                        {
+                                                                            (
+                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 1 ||
+                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 2 ||
+                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 4) ?
+                                                                                <Icon type="sync" style={{ color: "#1890ff" }} spin /> :
+                                                                                (upgradeRecords[index]&&upgradeRecords[index].status == 3 ||
+                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 6 ||
+                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 5 ||
+                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 7
+                                                                                ) ?
+                                                                                    <Icon type="check" style={{ color: "#239B24" }} />
+                                                                                    : upgradeRecords[index]&&upgradeRecords[index].status == 8?
+                                                                                    <Icon type="close" style={{ color: "red" }} />:
+                                                                                    <Icon type="check" style={{ color: "#239B24" }} />
+                                                                        }
+                                                                    </div> :service&&service.type&&
+                                                                    <div>
+                                                                        {
+                                                                            service.type=="upgrade"? <Icon type="up" style={{ color: "#239B24" }} />:
+                                                                            <Icon type="plus" style={{ color: "#239B24" }} />
+                                                                        }
+                                                                    </div>
                                                             }
                                                         </div>
                                                     </Col>

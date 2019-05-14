@@ -127,6 +127,7 @@ export default class AppList extends PureComponent {
                 group_id,
                 page,
                 pageSize,
+                status__gt:1,
             },
             callback: (res) => {
                 if (res && res._code == 200) {
@@ -168,12 +169,17 @@ export default class AppList extends PureComponent {
         const ListContent = ({ data: { upgrade_versions,current_version, min_memory } }) => (
             <div className={styles.listContent}>
                 <div className={styles.listContentItem}>
-                    <span>版本</span>
+                    <span>当前版本</span>
+                    <p>{
+                         <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" > {current_version}</Tag>
+                    }</p>
+                </div>
+                <div className={styles.listContentItem}>
+                    <span>可升级版本</span>
                     <p>{
                         upgrade_versions &&upgrade_versions.length>0?upgrade_versions.map((item, index) => {
                             return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                        }):
-                         <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" > {current_version}</Tag>
+                        }):"暂无升级"
                     }</p>
                 </div>
                 <div className={styles.listContentItem}>

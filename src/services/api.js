@@ -398,6 +398,7 @@ export async function getUpdateRecordsList(body = {
   version,
   page,
   pageSize,
+  status__gt,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
     method: "get",
@@ -406,6 +407,7 @@ export async function getUpdateRecordsList(body = {
       version: body.version?body.version:null,
       page: body.page?body.page:"",
       page_size: body.pageSize?body.pageSize:"",
+      status__gt:body.status__gt?body.status__gt:1,
     },
   });
 }
