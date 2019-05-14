@@ -883,7 +883,7 @@ export default class Main extends PureComponent {
             okText={"确认分享"}
             cancelText={"取消分享"}
           >
-            <div>当前分享的服务依赖未选择分享的服务,是否取消依赖未选择分享服务</div>
+            <div>当前分享的服务依赖于为分享的服务,是否删除其依赖关系.</div>
           </Modal>}
 
 
