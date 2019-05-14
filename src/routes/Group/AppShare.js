@@ -55,6 +55,15 @@ const formItemLayout = {
     span: 16,
   },
 };
+
+const sharingFormItemLayout = {
+  labelCol: {
+    span: 2,
+  },
+  wrapperCol: {
+    span: 22,
+  },
+};
 const tailFormItemLayout = {
   wrapperCol: {
     xs: {
@@ -365,6 +374,9 @@ export default class Main extends PureComponent {
       service: null,
       key: "",
       fileList: [],
+      shareList: [],
+      shareModal:null,
+      isShare:null
     };
     this.com = [];
     this.share_group_info = null;
@@ -412,6 +424,18 @@ export default class Main extends PureComponent {
           }
           this.share_group_info = data.bean.share_group_info;
           this.share_service_list = data.bean.share_service_list;
+
+          let arr = []
+          if (data.bean.share_service_list && data.bean.share_service_list.length > 0) {
+            data.bean.share_service_list.map((item) => {
+              arr.push(item.service_id)
+            })
+            this.setState({
+              shareList: arr
+            })
+          }
+
+
         }
       },
       handleError: (res) => {
@@ -426,6 +450,7 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
+
       if (!err) {
         this.share_group_info.describe = values.describe;
         this.share_group_info.group_name = values.group_name;
@@ -439,71 +464,120 @@ export default class Main extends PureComponent {
         } else {
           this.share_group_info.pic = "";
         }
+
+
+        const share_service_data = this.share_service_list;
+        let arr = [];
+        let dep_service_key = []
+
+        values.sharing.map((item) => {
+          share_service_data.map((option) => {
+            if (item == option.service_id) {
+              arr.push(option)
+              option.dep_service_map_list &&
+                option.dep_service_map_list.length > 0 &&
+                option.dep_service_map_list.map((items) => {
+                  dep_service_key.push(items.dep_service_key)
+                })
+            }
+          })
+        })
+
+        let show = true
+        if (dep_service_key.length > 0) {
+          arr.map((item) => {
+            dep_service_key.map((items => {
+              if (items == item.service_share_uuid) {
+                show = false
+              }
+            }))
+          })
+        } else {
+          show = false
+        }
+        const comdata = this.com;
+        comdata.map((app) => {
+          const apptab = app.props.tab;
+          let appvalue = null;
+          app.props.form.validateFields((err, val) => {
+            if (!err) {
+              appvalue = val;
+            }
+          });
+          share_service_data.map((option) => {
+            if (option.service_alias == apptab) {
+              for (var index in appvalue) {
+                const indexname = "";
+                var indexarr = [];
+                indexarr = index.split("||");
+                if (indexarr[0] == "connect" && indexarr[2] != "random") {
+                  option.service_connect_info_map_list.map((serapp) => {
+                    if (serapp.attr_name == indexarr[1]) {
+                      serapp[indexarr[2]] = appvalue[index];
+                    }
+                  });
+                }
+                if (indexarr[0] == "env") {
+                  option.service_env_map_list.map((serapp) => {
+                    if (serapp.attr_name == indexarr[1]) {
+                      serapp[indexarr[2]] = appvalue[index];
+                    }
+                  });
+                }
+                if (indexarr[0] == "extend") {
+                  option.extend_method_map[indexarr[1]] = appvalue[index];
+                }
+              }
+            }
+          });
+        });
+
+        if(show&&!this.state.isShare){
+          this.setState({
+            shareModal:true
+          })
+          return null
+        }
+
+      //  if(this.state.isShare){
+      //   newinfo.use_force="true"
+      //  }else{
+      //   newinfo.use_force="false"
+      //  }
+
+        newinfo.share_group_info = this.share_group_info;
+        // newinfo.share_service_list = share_service_data;
+        newinfo.share_service_list = arr;
+        newinfo.share_plugin_list = this.state.info.share_plugin_list
+        const team_name = globalUtil.getCurrTeamName();
+        const shareId = this.props.match.params.shareId;
+        const groupId = this.props.match.params.groupId;
+
+        dispatch({
+          type: "groupControl/subShareInfo",
+          payload: {
+            team_name,
+            share_id: shareId,
+            use_force:this.state.isShare?"true":"false",
+            new_info: newinfo,
+          },
+          callback: (data) => {
+            this.onCancels();
+            dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${groupId}/${shareId}`));
+          },
+          // handleError: (res) => {     if(res && res.status === 404){
+          // this.props.dispatch(routerRedux.push('/exception/404'));     } }
+        });
       }
     });
-
-    // console.log(this.share_group_info); console.log(this.share_service_list);
-    const share_service_data = this.share_service_list;
-    const comdata = this.com;
-    comdata.map((app) => {
-      const apptab = app.props.tab;
-      let appvalue = null;
-      app.props.form.validateFields((err, values) => {
-        if (!err) {
-          appvalue = values;
-        }
-      });
-      // ////
-      share_service_data.map((option) => {
-        if (option.service_alias == apptab) {
-          for (var index in appvalue) {
-            const indexname = "";
-            var indexarr = [];
-            indexarr = index.split("||");
-            if (indexarr[0] == "connect" && indexarr[2] != "random") {
-              option.service_connect_info_map_list.map((serapp) => {
-                if (serapp.attr_name == indexarr[1]) {
-                  serapp[indexarr[2]] = appvalue[index];
-                }
-              });
-            }
-            if (indexarr[0] == "env") {
-              option.service_env_map_list.map((serapp) => {
-                if (serapp.attr_name == indexarr[1]) {
-                  serapp[indexarr[2]] = appvalue[index];
-                }
-              });
-            }
-            if (indexarr[0] == "extend") {
-              option.extend_method_map[indexarr[1]] = appvalue[index];
-            }
-          }
-        }
-      });
-      // ////
-    });
-
-    newinfo.share_group_info = this.share_group_info;
-    newinfo.share_service_list = share_service_data;
-    newinfo.share_plugin_list = this.state.info.share_plugin_list
-    const team_name = globalUtil.getCurrTeamName();
-    const shareId = this.props.match.params.shareId;
-    const groupId = this.props.match.params.groupId;
-
-    dispatch({
-      type: "groupControl/subShareInfo",
-      payload: {
-        team_name,
-        share_id: shareId,
-        new_info: newinfo,
-      },
-      callback: (data) => {
-        dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${groupId}/${shareId}`));
-      },
-      // handleError: (res) => {     if(res && res.status === 404){
-      // this.props.dispatch(routerRedux.push('/exception/404'));     } }
-    });
   };
+
+  onCancels = ()=>{
+    this.setState({
+      shareModal:null,
+      isShare:null
+    })
+  }
 
   handleGiveup = () => {
     const groupId = this.props.match.params.groupId;
@@ -526,7 +600,6 @@ export default class Main extends PureComponent {
     //     if (file.response) {
     //       // Component will show file.url as link
     //       //file.url = file.response.data.bean.path;
-    //       console.log("111111")
     //       console.log(file.response)
     //       console.log(file.response.data.bean.file_url )
     //       this.setState({ pic:file.response.data.bean.file_url });
@@ -555,6 +628,16 @@ export default class Main extends PureComponent {
   tabClick = (val, e) => {
     this.setState({ key: val });
   };
+
+  onFileChange = e => {
+    this.setState({ arr: e });
+  };
+  
+  handleSubmits = () =>{
+    this.setState({isShare:true,shareModal:null,},()=>{
+      this.handleSubmit();
+    })
+  }
   render() {
     const info = this.state.info;
     if (!info) {
@@ -567,7 +650,7 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
-
+    const { shareList,shareModal } = this.state
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -575,6 +658,7 @@ export default class Main extends PureComponent {
         </div>
       </div>
     );
+
     return (
       <PageHeaderLayout content={pageHeaderContent}>
         <div>
@@ -694,6 +778,33 @@ export default class Main extends PureComponent {
               }}
             >
               <div className="mytab">
+                <Form layout="horizontal" className={styles.stepForm}>
+                  <Form.Item {...sharingFormItemLayout} label="分享服务">
+                    {getFieldDecorator("sharing", {
+                      initialValue: shareList,
+                      rules: [
+                        {
+                          required: true,
+                          message: "请选择分享的服务",
+                        },
+                      ],
+                    })(
+
+                      <Checkbox.Group
+                        onChange={this.onFileChange}
+                        style={{ display: "block", marginTop: "9px" }}
+                      >
+                        {apps.map(order => {
+                          return (
+                            <Checkbox key={order.service_id} value={order.service_id}>
+                              {order.service_cname}
+                            </Checkbox>
+                          );
+                        })}
+                      </Checkbox.Group>
+                    )}
+                  </Form.Item>
+                </Form>
                 <div className={mytabcss.mytabtit} id="mytabtit">
                   {apps.map(apptit => (tabk == apptit.service_alias ? (
                     <a
@@ -716,6 +827,7 @@ export default class Main extends PureComponent {
                       </a>
                     )))}
                 </div>
+
                 {apps.map(app => (tabk == app.service_alias ? (
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
@@ -762,6 +874,18 @@ export default class Main extends PureComponent {
               ]}
             />
           </Card>
+          
+          {shareModal&&<Modal
+            title="依赖检测"
+            visible={shareModal}
+            onOk={this.handleSubmits}
+            onCancel={this.onCancels}
+            okText={"确认分享"}
+            cancelText={"取消分享"}
+          >
+            <div>当前分享的服务依赖未选择分享的服务,是否取消依赖未选择分享服务</div>
+          </Modal>}
+
 
           <FooterToolbar>
             <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>
