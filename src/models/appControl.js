@@ -18,6 +18,7 @@ import {
   getOuterEnvs,
   addOuterEnvs,
   deleteEvns,
+  putTransfer,
   deleteVariable,
   editEvns,
   getRunningProbe,
@@ -553,6 +554,12 @@ export default {
     },
     * deleteEnvs({ payload, callback }, { call, put }) {
       const response = yield call(deleteEvns, payload);
+      if (response) {
+        callback && callback();
+      }
+    },
+    * putTransfer({ payload, callback }, { call, put }) {
+      const response = yield call(putTransfer, payload);
       if (response) {
         callback && callback();
       }

@@ -269,10 +269,14 @@ export async function submitShare(body = {
   team_name,
   share_id,
   new_info,
+  use_force
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/info`, {
     method: "post",
     data: body.new_info,
+    params: {
+      use_force:body.use_force
+    },
   });
 }
 
