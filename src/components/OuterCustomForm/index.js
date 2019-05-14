@@ -186,6 +186,9 @@ export default class Index extends PureComponent {
         if (value && typeof(value)=="object"? value.join().search("127.0.0.1") != -1 :value.search("127.0.0.1") != -1) {
             callback("不支持127.0.0.1环回接口地址");
         }
+        if (value && typeof(value)=="object"? value.join().search("localhost") != -1 :value.search("localhost") != -1) {
+            callback("不支持localhost环回接口地址");
+        }
         callback();
     };
     render() {
