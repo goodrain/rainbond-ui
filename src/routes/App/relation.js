@@ -243,6 +243,7 @@ export default class Index extends PureComponent {
       relationList: [],
       viewRelationInfo: null,
       showText:null,
+      transfer:null
     };
   }
 
@@ -392,8 +393,36 @@ export default class Index extends PureComponent {
   cancelViewRelationInfo = (data) => {
     this.setState({ viewRelationInfo: null });
   };
+
+  onTransfer = (data) => {
+    this.setState({ transfer: data });
+  };
+
+  cancelTransfer = () => {
+    this.setState({ transfer: null });
+  };
+
+  handleTransfer = () => {
+    const { transfer } = this.state;
+    this.props.dispatch({
+      type: "appControl/putTransfer",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        attr_name: transfer.attr_name,
+        scope:transfer.scope=="inner"?"outer":"inner"
+      },
+      callback: (res) => {
+        this.cancelTransfer();
+        this.fetchOuterEnvs();
+        notification.success({ message: "操作成功" });
+      },
+    });
+  };
+
+
   render() {
-    const { showText, relationList } = this.state;
+    const { showText, relationList,transfer } = this.state;
     const { outerEnvs } = this.props;
     return (
       <Fragment>
@@ -463,6 +492,15 @@ export default class Index extends PureComponent {
                       ) : (
                           ""
                         )}
+                        <a
+                        href="javascript:;"
+                        onClick={() => {
+                          this.onTransfer(data);
+                        }}
+                        style={{ marginRight: "5px" }}
+                      >
+                        转移
+                      </a>
                       {data.is_change ? (
                         <a
                           href="javascript:;"
@@ -572,6 +610,17 @@ export default class Index extends PureComponent {
             data={this.state.showEditVar}
           />
         )}
+         {
+          this.state.transfer && (
+            <ConfirmModal
+              onOk={this.handleTransfer}
+              onCancel={this.cancelTransfer}
+              title="转移环境变量"
+              desc="确定要转移此变量吗？"
+              subDesc="此操作不可恢复"
+            />
+          )
+        }
         {this.state.deleteVar && (
           <ConfirmModal
             onOk={this.handleDeleteVar}

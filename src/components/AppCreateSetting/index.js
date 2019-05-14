@@ -1846,34 +1846,72 @@ class Mnt extends PureComponent {
             columns={[
               {
                 title: '本地挂载路径',
-                dataIndex: 'local_vol_path'
+                dataIndex: 'local_vol_path',
+                key: "1",
+                width: "20%",
+                render: (data, index) => (
+                  <Tooltip title={data}>
+                    <span style={{
+                      wordBreak: "break-all",
+                      wordWrap: "break-word"
+                    }}>{data}</span>
+                  </Tooltip>
+                )
               }, {
                 title: '目标存储名称',
-                dataIndex: 'dep_vol_name'
+                dataIndex: 'dep_vol_name',
+                key: "2",
+                width: "15%",
+                render: (data, index) => (
+                  <Tooltip title={data}>
+                    <span style={{
+                      wordBreak: "break-all",
+                      wordWrap: "break-word"
+                    }}>{data}</span>
+                  </Tooltip>
+                )
               }, {
                 title: '目标挂载路径',
-                dataIndex: 'dep_vol_path'
+                dataIndex: 'dep_vol_path',
+                key: "3",
+                width: "15%",
+                render: (data, index) => (
+                  <Tooltip title={data}>
+                    <span style={{
+                      wordBreak: "break-all",
+                      wordWrap: "break-word"
+                    }}>{data}</span>
+                  </Tooltip>
+                )
               }, {
                 title: '目标存储类型',
                 dataIndex: 'dep_vol_type',
+                key: "4",
+                width: "10%",
                 render: (text, record) => {
                   return <span>{volumeTypeObj[text]}</span>;
                 }
               }, {
                 title: '目标所属服务',
                 dataIndex: 'dep_app_name',
+                key: "5",
+                width: "10%",
                 render: (v, data) => {
                   return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.dep_app_alias}/overview`}>{v}</Link>
                 }
               }, {
                 title: '目标服务所属应用',
                 dataIndex: 'dep_app_group',
+                key: "6",
+                width: "15%",
                 render: (v, data) => {
                   return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${data.dep_group_id}`}>{v}</Link>
                 }
               }, {
                 title: '操作',
                 dataIndex: 'action',
+                key: "7",
+                width: "15%",
                 render: (val, data) => {
                   return <a
                     onClick={() => {

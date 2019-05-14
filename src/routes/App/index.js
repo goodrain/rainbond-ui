@@ -32,6 +32,7 @@ import ThirdPartyServices from './ThirdPartyServices';
 import Monitor from './monitor';
 import Log from './log';
 import Expansion from './expansion';
+import EnvironmentConfiguration from './environmentConfiguration';
 import Relation from './relation';
 import Mnt from './mnt';
 import Port from './port';
@@ -903,6 +904,9 @@ class Main extends PureComponent {
                     key: 'expansion',
                     tab: '伸缩'
                 }, {
+                    key: 'environmentConfiguration',
+                    tab: '环境配置'
+                },  {
                     key: 'relation',
                     tab: '依赖'
                 }, {
@@ -933,6 +937,7 @@ class Main extends PureComponent {
             monitor: Monitor,
             log: Log,
             expansion: Expansion,
+            environmentConfiguration:EnvironmentConfiguration,
             relation: Relation,
             mnt: Mnt,
             port: Port,

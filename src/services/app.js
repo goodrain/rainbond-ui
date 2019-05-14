@@ -596,7 +596,7 @@ export async function openPortOuter(body = {
     {
       method: "put",
       data: {
-        action: body.action?body.action:"open_outer",
+        action: body.action ? body.action : "open_outer",
       },
     },
   );
@@ -777,9 +777,9 @@ export async function getInnerEnvs(body = {
     method: "get",
     params: {
       env_type: body.env_type ? body.env_type : "inner",
-      page:body.page?body.page:1,
-      page_size:body.page_size?body.page_size:5,
-      env_name:body.env_name?body.env_name:""
+      page: body.page ? body.page : 1,
+      page_size: body.page_size ? body.page_size : 5,
+      env_name: body.env_name ? body.env_name : ""
     },
   });
 }
@@ -942,6 +942,28 @@ export async function deleteEvns(body = {
     { method: "delete" },
   );
 }
+
+/*
+ 转移环境变量 
+*/
+export async function putTransfer(body = {
+  team_name,
+  app_alias,
+  attr_name,
+  scope,
+}) {
+  return request(
+    `${config.baseUrl
+    }/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.attr_name}`,
+    {
+      method: "patch",
+      data: {
+        scope	: body.scope,
+      }
+    },
+  );
+}
+
 /*
  获取实例数据 teams/(?P<tenantName>[\w\-]+)/apps/(?P<serviceAlias>[\w\-]+)/third_party/pods
 */
@@ -1189,7 +1211,7 @@ export async function editStartProbe(body = {
       timeout_second: body.timeout_second,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
-      old_mode:body.old_mode?body.old_mode:""
+      old_mode: body.old_mode ? body.old_mode : ""
     },
   });
 }
@@ -2342,7 +2364,7 @@ export async function putMirrorCommand(body = {
       data: {
         tenantName: body.keyword,
         trigger: body.trigger,
-        serviceAlias:body.service_alias,
+        serviceAlias: body.service_alias,
       },
     },
   );
@@ -2350,7 +2372,7 @@ export async function putMirrorCommand(body = {
 
 
 
-    
+
 
 
 /*
@@ -2416,7 +2438,7 @@ export async function putLanguage(body = {
     {
       method: "post",
       data: {
-        is_again:true
+        is_again: true
       },
     },
   );
