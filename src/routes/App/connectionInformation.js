@@ -13,6 +13,7 @@ import {
   getStatus,
   restart
 } from '../../services/app';
+import { width } from "window-size";
 const RadioGroup = Radio.Group;
 
 @connect(
@@ -152,7 +153,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: transfer.attr_name,
-        scope:transfer.scope=="inner"?"outer":"inner"
+        scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: (res) => {
         this.cancelTransfer();
@@ -233,15 +234,18 @@ export default class Index extends React.Component {
                       >
                         删除
                       </a>
-                      <a
-                        href="javascript:;"
-                        onClick={() => {
-                          this.onTransfer(data);
-                        }}
-                        style={{ marginRight: "5px" }}
-                      >
-                        转移
+
+                      <Tooltip   title={<p>将此连接信息变量转换为<br/>环境变量</p>}>
+                        <a
+                          href="javascript:;"
+                          onClick={() => {
+                            this.onTransfer(data);
+                          }}
+                          style={{ marginRight: "5px" }}
+                        >
+                          转移
                       </a>
+                      </Tooltip>
                       {data.is_change ? (
                         <a
                           href="javascript:;"
@@ -287,8 +291,8 @@ export default class Index extends React.Component {
             <ConfirmModal
               onOk={this.handleTransfer}
               onCancel={this.cancelTransfer}
-              title="转移环境变量"
-              desc="确定要转移此变量吗？"
+              title="转移连接信息变量"
+              desc="确定要将此连接信息变量转换为环境变量吗?"
               subDesc="此操作不可恢复"
             />
           )

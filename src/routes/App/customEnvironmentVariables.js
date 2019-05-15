@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Link } from "dva/router";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip,  Row, Col, Alert, Popconfirm, Switch, Input } from "antd";
+import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Row, Col, Alert, Popconfirm, Switch, Input } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
 import AddVarModal from "./setting/env";
@@ -74,7 +74,7 @@ export default class Index extends React.Component {
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
-      editor:null
+      editor: null
     };
   }
   componentDidMount() {
@@ -207,7 +207,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: transfer.attr_name,
-        scope:transfer.scope=="inner"?"outer":"inner"
+        scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: (res) => {
         this.cancelTransfer();
@@ -250,7 +250,7 @@ export default class Index extends React.Component {
   hideDelMember = () => {
     this.setState({ toDeleteMember: null });
   };
-  
+
   handleDelMember = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
@@ -267,7 +267,7 @@ export default class Index extends React.Component {
       },
     });
   };
- 
+
   onPageChange = (page) => {
     this.setState({
       page
@@ -341,19 +341,19 @@ export default class Index extends React.Component {
     });
   };
   handleCancelAddVars = () => {
-    this.setState({ showAddVars: null,editor:null });
+    this.setState({ showAddVars: null, editor: null });
   };
   handleSubmitAddVars = (vals) => {
-    const {editor}=this.state
-    if(editor){
+    const { editor } = this.state
+    if (editor) {
       this.props.dispatch({
         type: "appControl/editorVolume",
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          new_volume_path:vals.volume_path,
-          new_file_content:vals.file_content,
-          ID:editor.ID
+          new_volume_path: vals.volume_path,
+          new_file_content: vals.file_content,
+          ID: editor.ID
         },
         callback: () => {
           this.fetchVolumes();
@@ -362,7 +362,7 @@ export default class Index extends React.Component {
           this.props.onshowRestartTips(true);
         },
       });
-    }else{
+    } else {
       this.props.dispatch({
         type: "appControl/addVolume",
         payload: {
@@ -406,7 +406,7 @@ export default class Index extends React.Component {
     this.setState({ toDeleteVolume: data });
   };
   onEditVolume = (data) => {
-    this.setState({ showAddVars: data,editor:data });
+    this.setState({ showAddVars: data, editor: data });
   };
   onCancelDeleteVolume = () => {
     this.setState({ toDeleteVolume: null });
@@ -575,22 +575,25 @@ export default class Index extends React.Component {
                       >
                         删除
                       </a>
-                      <a
-                        href="javascript:;"
-                        onClick={() => {
-                          this.onTransfer(data);
-                        }}
-                        style={{ marginRight: "5px" }}
-                      >
-                        转移
+
+                      <Tooltip  title={<p>将此环境变量转换为<br/>服务连接信息变量</p>} >
+                        <a
+                          href="javascript:;"
+                          onClick={() => {
+                            this.onTransfer(data);
+                          }}
+                          style={{ marginRight: "5px" }}
+                        >
+                          转移
                       </a>
+                      </Tooltip>
                       {data.is_change ? (
                         <a
                           href="javascript:;"
                           onClick={() => {
                             this.onEditVar(data);
                           }}
-                        style={{ marginRight: "5px" }}
+                          style={{ marginRight: "5px" }}
                         >
                           修改
                         </a>
@@ -612,7 +615,7 @@ export default class Index extends React.Component {
           </ScrollerX>
 
         </Card>
-        
+
         <Row>
           <Col span={12}>
             <Alert
@@ -663,7 +666,7 @@ export default class Index extends React.Component {
                       >
                         删除
                     </a>
-                    <a
+                      <a
                         onClick={() => {
                           this.onEditVolume(data);
                         }}
@@ -854,7 +857,7 @@ export default class Index extends React.Component {
               onOk={this.handleTransfer}
               onCancel={this.cancelTransfer}
               title="转移环境变量"
-              desc="确定要转移此变量吗？"
+              desc="确定要将此环境变量转换为服务连接信息变量吗?"
               subDesc="此操作不可恢复"
             />
           )
@@ -886,8 +889,8 @@ export default class Index extends React.Component {
             onCancel={this.hideDelMember}
           />
         )}
-     
-      
+
+
       </Fragment>
     );
   }
