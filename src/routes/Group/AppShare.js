@@ -929,10 +929,10 @@ export default class Main extends PureComponent {
             visible={shareModal}
             onOk={this.handleSubmits}
             onCancel={this.onCancels}
-            okText={"是"}
-            cancelText={"否"}
+            okText={"确定"}
+            cancelText={"保留"}
           >
-            <div>取消分享的服务被依赖于其他的服务, 是否删除其依赖关系.</div>
+            <div>当前服务被其他需要分享的服务依赖，是否确定取消分享当前服务</div>
           </Modal>}
 
 
