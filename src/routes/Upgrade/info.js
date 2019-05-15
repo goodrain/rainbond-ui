@@ -76,7 +76,7 @@ export default class AppList extends PureComponent {
                         })
                     } else if (this.props.activeKey == 2) {
                         this.setState({
-                            text: infoUtil.getStatusCN(infoObj.status)
+                            text: infoUtil.getStatusCNS(infoObj.status)
                         })
                     }
 
@@ -161,9 +161,12 @@ export default class AppList extends PureComponent {
                     const { indexs } = this.state;
                     const { list } = res;
                     if (list && list.length > 0) {
+
                         let service_id = [];
-                        for (let i = 0; i < res.list.length; i++) {
-                            service_id.push(res.list[i].service.service_id)
+                        for (let i = 0; i < list.length; i++) {
+                           if(list[i].upgrade_info){
+                            service_id.push(list[i].service.service_id)
+                           }
                         }
                         let type = list[indexs > list.length - 1 ? 0 : indexs].service.service_id
                         let upgrade_info = list[indexs]
@@ -290,11 +293,11 @@ export default class AppList extends PureComponent {
                     this.setState({
                         upgradeRecords: res.bean.service_record,
                         textState: res.bean.status,
-                        text: infoUtil.getStatusCN(res.bean.status),
+                        text: infoUtil.getStatusCNS(res.bean.status),
                         upgradeText: Rollback ? this.state.upgradeText :
                             res.bean.status == 1 ? "未升级" :
                                 res.bean.status == 2 ? "升级中" :
-                                    res.bean.status == 3 ? "已升级" :
+                                    res.bean.status == 3 ? "升级完成" :
                                         res.bean.status == 6 ? "部分升级" :
                                             res.bean.status == 8 ? "升级失败" : "升级",
                     }, () => {
@@ -665,7 +668,7 @@ export default class AppList extends PureComponent {
 
                                                         <div style={{ width: "100%" }}>
                                                             <Checkbox
-                                                                disabled={(JSON.stringify(upgrade_info ? upgrade_info : update) == "{}") ? true : false}
+                                                                disabled={(JSON.stringify(upgrade_info ? upgrade_info : update) == "{}"|| (upgrade_info?upgrade_info==null:update==null)) ? true : false}
                                                                 value={service ? service.service_id : item.service_id}
                                                                 style={{ width: "30px" }}
                                                             >
@@ -675,7 +678,7 @@ export default class AppList extends PureComponent {
 
                                                         <div>
                                                             {
-                                                                upgradeRecords && upgradeRecords.length > 0 ?
+                                                                upgradeRecords && upgradeRecords.length > 0 &&(upgrade_info!=null || update!=null)?
                                                                     <div>
                                                                         {
                                                                             (
@@ -705,13 +708,13 @@ export default class AppList extends PureComponent {
                                                                     </div> : service && service.type &&
                                                                     <div>
                                                                         {
-                                                                            service.type == "upgrade" ?
+                                                                            service.type == "upgrade" && (upgrade_info!=null || update!=null)?
                                                                                 <Tooltip title="可升级">
                                                                                     <Icon type="up" style={{ color: "#239B24" }} />
-                                                                                </Tooltip>
-                                                                                :
+                                                                                </Tooltip>:
+                                                                                (upgrade_info!=null || update!=null)?
                                                                                 <Tooltip title="新增服务"><Icon type="plus" style={{ color: "#239B24" }} />
-                                                                                </Tooltip>
+                                                                                </Tooltip>:""
                                                                         }
                                                                     </div>
                                                             }
@@ -772,14 +775,16 @@ export default class AppList extends PureComponent {
                                 () => {
                                     (this.props.activeKey == 1 && textState != 3 && textState != 6 && textState != 4 && textState != 8) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
                                         :
-                                        (this.props.activeKey == 2 && textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
+                                        (this.props.activeKey == 2 && textState != 1 && textState != 2 && textState != 3 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
                                             :
                                             this.getUpgradeRollback()
                                 }}
                             style={{ marginRight: "5px" }}
                             loading={(textState == 2 || textState == 4) ? true : false}
 
-                        >{ (this.props.activeKey == 1 && (textState == 3 || textState == 6 || textState == 8)) ? "回滚" : text}</Button>
+                        >{ (textState == 3 || textState == 6 || textState == 8) ? "回滚" :
+                        //    (this.props.activeKey == 2 && (textState == 3 || textState == 6 || textState == 8)) ? "回滚" :
+                        text}</Button>
                     }
 
 
