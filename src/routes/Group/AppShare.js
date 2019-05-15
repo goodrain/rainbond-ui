@@ -328,7 +328,8 @@ class AppInfo extends PureComponent {
                 })(<InputNumber
                   style={{ width: "100%" }}
                   placeholder="请输入最小内存"
-                  min={app.extend_method_map.min_memory}
+                  min={64}
+                  // min={app.extend_method_map.min_memory}
                   max={app.extend_method_map.max_memory}
                   step={app.extend_method_map.step_memory}
                 />)}

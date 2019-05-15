@@ -164,7 +164,7 @@ export default class AppList extends PureComponent {
 
                         let service_id = [];
                         for (let i = 0; i < list.length; i++) {
-                           if(list[i].upgrade_info){
+                           if(list[i].upgrade_info&& JSON.stringify(list[i].upgrade_info) != "{}"){
                             service_id.push(list[i].service.service_id)
                            }
                         }
@@ -325,9 +325,9 @@ export default class AppList extends PureComponent {
                         )
                     }
                 ]
-            } else if (upgrade_info) {
+            } else if (upgrade_info&&JSON.stringify(upgrade_info) != "{}") {
                 return this.setData(upgrade_info)
-            } else if (update) {
+            } else if (update&&JSON.stringify(update) != "{}") {
                 return this.setData(update)
             } else {
                 return [
@@ -545,8 +545,8 @@ export default class AppList extends PureComponent {
             description: (<div>
                 {plugins && plugins.add && plugins.add.length > 0 ?
                     <div className={styles.textzt}>
-                        新增插件版本：{plugins.add.map((item, index) => {
-                            return <span key={index}>{item.build_version}</span>
+                        新增插件：{plugins.add.map((item, index) => {
+                            return <span key={index}>{item.plugin_key}</span>
                         })}
                     </div>
                     : <div>暂无变化</div>
@@ -678,7 +678,7 @@ export default class AppList extends PureComponent {
 
                                                         <div>
                                                             {
-                                                                upgradeRecords && upgradeRecords.length > 0 &&(upgrade_info!=null || update!=null)?
+                                                                upgradeRecords && upgradeRecords.length > 0 &&(upgrade_info!=null || update!=null) && (JSON.stringify(upgrade_info ? upgrade_info : update) != "{}") ?
                                                                     <div>
                                                                         {
                                                                             (
@@ -708,11 +708,11 @@ export default class AppList extends PureComponent {
                                                                     </div> : service && service.type &&
                                                                     <div>
                                                                         {
-                                                                            service.type == "upgrade" && (upgrade_info!=null || update!=null)?
+                                                                            service.type == "upgrade" && (upgrade_info!=null || update!=null)&& (JSON.stringify(upgrade_info ? upgrade_info : update) != "{}")?
                                                                                 <Tooltip title="可升级">
                                                                                     <Icon type="up" style={{ color: "#239B24" }} />
                                                                                 </Tooltip>:
-                                                                                (upgrade_info!=null || update!=null)?
+                                                                                (upgrade_info!=null || update!=null)&& (JSON.stringify(upgrade_info ? upgrade_info : update) != "{}")?
                                                                                 <Tooltip title="新增服务"><Icon type="plus" style={{ color: "#239B24" }} />
                                                                                 </Tooltip>:""
                                                                         }

@@ -148,20 +148,20 @@ export default class AddVolumes extends PureComponent {
               {appBaseInfo && appBaseInfo.extend_method == "state" && (<Radio value="local" disabled={this.props.editor?true:false}>
                 <Tooltip title="本地高速块存储设备，适用于有状态数据库服务">本地存储</Tooltip>
               </Radio>)}
-              <Radio value="config-file" disabled={this.props.editor?true:false}>
+              {/* <Radio value="config-file" disabled={this.props.editor?true:false}>
                 <Tooltip title="编辑或上传您的配置文件内容">配置文件</Tooltip>
-              </Radio>
+              </Radio> */}
             </RadioGroup>)}
           </FormItem>
-          {this.state.configurationShow ? <FormItem {...formItemLayout} label="文件内容" style={{ textAlign: "right" }}>
+          {/* {this.state.configurationShow ? <FormItem {...formItemLayout} label="文件内容" style={{ textAlign: "right" }}>
             {getFieldDecorator('file_content', {
               initialValue: data.file_content || undefined,
               rules: [{ required: true, message: '请编辑内容!' }]
             })(
               <TextArea rows={8} style={{ backgroundColor: "#02213f", color: "#fff" }} />
             )}
-          </FormItem> : ''}
-          {this.state.configurationShow ? <Row>
+          </FormItem> : ''} */}
+          {/* {this.state.configurationShow ? <Row>
             <Col
               style={{ marginTop: "-7%" }}
               span={4} offset={4}>
@@ -185,7 +185,7 @@ export default class AddVolumes extends PureComponent {
                 )}
               </FormItem>
             </Col>
-          </Row> : ''}
+          </Row> : ''} */}
         </Form>
         <div
           style={{

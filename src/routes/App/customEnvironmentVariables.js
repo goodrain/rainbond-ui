@@ -306,6 +306,7 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
+        volume_type: "config-file"
       },
     });
   };
@@ -325,6 +326,8 @@ export default class Index extends React.Component {
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
+      volume_type:"config-file"
+
     }).then((data) => {
       if (data) {
         this.setState({
@@ -493,90 +496,102 @@ export default class Index extends React.Component {
     }
     return (
       <Fragment>
-        <Card
-          style={{
-            marginBottom: 24,
-          }}
-          title="自定义环境变量"
-        >
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "20px"
-          }}
-          >
-            <Search
-              style={{ width: "260px" }}
-              placeholder="请输入变量名进行搜索"
-              onSearch={this.handleSearch}
+        <Row>
+          <Col span={12}>
+            <Alert
+              showIcon
+              message="服务环境配置变更后需要更新或重启服务生效"
+              type="info"
+              style={{
+                marginBottom: 24,
+              }}
             />
-            <Button onClick={this.handleAddVar}>
-              <Icon type="plus" />添加变量
+          </Col>
+        </Row>
+        <Row>
+          <Card
+            style={{
+              marginBottom: 24,
+            }}
+            title="自定义环境变量"
+          >
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "20px"
+            }}
+            >
+              <Search
+                style={{ width: "260px" }}
+                placeholder="请输入变量名进行搜索"
+                onSearch={this.handleSearch}
+              />
+              <Button onClick={this.handleAddVar}>
+                <Icon type="plus" />添加变量
             </Button>
-          </div>
-          <ScrollerX sm={600}>
-            <Table
-              columns={[
-                {
-                  title: "变量名",
-                  dataIndex: "attr_name",
-                  key: "1",
-                  width: "20%",
-                  render: (v) => (
-                    <Tooltip title={v}>
-                      <div style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</div>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: "变量值",
-                  dataIndex: "attr_value",
-                  key: "2",
-                  width: "40%",
-                  render: (v) => (
-                    <Tooltip title={v}>
-                      <div style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</div>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: "说明",
-                  dataIndex: "name",
-                  key: "3",
-                  width: "20%",
-                  render: (v) => (
-                    <Tooltip title={v}>
-                      <div style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</div>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: "操作",
-                  dataIndex: "action",
-                  key: "4",
-                  width: "20%",
-                  render: (v, data) => (
-                    <Fragment>
-                      <a
-                        href="javascript:;"
-                        onClick={() => {
-                          this.onDeleteVar(data);
-                        }}
-                        style={{ marginRight: "5px" }}
-                      >
-                        删除
+            </div>
+            <ScrollerX sm={600}>
+              <Table
+                columns={[
+                  {
+                    title: "变量名",
+                    dataIndex: "attr_name",
+                    key: "1",
+                    width: "20%",
+                    render: (v) => (
+                      <Tooltip title={v}>
+                        <div style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}>{v}</div>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: "变量值",
+                    dataIndex: "attr_value",
+                    key: "2",
+                    width: "40%",
+                    render: (v) => (
+                      <Tooltip title={v}>
+                        <div style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}>{v}</div>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: "说明",
+                    dataIndex: "name",
+                    key: "3",
+                    width: "20%",
+                    render: (v) => (
+                      <Tooltip title={v}>
+                        <div style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}>{v}</div>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: "操作",
+                    dataIndex: "action",
+                    key: "4",
+                    width: "20%",
+                    render: (v, data) => (
+                      <Fragment>
+                        <a
+                          href="javascript:;"
+                          onClick={() => {
+                            this.onDeleteVar(data);
+                          }}
+                          style={{ marginRight: "5px" }}
+                        >
+                          删除
                       </a>
-
-                      <Tooltip  title={<p>将此环境变量转换为<br/>服务连接信息变量</p>} >
+                      <Tooltip   title={<p>将此环境变量转换为<br/>服务连接信息变量</p>}>
                         <a
                           href="javascript:;"
                           onClick={() => {
@@ -587,40 +602,40 @@ export default class Index extends React.Component {
                           转移
                       </a>
                       </Tooltip>
-                      {data.is_change ? (
-                        <a
-                          href="javascript:;"
-                          onClick={() => {
-                            this.onEditVar(data);
-                          }}
-                          style={{ marginRight: "5px" }}
-                        >
-                          修改
+                        {data.is_change ? (
+                          <a
+                            href="javascript:;"
+                            onClick={() => {
+                              this.onEditVar(data);
+                            }}
+                            style={{ marginRight: "5px" }}
+                          >
+                            修改
                         </a>
-                      ) : (
-                          ""
-                        )}
-                    </Fragment>
-                  ),
-                },
-              ]}
-              dataSource={innerEnvs}
-              pagination={{
-                current: this.state.page,
-                pageSize: this.state.page_size,
-                total: this.state.total,
-                onChange: this.onPageChange,
-              }}
-            />
-          </ScrollerX>
+                        ) : (
+                            ""
+                          )}
+                      </Fragment>
+                    ),
+                  },
+                ]}
+                dataSource={innerEnvs}
+                pagination={{
+                  current: this.state.page,
+                  pageSize: this.state.page_size,
+                  total: this.state.total,
+                  onChange: this.onPageChange,
+                }}
+              />
+            </ScrollerX>
 
-        </Card>
+          </Card>
 
-        <Row>
+
           <Col span={12}>
             <Alert
               showIcon
-              message="配置文件发生变化后需要更新应用才能生效"
+              message="配置文件内容支持使用环境变量动态渲染，方式为：${ENV_NAME}"
               type="info"
               style={{
                 marginBottom: 24,
@@ -823,6 +838,7 @@ export default class Index extends React.Component {
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}
+            volume_type={"config-file"}
           />
         )}
         {this.state.toDeleteMnt && (
@@ -858,7 +874,7 @@ export default class Index extends React.Component {
               onCancel={this.cancelTransfer}
               title="转移环境变量"
               desc="确定要将此环境变量转换为服务连接信息变量吗?"
-              subDesc="此操作不可恢复"
+              subDesc=""
             />
           )
         }
