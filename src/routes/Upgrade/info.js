@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Col, Card, Button, List, Checkbox, Select, Form, Tooltip, Icon } from 'antd';
+import { Row, Col, Card, Button, List, Checkbox, Select, Form, Tooltip, Icon, Spin } from 'antd';
 import globalUtil from '../../utils/global';
 import infoUtil from './info-util';
 import styles from "./index.less";
@@ -27,7 +27,8 @@ export default class AppList extends PureComponent {
             text: this.props.activeKey == 2 ? "回滚" : "升级",
             upgradeText: "升级",
             textState: 1,
-            service_id: []
+            service_id: [],
+            conshow: true
         }
     }
     componentDidMount() {
@@ -73,7 +74,7 @@ export default class AppList extends PureComponent {
                         }, () => {
                             this.getUpgradeRecordsInfo()
                         })
-                    }else if (this.props.activeKey == 2) {
+                    } else if (this.props.activeKey == 2) {
                         this.setState({
                             text: infoUtil.getStatusCN(infoObj.status)
                         })
@@ -119,16 +120,17 @@ export default class AppList extends PureComponent {
                                 for (let i = 0; i < service_record.length; i++) {
                                     service_ids.push(service_record[i].service_id)
                                 }
-                                let type = service_record[indexs>service_record.length-1?0:indexs].service_id
+                                let type = service_record[indexs > service_record.length - 1 ? 0 : indexs].service_id
 
 
-                                
+
                                 let upgrade_info = service_record[indexs]
                                 this.setState({
                                     upgradeInfo: service_record,
                                     type,
                                     upgrade_info,
-                                    service_id: service_ids
+                                    service_id: service_ids,
+                                    conshow: null
                                 })
                             }
                         } else {
@@ -163,12 +165,13 @@ export default class AppList extends PureComponent {
                         for (let i = 0; i < res.list.length; i++) {
                             service_id.push(res.list[i].service.service_id)
                         }
-                        let type = list[indexs>list.length-1?0:indexs].service.service_id
+                        let type = list[indexs > list.length - 1 ? 0 : indexs].service.service_id
                         let upgrade_info = list[indexs]
                         this.setState({
                             upgradeInfo: list,
                             type,
                             upgrade_info,
+                            conshow: null,
                             service_id
                         })
                     }
@@ -186,13 +189,13 @@ export default class AppList extends PureComponent {
         // console.log('checked = ', checkedValues);
     }
     handleType = (type, index) => {
-        if (this.state.type !== type) {
+        if (this.state.type !== type.service_id) {
             const { upgradeInfo } = this.state;
-            this.setState({ type: type, indexs: index, upgrade_info: upgradeInfo[index] });
+            this.setState({ type: type.service_id, indexs: index, upgrade_info: upgradeInfo[index] });
+            // this.setState({ type: type.service_id, indexs: index, upgrade_info: service.type=="upgrade"? upgradeInfo[index]:{type:"add"} });
         }
     }
     handleSubmit = (e) => {
-        e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.createUpgradeTasks(values)
@@ -299,8 +302,6 @@ export default class AppList extends PureComponent {
                             setTimeout(() => {
                                 this.getUpgradeRecordsInfo(Rollback);
                             }, 3000)
-                        } else {
-                            this.getUpdatedVersion(Rollback)
                         }
                     })
                 }
@@ -313,11 +314,26 @@ export default class AppList extends PureComponent {
         if (this.state.upgrade_info && JSON.stringify(this.state.upgrade_info) != "{}") {
             const { upgrade_info, update, service } = this.state.upgrade_info;
 
-
-            if (upgrade_info) {
+            if (service && service.type == "add") {
+                return [
+                    {
+                        title: '',
+                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>新增服务</div>
+                        )
+                    }
+                ]
+            } else if (upgrade_info) {
                 return this.setData(upgrade_info)
             } else if (update) {
                 return this.setData(update)
+            } else {
+                return [
+                    {
+                        title: '',
+                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>服务无变更，无需升级</div>
+                        )
+                    }
+                ]
             }
 
             // if (service.type == "add") {
@@ -386,9 +402,11 @@ export default class AppList extends PureComponent {
 
         } else {
             return [
-                <div>
-                    服务无变更，无需升级
-                </div>
+                {
+                    title: '',
+                    description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>服务无变更，无需升级</div>
+                    )
+                }
             ]
         }
     }
@@ -404,7 +422,8 @@ export default class AppList extends PureComponent {
             volumes,
             dep_services,
             dep_volumes,
-            plugins
+            plugins,
+            envs
         } = data
 
         let images = {
@@ -419,13 +438,13 @@ export default class AppList extends PureComponent {
             </div>),
             // actions: [<a>删除</a>],
         }
-        let envs = {
+        let envss = {
             title: '环境变量',
             description: (<div>
                 {envs && envs.add && envs.add.length > 0 ?
                     <div className={styles.textzt}>
                         新增变量：{envs.add.map((item, index) => {
-                            return <span key={index}>{item.name}</span>
+                            return <span key={index}>{item.attr_name}</span>
                         }
                         )}
                     </div>
@@ -536,7 +555,7 @@ export default class AppList extends PureComponent {
         let arr = [
             volumess,
             dep_volumess,
-            envs,
+            envss,
             images,
             yl,
             portss,
@@ -578,8 +597,7 @@ export default class AppList extends PureComponent {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { type, infoObj, upgradeVersions, upgradeInfo, upgradeRecords, text, upgradeText, textState, service_id } = this.state;
-
+        const { type, infoObj, upgradeVersions, upgradeInfo, upgradeRecords, text, upgradeText, textState, service_id, conshow } = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: { span: 6 },
@@ -591,6 +609,7 @@ export default class AppList extends PureComponent {
             },
         };
         const arr = this.getData()
+
         return (
             <div style={{ padding: "10px", background: "#fff", }}>
                 <Row gutter={24} style={{ margin: "0px" }}>
@@ -637,19 +656,16 @@ export default class AppList extends PureComponent {
                                             <Row gutter={24} style={{ height: "400px", overflow: "auto" }}>
                                                 {upgradeInfo && upgradeInfo.length > 0 && upgradeInfo.map((item, index) => {
 
-
                                                     const { service, upgrade_info, update } = item;
-
-
                                                     return <Col span={24} className={styles.zslMt + ' ' + (type === (service ? service.service_id : item.service_id) ? styles.active : '')}
                                                         onClick={() => {
-                                                            this.handleType(service ? service.service_id : item.service_id, index)
+                                                            this.handleType(service ? service : item, index)
                                                         }}>
 
 
                                                         <div style={{ width: "100%" }}>
                                                             <Checkbox
-                                                                disabled={JSON.stringify(upgrade_info ? upgrade_info : update) == "{}" ? true : false}
+                                                                disabled={(JSON.stringify(upgrade_info ? upgrade_info : update) == "{}") ? true : false}
                                                                 value={service ? service.service_id : item.service_id}
                                                                 style={{ width: "30px" }}
                                                             >
@@ -657,35 +673,45 @@ export default class AppList extends PureComponent {
                                                             {service ? service.service_cname : item.service_cname}
                                                         </div>
 
-
-
-
-
                                                         <div>
                                                             {
                                                                 upgradeRecords && upgradeRecords.length > 0 ?
                                                                     <div>
                                                                         {
                                                                             (
-                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 1 ||
-                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 2 ||
-                                                                                upgradeRecords[index]&&upgradeRecords[index].status == 4) ?
+                                                                                upgradeRecords[index] && upgradeRecords[index].status == 1 ||
+                                                                                upgradeRecords[index] && upgradeRecords[index].status == 2 ||
+                                                                                upgradeRecords[index] && upgradeRecords[index].status == 4) ?
+
+
                                                                                 <Icon type="sync" style={{ color: "#1890ff" }} spin /> :
-                                                                                (upgradeRecords[index]&&upgradeRecords[index].status == 3 ||
-                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 6 ||
-                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 5 ||
-                                                                                    upgradeRecords[index]&&upgradeRecords[index].status == 7
+                                                                                (upgradeRecords[index] && upgradeRecords[index].status == 3 ||
+                                                                                    upgradeRecords[index] && upgradeRecords[index].status == 6 ||
+                                                                                    upgradeRecords[index] && upgradeRecords[index].status == 5 ||
+                                                                                    upgradeRecords[index] && upgradeRecords[index].status == 7
                                                                                 ) ?
-                                                                                    <Icon type="check" style={{ color: "#239B24" }} />
-                                                                                    : upgradeRecords[index]&&upgradeRecords[index].status == 8?
-                                                                                    <Icon type="close" style={{ color: "red" }} />:
-                                                                                    <Icon type="check" style={{ color: "#239B24" }} />
+                                                                                    <Tooltip title="成功">
+                                                                                        <Icon type="check" style={{ color: "#239B24" }} />
+                                                                                    </Tooltip>
+                                                                                    : upgradeRecords[index] && upgradeRecords[index].status == 8 ?
+                                                                                        <Tooltip title="失败">
+                                                                                            <Icon type="close" style={{ color: "red" }} />
+                                                                                        </Tooltip>
+                                                                                        :
+                                                                                        <Tooltip title="成功">
+                                                                                            <Icon type="check" style={{ color: "#239B24" }} />
+                                                                                        </Tooltip>
                                                                         }
-                                                                    </div> :service&&service.type&&
+                                                                    </div> : service && service.type &&
                                                                     <div>
                                                                         {
-                                                                            service.type=="upgrade"? <Icon type="up" style={{ color: "#239B24" }} />:
-                                                                            <Icon type="plus" style={{ color: "#239B24" }} />
+                                                                            service.type == "upgrade" ?
+                                                                                <Tooltip title="可升级">
+                                                                                    <Icon type="up" style={{ color: "#239B24" }} />
+                                                                                </Tooltip>
+                                                                                :
+                                                                                <Tooltip title="新增服务"><Icon type="plus" style={{ color: "#239B24" }} />
+                                                                                </Tooltip>
                                                                         }
                                                                     </div>
                                                             }
@@ -704,41 +730,60 @@ export default class AppList extends PureComponent {
                         <div className={styles.zslbor}>
                             <div className={styles.zslcen}>服务属性变更详情</div>
                             <Row gutter={24} style={{ margin: "10px 20px 20px", height: "400px", overflow: "auto" }}>
-                                <List
-                                    itemLayout="horizontal"
-                                    dataSource={arr}
-                                    renderItem={(item, index) => (
-                                        // <List.Item actions={item.actions} key={index}>
-                                        <List.Item key={index}>
-                                            <List.Item.Meta title={item.title} description={item.description} />
-                                        </List.Item>
-                                    )}
-                                />
+                                {conshow ? <Spin size="large" /> :
+                                    <List
+                                        itemLayout="horizontal"
+                                        dataSource={arr}
+                                        renderItem={(item, index) => (
+                                            // <List.Item actions={item.actions} key={index}>
+                                            <List.Item key={index}>
+                                                <List.Item.Meta title={item.title} description={item.description} />
+                                            </List.Item>
+                                        )}
+                                    />}
                             </Row>
                         </div>
                     </Col>
                 </Row>
                 <Row gutter={24} style={{ textAlign: "center", width: "100%", marginTop: "5px" }}>
+                    <Button style={{ marginRight: "5px" }} onClick={() => {
+                        this.props.setInfoShow()
+                    }} >返回</Button>
+
                     {
                         ((textState != 1 && textState != 2) || this.props.activeKey == 2) &&
                         <Button type="primary"
-                            onClick={this.getUpgradeRollback}
+                            onClick={
+                                () => {
+                                    (textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
+                                    :this.getUpgradeRollback()
+                                }}
                             style={{ marginRight: "5px" }}
-                            disabled={(textState != 3) ? true : false}
-                        >{(textState == 3 || textState == 6 || textState == 8) ? "回滚" : text}</Button>
+                            loading={ (textState== 2&&textState== 4)?true:false}
+
+                        >{text}</Button>
                     }
+
                     {
-                        this.props.activeKey == 1 && <Button type="primary" onClick={this.handleSubmit}
-                            disabled={textState != 1 ? true : false}
+                        this.props.activeKey == 1 && <Button type="primary" onClick={
+                            () => {
+                                (textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
+                                :this.handleSubmit()
+                            }
+                        }
+                            // disabled={textState != 1 ? true : false}
+                            loading={textState==2?true:false}
                             style={{ marginRight: "5px" }}
                         >{upgradeText}</Button>
                     }
 
+                    {/* {textState != 1 && textState != 2 && textState != 4 &&
+                        <Button type="primary" onClick={() => {
+                            this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`));
+                        }} >完成</Button>
+                    } */}
 
 
-                    <Button type="primary" onClick={() => {
-                        this.props.setInfoShow()
-                    }} >返回</Button>
                 </Row>
             </div>
         );
