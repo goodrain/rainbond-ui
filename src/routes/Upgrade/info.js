@@ -750,32 +750,39 @@ export default class AppList extends PureComponent {
                         this.props.setInfoShow()
                     }} >返回</Button>
 
-                    {
-                        ((textState != 1 && textState != 2) || this.props.activeKey == 2) &&
-                        <Button type="primary"
-                            onClick={
-                                () => {
-                                    (textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
-                                    :this.getUpgradeRollback()
-                                }}
-                            style={{ marginRight: "5px" }}
-                            loading={ (textState== 2&&textState== 4)?true:false}
 
-                        >{text}</Button>
-                    }
 
                     {
                         this.props.activeKey == 1 && <Button type="primary" onClick={
                             () => {
                                 (textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
-                                :this.handleSubmit()
+                                    : this.handleSubmit()
                             }
                         }
                             // disabled={textState != 1 ? true : false}
-                            loading={textState==2?true:false}
+                            loading={textState == 2 ? true : false}
                             style={{ marginRight: "5px" }}
                         >{upgradeText}</Button>
                     }
+
+                    {
+                        ((textState != 1 && textState != 2) || this.props.activeKey == 2) &&
+                        <Button type="primary"
+                            onClick={
+                                () => {
+                                    (this.props.activeKey == 1 && textState != 3 && textState != 6 && textState != 4 && textState != 8) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
+                                        :
+                                        (this.props.activeKey == 2 && textState != 1 && textState != 2 && textState != 4) ? this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.props.group_id}`))
+                                            :
+                                            this.getUpgradeRollback()
+                                }}
+                            style={{ marginRight: "5px" }}
+                            loading={(textState == 2 || textState == 4) ? true : false}
+
+                        >{ (this.props.activeKey == 1 && (textState == 3 || textState == 6 || textState == 8)) ? "回滚" : text}</Button>
+                    }
+
+
 
                     {/* {textState != 1 && textState != 2 && textState != 4 &&
                         <Button type="primary" onClick={() => {
