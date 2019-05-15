@@ -13,7 +13,7 @@ class ConfirmModal extends PureComponent {
         onCancel={onCancel}
         footer={[< Button onClick = {
           onCancel
-        } > 取消 < /Button>, <Button type="primary" disabled={this.props.disabled} onClick={onOk}>确定</Button >]}>
+        } > 取消 </Button>, <Button type="primary" disabled={this.props.disabled} onClick={onOk}>确定</Button >]}>
         <div className={styles.content}>
           <div className={styles.inner}>
             <span className={styles.icon}>
