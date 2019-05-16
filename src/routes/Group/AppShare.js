@@ -377,7 +377,11 @@ export default class Main extends PureComponent {
       shareList: [],
       sharearrs: [],
       shareModal: null,
-      isShare: null
+      isShare: null,
+      service_cname: "",
+      dep_service_name: [],
+      share_service_list: []
+
     };
     this.com = [];
     this.share_group_info = null;
@@ -410,6 +414,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
+            share_service_list: data.bean.share_service_list
           });
           if (data.bean.share_group_info.pic) {
             this.setState({
@@ -429,7 +434,7 @@ export default class Main extends PureComponent {
           let arr = []
           if (data.bean.share_service_list && data.bean.share_service_list.length > 0) {
             data.bean.share_service_list.map((item) => {
-              arr.push(item.service_id)
+              arr.push(item.service_share_uuid)
             })
             this.setState({
               shareList: arr,
@@ -476,7 +481,7 @@ export default class Main extends PureComponent {
 
         this.state.sharearrs.map((item) => {
           share_service_data.map((option) => {
-            if (item == option.service_id) {
+            if (item == option.service_share_uuid) {
               arr.push(option)
               option.dep_service_map_list &&
                 option.dep_service_map_list.length > 0 &&
@@ -571,10 +576,14 @@ export default class Main extends PureComponent {
     });
   };
 
+
+
   onCancels = () => {
     this.setState({
       shareModal: null,
-      isShare: null
+      isShare: null,
+      service_cname: "",
+      dep_service_name: []
     })
   }
 
@@ -630,58 +639,91 @@ export default class Main extends PureComponent {
 
   onFileChange = e => {
     const share_service_data = this.share_service_list;
-    const { shareList ,sharearrs} = this.state;
+    const { shareList, sharearrs } = this.state;
     // this.props.form.setFieldsValue({sharing:e}) 
-  
+
     if (e.length > 0) {
-      var newArray = e.filter(function (item) {
-        return shareList.indexOf(item) != -1
-      });
+      var newArray = sharearrs.filter(item => !e.includes(item))
+
       let arr = [];
       let dep_service_key = []
-      newArray.map((item) => {
+      let dep_service_name = []
+      e.map((item) => {
         share_service_data.map((option) => {
-          if (item == option.service_id) {
-            arr.push(option)
+          if (item == option.service_share_uuid) {
             option.dep_service_map_list &&
               option.dep_service_map_list.length > 0 &&
               option.dep_service_map_list.map((items) => {
                 dep_service_key.push(items.dep_service_key)
+                dep_service_name.push(option.service_cname)
               })
           }
         })
       })
-      let show = true
-      if (dep_service_key.length > 0) {
-        arr.map((item) => {
+
+      let show = false
+      let name = ""
+      if (newArray.length > 0 && dep_service_key.length > 0) {
+        newArray.map((item) => {
+          share_service_data.map((option) => {
+            if (item == option.service_share_uuid) {
+              name = option.service_cname
+            }
+          })
           dep_service_key.map((items => {
-            if (items == item.service_share_uuid) {
-              show = false
+            if (items == item) {
+              show = true
             }
           }))
         })
+      }
+
+
+      if (show && e.length <= sharearrs.length) {
+        this.setState({
+          shareModal: e,
+          service_cname: name,
+          dep_service_name
+        })
       } else {
-        show = false
-      }
-
-
-      if (show) {
         this.setState({
-          shareModal: e
-        })
-      }else{
-        this.setState({
-          sharearrs:e
+          sharearrs: e
+        }, () => {
+          this.handleTabList();
         })
       }
-
-    }else{
+    } else {
       notification.warning({ message: "分享服务不能少于1个" });
     }
   };
 
+
+  handleTabList = () => {
+
+    const { sharearrs } = this.state;
+    const share_service_data = this.share_service_list;
+    let arr = [];
+
+    sharearrs.map((item) => {
+      share_service_data.map((items) => {
+        if (item == items.service_share_uuid) {
+          arr.push(items)
+        }
+      })
+    })
+
+
+    this.setState({
+      share_service_list: arr
+    })
+    if (arr.length > 0) {
+      this.tabClick(arr[0].service_alias)
+    }
+  }
   handleSubmits = () => {
-    this.setState({ sharearrs:this.state.shareModal ,isShare: true, shareModal: null })
+    this.setState({ sharearrs: this.state.shareModal, isShare: true, shareModal: null }, () => {
+      this.handleTabList();
+    })
   }
 
   render() {
@@ -696,7 +738,7 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
-    const { shareList, shareModal,sharearrs } = this.state
+    const { shareList, shareModal, sharearrs, share_service_list } = this.state
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -836,7 +878,6 @@ export default class Main extends PureComponent {
                         },
                       ],
                     })( */}
-
                     <Checkbox.Group
                       onChange={this.onFileChange}
                       value={sharearrs}
@@ -844,7 +885,7 @@ export default class Main extends PureComponent {
                     >
                       {apps.map(order => {
                         return (
-                          <Checkbox key={order.service_id} value={order.service_id} >
+                          <Checkbox key={order.service_share_uuid} value={order.service_share_uuid} >
                             {order.service_cname}
                           </Checkbox>
                         );
@@ -855,7 +896,7 @@ export default class Main extends PureComponent {
                 </Form>
 
                 <div className={mytabcss.mytabtit} id="mytabtit">
-                  {apps.map(apptit => (tabk == apptit.service_alias ? (
+                  {share_service_list.map(apptit => (tabk == apptit.service_alias ? (
                     <a
                       tab={apptit.service_cname}
                       key={apptit.service_alias}
@@ -877,7 +918,7 @@ export default class Main extends PureComponent {
                     )))}
                 </div>
 
-                {apps.map(app => (tabk == app.service_alias ? (
+                {share_service_list.map(app => (tabk == app.service_alias ? (
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                   </div>
@@ -932,7 +973,11 @@ export default class Main extends PureComponent {
             okText={"是"}
             cancelText={"否"}
           >
-            <div>取消分享的服务被依赖于其他的服务, 是否删除其依赖关系.</div>
+            <div><a>{this.state.service_cname}服务</a>被依赖于{
+              this.state.dep_service_name && this.state.dep_service_name.length > 0 && this.state.dep_service_name.map((item, index) => {
+                return <a style={{ marginLeft: "5px" }} key={index}>{item}服务</a>
+              })
+            }, 是否删除其依赖关系.</div>
           </Modal>}
 
 
