@@ -514,7 +514,11 @@ export function getMnt(body = {
       page: body.page,
       page_size: body.page_size,
       type: body.type,
-      volume_type: body.volume_type ? body.volume_type : "share-file",
+      volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
+    },
+    paramsSerializer: function (params) {
+      const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
+      return yourNewParams
     },
   });
 }
@@ -1211,7 +1215,7 @@ export async function editStartProbe(body = {
       http_header: body.http_header,
       initial_delay_second: body.initial_delay_second,
       period_second: body.period_second,
-      timeout_second: body.timeout_second?Number(body.timeout_second):0,
+      timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
       old_mode: body.old_mode ? body.old_mode : ""
@@ -1278,8 +1282,12 @@ export async function getVolumes(body = {
     {
       method: "get",
       params: {
-        volume_type: body.volume_type ? body.volume_type : "share-file",
-      }
+        volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
+      },
+      paramsSerializer: function (params) {
+        const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
+        return yourNewParams
+      },
     },
   );
 }

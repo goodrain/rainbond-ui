@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_type: "share-file"
+        volume_type:["share-file","memoryfs","local"]
       },
     });
   };
@@ -79,7 +79,7 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type:"share-file"
+      volume_type: ["share-file","memoryfs","local"]
     }).then((data) => {
       if (data) {
         this.setState({
@@ -414,7 +414,7 @@ export default class Index extends PureComponent {
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}
-            volume_type={"share-file"}
+            volume_type={["share-file","memoryfs","local"]}
           />
         )}
         {this.state.toDeleteMnt && (

@@ -306,7 +306,7 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_type: "config-file"
+        volume_type: ["config-file"]
       },
     });
   };
@@ -326,7 +326,7 @@ export default class Index extends React.Component {
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type:"config-file"
+      volume_type:["config-file"]
 
     }).then((data) => {
       if (data) {
@@ -838,7 +838,7 @@ export default class Index extends React.Component {
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}
-            volume_type={"config-file"}
+            volume_type={["config-file"]}
           />
         )}
         {this.state.toDeleteMnt && (
