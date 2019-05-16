@@ -497,7 +497,8 @@ export function removeRelationedApp(body = {
 
 /*
 	获取挂载或未挂载的目录
-	type: 查询的类别 mnt（已挂载的,默认）| unmnt (未挂载的)
+  type: 查询的类别 mnt（已挂载的,默认）| unmnt (未挂载的)
+  volume_type: 查询的类别 share-file(非配置文件) | config-file(配置文件)
 */
 export function getMnt(body = {
   team_name,
@@ -505,6 +506,7 @@ export function getMnt(body = {
   page,
   pageSize,
   type: "mnt",
+  volume_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`, {
     method: "get",
@@ -512,6 +514,11 @@ export function getMnt(body = {
       page: body.page,
       page_size: body.page_size,
       type: body.type,
+      volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
+    },
+    paramsSerializer: function (params) {
+      const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
+      return yourNewParams
     },
   });
 }
@@ -958,7 +965,7 @@ export async function putTransfer(body = {
     {
       method: "patch",
       data: {
-        scope	: body.scope,
+        scope: body.scope,
       }
     },
   );
@@ -1208,7 +1215,7 @@ export async function editStartProbe(body = {
       http_header: body.http_header,
       initial_delay_second: body.initial_delay_second,
       period_second: body.period_second,
-      timeout_second: body.timeout_second?Number(body.timeout_second):0,
+      timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
       success_threshold: body.success_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
       old_mode: body.old_mode ? body.old_mode : ""
@@ -1261,15 +1268,27 @@ export async function getBaseInfo(body = {
 }
 
 /*
-	获取应用的持久化路径
+  获取应用的持久化路径
+    volume_type: 查询的类别 share-file(非配置文件) | config-file(配置文件)
+
 */
 export async function getVolumes(body = {
   team_name,
   app_alias,
+  volume_type
 }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
-    { method: "get" },
+    {
+      method: "get",
+      params: {
+        volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
+      },
+      paramsSerializer: function (params) {
+        const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
+        return yourNewParams
+      },
+    },
   );
 }
 

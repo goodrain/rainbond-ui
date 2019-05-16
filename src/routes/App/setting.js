@@ -1128,7 +1128,7 @@ export default class Index extends React.Component {
               onCancel={this.cancelTransfer}
               title="转移环境变量"
               desc="确定要转移此变量吗？"
-              subDesc="此操作不可恢复"
+              subDesc=""
             />
           )
         }

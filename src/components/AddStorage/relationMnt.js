@@ -66,7 +66,8 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
       page: this.state.current,
       page_size: this.state.pageSize,
-      type: "unmnt"
+      type: "unmnt",
+      volume_type:this.props.volume_type?this.props.volume_type:["share-file","memoryfs","local"]
     }).then(data => {
       if (data) {
         this.setState({
