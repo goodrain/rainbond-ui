@@ -392,8 +392,7 @@ export default class TcpTable extends PureComponent {
             // width: "20%",
             render: (data, record, index) => {
                 return (
-                    record.service_source == "third_party" ? <div>-</div> :
-                        record.is_outer_service == 1 ? <div>
+                        (record.is_outer_service == 1 || record.service_source == "third_party") ? <div>
                             <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
                             <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
                             <a onClick={this.handleDelete.bind(this, record)}>删除</a>
