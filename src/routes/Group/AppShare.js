@@ -375,8 +375,13 @@ export default class Main extends PureComponent {
       key: "",
       fileList: [],
       shareList: [],
-      shareModal:null,
-      isShare:null
+      sharearrs: [],
+      shareModal: null,
+      isShare: null,
+      service_cname: "",
+      dep_service_name: [],
+      share_service_list: []
+
     };
     this.com = [];
     this.share_group_info = null;
@@ -409,6 +414,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
+            share_service_list: data.bean.share_service_list
           });
           if (data.bean.share_group_info.pic) {
             this.setState({
@@ -428,11 +434,14 @@ export default class Main extends PureComponent {
           let arr = []
           if (data.bean.share_service_list && data.bean.share_service_list.length > 0) {
             data.bean.share_service_list.map((item) => {
-              arr.push(item.service_id)
+              arr.push(item.service_share_uuid)
             })
             this.setState({
-              shareList: arr
+              shareList: arr,
+              sharearrs: arr
             })
+            this.props.form.setFieldsValue({ sharing: arr })
+
           }
 
 
@@ -470,9 +479,9 @@ export default class Main extends PureComponent {
         let arr = [];
         let dep_service_key = []
 
-        values.sharing.map((item) => {
+        this.state.sharearrs.map((item) => {
           share_service_data.map((option) => {
-            if (item == option.service_id) {
+            if (item == option.service_share_uuid) {
               arr.push(option)
               option.dep_service_map_list &&
                 option.dep_service_map_list.length > 0 &&
@@ -483,7 +492,7 @@ export default class Main extends PureComponent {
           })
         })
 
-        let show = true
+        var show = true
         if (dep_service_key.length > 0) {
           arr.map((item) => {
             dep_service_key.map((items => {
@@ -532,18 +541,13 @@ export default class Main extends PureComponent {
           });
         });
 
-        if(show&&!this.state.isShare){
-          this.setState({
-            shareModal:true
-          })
-          return null
-        }
 
-      //  if(this.state.isShare){
-      //   newinfo.use_force="true"
-      //  }else{
-      //   newinfo.use_force="false"
-      //  }
+
+        //  if(this.state.isShare){
+        //   newinfo.use_force="true"
+        //  }else{
+        //   newinfo.use_force="false"
+        //  }
 
         newinfo.share_group_info = this.share_group_info;
         // newinfo.share_service_list = share_service_data;
@@ -558,7 +562,7 @@ export default class Main extends PureComponent {
           payload: {
             team_name,
             share_id: shareId,
-            use_force:this.state.isShare?"true":"false",
+            use_force: show ? "true" : "false",
             new_info: newinfo,
           },
           callback: (data) => {
@@ -572,10 +576,14 @@ export default class Main extends PureComponent {
     });
   };
 
-  onCancels = ()=>{
+
+
+  onCancels = () => {
     this.setState({
-      shareModal:null,
-      isShare:null
+      shareModal: null,
+      isShare: null,
+      service_cname: "",
+      dep_service_name: []
     })
   }
 
@@ -630,14 +638,94 @@ export default class Main extends PureComponent {
   };
 
   onFileChange = e => {
-    this.setState({ arr: e });
+    const share_service_data = this.share_service_list;
+    const { shareList, sharearrs } = this.state;
+    // this.props.form.setFieldsValue({sharing:e}) 
+
+    if (e.length > 0) {
+      var newArray = sharearrs.filter(item => !e.includes(item))
+
+      let arr = [];
+      let dep_service_key = []
+      let dep_service_name = []
+      e.map((item) => {
+        share_service_data.map((option) => {
+          if (item == option.service_share_uuid) {
+            option.dep_service_map_list &&
+              option.dep_service_map_list.length > 0 &&
+              option.dep_service_map_list.map((items) => {
+                dep_service_key.push(items.dep_service_key)
+                dep_service_name.push(option.service_cname)
+              })
+          }
+        })
+      })
+
+      let show = false
+      let name = ""
+      if (newArray.length > 0 && dep_service_key.length > 0) {
+        newArray.map((item) => {
+          share_service_data.map((option) => {
+            if (item == option.service_share_uuid) {
+              name = option.service_cname
+            }
+          })
+          dep_service_key.map((items => {
+            if (items == item) {
+              show = true
+            }
+          }))
+        })
+      }
+
+
+      if (show && e.length <= sharearrs.length) {
+        this.setState({
+          shareModal: e,
+          service_cname: name,
+          dep_service_name
+        })
+      } else {
+        this.setState({
+          sharearrs: e
+        }, () => {
+          this.handleTabList();
+        })
+      }
+    } else {
+      notification.warning({ message: "分享服务不能少于1个" });
+    }
   };
-  
-  handleSubmits = () =>{
-    this.setState({isShare:true,shareModal:null,},()=>{
-      this.handleSubmit();
+
+
+  handleTabList = () => {
+
+    const { sharearrs } = this.state;
+    const share_service_data = this.share_service_list;
+    let arr = [];
+
+    sharearrs.map((item) => {
+      share_service_data.map((items) => {
+        if (item == items.service_share_uuid) {
+          arr.push(items)
+        }
+      })
+    })
+
+
+    this.setState({
+      share_service_list: arr
+    })
+    if (arr.length > 0) {
+      this.tabClick(arr[0].service_alias)
+    }
+  }
+  handleSubmits = () => {
+    this.setState({ sharearrs: this.state.shareModal, isShare: true, shareModal: null }, () => {
+      this.handleTabList();
     })
   }
+
   render() {
     const info = this.state.info;
     if (!info) {
@@ -650,7 +738,7 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
-    const { shareList,shareModal } = this.state
+    const { shareList, shareModal, sharearrs, share_service_list } = this.state
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -779,34 +867,36 @@ export default class Main extends PureComponent {
             >
               <div className="mytab">
                 <Form layout="horizontal" className={styles.stepForm}>
-                  <Form.Item {...sharingFormItemLayout} label="分享服务">
-                    {getFieldDecorator("sharing", {
+                  <Form.Item {...sharingFormItemLayout} label="分享服务" required={true}>
+                    {/* {getFieldDecorator("sharing", {
                       initialValue: shareList,
+                      // setFieldsValue:shareList,
                       rules: [
                         {
                           required: true,
                           message: "请选择分享的服务",
                         },
                       ],
-                    })(
-
-                      <Checkbox.Group
-                        onChange={this.onFileChange}
-                        style={{ display: "block", marginTop: "9px" }}
-                      >
-                        {apps.map(order => {
-                          return (
-                            <Checkbox key={order.service_id} value={order.service_id}>
-                              {order.service_cname}
-                            </Checkbox>
-                          );
-                        })}
-                      </Checkbox.Group>
-                    )}
+                    })( */}
+                    <Checkbox.Group
+                      onChange={this.onFileChange}
+                      value={sharearrs}
+                      style={{ display: "block", marginTop: "9px" }}
+                    >
+                      {apps.map(order => {
+                        return (
+                          <Checkbox key={order.service_share_uuid} value={order.service_share_uuid} >
+                            {order.service_cname}
+                          </Checkbox>
+                        );
+                      })}
+                    </Checkbox.Group>
+                    {/* )} */}
                   </Form.Item>
                 </Form>
+
                 <div className={mytabcss.mytabtit} id="mytabtit">
-                  {apps.map(apptit => (tabk == apptit.service_alias ? (
+                  {share_service_list.map(apptit => (tabk == apptit.service_alias ? (
                     <a
                       tab={apptit.service_cname}
                       key={apptit.service_alias}
@@ -828,7 +918,7 @@ export default class Main extends PureComponent {
                     )))}
                 </div>
 
-                {apps.map(app => (tabk == app.service_alias ? (
+                {share_service_list.map(app => (tabk == app.service_alias ? (
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                   </div>
@@ -874,19 +964,24 @@ export default class Main extends PureComponent {
               ]}
             />
           </Card>
-          
-          {shareModal&&<Modal
+
+          {shareModal && <Modal
             title="依赖检测"
             visible={shareModal}
             onOk={this.handleSubmits}
             onCancel={this.onCancels}
-            okText={"确认分享"}
-            cancelText={"取消分享"}
+            okText={"确定"}
+            cancelText={"取消"}
           >
-            <div>当前分享的服务依赖未选择分享的服务,是否取消依赖未选择分享服务</div>
+            <div><a>{this.state.service_cname}服务</a>被需要分享的{
+              this.state.dep_service_name && this.state.dep_service_name.length > 0 && this.state.dep_service_name.map((item, index) => {
+                return <a style={{ marginLeft: "5px" }} key={index}>{item}服务</a>
+              })
+            }依赖, 
+            <p style={{marginTop:"5px"}}>是否确定取消分享<a>{this.state.service_cname}</a>服务</p>.</div>
           </Modal>}
 
-
+   
           <FooterToolbar>
             <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>
               提交
