@@ -970,17 +970,18 @@ export default class Main extends PureComponent {
             visible={shareModal}
             onOk={this.handleSubmits}
             onCancel={this.onCancels}
-            okText={"是"}
-            cancelText={"否"}
+            okText={"确定"}
+            cancelText={"取消"}
           >
-            <div><a>{this.state.service_cname}服务</a>被依赖于{
+            <div><a>{this.state.service_cname}服务</a>被需要分享的{
               this.state.dep_service_name && this.state.dep_service_name.length > 0 && this.state.dep_service_name.map((item, index) => {
                 return <a style={{ marginLeft: "5px" }} key={index}>{item}服务</a>
               })
-            }, 是否删除其依赖关系.</div>
+            }依赖, 
+            <p style={{marginTop:"5px"}}>是否确定取消分享<a>{this.state.service_cname}</a>服务</p>.</div>
           </Modal>}
 
-
+   
           <FooterToolbar>
             <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>
               提交
