@@ -168,8 +168,6 @@ export default class Index extends PureComponent {
                     callback("请输入服务地址");
                     return;
                 }
-
-
                 // if (
                 //     (!/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(item || ""))
                 // ) {
@@ -185,8 +183,11 @@ export default class Index extends PureComponent {
                 // }
             })
         }
-        if (value && value == "127.0.0.1") {
-            callback("此地址不能使用");
+        if (value && typeof(value)=="object"? value.join().search("127.0.0.1") != -1 :value.search("127.0.0.1") != -1) {
+            callback("不支持127.0.0.1环回接口地址");
+        }
+        if (value && typeof(value)=="object"? value.join().search("localhost") != -1 :value.search("localhost") != -1) {
+            callback("不支持localhost环回接口地址");
         }
         callback();
     };

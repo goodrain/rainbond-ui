@@ -24,6 +24,7 @@ import {
   queryMigrateApp,
   delRestore,
   delBackup,
+  delFailureBackup,
   startPluginShareEventInShareApp,
   getPluginShareEventInShareApp,
   queryAllBackup,
@@ -228,6 +229,13 @@ export default {
     },
     * delBackup({ payload, callback }, { call, put }) {
       const response = yield call(delBackup, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    // 应用失败记录删除
+    * delFailureBackup({ payload, callback }, { call, put }) {
+      const response = yield call(delFailureBackup, payload);
       if (response) {
         callback && callback(response);
       }

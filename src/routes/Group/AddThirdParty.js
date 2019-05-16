@@ -59,6 +59,7 @@ export default class AddThirdParty extends PureComponent {
       handleType: null,
       moreState: true,
       BackType: null,
+      errState:true,
     };
   }
   cancelDelete = () => {
@@ -129,8 +130,8 @@ export default class AddThirdParty extends PureComponent {
     }
   }
   //底部按钮组
-  handleServiceBotton = (ButtonGroup, ButtonGroupState) => {
-    this.setState({ ButtonGroup, ButtonGroupState })
+  handleServiceBotton = (ButtonGroup, ButtonGroupState,errState) => {
+    this.setState({ ButtonGroup, ButtonGroupState,errState })
   }
   //刷新
   refreshCurrent = () => {
@@ -212,7 +213,9 @@ export default class AddThirdParty extends PureComponent {
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             refreshCurrent={() => { this.refreshCurrent() }}
-            handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
+            ErrState={this.state.errState}
+            handleServiceBotton={(ButtonGroup, ButtonGroupState,errState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState,errState) }}
+          
             handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data);
             this.props.onload&&this.props.onload()
             }} />}
@@ -224,6 +227,7 @@ export default class AddThirdParty extends PureComponent {
             handleType="Service"
             moreState={moreState}
             ButtonGroupState={ButtonGroupState}
+            ErrState={this.state.errState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
             handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
             handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}
@@ -234,6 +238,7 @@ export default class AddThirdParty extends PureComponent {
             handleType="Service"
             dynamicType={ServiceComponentTwoPage}
             ButtonGroupState={ButtonGroupState}
+            ErrState={this.state.errState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
             handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
             handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}

@@ -281,8 +281,8 @@ class Main extends PureComponent {
             BuildState: null,
             deployCanClick: false,
             rollingCanClick: false,
-            isShowThirdParty: false
-
+            isShowThirdParty: false,
+            promptModal: null
             // isChecked: ''
         }
         this.timer = null;
@@ -342,7 +342,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res&&res._code == 200) {
+                    if (res && res._code == 200) {
                         this.setState({
                             BuildState: res.list && res.list.length > 0 ? res.list.length : null
                         })
@@ -437,7 +437,7 @@ class Main extends PureComponent {
     handleshowDeployTips = (showonoff) => {
         this.setState({ showDeployTips: showonoff });
     }
-    handleDeploy = (group_version,is_upgrate) => {
+    handleDeploy = (group_version, is_upgrate) => {
         this.setState({ showDeployTips: false, showreStartTips: false, deployCanClick: true });
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
@@ -448,7 +448,7 @@ class Main extends PureComponent {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.getAppAlias(),
             group_version: group_version ? group_version : "",
-            is_upgrate:build_upgrade
+            is_upgrate: build_upgrade
         }).then((data) => {
             this.setState({ deployCanClick: false })
             if (data) {
@@ -489,6 +489,8 @@ class Main extends PureComponent {
     }
     handleRestart = () => {
         this.setState({ showreStartTips: false });
+        this.handleOffHelpfulHints();
+
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -508,6 +510,8 @@ class Main extends PureComponent {
         })
     }
     handleStart = () => {
+        this.handleOffHelpfulHints();
+
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -527,6 +531,7 @@ class Main extends PureComponent {
         })
     }
     handleStop = () => {
+        this.handleOffHelpfulHints();
         if (this.state.actionIng) {
             notification.warning({ message: `正在执行操作，请稍后` });
             return;
@@ -556,7 +561,9 @@ class Main extends PureComponent {
             this.showMoveGroup();
         }
         if (item.key === 'restart') {
-            this.handleRestart()
+            this.setState({
+                promptModal: "restart"
+            })
         }
     }
     onDeleteApp = () => {
@@ -714,9 +721,8 @@ class Main extends PureComponent {
         const serviceAlias = appDetail.service.service_alias;
         const buildType = appDetail.service.service_source
         const text = appDetail.rain_app_name
-        const {status}=this.state
-      
-        if (buildType == "market"&&(status&&status.status != "undeploy")) {
+        const { status } = this.state
+        if (buildType == "market" && (status && status.status != "undeploy")) {
             this.props.dispatch({
                 type: 'appControl/getBuildInformation',
                 payload: {
@@ -724,7 +730,7 @@ class Main extends PureComponent {
                     app_alias: serviceAlias,
                 },
                 callback: (res) => {
-                    if (res&&res._code == 200) {
+                    if (res && res._code == 200) {
                         this.setState({
                             BuildList: res.list,
                             visibleBuild: true,
@@ -739,9 +745,7 @@ class Main extends PureComponent {
                 }
             })
         } else {
-            buildType == "market"?
-            this.handleDeploy("",true):
-            this.handleDeploy()
+            buildType == "market" ?this.handleDeploy("", true) :this.handleDeploy()
         }
     };
 
@@ -765,8 +769,25 @@ class Main extends PureComponent {
         })
     }
 
+    handleOpenHelpfulHints = (promptModal) => {
+        this.setState({
+            promptModal
+        })
+    }
 
+    handleOffHelpfulHints = () => {
+        this.setState({
+            promptModal: null
+        })
+    }
 
+    handleJumpAgain = () => {
+        const { promptModal } = this.state;
+        promptModal == "stop" ? this.handleStop() :
+            promptModal == "start" ? this.handleStart() :
+                promptModal == "restart" ? this.handleRestart() : ""
+
+    }
 
     render() {
         const { index, projectLoading, activitiesLoading, currUser } = this.props;
@@ -776,7 +797,13 @@ class Main extends PureComponent {
         const groups = this.props.groups || [];
         const isShowThirdParty = this.state.isShowThirdParty
         const { getFieldDecorator, getFieldValue } = this.props.form;
-
+        const codeObj = {
+            "start": "启动",
+            "restart": "重启",
+            "stop": "关闭",
+            "deploy": "构建",
+            "rolling": "更新(滚动）"
+        }
         if (!appDetail.service) {
             return null;
         }
@@ -807,9 +834,9 @@ class Main extends PureComponent {
                     {isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
 
                     {(appUtil.canStopApp(appDetail)) && !appStatusUtil.canStart(status) && !isShowThirdParty
-                        ? <Button disabled={!appStatusUtil.canStop(status)} onClick={this.handleStop}>关闭</Button>
+                        ? <Button disabled={!appStatusUtil.canStop(status)} onClick={() => { this.handleOpenHelpfulHints("stop") }}>关闭</Button>
                         : status && status.status && status.status == "upgrade" ?
-                            <Button onClick={this.handleStop}>关闭</Button>
+                            <Button onClick={() => { this.handleOpenHelpfulHints("stop") }}>关闭</Button>
                             :
                             null}
 
@@ -865,13 +892,20 @@ class Main extends PureComponent {
                     )
                 } */}
                 {status.status == "undeploy" || status.status == "closed" || status.status == "stopping" || isShowThirdParty ?
-                    '' : <Button type="primary" onClick={this.handleUpdateRolling} loading={this.state.rollingCanClick}>更新(滚动)</Button>
+                    '' : <Button type="primary" onClick={this.handleUpdateRolling } loading={this.state.rollingCanClick}>更新(滚动)</Button>
                 }
 
 
                 {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
             </div>
         );
+
+
+
+
+
+
+
 
         const tabList = isShowThirdParty ?
             [
@@ -970,7 +1004,7 @@ class Main extends PureComponent {
                 span: 23,
             },
         };
-        const { BuildList,BuildState } = this.state;
+        const { BuildList, BuildState } = this.state;
         return (
             <PageHeaderLayout
                 breadcrumbList={[{
@@ -1000,6 +1034,18 @@ class Main extends PureComponent {
                         app={this.state.showApp}
                     />
                 )}
+
+                {
+                    this.state.promptModal && <Modal
+                        title="友情提示"
+                        visible={this.state.promptModal}
+                        onOk={this.handleJumpAgain}
+                        onCancel={this.handleOffHelpfulHints}
+                        confirmLoading={!this.state.promptModal}
+                    >
+                        <p>确定{codeObj[this.state.promptModal]}当前服务？</p>
+                    </Modal>
+                }
                 <Modal
                     title={[<span>从云市应用构建</span>]
                     }
@@ -1040,8 +1086,7 @@ class Main extends PureComponent {
                                             </RadioGroup>
                                         )}
                                     </Form.Item>
-                                </Form>
-                                : <Alert message="云市应用未更新，您无需更新。" type="success" style={{ marginBottom: "5px" }} />
+                                </Form> : <Alert message="云市应用未更新，您无需更新。" type="success" style={{ marginBottom: "5px" }} />
                         }
                     </div>
                 </Modal>

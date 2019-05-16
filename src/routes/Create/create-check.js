@@ -504,6 +504,9 @@ export default class CreateCheck extends PureComponent {
             {" "}
             放弃创建{" "}
           </Button>
+          <Button type="default" onClick={this.handleSetting}  style={{ marginRight: "8px" }}>
+              高级设置
+              </Button>
           <div style={{ display: 'flex', alignItems: "center" }}>
             <Button onClick={this.handleBuild} type="primary" style={{ marginRight: "8px" }} loading={this.state.buildAppLoading} >
               {" "}创建{" "}

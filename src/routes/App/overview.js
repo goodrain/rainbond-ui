@@ -75,6 +75,9 @@ class LogItem extends PureComponent {
     }
     return "";
   }
+  shouldComponentUpdate() {
+    return true
+  }
   componentDidMount() {
     const { data } = this.props;
     if (data) {
@@ -98,6 +101,8 @@ class LogItem extends PureComponent {
       }
     }
   }
+
+
   loadLog() {
     getActionLogDetail({
       app_alias: this.props.appAlias,
@@ -209,7 +214,7 @@ class LogItem extends PureComponent {
     if (type === this.state.logType) { return; }
     this.setState({
       logType: type,
-      logs:[]
+      logs: []
     }, () => {
       this.loadLog();
     });
@@ -236,9 +241,11 @@ class LogItem extends PureComponent {
   render() {
     const { status, opened, logType, logs } = this.state;
     const { data } = this.props;
+    const box = document.getElementById("box")
     if (!data) {
       return null;
     }
+
     return (
       <div
         ref={this.saveRef}
@@ -322,8 +329,8 @@ class LogItem extends PureComponent {
             }}
             className={`${styles.logContent} logs-cont`}
           >
-          {/* 动态日志 */}
-            {status === "ing" && <LogProcress
+            {/* 动态日志 */}
+            {status === "ing" ? <LogProcress
               resover
               onClose={this.onClose}
               onComplete={this.onComplete}
@@ -333,14 +340,18 @@ class LogItem extends PureComponent {
               socketUrl={this.getSocketUrl()}
               eventId={data.event_id}
               opened={opened}
-            />}
-            {logs&&logs.length>0&&logs.map((item,index) => <p key={index}>
-              <span style={{
-                marginRight: 10
-              }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
-              <span>{item.message}</span>
-            </p>)
-            }
+              list={this.state.logs}
+            /> :
+              <div>
+                {logs && logs.length > 0 && logs.map((item, index) => <p key={index}>
+                  <span style={{
+                    marginRight: 10
+                  }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
+                  <span>{item.message}</span>
+                </p>)
+                }
+              </div>}
+
           </div>
         </div>
       </div>
@@ -383,7 +394,7 @@ export default class Index extends PureComponent {
       disk: 0,
       memory: 0,
       showVersionManage: false,
-      showUpgrade:false
+      showUpgrade: false
     };
     this.inerval = 5000;
   }
@@ -429,8 +440,8 @@ export default class Index extends PureComponent {
           app_alias: this.props.appAlias,
         },
         callback: (data) => {
-          const list = data&&data.list || [];
-          if (list&&list.length) {
+          const list = data && data.list || [];
+          if (list && list.length) {
             this.setState({ anaPlugins: list });
             this.fetchRequestTime();
             this.fetchRequestTimeRange();
@@ -568,7 +579,7 @@ export default class Index extends PureComponent {
   onAction = (actionLog) => {
     this.setState({
       logList: [actionLog].concat(this.state.logList),
-      showUpgrade:true
+      showUpgrade: true
     });
   }
   handleNextPage = () => {
@@ -606,7 +617,7 @@ export default class Index extends PureComponent {
         marginBottom: 24,
       },
     };
-    const { logList, hasNext, anaPlugins,opened ,showUpgrade} = this.state;
+    const { logList, hasNext, anaPlugins, opened, showUpgrade } = this.state;
     const { appDetail } = this.props;
     const status = this.props.status || {};
     let hasAnaPlugins = !!anaPlugins.length;
@@ -746,14 +757,14 @@ export default class Index extends PureComponent {
               </p>
               }
 
-              {this.state.showVersionManage && 
-              <AppVersionManage 
-                onRollback={this.handleRollback} 
-                onCancel={this.hideVersionManage} 
-                team_name={globalUtil.getCurrTeamName()} 
-                service_alias={this.props.appAlias} 
-                showUpgrade={showUpgrade}
-                setShowUpgrade={()=>{this.setState({showUpgrade:false})}}
+              {this.state.showVersionManage &&
+                <AppVersionManage
+                  onRollback={this.handleRollback}
+                  onCancel={this.hideVersionManage}
+                  team_name={globalUtil.getCurrTeamName()}
+                  service_alias={this.props.appAlias}
+                  showUpgrade={showUpgrade}
+                  setShowUpgrade={() => { this.setState({ showUpgrade: false }) }}
                 />}
             </Card>
           </Col>

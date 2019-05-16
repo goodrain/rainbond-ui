@@ -702,7 +702,14 @@ class JAVA extends PureComponent {
                 {
                     (languageType == "java-jar" || languageType == "Java-jar") &&
                     <div>
-
+                        <Form.Item {...formItemLayout} label="开启清除构建缓存">
+                            {getFieldDecorator('NO_CACHE', {
+                                initialValue: ""
+                            })(
+                                <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
+                            )}
+                        </Form.Item>
+                        
                         <Form.Item {...formItemLayout} label="选择JDK版本">
                             {getFieldDecorator('RUNTIMES', {
                                 initialValue: (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) ? "OpenJDK" : (runtimeInfo && runtimeInfo.BUILD_ENABLE_ORACLEJDK) ? "Jdk" : "OpenJDK"
@@ -1003,7 +1010,7 @@ class JAVA extends PureComponent {
                     <div>
                         <Form.Item {...formItemLayout} label="Node版本">
                             {getFieldDecorator('BUILD_RUNTIMES', {
-                                initialValue: runtimeInfo && runtimeInfo.Node || "8.12.0",
+                                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES || "8.12.0",
                             })(
                                 <RadioGroup className={styles.ant_radio_disabled}>
                                     <Radio value="8.12.0" selected="selected">8.12.0(默认)</Radio>

@@ -20,7 +20,7 @@ export default class ChangeBuildSource extends PureComponent {
       showUsernameAndPass: false,
       showKey: false,
       gitUrl: this.props.buildSource.git_url,
-      serverType: this.props.buildSource.server_type?this.props.buildSource.server_type:"git",
+      serverType: this.props.buildSource.server_type ? this.props.buildSource.server_type : "git",
       showCode: appUtil.isCodeAppByBuildSource(this.props.buildSource),
       showImage: appUtil.isImageAppByBuildSource(this.props.buildSource),
     };
@@ -38,7 +38,7 @@ export default class ChangeBuildSource extends PureComponent {
     return /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
   }
   changeServerType = (value) => {
-    this.setState({ serverType: value ,showUsernameAndPass:false});
+    this.setState({ serverType: value, showUsernameAndPass: false });
   };
   checkURL = (rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
@@ -65,6 +65,7 @@ export default class ChangeBuildSource extends PureComponent {
       if (fieldsValue.version_type == "tag") {
         fieldsValue.code_version = "tag:".concat(fieldsValue.code_version);
       }
+
       this.props.dispatch({
         type: "appControl/putAppBuidSource",
         payload: {
@@ -123,8 +124,7 @@ export default class ChangeBuildSource extends PureComponent {
       urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
-
-
+    
     const prefixSelector = getFieldDecorator("server_type", {
       initialValue: this.state.buildSource.server_type,
     })(<Select onChange={this.changeServerType} style={{ width: 100 }}>
@@ -147,6 +147,7 @@ export default class ChangeBuildSource extends PureComponent {
       getFieldDecorator("service_source", { initialValue: "source_code" });
     }
     const showImage = appUtil.isImageAppByBuildSource(this.state.buildSource);
+
     if (this.state.showImage) {
       getFieldDecorator("service_source", { initialValue: "docker_run" });
     }
@@ -172,6 +173,29 @@ export default class ChangeBuildSource extends PureComponent {
               initialValue: this.state.buildSource.cmd,
             })(<Input />)}
           </FormItem>
+
+          <Form.Item
+            style={{ display:showImage ? "" : "none" }}
+            {...formItemLayout}
+            label="用户名"
+          >
+            {getFieldDecorator("user_name", {
+              initialValue: ((this.state.buildSource.user_name || this.state.buildSource.user) || ""),
+              rules: [{ required: false, message: "请输入仓库用户名" }],
+            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+          </Form.Item>
+          <Form.Item
+            style={{ display: showImage ? "" : "none" }} 
+            {...formItemLayout}
+            label="密码"
+          >
+            {getFieldDecorator("password", {
+              initialValue: this.state.buildSource.password || "",
+              rules: [{ required: false, message: "请输入仓库密码" }],
+            })(<Input autoComplete="new-password" type="password" placeholder="请输入仓库密码" />)}
+          </Form.Item>
+
+
           {this.state.showCode && (
             <Form.Item
               style={{ display: this.state.showCode ? "" : "none" }}
@@ -236,17 +260,17 @@ export default class ChangeBuildSource extends PureComponent {
             )}
 
           <Form.Item
-            style={{ display:(showUsernameAndPass && isHttp) ? "" : "none" }}
+            style={{ display: (showUsernameAndPass && isHttp) ? "" : "none" }}
             {...formItemLayout}
             label="用户名"
           >
             {getFieldDecorator("user_name", {
-              initialValue: this.state.buildSource.user_name || "",
+              initialValue: ((this.state.buildSource.user_name || this.state.buildSource.user) || ""),
               rules: [{ required: false, message: "请输入仓库用户名" }],
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
-            style={{ display:(showUsernameAndPass && isHttp) ? "" : "none" }}s
+            style={{ display: (showUsernameAndPass && isHttp) ? "" : "none" }}
             {...formItemLayout}
             label="密码"
           >
