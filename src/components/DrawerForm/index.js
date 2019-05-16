@@ -343,12 +343,12 @@ class DrawerForm extends PureComponent {
                         >
                             {getFieldDecorator('group_id', {
                                 rules: [{ required: true, message: '请选择' }],
-                                initialValue: editInfo && editInfo.g_id.toString() || undefined,
+                                initialValue: editInfo && editInfo.g_id+"" || undefined,
                             })(
                                 <Select placeholder="请选择要所属应用组" onChange={this.handleServices}>
                                     {
                                         (groups || []).map((group) => {
-                                            return <Option value={group.group_id.toString()} key={group.group_id}>{group.group_name}</Option>
+                                            return <Option value={group.group_id+""} key={group.group_id}>{group.group_name}</Option>
                                         })
                                     }
                                 </Select>
@@ -366,7 +366,7 @@ class DrawerForm extends PureComponent {
                                 <Select placeholder="请选择服务组件" onChange={this.handlePorts} >
                                     {
                                         (this.state.serviceComponentList || []).map((service, index) => {
-                                            return <Option value={service.service_id.toString()} key={index}>{service.service_cname}</Option>
+                                            return <Option value={service.service_id+""} key={index}>{service.service_cname}</Option>
                                         })
                                     }
 

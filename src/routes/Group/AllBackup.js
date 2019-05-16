@@ -105,6 +105,7 @@ class Index extends React.Component {
       pageSize: 10,
       showMove: false,
       showDel: false,
+      showDelBackup: false,
       showRecovery: false,
       backup_id: '',
       group_uuid: '',
@@ -153,6 +154,13 @@ class Index extends React.Component {
   cancelRecoveryBackup = () => {
     this.setState({ showRecovery: false, backup_id: '', group_id: '' });
   }
+
+  // 删除应用备份
+  handleDel = (data, e) => {
+    this.setState({ showDel: true, backup_id: data.backup_id , group_id:data.group_id})
+  }
+
+
   handleDelete = (e) => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
@@ -167,14 +175,47 @@ class Index extends React.Component {
           message: '删除成功',
           duration: '2'
         });
-        this.fetchAllBackup();
         this.cancelDelete();
       }
     })
   }
   cancelDelete = (e) => {
-    this.setState({ showDel: false, backup_id: '', group_id: '' })
+    this.setState({ showDel: false, backup_id: '' }, () => {
+      this.fetchAllBackup();
+    })
   }
+  handleDelBackup = (data, e) => {
+    this.setState({ showDelBackup: true, backup_id: data.backup_id , group_id:data.group_id })
+  }
+
+  // 应用失败记录删除
+  handleDeleteBackup = (e) => {
+    const team_name = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: 'groupControl/delFailureBackup',
+      payload: {
+        team_name: team_name,
+        group_id: this.state.group_id,
+        backup_id: this.state.backup_id
+      },
+      callback: (data) => {
+        notification.success({
+          message: '删除成功',
+          duration: '2'
+        });
+        this.cancelDeleteBackup();
+      }
+    })
+  }
+
+
+  cancelDeleteBackup = (e) => {
+    this.setState({ showDelBackup: false, backup_id: '' }, () => {
+      this.fetchAllBackup();
+    })
+  }
+
+
 
   // 恢复应用备份
   handleRecovery = (data, e) => {
@@ -259,6 +300,7 @@ class Index extends React.Component {
                     <a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleRecovery.bind(this, data)}>恢复</a>
                     <a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleMove.bind(this, data)}>迁移</a>
                     {data.mode == 'full-online' && <a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleExport.bind(this, data)}>导出</a>}
+                    {data.is_delete && <a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleDelBackup.bind(this, data)}>删除</a>}
                   </Fragment>
                   : ''
 
@@ -266,7 +308,7 @@ class Index extends React.Component {
               {
                 (data.status == 'failed') ?
                   <Fragment>
-                    <a href="javascript:;" onClick={this.handleDelete.bind(this, data)}>删除</a>
+                    <a href="javascript:;" onClick={this.handleDel.bind(this, data)}>删除</a>
                   </Fragment>
                   : ''
               }
@@ -315,6 +357,7 @@ class Index extends React.Component {
           backupId={this.state.backup_id}
           group_uuid={this.state.group_uuid}
           groupId={this.state.group_id} />}
+
         {this.state.showDel && <ConfirmModal
           backupId={this.state.backup_id}
           onOk={this.handleDelete}
@@ -322,6 +365,15 @@ class Index extends React.Component {
           title="删除备份"
           desc="确定要删除此备份吗？"
           subDesc="此操作不可恢复" />}
+
+        {this.state.showDelBackup && <ConfirmModal
+          backupId={this.state.backup_id}
+          onOk={this.handleDeleteBackup}
+          onCancel={this.cancelDeleteBackup}
+          title="删除备份"
+          desc="确定要删除此备份吗？"
+          subDesc="此操作不可恢复" />}
+
       </PageHeaderLayout>
     );
   }

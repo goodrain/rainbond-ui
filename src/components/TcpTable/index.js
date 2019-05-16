@@ -95,7 +95,7 @@ export default class TcpTable extends PureComponent {
         }
     }
     handleSearch = (search_conditions, page_num) => {
-        this.setState({ tcpLoading: true,page_num:page_num?page_num:1 })
+        this.setState({ tcpLoading: true, page_num: page_num ? page_num : 1 })
         const { dispatch } = this.props;
         dispatch({
             type: "gateWay/searchTcp",
@@ -368,7 +368,7 @@ export default class TcpTable extends PureComponent {
             align: "center",
             render: (text, record) => {
                 return (
-                    record.is_outer_service == 0 ?
+                    record.is_outer_service == 0 && record.service_source != "third_party"  ?
                         <a href="javascript:void(0)" disabled>{text}</a> :
                         <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>
                 )
@@ -380,7 +380,7 @@ export default class TcpTable extends PureComponent {
             align: "center",
             // width: "10%",
             render: (text, record) => {
-                return (record.is_outer_service == 0 ?
+                return (record.is_outer_service == 0 && record.service_source != "third_party" ?
                     <a href="javascript:void(0)" disabled>{record.service_cname}({text})</a> :
                     <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}/port`}>{record.service_cname}({text})</Link>)
             }
@@ -392,16 +392,18 @@ export default class TcpTable extends PureComponent {
             // width: "20%",
             render: (data, record, index) => {
                 return (
-                    record.is_outer_service == 1 ? <div>
-                        <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
-                        <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
-                        <a onClick={this.handleDelete.bind(this, record)}>删除</a>
-                    </div> :
-                        <Tooltip placement="topLeft" title="请点击开启对外服务方可操作" arrowPointAtCenter>
-                            <div>
-                                <a style={{ marginRight: "10px" }} onClick={() => { this.openService(record) }}>开启</a>
-                            </div>
-                        </Tooltip>
+                    record.service_source == "third_party" ? <div>-</div> :
+                        record.is_outer_service == 1 ? <div>
+                            <a style={{ marginRight: "10px" }} onClick={this.handleConectInfo.bind(this, record)}>连接信息</a>
+                            <a style={{ marginRight: "10px" }} onClick={this.handleEdit.bind(this, record)}>编辑</a>
+                            <a onClick={this.handleDelete.bind(this, record)}>删除</a>
+                        </div> :
+                            <Tooltip placement="topLeft" title="请点击开启对外服务方可操作" arrowPointAtCenter>
+                                <div>
+                                    <a style={{ marginRight: "10px" }} onClick={this.handleDelete.bind(this, record)}>删除</a>
+                                    <a style={{ marginRight: "10px" }} onClick={() => { this.openService(record) }}>开启</a>
+                                </div>
+                            </Tooltip>
                 )
             }
         }];
