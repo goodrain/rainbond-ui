@@ -546,7 +546,7 @@ export default class AppList extends PureComponent {
                 {plugins && plugins.add && plugins.add.length > 0 ?
                     <div className={styles.textzt}>
                         新增插件：{plugins.add.map((item, index) => {
-                            return <span key={index}>{item.plugin_key}</span>
+                            return <span key={index}>{item.plugin_alias}</span>
                         })}
                     </div>
                     : <div>暂无变化</div>
