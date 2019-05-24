@@ -505,7 +505,7 @@ export function getMnt(body = {
   app_alias,
   page,
   pageSize,
-  type: "mnt",
+  type,
   volume_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`, {
@@ -513,12 +513,13 @@ export function getMnt(body = {
     params: {
       page: body.page,
       page_size: body.page_size,
-      type: body.type,
+      type: body.type ? body.type : "mnt",
       volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
     },
     paramsSerializer: function (params) {
       const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
-      return yourNewParams
+      const str = `page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`
+      return str
     },
   });
 }
