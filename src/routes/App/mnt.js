@@ -74,12 +74,14 @@ export default class Index extends PureComponent {
     });
   };
   loadMntList = () => {
+  
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type: ["share-file", "memoryfs", "local"]
+      volume_type: ["share-file", "memoryfs", "local"],
+      type: "mnt"
     }).then((data) => {
       if (data) {
         this.setState({
@@ -137,12 +139,12 @@ export default class Index extends PureComponent {
   };
 
 
-  remindInfo = () =>{
+  remindInfo = () => {
     const { appBaseInfo } = this.props
     if (appBaseInfo && appBaseInfo.extend_method && appBaseInfo.extend_method != "stateless") {
       notification.warning({
         message: <div>
-          有状态服务存储配置发生变化后<br/>
+          有状态服务存储配置发生变化后<br />
           需要重启应用才能生效!
         </div>,
       })
@@ -151,9 +153,11 @@ export default class Index extends PureComponent {
     }
   }
   showAddRelation = () => {
+    this.loadMntList();
     this.setState({ showAddRelation: true });
   };
   handleCancelAddRelation = () => {
+     this.loadMntList();
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddMnt = (mnts) => {
@@ -164,7 +168,6 @@ export default class Index extends PureComponent {
     }).then((data) => {
       if (data) {
         this.handleCancelAddRelation();
-        this.loadMntList();
         notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       }
