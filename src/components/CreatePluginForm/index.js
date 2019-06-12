@@ -117,6 +117,7 @@ export default class Index extends PureComponent {
               <Select  disabled={allDisabled || isEdit} placeholder="请选择类别">
                 <Option value="net-plugin:up">入口网络</Option>
                 <Option value="net-plugin:down">出口网络</Option>
+                <Option value="net-plugin:in-and-out">出口入口共治网络</Option>
                 <Option value="analyst-plugin:perf">性能分析</Option>
                 <Option value="init-plugin">初始化类型</Option>
                 <Option value="general-plugin">一般类型</Option>

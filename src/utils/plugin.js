@@ -1,5 +1,6 @@
 const categoryMap = {
   'net-plugin:up': '入口网络',
+  'net-plugin:in-and-out': '出口入口共治网络',
   'net-plugin:down': '出口网络',
   'analyst-plugin:perf': '性能分析',
   'init-plugin': '初始化类型',
