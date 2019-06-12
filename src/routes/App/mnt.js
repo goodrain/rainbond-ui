@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_type:["share-file","memoryfs","local"]
+        volume_type: ["share-file", "memoryfs", "local"]
       },
     });
   };
@@ -74,12 +74,14 @@ export default class Index extends PureComponent {
     });
   };
   loadMntList = () => {
+  
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type: ["share-file","memoryfs","local"]
+      volume_type: ["share-file", "memoryfs", "local"],
+      type: "mnt"
     }).then((data) => {
       if (data) {
         this.setState({
@@ -99,6 +101,7 @@ export default class Index extends PureComponent {
     this.setState({ showAddVar: null, editor: null });
   };
   handleSubmitAddVar = (vals) => {
+    this.fetchBaseInfo();
     const { editor } = this.state
     if (editor) {
       this.props.dispatch({
@@ -113,8 +116,8 @@ export default class Index extends PureComponent {
         callback: () => {
           this.fetchVolumes();
           this.handleCancelAddVar();
-          notification.success({ message: "操作成功" });
           this.props.onshowRestartTips(true);
+          this.remindInfo();
         },
       });
     } else {
@@ -128,16 +131,33 @@ export default class Index extends PureComponent {
         callback: () => {
           this.fetchVolumes();
           this.handleCancelAddVar();
-          notification.success({ message: "操作成功" });
           this.props.onshowRestartTips(true);
+          this.remindInfo();
         },
       });
     }
   };
+
+
+  remindInfo = () => {
+    const { appBaseInfo } = this.props
+    if (appBaseInfo && appBaseInfo.extend_method && appBaseInfo.extend_method != "stateless") {
+      notification.warning({
+        message: <div>
+          有状态服务存储配置发生变化后<br />
+          需要重启应用才能生效!
+        </div>,
+      })
+    } else {
+      notification.success({ message: "操作成功" });
+    }
+  }
   showAddRelation = () => {
+    this.loadMntList();
     this.setState({ showAddRelation: true });
   };
   handleCancelAddRelation = () => {
+     this.loadMntList();
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddMnt = (mnts) => {
@@ -148,7 +168,6 @@ export default class Index extends PureComponent {
     }).then((data) => {
       if (data) {
         this.handleCancelAddRelation();
-        this.loadMntList();
         notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       }
@@ -414,7 +433,7 @@ export default class Index extends PureComponent {
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}
-            volume_type={["share-file","memoryfs","local"]}
+            volume_type={["share-file", "memoryfs", "local"]}
           />
         )}
         {this.state.toDeleteMnt && (

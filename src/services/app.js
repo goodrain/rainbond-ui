@@ -505,7 +505,7 @@ export function getMnt(body = {
   app_alias,
   page,
   pageSize,
-  type: "mnt",
+  type,
   volume_type,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`, {
@@ -513,12 +513,13 @@ export function getMnt(body = {
     params: {
       page: body.page,
       page_size: body.page_size,
-      type: body.type,
+      type: body.type ? body.type : "mnt",
       volume_types: body.volume_type ? body.volume_type : ["share-file", "memoryfs", "local"],
     },
     paramsSerializer: function (params) {
       const yourNewParams = params.volume_types.map(_ => `volume_types=${_}`).join('&')
-      return yourNewParams
+      const str = `page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`
+      return str
     },
   });
 }
@@ -1152,10 +1153,10 @@ export async function addStartProbe(body = {
       path: body.path,
       port: body.port,
       http_header: body.http_header,
-      initial_delay_second: body.initial_delay_second,
-      period_second: body.period_second,
-      timeout_second: body.timeout_second,
-      success_threshold: body.success_threshold,
+      initial_delay_second: body.initial_delay_second ? Number(body.initial_delay_second) : 0,
+      period_second: body.period_second ? Number(body.period_second) : 0,
+      timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
+      success_threshold: body.success_threshold ? Number(body.success_threshold) : 0,
     },
   });
 }
@@ -1182,9 +1183,9 @@ export async function addRunningProbe(body = {
       path: body.path,
       port: body.port,
       http_header: body.http_header,
-      initial_delay_second: body.initial_delay_second,
-      period_second: body.period_second,
-      timeout_second: body.timeout_second,
+      initial_delay_second: body.initial_delay_second ? Number(body.initial_delay_second) : 0,
+      period_second: body.period_second ? Number(body.period_second) : 0,
+      timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
       failure_threshold: body.failure_threshold,
     },
   });
@@ -1213,10 +1214,10 @@ export async function editStartProbe(body = {
       path: body.path,
       port: body.port,
       http_header: body.http_header,
-      initial_delay_second: body.initial_delay_second,
-      period_second: body.period_second,
+      initial_delay_second: body.initial_delay_second ? Number(body.initial_delay_second) : 0,
+      period_second: body.period_second ? Number(body.period_second) : 0,
       timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
-      success_threshold: body.success_threshold,
+      success_threshold: body.success_threshold ? Number(body.success_threshold) : 0,
       is_used: body.is_used === void 0 ? true : body.is_used,
       old_mode: body.old_mode ? body.old_mode : ""
     },
@@ -1246,9 +1247,9 @@ export async function editRunningProbe(body = {
       path: body.path,
       port: body.port,
       http_header: body.http_header,
-      initial_delay_second: body.initial_delay_second,
-      period_second: body.period_second,
-      timeout_second: body.timeout_second,
+      initial_delay_second: body.initial_delay_second ? Number(body.initial_delay_second) : 0,
+      period_second: body.period_second ? Number(body.period_second) : 0,
+      timeout_second: body.timeout_second ? Number(body.timeout_second) : 0,
       failure_threshold: body.failure_threshold,
       is_used: body.is_used === void 0 ? true : body.is_used,
     },

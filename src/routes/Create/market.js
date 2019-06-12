@@ -260,7 +260,7 @@ export default class Main extends PureComponent {
         )}
         {handleType ?
           <Card
-            className={PluginStyles.card}
+            className={PluginStyles.cards}
             actions={[
               <div onClick={() => {
                 this.showCreate(item);
@@ -269,11 +269,13 @@ export default class Main extends PureComponent {
                   <span title={item.group_name}>{item.group_name}</span>
                   <span>安装</span>
                 </div>
-                <div title={item.version}> <span>版本:&nbsp;</span>
-                  {
-                    item.group_version_list && item.group_version_list.map((item, index) => {
-                      return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                    })}
+                <div title={item.version} className={PluginStyles.cardVersionStyle}> <span>版本:</span>
+                  <div>
+                    {
+                      item.group_version_list && item.group_version_list.map((item, index) => {
+                        return <Tag title={item} style={{ height: "17px", lineHeight: "16px", marginBottom: "3px",textAlign:"center" }} color="green" size="small" key={index}> {item}</Tag>
+                      })}
+                  </div>
                 </div>
               </div>
             ]}
@@ -297,7 +299,7 @@ export default class Main extends PureComponent {
             />
           </Card> :
           <Card
-            className={PluginStyles.card}
+            className={PluginStyles.cards}
             actions={[
               <span onClick={() => {
                 this.showCreate(item);
@@ -329,7 +331,7 @@ export default class Main extends PureComponent {
                       fontSize: 12
                     }}
                   >
-                    <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}>
+                    {/* <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}> */}
                       {/* 版本：<Select defaultValue={item.group_version_list && item.group_version_list[0]}
                       onChange={this.handleChangeVersion}
                       size="small">
@@ -337,12 +339,25 @@ export default class Main extends PureComponent {
                         return <Option key={index} value={item}>{item}</Option>
                       })}
                     </Select> */}
-                      <span>版本:&nbsp;</span>
-                      {
-                        item.group_version_list && item.group_version_list.map((item, index) => {
-                          return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                        })}
-                    </div>
+
+                      <div title={item.version} className={PluginStyles.cardVersionStyle} style={{height:"30px"}}> <span>版本:</span>
+                        <div >
+                          {
+                            item.group_version_list && item.group_version_list.map((item, index) => {
+                              return <Tag title={item} style={{ height: "17px", lineHeight: "16px", marginBottom: "3px",textAlign:"center" }} color="green" size="small" key={index}> {item}</Tag>
+                            })}
+                        </div>
+                      </div>
+
+                      {/* <span>版本:</span>
+                      <div>
+                        {
+                          item.group_version_list && item.group_version_list.map((item, index) => {
+                            return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
+                          })}
+                      </div> */}
+
+                    {/* </div> */}
 
                     内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
                   </span>
