@@ -175,3 +175,21 @@ export function cancelImportApp(body = { team_name, event_id }) {
     }
   );
 }
+
+/* 查询所有同步的应用 */
+export async function getRecommendMarketAppList(body = {
+  app_name,
+  page,
+  pageSize,
+  is_complete,
+}) {
+  console.log("request getRecommendMarketAppList")
+  return request(`${config.baseUrl}/console/app_market/recommend/apps`, {
+    method: "get",
+    params: {
+      app_name: body.app_name,
+      page: body.page,
+      page_size: body.pageSize,
+    },
+  });
+}

@@ -52,6 +52,7 @@ export default class Main extends PureComponent {
   componentDidMount() {
     this.mount = true;
     this.getApps();
+    this.getCloudRecommendApps()
   }
   componentWillUnmount() {
     this.mount = false;
@@ -94,6 +95,26 @@ export default class Main extends PureComponent {
     });
   };
 
+  getCloudRecommendApps = v => {
+    this.props.dispatch({
+      type: "market/getRecommendMarketAppList",
+      payload: {
+        app_name: this.state.app_name || "",
+        page_size: this.state.pageSize,
+        page: this.state.page
+      },
+      callback: data => {
+        if (data) {
+          // this.setState({
+          //   list: data.list || [],
+          //   total: data.total
+          // });
+          console.log(data)
+        }
+      }
+    });
+  };
+
   hanldePageChange = page => {
     this.setState(
       {
@@ -114,6 +135,7 @@ export default class Main extends PureComponent {
       },
       () => {
         this.getApps();
+        this.getCloudRecommendApps();
       }
     );
   };
@@ -461,15 +483,15 @@ export default class Main extends PureComponent {
       },
       {
         key: "goodrain",
-        tab: "云市"
+        tab: "云端下载"
       },
       {
         key: "enterprise",
-        tab: "本公司"
+        tab: "公司分享"
       },
       {
         key: "team",
-        tab: "本团队"
+        tab: "团队分享"
       }
     ];
     const loading = this.props.loading;

@@ -11,6 +11,7 @@ import {
   queryImportingApp,
   queryImportRecord,
   cancelImportApp,
+  getRecommendMarketAppList,
 } from "../services/market";
 
 export default {
@@ -20,6 +21,12 @@ export default {
   effects: {
     *getMarketApp({ payload, callback }, { call, put }) {
       const data = yield call(getMarketApp, payload);
+      if (data) {
+        callback && callback(data);
+      }
+    },
+    *getRecommendMarketAppList({ payload, callback }, { call, put }) {
+      const data = yield call(getRecommendMarketAppList, payload);
       if (data) {
         callback && callback(data);
       }
