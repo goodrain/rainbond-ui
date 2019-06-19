@@ -180,16 +180,15 @@ export function cancelImportApp(body = { team_name, event_id }) {
 export async function getRecommendMarketAppList(body = {
   app_name,
   page,
-  pageSize,
+  page_size,
   is_complete,
 }) {
-  console.log("request getRecommendMarketAppList")
   return request(`${config.baseUrl}/console/app_market/recommend/apps`, {
     method: "get",
     params: {
       app_name: body.app_name,
       page: body.page,
-      page_size: body.pageSize,
+      page_size: body.page_size,
     },
   });
 }

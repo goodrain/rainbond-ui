@@ -34,7 +34,7 @@ export default class Index extends PureComponent {
     this.state = {
       addGroup: false,
       is_deploy: true,
-      group_version:""
+      group_version: ""
     };
   }
   onAddGroup = () => {
@@ -70,7 +70,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleChangeVersion = () =>{
+  handleChangeVersion = () => {
 
   };
 
@@ -84,12 +84,12 @@ export default class Index extends PureComponent {
   };
   handleSubmit = (e) => {
     e.preventDefault();
-    const {is_deploy}=this.state;
+    const { is_deploy } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue,is_deploy);
-      this.props.onSubmit && this.setState({is_deploy:true})
+      this.props.onSubmit && this.props.onSubmit(fieldsValue, is_deploy);
+      this.props.onSubmit && this.setState({ is_deploy: true })
     });
   };
 
@@ -101,8 +101,10 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, onCancel,showCreate } = this.props;
+    const { groups, onCancel, showCreate } = this.props;
     const data = this.props.data || {};
+
+    console.log(" showCreate.app_versions", showCreate.group_version_list)
     return (
       <Modal
         visible
@@ -115,15 +117,18 @@ export default class Index extends PureComponent {
             安装
           </Button>,
           // <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
-            <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
+          <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
           // </Tooltip>
         ]
         }
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="安装版本">
+          <Form.Item {...formItemLayout} label="安装版本">
             {getFieldDecorator('group_version', {
-              initialValue: showCreate&&showCreate.group_version_list && showCreate.group_version_list[0],
+              initialValue: showCreate && showCreate.group_version_list ? showCreate.group_version_list[0] : showCreate.app_versions
+                && showCreate.app_versions[0].app_version
+
+              ,
               rules: [
                 {
                   required: true,
@@ -131,14 +136,23 @@ export default class Index extends PureComponent {
                 },
               ],
             })(
-              
+
               <Select
                 onChange={this.handleChangeVersion}
-                style={{width:"220px"}}
-                >
-                {showCreate&&showCreate.group_version_list && showCreate.group_version_list.map((item, index) => {
+                style={{ width: "220px" }}
+              >
+
+                {
+                  
+                  showCreate && showCreate.group_version_list ? showCreate.group_version_list.map((item, index) => {
                   return <Option key={index} value={item}>{item}</Option>
-                })}
+                })
+                :
+                showCreate.app_versions && showCreate.app_versions.map((item, index) => {
+                  return <Option key={index} value={item.app_version}>{item.app_version}</Option>
+                })
+                }
+
               </Select>
             )}
           </Form.Item>
