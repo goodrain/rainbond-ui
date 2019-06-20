@@ -164,6 +164,7 @@ export default class Index extends PureComponent {
     return textBl;
   }
   resolveNotHttp = (record) => {
+
     const { dispatch } = this.props;
     dispatch({
       type: "gateWay/fetchEnvs",
@@ -233,6 +234,7 @@ export default class Index extends PureComponent {
     var showDomain = this.props.showDomain;
     var DomainText = this.domainsText(domains);
     const { agreement } = this.state;
+
     //是否显示对外访问地址,创建过程中不显示
     const showOuterUrl = this.props.showOuterUrl === void 0
       ? true
@@ -240,6 +242,7 @@ export default class Index extends PureComponent {
     showDomain = showDomain === void 0
       ? true
       : showDomain;
+
 
     return (
       <table
@@ -375,7 +378,6 @@ export default class Index extends PureComponent {
                     </div>
                     : ''
                 }
-                {/*  */}
               </div>
             </td>
             {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
@@ -466,7 +468,7 @@ export default class Index extends PureComponent {
             onCancel={this.handeModalCancel}
           >
             <ul className={styles.ul}>
-              {agreement.protocol == 'tcp' || agreement.protocol == 'udp' ? <li style={{ fontWeight: "bold" }}>您当前的访问协议是{agreement.protocol}</li> : <li style={{ fontWeight: "bold" }}>您当前的访问协议是{agreement.protocol},打开MySQL客户端访问</li>}
+              { port && port.protocol != "mysql"? <li style={{ fontWeight: "bold" }}>您当前的访问协议是{port.protocol}</li> : <li style={{ fontWeight: "bold" }}>您当前的访问协议是{agreement.protocol},打开MySQL客户端访问</li>}
               <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{agreement.end_point}</a>
                 <CopyToClipboard
                   text={agreement.end_point.replace(/\s+/g, "")}
