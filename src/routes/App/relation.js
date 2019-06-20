@@ -84,17 +84,17 @@ class ViewRelationInfo extends PureComponent {
             {
               title: "变量名",
               dataIndex: "attr_name",
-              key:"1",
+              key: "1",
             },
             {
               title: "变量值",
               dataIndex: "attr_value",
-              key:"2",
+              key: "2",
             },
             {
               title: "说明",
               dataIndex: "name",
-              key:"3",
+              key: "3",
             },
           ]}
           dataSource={relationOuterEnvs || []}
@@ -107,7 +107,7 @@ class ViewRelationInfo extends PureComponent {
 // 添加、编辑变量
 @Form.create()
 // 查看连接信息
-@connect(({}) => ({
+@connect(({ }) => ({
 }))
 class AddVarModal extends PureComponent {
   constructor(props) {
@@ -139,7 +139,7 @@ class AddVarModal extends PureComponent {
         attr_value
       },
       callback: (res) => {
-        let arr = res&&res.list ? res.list : [];
+        let arr = res && res.list ? res.list : [];
         arr.unshift(attr_name ? attr_name + "" : attr_value + "")
         Array.from(new Set(arr))
 
@@ -159,7 +159,7 @@ class AddVarModal extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const data = this.props.data || {};
+    const data = this.props.data || "";
     const { list } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -172,11 +172,11 @@ class AddVarModal extends PureComponent {
       },
     };
     return (
-      <Modal title="添加变量" onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
+      <Modal title={data?"编辑变量":"添加变量"} onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
             {getFieldDecorator("attr_name", {
-              initialValue: data.attr_name || "",
+              initialValue:data&&data.attr_name || "",
               rules: [
                 { required: true, message: "请输入变量名称" },
                 {
@@ -186,6 +186,7 @@ class AddVarModal extends PureComponent {
               ],
             })(
               <Select
+                disabled={data&&data.attr_name?true:false}
                 placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
                 showSearch
                 onSearch={(val) => { this.handleList(val, null) }}
@@ -198,7 +199,7 @@ class AddVarModal extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
             {getFieldDecorator("attr_value", {
-              initialValue: data.attr_value || "",
+              initialValue:  data&&data.attr_value || "",
               rules: [{ required: true, message: "请输入变量值" }],
             })(
               <Select
@@ -213,8 +214,8 @@ class AddVarModal extends PureComponent {
           </FormItem>
           <FormItem {...formItemLayout} label="说明">
             {getFieldDecorator("name", {
-              initialValue: data.name || "",
-              rules: [{ required: true, message: "请输入变量说明" }],
+              initialValue: data&&data.name || "",
+              rules: [{ required: false, message: "请输入变量说明" }],
             })(<Input placeholder="请输入变量说明" />)}
           </FormItem>
         </Form>
@@ -242,11 +243,18 @@ export default class Index extends PureComponent {
       linkList: [],
       relationList: [],
       viewRelationInfo: null,
-      showText:null,
-      transfer:null
+      showText: null,
+      transfer: null,
+      page: 1,
+      page_size: 5,
+      total: 0,
     };
   }
 
+
+  shouldComponentUpdate() {
+    return true;
+  }
   componentDidMount() {
     const { dispatch } = this.props;
     this.loadRelationedApp();
@@ -258,31 +266,31 @@ export default class Index extends PureComponent {
       app_alias: this.props.appAlias,
     }).then((res) => {
       if (res) {
-        let arr=res.bean.port_list;
-        if(res.list&&res.list.length>0){
-          res.list.map((item,index)=>{
-            const {ports_list}=item;
-            arr= arr.concat(ports_list)
+        let arr = res.bean.port_list;
+        if (res.list && res.list.length > 0) {
+          res.list.map((item, index) => {
+            const { ports_list } = item;
+            arr = arr.concat(ports_list)
           })
         }
-        arr=this.isRepeat(arr)
-        this.setState({ relationList: res.list || [],showText:arr });
+        arr = this.isRepeat(arr)
+        this.setState({ relationList: res.list || [], showText: arr });
       }
     });
   };
-   isRepeat=(arr)=>{
+  isRepeat = (arr) => {
     var hash = {};
-    
-    for(var i in arr) {
-    
-    if(hash[arr[i]]) //hash 哈希
-    
-    return true;
-    hash[arr[i]] = true;
+
+    for (var i in arr) {
+
+      if (hash[arr[i]]) //hash 哈希
+
+        return true;
+      hash[arr[i]] = true;
     }
     return false;
-    
-    }
+
+  }
   handleAddVar = () => {
     this.setState({ showAddVar: { new: true } });
   };
@@ -318,9 +326,12 @@ export default class Index extends PureComponent {
         attr_value: vals.attr_value,
         name: vals.name,
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
         this.handleCancelAddVar();
-        this.fetchOuterEnvs();
       },
     });
   };
@@ -350,9 +361,12 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
         attr_name: this.state.deleteVar.attr_name,
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
         this.cancelDeleteVar();
-        this.fetchOuterEnvs();
       },
     });
   };
@@ -372,18 +386,29 @@ export default class Index extends PureComponent {
         attr_value: vals.attr_value,
         name: vals.name,
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
         this.cancelEditVar();
-        this.fetchOuterEnvs();
       },
     });
   };
   fetchOuterEnvs = () => {
+    const { page, page_size } = this.state;
     this.props.dispatch({
       type: "appControl/fetchOuterEnvs",
       payload: {
+        page,
+        page_size,
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
+      },
+      callback: (res) => {
+        if (res && res._code == 200) {
+          this.setState({ total: res.bean.total });
+        }
       },
     });
   };
@@ -410,26 +435,40 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: transfer.attr_name,
-        scope:transfer.scope=="inner"?"outer":"inner"
+        scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
         this.cancelTransfer();
-        this.fetchOuterEnvs();
-        notification.success({ message: "操作成功" });
       },
     });
   };
 
+  onServiceInfoPageChange = (page) => {
+    this.setState({
+      page
+    }, () => {
+      this.fetchOuterEnvs()
+    })
+  }
 
   render() {
-    const { showText, relationList,transfer } = this.state;
+    const { showText, relationList, page, page_size, total } = this.state;
     const { outerEnvs } = this.props;
     return (
       <Fragment>
         <Card style={{ marginBottom: 24 }} title={<span>服务连接信息</span>}>
           <ScrollerX sm={650}>
             <Table
-              pagination={false}
+              pagination={{
+                current: page,
+                pageSize: page_size,
+                total,
+                onChange: this.onServiceInfoPageChange,
+              }}
               columns={[
                 {
                   title: "变量名",
@@ -492,7 +531,7 @@ export default class Index extends PureComponent {
                       ) : (
                           ""
                         )}
-                      <Tooltip   title={<p>将此连接信息变量转换为<br/>环境变量</p>}>
+                      <Tooltip title={<p>将此连接信息变量转换为<br />环境变量</p>}>
                         <a
                           href="javascript:;"
                           onClick={() => {
@@ -529,7 +568,7 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={[<span>依赖服务信息</span>,<span style={{color:"red"}}>{showText&&"（依赖的服务有相同的端口冲突,请处理）"}</span>]}>
+        <Card title={[<span>依赖服务信息</span>, <span style={{ color: "red" }}>{showText && "（依赖的服务有相同的端口冲突,请处理）"}</span>]}>
           <ScrollerX sm={650}>
             <Table
               pagination={false}
@@ -613,7 +652,7 @@ export default class Index extends PureComponent {
             data={this.state.showEditVar}
           />
         )}
-         {
+        {
           this.state.transfer && (
             <ConfirmModal
               onOk={this.handleTransfer}
