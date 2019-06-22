@@ -1,9 +1,19 @@
 import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
-import PropTypes from "prop-types";
 import { connect } from "dva";
-import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Card, Form, List, Input, Modal, Button, Tabs, Radio, Select, Tag, Spin } from "antd";
+import { Link, routerRedux } from "dva/router";
+import {
+  Card,
+  Form,
+  List,
+  Input,
+  Modal,
+  Button,
+  Tabs,
+  Radio,
+  Select,
+  Tag,
+  Spin
+} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -12,6 +22,7 @@ import Ellipsis from "../../components/Ellipsis";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import PluginStyles from "../Plugin/Index.less";
 import GoodrainRZ from "../../components/GoodrainRenzheng";
+
 const Option = Select.Option;
 const { TabPane } = Tabs;
 
@@ -19,18 +30,21 @@ const { TabPane } = Tabs;
   ({ global, loading, appControl }) => ({
     rainbondInfo: global.rainbondInfo,
     loading,
-    appDetail: appControl.appDetail,
+    appDetail: appControl.appDetail
   }),
   null,
   null,
   { pure: false }
 )
-
 @Form.create()
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const appName = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match.params.keyword || ""));
+    const appName = decodeURIComponent(
+      this.props.handleType && this.props.handleType === "Service"
+        ? ""
+        : this.props.match.params.keyword || ""
+    );
     this.state = {
       list: [],
       app_name: appName,
@@ -60,7 +74,7 @@ export default class Main extends PureComponent {
   }
   componentDidMount() {
     this.mount = true;
-    this.getApps()
+    this.getApps();
     this.getCloudRecommendApps();
   }
   componentWillUnmount() {
@@ -70,11 +84,11 @@ export default class Main extends PureComponent {
   renderSuccessOnChange = () => {
     this.setState({
       is_deploy: !this.state.is_deploy
-    })
-  }
-  handleChange = v => { };
+    });
+  };
+  handleChange = v => {};
   handleSearch = v => {
-    const { scopeMax } = this.state
+    const { scopeMax } = this.state;
 
     if (scopeMax == "localApplication") {
       this.setState(
@@ -83,7 +97,7 @@ export default class Main extends PureComponent {
           page: 1
         },
         () => {
-          this.getApps()
+          this.getApps();
         }
       );
     } else {
@@ -109,27 +123,23 @@ export default class Main extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({
-            list: data.list || [],
-            total: data.total,
-
-          }, () => {
-            this.setState({
-              isSpin: false
-            })
-          });
+          this.setState(
+            {
+              list: data.list || [],
+              total: data.total
+            },
+            () => {
+              this.setState({
+                isSpin: false
+              });
+            }
+          );
         } else {
-          this.setState({ isSpin: false })
+          this.setState({ isSpin: false });
         }
       }
     });
   };
-
-
-
-
-
-
 
   getCloudRecommendApps = v => {
     this.props.dispatch({
@@ -141,16 +151,19 @@ export default class Main extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({
-            cloudList: data.list || [],
-            cloudTotal: data.total,
-          }, () => {
-            this.setState({
-              isSpin: false
-            })
-          });
+          this.setState(
+            {
+              cloudList: data.list || [],
+              cloudTotal: data.total
+            },
+            () => {
+              this.setState({
+                isSpin: false
+              });
+            }
+          );
         } else {
-          this.setState({ isSpin: false })
+          this.setState({ isSpin: false });
         }
       }
     });
@@ -192,23 +205,22 @@ export default class Main extends PureComponent {
   };
 
   handleTabMaxChange = key => {
-
-    this.setState({
-      scopeMax: key,
-      isSpin: true,
-      app_name: "",
-      cloudApp_name: ""
-
-    }, () => {
-      if (key == "localApplication") {
-        this.getApps("reset")
-      } else {
-        this.getCloudRecommendApps("reset");
+    this.setState(
+      {
+        scopeMax: key,
+        isSpin: true,
+        app_name: "",
+        cloudApp_name: ""
+      },
+      () => {
+        if (key == "localApplication") {
+          this.getApps("reset");
+        } else {
+          this.getCloudRecommendApps("reset");
+        }
       }
-    })
-
+    );
   };
-
 
   onCancelCreate = () => {
     this.setState({ showCreate: null });
@@ -221,8 +233,7 @@ export default class Main extends PureComponent {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = (e) => {
-
+  handleInstallBounced = e => {
     e.preventDefault();
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -250,18 +261,18 @@ export default class Main extends PureComponent {
 
           // 关闭弹框
           this.setState({ installBounced: false, is_deploy: true });
-          this.state.handleType && this.props.refreshCurrent()
+          this.state.handleType && this.props.refreshCurrent();
           this.props.dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              this.props.groupId ? this.props.groupId : 0
+                this.props.groupId ? this.props.groupId : 0
               }`
             )
           );
         }
       });
     });
-  }
+  };
   handleCreate = (vals, is_deploy) => {
     const { group_version } = this.state;
     const app = this.state.showCreate;
@@ -270,10 +281,10 @@ export default class Main extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
-        app_id: app.ID, 
+        app_id: app.ID,
         is_deploy,
         group_key: app.group_key,
-        group_version: vals.group_version,
+        group_version: vals.group_version
       },
       callback: () => {
         // 刷新左侧按钮
@@ -286,11 +297,11 @@ export default class Main extends PureComponent {
 
         // 关闭弹框
         this.onCancelCreate();
-        this.setState({ is_deploy: true })
+        this.setState({ is_deploy: true });
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-            vals.group_id
+              vals.group_id
             }`
           )
         );
@@ -298,10 +309,8 @@ export default class Main extends PureComponent {
     });
   };
 
-
-  
-  handleCloudCreate= (vals, is_deploy) => {
-    const { group_version,scopeMax } = this.state;
+  handleCloudCreate = (vals, is_deploy) => {
+    const { group_version, scopeMax } = this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
       type: "createApp/installApp",
@@ -309,7 +318,7 @@ export default class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
         is_deploy,
-        app_versions:app.app_versions,
+        app_versions: app.app_versions,
         group_key: app.app_key_id,
         group_version: vals.group_version,
         install_from_cloud: scopeMax == "cloudApplication" ? true : false
@@ -325,18 +334,17 @@ export default class Main extends PureComponent {
 
         // 关闭弹框
         this.onCancelCreate();
-        this.setState({ is_deploy: true })
+        this.setState({ is_deploy: true });
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-            vals.group_id
+              vals.group_id
             }`
           )
         );
       }
     });
   };
-
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
@@ -346,6 +354,11 @@ export default class Main extends PureComponent {
     this.queryExport(item);
   };
   showMarketAppDetail = app => {
+    //cloud app 
+    if (app && app.app_detail_url){
+      window.open(app.app_detail_url, "_blank");
+      return
+    }
     this.setState({
       showApp: app,
       showMarketAppDetail: true
@@ -359,18 +372,11 @@ export default class Main extends PureComponent {
   };
   loadMore = () => {
     this.props.handleServiceComponent();
-  }
+  };
 
   renderApp = item => {
-
-
-
-
     const { scopeMax, handleType } = this.state;
-
-    let cloud = scopeMax == "localApplication" ? false : true
-
-    const ismarket = item.source;
+    let cloud = scopeMax == "localApplication" ? false : true;
     const title = item => (
       <div
         title={cloud ? item.name : item.group_name || ""}
@@ -380,12 +386,8 @@ export default class Main extends PureComponent {
           whiteSpace: "nowrap",
           textOverflow: "ellipsis"
         }}
-        onClick={() => {
-          this.showMarketAppDetail(item);
-        }}
       >
         <a
-          href={item.url ? item.url : "javascript:;"}
           onClick={() => {
             this.showMarketAppDetail(item);
           }}
@@ -399,22 +401,40 @@ export default class Main extends PureComponent {
         {item.is_official && (
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
-        {handleType ?
+        {handleType ? (
           <Card
             className={PluginStyles.cards}
             actions={[
-              <div onClick={() => {
-                this.showCreate(item);
-              }}>
+              <div
+                onClick={() => {
+                  this.showCreate(item);
+                }}
+              >
                 <div className={PluginStyles.cardTitle}>
                   <span title={item.group_name}>{item.group_name}</span>
                   <span>安装</span>
                 </div>
-                <div title={item.version} className={PluginStyles.cardVersionStyle}> <span>版本:</span>
+                <div
+                  title={item.version}
+                  className={PluginStyles.cardVersionStyle}
+                >
+                  {" "}
+                  <span>版本:</span>
                   <div>
-                    {
-                      item.group_version_list && item.group_version_list.map((item, index) => {
-                        return <Tag title={item} style={{ height: "17px", lineHeight: "16px", marginBottom: "3px", textAlign: "center" }} color="green" size="small" key={index}> {item}</Tag>
+                    {item.group_version_list &&
+                      item.group_version_list.map((item, index) => {
+                        return (
+                          <Tag
+                            title={item}
+                            className={PluginStyles.cardVersionTagStyle}
+                            color="green"
+                            size="small"
+                            key={index}
+                          >
+                            {" "}
+                            {item}
+                          </Tag>
+                        );
                       })}
                   </div>
                 </div>
@@ -422,14 +442,21 @@ export default class Main extends PureComponent {
             ]}
           >
             <Card.Meta
-              style={{ height: 80, overflow: "hidden", display: "flex", justifyContent: "center", cursor: "pointer" }}
+              style={{
+                height: 80,
+                overflow: "hidden",
+                display: "flex",
+                justifyContent: "center",
+                cursor: "pointer"
+              }}
               className={PluginStyles.CardMeta}
               avatar={
                 <img
                   style={{ width: 80, height: 80, margin: "auto" }}
                   alt={item.title}
-                  src={item.pic || require("../../../public/images/app_icon.jpg")}
-
+                  src={
+                    item.pic || require("../../../public/images/app_icon.jpg")
+                  }
                 />
               }
               onClick={() => {
@@ -438,13 +465,18 @@ export default class Main extends PureComponent {
               title=""
               description={""}
             />
-          </Card> :
+          </Card>
+        ) : (
           <Card
             className={PluginStyles.cards}
             actions={[
-              <span onClick={() => {
-                this.showCreate(item);
-              }}>安装</span>
+              <span
+                onClick={() => {
+                  this.showCreate(item);
+                }}
+              >
+                安装
+              </span>
             ]}
           >
             <Card.Meta
@@ -453,14 +485,18 @@ export default class Main extends PureComponent {
                 <img
                   style={{ width: 110, height: 110, margin: " 0 auto" }}
                   alt={item.title}
-                  src={cloud ? item.logo : item.pic || require("../../../public/images/app_icon.jpg")}
+                  src={
+                    cloud
+                      ? item.logo
+                      : item.pic ||
+                        require("../../../public/images/app_icon.jpg")
+                  }
                   height={154}
                   onClick={() => {
                     this.showMarketAppDetail(item);
                   }}
                 />
               }
-
               title={title(item)}
               description={
                 <Fragment>
@@ -472,93 +508,116 @@ export default class Main extends PureComponent {
                       fontSize: 12
                     }}
                   >
-                    {/* <div style={{ lineHeight: "18px", display: "flex", alignItems: "center", marginBottom: "5px", flexWrap: "wrap" }}> */}
-                    {/* 版本：<Select defaultValue={item.group_version_list && item.group_version_list[0]}
-                      onChange={this.handleChangeVersion}
-                      size="small">
-                      {item.group_version_list && item.group_version_list.map((item, index) => {
-                        return <Option key={index} value={item}>{item}</Option>
-                      })}
-                    </Select> */}
-
-                    {cloud && <div>
-                      企业: <a href={item.url ? item.url : "javascript:;"} > {item.enterprise.name}</a>
-                    </div>}
-                    <div title={item.version} className={PluginStyles.cardVersionStyle} style={{ height: "30px" }}> <span>版本:</span>
-                      <div >
-                        {
-                          item.group_version_list && item.group_version_list.map((item, index) => {
-                            return <Tag title={item} style={{ height: "17px", lineHeight: "16px", marginBottom: "3px", textAlign: "center" }} color="green" size="small" key={index}> {item}</Tag>
+                    <div
+                      title={item.version}
+                      className={PluginStyles.cardVersionStyle}
+                    >
+                      <span>版本:</span>
+                      <div className={PluginStyles.cardVersionListStyle}>
+                        {item.group_version_list &&
+                          item.group_version_list.map((item, index) => {
+                            return (
+                              <Tag
+                                title={item}
+                                className={PluginStyles.cardVersionTagStyle}
+                                color="green"
+                                size="small"
+                                title={item.app_version}
+                                key={index}
+                              >
+                                {item}
+                              </Tag>
+                            );
                           })}
-                        {item.app_versions && item.app_versions.map((item, index) => {
-                          return <Tag title={item} style={{ height: "17px", lineHeight: "16px", marginBottom: "3px", textAlign: "center" }} color="green" size="small" key={index}> {item.app_version}</Tag>
-                        })}
+                        {item.app_versions &&
+                          item.app_versions.map((item, index) => {
+                            return (
+                              <Tag
+                                title={item}
+                                className={PluginStyles.cardVersionTagStyle}
+                                color="green"
+                                size="small"
+                                title={item.app_version}
+                                key={index}
+                              >
+                                {item.app_version}
+                              </Tag>
+                            );
+                          })}
                       </div>
                     </div>
 
-                    {/* <span>版本:</span>
-                      <div>
-                        {
-                          item.group_version_list && item.group_version_list.map((item, index) => {
-                            return <Tag style={{ height: "17px", lineHeight: "16px", marginBottom: "3px" }} color="green" size="small" key={index}> {item}</Tag>
-                          })}
-                      </div> */}
-
-                    {/* </div> */}
-
-                    {!cloud && <div>
-                      内存: {sourceUtil.unit(item.min_memory || 128, "MB")}
-                    </div>}
-
+                    {cloud && (
+                      <div className={PluginStyles.shareNameStyle}>
+                        <span>分享者:</span>
+                        <a
+                          href={
+                            item.enterprise &&
+                            item.enterprise.enterprise_market_url
+                              ? item.enterprise.enterprise_market_url
+                              : "javascript:;"
+                          }
+                          target="_blank"
+                        >
+                          {item.enterprise.name}
+                        </a>
+                      </div>
+                    )}
+                    {!cloud && (
+                      <div className={PluginStyles.shareNameStyle}>
+                        <span>内存: </span>{sourceUtil.unit(item.min_memory || 128, "MB")}
+                      </div>
+                    )}
                   </span>
                   <Ellipsis className={PluginStyles.item} lines={3}>
-                    <span title={cloud ? item.desc : item.describe}>{cloud ? item.desc : item.describe}</span>
+                    <span title={cloud ? item.desc : item.describe}>
+                      {cloud ? item.desc : item.describe}
+                    </span>
                   </Ellipsis>
                 </Fragment>
               }
             />
           </Card>
-        }
+        )}
       </Fragment>
     );
   };
 
-  handleChangeVersion = (value) => {
+  handleChangeVersion = value => {
     this.setState({
       group_version: value
-    })
-  }
+    });
+  };
 
-
-
-  handleTabsCallback = (key) => {
+  handleTabsCallback = key => {
     console.log(key);
-  }
-
-
-
-
+  };
 
   render() {
     const { form, appDetail } = this.props;
     const { getFieldDecorator } = form;
-    const { handleType, moreState, installBounced, list, scopeMax, scope, cloudList,
+    const {
+      handleType,
+      moreState,
+      installBounced,
+      list,
+      scopeMax,
+      scope,
+      cloudList,
       cloudApp_name,
       cloudPage,
       cloudPageSize,
       cloudTotal,
-      isSpin } = this.state;
-
-
-
+      isSpin
+    } = this.state;
 
     const formItemLayout = {
       labelCol: {
-        span: 5,
+        span: 5
       },
       wrapperCol: {
-        span: 19,
-      },
+        span: 19
+      }
     };
     const paginationProps = {
       current: this.state.moreState ? 1 : this.state.page,
@@ -590,7 +649,8 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用， 你可以<br />
+              暂无应用， 你可以
+              <br />
               <br />
               分享应用 或{" "}
               <Link
@@ -611,8 +671,6 @@ export default class Main extends PureComponent {
       />
     );
 
-
-
     const cloudCardList = (
       <List
         bordered={false}
@@ -626,7 +684,8 @@ export default class Main extends PureComponent {
         locale={{
           emptyText: (
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用， 你可以<br />
+              暂无应用， 你可以
+              <br />
               <br />
               分享应用 或{" "}
               <Link
@@ -647,7 +706,6 @@ export default class Main extends PureComponent {
       />
     );
 
-
     const mainSearch = (
       <div
         style={{
@@ -660,14 +718,22 @@ export default class Main extends PureComponent {
             placeholder="请输入应用名称"
             enterButton="搜索"
             size="large"
-            value={this.state.scopeMax == "localApplication" ? this.state.app_name : this.state.cloudApp_name}
-            onChange={(event) => {
+            value={
+              this.state.scopeMax == "localApplication"
+                ? this.state.app_name
+                : this.state.cloudApp_name
+            }
+            onChange={event => {
               this.setState({
                 app_name: event.target.value,
                 cloudApp_name: event.target.value
-              })
+              });
             }}
-            defaultValue={this.state.scopeMax == "localApplication" ? this.state.app_name : this.state.cloudApp_name}
+            defaultValue={
+              this.state.scopeMax == "localApplication"
+                ? this.state.app_name
+                : this.state.cloudApp_name
+            }
             onSearch={this.handleSearch}
             style={{
               width: 522
@@ -704,145 +770,216 @@ export default class Main extends PureComponent {
       {
         key: "localApplication",
         tab: "本地应用"
-      },
-
+      }
     ];
-
 
     const loading = this.props.loading;
     return (
       <div>
-        {handleType ? <div>
-          {!moreState && mainSearch}
-          <div style={{ marginBottom: !moreState ? "40px" : "0px", marginTop: !moreState ? "20px" : "" }} className={PluginStyles.cardList}>
-            {cardList}
-          </div>
-          {moreState && list && list.length > 0 &&
-            <div style={{
-              textAlign: "right",
-              zIndex: 9,
-              position: "absolute",
-              height: "70px",
-              background: "white",
-              width: "100%",
-              right: 0,
-              bottom: "-10px",
-            }}>
-              <a onClick={this.loadMore}>查看更多...</a></div>}
-          {installBounced && <Modal
-            title="确认要安装此应用作为你的服务组件么？"
-            visible={installBounced}
-            onOk={this.handleInstallBounced}
-            onCancel={() => { this.setState({ installBounced: false }) }}
-            footer={
-              <div>
-                <Button onClick={() => { this.setState({ installBounced: false, is_deploy: true }) }}>取消</Button>
-                <Button onClick={this.handleInstallBounced} type="primary" style={{ marginRight: "5px" }} loading={loading.effects["createApp/installApp"]}>
-                  安装
-                </Button>
-                {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
-                <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
-                {/* </Tooltip> */}
-              </div>
-            }
-          >
-            <p>{installBounced.describe}</p>
-            <Form onSubmit={this.handleInstallBounced} layout="horizontal" hideRequiredMark>
-              <Form.Item {...formItemLayout} label="安装版本">
-                {getFieldDecorator('group_version', {
-                  initialValue: installBounced && installBounced.group_version_list && installBounced.group_version_list[0],
-                  rules: [
-                    {
-                      required: true,
-                      message: '请选择版本',
-                    },
-                  ],
-                })(
-
-                  <Select
-                    onChange={this.handleChangeVersion}
-                    style={{ width: "220px" }}
-                  >
-                    {this.state.installBounced && this.state.installBounced.group_version_list && this.state.installBounced.group_version_list.map((item, index) => {
-                      return <Option key={index} value={item}>{item}</Option>
-                    })}
-                  </Select>
-                )}
-              </Form.Item>
-            </Form>
-          </Modal>}
-
-
-
-
-
-
-          {this.state.showCreate && (
-            <CreateAppFromMarketForm
-              disabled={loading.effects["createApp/installApp"]}
-              onSubmit={this.handleCreate}
-              onCancel={this.onCancelCreate}
-              showCreate={this.state.showCreate}
-            />
-          )}
-          {this.state.showMarketAppDetail && (
-            <MarketAppDetailShow
-              onOk={this.hideMarketAppDetail}
-              onCancel={this.hideMarketAppDetail}
-              app={this.state.showApp}
-            />
-          )}
-        </div> :
-
-
-
+        {handleType ? (
           <div>
+            {!moreState && mainSearch}
+            <div
+              style={{
+                marginBottom: !moreState ? "40px" : "0px",
+                marginTop: !moreState ? "20px" : ""
+              }}
+              className={PluginStyles.cardList}
+            >
+              {cardList}
+            </div>
+            {moreState && list && list.length > 0 && (
+              <div
+                style={{
+                  textAlign: "right",
+                  zIndex: 9,
+                  position: "absolute",
+                  height: "70px",
+                  background: "white",
+                  width: "100%",
+                  right: 0,
+                  bottom: "-10px"
+                }}
+              >
+                <a onClick={this.loadMore}>查看更多...</a>
+              </div>
+            )}
+            {installBounced && (
+              <Modal
+                title="确认要安装此应用作为你的服务组件么？"
+                visible={installBounced}
+                onOk={this.handleInstallBounced}
+                onCancel={() => {
+                  this.setState({ installBounced: false });
+                }}
+                footer={
+                  <div>
+                    <Button
+                      onClick={() => {
+                        this.setState({
+                          installBounced: false,
+                          is_deploy: true
+                        });
+                      }}
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      onClick={this.handleInstallBounced}
+                      type="primary"
+                      style={{ marginRight: "5px" }}
+                      loading={loading.effects["createApp/installApp"]}
+                    >
+                      安装
+                    </Button>
+                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
+                    <Radio
+                      size="small"
+                      onClick={this.renderSuccessOnChange}
+                      checked={this.state.is_deploy}
+                    >
+                      并构建启动
+                    </Radio>
+                    {/* </Tooltip> */}
+                  </div>
+                }
+              >
+                <p>{installBounced.describe}</p>
+                <Form
+                  onSubmit={this.handleInstallBounced}
+                  layout="horizontal"
+                  hideRequiredMark
+                >
+                  <Form.Item {...formItemLayout} label="安装版本">
+                    {getFieldDecorator("group_version", {
+                      initialValue:
+                        installBounced &&
+                        installBounced.group_version_list &&
+                        installBounced.group_version_list[0],
+                      rules: [
+                        {
+                          required: true,
+                          message: "请选择版本"
+                        }
+                      ]
+                    })(
+                      <Select
+                        onChange={this.handleChangeVersion}
+                        style={{ width: "220px" }}
+                      >
+                        {this.state.installBounced &&
+                          this.state.installBounced.group_version_list &&
+                          this.state.installBounced.group_version_list.map(
+                            (item, index) => {
+                              return (
+                                <Option key={index} value={item}>
+                                  {item}
+                                </Option>
+                              );
+                            }
+                          )}
+                      </Select>
+                    )}
+                  </Form.Item>
+                </Form>
+              </Modal>
+            )}
 
+            {this.state.showCreate && (
+              <CreateAppFromMarketForm
+                disabled={loading.effects["createApp/installApp"]}
+                onSubmit={this.handleCreate}
+                onCancel={this.onCancelCreate}
+                showCreate={this.state.showCreate}
+              />
+            )}
+            {this.state.showMarketAppDetail && (
+              <MarketAppDetailShow
+                onOk={this.hideMarketAppDetail}
+                onCancel={this.hideMarketAppDetail}
+                app={this.state.showApp}
+              />
+            )}
+          </div>
+        ) : (
+          <div>
             <PageHeaderLayout
               content={mainSearch}
               tabList={tabListMax}
               tabActiveKey={scopeMax}
               onTabChange={this.handleTabMaxChange}
             >
-
-              {scopeMax == "localApplication" ?
+              {scopeMax == "localApplication" ? (
                 <div>
-                  {isSpin ?
-                    <div style={{ height: "300px", lineHeight: "300px", textAlign: "center" }}>
+                  {isSpin ? (
+                    <div
+                      style={{
+                        height: "300px",
+                        lineHeight: "300px",
+                        textAlign: "center"
+                      }}
+                    >
                       <Spin size="large" />
                     </div>
-                    : <Tabs defaultActiveKey="" onChange={this.handleTabChange} style={{ background: "#fff", padding: "20px " }}>
-                      {tabList.map((item) => {
+                  ) : (
+                    <Tabs
+                      defaultActiveKey=""
+                      onChange={this.handleTabChange}
+                      style={{ background: "#fff", padding: "20px " }}
+                    >
+                      {tabList.map(item => {
                         const { key, tab } = item;
-                        return <TabPane tab={tab} key={key} >
-                          <div className={PluginStyles.cardList} style={{ paddingBottom: "20px" }}>{cardList}</div>
-                          {this.state.showCreate && (
-                            <CreateAppFromMarketForm
-                              disabled={loading.effects["createApp/installApp"]}
-                              onSubmit={this.handleCreate}
-                              onCancel={this.onCancelCreate}
-                              showCreate={this.state.showCreate}
-                            />
-                          )}
-                          {this.state.showMarketAppDetail && (
-                            <MarketAppDetailShow
-                              onOk={this.hideMarketAppDetail}
-                              onCancel={this.hideMarketAppDetail}
-                              app={this.state.showApp}
-                            />
-                          )}
-                        </TabPane>
+                        return (
+                          <TabPane tab={tab} key={key}>
+                            <div
+                              className={PluginStyles.cardList}
+                              style={{ paddingBottom: "20px" }}
+                            >
+                              {cardList}
+                            </div>
+                            {this.state.showCreate && (
+                              <CreateAppFromMarketForm
+                                disabled={
+                                  loading.effects["createApp/installApp"]
+                                }
+                                onSubmit={this.handleCreate}
+                                onCancel={this.onCancelCreate}
+                                showCreate={this.state.showCreate}
+                              />
+                            )}
+                            {this.state.showMarketAppDetail && (
+                              <MarketAppDetailShow
+                                onOk={this.hideMarketAppDetail}
+                                onCancel={this.hideMarketAppDetail}
+                                app={this.state.showApp}
+                              />
+                            )}
+                          </TabPane>
+                        );
                       })}
-                    </Tabs>}
+                    </Tabs>
+                  )}
                 </div>
-
-                :
+              ) : (
                 <div>
-                  {isSpin ? <div style={{ height: "300px", lineHeight: "300px", textAlign: "center" }}>
-                    <Spin size="large" />
-                  </div> : <div>
-
-                      <div className={PluginStyles.cardList} style={{ paddingBottom: "20px" }}>{cloudCardList}</div>
+                  {isSpin ? (
+                    <div
+                      style={{
+                        height: "300px",
+                        lineHeight: "300px",
+                        textAlign: "center"
+                      }}
+                    >
+                      <Spin size="large" />
+                    </div>
+                  ) : (
+                    <div>
+                      <div
+                        className={PluginStyles.cardList}
+                        style={{ paddingBottom: "20px" }}
+                      >
+                        {cloudCardList}
+                      </div>
                       {this.state.showCreate && (
                         <CreateAppFromMarketForm
                           disabled={loading.effects["createApp/installApp"]}
@@ -858,9 +995,10 @@ export default class Main extends PureComponent {
                           app={this.state.showApp}
                         />
                       )}
-                    </div>}
+                    </div>
+                  )}
                 </div>
-              }
+              )}
 
               {/* {scopeMax == "localApplication" &&
                 <PageHeaderLayout
@@ -890,13 +1028,10 @@ export default class Main extends PureComponent {
               } */}
               {/* <GuideManager /> */}
 
-
               {/* <GuideManager /> */}
             </PageHeaderLayout>
-
-
           </div>
-        }
+        )}
       </div>
     );
   }
