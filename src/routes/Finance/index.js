@@ -6,9 +6,6 @@ import { Card, Row, Col, DatePicker, notification, Button, Radio} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "../List/BasicList.less";
 import globalUtil from "../../utils/global";
-import InvoiceEcharts from "../../components/InvoiceEcharts";
-import PayHistory from "../../components/PayHistory";
-import ConsumeDetail from "../../components/ConsumeDetail";
 import TeamListTable from "../../components/tables/TeamListTable";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
@@ -36,7 +33,7 @@ export default class BasicList extends PureComponent {
   constructor(props) {
     super(props);
     const params = this.getParam();
-    const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
+    // const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
     const { user } = this.props;
     const adminer = userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -46,7 +43,7 @@ export default class BasicList extends PureComponent {
       datalist: [],
       showPayHistory: false,
       showConsumeDetail: false,
-      isPublic,
+      // isPublic,
       scope: params.type || this.getDefaultScope(),
       teamList: [],
       teamsPage: 1,
@@ -57,9 +54,6 @@ export default class BasicList extends PureComponent {
     };
   }
   componentDidMount() {
-    if (this.state.scope === "finance") {
-      this.getCompanyInfo();
-    }
     this.props.dispatch({
       type: "global/getIsRegist",
       callback: () => {},
@@ -97,9 +91,9 @@ export default class BasicList extends PureComponent {
     });
   };
   getDefaultScope() {
-    if (this.props.rainbondInfo && this.props.rainbondInfo.is_public) {
-      return "finance";
-    }
+    // if (this.props.rainbondInfo && this.props.rainbondInfo.is_public) {
+    //   return "finance";
+    // }
     return "manage";
   }
   getParam() {
@@ -119,21 +113,7 @@ export default class BasicList extends PureComponent {
       },
     });
   };
-  // 获取某数据中心下某一天的资源费用数据
-  getRegionOneDayMoney = () => {
-    this.props.dispatch({
-      type: "global/getRegionOneDayMoney",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.user.enterprise_id,
-        date: this.state.date,
-        region: globalUtil.getCurrRegionName(),
-      },
-      callback: (data) => {
-        this.setState({ list: data&&data.list || [] });
-      },
-    });
-  };
+ 
   handleCreateTeam = (values) => {
     this.props.dispatch({
       type: "teamControl/createTeam",
@@ -165,11 +145,7 @@ export default class BasicList extends PureComponent {
   handleTabChange = (key) => {
     this.setState({ scope: key });
   };
-  handleDateChange = (date, str) => {
-    this.setState({ date: str }, () => {
-      this.getRegionOneDayMoney();
-    });
-  };
+ 
   hanldePageChange = (page) => {
     this.setState(
       {
@@ -200,89 +176,8 @@ export default class BasicList extends PureComponent {
       },
     });
   };
-  handleRecharge=()=>{
-    const { is_team_enter_admin } = this.props.overviewInfo;
-    if( is_team_enter_admin ){
-      window.open("https://www.goodrain.com/spa/#/personalCenter/my/recharge", "_blank");
-    }else{
-      notification.warning({message:"您不是当前团队的企业管理员，无法充值！"})
-    }
-  }
-  finance = () => {
-    const companyInfo = this.state.companyInfo || {};
+ 
 
-    const Info = ({ title, value, bordered }) => (
-      <div className={styles.headerInfo}>
-        <span>{title}</span>
-        <p>{value}</p>
-        {bordered && <em />}
-      </div>
-    );
-
-    const extraContent = (
-      <div className={styles.extraContent}>
-        <DatePicker
-          onChange={this.handleDateChange}
-          allowClear={false}
-          defaultValue={moment(this.state.date, "YYYY-MM-DD")}
-        />
-      </div>
-    );
-    return (
-      <div className={styles.standardList}>
-        {this.state.showPayHistory && <PayHistory onCancel={this.hidePayHistory} />}
-        {this.state.showConsumeDetail && <ConsumeDetail onCancel={this.hideConsumeDetail} />}
-        <Card bordered={false}>
-          <Row>
-            <Col sm={8} xs={24}>
-              <Info title="企业账户" value={`${companyInfo.balance || 0}元`} bordered />
-              <p style={{ textAlign: "center" }}>
-                <a
-                  // target="_blank"
-                  // href="https://www.goodrain.com/spa/#/personalCenter/my/recharge"
-                  style={{ paddingRight: "10px" }}
-                  onClick={this.handleRecharge}
-                >
-                  充值
-                </a>
-                <Link
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/invoiceManage`}
-                >
-                  发票管理
-                </Link>
-              </p>
-            </Col>
-            <Col sm={8} xs={24}>
-              <Info
-                title="上一小时按需消费"
-                value={`${companyInfo.last_hour_cost || 0}元`}
-                bordered
-              />
-            </Col>
-            <Col sm={8} xs={24}>
-              <Info
-                title="本月账单"
-                value={`消耗${companyInfo.cost || 0}元 / 充值${companyInfo.recharge || 0} 元`}
-              />
-              <p style={{ textAlign: "center" }}>
-                <a
-                  href="javascript:;"
-                  onClick={this.showConsumeDetail}
-                  style={{ paddingRight: "10px" }}
-                >
-                  消耗明细
-                </a>
-                <a href="javascript:;" onClick={this.showPayHistory}>
-                  充值明细
-                </a>
-              </p>
-            </Col>
-          </Row>
-        </Card>
-        <InvoiceEcharts enterprise_id={this.props.user.enterprise_id} />
-      </div>
-    );
-  };
   handelUnderstand = () => {
     window.open("https://www.goodrain.com/industrycloud");
   };
@@ -397,9 +292,6 @@ export default class BasicList extends PureComponent {
       this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
       return null;
     }
-    if (this.state.scope === "finance") {
-      return this.finance();
-    }
   };
   //管理员添加用户
   addUser=()=>{
@@ -445,19 +337,6 @@ export default class BasicList extends PureComponent {
         tab: "管理",
       },
     ];
-    if (this.state.isPublic) {
-      tabList = [
-        {
-          key: "finance",
-          tab: "财务",
-        },
-        {
-          key: "manage",
-          tab: "管理",
-        },
-      ];
-    }
-
     return (
       <PageHeaderLayout
         tabList={tabList}

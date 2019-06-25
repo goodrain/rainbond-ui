@@ -198,7 +198,7 @@ export async function getTeamList(body = {
 
 /* 获取团队应用模块 */
 export async function getGuideState(body = {
-  team_name, 
+  team_name,
 }) {
   return request(`${config.baseUrl}/console/enterprise/${body.enterprise_id}/base-guidance`, {
     method: "get",
@@ -207,7 +207,7 @@ export async function getGuideState(body = {
 
 
 /* 获取热门域名访问模块 */
-export async function getDomainName(body = { team_name, region_name, page, page_size, id, start, step,end }) {
+export async function getDomainName(body = { team_name, region_name, page, page_size, id, start, step, end }) {
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_domain/query?repo=${body.id}`, {
       method: "get",
@@ -264,7 +264,7 @@ export async function getDomainTime(body = {
 }
 
 /* 查询当前组下的云市应用 */
-export async function getApplication(body = { team_name,group_id }) {
+export async function getApplication(body = { team_name, group_id }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps`, {
     method: "get",
     // params: {
@@ -303,9 +303,12 @@ export async function authEnterprise(body = {
   market_info,
   market_client_id,
   market_client_token,
-}) {
+},
+  handleError,
+) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/enterprise/active/optimiz`, {
     method: "post",
+    handleError,
     data: {
       enterprise_id: body.enterprise_id,
       // market_client_id: body.market_client_id,
@@ -316,7 +319,14 @@ export async function authEnterprise(body = {
 }
 
 
-
+/* 获取当前团队的企业ID */
+export async function getEnterpriseID(body = {
+  team_name,
+}) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/overview`, {
+    method: "get",
+  });
+}
 
 /* 生成升级订单 */
 
@@ -403,11 +413,11 @@ export async function getUpdateRecordsList(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
     method: "get",
     params: {
-      group_key: body.group_key?body.group_key:null,
-      version: body.version?body.version:null,
-      page: body.page?body.page:"",
-      page_size: body.pageSize?body.pageSize:"",
-      status__gt:body.status__gt?body.status__gt:1,
+      group_key: body.group_key ? body.group_key : null,
+      version: body.version ? body.version : null,
+      page: body.page ? body.page : "",
+      page_size: body.pageSize ? body.pageSize : "",
+      status__gt: body.status__gt ? body.status__gt : 1,
     },
   });
 }
@@ -438,7 +448,7 @@ export async function getUpdateRollback(body = {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback`, {
     method: "post",
     data: {
-      service_ids:body.service_ids,
+      service_ids: body.service_ids,
     },
   });
 }
