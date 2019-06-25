@@ -169,9 +169,9 @@ export default class Index extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name,
       },
-      callback: () => {
-        this.handleCancelAddVar();
+      callback: (res) => {
         this.fetchInnerEnvs();
+        this.handleCancelAddVar();
       },
     });
   };
@@ -190,10 +190,12 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         attr_name: this.state.deleteVar.attr_name,
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchInnerEnvs();
+        }
         this.cancelDeleteVar();
-        this.fetchInnerEnvs();
-        notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
       },
     });
@@ -210,9 +212,11 @@ export default class Index extends React.Component {
         scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchInnerEnvs();
+        }
         this.cancelTransfer();
-        this.fetchInnerEnvs();
-        notification.success({ message: "操作成功" });
       },
     });
   };
