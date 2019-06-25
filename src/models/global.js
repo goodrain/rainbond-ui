@@ -7,6 +7,7 @@ import {
   getMarketApp,
   syncMarketAppDetail,
   authEnterprise,
+  getEnterpriseID,
   getCompanyInfo,
   getApplication,
   getRegionOneDayMoney,
@@ -269,8 +270,14 @@ export default {
         callback(data);
       }
     },
-    * authEnterprise({ payload, callback }, { call, put }) {
-      const data = yield call(authEnterprise, payload);
+    * authEnterprise({ payload, callback,handleError }, { call, put }) {
+      const data = yield call(authEnterprise, payload,handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    * getEnterpriseID({ payload, callback }, { call, put }) {
+      const data = yield call(getEnterpriseID, payload);
       if (data && callback) {
         callback(data);
       }

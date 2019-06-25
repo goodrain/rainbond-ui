@@ -68,9 +68,9 @@ export default class Index extends PureComponent {
       return <AppList {...this.props} />;
     }
 
-    if (this.state.scope === 'plugin') {
-      return <PluginList {...this.props} />;
-    }
+    // if (this.state.scope === 'plugin') {
+    //   return <PluginList {...this.props} />;
+    // }
   };
   render() {
     const { currUser } = this.props;
@@ -92,10 +92,10 @@ export default class Index extends PureComponent {
         key: 'app',
         tab: '应用',
       },
-      {
-        key: 'plugin',
-        tab: '插件',
-      },
+      // {
+      //   key: 'plugin',
+      //   tab: '插件',
+      // },
     ];
 
     return (

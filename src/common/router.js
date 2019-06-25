@@ -85,15 +85,6 @@ export const getRouterData = (app) => {
     "/team/:team/region/:region/finance": {
       component: dynamicWrapper(app, ["index"], () => import("../routes/Finance")),
     },
-    "/team/:team/region/:region/invoiceManage": {
-      component: dynamicWrapper(app, ["invoice"], () => import("../routes/Finance/invoiceManage")),
-    },
-    "/team/:team/region/:region/applyinvoice": {
-      component: dynamicWrapper(app, [], () => import("../routes/Finance/invoice")),
-    },
-    "/team/:team/region/:region/info": {
-      component: dynamicWrapper(app, [], () => import("../routes/Finance/invoice-info")),
-    },
     "/team/:team/region/:region/resources/buy/:regionName": {
       component: dynamicWrapper(app, [], () => import("../routes/Finance/resources")),
     },
