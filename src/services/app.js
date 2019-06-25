@@ -874,18 +874,22 @@ export async function addInnerEnvs(body = {
 }
 
 /*
- 获取应用的自定义环境变量
+ 获取应用的连接信息变量
  evn
 */
 export async function getOuterEnvs(body = {
   team_name,
   app_alias,
   env_type,
+  page,
+  page_size,
 }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`, {
     method: "get",
     params: {
       env_type: "outer",
+      page: body.page ? body.page : 1,
+      page_size: body.page_size ? body.page_size : 5,
     },
   });
 }

@@ -537,6 +537,7 @@ export default {
     * fetchOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
+        callback && callback(response);
         yield put({ type: "saveOuterEnvs", payload: response.list });
       }
     },
@@ -549,19 +550,19 @@ export default {
     * addOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(addOuterEnvs, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * deleteEnvs({ payload, callback }, { call, put }) {
       const response = yield call(deleteEvns, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * putTransfer({ payload, callback }, { call, put }) {
       const response = yield call(putTransfer, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * getInstanceList({ payload, callback }, { call, put }) {
@@ -609,7 +610,7 @@ export default {
     * editEvns({ payload, callback }, { call, put }) {
       const response = yield call(editEvns, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * fetchStartProve({ payload, callback }, { call, put }) {

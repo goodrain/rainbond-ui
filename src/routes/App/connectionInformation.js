@@ -42,11 +42,13 @@ export default class Index extends React.Component {
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
-      outerEnvs: []
+      page:1,
+      page_size:5,
+      total:0,
     };
   }
   componentDidMount() {
-    this.fetchInnerEnvs();
+    this.fetchOuterEnvs();
   }
 
   handleAddVar = () => {
@@ -64,19 +66,20 @@ export default class Index extends React.Component {
   cancelDeleteVar = () => {
     this.setState({ deleteVar: null });
   };
-  fetchInnerEnvs = () => {
+  fetchOuterEnvs = () => {
+    const {page,page_size}= this.state;
     this.props.dispatch({
-      type: "appControl/fetchInnerEnvs",
+      type: "appControl/fetchOuterEnvs",
       payload: {
+        page,
+        page_size,
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         env_type: "outer"
       },
       callback: (res) => {
-        if (res) {
-          this.setState({
-            outerEnvs: res.list || []
-          })
+        if (res && res._code == 200) {
+          this.setState({ total: res.bean.total });
         }
       }
     });
@@ -90,10 +93,12 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         attr_name: this.state.deleteVar.attr_name,
       },
-      callback: () => {
+      callback: (res) => {
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
         this.cancelDeleteVar();
-        this.fetchInnerEnvs();
-        notification.success({ message: "操作成功" });
       },
     });
   };
@@ -112,9 +117,9 @@ export default class Index extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name,
       },
-      callback: () => {
+      callback: (res) => {
+        this.fetchOuterEnvs();
         this.cancelEditVar();
-        this.fetchInnerEnvs();
       },
     });
   };
@@ -130,9 +135,9 @@ export default class Index extends React.Component {
         name: vals.name,
         scope: "outer"
       },
-      callback: () => {
+      callback: (res) => {
+        this.fetchOuterEnvs();
         this.handleCancelAddVar();
-        this.fetchInnerEnvs();
       },
     });
   };
@@ -157,13 +162,24 @@ export default class Index extends React.Component {
       },
       callback: (res) => {
         this.cancelTransfer();
-        this.fetchInnerEnvs();
-        notification.success({ message: "操作成功" });
+        if (res && res._code == 200) {
+          notification.success({ message: "操作成功" });
+          this.fetchOuterEnvs();
+        }
       },
     });
   };
 
+  onServiceInfoPageChange = (page) => {
+    this.setState({
+      page
+    }, () => {
+      this.fetchOuterEnvs()
+    })
+  }
+
   render() {
+    const { page,page_size,total } = this.state;
     const { outerEnvs } = this.props;
     return (
       <Fragment>
@@ -229,7 +245,7 @@ export default class Index extends React.Component {
                         删除
                       </a>
 
-                      <Tooltip   title={<p>将此连接信息变量转换为<br/>环境变量</p>}>
+                      {/* <Tooltip   title={<p>将此连接信息变量转换为<br/>环境变量</p>}>
                         <a
                           href="javascript:;"
                           onClick={() => {
@@ -239,7 +255,7 @@ export default class Index extends React.Component {
                         >
                           转移
                       </a>
-                      </Tooltip>
+                      </Tooltip> */}
                       {data.is_change ? (
                         <a
                           href="javascript:;"
@@ -256,8 +272,13 @@ export default class Index extends React.Component {
                   ),
                 },
               ]}
-              pagination={false}
-              dataSource={this.state.outerEnvs}
+              pagination={{
+                current: page,
+                pageSize:page_size,
+                total,
+                onChange: this.onServiceInfoPageChange,
+              }}
+              dataSource={outerEnvs}
             />
           </ScrollerX>
           <div
