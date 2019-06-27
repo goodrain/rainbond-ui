@@ -698,7 +698,7 @@ export default class AppList extends PureComponent {
                     }
                     title={<a style={{ color: "#1890ff" }} href="javascript:;" onClick={() => {
                       this.showMarketAppDetail(item)
-                    }}>{item.group_name}{item.is_official && ("(官方发布)")}</a>}
+                    }}>{item.group_name}{item.is_official && ("(官方推荐)")}</a>}
                     description={
                       <div>
                         <p>版本:&nbsp;

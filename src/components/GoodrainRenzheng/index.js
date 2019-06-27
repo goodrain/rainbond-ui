@@ -5,7 +5,7 @@ export default class Index extends PureComponent {
     render(){
         return (
             <span className={styles.goodrain_rz} {...this.props}>
-            官方发布
+            官方推荐
             </span>
         )
     }

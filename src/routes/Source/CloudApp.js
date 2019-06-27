@@ -248,7 +248,7 @@ export default class CloudApp extends PureComponent {
                     }}
                   >
                     {item.group_name}
-                    {item.is_official && "(官方发布)"}
+                    {item.is_official && "(官方推荐)"}
                   </a>
                 }
                 description={
