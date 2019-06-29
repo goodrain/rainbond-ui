@@ -99,7 +99,7 @@ class AuthForm extends PureComponent {
   }
 }
 
-@connect(({ user,global }) => ({ currUser: user.currentUser,rainbondInfo: global.rainbondInfo, }))
+@connect(({ user, global }) => ({ currUser: user.currentUser, rainbondInfo: global.rainbondInfo, }))
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -110,8 +110,8 @@ export default class Index extends PureComponent {
     };
   }
 
-  
-  componentWillMount(){
+
+  componentWillMount() {
     this.handleEnterpriseID();
   }
 
@@ -132,7 +132,7 @@ export default class Index extends PureComponent {
           this.setState({
             certificationState: "success"
           })
-        } 
+        }
       },
       handleError: res => {
         if (res && res.status === 500) {
@@ -155,7 +155,7 @@ export default class Index extends PureComponent {
 
   getQueryString(name) {
     let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    let r = window.location.hash.substr(window.location.hash.indexOf("?")+1).match(reg);
+    let r = window.location.hash.substr(window.location.hash.indexOf("?") + 1).match(reg);
     if (r != null) {
       return unescape(r[2]);
     };
@@ -174,7 +174,7 @@ export default class Index extends PureComponent {
         if (res && res._code == 200) {
           this.setState({
             eid: res.bean.eid
-          },()=>{
+          }, () => {
             this.handleMarket()
           })
         }
@@ -184,7 +184,7 @@ export default class Index extends PureComponent {
 
 
   //检测是否有market值
-  handleMarket = () =>{
+  handleMarket = () => {
     let market = this.getQueryString("market_info")
     if (market) {
       this.setState({
@@ -197,12 +197,9 @@ export default class Index extends PureComponent {
 
   handleTakeInfo = () => {
     const { eid } = this.state;
-    const {rainbondInfo}=this.props
-        const url = `http://0.0.0.0:8090/manage/jointcloud?join_id=${eid}&callback_url=${window.location.href}&rbd_version=${rainbondInfo.version}`;
-        
-        // http://market.goodrain.com  http://0.0.0.0:8090
-        window.location.href = url
-        //window.location.href= window.open(`https://www.goodrain.com/spa/#/check-key/${currUser.enterprise_id}`);
+    const { rainbondInfo } = this.props
+    const url = rainbondInfo.market_url ? rainbondInfo.market_url : `http://market.goodrain.com/manage/jointcloud?join_id=${eid}&callback_url=${window.location.href}&rbd_version=${rainbondInfo.version}`;
+    window.location.href = url
   };
 
   render() {
