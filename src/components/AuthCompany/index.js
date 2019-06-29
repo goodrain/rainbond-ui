@@ -198,8 +198,9 @@ export default class Index extends PureComponent {
   handleTakeInfo = () => {
     const { eid } = this.state;
     const { rainbondInfo } = this.props
-    const domain = rainbondInfo.market_url ? rainbondInfo.market_url : "https://market.goodrain.com";
-    const url = domain"+/manage/jointcloud?join_id="+eid+"&callback_url="+window.location.href+"&rbd_version="+rainbondInfo.version
+    const domain = rainbondInfo.market_url ? rainbondInfo.market_url : "https://market.goodrain.com"
+    const callback = window.location.href
+    const url = domain"+/manage/jointcloud?join_id="+eid+"&callback_url="+callback+"&rbd_version="+rainbondInfo.version
     window.location.href = url
   };
 
