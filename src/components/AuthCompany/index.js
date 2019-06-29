@@ -200,7 +200,7 @@ export default class Index extends PureComponent {
     const { rainbondInfo } = this.props
     const domain = rainbondInfo.market_url ? rainbondInfo.market_url : "https://market.goodrain.com"
     const callback = window.location.href
-    const url = domain"+/manage/jointcloud?join_id="+eid+"&callback_url="+callback+"&rbd_version="+rainbondInfo.version
+    const url = domain+"/manage/jointcloud?join_id="+eid+"&callback_url="+callback+"&rbd_version="+rainbondInfo.version
     window.location.href = url
   };
 
