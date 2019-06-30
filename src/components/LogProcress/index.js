@@ -96,7 +96,6 @@ export default class Index extends PureComponent {
   createTmpElement() {
     this.ele = document.createElement("p");
     this.ele.cssText = "margin-bottom:0";
-
   }
 
   findProgressById = (id) => {

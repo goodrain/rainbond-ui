@@ -731,7 +731,7 @@ export default class CreateCheck extends PureComponent {
     const extra = (
       <div>
         {this.state.eventId && (
-          <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
+          <LogProcress opened={true} socketUrl={this.socketUrl} eventId={this.state.eventId} />
         )}
       </div>
     );

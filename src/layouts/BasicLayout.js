@@ -31,34 +31,33 @@ import MemoryTip from "./MemoryTip";
 import PayMoneyTip from "./PayMoneyTip";
 import Meiqia from "./Meiqia";
 
+const qs = require("query-string");
 const { Content } = Layout;
 const { AuthorizedRoute } = Authorized;
 
-
-
 const query = {
   "screen-xs": {
-    maxWidth: 575,
+    maxWidth: 575
   },
   "screen-sm": {
     minWidth: 576,
-    maxWidth: 767,
+    maxWidth: 767
   },
   "screen-md": {
     minWidth: 768,
-    maxWidth: 991,
+    maxWidth: 991
   },
   "screen-lg": {
     minWidth: 992,
-    maxWidth: 1199,
+    maxWidth: 1199
   },
   "screen-xl": {
-    minWidth: 1200,
-  },
+    minWidth: 1200
+  }
 };
 
 let isMobile;
-enquireScreen((b) => {
+enquireScreen(b => {
   isMobile = b;
 });
 
@@ -67,7 +66,7 @@ class BasicLayout extends React.PureComponent {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
     currRegion: PropTypes.string,
-    currTeam: PropTypes.string,
+    currTeam: PropTypes.string
   };
   state = {
     isMobile,
@@ -78,12 +77,21 @@ class BasicLayout extends React.PureComponent {
     showChangePassword: false,
     showWelcomeCreateTeam: false,
     canCancelOpenRegion: true,
+    market_info: "",
+    showAuthCompany: false,
   };
   componentDidMount() {
-    enquireScreen((mobile) => {
+    enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
     this.fetchUserInfo();
+    this.setState({showAuthCompany: this.props.showAuthCompany})
+    var query = qs.parse(this.props.location.search);
+    if (query && query.market_info) {
+      this.setState({ market_info: query.market_info });
+      this.setState({ showAuthCompany: true });
+    }
+    console.log(this.state.showAuthCompany)
   }
   onOpenRegion = () => {
     this.setState({ openRegion: true });
@@ -97,7 +105,7 @@ class BasicLayout extends React.PureComponent {
   cancelCreateTeam = () => {
     this.setState({ createTeam: false });
   };
-  handleCreateTeam = (values) => {
+  handleCreateTeam = values => {
     this.props.dispatch({
       type: "teamControl/createTeam",
       payload: values,
@@ -105,7 +113,7 @@ class BasicLayout extends React.PureComponent {
         notification.success({ message: "添加成功" });
         this.cancelCreateTeam();
         this.props.dispatch({ type: "user/fetchCurrent" });
-      },
+      }
     });
   };
   onJoinTeam = () => {
@@ -114,20 +122,18 @@ class BasicLayout extends React.PureComponent {
   cancelJoinTeam = () => {
     this.setState({ joinTeam: false });
   };
-  handleJoinTeam = (values) => {
+  handleJoinTeam = values => {
     this.props.dispatch({
       type: "global/joinTeam",
       payload: values,
       callback: () => {
         notification.success({ message: "申请成功，请等待审核" });
         this.cancelJoinTeam();
-      },
+      }
     });
   };
   getChildContext() {
-    const {
-      location, routerData,
-    } = this.props;
+    const { location, routerData } = this.props;
     return { location, breadcrumbNameMap: routerData };
   }
 
@@ -141,13 +147,13 @@ class BasicLayout extends React.PureComponent {
           load.style.display = "none";
         }
       },
-      handleError: (res) => {
+      handleError: res => {
         if (res && (res.status === 403 || res.status === 404)) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
           location.reload();
         }
-      },
+      }
     });
   };
   getPageTitle() {
@@ -175,10 +181,13 @@ class BasicLayout extends React.PureComponent {
     }
     return redirect;
   };
-  handleMenuCollapse = (collapsed) => {
-    this.props.dispatch({ type: "global/changeLayoutCollapsed", payload: collapsed });
+  handleMenuCollapse = collapsed => {
+    this.props.dispatch({
+      type: "global/changeLayoutCollapsed",
+      payload: collapsed
+    });
   };
-  handleNoticeClear = (type) => {
+  handleNoticeClear = type => {
     message.success(`清空了${type}`);
     this.props.dispatch({ type: "global/clearNotices", payload: type });
   };
@@ -190,7 +199,7 @@ class BasicLayout extends React.PureComponent {
       this.props.dispatch({ type: "user/logout" });
     }
   };
-  handleNoticeVisibleChange = (visible) => {
+  handleNoticeVisibleChange = visible => {
     if (visible) {
       this.props.dispatch({ type: "global/fetchNotices" });
     }
@@ -216,13 +225,17 @@ class BasicLayout extends React.PureComponent {
         notification.warning({ message: "该团队下无可用数据中心!" });
         return;
       }
-      const selectRegion = regions.filter(item => item.team_region_name === currRegionName)[0];
+      const selectRegion = regions.filter(
+        item => item.team_region_name === currRegionName
+      )[0];
       const selectRegionName = selectRegion
         ? selectRegion.team_region_name
         : regions[0].team_region_name;
       currRegionName = selectRegionName;
     }
-    this.props.dispatch(routerRedux.push(`/team/${key}/region/${currRegionName}/index`));
+    this.props.dispatch(
+      routerRedux.push(`/team/${key}/region/${currRegionName}/index`)
+    );
     // location.reload();
   };
 
@@ -231,7 +244,11 @@ class BasicLayout extends React.PureComponent {
       this.onOpenRegion();
       return;
     }
-    this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${key}/index`));
+    this.props.dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
+      )
+    );
     // location.reload();
   };
   showChangePass = () => {
@@ -240,15 +257,15 @@ class BasicLayout extends React.PureComponent {
   cancelChangePass = () => {
     this.setState({ showChangePassword: false });
   };
-  handleChangePass = (vals) => {
+  handleChangePass = vals => {
     this.props.dispatch({
       type: "user/changePass",
       payload: {
-        ...vals,
+        ...vals
       },
       callback: () => {
         notification.success({ message: "修改成功，请重新登录" });
-      },
+      }
     });
   };
 
@@ -259,13 +276,13 @@ class BasicLayout extends React.PureComponent {
   handleCurrTeamNoRegion = () => {
     this.setState({ openRegion: true, canCancelOpenRegion: false });
   };
-  handleOpenRegion = (regions) => {
+  handleOpenRegion = regions => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "teamControl/openRegion",
       payload: {
         team_name,
-        region_names: regions.join(","),
+        region_names: regions.join(",")
       },
       callback: () => {
         notification.success({ message: "开通成功" });
@@ -273,28 +290,35 @@ class BasicLayout extends React.PureComponent {
         this.props.dispatch({
           type: "user/fetchCurrent",
           callback: () => {
-            this.props.dispatch(routerRedux.replace(`/team/${team_name}/region/${regions[0]}/index`));
-          },
+            this.props.dispatch(
+              routerRedux.replace(
+                `/team/${team_name}/region/${regions[0]}/index`
+              )
+            );
+          }
         });
-      },
+      }
     });
   };
   render() {
     /**
- * 根据菜单取得重定向地址.
- */
-const redirectData = [];
-const getRedirect = (item) => {
-  if (item && item.children) {
-    if (item.children[0] && item.children[0].path) {
-      redirectData.push({ from: `/${item.path}`, to: `/${item.children[0].path}` });
-      item.children.forEach((children) => {
-        getRedirect(children);
-      });
-    }
-  }
-};
-getMenuData().forEach(getRedirect);
+     * 根据菜单取得重定向地址.
+     */
+    const redirectData = [];
+    const getRedirect = item => {
+      if (item && item.children) {
+        if (item.children[0] && item.children[0].path) {
+          redirectData.push({
+            from: `/${item.path}`,
+            to: `/${item.children[0].path}`
+          });
+          item.children.forEach(children => {
+            getRedirect(children);
+          });
+        }
+      }
+    };
+    getMenuData().forEach(getRedirect);
 
     const {
       currentUser,
@@ -308,17 +332,22 @@ getMenuData().forEach(getRedirect);
       currTeam,
       currRegion,
       groups,
-      rainbondInfo,
+      rainbondInfo
     } = this.props;
     const bashRedirect = this.getBashRedirect();
     const layout = () => {
-      const team = userUtil.getTeamByTeamName(currentUser, globalUtil.getCurrTeamName());
+      const team = userUtil.getTeamByTeamName(
+        currentUser,
+        globalUtil.getCurrTeamName()
+      );
       const hasRegion = !!(team.region && team.region.length);
       let region = null;
       let isRegionMaintain = false;
       if (hasRegion) {
-        region = userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
-        isRegionMaintain = region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
+        region =
+          userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
+        isRegionMaintain =
+          region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
       }
 
       const renderContent = () => {
@@ -339,7 +368,13 @@ getMenuData().forEach(getRedirect);
           return (
             <div style={{ textAlign: "center", padding: "50px 0" }}>
               <Icon style={{ fontSize: 50, marginBottom: 32 }} type="warning" />
-              <h1 style={{ fontSize: 50, color: "rgba(0, 0, 0, 0.65)", marginBottom: 8 }}>
+              <h1
+                style={{
+                  fontSize: 50,
+                  color: "rgba(0, 0, 0, 0.65)",
+                  marginBottom: 8
+                }}
+              >
                 数据中心维护中
               </h1>
               <p>请稍后访问当前数据中心</p>
@@ -371,20 +406,19 @@ getMenuData().forEach(getRedirect);
 
       return (
         <Layout>
-          {!isRegionMaintain &&
-            hasRegion && (
-              <SiderMenu
-                title={rainbondInfo.title}
-                currentUser={currentUser}
-                logo={rainbondInfo.logo || logo}
-                Authorized={Authorized}
-                menuData={getMenuData(groups)}
-                collapsed={collapsed}
-                location={location}
-                isMobile={this.state.isMobile}
-                onCollapse={this.handleMenuCollapse}
-              />
-            )}
+          {!isRegionMaintain && hasRegion && (
+            <SiderMenu
+              title={rainbondInfo.title}
+              currentUser={currentUser}
+              logo={rainbondInfo.logo || logo}
+              Authorized={Authorized}
+              menuData={getMenuData(groups)}
+              collapsed={collapsed}
+              location={location}
+              isMobile={this.state.isMobile}
+              onCollapse={this.handleMenuCollapse}
+            />
+          )}
 
           <Layout>
             <GlobalHeader
@@ -408,7 +442,7 @@ getMenuData().forEach(getRedirect);
             <Content
               style={{
                 margin: "24px 24px 0",
-                height: "100%",
+                height: "100%"
               }}
             >
               {renderContent()}
@@ -435,29 +469,45 @@ getMenuData().forEach(getRedirect);
           </CheckUserInfo>
         </DocumentTitle>
         {this.state.openRegion && (
-          <OpenRegion onSubmit={this.handleOpenRegion} onCancel={this.cancelOpenRegion} />
+          <OpenRegion
+            onSubmit={this.handleOpenRegion}
+            onCancel={this.cancelOpenRegion}
+          />
         )}
         {this.state.createTeam && (
-          <CreateTeam onOk={this.handleCreateTeam} onCancel={this.cancelCreateTeam} />
+          <CreateTeam
+            onOk={this.handleCreateTeam}
+            onCancel={this.cancelCreateTeam}
+          />
         )}
         {this.state.joinTeam && (
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
         )}
         {this.state.showChangePassword && (
-          <ChangePassword onOk={this.handleChangePass} onCancel={this.cancelChangePass} />
+          <ChangePassword
+            onOk={this.handleChangePass}
+            onCancel={this.cancelChangePass}
+          />
         )}
         <Loading />
         {rainbondInfo.is_public && <Meiqia />}
         {this.props.payTip && <PayTip dispatch={this.props.dispatch} />}
-        {this.props.memoryTip && <MemoryTip dispatch={this.props.dispatch} memoryTip={this.props.memoryTip}/>}
-        {this.props.noMoneyTip && <PayMoneyTip dispatch={this.props.dispatch} />}
-        {this.props.showAuthCompany && (
-          <AuthCompany
+        {this.props.memoryTip && (
+          <MemoryTip
+            dispatch={this.props.dispatch}
+            memoryTip={this.props.memoryTip}
+          />
+        )}
+        {this.props.noMoneyTip && (
+          <PayMoneyTip dispatch={this.props.dispatch} />
+        )}
+        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+          <AuthCompany market_info={this.state.market_info}
             onOk={() => {
-              // location.reload();
-              setTimeout(function(){
-                history.go(0);
-              },1000)
+              this.setState({showAuthCompany: false})
+              var jumpPath = this.props.location.pathname
+              var query = this.props.location.search.replace("market_info="+this.state.market_info,"")
+              this.props.dispatch(routerRedux.replace(jumpPath+query));
             }}
           />
         )}
@@ -479,5 +529,5 @@ export default connect(({ user, global, loading }) => ({
   payTip: global.payTip,
   memoryTip: global.memoryTip,
   noMoneyTip: global.noMoneyTip,
-  showAuthCompany: global.showAuthCompany,
+  showAuthCompany: global.showAuthCompany
 }))(BasicLayout);

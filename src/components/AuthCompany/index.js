@@ -91,7 +91,7 @@ class AuthForm extends PureComponent {
 
 
         {certificationState != "loading" && <Button onClick={this.handleSubmit} type={certificationState == "success" ? "primary" : "default"}>
-          {certificationState == "success" ? "关闭窗口" : "重新获取认证信息"}
+          {certificationState == "success" ? "确认" : "重新获取认证信息"}
         </Button>}
 
       </Form>
@@ -106,7 +106,8 @@ export default class Index extends PureComponent {
     this.state = {
       currStep: 0,
       certificationState: "loading",
-      eid: ""
+      eid: "",
+      market_info: this.props.market_info,
     };
   }
 
@@ -153,16 +154,6 @@ export default class Index extends PureComponent {
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
 
-  getQueryString(name) {
-    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    let r = window.location.hash.substr(window.location.hash.indexOf("?") + 1).match(reg);
-    if (r != null) {
-      return unescape(r[2]);
-    };
-    return null;
-  }
-
-
   //获取当前团队的企业ID
   handleEnterpriseID = () => {
     this.props.dispatch({
@@ -185,7 +176,7 @@ export default class Index extends PureComponent {
 
   //检测是否有market值
   handleMarket = () => {
-    let market = this.getQueryString("market_info")
+    let market = this.state.market_info
     if (market) {
       this.setState({
         currStep: 1,
