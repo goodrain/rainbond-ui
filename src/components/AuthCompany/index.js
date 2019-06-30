@@ -29,40 +29,6 @@ class AuthForm extends PureComponent {
         layout="horizontal"
         hideRequiredMark
       >
-        {/* <Form.Item {...formItemLayout} label="企业ID">
-          {getFieldDecorator('market_client_id', {
-            initialValue: '',
-            rules: [
-              {
-                required: true,
-                message: '请输入您的企业ID',
-              },
-            ],
-          })(<Input placeholder="请输入您的企业ID" />)}
-        </Form.Item>
-        <Form.Item {...formItemLayout} label="企业Token">
-          {getFieldDecorator('market_client_token', {
-            initialValue: '',
-            rules: [
-              {
-                required: true,
-                message: '请输入您的企业Token',
-              },
-            ],
-          })(<Input placeholder="请输入您的企业Token" />)}
-        </Form.Item> */}
-        {/* <Form.Item {...formItemLayout} label="企业秘钥">
-          {getFieldDecorator('market_info', {
-            initialValue: market_info,
-            rules: [
-              {
-                required: true,
-                message: '请输入您的企业秘钥',
-              },
-            ],
-          })(<TextArea placeholder="请输入您的企业秘钥" autosize />)}
-        </Form.Item> */}
-
         <div>
           <Icon type={certificationState == "loading" ? "sync" :
             certificationState == "success" ? "check-circle" :
@@ -73,13 +39,6 @@ class AuthForm extends PureComponent {
             twoToneColor={certificationState == "error" ? "#cf1010" : "#52c41a"}
           />
         </div>
-
-
-        {/* <div>
-          <Button onClick={this.handleSubmit} type="primary">
-            提交认证
-            </Button>
-        </div> */}
 
         <p style={{
           fontSize: "24px",
@@ -121,9 +80,6 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: 'global/authEnterprise',
       payload: {
-        // team_name: globalUtil.getCurrTeamName(),
-        // enterprise_id: currUser.enterprise_id,
-        // ...vals,
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: eid,
         market_info
