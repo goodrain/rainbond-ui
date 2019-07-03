@@ -34,7 +34,7 @@ import config from "../../config/config";
 import cookie from "../../utils/cookie";
 
 import styles from "./Index.less";
-import mytabcss from "./mytab.css";
+import mytabcss from "./mytab.less";
 import globalUtil from "../../utils/global";
 import pluginUtil from "../../utils/plugin"
 import PluginInfo from "./PluginInfo"
@@ -381,8 +381,9 @@ export default class Main extends PureComponent {
       isShare: null,
       service_cname: "",
       dep_service_name: [],
-      share_service_list: []
-
+      share_service_list: [],
+      ShareTypeShow: false,
+      scopeValue: "goodrain:private"
     };
     this.com = [];
     this.share_group_info = null;
@@ -408,8 +409,13 @@ export default class Main extends PureComponent {
       callback: (data) => {
         let selectedApp = "";
         if (data) {
-          if (data && data.bean.share_service_list[0]) {
-            selectedApp = data && data.bean.share_service_list[0].service_alias;
+          if (data.bean.share_service_list[0]) {
+            selectedApp = data.bean.share_service_list[0].service_alias;
+          }
+          if (data.bean.share_group_info && data.bean.share_group_info.scope == "goodrain") {
+            this.setState({
+              ShareTypeShow: true
+            })
           }
           this.setState({
             info: data.bean,
@@ -417,6 +423,7 @@ export default class Main extends PureComponent {
             key: data.bean.share_service_list[0].service_alias,
             share_service_list: data.bean.share_service_list
           });
+
           if (data.bean.share_group_info.pic) {
             this.setState({
               fileList: [
@@ -458,13 +465,14 @@ export default class Main extends PureComponent {
 
   handleSubmit = (e) => {
     const { dispatch } = this.props;
+    const { scopeValue } = this.state;
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
 
       if (!err) {
         this.share_group_info.describe = values.describe;
         this.share_group_info.group_name = values.group_name;
-        this.share_group_info.scope = values.scope;
+        this.share_group_info.scope = values.scope == "goodrain" ? scopeValue : values.scope;
         this.share_group_info.version = values.version;
         if (this.state.fileList[0] != undefined) {
           this.state.fileList[0].response
@@ -726,6 +734,20 @@ export default class Main extends PureComponent {
       this.handleTabList();
     })
   }
+  hanldeShareTypeChange = (e) => {
+    const { getFieldDecorator, setFieldsValue } = this.props.form;
+    const value = e.target.value;
+    this.setState({
+      ShareTypeShow: value == "goodrain" ? true : false
+    })
+    setFieldsValue({ scope: value });
+  };
+  hanldeScopeValueChange = (e) => {
+    const value = e.target.value;
+    this.setState({
+      scopeValue: value
+    })
+  };
 
   render() {
     const info = this.state.info;
@@ -739,7 +761,7 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
-    const { shareList, shareModal, sharearrs, share_service_list } = this.state
+    const { shareList, shareModal, sharearrs, share_service_list, ShareTypeShow } = this.state
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -794,7 +816,7 @@ export default class Main extends PureComponent {
                       })(<Input placeholder="默认使用上次的版本" />)}
                     </Form.Item>
                   </Col>
-                  <Col span="12">
+                  <Col span="12" style={{ height: "104px" }}>
                     <Form.Item {...formItemLayout} label="分享范围">
                       {getFieldDecorator("scope", {
                         initialValue: appinfo.scope || "team",
@@ -803,14 +825,32 @@ export default class Main extends PureComponent {
                             required: true,
                           },
                         ],
-                      })(<RadioGroup>
+                      })(<RadioGroup onChange={this.hanldeShareTypeChange}>
                         <Radio value="team">团队</Radio>
                         <Radio value="enterprise">公司</Radio>
-                        <Radio value="goodrain">公有云应用市场</Radio>
+                        <Radio value="goodrain">应用市场</Radio>
                       </RadioGroup>)}
+
+                      {ShareTypeShow &&
+                        <div
+                          className={styles.connect}
+                        >
+                          <Icon
+                            className={styles.icon}
+                            type="caret-up"
+                            theme="filled"
+                          />
+
+                          <RadioGroup onChange={this.hanldeScopeValueChange} value={this.state.scopeValue}>
+                            <Radio value="goodrain:public">公开应用</Radio>
+                            <Radio value='goodrain:private'>私有应用</Radio>
+                          </RadioGroup>
+                        </div>
+                      }
                     </Form.Item>
+
                   </Col>
-                  <Col span="12">
+                  <Col span="12" style={{ height: "104px" }}>
                     <Form.Item {...formItemLayout} label="应用说明">
                       {getFieldDecorator("describe", {
                         initialValue: appinfo.describe,
@@ -820,7 +860,7 @@ export default class Main extends PureComponent {
                             message: "请输入应用说明",
                           },
                         ],
-                      })(<TextArea placeholder="请输入应用说明" />)}
+                      })(<TextArea placeholder="请输入应用说明" style={{ height: "70px" }} />)}
                     </Form.Item>
                   </Col>
                   <Col span="12">
@@ -866,10 +906,10 @@ export default class Main extends PureComponent {
                 padding: "24px",
               }}
             >
-              <div className="mytab">
-                <Form layout="horizontal" className={styles.stepForm}>
-                  <Form.Item {...sharingFormItemLayout} label="分享服务" required={true}>
-                    {/* {getFieldDecorator("sharing", {
+              <div className={mytabcss.mytab}>
+                {/* <Form layout="horizontal" className={styles.stepForm}>
+                  <Form.Item {...sharingFormItemLayout} label="分享服务" required={true}> */}
+                {/* {getFieldDecorator("sharing", {
                       initialValue: shareList,
                       // setFieldsValue:shareList,
                       rules: [
@@ -879,7 +919,7 @@ export default class Main extends PureComponent {
                         },
                       ],
                     })( */}
-                    <Checkbox.Group
+                {/* <Checkbox.Group
                       onChange={this.onFileChange}
                       value={sharearrs}
                       style={{ display: "block", marginTop: "9px" }}
@@ -891,35 +931,70 @@ export default class Main extends PureComponent {
                           </Checkbox>
                         );
                       })}
-                    </Checkbox.Group>
-                    {/* )} */}
-                  </Form.Item>
-                </Form>
+                    </Checkbox.Group> */}
+                {/* )} */}
+                {/* </Form.Item>
+                </Form> */}
 
+                <h4
+                  className={mytabcss.required}
+                  style={{
+                    marginBottom: 8,
+                  }}
+                >
+                  分享服务
+                 </h4>
                 <div className={mytabcss.mytabtit} id="mytabtit">
-                  {share_service_list.map(apptit => (tabk == apptit.service_alias ? (
-                    <a
-                      tab={apptit.service_cname}
-                      key={apptit.service_alias}
-                      href="javacsript:;"
-                      onClick={this.tabClick.bind(this, apptit.service_alias)}
-                      className={mytabcss.active}
-                    >
-                      {apptit.service_cname}
-                    </a>
-                  ) : (
-                      <a
-                        tab={apptit.service_cname}
-                        key={apptit.service_alias}
-                        href="javacsript:;"
-                        onClick={this.tabClick.bind(this, apptit.service_alias)}
-                      >
-                        {apptit.service_cname}
-                      </a>
-                    )))}
-                </div>
 
-                {share_service_list.map(app => (tabk == app.service_alias ? (
+                  <Checkbox.Group
+                    onChange={this.onFileChange}
+                    value={sharearrs}
+                    style={{ display: "block", marginTop: "9px" }}
+                  >
+                    <Tabs>
+                      {apps.map(apptit => (tabk == apptit.service_alias ? (
+                        <TabPane key={apptit.service_alias} tab={
+                          <span className={mytabcss.cont}>
+                            <Checkbox onChange={this.onChange}
+                              value={apptit.service_share_uuid}
+                              style={{ marginRight: "10px" }}>
+                            </Checkbox>
+                            <a
+                             
+                              tab={apptit.service_cname}
+                              href="javacsript:;"
+                              onClick={this.tabClick.bind(this, apptit.service_alias)}
+
+                            >
+                              {apptit.service_cname}
+                            </a>
+                          </span>
+                        } >
+                          <div key={apptit.service_alias}>
+                            <AppInfo app={apptit} getref={this.save} tab={apptit.service_alias} />
+                          </div>
+                        </TabPane>
+
+                      ) : (
+                          <TabPane key={apptit.service_alias} tab={<span className={mytabcss.cont}>
+                            <Checkbox onChange={this.onChange} value={apptit.service_share_uuid} style={{ marginRight: "10px" }}></Checkbox>
+                            <a
+                              tab={apptit.service_cname}
+                              href="javacsript:;"
+                              onClick={this.tabClick.bind(this, apptit.service_alias)}
+                            >
+                              {apptit.service_cname}
+                            </a>
+                          </span>}>
+                          <AppInfo app={apptit} getref={this.save} tab={apptit.service_alias} />
+                          </TabPane>
+                        )))}
+                    </Tabs>
+
+                  </Checkbox.Group>
+
+                </div>
+                {/* {apps.map(app => (tabk == app.service_alias ? (
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                   </div>
@@ -932,9 +1007,12 @@ export default class Main extends PureComponent {
                     >
                       <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                     </div>
-                  )))}
+                  )))} */}
+
+
               </div>
             </div>
+
           </Card>
           <Card
             style={{
@@ -978,11 +1056,11 @@ export default class Main extends PureComponent {
               this.state.dep_service_name && this.state.dep_service_name.length > 0 && this.state.dep_service_name.map((item, index) => {
                 return <a style={{ marginLeft: "5px" }} key={index}>{item}服务</a>
               })
-            }依赖, 
-            <p style={{marginTop:"5px"}}>是否确定取消分享<a>{this.state.service_cname}</a>服务</p>.</div>
+            }依赖,
+            <p style={{ marginTop: "5px" }}>是否确定取消分享<a>{this.state.service_cname}</a>服务</p>.</div>
           </Modal>}
 
-   
+
           <FooterToolbar>
             <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>
               提交

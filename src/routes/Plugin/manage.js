@@ -389,20 +389,21 @@ export default class Index extends PureComponent {
           </Dropdown>
         </ButtonGroup> */}
         <ButtonGroup>
-          {pluginUtil.canBuild(this.state.currInfo)
-            ? <Button type="primary" onClick={this.handleBuildPluginVersion}>构建</Button>
+          {/* {pluginUtil.canBuild(this.state.currInfo)
+            ? 
             : null
-          }
+          } */}
+          <Button type="primary" onClick={this.handleBuildPluginVersion}>构建</Button>
           {(this.state.currInfo.build_status !== 'unbuild')
             ? <Button type="default" onClick={this.showBuildLog}>查看构建日志</Button>
             : null
           }
           {/* <Button type="default" onClick={this.handleCreatePluginVersion}>创建新版本</Button> */}
           {/* <Button onClick={this.showDeleteVersion} type="default">删除当前版本</Button> */}
-          {pluginUtil.isMarketPlugin(this.state.currInfo)
+          {/* {pluginUtil.isMarketPlugin(this.state.currInfo)
             ? null
             : <Button type="default" onClick={this.sharePlugin}>{this.state.isShareing ? '继续分享' : '分享插件'}</Button>
-          }
+          } */}
 
         </ButtonGroup>
 
@@ -453,7 +454,8 @@ export default class Index extends PureComponent {
               margin: '0 auto'
             }}>
             <CreatePluginForm
-              allDisabled={!this.canEditInfoAndConfig()}
+              // allDisabled={!this.canEditInfoAndConfig()}
+              allDisabled={false}
               isEdit={true}
               onSubmit={this.hanldeEditSubmit}
               data={this.state.currInfo}
@@ -505,9 +507,9 @@ export default class Index extends PureComponent {
                   title: '操作',
                   dataIndex: 'action',
                   render: (v, data) => {
-                    if (!this.canEditInfoAndConfig()) {
-                      return null;
-                    }
+                    // if (!this.canEditInfoAndConfig()) {
+                    //   return null;
+                    // }
                     return (
                       <Fragment>
                         <a
@@ -531,17 +533,17 @@ export default class Index extends PureComponent {
               dataSource={config}
               pagination={false} />
           </ScrollerX>
-          {this.canEditInfoAndConfig()
-            ? <div
-              style={{
-                textAlign: 'right',
-                paddingTop: 24
-              }}>
-              <Button onClick={this.showAddConfig}><Icon type="plus" />新增配置</Button>
-            </div>
+          {/* {this.canEditInfoAndConfig()
+            ? 
             : null
-          }
-
+          } */}
+          <div
+            style={{
+              textAlign: 'right',
+              paddingTop: 24
+            }}>
+            <Button onClick={this.showAddConfig}><Icon type="plus" />新增配置</Button>
+          </div>
         </Card>
 
         <Card title="已安装当前插件的应用">
