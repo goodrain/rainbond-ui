@@ -264,7 +264,7 @@ const appUtil = {
     const source = buildSource.service_source;
     const map = {
       source_code: "源码",
-      market: "云市",
+      market: buildSource.install_from_cloud ? "云端市场":"本地市场",
       docker_compose: "DockerCompose",
       docker_run: "DockerRun",
       docker_image: "镜像",
