@@ -227,14 +227,6 @@ export default class AppList extends PureComponent {
   componentWillUnmount() {
     this.mounted = false;
   }
-  getQueryString(name) {
-    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    let r = window.location.hash.substr(window.location.hash.indexOf("?") + 1).match(reg);
-    if (r != null) {
-      return unescape(r[2]);
-    };
-    return null;
-  }
   getApps = () => {
     const datavisible = {};
     const dataquery = {};
@@ -250,8 +242,6 @@ export default class AppList extends PureComponent {
       callback: (data) => {
 
         if (data) {
-          let market = this.getQueryString("market_info")
-
           this.setState({
             apps: data.list || [],
             total: data.total,
@@ -260,10 +250,6 @@ export default class AppList extends PureComponent {
             exportTit: dataexportTit,
             importingList: data.list || [],
             loading: false,
-          }, () => {
-            if (data.list && data.list.length == 0 && market) {
-              this.setState({ showCloudApp: true })
-            }
           });
         }
       },

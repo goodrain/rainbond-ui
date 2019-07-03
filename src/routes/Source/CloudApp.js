@@ -2,6 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import globalUtil from "../../utils/global";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import BasicListStyles from "../List/BasicList.less";
+import Styles from "../Source/Index.less";
 import { Card, List, Avatar, Input, Radio, notification, Select } from "antd";
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -110,7 +111,7 @@ export default class CloudApp extends PureComponent {
         version: version,
       },
       callback: res => {
-        if (res&&res._code == 200) {
+        if (res && res._code == 200) {
           if (res.list && res.list.length > 0) {
             let arr = this.state.apps
             arr[index].is_complete = res.list[0].is_complete
@@ -135,6 +136,10 @@ export default class CloudApp extends PureComponent {
     );
   };
   showMarketAppDetail = app => {
+    if (app && app.app_detail_url){
+      window.open(app.app_detail_url, "_blank");
+      return
+    }
     this.setState({
       showApp: app,
       showMarketAppDetail: true
@@ -191,7 +196,6 @@ export default class CloudApp extends PureComponent {
         this.handlePageChange(pageSize);
       }
     };
-
     return (
       <Card
         className={BasicListStyles.listCard}
@@ -242,7 +246,7 @@ export default class CloudApp extends PureComponent {
                 title={
                   <a
                     style={{ color: "#1890ff" }}
-                    href="javascript:;"
+                    href={"javascript:;"}
                     onClick={() => {
                       this.showMarketAppDetail(item);
                     }}
@@ -264,7 +268,21 @@ export default class CloudApp extends PureComponent {
                             return <Option value={item} key={index}>{item}</Option>
                           })}
                       </Select></p>}
-                    {item.describe || "-"}
+
+                    {item.enterprise && item.enterprise.name && <p className={Styles.publisher}>
+                      <span>发布者：</span>
+                      <a
+                        href={
+                          item.app_detail_url ? item.app_detail_url
+                            : "javascript:;"
+                        }
+                        target="_blank"
+                        title={item.enterprise.name}
+                      >
+                        {item.enterprise.name}
+                      </a>
+                    </p>}
+                    <div>{item.describe || "-"}</div>
                   </div>
                 }
               />

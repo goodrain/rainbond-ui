@@ -1,23 +1,18 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
-
 .cardList {
     margin-bottom: -24px;
-
     .card {
-        :global {
+         :global {
             .ant-card-meta-title {
                 margin-bottom: 2px;
-
                 &>a {
                     color: @heading-color;
                 }
             }
-
             .ant-card-actions {
                 background: #f7f9fa;
             }
-
             .ant-card-body:hover {
                 .ant-card-meta-title>a {
                     color: @primary-color;
@@ -25,25 +20,20 @@
             }
         }
     }
-
     .cards {
-        :global {
+         :global {
             .ant-card-actions>li>span {
                 width: 100%;
             }
-
             .ant-card-meta-title {
                 margin-bottom: 2px;
-
                 &>a {
                     color: @heading-color;
                 }
             }
-
             .ant-card-actions {
                 background: #f7f9fa;
             }
-
             .ant-card-body:hover {
                 .ant-card-meta-title>a {
                     color: @primary-color;
@@ -57,7 +47,6 @@
     margin-top: -60px;
     text-align: center;
     width: 195px;
-
     img {
         width: 100%;
     }
@@ -73,7 +62,7 @@
 }
 
 .CardMeta {
-    :global {
+     :global {
         .ant-card-meta-avatar {
             padding-right: 0 !important;
         }
@@ -105,51 +94,58 @@
 .shareNameStyle {
     height: 26px;
     line-height: 26px;
-
+    display: flex;
+    align-items: center;
     &>span {
-        width: 45px;
+        width: 66px;
         display: inline-block;
+    }
+    &>a {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 }
 
 .cardVersionTagStyle {
-    height: 26px;
-    line-height: 26px;
+    height: 20px;
+    line-height: 20px;
     text-align: center;
 }
-.cardVersionListStyle{
-  overflow-x: hidden;
+
+.cardVersionListStyle {
+    overflow-x: hidden;
 }
+
 .cardVersionStyle {
     display: flex;
+    justify-content: center;
     height: 26px;
     line-height: 26px;
-
     &>span {
-        width: 45px;
+        width: 38px;
         display: inline-block;
     }
-
     &>div {
-        width: 70%;
+        width: 67%;
         display: flex;
         overflow: auto;
-
-        :global {
+        flex-wrap: wrap;
+         :global {
             .ant-tag {
                 padding: 0 !important;
-                margin-right: 3px;
+                margin-top: 3px;
+                margin-bottom: 3px;
             }
         }
-
         &>div {
-            width: 45%;
+            width: 95%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
     }
-
 }
 
 .cardAvatar {
@@ -168,15 +164,12 @@
 
 .contentLink {
     margin-top: 16px;
-
     a {
         margin-right: 32px;
-
         img {
             width: 24px;
         }
     }
-
     img {
         vertical-align: middle;
         margin-right: 8px;
@@ -201,17 +194,14 @@
     .pageHeaderContent {
         padding-bottom: 30px;
     }
-
     .contentLink {
         position: absolute;
         left: 0;
         bottom: -4px;
         width: 1000px;
-
         a {
             margin-right: 16px;
         }
-
         img {
             margin-right: 4px;
         }
@@ -226,15 +216,13 @@
 }
 
 @import "~antd/lib/style/themes/default.less";
-
 .headerList {
     margin-bottom: 4px;
 }
 
 .tabsCard {
     margin-bottom: 24px;
-
-    :global {
+     :global {
         .ant-card-head {
             padding: 0 16px;
         }
@@ -246,7 +234,6 @@
     text-align: center;
     line-height: 64px;
     font-size: 16px;
-
     i {
         font-size: 24px;
         margin-right: 16px;
@@ -264,7 +251,6 @@
     font-size: 14px;
     position: relative;
     left: 38px;
-
     &>div {
         margin-top: 8px;
         margin-bottom: 4px;

@@ -558,6 +558,7 @@ export default class Main extends PureComponent {
                               : "javascript:;"
                           }
                           target="_blank"
+                          title={item.enterprise.name}
                         >
                           {item.enterprise.name}
                         </a>

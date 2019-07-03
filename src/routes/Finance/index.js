@@ -235,6 +235,9 @@ export default class BasicList extends PureComponent {
             <Description term="企业名称">
               {this.props.enterprise && this.props.enterprise.enterprise_alias}
             </Description>
+            <Description term="联合云ID">
+              {this.props.enterprise && this.props.enterprise.enterprise_id}
+            </Description>
             <Description term="创建时间">
               {this.props.enterprise && this.props.enterprise.create_time}
             </Description>
