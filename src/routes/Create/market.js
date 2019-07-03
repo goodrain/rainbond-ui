@@ -51,7 +51,8 @@ export default class Main extends PureComponent {
       page: 1,
       pageSize: 9,
       total: 0,
-      isSpin: true,
+      isSpinList: true,
+      isSpincloudList: true,
       cloudList: [],
       cloudApp_name: "",
       cloudPage: 1,
@@ -86,7 +87,7 @@ export default class Main extends PureComponent {
       is_deploy: !this.state.is_deploy
     });
   };
-  handleChange = v => {};
+  handleChange = v => { };
   handleSearch = v => {
     const { scopeMax } = this.state;
 
@@ -113,60 +114,61 @@ export default class Main extends PureComponent {
     }
   };
   getApps = v => {
-    this.props.dispatch({
-      type: "market/getMarketApp",
-      payload: {
-        app_name: v ? "" : this.state.app_name || "",
-        scope: v ? "" : this.state.scope,
-        page_size: v ? 9 : this.state.pageSize,
-        page: v ? 1 : this.state.page
-      },
-      callback: data => {
-        if (data) {
-          this.setState(
-            {
-              list: data.list || [],
-              total: data.total
-            },
-            () => {
-              this.setState({
-                isSpin: false
-              });
-            }
-          );
-        } else {
-          this.setState({ isSpin: false });
+      this.props.dispatch({
+        type: "market/getMarketApp",
+        payload: {
+          app_name: v ? "" : this.state.app_name || "",
+          scope: v ? "" : this.state.scope,
+          page_size: v ? 9 : this.state.pageSize,
+          page: v ? 1 : this.state.page
+        },
+        callback: data => {
+          if (data) {
+            this.setState(
+              {
+                list: data.list || [],
+                total: data.total
+              },
+              () => {
+                this.setState({
+                  isSpinList: false
+                });
+              }
+            );
+          } else {
+            this.setState({ isSpinList: false });
+          }
         }
-      }
-    });
+      });
   };
 
   getCloudRecommendApps = v => {
-    this.props.dispatch({
-      type: "market/getRecommendMarketAppList",
-      payload: {
-        app_name: v ? "" : this.state.cloudApp_name || "",
-        page_size: v ? 9 : this.state.cloudPageSize,
-        page: v ? 1 : this.state.cloudPage
-      },
-      callback: data => {
-        if (data) {
-          this.setState(
-            {
-              cloudList: data.list || [],
-              cloudTotal: data.total
-            },
-            () => {
-              this.setState({
-                isSpin: false
-              });
-            }
-          );
-        } else {
-          this.setState({ isSpin: false });
+      this.props.dispatch({
+        type: "market/getRecommendMarketAppList",
+        payload: {
+          app_name: v ? "" : this.state.cloudApp_name || "",
+          page_size: v ? 9 : this.state.cloudPageSize,
+          page: v ? 1 : this.state.cloudPage
+        },
+        callback: data => {
+
+          if (data) {
+            this.setState(
+              {
+                cloudList: data.list || [],
+                cloudTotal: data.total
+              },
+              () => {
+                this.setState({
+                  isSpincloudList: false
+                });
+              }
+            );
+          } else {
+            this.setState({ isSpincloudList: false });
+          }
         }
-      }
-    });
+      });
   };
 
   hanldePageChange = page => {
@@ -208,7 +210,8 @@ export default class Main extends PureComponent {
     this.setState(
       {
         scopeMax: key,
-        isSpin: true,
+        isSpinList: true,
+        isSpincloudList: true,
         app_name: "",
         cloudApp_name: ""
       },
@@ -265,7 +268,7 @@ export default class Main extends PureComponent {
           this.props.dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-                this.props.groupId ? this.props.groupId : 0
+              this.props.groupId ? this.props.groupId : 0
               }`
             )
           );
@@ -301,7 +304,7 @@ export default class Main extends PureComponent {
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              vals.group_id
+            vals.group_id
             }`
           )
         );
@@ -338,7 +341,7 @@ export default class Main extends PureComponent {
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              vals.group_id
+            vals.group_id
             }`
           )
         );
@@ -355,7 +358,7 @@ export default class Main extends PureComponent {
   };
   showMarketAppDetail = app => {
     //cloud app 
-    if (app && app.app_detail_url){
+    if (app && app.app_detail_url) {
       window.open(app.app_detail_url, "_blank");
       return
     }
@@ -467,119 +470,119 @@ export default class Main extends PureComponent {
             />
           </Card>
         ) : (
-          <Card
-            className={PluginStyles.cards}
-            actions={[
-              <span
-                onClick={() => {
-                  this.showCreate(item);
-                }}
-              >
-                安装
-              </span>
-            ]}
-          >
-            <Card.Meta
-              style={{ height: 112, overflow: "auto" }}
-              avatar={
-                <img
-                  style={{ width: 110, height: 110, margin: " 0 auto" }}
-                  alt={item.title}
-                  src={
-                    cloud
-                      ? item.logo
-                      : item.pic ||
-                        require("../../../public/images/app_icon.jpg")
-                  }
-                  height={154}
+            <Card
+              className={PluginStyles.cards}
+              actions={[
+                <span
                   onClick={() => {
-                    this.showMarketAppDetail(item);
+                    this.showCreate(item);
                   }}
-                />
-              }
-              title={title(item)}
-              description={
-                <Fragment>
-                  <span
-                    style={{
-                      display: "block",
-                      color: "rgb(200, 200, 200)",
-                      marginBottom: 2,
-                      fontSize: 12
+                >
+                  安装
+              </span>
+              ]}
+            >
+              <Card.Meta
+                style={{ height: 112, overflow: "auto" }}
+                avatar={
+                  <img
+                    style={{ width: 110, height: 110, margin: " 0 auto" }}
+                    alt={item.title}
+                    src={
+                      cloud
+                        ? item.logo
+                        : item.pic ||
+                        require("../../../public/images/app_icon.jpg")
+                    }
+                    height={154}
+                    onClick={() => {
+                      this.showMarketAppDetail(item);
                     }}
-                  >
-                    <div
-                      title={item.version}
-                      className={PluginStyles.cardVersionStyle}
+                  />
+                }
+                title={title(item)}
+                description={
+                  <Fragment>
+                    <span
+                      style={{
+                        display: "block",
+                        color: "rgb(200, 200, 200)",
+                        marginBottom: 2,
+                        fontSize: 12
+                      }}
                     >
-                      <span>版本:</span>
-                      <div className={PluginStyles.cardVersionListStyle}>
-                        {item.group_version_list &&
-                          item.group_version_list.map((item, index) => {
-                            return (
-                              <Tag
-                                title={item}
-                                className={PluginStyles.cardVersionTagStyle}
-                                color="green"
-                                size="small"
-                                title={item.app_version}
-                                key={index}
-                              >
-                                {item}
-                              </Tag>
-                            );
-                          })}
-                        {item.app_versions &&
-                          item.app_versions.map((item, index) => {
-                            return (
-                              <Tag
-                                title={item}
-                                className={PluginStyles.cardVersionTagStyle}
-                                color="green"
-                                size="small"
-                                title={item.app_version}
-                                key={index}
-                              >
-                                {item.app_version}
-                              </Tag>
-                            );
-                          })}
+                      <div
+                        title={item.version}
+                        className={PluginStyles.cardVersionStyle}
+                      >
+                        <span>版本:</span>
+                        <div className={PluginStyles.cardVersionListStyle}>
+                          {item.group_version_list &&
+                            item.group_version_list.map((item, index) => {
+                              return (
+                                <Tag
+                                  title={item}
+                                  className={PluginStyles.cardVersionTagStyle}
+                                  color="green"
+                                  size="small"
+                                  title={item.app_version}
+                                  key={index}
+                                >
+                                  {item}
+                                </Tag>
+                              );
+                            })}
+                          {item.app_versions &&
+                            item.app_versions.map((item, index) => {
+                              return (
+                                <Tag
+                                  title={item}
+                                  className={PluginStyles.cardVersionTagStyle}
+                                  color="green"
+                                  size="small"
+                                  title={item.app_version}
+                                  key={index}
+                                >
+                                  {item.app_version}
+                                </Tag>
+                              );
+                            })}
+                        </div>
                       </div>
-                    </div>
 
-                    {cloud && (
-                      <div className={PluginStyles.shareNameStyle}>
-                        <span>分享者:</span>
-                        <a
-                          href={
-                            item.enterprise &&
-                            item.enterprise.enterprise_market_url
-                              ? item.enterprise.enterprise_market_url
-                              : "javascript:;"
-                          }
-                          target="_blank"
-                          title={item.enterprise.name}
-                        >
-                          {item.enterprise.name}
-                        </a>
-                      </div>
-                    )}
-                    {!cloud && (
-                      <div className={PluginStyles.shareNameStyle}>
-                        <span>内存: </span>{sourceUtil.unit(item.min_memory || 128, "MB")}
-                      </div>
-                    )}
-                  </span>
-                  <Ellipsis className={PluginStyles.item} lines={3}>
-                    <span title={cloud ? item.desc : item.describe}>
-                      {cloud ? item.desc : item.describe}
+                      {cloud && (
+                        <div className={PluginStyles.shareNameStyle}>
+                          <span>分享者:</span>
+                          <a
+                            href={
+                              item.enterprise &&
+                                item.enterprise.enterprise_market_url
+                                ? item.enterprise.enterprise_market_url
+                                : "javascript:;"
+                            }
+                            target="_blank"
+                            title={item.enterprise.name}
+                          >
+                            {item.enterprise.name}
+                          </a>
+                        </div>
+                      )}
+                      {!cloud && (
+                        <div className={PluginStyles.shareNameStyle}>
+                          <span>内存: </span>{sourceUtil.unit(item.min_memory || 128, "MB")}
+                        </div>
+                      )}
                     </span>
-                  </Ellipsis>
-                </Fragment>
-              }
-            />
-          </Card>
-        )}
+                    <Ellipsis className={PluginStyles.item} lines={3}>
+                      <span title={cloud ? item.desc : item.describe}>
+                        {cloud ? item.desc : item.describe}
+                      </span>
+                    </Ellipsis>
+                  </Fragment>
+                }
+              />
+            </Card>
+          )}
       </Fragment>
     );
   };
@@ -609,7 +612,8 @@ export default class Main extends PureComponent {
       cloudPage,
       cloudPageSize,
       cloudTotal,
-      isSpin
+      isSpinList,
+      isSpincloudList
     } = this.state;
 
     const formItemLayout = {
@@ -648,7 +652,9 @@ export default class Main extends PureComponent {
           xs: 1
         }}
         locale={{
+          
           emptyText: (
+            !isSpinList&&list&&list.length<=0&&
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
               暂无应用， 你可以
               <br />
@@ -684,6 +690,7 @@ export default class Main extends PureComponent {
         }}
         locale={{
           emptyText: (
+            !isSpincloudList&&cloudList&&cloudList.length<=0&&
             <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
               暂无应用， 你可以
               <br />
@@ -903,47 +910,88 @@ export default class Main extends PureComponent {
             )}
           </div>
         ) : (
-          <div>
-            <PageHeaderLayout
-              content={mainSearch}
-              tabList={tabListMax}
-              tabActiveKey={scopeMax}
-              onTabChange={this.handleTabMaxChange}
-            >
-              {scopeMax == "localApplication" ? (
-                <div>
-                  {isSpin ? (
-                    <div
-                      style={{
-                        height: "300px",
-                        lineHeight: "300px",
-                        textAlign: "center"
-                      }}
-                    >
-                      <Spin size="large" />
-                    </div>
-                  ) : (
-                    <Tabs
-                      defaultActiveKey=""
-                      onChange={this.handleTabChange}
-                      style={{ background: "#fff", padding: "20px " }}
-                    >
-                      {tabList.map(item => {
-                        const { key, tab } = item;
-                        return (
-                          <TabPane tab={tab} key={key}>
+            <div>
+              <PageHeaderLayout
+                content={mainSearch}
+                tabList={tabListMax}
+                tabActiveKey={scopeMax}
+                onTabChange={this.handleTabMaxChange}
+              >
+                {scopeMax == "localApplication" ? (
+                  <div>
+                    {isSpinList ? (
+                      <div
+                        style={{
+                          height: "300px",
+                          lineHeight: "300px",
+                          textAlign: "center"
+                        }}
+                      >
+                        <Spin size="large" />
+                      </div>
+                    ) : (
+                        <Tabs
+                          defaultActiveKey=""
+                          onChange={this.handleTabChange}
+                          style={{ background: "#fff", padding: "20px " }}
+                        >
+                          {tabList.map(item => {
+                            const { key, tab } = item;
+                            return (
+                              <TabPane tab={tab} key={key}>
+                                <div
+                                  className={PluginStyles.cardList}
+                                  style={{ paddingBottom: "20px" }}
+                                >
+                                  {cardList}
+                                </div>
+                                {this.state.showCreate && (
+                                  <CreateAppFromMarketForm
+                                    disabled={
+                                      loading.effects["createApp/installApp"]
+                                    }
+                                    onSubmit={this.handleCreate}
+                                    onCancel={this.onCancelCreate}
+                                    showCreate={this.state.showCreate}
+                                  />
+                                )}
+                                {this.state.showMarketAppDetail && (
+                                  <MarketAppDetailShow
+                                    onOk={this.hideMarketAppDetail}
+                                    onCancel={this.hideMarketAppDetail}
+                                    app={this.state.showApp}
+                                  />
+                                )}
+                              </TabPane>
+                            );
+                          })}
+                        </Tabs>
+                      )}
+                  </div>
+                ) : (
+                    <div>
+                      {isSpincloudList ? (
+                        <div
+                          style={{
+                            height: "300px",
+                            lineHeight: "300px",
+                            textAlign: "center"
+                          }}
+                        >
+                          <Spin size="large" />
+                        </div>
+                      ) : (
+                          <div>
                             <div
                               className={PluginStyles.cardList}
                               style={{ paddingBottom: "20px" }}
                             >
-                              {cardList}
+                              {cloudCardList}
                             </div>
                             {this.state.showCreate && (
                               <CreateAppFromMarketForm
-                                disabled={
-                                  loading.effects["createApp/installApp"]
-                                }
-                                onSubmit={this.handleCreate}
+                                disabled={loading.effects["createApp/installApp"]}
+                                onSubmit={this.handleCloudCreate}
                                 onCancel={this.onCancelCreate}
                                 showCreate={this.state.showCreate}
                               />
@@ -955,53 +1003,12 @@ export default class Main extends PureComponent {
                                 app={this.state.showApp}
                               />
                             )}
-                          </TabPane>
-                        );
-                      })}
-                    </Tabs>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  {isSpin ? (
-                    <div
-                      style={{
-                        height: "300px",
-                        lineHeight: "300px",
-                        textAlign: "center"
-                      }}
-                    >
-                      <Spin size="large" />
-                    </div>
-                  ) : (
-                    <div>
-                      <div
-                        className={PluginStyles.cardList}
-                        style={{ paddingBottom: "20px" }}
-                      >
-                        {cloudCardList}
-                      </div>
-                      {this.state.showCreate && (
-                        <CreateAppFromMarketForm
-                          disabled={loading.effects["createApp/installApp"]}
-                          onSubmit={this.handleCloudCreate}
-                          onCancel={this.onCancelCreate}
-                          showCreate={this.state.showCreate}
-                        />
-                      )}
-                      {this.state.showMarketAppDetail && (
-                        <MarketAppDetailShow
-                          onOk={this.hideMarketAppDetail}
-                          onCancel={this.hideMarketAppDetail}
-                          app={this.state.showApp}
-                        />
-                      )}
+                          </div>
+                        )}
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* {scopeMax == "localApplication" &&
+                {/* {scopeMax == "localApplication" &&
                 <PageHeaderLayout
                   content={""}
                   tabList={tabList}
@@ -1027,12 +1034,12 @@ export default class Main extends PureComponent {
                 
                 </PageHeaderLayout>
               } */}
-              {/* <GuideManager /> */}
+                {/* <GuideManager /> */}
 
-              {/* <GuideManager /> */}
-            </PageHeaderLayout>
-          </div>
-        )}
+                {/* <GuideManager /> */}
+              </PageHeaderLayout>
+            </div>
+          )}
       </div>
     );
   }

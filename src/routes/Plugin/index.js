@@ -186,7 +186,7 @@ class PluginList extends PureComponent {
         hasInstall: false
       },
       inandout_net_pluginData:{
-        category: "net-plugin:in-and-out",
+        category: "inandout_net_plugin",
         desc: "该插件支持服务的出站和入站网络治理，包括服务动态路由、限流、熔断等功能",
         plugin_alias: "服务综合网络治理插件",
         hasInstall: false
@@ -232,13 +232,13 @@ class PluginList extends PureComponent {
                 inandout_net_plugin,
                 inandout_net_pluginData,
               }=this.state;
-          if (!downstream_net_plugin) {
+          if (downstream_net_plugin===false) {
             list.unshift(downstream_net_pluginData);
           }
-          if (!perf_analyze_plugin) {
+          if (perf_analyze_plugin===false) {
             list.unshift(perf_analyze_pluginData);
           }
-          if ( !inandout_net_plugin ) {
+          if (inandout_net_plugin===false ) {
             list.unshift(inandout_net_pluginData);
           }
           this.setState({
@@ -394,7 +394,7 @@ class PluginList extends PureComponent {
                   </Card>
                 </List.Item>
               ) : (
-                  <List.Item>
+                  <List.Item key={item.id}>
                     <Button
                       type="dashed"
                       onClick={this.handleCreate}
