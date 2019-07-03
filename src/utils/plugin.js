@@ -7,6 +7,7 @@ const categoryMap = {
   'general-plugin': '一般类型',
   downstream_net_plugin: '网络治理',
   perf_analyze_plugin: '性能分析',
+  inandout_net_plugin:'出口入口共治网络',
 };
 
 const inType = {

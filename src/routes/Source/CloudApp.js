@@ -256,8 +256,8 @@ export default class CloudApp extends PureComponent {
                   </a>
                 }
                 description={
-                  <div>
-                    {!this.state.loading && <p>版本: &nbsp;
+                  <div className={Styles.conts} >
+                    {!this.state.loading && <p> <span style={{display:"inline-block",width:'60px'}}>版本:</span>
                       <Select
                         defaultValue={item.version[0]}
                         onChange={(version) => { this.handleChange(version, item, index) }}
@@ -272,11 +272,7 @@ export default class CloudApp extends PureComponent {
                     {item.enterprise && item.enterprise.name && <p className={Styles.publisher}>
                       <span>发布者：</span>
                       <a
-                        href={
-                          item.app_detail_url ? item.app_detail_url
-                            : "javascript:;"
-                        }
-                        target="_blank"
+                        href= "javascript:;"
                         title={item.enterprise.name}
                       >
                         {item.enterprise.name}
