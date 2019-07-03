@@ -1060,7 +1060,7 @@ class Main extends PureComponent {
                         ]
                         : [
                             <Button onClick={() => { this.handleCancelBuild() }}>取消</Button>,
-                            <Button type="primary" onClick={() => { this.handleOkBuild() }}>强制更新</Button>,
+                            <Button type="primary" onClick={() => { this.handleOkBuild() }}>强制构建</Button>,
                         ]}
                 >
 
@@ -1086,7 +1086,7 @@ class Main extends PureComponent {
                                             </RadioGroup>
                                         )}
                                     </Form.Item>
-                                </Form> : <Alert message="云市应用未更新，您无需更新。" type="success" style={{ marginBottom: "5px" }} />
+                                </Form> : <Alert message="云市应用暂未有新版本更新，您无需构建。" type="success" style={{ marginBottom: "5px" }} />
                         }
                     </div>
                 </Modal>

@@ -91,7 +91,6 @@ class BasicLayout extends React.PureComponent {
       this.setState({ market_info: query.market_info });
       this.setState({ showAuthCompany: true });
     }
-    console.log(this.state.showAuthCompany)
   }
   onOpenRegion = () => {
     this.setState({ openRegion: true });

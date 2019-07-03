@@ -172,6 +172,7 @@ class PluginList extends PureComponent {
       deletePlugin: null,
       downstream_net_plugin: null,
       perf_analyze_plugin: null,
+      inandout_net_plugin: null,
       downstream_net_pluginData: {
         category: "downstream_net_plugin",
         desc: "实现智能路由、A/B测试、灰度发布、端口复用等微服务治理功能",
@@ -183,7 +184,13 @@ class PluginList extends PureComponent {
         desc: "实时分析应用的吞吐率、响应时间、在线人数等指标",
         plugin_alias: "服务实时性能分析",
         hasInstall: false
-      }
+      },
+      inandout_net_pluginData:{
+        category: "net-plugin:in-and-out",
+        desc: "该插件支持服务的出站和入站网络治理，包括服务动态路由、限流、熔断等功能",
+        plugin_alias: "服务综合网络治理插件",
+        hasInstall: false
+      },
     };
     this.timer = null;
   }
@@ -197,9 +204,12 @@ class PluginList extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
-          this.state.downstream_net_plugin = data.bean.downstream_net_plugin;
-          this.state.perf_analyze_plugin = data.bean.perf_analyze_plugin;
+        if (data && data.bean) {
+          this.setState({
+            downstream_net_plugin:data.bean.downstream_net_plugin,
+            perf_analyze_plugin:data.bean.perf_analyze_plugin,
+            inandout_net_plugin:data.bean.inandout_net_plugin,
+          })
           this.fetchPlugins();
         }
       }
@@ -214,14 +224,25 @@ class PluginList extends PureComponent {
       callback: data => {
         if (data) {
           var list = data.list || [];
-          if (this.state.downstream_net_plugin === false) {
-            list.unshift(this.state.downstream_net_pluginData);
+          const {
+                downstream_net_plugin,
+                downstream_net_pluginData,
+                perf_analyze_plugin,
+                perf_analyze_pluginData,
+                inandout_net_plugin,
+                inandout_net_pluginData,
+              }=this.state;
+          if (!downstream_net_plugin) {
+            list.unshift(downstream_net_pluginData);
           }
-          if (this.state.perf_analyze_plugin === false) {
-            list.unshift(this.state.perf_analyze_pluginData);
+          if (!perf_analyze_plugin) {
+            list.unshift(perf_analyze_pluginData);
+          }
+          if ( !inandout_net_plugin ) {
+            list.unshift(inandout_net_pluginData);
           }
           this.setState({
-            list: data.list || []
+            list: list 
           });
         }
       }
@@ -344,7 +365,7 @@ class PluginList extends PureComponent {
                 <List.Item key={item.id}>
                   <Card className={styles.card} actions={this.getAction(item)}>
                     <Card.Meta
-                      style={{ height: 100, overflow: "hidden" }}
+                      style={{ height: 100, overflow: "auto" }}
                       avatar={
                         <Icon
                           style={{ fontSize: 50, color: "rgba(0, 0, 0, 0.2)" }}
