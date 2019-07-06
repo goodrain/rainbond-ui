@@ -180,6 +180,7 @@ class ConfigDownstreamPort extends PureComponent {
     this.state = {
       currApp: data[0].dest_service_alias,
       currPort: data[0].port,
+      config_name: data[0].config_group_name,
     };
   }
   getAppByName = appAlias => this.props.data.filter(item => item.dest_service_alias === appAlias);
@@ -214,13 +215,13 @@ class ConfigDownstreamPort extends PureComponent {
         })
       }
     });
-    console.log(apps)
     return apps
   }
   render() {
     const currData = this.getCurrData();
     const currPort = this.state.currPort;
     const currApp = this.state.currApp;
+    const configName = this.state.config_name;
     const ports = this.getCurrPorts();
     const apps = this.getApps()
     return (
@@ -231,10 +232,11 @@ class ConfigDownstreamPort extends PureComponent {
         type="inner"
         title={
           <div>
-            {" "}
+            {configName}
             <span
               style={{
                 marginRight: 24,
+                marginLeft: 16,
               }}
             >
               下游应用:{" "}
@@ -266,9 +268,12 @@ class ConfigUpstreamPort extends PureComponent {
   constructor(props) {
     super(props);
     const data = this.props.data;
-    this.state = {
-      currPort: data[0].port,
-    };
+    if (data.length > 0) {
+        this.state = {
+          currPort: data[0].port,
+          config_name: data[0].config_group_name,
+        };
+    }
   }
   handlePortChange = (port) => {
     this.setState({ currPort: port });
@@ -277,6 +282,7 @@ class ConfigUpstreamPort extends PureComponent {
   render() {
     const data = this.props.data;
     const currPort = this.state.currPort;
+    const config_name = this.state.config_name
     const currData = this.getCurrData(currPort);
     return (
       <Card
@@ -286,10 +292,11 @@ class ConfigUpstreamPort extends PureComponent {
         type="inner"
         title={
           <div>
-            {" "}
+            {config_name}
             <span
               style={{
                 marginRight: 24,
+                marginLeft: 16,
               }}
             >
               端口号:{" "}
@@ -311,13 +318,16 @@ class ConfigUpstreamPort extends PureComponent {
 class ConfigUnDefine extends PureComponent {
   render() {
     const data = this.props.data || [];
+    const configName = this.props.data.config_group_name
     return (
       <Card
         style={{
           marginBottom: 24,
         }}
         type="inner"
-        title=""
+        title={
+          <div>{configName}</div>
+        }
       >
         <ConfigItems onChange={this.handleOnChange} data={data.config} />
       </Card>
