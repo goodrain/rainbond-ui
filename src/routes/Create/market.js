@@ -421,8 +421,7 @@ export default class Main extends PureComponent {
                   title={item.version}
                   className={PluginStyles.cardVersionStyle}
                 >
-                  {" "}
-                  <span>版本:</span>
+                <span>版本:</span>
                   <div>
                     {item.group_version_list &&
                       item.group_version_list.map((item, index) => {
