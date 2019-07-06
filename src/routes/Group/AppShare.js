@@ -164,6 +164,7 @@ class AppInfo extends PureComponent {
                       },
                     ],
                     initialValue: false,
+
                   })(<Checkbox
                     onChange={this.handleCheckChange.bind(
                       this,
@@ -448,7 +449,7 @@ export default class Main extends PureComponent {
               shareList: arr,
               sharearrs: arr
             })
-            this.props.form.setFieldsValue({ sharing: arr })
+            // this.props.form.setFieldsValue({ sharing: arr })
 
           }
 
@@ -649,7 +650,7 @@ export default class Main extends PureComponent {
   onFileChange = e => {
     const share_service_data = this.share_service_list;
     const { shareList, sharearrs } = this.state;
-    // this.props.form.setFieldsValue({sharing:e}) 
+    // this.props.form.setFieldsValue({sharing:e})
 
     if (e.length > 0) {
       var newArray = sharearrs.filter(item => !e.includes(item))
@@ -951,8 +952,9 @@ export default class Main extends PureComponent {
                     value={sharearrs}
                     style={{ display: "block", marginTop: "9px" }}
                   >
-                    <Tabs>
-                      {apps.map(apptit => (tabk == apptit.service_alias ? (
+
+                    <Tabs activeKey={tabk} onChange={this.tabClick}>
+                      {apps.map(apptit =>
                         <TabPane key={apptit.service_alias} tab={
                           <span className={mytabcss.cont}>
                             <Checkbox onChange={this.onChange}
@@ -960,41 +962,23 @@ export default class Main extends PureComponent {
                               style={{ marginRight: "10px" }}>
                             </Checkbox>
                             <a
-                             
                               tab={apptit.service_cname}
                               href="javacsript:;"
                               onClick={this.tabClick.bind(this, apptit.service_alias)}
-
                             >
                               {apptit.service_cname}
                             </a>
                           </span>
                         } >
-                          <div key={apptit.service_alias}>
-                            <AppInfo app={apptit} getref={this.save} tab={apptit.service_alias} />
-                          </div>
                         </TabPane>
 
-                      ) : (
-                          <TabPane key={apptit.service_alias} tab={<span className={mytabcss.cont}>
-                            <Checkbox onChange={this.onChange} value={apptit.service_share_uuid} style={{ marginRight: "10px" }}></Checkbox>
-                            <a
-                              tab={apptit.service_cname}
-                              href="javacsript:;"
-                              onClick={this.tabClick.bind(this, apptit.service_alias)}
-                            >
-                              {apptit.service_cname}
-                            </a>
-                          </span>}>
-                          <AppInfo app={apptit} getref={this.save} tab={apptit.service_alias} />
-                          </TabPane>
-                        )))}
+                      )}
                     </Tabs>
 
                   </Checkbox.Group>
 
                 </div>
-                {/* {apps.map(app => (tabk == app.service_alias ? (
+                {share_service_list.map(app => (tabk == app.service_alias ? (
                   <div key={app.service_alias}>
                     <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                   </div>
@@ -1007,7 +991,7 @@ export default class Main extends PureComponent {
                     >
                       <AppInfo app={app} getref={this.save} tab={app.service_alias} />
                     </div>
-                  )))} */}
+                  )))}
 
 
               </div>

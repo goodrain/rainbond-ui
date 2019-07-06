@@ -1,6 +1,11 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
-
+.nowarpText{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  white-space: nowrap;
+}
 :global {
    td a {
       margin:0 3px;
@@ -44,7 +49,7 @@
    .ant-btn-group{
     margin-right:10px
    }
-  
+
   }
   .statItem {
     padding: 0 32px;
@@ -294,19 +299,19 @@
 }
 
 .success {
-  
+
       .logItemDate:before{
         background:#28cb75
       }
-      
+
 }
 
 .fail {
-  
+
       .logItemDate:before{
         background:#da4f49
       }
-      
+
 }
 
 
@@ -499,7 +504,7 @@
       .time, .date {display: none}
     }
   }
-  
+
   .salesCard {
     :global {
       .ant-tabs-content {

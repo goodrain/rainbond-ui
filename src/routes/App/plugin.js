@@ -14,9 +14,10 @@ import {
   notification,
   Modal,
   Select,
+  Tooltip
 } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
-
+import styles from './Index.less';
 import globalUtil from "../../utils/global";
 import pluginUtil from "../../utils/plugin";
 import appPluginUtil from "../../utils/appPlugin";
@@ -82,11 +83,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div title={item.attr_info || item.attr_name}>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+            <Tooltip title={item.attr_info || item.attr_name}>
+            <div className={styles.nowarpText} >
+                  {" "}
+                  {item.attr_name}
+                  {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+          </div>
+          </Tooltip>
           }
         >
           <Input
@@ -107,11 +110,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+              <Tooltip title={item.attr_info || item.attr_name}>
+                <div className={styles.nowarpText} >
+                      {" "}
+                      {item.attr_name}
+                      {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+              </div>
+              </Tooltip>
           }
         >
           <Select
@@ -134,11 +139,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+            <Tooltip title={item.attr_info || item.attr_name}>
+            <div className={styles.nowarpText} >
+                  {" "}
+                  {item.attr_name}
+                  {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+          </div>
+          </Tooltip>
           }
         >
           <Select
