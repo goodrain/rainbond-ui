@@ -58,10 +58,9 @@ export default class Main extends PureComponent {
       cloudPage: 1,
       cloudPageSize: 9,
       cloudTotal: 0,
-
       showCreate: null,
       scope: "",
-      scopeMax: "cloudApplication",
+      scopeMax: this.props.scopeMax || "cloudApplication",
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
