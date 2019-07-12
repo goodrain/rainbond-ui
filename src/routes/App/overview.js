@@ -264,10 +264,6 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {appAcionLogUtil.canRollback(data) && appUtil.canRollback(this.props.appDetail)
-                ? <span onClick={this.handleRollback} className={styles.btn}>回滚到此版本</span>
-                : ""
-              }
               {!opened
                 ? <span onClick={this.open} className={styles.btn}>查看详情</span>
                 : <span onClick={this.close} className={styles.btn}>收起</span>}
