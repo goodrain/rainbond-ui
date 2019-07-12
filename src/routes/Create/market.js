@@ -58,10 +58,9 @@ export default class Main extends PureComponent {
       cloudPage: 1,
       cloudPageSize: 9,
       cloudTotal: 0,
-
       showCreate: null,
       scope: "",
-      scopeMax: "cloudApplication",
+      scopeMax: this.props.scopeMax || "cloudApplication",
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
@@ -571,7 +570,7 @@ export default class Main extends PureComponent {
                       </div>
                     )}
                     {!cloud && (
-                      <div className={PluginStyles.shareNameStyle}>
+                      <div className={PluginStyles.memoryStyle}>
                         <span>内存: </span>
                         {sourceUtil.unit(item.min_memory || 128, "MB")}
                       </div>

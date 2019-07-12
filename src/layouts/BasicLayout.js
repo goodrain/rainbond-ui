@@ -506,6 +506,7 @@ class BasicLayout extends React.PureComponent {
               this.setState({showAuthCompany: false})
               var jumpPath = this.props.location.pathname
               var query = this.props.location.search.replace("market_info="+this.state.market_info,"")
+              this.setState({market_info:""})
               this.props.dispatch(routerRedux.replace(jumpPath+query));
             }}
           />

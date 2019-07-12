@@ -843,7 +843,7 @@ export default class Main extends PureComponent {
                           />
 
                           <RadioGroup onChange={this.hanldeScopeValueChange} value={this.state.scopeValue}>
-                            <Radio value="goodrain:public">公开应用</Radio>
+                            <Radio value="goodrain:publish">公开应用</Radio>
                             <Radio value='goodrain:private'>私有应用</Radio>
                           </RadioGroup>
                         </div>

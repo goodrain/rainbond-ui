@@ -354,6 +354,9 @@ export default class shareCheck extends PureComponent {
       title = "应用同步成功";
       desc = "";
       actions = [
+        <Button onClick={this.showDelete} type="default">
+          放弃分享
+        </Button>,
         <Button onClick={this.handleCompleteShare} type="primary">
           {" "}
           确认分享{" "}

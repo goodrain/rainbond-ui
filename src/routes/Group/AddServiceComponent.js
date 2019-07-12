@@ -299,6 +299,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <Market
                     handleType="Service"
+                    scopeMax="localApplication"
                     refreshCurrent={() => { this.refreshCurrent() }}
                     groupId={this.props.groupId}
                     ButtonGroupState={ButtonGroupState}
