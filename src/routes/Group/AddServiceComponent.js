@@ -85,7 +85,7 @@ export default class AddServiceComponent extends PureComponent {
         ButtonGroup: false,
         ServiceComponentThreePage: false
       });
-  
+
     });
   }
 
@@ -357,6 +357,7 @@ export default class AddServiceComponent extends PureComponent {
           />}
 
           {ServiceComponentTwoPage === "market" && <Market
+            scopeMax="localApplication"
             groupId={this.props.groupId}
             refreshCurrent={() => { this.refreshCurrent() }}
             handleType="Service"
