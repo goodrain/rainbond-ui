@@ -1,0 +1,23 @@
+FROM goodrainapps/python:2.7.9
+# ADD dist /dist
+
+LABEL author="huangrh@goodrain.com" 
+
+RUN apk update \
+    && apk --no-cache add --virtual .build-deps \
+    build-base \
+    gcc \
+    libmemcached \
+    libmemcached-dev \
+    zlib-dev \
+    cyrus-sasl \
+    cyrus-sasl-dev \
+    libc-dev \
+    libffi-dev \
+    mariadb-dev \
+    mariadb-client-libs \
+    freetype-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    py-mysqldb
+
