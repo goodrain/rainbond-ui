@@ -309,7 +309,7 @@ export default {
         callback && callback(response);
       }
     },
-    
+
     // * addVariable({ payload, callback }, { call, put }) {
     //   const response = yield call(addVariable, payload);
     //   if (response) {
@@ -340,7 +340,7 @@ export default {
         callback && callback(response);
       }
     },
-    
+
     * addTag({ payload, callback }, { call, put }) {
       const response = yield call(addTags, payload);
       if (response) {
@@ -404,7 +404,7 @@ export default {
         callback && callback(response);
       }
     },
-    
+
     * fetchApps({ payload }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {
@@ -544,6 +544,7 @@ export default {
     * fetchRelationOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
+        callback && callback(response);
         yield put({ type: "saveRelationOuterEnvs", payload: response.list });
       }
     },
