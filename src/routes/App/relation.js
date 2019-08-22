@@ -1,7 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
 import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
+import { Link } from "dva/router";
 import {
   Row,
   Col,
@@ -10,26 +9,18 @@ import {
   Select,
   Button,
   Icon,
-  Menu,
   Input,
-  Dropdown,
   Table,
   Modal,
   notification,
   Tooltip
 } from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes } from "../../utils/utils";
-import { getRouterData } from "../../common/router";
 import {
   getRelationedApp,
-  getUnRelationedApp,
-  addRelationedApp,
   removeRelationedApp,
   batchAddRelationedApp
 } from "../../services/app";
 
-import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import ConfirmModal from "../../components/ConfirmModal";
 import AddRelation from "../../components/AddRelation";

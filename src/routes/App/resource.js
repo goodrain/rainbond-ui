@@ -1,24 +1,8 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
-import httpResponseUtil from '../../utils/httpResponse';
 import ChangeBuildSource from "./setting/edit-buildsource";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
-import {
-    deploy,
-    restart,
-    start,
-    stop,
-    rollback,
-    getDetail,
-    getStatus,
-    updateRolling
-} from '../../services/app';
-import {
-    getCreateComposeCheckInfo, getCreateComposeCheckResult, getComposeCheckuuid,
-    getComposeByComposeId
-} from '../../services/createApp';
 import appUtil from '../../utils/app';
 import Dockerinput from '../../components/Dockerinput'
 import { languageObj } from '../../utils/utils';
@@ -29,28 +13,21 @@ import {
     Modal,
     Row,
     Col,
-    Switch,
     Table,
     Radio,
     Tabs,
-    Affix,
     Input,
     Form,
-    Tooltip,
     Spin,
-    Checkbox,
     notification
 } from "antd";
 import styles from './resource.less'
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
-const { TextArea } = Input;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 
 import AutoDeploy from "./setting/auto-deploy";
-import { width } from "window-size";
 
 //node.js
 @connect(({ user, appControl, teamControl }) => ({ currUser: user.currentUser }), null, null, { withRef: true })

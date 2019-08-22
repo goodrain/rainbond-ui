@@ -1,19 +1,12 @@
 import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
-import { Link, Switch, Route } from 'dva/router';
-import { Row, Col, Card, Form, Button, Icon, Menu, Dropdown, Modal } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { getRoutes } from '../../utils/utils';
-import { getRouterData } from '../../common/router';
-
+import { Card, Button, Icon, Modal } from 'antd';
 import styles from './Log.less';
 import globalUtil from '../../utils/global';
-import { getMonitorLog, getMonitorWebSocketUrl, getHistoryLog } from '../../services/app';
-import AppLogSocket from '../../utils/appLogSocket';
+import { getMonitorLog, getHistoryLog } from '../../services/app';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
-import LogSocket from '../../utils/logSocket';
+
 
 class History1000Log extends PureComponent {
   constructor(props) {
@@ -118,9 +111,6 @@ class History1000Log extends PureComponent {
   }
 }
 
-
-
-
 class HistoryLog extends PureComponent {
   constructor(props) {
     super(props);
@@ -189,8 +179,6 @@ class HistoryLog extends PureComponent {
   }
 }
 
-
-
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser
 }), null, null, { withRef: true })
@@ -206,43 +194,54 @@ export default class Index extends PureComponent {
       showHighlighted: "",
       showText:"true"
     }
-    this.socket = null;
   }
-
   componentDidMount() {
     if (!this.canView()) return;
-    const { dispatch } = this.props;
     this.loadLog();
-    this.loadWebSocketUrl();
 
-  }//是否可以浏览当前界面
+  }
+  componentWillUnmount() {
+    this.props.socket.closeLogMessage()
+  }
   canView() {
     return appUtil.canManageAppLog(this.props.appDetail);
   }
-  loadLog(isPerform) {
-    getMonitorLog({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias
-    }).then((data) => {
-      if (data) {
+  loadLog() {
+    const {logs} = this.state
+    if (logs.length == 0) {
+      getMonitorLog({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias
+      }).then((data) => {
+        if (data) {
+          if (this.refs.box) {
+            this.refs.box.scrollTop = this.refs.box.scrollHeight
+          }
+          this.setState({ logs: (data.list || []) })
+          this.watchLog()
+        }
+      })
+    }else{
+      this.watchLog()
+    }
+  }
+  watchLog() {
+    this.props.socket.setOnLogMessage((messages)=>{
+        if ( messages && messages.length>0){
+          this.setState({ logs: messages })
+        }
+    },
+    (message) => {
+      if (this.state.started) {
+        var logs = this.state.logs || [];
+        if (logs.length >= 5000){
+          logs.shift()
+        }
+        logs.push(message)
         if (this.refs.box) {
           this.refs.box.scrollTop = this.refs.box.scrollHeight
         }
-        this.setState({ logs: (data.list || []) })
-      }
-    })
-  }
-  loadWebSocketUrl() {
-    getMonitorWebSocketUrl({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias
-    }).then((data) => {
-      if (data) {
-        this.setState({
-          websocketUrl: data.bean.web_socket_url
-        }, () => {
-          this.createSocket();
-        })
+        this.setState({ logs: logs })
       }
     })
   }
@@ -255,29 +254,6 @@ export default class Index extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     if (this.refs.box && prevState.logs.length !== this.state.logs.length && this.state.showHighlighted == "") {
       this.refs.box.scrollTop = this.refs.box.scrollHeight
-    }
-  }
-  createSocket() {
-    const appDetail = this.props.appDetail;
-    const { websocketUrl } = this.state;
-    if (websocketUrl) {
-      this.socket = new AppLogSocket({
-        url: websocketUrl,
-        serviceId: appDetail.service.service_id,
-        isAutoConnect: true,
-        destroyed: false,
-        onMessage: (msg) => {
-          if (this.state.started) {
-            var logs = this.state.logs || [];
-            logs.push(msg)
-            if (this.refs.box) {
-              this.refs.box.scrollTop = this.refs.box.scrollHeight
-            }
-            // this.setState({logs: [msg].concat(logs)})
-            this.setState({ logs: logs })
-          }
-        }
-      })
     }
   }
   handleStop = () => {
@@ -317,7 +293,6 @@ export default class Index extends PureComponent {
                   开始推送
             </Button>
             }
-
 
           </Fragment>
         }

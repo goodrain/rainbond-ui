@@ -52,7 +52,7 @@ AppLogSocket.prototype = {
   _onOpen(evt) {
     // 通知服务器
     this.serviceId && this.webSocket.send(`topic=${this.serviceId}`);
-    this.onOpen();
+    this.onOpen(this.webSocket);
   },
   _onMessage(evt) {
     // 代表连接成功， 不做任何处理
