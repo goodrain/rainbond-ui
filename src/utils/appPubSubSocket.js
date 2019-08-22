@@ -171,7 +171,9 @@ AppPubSubSocket.prototype = {
     this.webSocket.onerror = null;
     this.webSocket = null;
     if (!this.destroyed && this.isAutoConnect) {
-      this.init();
+      setTimeout(() =>{
+        this.init();
+      }, 2000)
     }
   },
   _onError() {
