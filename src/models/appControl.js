@@ -108,7 +108,9 @@ import {
   addInstanceList,
   editorHealthList,
   editUpDatekey,
-  getPermissions
+  getPermissions,
+  fetchInstanceDetails,
+  fetchOperationLog
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -168,148 +170,160 @@ export default {
     visitInfo: null,
     // 设置了权限的团队成员
     members: [],
-    build_upgrade: ''
+    build_upgrade: ""
   },
   effects: {
-    * getSubDomain({ payload, callback }, { call, put }) {
+    *fetchOperationLog({ payload, callback }, { call, put }) {
+      const response = yield call(fetchOperationLog, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *getSubDomain({ payload, callback }, { call, put }) {
       const response = yield call(getSubDomain, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getAppVersionList({ payload, callback }, { call, put }) {
+    *getAppVersionList({ payload, callback }, { call, put }) {
       const response = yield call(getAppVersionList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * SubDomain({ payload, callback }, { call, put }) {
+    *SubDomain({ payload, callback }, { call, put }) {
       const response = yield call(SubDomain, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getSubPort({ payload, callback }, { call, put }) {
+    *getSubPort({ payload, callback }, { call, put }) {
       const response = yield call(getSubPort, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * SubPort({ payload, callback }, { call, put }) {
+    *SubPort({ payload, callback }, { call, put }) {
       const response = yield call(SubPort, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * delAppVersion({ payload, callback }, { call, put }) {
+    *delAppVersion({ payload, callback }, { call, put }) {
       const response = yield call(delAppVersion, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getPhpConfig({ payload, callback }, { call, put }) {
+    *getPhpConfig({ payload, callback }, { call, put }) {
       const response = yield call(getPhpConfig, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * openAutoDeploy({ payload, callback }, { call, put }) {
+    *openAutoDeploy({ payload, callback }, { call, put }) {
       const response = yield call(openAutoDeploy, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * cancelAutoDeploy({ payload, callback }, { call, put }) {
+    *cancelAutoDeploy({ payload, callback }, { call, put }) {
       const response = yield call(cancelAutoDeploy, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getAutoDeployStatus({ payload, callback }, { call, put }) {
+    *getAutoDeployStatus({ payload, callback }, { call, put }) {
       const response = yield call(getAutoDeployStatus, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getAppResource({ payload, callback }, { call, put }) {
+    *getAppResource({ payload, callback }, { call, put }) {
       const response = yield call(getAppResource, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getAnalyzePlugins({ payload, callback }, { call, put }) {
+    *getAnalyzePlugins({ payload, callback }, { call, put }) {
       const response = yield call(getAnalyzePlugins, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getPluginConfigs({ payload, callback }, { call, put }) {
+    *getPluginConfigs({ payload, callback }, { call, put }) {
       const response = yield call(getPluginConfigs, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editPluginConfigs({ payload, callback }, { call, put }) {
+    *editPluginConfigs({ payload, callback }, { call, put }) {
       const response = yield call(editPluginConfigs, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * startPlugin({ payload, callback }, { call, put }) {
+    *startPlugin({ payload, callback }, { call, put }) {
       const response = yield call(startPlugin, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * updatePluginMemory({ payload, callback }, { call, put }) {
+    *updatePluginMemory({ payload, callback }, { call, put }) {
       const response = yield call(updatePluginMemory, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * stopPlugin({ payload, callback }, { call, put }) {
+    *stopPlugin({ payload, callback }, { call, put }) {
       const response = yield call(stopPlugin, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * unInstallPlugin({ payload, callback }, { call, put }) {
+    *unInstallPlugin({ payload, callback }, { call, put }) {
       const response = yield call(unInstallPlugin, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * installPlugin({ payload, callback }, { call, put }) {
+    *installPlugin({ payload, callback }, { call, put }) {
       const response = yield call(installPlugin, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getPlugins({ payload, callback }, { call, put }) {
+    *getPlugins({ payload, callback }, { call, put }) {
       const response = yield call(getPlugins, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editAppCreateInfo({ payload, callback }, { call, put }) {
+    *editAppCreateInfo({ payload, callback }, { call, put }) {
       const response = yield call(editAppCreateInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getRuntimeInfo({ payload, callback }, { call, put }) {
+    *getRuntimeInfo({ payload, callback }, { call, put }) {
       const response = yield call(getRuntimeInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getRuntimeBuildInfo({ payload, callback }, { call, put }) {
+    *getRuntimeBuildInfo({ payload, callback }, { call, put }) {
       const response = yield call(getRuntimeBuildInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    
+    *fetchInstanceDetails({ payload, callback }, { call, put }) {
+      const response = yield call(fetchInstanceDetails, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     // * addVariable({ payload, callback }, { call, put }) {
     //   const response = yield call(addVariable, payload);
     //   if (response) {
@@ -322,115 +336,115 @@ export default {
     //     callback && callback(response);
     //   }
     // },
-    * getVariable({ payload, callback }, { call, put }) {
+    *getVariable({ payload, callback }, { call, put }) {
       const response = yield call(getVariable, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editRuntimeInfo({ payload, callback }, { call, put }) {
+    *editRuntimeInfo({ payload, callback }, { call, put }) {
       const response = yield call(editRuntimeInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editRuntimeBuildInfo({ payload, callback }, { call, put }) {
+    *editRuntimeBuildInfo({ payload, callback }, { call, put }) {
       const response = yield call(editRuntimeBuildInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    
-    * addTag({ payload, callback }, { call, put }) {
+
+    *addTag({ payload, callback }, { call, put }) {
       const response = yield call(addTags, payload);
       if (response) {
         callback && callback();
       }
     },
-    * deleteTag({ payload, callback }, { call, put }) {
+    *deleteTag({ payload, callback }, { call, put }) {
       const response = yield call(deleteTag, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchTags({ payload, callback }, { call, put }) {
+    *fetchTags({ payload, callback }, { call, put }) {
       const response = yield call(getTags, payload);
       if (response) {
         yield put({ type: "saveTags", payload: response.bean });
         callback && callback(response.bean);
       }
     },
-    * managePod({ payload, callback }, { call, put }) {
+    *managePod({ payload, callback }, { call, put }) {
       const response = yield call(managePods, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchVisitInfo({ payload }, { call, put }) {
+    *fetchVisitInfo({ payload }, { call, put }) {
       const response = yield call(getVisitInfo, payload);
       if (response) {
         yield put({ type: "saveVisitInfo", payload: response.bean });
       }
     },
-    * fetchPods({ payload,callback }, { call, put }) {
+    *fetchPods({ payload, callback }, { call, put }) {
       const response = yield call(getPods, payload);
       if (response) {
         yield put({ type: "savePods", payload: response.list });
         callback && callback(response);
       }
     },
-    * fetchExtendInfo({ payload, handleError }, { call, put }) {
+    *fetchExtendInfo({ payload, handleError }, { call, put }) {
       const response = yield call(getExtendInfo, payload, handleError);
       if (response) {
         yield put({ type: "saveExtendInfo", payload: response.bean });
       }
     },
-    * editName({ payload, callback }, { call, put }) {
+    *editName({ payload, callback }, { call, put }) {
       const response = yield call(editName, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchDetail({ payload, callback, handleError }, { call, put }) {
+    *fetchDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getDetail, payload, handleError);
       if (response) {
         yield put({ type: "saveDetail", payload: response.bean });
         callback && callback(response.bean);
       }
     },
-    * createService({ payload, callback }, { call, put }) {
+    *createService({ payload, callback }, { call, put }) {
       const response = yield call(createService, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    
-    * fetchApps({ payload }, { call, put }) {
+
+    *fetchApps({ payload }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {
         yield put({ type: "saveApps", payload: response.list });
       }
     },
-    * fetchPorts({ payload, callback }, { call, put }) {
+    *fetchPorts({ payload, callback }, { call, put }) {
       const response = yield call(getPorts, payload);
       if (response) {
         yield put({ type: "savePorts", payload: response.list });
         callback && callback(response);
       }
     },
-    * deletePort({ payload, callback }, { call, put }) {
+    *deletePort({ payload, callback }, { call, put }) {
       const response = yield call(deletePort, payload);
       if (response) {
         callback && callback();
       }
     },
-    * changeProtocol({ payload, callback }, { call, put }) {
+    *changeProtocol({ payload, callback }, { call, put }) {
       const response = yield call(changePortProtocal, payload);
       if (response) {
         callback && callback();
       }
     },
-    * openPortOuter({ payload, callback }, { call, put }) {
+    *openPortOuter({ payload, callback }, { call, put }) {
       const response = yield call(openPortOuter, payload);
       if (response) {
         callback && callback();
@@ -448,255 +462,255 @@ export default {
         callback && callback(response);
       }
     },
-    * closePortOuter({ payload, callback }, { call, put }) {
+    *closePortOuter({ payload, callback }, { call, put }) {
       const response = yield call(closePortOuter, payload);
       if (response) {
         callback && callback();
       }
     },
-    * openPortInner({ payload, callback }, { call, put }) {
+    *openPortInner({ payload, callback }, { call, put }) {
       const response = yield call(openPortInner, payload);
       if (response) {
         callback && callback();
       }
     },
-    * closePortInner({ payload, callback }, { call, put }) {
+    *closePortInner({ payload, callback }, { call, put }) {
       const response = yield call(closePortInner, payload);
       if (response) {
         callback && callback();
       }
     },
-    * bindDomain({ payload, callback }, { call, put }) {
+    *bindDomain({ payload, callback }, { call, put }) {
       const response = yield call(bindDomain, payload);
       if (response) {
         callback && callback();
       }
     },
-    * unbindDomain({ payload, callback }, { call, put }) {
+    *unbindDomain({ payload, callback }, { call, put }) {
       const response = yield call(unbindDomain, payload);
       if (response) {
         callback && callback();
       }
     },
-    * editPortAlias({ payload, callback }, { call, put }) {
+    *editPortAlias({ payload, callback }, { call, put }) {
       const response = yield call(editPortAlias, payload);
       if (response) {
         callback && callback();
       }
     },
-    * addPort({ payload, callback }, { call, put }) {
+    *addPort({ payload, callback }, { call, put }) {
       const response = yield call(addPort, payload);
       if (response) {
         callback && callback();
       }
     },
-    * moveGroup({ payload, callback }, { call, put }) {
+    *moveGroup({ payload, callback }, { call, put }) {
       const response = yield call(moveGroup, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getBuildInformation({ payload, callback }, { call, put }) {
+    *getBuildInformation({ payload, callback }, { call, put }) {
       const response = yield call(getBuildInformation, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteVariable({ payload, callback }, { call, put }) {
+    *deleteVariable({ payload, callback }, { call, put }) {
       const response = yield call(deleteVariable, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchCertificates({ payload, callback }, { call, put }) {
+    *fetchCertificates({ payload, callback }, { call, put }) {
       const response = yield call(getCertificates, payload);
       if (response) {
         yield put({ type: "saveCertificates", payload: response.list });
-        callback && callback(response)
+        callback && callback(response);
       }
     },
-    * addCertificate({ payload, callback }, { call, put }) {
+    *addCertificate({ payload, callback }, { call, put }) {
       const response = yield call(addCertificate, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchInnerEnvs({ payload, callback }, { call, put }) {
+    *fetchInnerEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getInnerEnvs, payload);
       if (response) {
         yield put({ type: "saveInnerEnvs", payload: response.list });
         callback && callback(response);
       }
     },
-    * addInnerEnvs({ payload, callback }, { call, put }) {
+    *addInnerEnvs({ payload, callback }, { call, put }) {
       const response = yield call(addInnerEnvs, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchOuterEnvs({ payload, callback }, { call, put }) {
+    *fetchOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
         callback && callback(response);
         yield put({ type: "saveOuterEnvs", payload: response.list });
       }
     },
-    * fetchRelationOuterEnvs({ payload, callback }, { call, put }) {
+    *fetchRelationOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
         yield put({ type: "saveRelationOuterEnvs", payload: response.list });
       }
     },
-    * addOuterEnvs({ payload, callback }, { call, put }) {
+    *addOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(addOuterEnvs, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteEnvs({ payload, callback }, { call, put }) {
+    *deleteEnvs({ payload, callback }, { call, put }) {
       const response = yield call(deleteEvns, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putTransfer({ payload, callback }, { call, put }) {
+    *putTransfer({ payload, callback }, { call, put }) {
       const response = yield call(putTransfer, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getInstanceList({ payload, callback }, { call, put }) {
+    *getInstanceList({ payload, callback }, { call, put }) {
       const response = yield call(getInstanceList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteInstanceList({ payload, callback }, { call, put }) {
+    *deleteInstanceList({ payload, callback }, { call, put }) {
       const response = yield call(deleteInstanceList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * modifyInstanceList({ payload, callback }, { call, put }) {
+    *modifyInstanceList({ payload, callback }, { call, put }) {
       const response = yield call(modifyInstanceList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * addInstanceList({ payload, callback }, { call, put }) {
+    *addInstanceList({ payload, callback }, { call, put }) {
       const response = yield call(addInstanceList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editUpDatekey({ payload, callback }, { call, put }) {
+    *editUpDatekey({ payload, callback }, { call, put }) {
       const response = yield call(editUpDatekey, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getHealthList({ payload, callback }, { call, put }) {
+    *getHealthList({ payload, callback }, { call, put }) {
       const response = yield call(getHealthList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editorHealthList({ payload, callback }, { call, put }) {
+    *editorHealthList({ payload, callback }, { call, put }) {
       const response = yield call(editorHealthList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editEvns({ payload, callback }, { call, put }) {
+    *editEvns({ payload, callback }, { call, put }) {
       const response = yield call(editEvns, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchStartProve({ payload, callback }, { call, put }) {
+    *fetchStartProve({ payload, callback }, { call, put }) {
       const response = yield call(editEvns, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchRunningProbe({ payload, callback }, { call, put }) {
+    *fetchRunningProbe({ payload, callback }, { call, put }) {
       const response = yield call(getRunningProbe, payload);
       if (response) {
         yield put({ type: "saveRunningProbe", payload: response.bean });
       }
     },
-    * fetchStartProbe({ payload, callback }, { call, put }) {
+    *fetchStartProbe({ payload, callback }, { call, put }) {
       const response = yield call(getStartProbe, payload);
       if (response) {
         yield put({ type: "saveStartProbe", payload: response.bean });
       }
     },
-    * addStartProbe({ payload, callback }, { call, put }) {
+    *addStartProbe({ payload, callback }, { call, put }) {
       const response = yield call(addStartProbe, payload);
       if (response) {
         callback && callback();
       }
     },
-    * addRunProbe({ payload, callback }, { call, put }) {
+    *addRunProbe({ payload, callback }, { call, put }) {
       const response = yield call(addRunningProbe, payload);
       if (response) {
         callback && callback();
       }
     },
-    * editStartProbe({ payload, callback }, { call, put }) {
+    *editStartProbe({ payload, callback }, { call, put }) {
       const response = yield call(editStartProbe, payload);
       if (response) {
         callback && callback();
       }
     },
-    * editRunProbe({ payload, callback }, { call, put }) {
+    *editRunProbe({ payload, callback }, { call, put }) {
       const response = yield call(editRunningProbe, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchBaseInfo({ payload, callback }, { call, put }) {
+    *fetchBaseInfo({ payload, callback }, { call, put }) {
       const response = yield call(getBaseInfo, payload);
       if (response) {
         yield put({ type: "saveBaseInfo", payload: response.bean });
       }
     },
-    * deleteMnt({ payload, callback }, { call, put }) {
+    *deleteMnt({ payload, callback }, { call, put }) {
       const response = yield call(deleteMnt, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchVolumes({ payload, callback }, { call, put }) {
+    *fetchVolumes({ payload, callback }, { call, put }) {
       const response = yield call(getVolumes, payload);
       if (response) {
         yield put({
           type: "saveVolumes",
-          payload: response.list || [],
+          payload: response.list || []
         });
         callback && callback(response);
       }
     },
-    * addVolume({ payload, callback }, { call, put }) {
+    *addVolume({ payload, callback }, { call, put }) {
       const response = yield call(addVolume, payload);
       if (response) {
         callback && callback();
       }
     },
-    * editorVolume({ payload, callback }, { call, put }) {
+    *editorVolume({ payload, callback }, { call, put }) {
       const response = yield call(editorVolume, payload);
       if (response) {
         callback && callback();
       }
     },
-    * deleteVolume({ payload, callback }, { call, put }) {
+    *deleteVolume({ payload, callback }, { call, put }) {
       const response = yield call(deleteVolume, payload);
       if (response) {
         callback && callback();
       }
     },
     // 响应时间
-    * fetchRequestTime({ payload, callback, complete }, { call, put }) {
+    *fetchRequestTime({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequestTime, payload);
       if (response) {
         yield put({ type: "saveRequestTime", payload: response.bean });
@@ -705,7 +719,7 @@ export default {
       complete && complete();
     },
     // 响应时间
-    * fetchRequestTimeRange({ payload, callback, complete }, { call, put }) {
+    *fetchRequestTimeRange({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequestTimeRange, payload);
       if (response) {
         yield put({ type: "saveRequestTimeRange", payload: response.bean });
@@ -714,7 +728,7 @@ export default {
       complete && complete();
     },
     // 吞吐率
-    * fetchRequest({ payload, callback, complete }, { call, put }) {
+    *fetchRequest({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequest, payload);
       if (response) {
         yield put({ type: "saveRequest", payload: response.bean });
@@ -723,7 +737,7 @@ export default {
       complete && complete();
     },
     // 吞吐率
-    * fetchRequestRange({ payload, callback, complete }, { call, put }) {
+    *fetchRequestRange({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequestRange, payload);
 
       if (response) {
@@ -733,7 +747,7 @@ export default {
       complete && complete();
     },
     // 磁盘使用量
-    * fetchDisk({ payload, callback, complete }, { call, put }) {
+    *fetchDisk({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppDisk, payload);
       if (response) {
         yield put({ type: "saveAppDisk", payload: response.bean });
@@ -742,7 +756,7 @@ export default {
       complete && complete();
     },
     // 内存使用量
-    * fetchMemory({ payload, callback, complete }, { call, put }) {
+    *fetchMemory({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppMemory, payload);
       if (response) {
         yield put({ type: "saveAppMemory", payload: response.bean });
@@ -751,7 +765,7 @@ export default {
       complete && complete();
     },
     // 在线人数
-    * fetchOnlineNumber({ payload, callback, complete }, { call, put }) {
+    *fetchOnlineNumber({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppOnlineNumber, payload);
       if (response) {
         yield put({ type: "saveOnlineNumber", payload: response.bean });
@@ -760,7 +774,7 @@ export default {
       complete && complete();
     },
     // 在线人数
-    * fetchOnlineNumberRange({ payload, callback, complete }, { call, put }) {
+    *fetchOnlineNumberRange({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppOnlineNumberRange, payload);
       if (response) {
         yield put({ type: "saveOnlineNumberRange", payload: response.bean });
@@ -769,7 +783,7 @@ export default {
       complete && complete();
     },
     // 获取分支
-    * fetchBranch({ payload, callback, complete }, { call, put }) {
+    *fetchBranch({ payload, callback, complete }, { call, put }) {
       const response = yield call(getCodeBranch, payload);
       if (response) {
         yield put({ type: "saveBranch", payload: response.list });
@@ -778,7 +792,7 @@ export default {
       complete && complete();
     },
     // 设置分支
-    * setBranch({ payload, callback, complete }, { call, put }) {
+    *setBranch({ payload, callback, complete }, { call, put }) {
       const response = yield call(setCodeBranch, payload);
       if (response) {
         callback && callback();
@@ -786,104 +800,104 @@ export default {
       complete && complete();
     },
     // 设置用户权限
-    * setMemberAction({ payload, callback }, { call, put }) {
+    *setMemberAction({ payload, callback }, { call, put }) {
       const response = yield call(setMemberAction, payload);
       if (response) {
         callback && callback();
       }
     },
-    * fetchMember({ payload }, { call, put }) {
+    *fetchMember({ payload }, { call, put }) {
       const response = yield call(getMembers, payload);
       if (response) {
         yield put({ type: "saveMember", payload: response.list });
       }
     },
-    * fetchpermsMember({ payload, callback }, { call, put }) {
+    *fetchpermsMember({ payload, callback }, { call, put }) {
       const response = yield call(getMembers, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getPermissions({ payload, callback }, { call, put }) {
+    *getPermissions({ payload, callback }, { call, put }) {
       const response = yield call(getPermissions, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteMember({ payload, callback }, { call, put }) {
+    *deleteMember({ payload, callback }, { call, put }) {
       const response = yield call(deleteMember, payload);
 
       if (response) {
         callback && callback();
       }
     },
-    * getVariableList({ payload, callback }, { call, put }) {
+    *getVariableList({ payload, callback }, { call, put }) {
       const response = yield call(getVariableList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editMemberAction({ payload, callback }, { call, put }) {
+    *editMemberAction({ payload, callback }, { call, put }) {
       const response = yield call(editMemberAction, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteApp({ payload, callback }, { call, put }) {
+    *deleteApp({ payload, callback }, { call, put }) {
       const response = yield call(deleteApp, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getMultipleModulesInfo({ payload, callback }, { call, put }) {
+    *getMultipleModulesInfo({ payload, callback }, { call, put }) {
       const response = yield call(getMultipleModulesInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putAutoDeploySecret({ payload, callback }, { call, put }) {
+    *putAutoDeploySecret({ payload, callback }, { call, put }) {
       const response = yield call(putAutoDeploySecret, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putAutoDeployCommand({ payload, callback }, { call, put }) {
+    *putAutoDeployCommand({ payload, callback }, { call, put }) {
       const response = yield call(putAutoDeployCommand, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putMirrorCommand({ payload, callback }, { call, put }) {
+    *putMirrorCommand({ payload, callback }, { call, put }) {
       const response = yield call(putMirrorCommand, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getAppBuidSource({ payload, callback }, { call, put }) {
+    *getAppBuidSource({ payload, callback }, { call, put }) {
       const response = yield call(getAppBuidSource, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getLanguage({ payload, callback }, { call, put }) {
+    *getLanguage({ payload, callback }, { call, put }) {
       const response = yield call(getLanguage, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putLanguage({ payload, callback }, { call, put }) {
+    *putLanguage({ payload, callback }, { call, put }) {
       const response = yield call(putLanguage, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getTagInformation({ payload, callback }, { call, put }) {
+    *getTagInformation({ payload, callback }, { call, put }) {
       const response = yield call(getTagInformation, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * putAppBuidSource({ payload, callback }, { call, put }) {
+    *putAppBuidSource({ payload, callback }, { call, put }) {
       const response = yield call(putAppBuidSource, payload);
       if (response) {
         callback && callback(response);
@@ -897,7 +911,10 @@ export default {
     },
     *changeApplicationState({ payload, callback }, { call, put }) {
       const response = yield call(changeApplicationState, payload);
-      yield put({ type: "saveBuild_upgrade", build_upgrade: response.bean.build_upgrade });
+      yield put({
+        type: "saveBuild_upgrade",
+        build_upgrade: response.bean.build_upgrade
+      });
       if (callback) {
         callback && callback(response);
       }
@@ -913,284 +930,284 @@ export default {
     clearMembers(state, action) {
       return {
         ...state,
-        members: [],
+        members: []
       };
     },
     saveMember(state, action) {
       return {
         ...state,
-        members: action.payload,
+        members: action.payload
       };
     },
     saveVisitInfo(state, action) {
       return {
         ...state,
-        visitInfo: action.payload,
+        visitInfo: action.payload
       };
     },
     clearVisitInfo(state, action) {
       return {
         ...state,
-        visitInfo: null,
+        visitInfo: null
       };
     },
     clearPods(state, action) {
       return {
         ...state,
-        pods: [],
+        pods: []
       };
     },
     savePods(state, action) {
       return {
         ...state,
-        pods: action.payload,
+        pods: action.payload
       };
     },
     clearExtendInfo(state, action) {
       return {
         ...state,
-        extendInfo: null,
+        extendInfo: null
       };
     },
     saveExtendInfo(state, action) {
       return {
         ...state,
-        extendInfo: action.payload,
+        extendInfo: action.payload
       };
     },
     saveBranch(state, action) {
       return {
         ...state,
-        codeBranch: action.payload,
+        codeBranch: action.payload
       };
     },
     saveApps(state, action) {
       return {
         ...state,
-        apps: action.payload,
+        apps: action.payload
       };
     },
     clearPorts(state, action) {
       return {
         ...state,
-        ports: [],
+        ports: []
       };
     },
     savePorts(state, action) {
       return {
         ...state,
-        ports: action.payload,
+        ports: action.payload
       };
     },
     clearInnerEnvs(state, action) {
       return {
         ...state,
-        innerEnvs: [],
+        innerEnvs: []
       };
     },
     saveInnerEnvs(state, action) {
       return {
         ...state,
-        innerEnvs: action.payload,
+        innerEnvs: action.payload
       };
     },
     clearOuterEnvs(state, action) {
       return {
         ...state,
-        outerEnvs: [],
+        outerEnvs: []
       };
     },
     saveOuterEnvs(state, action) {
       return {
         ...state,
-        outerEnvs: action.payload,
+        outerEnvs: action.payload
       };
     },
     clearRelationOuterEnvs(state, action) {
       return {
         ...state,
-        relationOuterEnvs: [],
+        relationOuterEnvs: []
       };
     },
     saveRelationOuterEnvs(state, action) {
       return {
         ...state,
-        relationOuterEnvs: action.payload,
+        relationOuterEnvs: action.payload
       };
     },
     clearRunningProbe(state, action) {
       return {
         ...state,
-        runningProbe: {},
+        runningProbe: {}
       };
     },
     saveRunningProbe(state, action) {
       return {
         ...state,
-        runningProbe: action.payload,
+        runningProbe: action.payload
       };
     },
     clearStartProbe(state, action) {
       return {
         ...state,
-        startProbe: {},
+        startProbe: {}
       };
     },
     saveStartProbe(state, action) {
       return {
         ...state,
-        startProbe: action.payload,
+        startProbe: action.payload
       };
     },
     saveBaseInfo(state, action) {
       return {
         ...state,
-        baseInfo: action.payload,
+        baseInfo: action.payload
       };
     },
     clearVolumes(state, action) {
       return {
         ...state,
-        volumes: [],
+        volumes: []
       };
     },
     saveVolumes(state, action) {
       return {
         ...state,
-        volumes: action.payload,
+        volumes: action.payload
       };
     },
     saveCertificates(state, action) {
       return {
         ...state,
-        certificates: action.payload,
+        certificates: action.payload
       };
     },
     clearRequesTime(state, action) {
       return {
         ...state,
-        requestTime: {},
+        requestTime: {}
       };
     },
     saveRequestTime(state, action) {
       return {
         ...state,
-        requestTime: action.payload,
+        requestTime: action.payload
       };
     },
     clearRequesTimeRange(state, action) {
       return {
         ...state,
-        requestTimeRange: {},
+        requestTimeRange: {}
       };
     },
     saveRequestTimeRange(state, action) {
       return {
         ...state,
-        requestTimeRange: action.payload,
+        requestTimeRange: action.payload
       };
     },
     clearAppDisk(state, action) {
       return {
         ...state,
-        appDisk: {},
+        appDisk: {}
       };
     },
     saveAppDisk(state, action) {
       return {
         ...state,
-        appDisk: action.payload,
+        appDisk: action.payload
       };
     },
     clearAppMemory(state, action) {
       return {
         ...state,
-        appMemory: {},
+        appMemory: {}
       };
     },
     saveAppMemory(state, action) {
       return {
         ...state,
-        appMemory: action.payload,
+        appMemory: action.payload
       };
     },
     clearRequest(state, action) {
       return {
         ...state,
-        appRequest: {},
+        appRequest: {}
       };
     },
     saveRequest(state, action) {
       return {
         ...state,
-        appRequest: action.payload,
+        appRequest: action.payload
       };
     },
     clearRequestRange(state, action) {
       return {
         ...state,
-        appRequestRange: {},
+        appRequestRange: {}
       };
     },
     saveRequestRange(state, action) {
       return {
         ...state,
-        appRequestRange: action.payload,
+        appRequestRange: action.payload
       };
     },
     clearOnlineNumber(state, action) {
       return {
         ...state,
-        onlineNumber: {},
+        onlineNumber: {}
       };
     },
     saveOnlineNumber(state, action) {
       return {
         ...state,
-        onlineNumber: action.payload,
+        onlineNumber: action.payload
       };
     },
     clearOnlineNumberRange(state, action) {
       return {
         ...state,
-        onlineNumberRange: {},
+        onlineNumberRange: {}
       };
     },
     saveOnlineNumberRange(state, action) {
       return {
         ...state,
-        onlineNumberRange: action.payload,
+        onlineNumberRange: action.payload
       };
     },
     clearDetail(state, action) {
       return {
         ...state,
-        appDetail: {},
+        appDetail: {}
       };
     },
     saveTags(state, action) {
       return {
         ...state,
-        tags: action.payload,
+        tags: action.payload
       };
     },
     clearTags(state, action) {
       return {
         ...state,
-        tags: null,
+        tags: null
       };
     },
     saveDetail(state, action) {
       return {
         ...state,
-        appDetail: action.payload,
+        appDetail: action.payload
       };
     },
     saveBuild_upgrade(state, action) {
       return {
         ...state,
-        build_upgrade: action.build_upgrade,
+        build_upgrade: action.build_upgrade
       };
     }
-  },
+  }
 };

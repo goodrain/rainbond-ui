@@ -7,6 +7,79 @@
   }
 }
 
+.instanceBox {
+  &>div {
+    background: #eee;
+  }
+}
+
+.instanceInfo {
+  display   : flex;
+  flex-wrap : wrap;
+  list-style: none;
+  margin    : 15px 0;
+
+  li {
+    width       : 50%;
+    margin      : 5px 0;
+    padding-left: 10px;
+    display     : flex;
+    align-items : center;
+
+    span {
+      color    : rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      display  : inline-block;
+      width    : 20%;
+    }
+
+    span:nth-of-type(2) {
+      overflow     : hidden;
+      white-space  : nowrap;
+      text-overflow: ellipsis;
+      width        : 80%;
+      color        : #13C2C2;
+
+    }
+  }
+
+
+
+  div {
+    padding-left: 10px;
+    color       : rgba(0, 0, 0, 0.85);
+    font-size   : 14px;
+    width       : 100%;
+    display     : flex;
+    flex-wrap   : wrap;
+
+    li {
+      width       : 50%;
+      margin      : 5px 0;
+      padding-left: 10px;
+      display     : flex;
+      align-items : center;
+
+      span {
+        color    : rgba(0, 0, 0, 0.85);
+        font-size: 14px;
+        display  : inline-block;
+        width    : 30%;
+      }
+
+      span:nth-of-type(2) {
+        overflow     : hidden;
+        white-space  : nowrap;
+        text-overflow: ellipsis;
+        text-align   : left;
+        width        : 70%;
+        color        : #13C2C2;
+      }
+    }
+  }
+}
+
+
 .buildBox {
   background   : linear-gradient(to right, #39aa56 0, #39aa56 10px, #fff 10px, #fff 100%) no-repeat;
   border-radius: 2px;
@@ -101,6 +174,77 @@
   }
 }
 
+.logpassed {
+  background: linear-gradient(to right, #39aa56 0, #39aa56 5px, #fff 5px, #fff 100%) no-repeat;
+}
+
+.logfailed {
+  background: linear-gradient(to right, #db4545 0, #db4545 5px, #fff 5px, #fff 100%) no-repeat;
+}
+
+.logcanceled {
+  background: linear-gradient(to right, #9d9d9d 0, #9d9d9d 5px, #fff 5px, #fff 100%) no-repeat;
+}
+
+.loginfo {
+  height      : 60px;
+  line-height : 60px;
+  margin      : 5px 0;
+  padding-left: 20px;
+  display     : flex;
+  align-items : center;
+  width       : 100%;
+  border      : 1px solid #eaeaea;
+
+  div:nth-of-type(1) {
+    span {
+      display      : inline-block;
+      width        : 20px;
+      height       : 20px;
+      line-height  : 20px;
+      text-align   : center;
+      color        : #fff;
+      border-radius: 50%;
+      margin-right : 8px;
+    }
+
+    width: 20%;
+  }
+
+  div:nth-of-type(2) {
+    overflow     : hidden;
+    text-overflow: ellipsis;
+    white-space  : nowrap;
+    width        : 50%;
+    padding      : 0 10px;
+  }
+
+  div:nth-of-type(3) {
+    width: 25%;
+
+    span:nth-of-type(1) {
+      padding-right: 10px;
+    }
+  }
+
+  div:nth-of-type(4) {
+    width: 5%;
+  }
+}
+
+.nodeBox {
+  width        : 40px;
+  height       : 35px;
+  background   : #259B24;
+  border-radius: 15%;
+  margin       : 0 auto;
+}
+
+
+.nodeBox:hover {
+  transform: scale(1.2);
+}
+
 font {
   color         : #666;
   vertical-align: inherit;
@@ -109,6 +253,7 @@ font {
 .text {
   color        : #39aa56;
   margin-bottom: 10px;
+  font-size    : 14px;
 }
 
 .imgs {
@@ -117,10 +262,13 @@ font {
 }
 
 .boxImg {
-  text-align: center;
+  text-align   : center;
+  padding-left : 6px !important;
+  padding-right: 6px !important;
 
   p {
-    margin: 5px 0;
+    font-size: 12px;
+    margin   : 5px 0;
   }
 }
 
@@ -213,6 +361,7 @@ font {
   background: linear-gradient(to right, #39aa56 0, #39aa56 10px, #fff 10px, #fff 100%) no-repeat;
 }
 
+
 .failed {
   background: linear-gradient(to right, #db4545 0, #db4545 10px, #fff 10px, #fff 100%) no-repeat;
 }
@@ -257,11 +406,14 @@ font {
 }
 
 .rowMessage {
-  padding-left: 1.6em;
-  flex        : 0 0 70%;
-  overflow    : hidden;
-  position    : relative;
-  font-size   : 13px;
+  padding-left : 0.5em;
+  flex         : 0 0 60%;
+  overflow     : hidden;
+  position     : relative;
+  font-size    : 13px;
+  overflow     : hidden;
+  white-space  : nowrap;
+  text-overflow: ellipsis;
 }
 
 .buildHistoryBox {
@@ -271,25 +423,32 @@ font {
     list-style: none;
 
     .lineone {
-      padding    : 0;
-      margin     : .4em 0;
-      white-space: nowrap;
-
-      flex        : 0 0 50%;
+      padding     : 0;
+      margin      : .4em 0;
+      white-space : nowrap;
+      width       : 55%;
       padding-left: .5em;
       border-right: 1px solid #EFF0EC;
     }
 
     .linetwo {
-      padding    : 0;
-      margin     : .4em 0;
-      white-space: nowrap;
-      flex       : 0 0 22%;
-      margin-left: 1em;
+      padding       : 0;
+      margin        : .4em 0;
+      white-space   : nowrap;
+      // flex       : 0 0 22%;
+      width         : 25%;
+      margin-left   : 1em;
     }
 
-    .line:first-of-type(3) {
-      flex: 0 0 22%;
+    .linestree {
+      // flex: 0 0 22%;
+      width  : 20%;
+    }
+
+    .linefour {
+      // flex   : 0 0 22%;
+      width     : 10%;
+      text-align: center;
     }
 
     // .fadeOute:after {
@@ -313,7 +472,7 @@ font {
       font {
         vertical-align: inherit;
         font-size     : 13px;
-
+        display       : inline-block;
       }
     }
 
@@ -342,7 +501,7 @@ font {
     }
 
     .rowBranch {
-      flex    : 0 0 30%;
+      flex    : 0 0 40%;
       position: relative;
       overflow: hidden;
 
