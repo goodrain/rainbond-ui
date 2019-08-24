@@ -14,9 +14,10 @@ import {
   notification,
   Modal,
   Select,
+  Tooltip
 } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
-
+import styles from './Index.less';
 import globalUtil from "../../utils/global";
 import pluginUtil from "../../utils/plugin";
 import appPluginUtil from "../../utils/appPlugin";
@@ -82,11 +83,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div title={item.attr_info || item.attr_name}>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+            <Tooltip title={item.attr_info || item.attr_name}>
+            <div className={styles.nowarpText} >
+                  {" "}
+                  {item.attr_name}
+                  {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+          </div>
+          </Tooltip>
           }
         >
           <Input
@@ -107,11 +110,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+              <Tooltip title={item.attr_info || item.attr_name}>
+                <div className={styles.nowarpText} >
+                      {" "}
+                      {item.attr_name}
+                      {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+              </div>
+              </Tooltip>
           }
         >
           <Select
@@ -134,11 +139,13 @@ class ConfigItems extends PureComponent {
             width: "90%",
           }}
           label={
-            <div>
-              {" "}
-              {item.attr_name}
-              {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
-            </div>
+            <Tooltip title={item.attr_info || item.attr_name}>
+            <div className={styles.nowarpText} >
+                  {" "}
+                  {item.attr_name}
+                  {item.attr_info ? <span>({item.attr_info})</span> : ""}{" "}
+          </div>
+          </Tooltip>
           }
         >
           <Select
@@ -173,6 +180,7 @@ class ConfigDownstreamPort extends PureComponent {
     this.state = {
       currApp: data[0].dest_service_alias,
       currPort: data[0].port,
+      config_name: data[0].config_group_name,
     };
   }
   getAppByName = appAlias => this.props.data.filter(item => item.dest_service_alias === appAlias);
@@ -207,13 +215,13 @@ class ConfigDownstreamPort extends PureComponent {
         })
       }
     });
-    console.log(apps)
     return apps
   }
   render() {
     const currData = this.getCurrData();
     const currPort = this.state.currPort;
     const currApp = this.state.currApp;
+    const configName = this.state.config_name;
     const ports = this.getCurrPorts();
     const apps = this.getApps()
     return (
@@ -224,10 +232,11 @@ class ConfigDownstreamPort extends PureComponent {
         type="inner"
         title={
           <div>
-            {" "}
+            {configName}
             <span
               style={{
                 marginRight: 24,
+                marginLeft: 16,
               }}
             >
               下游应用:{" "}
@@ -259,9 +268,12 @@ class ConfigUpstreamPort extends PureComponent {
   constructor(props) {
     super(props);
     const data = this.props.data;
-    this.state = {
-      currPort: data[0].port,
-    };
+    if (data.length > 0) {
+        this.state = {
+          currPort: data[0].port,
+          config_name: data[0].config_group_name,
+        };
+    }
   }
   handlePortChange = (port) => {
     this.setState({ currPort: port });
@@ -270,6 +282,7 @@ class ConfigUpstreamPort extends PureComponent {
   render() {
     const data = this.props.data;
     const currPort = this.state.currPort;
+    const config_name = this.state.config_name
     const currData = this.getCurrData(currPort);
     return (
       <Card
@@ -279,10 +292,11 @@ class ConfigUpstreamPort extends PureComponent {
         type="inner"
         title={
           <div>
-            {" "}
+            {config_name}
             <span
               style={{
                 marginRight: 24,
+                marginLeft: 16,
               }}
             >
               端口号:{" "}
@@ -304,13 +318,16 @@ class ConfigUpstreamPort extends PureComponent {
 class ConfigUnDefine extends PureComponent {
   render() {
     const data = this.props.data || [];
+    const configName = this.props.data.config_group_name
     return (
       <Card
         style={{
           marginBottom: 24,
         }}
         type="inner"
-        title=""
+        title={
+          <div>{configName}</div>
+        }
       >
         <ConfigItems onChange={this.handleOnChange} data={data.config} />
       </Card>

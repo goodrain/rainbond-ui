@@ -1,19 +1,15 @@
-import React, {PureComponent, Fragment} from 'react';
-import moment from 'moment';
-import {connect} from 'dva';
+import React, { PureComponent, Fragment } from "react";
+import moment from "moment";
+import { connect } from "dva";
 import {
   ChartCard,
-  yuan,
   MiniArea,
   MiniBar,
-  MiniProgress,
   Field,
-  Bar,
-  Pie,
   TimelineChart
-} from '../../components/Charts';
-import numeral from 'numeral';
-import {Link, Switch, Route} from 'dva/router';
+} from "../../components/Charts";
+import numeral from "numeral";
+import { Link, Switch, Route } from "dva/router";
 import {
   DatePicker,
   Row,
@@ -26,52 +22,60 @@ import {
   Menu,
   Dropdown,
   Tooltip
-} from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import {getRoutes, getTimeDistance} from '../../utils/utils';
-import {getRouterData} from '../../common/router'
+} from "antd";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import { getRoutes, getTimeDistance } from "../../utils/utils";
+import { getRouterData } from "../../common/router";
 
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import regionUtil from '../../utils/region';
+import ScrollerX from "../../components/ScrollerX";
+import NoPermTip from "../../components/NoPermTip";
+import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
+import teamUtil from "../../utils/team";
+import regionUtil from "../../utils/region";
+import appUtil from "../../utils/app";
+import monitorDataUtil from "../../utils/monitorDataUtil";
+import styles from "./Index.less";
 
 const ButtonGroup = Button.Group;
-const {RangePicker} = DatePicker;
-import monitorDataUtil from '../../utils/monitorDataUtil';
-import ScrollerX from '../../components/ScrollerX';
-import NoPermTip from '../../components/NoPermTip';
-import appUtil from '../../utils/app';
+const { RangePicker } = DatePicker;
 
 class Empty extends PureComponent {
   render() {
     return (
       <div
         style={{
-        height: '300px',
-        lineHeight: '300px',
-        textAlign: ' center',
-        fontSize: 26
-      }}>暂无数据</div>
-    )
+          height: "300px",
+          lineHeight: "300px",
+          textAlign: " center",
+          fontSize: 26
+        }}
+      >
+        暂无数据
+      </div>
+    );
   }
 }
 
-@connect(({user, appControl}) => ({currUser: user.currentUser, appDetail: appControl.appDetail, onlineNumberRange: appControl.onlineNumberRange, appRequestRange: appControl.appRequestRange, requestTimeRange: appControl.requestTimeRange}))
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser,
+  appDetail: appControl.appDetail,
+  onlineNumberRange: appControl.onlineNumberRange,
+  appRequestRange: appControl.appRequestRange,
+  requestTimeRange: appControl.requestTimeRange
+}))
 class MonitorHistory extends PureComponent {
   state = {
     houer: 1
   };
   getStartTime() {
-    return (new Date().getTime() / 1000) - (60 * 60 * this.state.houer);
+    return new Date().getTime() / 1000 - 60 * 60 * this.state.houer;
   }
   getStep() {
     var houer = this.state.houer;
-    return 60 * 60 * houer / 20 + 's';
+    return (60 * 60 * houer) / 20 + "s";
   }
   componentDidMount() {
-    
     this.mounted = true;
     this.inerval = 10000;
     this.fetchRequestTimeRange();
@@ -81,90 +85,78 @@ class MonitorHistory extends PureComponent {
   componentWillUnmount() {
     this.mounted = false;
   }
-  
-  fetchRequestTimeRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequestTimeRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestTimeRange();
-            }, this.inerval)
-          }
 
+  fetchRequestTimeRange() {
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequestTimeRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestTimeRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchRequestRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequestRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestRange();
-            }, this.inerval)
-
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequestRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchOnlineNumberRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchOnlineNumberRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchOnlineNumberRange();
-            }, this.inerval)
-
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchOnlineNumberRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchOnlineNumberRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
 
-  selectDate = (houer) => {
-    this.setState({houer});
-  }
+  selectDate = houer => {
+    this.setState({ houer });
+  };
   isActive(houer) {
     if (houer === this.state.houer) {
       return styles.currentDate;
     }
   }
   render() {
-    const {rangePickerValue} = this.state;
+    const { rangePickerValue } = this.state;
 
     const salesExtra = (
       <div className={styles.salesExtraWrap}>
@@ -178,55 +170,68 @@ class MonitorHistory extends PureComponent {
           <a className={this.isActive(24)} onClick={() => this.selectDate(24)}>
             24小时
           </a>
-          <a className={this.isActive(24 * 7)} onClick={() => this.selectDate(24 * 7)}>
+          <a
+            className={this.isActive(24 * 7)}
+            onClick={() => this.selectDate(24 * 7)}
+          >
             7天
           </a>
         </div>
       </div>
     );
 
-    const requiestTime = monitorDataUtil.queryRangeTog2F(this.props.requestTimeRange);
-    const appRequest = monitorDataUtil.queryRangeTog2F(this.props.appRequestRange);
-    const online = monitorDataUtil.queryRangeTog2F(this.props.onlineNumberRange, true);
+    const requiestTime = monitorDataUtil.queryRangeTog2F(
+      this.props.requestTimeRange
+    );
+    const appRequest = monitorDataUtil.queryRangeTog2F(
+      this.props.appRequestRange
+    );
+    const online = monitorDataUtil.queryRangeTog2F(
+      this.props.onlineNumberRange,
+      true
+    );
 
     return (
       <div>
         <Card
           title="响应时间"
           style={{
-          marginBottom: 20
-        }}
-          extra={salesExtra}>
-          {requiestTime.length
-            ? <TimelineChart height={200} data={requiestTime}/>
-            : <Empty/>
-}
+            marginBottom: 20
+          }}
+          extra={salesExtra}
+        >
+          {requiestTime.length ? (
+            <TimelineChart height={200} data={requiestTime} />
+          ) : (
+            <Empty />
+          )}
         </Card>
         <Card
           extra={salesExtra}
           title="吞吐率"
           style={{
-          marginBottom: 20
-        }}>
-          {appRequest.length
-            ? <TimelineChart height={200} data={appRequest}/>
-            : <Empty/>
-}
-
+            marginBottom: 20
+          }}
+        >
+          {appRequest.length ? (
+            <TimelineChart height={200} data={appRequest} />
+          ) : (
+            <Empty />
+          )}
         </Card>
         <Card extra={salesExtra} title="在线人数">
-          {online.length
-            ? <TimelineChart height={200} data={online}/>
-            : <Empty/>
-}
-
+          {online.length ? (
+            <TimelineChart height={200} data={online} />
+          ) : (
+            <Empty />
+          )}
         </Card>
       </div>
-    )
+    );
   }
 }
 
-@connect(({user, appControl}) => ({
+@connect(({ user, appControl }) => ({
   currUser: user.currentUser,
   appDetail: appControl.appDetail,
   onlineNumber: appControl.onlineNumber,
@@ -242,10 +247,10 @@ class MonitorNow extends PureComponent {
     this.inerval = 5000;
     this.state = {
       logs: []
-    }
+    };
   }
   getStartTime() {
-    return (new Date().getTime() / 1000) - (60 * 60)
+    return new Date().getTime() / 1000 - 60 * 60;
   }
   getStep() {
     return 60;
@@ -262,28 +267,19 @@ class MonitorNow extends PureComponent {
   }
   componentWillUnmount() {
     this.mounted = false;
-    this.destroySocket();
-    this
-      .props
-      .dispatch({type: 'appControl/clearOnlineNumberRange'})
-    this
-      .props
-      .dispatch({type: 'appControl/clearRequestTime'})
-    this
-      .props
-      .dispatch({type: 'appControl/clearRequestTimeRange'})
-    this
-      .props
-      .dispatch({type: 'appControl/clearRequest'})
-    this
-      .props
-      .dispatch({type: 'appControl/clearRequestRange'})
-    this
-      .props
-      .dispatch({type: 'appControl/clearOnlineNumber'})
+    // this.destroySocket();
+    // this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
+    // this.props.dispatch({ type: "appControl/clearRequestTime" });
+    // this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
+    // this.props.dispatch({ type: "appControl/clearRequest" });
+    // this.props.dispatch({ type: "appControl/clearRequestRange" });
+    // this.props.dispatch({ type: "appControl/clearOnlineNumber" });
   }
   getSocketUrl = () => {
-    var currTeam = userUtil.getTeamByTeamName(this.props.currUser, globalUtil.getCurrTeamName());
+    var currTeam = userUtil.getTeamByTeamName(
+      this.props.currUser,
+      globalUtil.getCurrTeamName()
+    );
     var currRegionName = globalUtil.getCurrRegionName();
 
     if (currTeam) {
@@ -293,182 +289,157 @@ class MonitorNow extends PureComponent {
         return regionUtil.getMonitorWebSocketUrl(region);
       }
     }
-    return '';
-  }
+    return "";
+  };
   fetchRequestTime() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequestTime',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          serviceId: this.props.appDetail.service.service_id
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestTime();
-            }, this.inerval)
-
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequestTime",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestTime();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchRequestTimeRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequestTimeRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestTimeRange();
-            }, this.inerval)
-          }
-
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequestTimeRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestTimeRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchRequest() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequest',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          serviceId: this.props.appDetail.service.service_id
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequest();
-            }, this.inerval)
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequest",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequest();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchRequestRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchRequestRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestRange();
-            }, this.inerval)
-
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchRequestRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchOnlineNumber() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchOnlineNumber',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          serviceId: this.props.appDetail.service.service_id
-        },
-        complete: () => {
-          if (this.mounted) {
-
-            setTimeout(() => {
-              this.fetchOnlineNumber();
-            }, this.inerval)
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchOnlineNumber",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchOnlineNumber();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
   fetchOnlineNumberRange() {
-    if (!this.mounted)
-      return;
-    this
-      .props
-      .dispatch({
-        type: 'appControl/fetchOnlineNumberRange',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep()
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchOnlineNumberRange();
-            }, this.inerval)
-
-          }
+    if (!this.mounted) return;
+    this.props.dispatch({
+      type: "appControl/fetchOnlineNumberRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchOnlineNumberRange();
+          }, this.inerval);
         }
-      })
+      }
+    });
   }
-  destroySocket() {
-    if (this.webSocket) {
-      this
-        .webSocket
-        .close();
-      this.webSocket = null;
-    }
-  }
+  // destroySocket() {
+  //   if (this.webSocket) {
+  //     this.webSocket.close();
+  //     this.webSocket = null;
+  //   }
+  // }
+  // createSocket() {
+  //   if (!this.mounted) return;
+
+  //   var self = this;
+  //   this.webSocket = new WebSocket(this.getSocketUrl());
+  //   this.webSocket.onopen = () => {
+  //     if (self.webSocket) {
+  //       self.webSocket.send("topic=" + this.props.appDetail.service.service_id);
+  //     }
+  //   };
+  //   this.webSocket.onmessage = function(e) {
+  //     if (self.webSocket && e.data && e.data !== "ok") {
+  //       self.updateTable(e.data);
+  //     }
+  //   };
+  //   this.webSocket.onclose = function() {
+  //     self.createSocket();
+  //   };
+  // }
   createSocket() {
-
-    if (!this.mounted)
-      return;
-
-    var self = this;
-    this.webSocket = new WebSocket(this.getSocketUrl());
-    this.webSocket.onopen = () => {
-      if (self.webSocket) {
-        self
-          .webSocket
-          .send("topic=" + this.props.appDetail.service.service_id);
-      }
-
-    }
-    this.webSocket.onmessage = function (e) {
-      if (self.webSocket && e.data && e.data !== 'ok') {
-        self.updateTable(e.data);
-      }
-    };
-    this.webSocket.onclose = function () {
-      self.createSocket();
-    }
+    this.props.socket.setOnMonitorMessage(messages => {
+      this.updateTable(messages);
+    });
   }
   updateTable(event) {
     try {
       event = JSON.parse(event);
     } catch (e) {}
-    this.setState({logs: event})
+    this.setState({ logs: event });
   }
   render() {
     const topColResponsiveProps = {
@@ -488,117 +459,150 @@ class MonitorNow extends PureComponent {
             <ChartCard
               bordered={false}
               title="平均响应时间（ms）"
-              action={< Tooltip title = "平均响应时间，单位毫秒" > <Icon type="info-circle-o"/> < /Tooltip>}
-              total={numeral(monitorDataUtil.queryTog2(this.props.requestTime)).format('0,0')}
-              footer={< Field label = "最大响应时间" value = "-" />}
-              contentHeight={46}>
+              action={
+                <Tooltip title="平均响应时间，单位毫秒">
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
+                </Tooltip>
+              }
+              total={numeral(
+                monitorDataUtil.queryTog2(this.props.requestTime)
+              ).format("0,0")}
+              footer={<Field label="最大响应时间" value="-" />}
+              contentHeight={46}
+            >
               <MiniArea
                 color="#975FE4"
-                data={monitorDataUtil.queryRangeTog2(this.props.requestTimeRange)}/>
+                data={monitorDataUtil.queryRangeTog2(
+                  this.props.requestTimeRange
+                )}
+              />
             </ChartCard>
           </Col>
           <Col {...topColResponsiveProps}>
             <ChartCard
               bordered={false}
               title="吞吐率（dps）"
-              action={< Tooltip title = "过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o"/> < /Tooltip>}
-              total={numeral(monitorDataUtil.queryTog2(this.props.appRequest)).format('0,0')}
-              footer={< Field label = "最大吞吐率" value = "-" />}
-              contentHeight={46}>
+              action={<Tooltip title="过去一分钟平均每5s的请求次数" />}
+              footer={<Field label="最大吞吐率" value="-" />}
+              contentHeight={46}
+            >
               <MiniArea
                 color="#4593fc"
-                data={monitorDataUtil.queryRangeTog2(this.props.appRequestRange)}/>
+                data={monitorDataUtil.queryRangeTog2(
+                  this.props.appRequestRange
+                )}
+              />
             </ChartCard>
           </Col>
           <Col {...topColResponsiveProps}>
             <ChartCard
               bordered={false}
               title="在线人数"
-              action={< Tooltip title = "过去5分钟的独立IP数量" > <Icon type="info-circle-o"/> < /Tooltip>}
-              total={numeral(monitorDataUtil.queryTog2(this.props.onlineNumber)).format('0,0')}
-              footer={< Field label = "日访问量" value = "-" />}
-              contentHeight={46}>
-              <MiniBar data={monitorDataUtil.queryRangeTog2(this.props.onlineNumberRange)}/>
+              action={
+                <Tooltip title="过去5分钟的独立IP数量">
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
+                </Tooltip>
+              }
+              total={numeral(
+                monitorDataUtil.queryTog2(this.props.onlineNumber)
+              ).format("0,0")}
+              footer={<Field label="日访问量" value="-" />}
+              contentHeight={46}
+            >
+              <MiniBar
+                data={monitorDataUtil.queryRangeTog2(
+                  this.props.onlineNumberRange
+                )}
+              />
             </ChartCard>
           </Col>
         </Row>
         <Card title="过去5分钟耗时最多的URL排行">
           <ScrollerX sm={700}>
-          <Table
-            columns={[
-            {
-              title: 'Url',
-              dataIndex: 'Key'
-            }, {
-              title: '累计时间(ms)',
-              dataIndex: 'CumulativeTime',
-              width: 150
-            }, {
-              title: '平均时间(ms)',
-              dataIndex: 'AverageTime',
-              width: 150
-            }, {
-              title: '请求次数',
-              dataIndex: 'Count',
-              width: 100
-            }, {
-              title: '异常次数',
-              dataIndex: 'AbnormalCount',
-              width: 100
-            }
-          ]}
-            pagination={false}
-            dataSource={this.state.logs}/>
-        </ScrollerX>
+            <Table
+              columns={[
+                {
+                  title: "Url",
+                  dataIndex: "Key"
+                },
+                {
+                  title: "累计时间(ms)",
+                  dataIndex: "CumulativeTime",
+                  width: 150
+                },
+                {
+                  title: "平均时间(ms)",
+                  dataIndex: "AverageTime",
+                  width: 150
+                },
+                {
+                  title: "请求次数",
+                  dataIndex: "Count",
+                  width: 100
+                },
+                {
+                  title: "异常次数",
+                  dataIndex: "AbnormalCount",
+                  width: 100
+                }
+              ]}
+              pagination={false}
+              dataSource={this.state.logs}
+            />
+          </ScrollerX>
         </Card>
-
       </Fragment>
-    )
+    );
   }
 }
 
-@connect(({user, appControl}) => ({currUser: user.currentUser}), null, null, {withRef: true})
+@connect(
+  ({ user, appControl }) => ({ currUser: user.currentUser }),
+  null,
+  null,
+  { withRef: true }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      type: 'now',
+      type: "now",
       anaPlugins: null
-    }
+    };
   }
 
   componentDidMount() {
-    if(!this.canView()) return;
+    if (!this.canView()) return;
     this.getAnalyzePlugins();
   }
   //是否可以浏览当前界面
-  canView(){
+  canView() {
     return appUtil.canManageAppMonitor(this.props.appDetail);
   }
   getAnalyzePlugins() {
-    this
-      .props
-      .dispatch({
-        type: 'appControl/getAnalyzePlugins',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias
-        },
-        callback: (data) => {
-          const list = data&&data.list || [];
-          this.setState({anaPlugins: list});
-        }
-      })
+    this.props.dispatch({
+      type: "appControl/getAnalyzePlugins",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias
+      },
+      callback: data => {
+        const list = (data && data.list) || [];
+        this.setState({ anaPlugins: list });
+      }
+    });
   }
-  changeType = (type) => {
+  changeType = type => {
     if (type !== this.state.type) {
-      this.setState({type: type});
+      this.setState({ type: type });
     }
-  }
+  };
   render() {
-    if(!this.canView()) return <NoPermTip />;
-    const {type, anaPlugins} = this.state;
-    const {appDetail} = this.props;
+    if (!this.canView()) return <NoPermTip />;
+    const { type, anaPlugins } = this.state;
+    const { appDetail } = this.props;
 
     if (!appDetail || !anaPlugins) {
       return null;
@@ -606,52 +610,66 @@ export default class Index extends PureComponent {
 
     //判断是否有安装性能分析插件
     if (!anaPlugins.length) {
-      return <Card>
-        <div
-          style={{
-          textAlign: 'center',
-          fontSize: 18,
-          padding: '30px 0'
-        }}>
-          尚未开通性能分析插件
-
-          <p style={{
-            paddingTop: 8
-          }}>
-            <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appDetail.service.service_alias}/plugin`}>去开通</Link>
-          </p>
-        </div>
-      </Card>
+      return (
+        <Card>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: 18,
+              padding: "30px 0"
+            }}
+          >
+            尚未开通性能分析插件
+            <p
+              style={{
+                paddingTop: 8
+              }}
+            >
+              <Link
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                  appDetail.service.service_alias
+                }/plugin`}
+              >
+                去开通
+              </Link>
+            </p>
+          </div>
+        </Card>
+      );
     }
 
     return (
       <Fragment>
         <div
           style={{
-          textAlign: 'right',
-          marginBottom: 25
-        }}>
+            textAlign: "right",
+            marginBottom: 25
+          }}
+        >
           <ButtonGroup>
             <Button
               onClick={() => {
-              this.changeType('now')
-            }}
-              type={type === 'now'
-              ? 'primary'
-              : ''}>实时</Button>
+                this.changeType("now");
+              }}
+              type={type === "now" ? "primary" : ""}
+            >
+              实时
+            </Button>
             <Button
               onClick={() => {
-              this.changeType('history')
-            }}
-              type={type === 'history'
-              ? 'primary'
-              : ''}>历史</Button>
+                this.changeType("history");
+              }}
+              type={type === "history" ? "primary" : ""}
+            >
+              历史
+            </Button>
           </ButtonGroup>
         </div>
-        {type === 'now'
-          ? <MonitorNow {...this.props}/>
-          : <MonitorHistory {...this.props}/>
-}
+        {type === "now" ? (
+          <MonitorNow {...this.props} />
+        ) : (
+          <MonitorHistory {...this.props} />
+        )}
       </Fragment>
     );
   }

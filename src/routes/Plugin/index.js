@@ -176,7 +176,7 @@ class PluginList extends PureComponent {
       downstream_net_pluginData: {
         category: "downstream_net_plugin",
         desc: "实现智能路由、A/B测试、灰度发布、端口复用等微服务治理功能",
-        plugin_alias: "服务网络治理插件",
+        plugin_alias: "服务出站网络治理插件",
         hasInstall: false
       },
       perf_analyze_pluginData: {

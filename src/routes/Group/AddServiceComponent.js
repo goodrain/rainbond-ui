@@ -520,9 +520,8 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <Market
                     handleType="Service"
-                    refreshCurrent={() => {
-                      this.refreshCurrent();
-                    }}
+                    scopeMax="localApplication"
+                    refreshCurrent={() => { this.refreshCurrent() }}
                     groupId={this.props.groupId}
                     ButtonGroupState={ButtonGroupState}
                     moreState={moreState}
@@ -682,33 +681,18 @@ export default class AddServiceComponent extends PureComponent {
               }}
             />
           )}
-
-          {ServiceComponentTwoPage === "market" && (
-            <Market
-              groupId={this.props.groupId}
-              refreshCurrent={() => {
-                this.refreshCurrent();
-              }}
-              handleType="Service"
-              moreState={moreState}
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  "check",
-                  "ServiceGetData",
-                  data
-                );
-              }}
-              handleServiceComponent={() => {
-                this.handleServiceComponent(false, "market", null);
-              }}
-            />
-          )}
+          {ServiceComponentTwoPage === "market" && <Market
+            scopeMax="localApplication"
+            groupId={this.props.groupId}
+            refreshCurrent={() => { this.refreshCurrent() }}
+            handleType="Service"
+            moreState={moreState}
+            ButtonGroupState={ButtonGroupState}
+            handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
+            handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
+            handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}
+          />
+          }
           <div
             style={{
               position: "absolute",

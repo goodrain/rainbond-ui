@@ -364,11 +364,7 @@ export default class Index extends PureComponent {
             {getFieldDecorator("config_name", {
               initialValue: data.config_name || "",
               rules: [
-                { required: true, message: "请输入配置组名" },
-                {
-                  pattern: /^[A-Za-z].*$/,
-                  message: "格式不正确, /^[A-Za-z].*$/",
-                },
+                { required: true, message: "请输入配置组名" }
               ],
               validateFirst: true,
             })(<Input placeholder="请输入配置组名" />)}

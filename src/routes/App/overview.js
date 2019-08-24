@@ -11,7 +11,7 @@ import {
   Field,
   Bar,
   Pie,
-  TimelineChart,
+  TimelineChart
 } from "../../components/Charts";
 import numeral from "numeral";
 import { Link, Switch, Route } from "dva/router";
@@ -24,7 +24,10 @@ import {
   Icon,
   Menu,
   Dropdown,
+  Progress,
   Tooltip,
+  Affix,
+  Table
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { getRoutes } from "../../utils/utils";
@@ -35,7 +38,10 @@ import { getActionLog, getActionLogDetail } from "../../services/app";
 import LogSocket from "../../utils/logSocket";
 
 import StatusIcon from "../../components/StatusIcon";
-
+import BuildHistory from "./component/BuildHistory/index";
+import Basic from "./component/Basic/index";
+import OperationRecord from "./component/Basic/operationRecord";
+import Instance from "./component/Instance/index";
 import LogProcress from "../../components/LogProcress";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
@@ -45,10 +51,16 @@ import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
 import monitorDataUtil from "../../utils/monitorDataUtil";
 import AppVersionManage from "../../components/AppVersionManage";
+import Run from "../../../public/images/run.png";
+import Down from "../../../public/images/down.png";
+import Abnormal from "../../../public/images/abnormal.png";
 
 const ButtonGroup = Button.Group;
 
-@connect(({ user, appControl }) => ({ currUser: user.currentUser, appDetail: appControl.appDetail }))
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser,
+  appDetail: appControl.appDetail
+}))
 class LogItem extends PureComponent {
   constructor(props) {
     super(props);
@@ -58,13 +70,13 @@ class LogItem extends PureComponent {
       opened: false,
       logType: "info",
       logs: [],
-      actioning: false,
+      actioning: false
     };
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
-    appRolback: PropTypes.func,
-  }
+    appRolback: PropTypes.func
+  };
   showLogType = () => {
     if (this.state.status === "ing") {
       return "none";
@@ -74,15 +86,15 @@ class LogItem extends PureComponent {
       return "none";
     }
     return "";
-  }
-  shouldComponentUpdate() {
-    return true
-  }
+  };
+
   componentDidMount() {
     const { data } = this.props;
     if (data) {
       if (this.ref) {
-        this.ref.querySelector(".actioncn").innerHTML = (appAcionLogUtil.getActionCN(data));
+        this.ref.querySelector(
+          ".actioncn"
+        ).innerHTML = appAcionLogUtil.getActionCN(data);
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
         }
@@ -97,29 +109,32 @@ class LogItem extends PureComponent {
           this.ref.querySelector(".actionresultcn").innerHTML = "进行中";
           this.context.isActionIng(true);
         }
-        this.ref.querySelector(".action-user").innerHTML = "@" + appAcionLogUtil.getActionUser(data);
+        this.ref.querySelector(".action-user").innerHTML =
+          "@" + appAcionLogUtil.getActionUser(data);
       }
     }
   }
-
 
   loadLog() {
     getActionLogDetail({
       app_alias: this.props.appAlias,
       level: this.state.logType,
       team_name: globalUtil.getCurrTeamName(),
-      event_id: this.props.data.event_id,
-    }).then((data) => {
+      event_id: this.props.data.event_id
+    }).then(data => {
       if (data) {
         this.setState({
           // logs: (data.list || []).reverse(),
-          logs: (data.list || []),
+          logs: data.list || []
         });
       }
     });
   }
   getSocketUrl = () => {
-    let currTeam = userUtil.getTeamByTeamName(this.props.currUser, globalUtil.getCurrTeamName());
+    let currTeam = userUtil.getTeamByTeamName(
+      this.props.currUser,
+      globalUtil.getCurrTeamName()
+    );
     let currRegionName = globalUtil.getCurrRegionName();
 
     if (currTeam) {
@@ -130,63 +145,48 @@ class LogItem extends PureComponent {
       }
     }
     return "";
-  }
+  };
   createSocket() {
     const { socketUrl, data } = this.props;
     let slef = this;
     this.socket = new LogSocket({
       url: this.getSocketUrl(),
       eventId: data.event_id,
-      onMessage: (data) => {
+      onMessage: data => {
         let logs = this.state.logs;
         logs.unshift(data);
         this.setState({
-          logs: [].concat(logs),
+          logs: [].concat(logs)
         });
-      },
+      }
     });
   }
   onClose = () => {
     this.isDoing = false;
-  }
-  onSuccess = (data) => {
+  };
+  onSuccess = data => {
     this.setState({ resultStatus: "success" });
-    this
-      .ref
-      .querySelector(".actionresultcn")
-      .innerHTML = "完成";
-  }
-  onTimeout = (data) => {
+    this.ref.querySelector(".actionresultcn").innerHTML = "完成";
+  };
+  onTimeout = data => {
     this.setState({ resultStatus: "timeout" });
-    this
-      .ref
-      .querySelector(".actionresultcn")
-      .innerHTML = "超时";
+    this.ref.querySelector(".actionresultcn").innerHTML = "超时";
 
-    this
-      .ref
-      .querySelector(".action-error-msg")
-      .innerHTML = "(" + appAcionLogUtil.getFailMessage(data) + ")";
-  }
-  onFail = (data) => {
+    this.ref.querySelector(".action-error-msg").innerHTML =
+      "(" + appAcionLogUtil.getFailMessage(data) + ")";
+  };
+  onFail = data => {
     this.setState({ resultStatus: "fail" });
-    this
-      .ref
-      .querySelector(".actionresultcn")
-      .innerHTML = "失败";
+    this.ref.querySelector(".actionresultcn").innerHTML = "失败";
 
-    this
-      .ref
-      .querySelector(".action-error-msg")
-      .innerHTML = "(" + appAcionLogUtil.getFailMessage(data) + ")";
-  }
-  onComplete = (data) => {
+    this.ref.querySelector(".action-error-msg").innerHTML =
+      "(" + appAcionLogUtil.getFailMessage(data) + ")";
+  };
+  onComplete = data => {
     this.setState({ status: "" });
-    this
-      .context
-      .isActionIng(false);
+    this.context.isActionIng(false);
     this.close();
-  }
+  };
   getLogContHeight() {
     const { status, opened } = this.state;
     if (status === "ing" && !opened) {
@@ -200,28 +200,36 @@ class LogItem extends PureComponent {
     return 0;
   }
   open = () => {
-    this.setState({
-      opened: true,
-      logType: "info",
-    }, () => {
-      this.loadLog();
-    });
-  }
+    this.setState(
+      {
+        opened: true,
+        logType: "info"
+      },
+      () => {
+        this.loadLog();
+      }
+    );
+  };
   close = () => {
     this.setState({ opened: false });
-  }
-  changeLogType = (type) => {
-    if (type === this.state.logType) { return; }
-    this.setState({
-      logType: type,
-      logs: []
-    }, () => {
-      this.loadLog();
-    });
-  }
-  saveRef = (ref) => {
+  };
+  changeLogType = type => {
+    if (type === this.state.logType) {
+      return;
+    }
+    this.setState(
+      {
+        logType: type,
+        logs: []
+      },
+      () => {
+        this.loadLog();
+      }
+    );
+  };
+  saveRef = ref => {
     this.ref = ref;
-  }
+  };
   getResultClass() {
     const { data } = this.props;
     if (this.state.resultStatus === "fail") {
@@ -234,14 +242,14 @@ class LogItem extends PureComponent {
     return "";
   }
   handleRollback = () => {
-    this
-      .context
-      .appRolback(appAcionLogUtil.getRollbackVersion(this.props.data));
-  }
+    this.context.appRolback(
+      appAcionLogUtil.getRollbackVersion(this.props.data)
+    );
+  };
   render() {
     const { status, opened, logType, logs } = this.state;
     const { data } = this.props;
-    const box = document.getElementById("box")
+    const box = document.getElementById("box");
     if (!data) {
       return null;
     }
@@ -252,8 +260,15 @@ class LogItem extends PureComponent {
         className={`${styles.logItem} ${this.getResultClass()}`}
       >
         <div className={styles.logItemDate}>
-          <span className={styles.time}>{appAcionLogUtil.getActionTime(data)}</span>
-          <span className={styles.date}>{dateUtil.dateToCN(appAcionLogUtil.getActionDateTime(data), "yyyy-MM-dd")}</span>
+          <span className={styles.time}>
+            {appAcionLogUtil.getActionTime(data)}
+          </span>
+          <span className={styles.date}>
+            {dateUtil.dateToCN(
+              appAcionLogUtil.getActionDateTime(data),
+              "yyyy-MM-dd"
+            )}
+          </span>
         </div>
         <div className={styles.logItemMain}>
           <div className={styles.hd}>
@@ -264,28 +279,34 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {appAcionLogUtil.canRollback(data) && appUtil.canRollback(this.props.appDetail)
-                ? <span onClick={this.handleRollback} className={styles.btn}>回滚到此版本</span>
-                : ""
-              }
-              {!opened
-                ? <span onClick={this.open} className={styles.btn}>查看详情</span>
-                : <span onClick={this.close} className={styles.btn}>收起</span>}
+              {!opened ? (
+                <span onClick={this.open} className={styles.btn}>
+                  查看详情
+                </span>
+              ) : (
+                <span onClick={this.close} className={styles.btn}>
+                  收起
+                </span>
+              )}
             </div>
           </div>
-          {appAcionLogUtil.isShowCommitInfo(data)
-            ? <div className={styles.codeVersion}>
-              <div className={styles.versionInfo}>代码信息： {appAcionLogUtil.getCommitLog(data)}</div>
-              <div className={styles.versionAuthor}>#{appAcionLogUtil.getCodeVersion(data)}
+          {appAcionLogUtil.isShowCommitInfo(data) ? (
+            <div className={styles.codeVersion}>
+              <div className={styles.versionInfo}>
+                代码信息： {appAcionLogUtil.getCommitLog(data)}
+              </div>
+              <div className={styles.versionAuthor}>
+                #{appAcionLogUtil.getCodeVersion(data)}
                 by {appAcionLogUtil.getCommitUser(data)}
               </div>
             </div>
-            : ""
-          }
+          ) : (
+            ""
+          )}
 
           <ButtonGroup
             style={{
-              display: this.showLogType(),
+              display: this.showLogType()
             }}
             size="small"
             className={styles.logTypeBtn}
@@ -294,64 +315,70 @@ class LogItem extends PureComponent {
               onClick={() => {
                 this.changeLogType("info");
               }}
-              className={logType === "info"
-                ? "active"
-                : ""}
+              className={logType === "info" ? "active" : ""}
               type="dashed"
-            >Info日志
+            >
+              Info日志
             </Button>
             <Button
               onClick={() => {
                 this.changeLogType("debug");
               }}
-              className={logType === "debug"
-                ? "active"
-                : ""}
+              className={logType === "debug" ? "active" : ""}
               type="dashed"
-            >Debug日志
+            >
+              Debug日志
             </Button>
             <Button
               onClick={() => {
                 this.changeLogType("error");
               }}
-              className={logType === "error"
-                ? "active"
-                : ""}
+              className={logType === "error" ? "active" : ""}
               type="dashed"
-            >Error日志
+            >
+              Error日志
             </Button>
           </ButtonGroup>
           <div
             style={{
               height: this.getLogContHeight(),
               maxHeight: 350,
-              overflowY: "auto",
+              overflowY: "auto"
             }}
             className={`${styles.logContent} logs-cont`}
           >
             {/* 动态日志 */}
-            {status === "ing" ? <LogProcress
-              resover
-              onClose={this.onClose}
-              onComplete={this.onComplete}
-              onSuccess={this.onSuccess}
-              onTimeout={this.onTimeout}
-              onFail={this.onFail}
-              socketUrl={this.getSocketUrl()}
-              eventId={data.event_id}
-              opened={opened}
-              list={this.state.logs}
-            /> :
+            {status === "ing" ? (
+              <LogProcress
+                resover
+                onClose={this.onClose}
+                onComplete={this.onComplete}
+                onSuccess={this.onSuccess}
+                onTimeout={this.onTimeout}
+                onFail={this.onFail}
+                socketUrl={this.getSocketUrl()}
+                eventId={data.event_id}
+                opened={opened}
+                list={this.state.logs}
+              />
+            ) : (
               <div>
-                {logs && logs.length > 0 && logs.map((item, index) => <p key={index}>
-                  <span style={{
-                    marginRight: 10
-                  }}>{dateUtil.format(item.time, 'hh:mm:ss')}</span>
-                  <span>{item.message}</span>
-                </p>)
-                }
-              </div>}
-
+                {logs &&
+                  logs.length > 0 &&
+                  logs.map((item, index) => (
+                    <p key={index}>
+                      <span
+                        style={{
+                          marginRight: 10
+                        }}
+                      >
+                        {dateUtil.format(item.time, "hh:mm:ss")}
+                      </span>
+                      <span>{item.message}</span>
+                    </p>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -364,28 +391,40 @@ class LogList extends PureComponent {
     const list = this.props.list;
     return (
       <div className={styles.logs}>
-        {list.map((item) => (<LogItem appDetail={this.props.appDetail} key={item.event_id} appAlias={this.props.appAlias} data={item} />))
-        }
+        {list.map(item => (
+          <LogItem
+            appDetail={this.props.appDetail}
+            key={item.event_id}
+            appAlias={this.props.appAlias}
+            data={item}
+          />
+        ))}
       </div>
     );
   }
 }
 
-@connect(({ user, appControl }) => ({
-  currUser: user.currentUser,
-  appRequest: appControl.appRequest,
-  appRequestRange: appControl.appRequestRange,
-  requestTime: appControl.requestTime,
-  requestTimeRange: appControl.requestTimeRange,
-  appDisk: appControl.appDisk,
-  appMemory: appControl.appMemory,
-}), null, null, { withRef: true })
+@connect(
+  ({ user, appControl }) => ({
+    currUser: user.currentUser,
+    appRequest: appControl.appRequest,
+    appRequestRange: appControl.appRequestRange,
+    requestTime: appControl.requestTime,
+    requestTimeRange: appControl.requestTimeRange,
+    appDisk: appControl.appDisk,
+    appMemory: appControl.appMemory
+  }),
+  null,
+  null,
+  { withRef: true }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
       actionIng: false,
       logList: [],
+      recordLoading: true,
       page: 1,
       page_size: 6,
       hasNext: false,
@@ -394,218 +433,389 @@ export default class Index extends PureComponent {
       disk: 0,
       memory: 0,
       showVersionManage: false,
-      showUpgrade: false
+      showUpgrade: false,
+      beanData: null,
+      dataList: [],
+      runLoading: true,
+      new_pods: null,
+      old_pods: null,
+      more: false,
+      total: 0,
+      current_version: null,
+      status: ""
     };
     this.inerval = 5000;
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
-    appRolback: PropTypes.func,
-  }
+    appRolback: PropTypes.func
+  };
   componentDidMount() {
     const { dispatch, appAlias } = this.props;
-    this.loadLog();
+    // this.loadLog();
     this.mounted = true;
     this.getAnalyzePlugins();
     this.fetchAppDiskAndMemory();
+    this.getVersionList();
+    this.fetchPods();
+    this.fetchOperationLog();
   }
   componentWillUnmount() {
     this.mounted = false;
-    this
-      .props
-      .dispatch({ type: "appControl/clearDisk" });
-    this
-      .props
-      .dispatch({ type: "appControl/clearMemory" });
-    this
-      .props
-      .dispatch({ type: "appControl/clearRequestTime" });
-    this
-      .props
-      .dispatch({ type: "appControl/clearRequestTimeRange" });
-    this
-      .props
-      .dispatch({ type: "appControl/clearRequest" });
-    this
-      .props
-      .dispatch({ type: "appControl/clearRequestRange" });
-  }
-  getAnalyzePlugins() {
-    this
-      .props
-      .dispatch({
-        type: "appControl/getAnalyzePlugins",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-        },
-        callback: (data) => {
-          const list = data && data.list || [];
-          if (list && list.length) {
-            this.setState({ anaPlugins: list });
-            this.fetchRequestTime();
-            this.fetchRequestTimeRange();
-            this.fetchRequest();
-            this.fetchRequestRange();
-          }
-        },
-      });
-  }
-  fetchAppDiskAndMemory() {
-    this
-      .props
-      .dispatch({
-        type: "appControl/getAppResource",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-        },
-        callback: (data) => {
-          if (data && data.bean) {
-            this.setState({ disk: data.bean.disk || 0, memory: data.bean.memory || 0 });
-          }
-        },
-      });
-  }
-  fetchRequestTime() {
-    if (!this.mounted) { return; }
-    this
-      .props
-      .dispatch({
-        type: "appControl/fetchRequestTime",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          serviceId: this.props.appDetail.service.service_id,
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestTime();
-            }, this.inerval);
-          }
-        },
-      });
-  }
-  fetchRequestTimeRange() {
-    if (!this.mounted) { return; }
-    this
-      .props
-      .dispatch({
-        type: "appControl/fetchRequestTimeRange",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep(),
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestTimeRange();
-            }, this.inerval);
-          }
-        },
-      });
-  }
-  fetchRequest() {
-    if (!this.mounted) { return; }
-    this
-      .props
-      .dispatch({
-        type: "appControl/fetchRequest",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          serviceId: this.props.appDetail.service.service_id,
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequest();
-            }, this.inerval);
-          }
-        },
-      });
-  }
-  fetchRequestRange() {
-    if (!this.mounted) { return; }
-    this
-      .props
-      .dispatch({
-        type: "appControl/fetchRequestRange",
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: this.props.appAlias,
-          start: this.getStartTime(),
-          serviceId: this.props.appDetail.service.service_id,
-          step: this.getStep(),
-        },
-        complete: () => {
-          if (this.mounted) {
-            setTimeout(() => {
-              this.fetchRequestRange();
-            }, this.inerval);
-          }
-        },
-      });
+    this.props.dispatch({ type: "appControl/clearDisk" });
+    this.props.dispatch({ type: "appControl/clearMemory" });
+    this.props.dispatch({ type: "appControl/clearRequestTime" });
+    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
+    this.props.dispatch({ type: "appControl/clearRequest" });
+    this.props.dispatch({ type: "appControl/clearRequestRange" });
+    clearTimeout(this.timeout);
   }
 
-  loadLog = (append) => {
-    const { dispatch, appAlias } = this.props;
-    getActionLog({
-      app_alias: appAlias,
-      page: this.state.page,
-      page_size: this.state.page_size,
-      start_time: "",
-      team_name: globalUtil.getCurrTeamName(),
-    }).then((data) => {
-      if (data) {
-        if (!append) {
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.state.status !== nextProps.status) {
+  //     this.fetchPods(nextProps.status);
+  //   }
+  // }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.status !== prevState.status) {
+      // this.fetchPods();
+      return {
+        status: nextProps.status
+      };
+    }
+    return null;
+  }
+
+  getAnalyzePlugins() {
+    this.props.dispatch({
+      type: "appControl/getAnalyzePlugins",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias
+      },
+      callback: data => {
+        const list = (data && data.list) || [];
+        if (list && list.length) {
+          this.setState({ anaPlugins: list });
+          this.fetchRequestTime();
+          this.fetchRequestTimeRange();
+          this.fetchRequest();
+          this.fetchRequestRange();
+        }
+      }
+    });
+  }
+  fetchAppDiskAndMemory() {
+    this.props.dispatch({
+      type: "appControl/getAppResource",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias
+      },
+      callback: data => {
+        if (data && data.bean) {
           this.setState({
-            hasNext: data.has_next,
-            logList: (data.list || []),
-          });
-        } else {
-          this.setState({
-            hasNext: data.has_next,
-            logList: (this.state.logList).concat(data.list || []),
+            disk: data.bean.disk || 0,
+            memory: data.bean.memory || 0
           });
         }
       }
     });
   }
-  onAction = (actionLog) => {
-    this.setState({
-      logList: [actionLog].concat(this.state.logList),
-      showUpgrade: true
+  fetchRequestTime() {
+    if (!this.mounted) {
+      return;
+    }
+    this.props.dispatch({
+      type: "appControl/fetchRequestTime",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestTime();
+          }, this.inerval);
+        }
+      }
     });
   }
+  fetchRequestTimeRange() {
+    if (!this.mounted) {
+      return;
+    }
+    this.props.dispatch({
+      type: "appControl/fetchRequestTimeRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestTimeRange();
+          }, this.inerval);
+        }
+      }
+    });
+  }
+  fetchRequest() {
+    if (!this.mounted) {
+      return;
+    }
+    this.props.dispatch({
+      type: "appControl/fetchRequest",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        serviceId: this.props.appDetail.service.service_id
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequest();
+          }, this.inerval);
+        }
+      }
+    });
+  }
+  fetchRequestRange() {
+    if (!this.mounted) {
+      return;
+    }
+    this.props.dispatch({
+      type: "appControl/fetchRequestRange",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        start: this.getStartTime(),
+        serviceId: this.props.appDetail.service.service_id,
+        step: this.getStep()
+      },
+      complete: () => {
+        if (this.mounted) {
+          setTimeout(() => {
+            this.fetchRequestRange();
+          }, this.inerval);
+        }
+      }
+    });
+  }
+
+  fetchOperationLog = () => {
+    this.props.dispatch({
+      type: "appControl/fetchOperationLog",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        target: "service",
+        page: this.state.page,
+        page_size: this.state.page_size
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            has_next: res.has_next || false,
+            logList: res.list || [],
+            total: res.bean.total
+              ? res.bean.total
+              : res.list
+              ? res.list.length
+              : 0
+          });
+        }
+        this.setState({
+          recordLoading: false
+        });
+      }
+    });
+  };
+
+  // loadLog = append => {
+  //   const { dispatch, appAlias } = this.props;
+  //   getActionLog({
+  //     app_alias: appAlias,
+  //     page: this.state.page,
+  //     page_size: this.state.page_size,
+  //     start_time: "",
+  //     team_name: globalUtil.getCurrTeamName()
+  //   }).then(data => {
+  //     if (data) {
+  //       if (!append) {
+  //         this.setState({
+  //           hasNext: data.has_next,
+  //           logList: data.list || []
+  //         });
+  //       } else {
+  //         this.setState({
+  //           hasNext: data.has_next,
+  //           logList: this.state.logList.concat(data.list || [])
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
+  onAction = actionLog => {
+    if (actionLog) {
+      this.watchLog(actionLog.event_id);
+      this.setState({
+        logList: [actionLog].concat(this.state.logList),
+        showUpgrade: true
+      });
+    }
+  };
+
+  watchLog = EventID => {
+    console.log("EventID", EventID);
+
+    const { socket } = this.props;
+    console.log("socket", socket);
+    socket.watchEventLog(
+      messages => {
+        if (messages && messages.length > 0) {
+          console.log("messages", messages);
+        }
+      },
+      message => {
+        // var LogContentList = this.state.LogContentList || [];
+        // if (LogContentList.length >= 5000) {
+        //   LogContentList.shift();
+        // }
+        // LogContentList.push(message);
+        // if (this.refs.box) {
+        //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
+        // }
+        // this.setState({ LogContentList: logs });
+        console.log("message", message);
+      },
+      error => {
+        console.log("err", error);
+      },
+      EventID
+    );
+  };
+
   handleNextPage = () => {
-    this.setState({
-      page: this.state.page + 1,
-    }, () => {
-      this.loadLog(true);
-    });
-  }
+    this.setState(
+      {
+        page: 1,
+        page_size: this.state.page_size * (this.state.page + 1)
+      },
+      () => {
+        this.fetchOperationLog(true);
+      }
+    );
+  };
   getStartTime() {
-    return (new Date().getTime() / 1000) - (60 * 60);
+    return new Date().getTime() / 1000 - 60 * 60;
   }
   getStep() {
     return 60;
   }
   showVersionManage = () => {
     this.setState({ showVersionManage: true });
-  }
+  };
   hideVersionManage = () => {
     this.setState({ showVersionManage: false });
+  };
+  handleRollback = data => {
+    this.context.appRolback(data);
+  };
+
+  onPageChange = page => {};
+
+  handleDel = item => {
+    this.props.dispatch({
+      type: "appControl/delAppVersion",
+      payload: {
+        team_name: this.props.team_name,
+        service_alias: this.props.service_alias,
+        version_id: item.build_version
+      },
+      callback: data => {
+        if (data) {
+          notification.success({
+            message: "删除成功"
+          });
+          this.getVersionList();
+        }
+      }
+    });
+  };
+
+  getVersionList = update => {
+    update && this.props.setShowUpgrade();
+    this.props.dispatch({
+      type: "appControl/getAppVersionList",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.props.appAlias,
+        page_num: 1,
+        page_size: 10
+      },
+      callback: data => {
+        if (data && data.bean && data.list) {
+          let beanobj = null;
+          data.list &&
+            data.list.length > 0 &&
+            data.list.map(item => {
+              if (item.build_version === data.bean.current_version) {
+                beanobj = item;
+              }
+            });
+          this.setState({
+            current_version: data.bean.current_version,
+            beanData: beanobj,
+            dataList: data.list
+          });
+        }
+      }
+    });
+  };
+
+  fetchPods = () => {
+    const { appAlias, dispatch } = this.props;
+    dispatch({
+      type: "appControl/fetchPods",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias
+      },
+      callback: data => {
+        if (data && data.list) {
+          this.setState({
+            new_pods: data.list.new_pods,
+            old_pods: data.list.old_pods
+          });
+          if (data.list.old_pods) {
+            this.timeout = setTimeout(() => {
+              this.fetchPods(); // Fix duplicate onPressEnter
+            }, 30000);
+          }
+        }
+        this.setState({
+          runLoading: false
+        });
+      }
+    });
+  };
+
+  handleMore = more => {
+    this.setState({
+      more
+    });
+  };
+
+  shouldComponentUpdate() {
+    return true;
   }
-  handleRollback = (data) => {
-    this
-      .context
-      .appRolback(data);
-  }
+
   render() {
     const topColResponsiveProps = {
       xs: 24,
@@ -614,162 +824,117 @@ export default class Index extends PureComponent {
       lg: 12,
       xl: 6,
       style: {
-        marginBottom: 24,
-      },
+        marginBottom: 24
+      }
     };
-    const { logList, hasNext, anaPlugins, opened, showUpgrade } = this.state;
-    const { appDetail } = this.props;
-    const status = this.props.status || {};
+    const {
+      logList,
+      hasNext,
+      anaPlugins,
+      opened,
+      showUpgrade,
+      memory,
+      beanData,
+      dataList,
+      new_pods,
+      old_pods,
+      runLoading,
+      more,
+      disk,
+      page,
+      total,
+      recordLoading,
+      has_next,
+      current_version
+    } = this.state;
+    const { appDetail, status } = this.props;
     let hasAnaPlugins = !!anaPlugins.length;
     return (
       <Fragment>
-        <Row gutter={24}>
-          <Col {...topColResponsiveProps}>
-            <ChartCard
-              bordered={false}
-              title="应用状态"
-              footer={<span className={
-                styles.statuscn
-              } > {
-                  status.status_cn || "-"
-                }
-              </span>}
+        <Basic
+          beanData={beanData}
+          memory={memory}
+          disk={disk}
+          dataList={dataList}
+          status={status}
+          handleMore={this.handleMore}
+          more={more}
+          socket={this.props.socket}
+        />
+        {more && (
+          <BuildHistory
+            beanData={beanData}
+            current_version={current_version}
+            dataList={dataList}
+            handleMore={this.handleMore}
+            handleDel={this.handleDel}
+            onRollback={this.handleRollback}
+            socket={this.props.socket}
+          />
+        )}
+        {!more && (
+          <Instance
+            status={status}
+            runLoading={runLoading}
+            new_pods={new_pods}
+            old_pods={old_pods}
+            appAlias={this.props.appAlias}
+            socket={this.props.socket}
+          />
+        )}
+        {!more && (
+          <OperationRecord
+            socket={this.props.socket}
+            has_next={has_next}
+            logList={logList}
+            recordLoading={recordLoading}
+            handleNextPage={this.handleNextPage}
+          />
+        )}
+
+        {/* <Card
+          bordered={false}
+          title="操作日志"
+          extra={
+            <a onClick={this.showVersionManage} href="javascript:;">
+              构建版本管理
+            </a>
+          }
+        >
+          <LogList
+            appDetail={this.props.appDetail}
+            appAlias={this.props.appAlias}
+            list={logList || []}
+          />{" "}
+          {this.state.hasNext && (
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: 30
+              }}
             >
-              <div className={styles.charContent}>
-                <div className={styles.statusIconWraper}>
-                  <StatusIcon status={status.status} />
-                </div>
-
-              </div>
-            </ChartCard>
-          </Col>
-
-          <Col {...topColResponsiveProps}>
-            {hasAnaPlugins
-              ? <ChartCard
-                bordered={false}
-                title="平均响应时间（ms）"
-                action={<Tooltip title="平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
-                total={numeral(monitorDataUtil.queryTog2(this.props.requestTime)).format("0,0")}
-                footer={<Field label="最大响应时间" value="-" />}
-                contentHeight={46}
-              >
-                <MiniArea
-                  color="#975FE4"
-                  data={monitorDataUtil.queryRangeTog2(this.props.requestTimeRange)}
-                />
-              </ChartCard>
-              : <ChartCard
-                bordered={false}
-                title="平均响应时间（ms）"
-                action={<Tooltip title="平均响应时间，单位毫秒" > <Icon type="info-circle-o" /> </Tooltip>}
-                footer={<Field label="&nbsp;" value="" />}
-                contentHeight={88}
-              >
-                <div
-                  style={{
-                    textAlign: "center",
-                    position: "relative",
-                    top: -10,
-                  }}
-                >
-                  <p>暂无开通性能分析插件</p>
-                  <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${this.props.appAlias}/plugin`}>去开通</Link>
-                </div>
-              </ChartCard>
-            }
-
-          </Col>
-          <Col {...topColResponsiveProps}>
-
-            {hasAnaPlugins
-              ? <ChartCard
-                bordered={false}
-                title="吞吐率（dps）"
-                action={<Tooltip title="过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
-                total={numeral(monitorDataUtil.queryTog2(this.props.appRequest)).format("0,0")}
-                footer={<Field label="最大吞吐率" value="-" />}
-                contentHeight={46}
-              >
-                <MiniArea
-                  color="#4593fc"
-                  data={monitorDataUtil.queryRangeTog2(this.props.appRequestRange)}
-                />
-              </ChartCard>
-              : <ChartCard
-                bordered={false}
-                title="吞吐率（dps）"
-                action={<Tooltip title="过去一分钟平均每5s的请求次数" > <Icon type="info-circle-o" /> </Tooltip>}
-                footer={<Field label="&nbsp;" value="" />}
-                contentHeight={88}
-              >
-                <div
-                  style={{
-                    textAlign: "center",
-                    position: "relative",
-                    top: -10,
-                  }}
-                >
-                  <p>暂无开通性能分析插件</p>
-                  <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${this.props.appAlias}/plugin`}>去开通</Link>
-                </div>
-              </ChartCard>
-            }
-
-          </Col>
-          <Col {...topColResponsiveProps}>
-            <ChartCard
-              bordered={false}
-              title="资源使用"
-              action={null}
-              footer={<Field label="" value="" />}
-            >
-              <div className={styles.charContent}>
-                <p className={styles.charContentTit}>
-                  {numeral(this.state.memory).format("0,0")}
-                  <span className={styles.sub}>MB 内存</span>
-                </p>
-
-                <p className={styles.charContentTit}>
-                  {numeral(this.state.disk).format("0,0")}
-                  <span className={styles.sub}>MB 磁盘</span>
-                </p>
-
-              </div>
-            </ChartCard>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xs={24} xm={24} md={24} lg={24} xl={24}>
-            <Card bordered={false} title="操作日志" extra={<a onClick={this.showVersionManage} href="javascript:;">构建版本管理</a>}>
-              <LogList appDetail={this.props.appDetail} appAlias={this.props.appAlias} list={logList || []} /> {this.state.hasNext && <p
+              <Icon
                 style={{
-                  textAlign: "center",
-                  fontSize: 30,
+                  cursor: "pointer"
                 }}
-              ><Icon
-                  style={{
-                    cursor: "pointer",
-                  }}
-                  onClick={this.handleNextPage}
-                  type="down"
-                />
-              </p>
-              }
-
-              {this.state.showVersionManage &&
-                <AppVersionManage
-                  onRollback={this.handleRollback}
-                  onCancel={this.hideVersionManage}
-                  team_name={globalUtil.getCurrTeamName()}
-                  service_alias={this.props.appAlias}
-                  showUpgrade={showUpgrade}
-                  setShowUpgrade={() => { this.setState({ showUpgrade: false }) }}
-                />}
-            </Card>
-          </Col>
-
-        </Row>
+                onClick={this.handleNextPage}
+                type="down"
+              />
+            </p>
+          )}
+          {this.state.showVersionManage && (
+            <AppVersionManage
+              onRollback={this.handleRollback}
+              onCancel={this.hideVersionManage}
+              team_name={globalUtil.getCurrTeamName()}
+              service_alias={this.props.appAlias}
+              showUpgrade={showUpgrade}
+              setShowUpgrade={() => {
+                this.setState({ showUpgrade: false });
+              }}
+            />
+          )}
+        </Card> */}
       </Fragment>
     );
   }

@@ -9,23 +9,33 @@ function TimerQueue(option) {
   this.queue = new Queue();
   this.timer = null;
   this.isStarted = false;
+  this.autoStart = option.autoStart || true;
   this.interval = option.interval || 10;
   this.onExecute = option.onExecute || util.noop;
+  this.maxCache = option.maxCache || 10000;
 }
 TimerQueue.prototype = {
   add(data) {
-    this.queue.push(data);
-    if (!this.isStarted) {
-      this.start();
+    if (this.autoStart){
+      if (!this.isStarted) {
+        this.start()
+      }
     }
+    if (this.queue.getCount > this.maxCache){
+      this.queue.shift()
+    }
+    this.queue.push(data);
   },
   start() {
+    if (this.isStarted) {
+      return
+    }
     const self = this;
     this.isStarted = true;
     this.timer = setInterval(() => {
       if (!self.queue.empty()) {
         self.execute();
-      } else {
+      }else if (this.autoStart){
         self.stop();
       }
     }, this.interval);
@@ -33,6 +43,9 @@ TimerQueue.prototype = {
   stop() {
     this.isStarted = false;
     clearInterval(this.timer);
+  },
+  brushout() {
+    return this.queue.shiftAll()
   },
   execute() {
     this.onExecute(this.queue.shift());

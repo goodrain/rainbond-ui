@@ -1,6 +1,5 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Link, Route } from "dva/router";
 import {
   Row,
   Col,
@@ -8,19 +7,12 @@ import {
   Form,
   Button,
   Icon,
-  Switch,
   Alert,
-  Select,
   Modal,
   Input,
   notification,
 } from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes } from "../../utils/utils";
-import appPortUtil from "../../utils/appPort-util";
 import appUtil from "../../utils/app";
-import { getRouterData } from "../../common/router";
-import DescriptionList from "../../components/DescriptionList";
 import ConfirmModal from "../../components/ConfirmModal";
 import Port from "../../components/Port";
 import AddDomain from "../../components/AddDomain";
@@ -28,13 +20,9 @@ import SubDomain from "../../components/SubDomain";
 import SubPort from "../../components/SubPort";
 import ScrollerX from "../../components/ScrollerX";
 import AddPort from "../../components/AddPort";
-
-import styles from "./port.less";
 import globalUtil from "../../utils/global";
 
-const { Description } = DescriptionList;
 const FormItem = Form.Item;
-const Option = Select.Option;
 const { TextArea } = Input;
 
 @Form.create()
