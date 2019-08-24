@@ -112,11 +112,18 @@ const global = {
     const statusOptType = {
       "": "-",
       "build-service": "构建服务",
+      "build": "构建服务",
+      "upgrade": "滚动升级服务",
       "start-service": "启动服务",
+      "start": "启动服务",
       "stop-service": "停止服务",
+      "stop": "停止服务",
       "restart-service": "重启服务",
+      "restart": "重启服务",
       "vertical-service": "垂直扩展服务",
+      "vertical": "垂直扩展服务",
       "horizontal-service": "水平扩展服务",
+      "horizontal": "水平扩展服务",
       "set-language": "设置服务语言",
       "delete-service": "删除服务",
       "upgrade-service": "升级服务",
@@ -158,7 +165,7 @@ const global = {
       "app-restore-depvols": "重新加载应用依赖存储",
       "app-restore-plugins": "重新加载应用插件"
     };
-    return statusOptType[state] || statusOptType[""];
+    return statusOptType[state] || state;
   },
   replaceUrlTeam(team) {
     let href = location.href;

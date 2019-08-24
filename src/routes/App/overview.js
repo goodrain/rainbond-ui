@@ -124,7 +124,6 @@ class LogItem extends PureComponent {
     }).then(data => {
       if (data) {
         this.setState({
-          // logs: (data.list || []).reverse(),
           logs: data.list || []
         });
       }
@@ -451,31 +450,17 @@ export default class Index extends PureComponent {
     appRolback: PropTypes.func
   };
   componentDidMount() {
-    const { dispatch, appAlias } = this.props;
-    // this.loadLog();
     this.mounted = true;
-    this.getAnalyzePlugins();
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.fetchPods();
-    this.fetchOperationLog();
+    this.fetchOperationLog(true);
   }
   componentWillUnmount() {
     this.mounted = false;
-    this.props.dispatch({ type: "appControl/clearDisk" });
-    this.props.dispatch({ type: "appControl/clearMemory" });
-    this.props.dispatch({ type: "appControl/clearRequestTime" });
-    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
-    this.props.dispatch({ type: "appControl/clearRequest" });
-    this.props.dispatch({ type: "appControl/clearRequestRange" });
-    clearTimeout(this.timeout);
+    clearTimeout(this.cyclepod);
+    clearTimeout(this.cycleevent);
   }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (this.state.status !== nextProps.status) {
-  //     this.fetchPods(nextProps.status);
-  //   }
-  // }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.status !== prevState.status) {
@@ -485,26 +470,6 @@ export default class Index extends PureComponent {
       };
     }
     return null;
-  }
-
-  getAnalyzePlugins() {
-    this.props.dispatch({
-      type: "appControl/getAnalyzePlugins",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      },
-      callback: data => {
-        const list = (data && data.list) || [];
-        if (list && list.length) {
-          this.setState({ anaPlugins: list });
-          this.fetchRequestTime();
-          this.fetchRequestTimeRange();
-          this.fetchRequest();
-          this.fetchRequestRange();
-        }
-      }
-    });
   }
   fetchAppDiskAndMemory() {
     this.props.dispatch({
@@ -523,92 +488,8 @@ export default class Index extends PureComponent {
       }
     });
   }
-  fetchRequestTime() {
-    if (!this.mounted) {
-      return;
-    }
-    this.props.dispatch({
-      type: "appControl/fetchRequestTime",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestTime();
-          }, this.inerval);
-        }
-      }
-    });
-  }
-  fetchRequestTimeRange() {
-    if (!this.mounted) {
-      return;
-    }
-    this.props.dispatch({
-      type: "appControl/fetchRequestTimeRange",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        start: this.getStartTime(),
-        serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestTimeRange();
-          }, this.inerval);
-        }
-      }
-    });
-  }
-  fetchRequest() {
-    if (!this.mounted) {
-      return;
-    }
-    this.props.dispatch({
-      type: "appControl/fetchRequest",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequest();
-          }, this.inerval);
-        }
-      }
-    });
-  }
-  fetchRequestRange() {
-    if (!this.mounted) {
-      return;
-    }
-    this.props.dispatch({
-      type: "appControl/fetchRequestRange",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        start: this.getStartTime(),
-        serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
-      },
-      complete: () => {
-        if (this.mounted) {
-          setTimeout(() => {
-            this.fetchRequestRange();
-          }, this.inerval);
-        }
-      }
-    });
-  }
 
-  fetchOperationLog = () => {
+  fetchOperationLog = (lool) => {
     this.props.dispatch({
       type: "appControl/fetchOperationLog",
       payload: {
@@ -628,6 +509,12 @@ export default class Index extends PureComponent {
               : res.list
               ? res.list.length
               : 0
+          },()=>{
+            if (lool){
+              this.cycleevent = setTimeout(()=>{
+                this.fetchOperationLog(true)
+              }, 5000)
+            }
           });
         }
         this.setState({
@@ -637,70 +524,6 @@ export default class Index extends PureComponent {
     });
   };
 
-  // loadLog = append => {
-  //   const { dispatch, appAlias } = this.props;
-  //   getActionLog({
-  //     app_alias: appAlias,
-  //     page: this.state.page,
-  //     page_size: this.state.page_size,
-  //     start_time: "",
-  //     team_name: globalUtil.getCurrTeamName()
-  //   }).then(data => {
-  //     if (data) {
-  //       if (!append) {
-  //         this.setState({
-  //           hasNext: data.has_next,
-  //           logList: data.list || []
-  //         });
-  //       } else {
-  //         this.setState({
-  //           hasNext: data.has_next,
-  //           logList: this.state.logList.concat(data.list || [])
-  //         });
-  //       }
-  //     }
-  //   });
-  // };
-  onAction = actionLog => {
-    if (actionLog) {
-      this.watchLog(actionLog.event_id);
-      this.setState({
-        logList: [actionLog].concat(this.state.logList),
-        showUpgrade: true
-      });
-    }
-  };
-
-  watchLog = EventID => {
-    console.log("EventID", EventID);
-
-    const { socket } = this.props;
-    console.log("socket", socket);
-    socket.watchEventLog(
-      messages => {
-        if (messages && messages.length > 0) {
-          console.log("messages", messages);
-        }
-      },
-      message => {
-        // var LogContentList = this.state.LogContentList || [];
-        // if (LogContentList.length >= 5000) {
-        //   LogContentList.shift();
-        // }
-        // LogContentList.push(message);
-        // if (this.refs.box) {
-        //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
-        // }
-        // this.setState({ LogContentList: logs });
-        console.log("message", message);
-      },
-      error => {
-        console.log("err", error);
-      },
-      EventID
-    );
-  };
-
   handleNextPage = () => {
     this.setState(
       {
@@ -708,7 +531,7 @@ export default class Index extends PureComponent {
         page_size: this.state.page_size * (this.state.page + 1)
       },
       () => {
-        this.fetchOperationLog(true);
+        this.fetchOperationLog(false);
       }
     );
   };
@@ -794,9 +617,9 @@ export default class Index extends PureComponent {
             old_pods: data.list.old_pods
           });
           if (data.list.old_pods) {
-            this.timeout = setTimeout(() => {
+            this.cyclepod = setTimeout(() => {
               this.fetchPods(); // Fix duplicate onPressEnter
-            }, 30000);
+            }, 5000);
           }
         }
         this.setState({

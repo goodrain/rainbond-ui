@@ -2269,12 +2269,8 @@ export async function fetchOperationLog(
     target,
     page,
     page_size
-    // service','plugin'
   }
 ) {
-  //console/teams/t7hls5ce/events?target=service&targetAlias=gr280c5c&page=2&page_size=2
-  //ip:port/v2/teams/[tenantAlias]/[target]/[targetAlias]/target_events?page=1&page_size=10
-
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/events`,
     {
