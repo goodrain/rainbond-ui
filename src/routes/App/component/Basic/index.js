@@ -10,6 +10,7 @@ import {
   Row,
   Col
 } from "antd";
+import globalUtil from "../../../../utils/global";
 import numeral from "numeral";
 import styles from "../../Index.less";
 
@@ -26,14 +27,24 @@ class Index extends PureComponent {
     handleMore && handleMore(true);
   };
   render() {
-    const { status, beanData, more, memory, disk } = this.props;
+    const { status, beanData, more, memory, disk, dataList } = this.props;
     return (
       <Row gutter={24}>
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
-          <div className={styles.buildBox}>
+          <div
+            className={styles.buildBox}
+            style={{
+              background: globalUtil.fetchStateBJColor(status && status.status)
+            }}
+          >
             <div className={styles.buildContent}>
               <div className={styles.buildLeftBox}>
-                <h2 className={styles.buildState}>
+                <h2
+                  className={styles.buildState}
+                  style={{
+                    color: globalUtil.fetchStateColor(status && status.status)
+                  }}
+                >
                   {(status && status.status_cn) || "-"}
                 </h2>
                 <div className={styles.buildCommitInfo}>
@@ -62,7 +73,7 @@ class Index extends PureComponent {
                         运行
                         <span
                           style={{
-                            color: "#39AA55",
+                            color: "rgba(0,0,0,0.45)",
                             paddingLeft: "20px"
                           }}
                         >
@@ -100,7 +111,7 @@ class Index extends PureComponent {
                         <Tooltip title={numeral(memory).format("0,0")}>
                           <span
                             style={{
-                              color: "#39AA55",
+                              color: "rgba(0,0,0,0.45)",
                               padding: "0 20px",
                               minWidth: "80px"
                             }}
@@ -133,7 +144,7 @@ class Index extends PureComponent {
                         <Tooltip title={numeral(disk).format("0,0")}>
                           <span
                             style={{
-                              color: "#39AA55",
+                              color: "rgba(0,0,0,0.45)",
                               padding: "0 20px",
                               minWidth: "80px"
                             }}
@@ -207,7 +218,7 @@ class Index extends PureComponent {
                           }
                         >
                           <span
-                            style={{ color: "#39AA55", paddingLeft: "10px" }}
+                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
                           >
                             {beanData && beanData.code_version
                               ? beanData.code_version
@@ -264,7 +275,7 @@ class Index extends PureComponent {
                           }
                         >
                           <span
-                            style={{ color: "#39AA55", paddingLeft: "10px" }}
+                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
                           >
                             {beanData && beanData.commit_msg
                               ? beanData.commit_msg
@@ -331,7 +342,7 @@ class Index extends PureComponent {
                           }
                         >
                           <span
-                            style={{ color: "#39AA55", paddingLeft: "10px" }}
+                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
                           >
                             {beanData && beanData.branch
                               ? beanData.branch
@@ -344,7 +355,12 @@ class Index extends PureComponent {
                     </li>
                   </ul>
                   <p className={styles.buildAuthor}>
-                    <a onClick={this.handleMore}>{!more && "查看更多版本"}</a>
+                    <a onClick={this.handleMore}>
+                      {dataList &&
+                        dataList.length > 0 &&
+                        !more &&
+                        "查看更多版本"}
+                    </a>
                   </p>
                 </div>
               </div>

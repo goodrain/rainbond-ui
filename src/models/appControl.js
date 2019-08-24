@@ -110,7 +110,8 @@ import {
   editUpDatekey,
   getPermissions,
   fetchInstanceDetails,
-  fetchOperationLog
+  fetchOperationLog,
+  fetchLogContent
 } from "../services/app";
 
 import { getCertificates, addCertificate } from "../services/team";
@@ -405,6 +406,12 @@ export default {
         callback && callback();
       }
     },
+    *fetchLogContent({ payload, callback }, { call, put }) {
+      const response = yield call(fetchLogContent, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     *fetchDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getDetail, payload, handleError);
       if (response) {
@@ -558,6 +565,7 @@ export default {
     *fetchRelationOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
+        callback && callback(response);
         yield put({ type: "saveRelationOuterEnvs", payload: response.list });
       }
     },

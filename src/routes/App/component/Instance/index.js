@@ -4,7 +4,7 @@ import {
   Icon,
   Modal,
   Form,
-  Checkbox,
+  message,
   Tooltip,
   Card,
   Row,
@@ -38,14 +38,15 @@ class Index extends PureComponent {
         pod_name
       },
       callback: res => {
-        this.setState({
-          instanceInfo: res.bean
-        });
+        if (res) {
+          this.setState({
+            instanceInfo: res.bean,
+            visible: JSON.stringify(res.bean) === "{}" ? false : true
+          });
+          message.destroy();
+          JSON.stringify(res.bean) === "{}" && message.warning("暂无实例详情");
+        }
       }
-    });
-
-    this.setState({
-      visible: true
     });
   };
 
@@ -73,12 +74,52 @@ class Index extends PureComponent {
         return <span>state</span>;
     }
   };
+
+  schedulingBox = list => {
+    return (
+      <div>
+        <Row>
+          {list &&
+            list.length > 0 &&
+            list.map(item => {
+              const { pod_status, pod_name } = item;
+              return (
+                <Col
+                  xs={list.length > 4 ? 4 : 6}
+                  xm={list.length > 4 ? 4 : 6}
+                  md={list.length > 4 ? 4 : 6}
+                  lg={list.length > 4 ? 4 : 6}
+                  xl={list.length > 4 ? 4 : 6}
+                  key={pod_name}
+                  className={styles.boxImg}
+                >
+                  <Tooltip title="点击查看详情">
+                    <div
+                      className={styles.nodeBox}
+                      onClick={() => {
+                        this.showModal(pod_name);
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        background: globalUtil.fetchStateColor(pod_status)
+                      }}
+                    />
+                  </Tooltip>
+                  <p>{globalUtil.fetchStateText(pod_status)}</p>
+                </Col>
+              );
+            })}
+        </Row>
+      </div>
+    );
+  };
   render() {
-    const { new_pods, old_pods } = this.props;
+    const { new_pods, old_pods, status, runLoading } = this.props;
     const { instanceInfo } = this.state;
     return (
       <Card
         bordered={false}
+        loading={runLoading}
         title="运行实例"
         style={{ margin: "20px 0" }}
         bodyStyle={{ padding: "0", background: "#F0F2F5" }}
@@ -90,9 +131,10 @@ class Index extends PureComponent {
           onOk={this.handleOk}
           onCancel={this.handleCancel}
           bodyStyle={{ height: "500px", overflow: "auto" }}
+          footer={null}
         >
           <div>
-            {instanceInfo && (
+            {instanceInfo && JSON.stringify(instanceInfo) !== "{}" && (
               <div className={styles.instanceBox}>
                 <div>
                   <ul className={styles.instanceInfo}>
@@ -123,7 +165,17 @@ class Index extends PureComponent {
                     </li>
                     <li>
                       <span>实例状态:</span>
-                      <span>{instanceInfo.status.type}</span>
+                      <span
+                        style={{
+                          color: globalUtil.fetchStateColor(
+                            instanceInfo.status.type_str
+                          )
+                        }}
+                      >
+                        {globalUtil.fetchStateText(
+                          instanceInfo.status.type_str
+                        )}
+                      </span>
                     </li>
                     {instanceInfo.status.reason && (
                       <li style={{ width: "100%" }}>
@@ -304,70 +356,6 @@ class Index extends PureComponent {
               old_pods && old_pods.length > 0 ? "none" : "1px solid #e8e8e8"
           }}
         >
-          <Col
-            xs={old_pods && old_pods.length > 0 ? 10 : 24}
-            xm={old_pods && old_pods.length > 0 ? 10 : 24}
-            md={old_pods && old_pods.length > 0 ? 10 : 24}
-            lg={old_pods && old_pods.length > 0 ? 10 : 24}
-            xl={old_pods && old_pods.length > 0 ? 10 : 24}
-            style={{ background: "#fff", padding: "15px 0" }}
-          >
-            <div>
-              <Row>
-                {new_pods &&
-                  new_pods.length > 0 &&
-                  new_pods.map((item, index) => {
-                    const { pod_status, pod_name } = item;
-                    return (
-                      <Col
-                        xs={new_pods.length > 4 ? 4 : 6}
-                        xm={new_pods.length > 4 ? 4 : 6}
-                        md={new_pods.length > 4 ? 4 : 6}
-                        lg={new_pods.length > 4 ? 4 : 6}
-                        xl={new_pods.length > 4 ? 4 : 6}
-                        key={pod_name}
-                        className={styles.boxImg}
-                      >
-                        <Tooltip title="点击查看详情">
-                          <div
-                            className={styles.nodeBox}
-                            onClick={() => {
-                              this.showModal(pod_name);
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              background:
-                                pod_status === "Running"
-                                  ? "#259B24"
-                                  : pod_status === "Closed"
-                                  ? "#E51C23"
-                                  : "#F7EA29"
-                            }}
-                          />
-                        </Tooltip>
-                        <p>
-                          {pod_status === "Running"
-                            ? "正常运行"
-                            : pod_status === "Closed"
-                            ? "运行异常"
-                            : "关闭中"}
-                        </p>
-                      </Col>
-                    );
-                  })}
-              </Row>
-            </div>
-          </Col>
-          {old_pods && old_pods.length > 0 && (
-            <Col xs={4} xm={4} md={4} lg={4} xl={4}>
-              <div>
-                <p style={{ marginTop: "40px", textAlign: "center" }}>
-                  正在滚动升级
-                </p>
-              </div>
-            </Col>
-          )}
-
           {old_pods && old_pods.length > 0 && (
             <Col
               xs={10}
@@ -377,48 +365,44 @@ class Index extends PureComponent {
               xl={10}
               style={{ background: "#fff", padding: "15px 0" }}
             >
+              {old_pods && this.schedulingBox(old_pods)}
+            </Col>
+          )}
+
+          {old_pods && old_pods.length > 0 && (
+            <Col xs={4} xm={4} md={4} lg={4} xl={4}>
               <div>
-                <Row>
-                  {old_pods.map((item, index) => {
-                    const { pod_status, pod_name } = item;
-                    return (
-                      <Col
-                        xs={old_pods.length > 4 ? 4 : 6}
-                        xm={old_pods.length > 4 ? 4 : 6}
-                        md={old_pods.length > 4 ? 4 : 6}
-                        lg={old_pods.length > 4 ? 4 : 6}
-                        xl={old_pods.length > 4 ? 4 : 6}
-                        key={pod_name}
-                        className={styles.boxImg}
-                      >
-                        <Tooltip title="点击查看详情">
-                          <div
-                            className={styles.nodeBox}
-                            style={{
-                              background:
-                                pod_status === "Running"
-                                  ? "#259B24"
-                                  : pod_status === "Closed"
-                                  ? "#E51C23"
-                                  : "#F7EA29"
-                            }}
-                          />
-                        </Tooltip>
-                        <p>
-                          {pod_status === "Running"
-                            ? "升级中"
-                            : pod_status === "Closed"
-                            ? "运行异常"
-                            : "启动中"}
-                        </p>
-                      </Col>
-                    );
-                  })}
-                </Row>
+                <p style={{ marginTop: "40px", textAlign: "center" }}>
+                  正在
+                  {(status && status.status_cn) || "-"}
+                  &#8680;
+                </p>
               </div>
             </Col>
           )}
+
+          <Col
+            xs={old_pods && old_pods.length > 0 ? 10 : 24}
+            xm={old_pods && old_pods.length > 0 ? 10 : 24}
+            md={old_pods && old_pods.length > 0 ? 10 : 24}
+            lg={old_pods && old_pods.length > 0 ? 10 : 24}
+            xl={old_pods && old_pods.length > 0 ? 10 : 24}
+            style={{ background: "#fff", padding: "15px 0" }}
+          >
+            {new_pods && this.schedulingBox(new_pods)}
+          </Col>
         </Row>
+        {!new_pods && !old_pods && (
+          <div
+            style={{
+              background: "#fff",
+              paddingBottom: "30px",
+              textAlign: "center"
+            }}
+          >
+            暂无运行实例
+          </div>
+        )}
       </Card>
     );
   }

@@ -40,7 +40,7 @@ import LogSocket from "../../utils/logSocket";
 import StatusIcon from "../../components/StatusIcon";
 import BuildHistory from "./component/BuildHistory/index";
 import Basic from "./component/Basic/index";
-import BasicInfo from "./component/Basic/info";
+import OperationRecord from "./component/Basic/operationRecord";
 import Instance from "./component/Instance/index";
 import LogProcress from "../../components/LogProcress";
 import styles from "./Index.less";
@@ -87,9 +87,7 @@ class LogItem extends PureComponent {
     }
     return "";
   };
-  shouldComponentUpdate() {
-    return true;
-  }
+
   componentDidMount() {
     const { data } = this.props;
     if (data) {
@@ -281,14 +279,6 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {appAcionLogUtil.canRollback(data) &&
-              appUtil.canRollback(this.props.appDetail) ? (
-                <span onClick={this.handleRollback} className={styles.btn}>
-                  回滚到此版本
-                </span>
-              ) : (
-                ""
-              )}
               {!opened ? (
                 <span onClick={this.open} className={styles.btn}>
                   查看详情
@@ -434,6 +424,7 @@ export default class Index extends PureComponent {
     this.state = {
       actionIng: false,
       logList: [],
+      recordLoading: true,
       page: 1,
       page_size: 6,
       hasNext: false,
@@ -445,11 +436,13 @@ export default class Index extends PureComponent {
       showUpgrade: false,
       beanData: null,
       dataList: [],
+      runLoading: true,
       new_pods: null,
       old_pods: null,
       more: false,
       total: 0,
-      current_version: null
+      current_version: null,
+      status: ""
     };
     this.inerval = 5000;
   }
@@ -478,11 +471,22 @@ export default class Index extends PureComponent {
     clearTimeout(this.timeout);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.status !== nextProps.status) {
-      this.fetchPods();
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.state.status !== nextProps.status) {
+  //     this.fetchPods(nextProps.status);
+  //   }
+  // }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.status !== prevState.status) {
+      // this.fetchPods();
+      return {
+        status: nextProps.status
+      };
     }
+    return null;
   }
+
   getAnalyzePlugins() {
     this.props.dispatch({
       type: "appControl/getAnalyzePlugins",
@@ -626,6 +630,9 @@ export default class Index extends PureComponent {
               : 0
           });
         }
+        this.setState({
+          recordLoading: false
+        });
       }
     });
   };
@@ -655,11 +662,45 @@ export default class Index extends PureComponent {
   //   });
   // };
   onAction = actionLog => {
-    this.setState({
-      logList: [actionLog].concat(this.state.logList),
-      showUpgrade: true
-    });
+    if (actionLog) {
+      this.watchLog(actionLog.event_id);
+      this.setState({
+        logList: [actionLog].concat(this.state.logList),
+        showUpgrade: true
+      });
+    }
   };
+
+  watchLog = EventID => {
+    console.log("EventID", EventID);
+
+    const { socket } = this.props;
+    console.log("socket", socket);
+    socket.watchEventLog(
+      messages => {
+        if (messages && messages.length > 0) {
+          console.log("messages", messages);
+        }
+      },
+      message => {
+        // var LogContentList = this.state.LogContentList || [];
+        // if (LogContentList.length >= 5000) {
+        //   LogContentList.shift();
+        // }
+        // LogContentList.push(message);
+        // if (this.refs.box) {
+        //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
+        // }
+        // this.setState({ LogContentList: logs });
+        console.log("message", message);
+      },
+      error => {
+        console.log("err", error);
+      },
+      EventID
+    );
+  };
+
   handleNextPage = () => {
     this.setState(
       {
@@ -755,9 +796,12 @@ export default class Index extends PureComponent {
           if (data.list.old_pods) {
             this.timeout = setTimeout(() => {
               this.fetchPods(); // Fix duplicate onPressEnter
-            }, 3000);
+            }, 30000);
           }
         }
+        this.setState({
+          runLoading: false
+        });
       }
     });
   };
@@ -794,10 +838,12 @@ export default class Index extends PureComponent {
       dataList,
       new_pods,
       old_pods,
+      runLoading,
       more,
       disk,
       page,
       total,
+      recordLoading,
       has_next,
       current_version
     } = this.state;
@@ -809,9 +855,11 @@ export default class Index extends PureComponent {
           beanData={beanData}
           memory={memory}
           disk={disk}
+          dataList={dataList}
           status={status}
           handleMore={this.handleMore}
           more={more}
+          socket={this.props.socket}
         />
         {more && (
           <BuildHistory
@@ -821,19 +869,25 @@ export default class Index extends PureComponent {
             handleMore={this.handleMore}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
+            socket={this.props.socket}
           />
         )}
         {!more && (
           <Instance
+            status={status}
+            runLoading={runLoading}
             new_pods={new_pods}
             old_pods={old_pods}
             appAlias={this.props.appAlias}
+            socket={this.props.socket}
           />
         )}
         {!more && (
-          <BasicInfo
+          <OperationRecord
+            socket={this.props.socket}
             has_next={has_next}
             logList={logList}
+            recordLoading={recordLoading}
             handleNextPage={this.handleNextPage}
           />
         )}

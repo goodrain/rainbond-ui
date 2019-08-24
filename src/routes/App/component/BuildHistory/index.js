@@ -11,15 +11,21 @@ import {
   Col,
   Tooltip
 } from "antd";
+import { connect } from "dva";
 import styles from "../../Index.less";
+import globalUtil from "../../../../utils/global";
+
 import moment from "moment";
 
+@connect()
 @Form.create()
 class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      logVisible: false
+      logVisible: false,
+      LogHistoryList: [],
+      showHighlighted: ""
     };
   }
   componentDidMount() {}
@@ -29,9 +35,74 @@ class Index extends PureComponent {
     handleMore && handleMore(false);
   };
 
-  showModal = () => {
+  showModal = EventID => {
     this.setState({
+      // LogHistoryList: res.list,
+      LogHistoryList: [
+        {
+          message: "App runtime begin restart app service gr1e74e4",
+          time: "2019-08-20T11:53:25+08:00",
+          utime: 1566273205
+        }
+      ],
       logVisible: true
+    });
+    const team_name = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: "appControl/fetchLogContent",
+      payload: {
+        team_name,
+        eventID: EventID
+      },
+      callback: res => {
+        if (res) {
+          console.log("res", res);
+          this.setState({
+            // LogHistoryList: res.list,
+            LogHistoryList: [
+              {
+                message: "App runtime begin restart app service gr1e74e4",
+                time: "2019-08-20T11:53:25+08:00",
+                utime: 1566273205
+              }
+            ],
+            logVisible: true
+          });
+        }
+      }
+    });
+  };
+  watchLog(EventID) {
+    this.props.socket.watchEventLog(
+      messages => {
+        if (messages && messages.length > 0) {
+          this.setState({ LogHistoryList: messages });
+        }
+      },
+      message => {
+        if (this.state.started) {
+          var LogHistoryList = this.state.LogHistoryList || [];
+          if (LogHistoryList.length >= 5000) {
+            LogHistoryList.shift();
+          }
+          LogHistoryList.push(message);
+          if (this.refs.box) {
+            this.refs.box.scrollTop = this.refs.box.scrollHeight;
+          }
+          this.setState({ LogHistoryList: logs });
+        }
+      },
+      error => {
+        console.log("err", error);
+      },
+      EventID
+    );
+  }
+
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      logVisible: false
     });
   };
 
@@ -54,6 +125,7 @@ class Index extends PureComponent {
 
   render() {
     const { dataList, beanData, current_version } = this.props;
+    const { LogHistoryList, showHighlighted } = this.state;
     return (
       <Row gutter={24}>
         <Modal
@@ -64,7 +136,34 @@ class Index extends PureComponent {
           width="1200px"
           bodyStyle={{ background: "#222222", color: "#fff" }}
           footer={null}
-        />
+        >
+          <div className={styles.logsss} ref="box">
+            {LogHistoryList &&
+              LogHistoryList.length > 0 &&
+              LogHistoryList.map((item, index) => {
+                const { message, utime } = item;
+                return (
+                  <div key={utime}>
+                    <span
+                      style={{
+                        color: "#666666"
+                      }}
+                    >
+                      <span>{index + 1}</span>
+                    </span>
+                    <span
+                      ref="texts"
+                      style={{
+                        color: "#FFF"
+                      }}
+                    >
+                      {message}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </Modal>
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
             bordered={false}
@@ -72,16 +171,6 @@ class Index extends PureComponent {
             extra={<a onClick={this.handleMore}>返回实例列表</a>}
             style={{ margin: "20px 0" }}
           >
-            {/* <div
-            style={{
-              padding: "10px",
-              display: "flex",
-              justifyContent: "space-between"
-            }}
-          >
-            <span>构建版本历史</span>
-            <a onClick={this.handleMore}>返回实例列表</a>
-          </div> */}
             <div className={styles.buildHistoryBox}>
               <ul className={styles.buildHistoryList}>
                 {dataList &&
@@ -90,6 +179,7 @@ class Index extends PureComponent {
                     const {
                       commit_msg,
                       repo_url,
+                      image_domain,
                       build_user,
                       code_version,
                       status,
@@ -99,7 +189,9 @@ class Index extends PureComponent {
                       dur_hours,
                       dur_minutes,
                       dur_seconds,
-                      upgrade_or_rollback
+                      upgrade_or_rollback,
+                      EventID,
+                      image_repo
                     } = item;
                     return (
                       <li
@@ -188,8 +280,38 @@ class Index extends PureComponent {
                               </a>
                             </h2>
                             <div className={styles.rowMessage}>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 17 17"
+                                className={styles.icon}
+                              >
+                                <circle
+                                  cx="8.51"
+                                  cy="8.5"
+                                  r="3.5"
+                                  fill="none"
+                                  stroke="#9d9d9d"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-miterlimit="10"
+                                />
+                                <path
+                                  d="M16.5 8.5h-4.49m-7 0H.5"
+                                  fill="none"
+                                  stroke="#9d9d9d"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-miterlimit="10"
+                                />
+                              </svg>
                               <Tooltip
-                                title={commit_msg ? commit_msg : repo_url}
+                                title={
+                                  commit_msg
+                                    ? commit_msg
+                                    : image_domain
+                                    ? image_domain
+                                    : "-"
+                                }
                               >
                                 <font
                                   style={{
@@ -197,10 +319,15 @@ class Index extends PureComponent {
                                     display: "inline-block",
                                     overflow: "hidden",
                                     whiteSpace: "nowrap",
-                                    textOverflow: "ellipsis"
+                                    textOverflow: "ellipsis",
+                                    color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
-                                  {commit_msg ? commit_msg : repo_url}
+                                  {commit_msg
+                                    ? commit_msg
+                                    : image_domain
+                                    ? image_domain
+                                    : "-"}
                                 </font>
                               </Tooltip>
                             </div>
@@ -250,7 +377,12 @@ class Index extends PureComponent {
                                   p-id="26202"
                                 />
                               </svg>
-                              <font onClick={this.showModal}>
+                              <font
+                                style={{
+                                  color:
+                                    status === "success" ? "#39AA56" : "#db4545"
+                                }}
+                              >
                                 {status === "success" ? "成功" : "失败"}
                               </font>
                             </a>
@@ -263,9 +395,9 @@ class Index extends PureComponent {
                                 className={styles.icon}
                               >
                                 <circle
-                                  cx="8.51"
-                                  cy="8.5"
-                                  r="3.5"
+                                  cx="3.8"
+                                  cy="3.2"
+                                  r="1.7"
                                   fill="none"
                                   stroke="#9d9d9d"
                                   stroke-linecap="round"
@@ -273,29 +405,37 @@ class Index extends PureComponent {
                                   stroke-miterlimit="10"
                                 />
                                 <path
-                                  d="M16.5 8.5h-4.49m-7 0H.5"
+                                  d="M6.75 15.5s1.95-1.95 1.95-1.98H6.3s-2.48.15-2.48-2.46V4.92m2.93 6.64s1.95 1.95 1.95 1.97"
                                   fill="none"
                                   stroke="#9d9d9d"
                                   stroke-linecap="round"
                                   stroke-linejoin="round"
                                   stroke-miterlimit="10"
                                 />
+                                <g
+                                  fill="none"
+                                  stroke="#9d9d9d"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-miterlimit="10"
+                                >
+                                  <circle cx="13.2" cy="13.8" r="1.7" />
+                                  <path d="M10.25 1.5S8.3 3.45 8.3 3.47h2.4s2.48-.15 2.48 2.46v6.14m-2.93-6.63S8.3 3.49 8.3 3.47" />
+                                </g>
                               </svg>
-                              <Tooltip
-                                title={code_version ? code_version : "-"}
-                              >
+                              <Tooltip title={image_repo ? image_repo : "-"}>
                                 <font
                                   style={{
-                                    marginLeft: "10px",
                                     maxWidth: "95%",
                                     display: "inline-block",
                                     overflow: "hidden",
                                     whiteSpace: "nowrap",
-                                    textOverflow: "ellipsis"
+                                    textOverflow: "ellipsis",
+                                    color: "rgba(0,0,0,0.45)"
                                   }}
                                   className={styles.passeda}
                                 >
-                                  {code_version ? code_version : "-"}
+                                  {image_repo ? image_repo : "-"}
                                 </font>
                               </Tooltip>
                               <svg
@@ -344,8 +484,8 @@ class Index extends PureComponent {
                               <time className={styles.labelAlign}>
                                 <font
                                   style={{
-                                    color: "#39aa56",
-                                    display: "inline-block"
+                                    display: "inline-block",
+                                    color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
                                   {finish_time ? "   " : "-"}
@@ -391,8 +531,8 @@ class Index extends PureComponent {
                               <time className={styles.labelAlign}>
                                 <font
                                   style={{
-                                    color: "#39aa56",
-                                    display: "inline-block"
+                                    display: "inline-block",
+                                    color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
                                   {moment(create_time).format(
@@ -404,31 +544,124 @@ class Index extends PureComponent {
                           </div>
                         </div>
                         <div className={`${styles.linefour}`}>
-                          {upgrade_or_rollback == 1 ? (
-                            <a
-                              href="javascript:;"
+                          <Tooltip title="查看日志">
+                            <svg
+                              style={{
+                                cursor: "pointer"
+                              }}
                               onClick={() => {
+                                this.showModal(EventID);
+                              }}
+                              t="1566527207023"
+                              class="icon"
+                              viewBox="0 0 1024 1024"
+                              version="1.1"
+                              xmlns="http://www.w3.org/2000/svg"
+                              p-id="5957"
+                              width="16"
+                              height="16"
+                            >
+                              <path
+                                d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
+                                fill="#1296db"
+                                p-id="5958"
+                              />
+                            </svg>
+                          </Tooltip>
+
+                          {build_version &&
+                            build_version &&
+                            current_version &&
+                            build_version == current_version && (
+                              <Tooltip title="当前版本">
+                                <svg
+                                  style={{
+                                    cursor: "pointer"
+                                  }}
+                                  t="1566532978509"
+                                  class="icon"
+                                  viewBox="0 0 1024 1024"
+                                  version="1.1"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  p-id="10598"
+                                  width="16"
+                                  height="16"
+                                >
+                                  <path
+                                    d="M512 42.666667C251.733333 42.666667 42.666667 251.733333 42.666667 512s209.066667 469.333333 469.333333 469.333333 469.333333-209.066667 469.333333-469.333333S772.266667 42.666667 512 42.666667z m0 874.666666C288 917.333333 106.666667 736 106.666667 512S288 106.666667 512 106.666667s405.333333 181.333333 405.333333 405.333333-181.333333 405.333333-405.333333 405.333333z"
+                                    p-id="10599"
+                                    fill="#1296db"
+                                  />
+                                  <path
+                                    d="M544 279.466667c-10.666667 10.666667-14.933333 23.466667-14.933333 40.533333 0 12.8 4.266667 23.466667 12.8 32 8.533333 8.533333 19.2 12.8 32 12.8 10.666667 0 23.466667-2.133333 38.4-17.066667 10.666667-10.666667 14.933333-25.6 14.933333-40.533333 0-12.8-4.266667-23.466667-12.8-32-19.2-19.2-51.2-17.066667-70.4 4.266667zM556.8 644.266667c-14.933333 14.933333-25.6 23.466667-34.133333 29.866666 4.266667-19.2 12.8-57.6 34.133333-130.133333 21.333333-72.533333 23.466667-87.466667 23.466667-91.733333 0-10.666667-4.266667-21.333333-12.8-27.733334-17.066667-14.933333-49.066667-12.8-87.466667 10.666667-21.333333 12.8-44.8 32-68.266667 59.733333l-12.8 14.933334 44.8 34.133333 10.666667-10.666667c12.8-12.8 21.333333-19.2 25.6-25.6-34.133333 110.933333-49.066667 179.2-49.066667 209.066667 0 14.933333 4.266667 25.6 12.8 34.133333 8.533333 8.533333 19.2 12.8 32 12.8s27.733333-4.266667 44.8-14.933333c17.066667-8.533333 40.533333-29.866667 74.666667-61.866667l12.8-12.8-40.533333-38.4-10.666667 8.533334z"
+                                    p-id="10600"
+                                    fill="#1296db"
+                                  />
+                                </svg>
+                              </Tooltip>
+                            )}
+                          {upgrade_or_rollback == 1 ? (
+                            <Popconfirm
+                              title="确定要升级到此版本吗?"
+                              onConfirm={() => {
                                 this.handleRolback(item);
                               }}
                             >
-                              <Tooltip title="升级">
-                                <Icon type="arrow-up" />
-                              </Tooltip>
-                            </a>
+                              <svg
+                                style={{
+                                  cursor: "pointer"
+                                }}
+                                t="1566533552365"
+                                class="icon"
+                                viewBox="0 0 1024 1024"
+                                version="1.1"
+                                xmlns="http://www.w3.org/2000/svg"
+                                p-id="11396"
+                                width="16"
+                                height="16"
+                              >
+                                <path
+                                  d="M512 57.6c249.6 0 454.4 204.8 454.4 454.4s-204.8 454.4-454.4 454.4S57.6 761.6 57.6 512 262.4 57.6 512 57.6M512 0C230.4 0 0 230.4 0 512s230.4 512 512 512 512-230.4 512-512-230.4-512-512-512z"
+                                  p-id="11397"
+                                  fill="#1296db"
+                                />
+                                <path
+                                  d="M326.4 492.8l160-160v428.8c0 19.2 12.8 32 32 32s32-12.8 32-32V332.8l160 160c12.8 12.8 32 12.8 44.8 0s12.8-32 0-44.8L531.2 243.2s-6.4-6.4-12.8-6.4h-25.6c-6.4 0-6.4 6.4-12.8 6.4L281.6 448c-12.8 12.8-12.8 32 0 44.8s32 12.8 44.8 0z"
+                                  p-id="11398"
+                                  fill="#1296db"
+                                />
+                              </svg>
+                            </Popconfirm>
                           ) : upgrade_or_rollback == -1 &&
                             status == "success" &&
                             build_version != current_version &&
                             current_version ? (
-                            <a
-                              href="javascript:;"
-                              onClick={() => {
+                            <Popconfirm
+                              title="确定要回滚到此版本吗?"
+                              onConfirm={() => {
                                 this.handleRolback(item);
                               }}
                             >
-                              <Tooltip title="回滚">
-                                <Icon type="rollback" />
-                              </Tooltip>
-                            </a>
+                              <svg
+                                style={{
+                                  cursor: "pointer"
+                                }}
+                                t="1566533701108"
+                                class="icon"
+                                viewBox="0 0 1024 1024"
+                                version="1.1"
+                                xmlns="http://www.w3.org/2000/svg"
+                                p-id="14118"
+                                width="16"
+                                height="16"
+                              >
+                                <path
+                                  d="M416 640V384H512v185.6l115.2 32-25.6 89.6-185.6-51.2zM512 102.4c243.2 0 448 198.4 448 448s-198.4 448-448 448-448-198.4-448-448c0-89.6 19.2-172.8 76.8-243.2l64 44.8c-38.4 57.6-57.6 128-57.6 198.4 0 198.4 166.4 364.8 364.8 364.8s364.8-166.4 364.8-364.8S710.4 185.6 512 185.6v102.4L326.4 147.2 512 0v102.4z"
+                                  p-id="14119"
+                                  fill="#1296db"
+                                />
+                              </svg>
+                            </Popconfirm>
                           ) : (
                             ""
                           )}
@@ -440,12 +673,25 @@ class Index extends PureComponent {
                           >
                             {build_version != current_version &&
                               current_version && (
-                                <Tooltip title="删除">
-                                  <Icon
-                                    type="delete"
-                                    style={{ color: "#1890FE" }}
+                                <svg
+                                  style={{
+                                    cursor: "pointer"
+                                  }}
+                                  t="1566533607654"
+                                  class="icon"
+                                  viewBox="0 0 1024 1024"
+                                  version="1.1"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  p-id="11648"
+                                  width="16"
+                                  height="16"
+                                >
+                                  <path
+                                    d="M950.857143 219.428571h-182.857143V73.142857h-512v146.285714H73.142857v73.142858h109.714286v658.285714h658.285714V292.571429H950.857143V219.428571zM329.142857 146.285714h365.714286v73.142857h-365.714286V146.285714z m438.857143 731.428572h-512V292.571429h146.285714v438.857142h73.142857V292.571429h73.142858v438.857142h73.142857V292.571429h146.285714v585.142857z"
+                                    p-id="11649"
+                                    fill="#1296db"
                                   />
-                                </Tooltip>
+                                </svg>
                               )}
                           </Popconfirm>
                         </div>

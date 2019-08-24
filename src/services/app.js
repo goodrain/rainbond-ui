@@ -2253,7 +2253,7 @@ export async function fetchInstanceDetails(
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/apps/${
       body.app_alias
-    }/pods/${body.pod_name}/poddetail`,
+    }/pods/${body.pod_name}/detail`,
     {
       method: "get"
     }
@@ -2272,12 +2272,11 @@ export async function fetchOperationLog(
     // service','plugin'
   }
 ) {
+  //console/teams/t7hls5ce/events?target=service&targetAlias=gr280c5c&page=2&page_size=2
   //ip:port/v2/teams/[tenantAlias]/[target]/[targetAlias]/target_events?page=1&page_size=10
 
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/${body.target}/${
-      body.app_alias
-    }/target_events`,
+    `${config.baseUrl}/console/teams/${body.team_name}/events`,
     {
       method: "get",
       params: {
@@ -2290,6 +2289,30 @@ export async function fetchOperationLog(
   );
 }
 
+/*
+	获取操作记录日志
+*/
+export async function fetchLogContent(
+  body = {
+    team_name,
+    eventID
+    // service','plugin'
+  }
+) {
+  //console/teams/{tenantAlias}/events/{eventID}/log
+  // http://localhost:7070/console/teams/{tenantAlias}/{eventID}/logcontent
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/events/${
+      body.eventID
+    }/log`,
+    {
+      method: "get",
+      params: {
+        eventID: body.eventID ? body.eventID : ""
+      }
+    }
+  );
+}
 /*
 	设置用户权限
 */

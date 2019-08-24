@@ -1,10 +1,100 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
-
+.nowarpText{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  white-space: nowrap;
+}
 :global {
   td a {
     margin: 0 3px;
   }
+}
+
+.logsss {
+	background:#212121;
+	min-height: 300px;
+	padding: 15px;
+	max-height: 600px;
+	overflow: auto;
+
+	div{
+		margin-bottom:0;
+		display: flex;
+		min-height: 19px;
+		font-size: 12px;
+		line-height: 19px;
+		span:nth-of-type(1){
+			display: inline-block;
+			text-align: right;
+			min-width: 40px;
+			display: flex;
+			padding-right: 6px;
+			// b{
+			// 	display: inline-block;
+			// 	width: 20%;
+			// }
+			span{
+				display: inline-block;
+				width: 20px;
+				text-align: right;
+			}
+		}
+		span:nth-of-type(2){
+			width: 80%;
+		}
+		span:nth-of-type(3){
+			width: 14%;
+			border-radius:6px;
+			height: 16px;
+			text-align: center;
+			line-height: 16px;
+		}
+	}
+	div:hover{
+		background: #444444
+	}
+
+
+}
+
+.History1000Log{
+	div{
+		margin-bottom:0;
+		display: flex;
+		min-height: 19px;
+		font-size: 12px;
+		line-height: 19px;
+		span:nth-of-type(1){
+			display: inline-block;
+			text-align: right;
+			min-width: 40px;
+			display: flex;
+			padding-right: 6px;
+			// b{
+			// 	display: inline-block;
+			// 	width: 20%;
+			// }
+			span{
+				display: inline-block;
+				width: 20px;
+				text-align: right;
+			}
+		}
+		span:nth-of-type(2){
+			width: 80%;
+		}
+		span:nth-of-type(3){
+			width: 14%;
+			border-radius:6px;
+			height: 19px;
+			text-align: center;
+		}
+	}
+	div:hover{
+		background: #444444
+	}
 }
 
 .instanceBox {
@@ -30,7 +120,7 @@
       color    : rgba(0, 0, 0, 0.85);
       font-size: 14px;
       display  : inline-block;
-      width    : 20%;
+      width    : 90px;
     }
 
     span:nth-of-type(2) {
@@ -38,7 +128,7 @@
       white-space  : nowrap;
       text-overflow: ellipsis;
       width        : 80%;
-      color        : #13C2C2;
+      color        : #0000008c;
 
     }
   }
@@ -117,10 +207,10 @@
         white-space: nowrap;
 
         a {
-          color      : #666;
+          color      : rgba(0,0,0,0.65);
           display    : flex;
           align-items: center;
-          font-size  : 13px;
+          font-size  : 14px;
         }
       }
     }
@@ -129,7 +219,7 @@
       margin: 1rem 0 .7rem;
 
       a {
-        font-size: 13px;
+        font-size: 14px;
         color    : #3296FA;
       }
 
@@ -181,7 +271,9 @@
 .logfailed {
   background: linear-gradient(to right, #db4545 0, #db4545 5px, #fff 5px, #fff 100%) no-repeat;
 }
-
+.logfored {
+  background: linear-gradient(to right, #F69C49 0, #F69C49 5px, #fff 5px, #fff 100%) no-repeat;
+}
 .logcanceled {
   background: linear-gradient(to right, #9d9d9d 0, #9d9d9d 5px, #fff 5px, #fff 100%) no-repeat;
 }
@@ -448,7 +540,10 @@ font {
     .linefour {
       // flex   : 0 0 22%;
       width     : 10%;
+      display: flex;
+      align-items: center;
       text-align: center;
+      justify-content: space-evenly;;
     }
 
     // .fadeOute:after {

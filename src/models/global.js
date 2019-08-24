@@ -81,7 +81,8 @@ export default {
     // enterprise info
     enterprise: null,
     isRegist: false,
-    memoryTip: ''
+    memoryTip: '',
+    is_enterprise_version: false,
   },
 
   effects: {

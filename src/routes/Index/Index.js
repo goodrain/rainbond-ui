@@ -1,29 +1,20 @@
-import React, { PureComponent, Fragment } from "react";
+import React, { PureComponent } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link } from "dva/router";
-import { Row, Col, Card, List, Modal, Form, Input, Select, Button, Badge, Pagination, Icon, Tooltip, Table, notification } from "antd";
+import { Row, Col, Card, List, Modal, Form, Button, Badge, Pagination, Icon, Tooltip, Table, notification } from "antd";
 import cookie from "../../utils/cookie";
 
 import { MiniArea, ChartCard } from '../../components/Charts';
 
 import NumberInfo from '../../components/NumberInfo';
 import numeral from 'numeral';
-import IndexTable from "../../components/IndexTable";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import EditableLinkGroup from "../../components/EditableLinkGroup";
-import ScrollerX from "../../components/ScrollerX";
 import EditGroupName from "../../components/AddOrEditGroup"
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
-import { link } from "fs";
-import guide from "../../../public/images/guide.png";
 import guideutil from "../../utils/guide"
-
-const FormItem = Form.Item;
-const Option = Select.Option;
 
 @connect(({
     user, index, loading, global,
@@ -66,8 +57,6 @@ export default class Index extends PureComponent {
         };
     }
     componentDidMount() {
-
-
         this.getTeam();
         this.getDomainName();
         this.getDomain();
@@ -81,7 +70,6 @@ export default class Index extends PureComponent {
             this.getDomain();
             this.getDomainName();
         }, 10000);
-
         if (this.isPublicRegion()) {
             this.getCompanyInfo();
             this.getRegionResource();
@@ -466,29 +454,6 @@ export default class Index extends PureComponent {
             addApplication: false
         })
     ]
-    // justify_appStatus = (record) => {
-    //     let winHandler = window.open('', '_blank');
-    //     const that = this;
-    //     this.props.dispatch({
-    //         type: 'gateWay/query_app_status',
-    //         payload: {
-    //             team_name: globalUtil.getCurrTeamName(),
-    //             app_alias: record.service_alias,
-    //         },
-    //         callback: (data) => {
-    //             if (data && data.bean.status == "closed") {
-    //                 this.setState({ appStatusVisable: true, record })
-    //                 winHandler.close()
-    //             }else if(data && data.bean.status == "undeploy"){
-    //                 notification.warning({message:"当前服务属于未部署状态", duration: 5});
-    //                 that.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}`))
-    //             } 
-    //             else {
-    //                 winHandler.location.href = record.domain_name;
-    //             }
-    //         }
-    //     })
-    // }
 
     handleOkGuidevisible = () => {
         this.setState({
@@ -886,22 +851,6 @@ export default class Index extends PureComponent {
                                             border: "none"
                                         }}
                                     >
-                                        {/* <NumberInfo
-                                            subTitle={
-                                                <span>
-                                                    运行服务数量
-                                                    <Tooltip
-                                                        title={"运行服务数量"}
-                                                    >
-                                                        <Icon style={{ marginLeft: 8 }} type="info-circle-o" />
-                                                    </Tooltip>
-                                                </span>
-                                            }
-                                            gap={8}
-                                            total={numeral(12321).format('0,0')}
-                                            status="up"
-                                            subTotal={17.1}
-                                        /> */}
                                         <Table
                                             style={{ marginTop: "-20px", height: "390px", overflow: "auto" }}
                                             rowKey={record => record.index}
@@ -909,13 +858,6 @@ export default class Index extends PureComponent {
                                             columns={columnTwo}
                                             dataSource={serviceList}
                                             pagination={false}
-                                        // pagination={{
-                                        //     style: { marginBottom: 0 },
-                                        // current: this.state.servicePage,
-                                        // pageSize: this.state.servicePage_size,
-                                        // total: this.state.serviceTotal,
-                                        //     onChange: this.onServicePageChange
-                                        // }}
                                         />
                                     </ChartCard>
 

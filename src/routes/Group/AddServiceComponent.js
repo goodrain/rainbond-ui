@@ -85,7 +85,7 @@ export default class AddServiceComponent extends PureComponent {
         ButtonGroup: false,
         ServiceComponentThreePage: false
       });
-  
+
     });
   }
 
@@ -299,6 +299,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row>
                   <Market
                     handleType="Service"
+                    scopeMax="localApplication"
                     refreshCurrent={() => { this.refreshCurrent() }}
                     groupId={this.props.groupId}
                     ButtonGroupState={ButtonGroupState}
@@ -356,6 +357,7 @@ export default class AddServiceComponent extends PureComponent {
           />}
 
           {ServiceComponentTwoPage === "market" && <Market
+            scopeMax="localApplication"
             groupId={this.props.groupId}
             refreshCurrent={() => { this.refreshCurrent() }}
             handleType="Service"

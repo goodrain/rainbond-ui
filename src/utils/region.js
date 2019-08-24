@@ -24,6 +24,13 @@ const regioniUtil = {
     }
     return `${uri}event_log`;
   },
+  getNewWebSocketUrl(bean, serviceID) {
+    let uri = bean.websocket_uri;
+    if (uri[uri.length - 1] !== '/') {
+      uri += '/';
+    }
+    return `${uri}services/${serviceID}/pubsub`;
+  },
 };
 
 export default regioniUtil;

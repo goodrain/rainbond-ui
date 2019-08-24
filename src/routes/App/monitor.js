@@ -3,13 +3,9 @@ import moment from "moment";
 import { connect } from "dva";
 import {
   ChartCard,
-  yuan,
   MiniArea,
   MiniBar,
-  MiniProgress,
   Field,
-  Bar,
-  Pie,
   TimelineChart
 } from "../../components/Charts";
 import numeral from "numeral";
@@ -31,18 +27,18 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { getRoutes, getTimeDistance } from "../../utils/utils";
 import { getRouterData } from "../../common/router";
 
-import styles from "./Index.less";
+import ScrollerX from "../../components/ScrollerX";
+import NoPermTip from "../../components/NoPermTip";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
+import appUtil from "../../utils/app";
+import monitorDataUtil from "../../utils/monitorDataUtil";
+import styles from "./Index.less";
 
 const ButtonGroup = Button.Group;
 const { RangePicker } = DatePicker;
-import monitorDataUtil from "../../utils/monitorDataUtil";
-import ScrollerX from "../../components/ScrollerX";
-import NoPermTip from "../../components/NoPermTip";
-import appUtil from "../../utils/app";
 
 class Empty extends PureComponent {
   render() {
@@ -271,13 +267,13 @@ class MonitorNow extends PureComponent {
   }
   componentWillUnmount() {
     this.mounted = false;
-    this.destroySocket();
-    this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
-    this.props.dispatch({ type: "appControl/clearRequestTime" });
-    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
-    this.props.dispatch({ type: "appControl/clearRequest" });
-    this.props.dispatch({ type: "appControl/clearRequestRange" });
-    this.props.dispatch({ type: "appControl/clearOnlineNumber" });
+    // this.destroySocket();
+    // this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
+    // this.props.dispatch({ type: "appControl/clearRequestTime" });
+    // this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
+    // this.props.dispatch({ type: "appControl/clearRequest" });
+    // this.props.dispatch({ type: "appControl/clearRequestRange" });
+    // this.props.dispatch({ type: "appControl/clearOnlineNumber" });
   }
   getSocketUrl = () => {
     var currTeam = userUtil.getTeamByTeamName(
@@ -409,30 +405,35 @@ class MonitorNow extends PureComponent {
       }
     });
   }
-  destroySocket() {
-    if (this.webSocket) {
-      this.webSocket.close();
-      this.webSocket = null;
-    }
-  }
-  createSocket() {
-    if (!this.mounted) return;
+  // destroySocket() {
+  //   if (this.webSocket) {
+  //     this.webSocket.close();
+  //     this.webSocket = null;
+  //   }
+  // }
+  // createSocket() {
+  //   if (!this.mounted) return;
 
-    var self = this;
-    this.webSocket = new WebSocket(this.getSocketUrl());
-    this.webSocket.onopen = () => {
-      if (self.webSocket) {
-        self.webSocket.send("topic=" + this.props.appDetail.service.service_id);
-      }
-    };
-    this.webSocket.onmessage = function(e) {
-      if (self.webSocket && e.data && e.data !== "ok") {
-        self.updateTable(e.data);
-      }
-    };
-    this.webSocket.onclose = function() {
-      self.createSocket();
-    };
+  //   var self = this;
+  //   this.webSocket = new WebSocket(this.getSocketUrl());
+  //   this.webSocket.onopen = () => {
+  //     if (self.webSocket) {
+  //       self.webSocket.send("topic=" + this.props.appDetail.service.service_id);
+  //     }
+  //   };
+  //   this.webSocket.onmessage = function(e) {
+  //     if (self.webSocket && e.data && e.data !== "ok") {
+  //       self.updateTable(e.data);
+  //     }
+  //   };
+  //   this.webSocket.onclose = function() {
+  //     self.createSocket();
+  //   };
+  // }
+  createSocket() {
+    this.props.socket.setOnMonitorMessage(messages => {
+      this.updateTable(messages);
+    });
   }
   updateTable(event) {
     try {
@@ -482,15 +483,7 @@ class MonitorNow extends PureComponent {
             <ChartCard
               bordered={false}
               title="吞吐率（dps）"
-              action={
-                <Tooltip title="过去一分钟平均每5s的请求次数">
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
-                </Tooltip>
-              }
-              total={numeral(
-                monitorDataUtil.queryTog2(this.props.appRequest)
-              ).format("0,0")}
+              action={<Tooltip title="过去一分钟平均每5s的请求次数" />}
               footer={<Field label="最大吞吐率" value="-" />}
               contentHeight={46}
             >
