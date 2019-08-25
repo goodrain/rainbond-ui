@@ -58,6 +58,8 @@ AppPubSubSocket.prototype = {
       }
     });
     this.eventLogQueue = new Map();
+    this.opened = false
+    this.waitingSendMessage = []
   },
   getSocket() {
     return this.webSocket;
@@ -69,8 +71,6 @@ AppPubSubSocket.prototype = {
     this.eventLogQueue.set(channel, new TimerQueue());
   },
   watchEventLog(onMessage, onSuccess, onFailure, eventID) {
-    console.log("eventID", eventID);
-
     let channel = "event-" + eventID;
     if (this.eventLogQueue.has(channel)) {
       this.eventLogQueue.get(channel).onExecute = item => {
@@ -99,14 +99,17 @@ AppPubSubSocket.prototype = {
           }
         })
       );
-
       let message = {
         event: "pusher:subscribe",
         data: {
           channel: "e-" + eventID
         }
       };
-      this.webSocket.send(JSON.stringify(message));
+      if (this.opened) {
+        this.webSocket.send(JSON.stringify(message));
+      }else{
+        this.waitingSendMessage.push(JSON.stringify(message))
+      }
     }
   },
   setOnLogMessage(callbackAll, onLogMessage) {
@@ -137,6 +140,12 @@ AppPubSubSocket.prototype = {
       this.webSocket.send(JSON.stringify(message));
     }
     this.onOpen(this.webSocket);
+    this.opened = true
+    if (this.waitingSendMessage.length>0) {
+      this.waitingSendMessage.map((m)=>{
+        this.webSocket.send(m)
+      })
+    }
   },
   _onMessage(message) {
     let me = JSON.parse(message.data);

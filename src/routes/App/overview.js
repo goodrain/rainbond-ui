@@ -278,30 +278,26 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {!opened ? (
-                <span onClick={this.open} className={styles.btn}>
-                  查看详情
-                </span>
-              ) : (
-                <span onClick={this.close} className={styles.btn}>
-                  收起
-                </span>
-              )}
+              {!opened
+                ? <span onClick={this.open} className={styles.btn}>
+                    查看详情
+                  </span>
+                : <span onClick={this.close} className={styles.btn}>
+                    收起
+                  </span>}
             </div>
           </div>
-          {appAcionLogUtil.isShowCommitInfo(data) ? (
-            <div className={styles.codeVersion}>
-              <div className={styles.versionInfo}>
-                代码信息： {appAcionLogUtil.getCommitLog(data)}
+          {appAcionLogUtil.isShowCommitInfo(data)
+            ? <div className={styles.codeVersion}>
+                <div className={styles.versionInfo}>
+                  代码信息： {appAcionLogUtil.getCommitLog(data)}
+                </div>
+                <div className={styles.versionAuthor}>
+                  #{appAcionLogUtil.getCodeVersion(data)}
+                  by {appAcionLogUtil.getCommitUser(data)}
+                </div>
               </div>
-              <div className={styles.versionAuthor}>
-                #{appAcionLogUtil.getCodeVersion(data)}
-                by {appAcionLogUtil.getCommitUser(data)}
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
+            : ""}
 
           <ButtonGroup
             style={{
@@ -347,37 +343,37 @@ class LogItem extends PureComponent {
             className={`${styles.logContent} logs-cont`}
           >
             {/* 动态日志 */}
-            {status === "ing" ? (
-              <LogProcress
-                resover
-                onClose={this.onClose}
-                onComplete={this.onComplete}
-                onSuccess={this.onSuccess}
-                onTimeout={this.onTimeout}
-                onFail={this.onFail}
-                socketUrl={this.getSocketUrl()}
-                eventId={data.event_id}
-                opened={opened}
-                list={this.state.logs}
-              />
-            ) : (
-              <div>
-                {logs &&
-                  logs.length > 0 &&
-                  logs.map((item, index) => (
-                    <p key={index}>
-                      <span
-                        style={{
-                          marginRight: 10
-                        }}
-                      >
-                        {dateUtil.format(item.time, "hh:mm:ss")}
-                      </span>
-                      <span>{item.message}</span>
-                    </p>
-                  ))}
-              </div>
-            )}
+            {status === "ing"
+              ? <LogProcress
+                  resover
+                  onClose={this.onClose}
+                  onComplete={this.onComplete}
+                  onSuccess={this.onSuccess}
+                  onTimeout={this.onTimeout}
+                  onFail={this.onFail}
+                  socketUrl={this.getSocketUrl()}
+                  eventId={data.event_id}
+                  opened={opened}
+                  list={this.state.logs}
+                />
+              : <div>
+                  {logs &&
+                    logs.length > 0 &&
+                    logs.map((item, index) =>
+                      <p key={index}>
+                        <span
+                          style={{
+                            marginRight: 10
+                          }}
+                        >
+                          {dateUtil.format(item.time, "hh:mm:ss")}
+                        </span>
+                        <span>
+                          {item.message}
+                        </span>
+                      </p>
+                    )}
+                </div>}
           </div>
         </div>
       </div>
@@ -390,14 +386,14 @@ class LogList extends PureComponent {
     const list = this.props.list;
     return (
       <div className={styles.logs}>
-        {list.map(item => (
+        {list.map(item =>
           <LogItem
             appDetail={this.props.appDetail}
             key={item.event_id}
             appAlias={this.props.appAlias}
             data={item}
           />
-        ))}
+        )}
       </div>
     );
   }
@@ -489,7 +485,7 @@ export default class Index extends PureComponent {
     });
   }
 
-  fetchOperationLog = (lool) => {
+  fetchOperationLog = lool => {
     this.props.dispatch({
       type: "appControl/fetchOperationLog",
       payload: {
@@ -501,21 +497,22 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res) {
-          this.setState({
-            has_next: res.has_next || false,
-            logList: res.list || [],
-            total: res.bean.total
-              ? res.bean.total
-              : res.list
-              ? res.list.length
-              : 0
-          },()=>{
-            if (lool){
-              this.cycleevent = setTimeout(()=>{
-                this.fetchOperationLog(true)
-              }, 5000)
+          this.setState(
+            {
+              has_next: res.has_next || false,
+              logList: res.list || [],
+              total: res.bean.total
+                ? res.bean.total
+                : res.list ? res.list.length : 0
+            },
+            () => {
+              if (lool) {
+                this.cycleevent = setTimeout(() => {
+                  this.fetchOperationLog(true);
+                }, 5000);
+              }
             }
-          });
+          );
         }
         this.setState({
           recordLoading: false
@@ -551,6 +548,9 @@ export default class Index extends PureComponent {
     this.context.appRolback(data);
   };
 
+  onAction = action => {
+    this.fetchOperationLog(false);
+  };
   onPageChange = page => {};
 
   handleDel = item => {
@@ -684,7 +684,7 @@ export default class Index extends PureComponent {
           more={more}
           socket={this.props.socket}
         />
-        {more && (
+        {more &&
           <BuildHistory
             beanData={beanData}
             current_version={current_version}
@@ -693,9 +693,8 @@ export default class Index extends PureComponent {
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
             socket={this.props.socket}
-          />
-        )}
-        {!more && (
+          />}
+        {!more &&
           <Instance
             status={status}
             runLoading={runLoading}
@@ -703,61 +702,15 @@ export default class Index extends PureComponent {
             old_pods={old_pods}
             appAlias={this.props.appAlias}
             socket={this.props.socket}
-          />
-        )}
-        {!more && (
+          />}
+        {!more &&
           <OperationRecord
             socket={this.props.socket}
             has_next={has_next}
             logList={logList}
             recordLoading={recordLoading}
             handleNextPage={this.handleNextPage}
-          />
-        )}
-
-        {/* <Card
-          bordered={false}
-          title="操作日志"
-          extra={
-            <a onClick={this.showVersionManage} href="javascript:;">
-              构建版本管理
-            </a>
-          }
-        >
-          <LogList
-            appDetail={this.props.appDetail}
-            appAlias={this.props.appAlias}
-            list={logList || []}
-          />{" "}
-          {this.state.hasNext && (
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: 30
-              }}
-            >
-              <Icon
-                style={{
-                  cursor: "pointer"
-                }}
-                onClick={this.handleNextPage}
-                type="down"
-              />
-            </p>
-          )}
-          {this.state.showVersionManage && (
-            <AppVersionManage
-              onRollback={this.handleRollback}
-              onCancel={this.hideVersionManage}
-              team_name={globalUtil.getCurrTeamName()}
-              service_alias={this.props.appAlias}
-              showUpgrade={showUpgrade}
-              setShowUpgrade={() => {
-                this.setState({ showUpgrade: false });
-              }}
-            />
-          )}
-        </Card> */}
+          />}
       </Fragment>
     );
   }

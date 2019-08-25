@@ -156,7 +156,7 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div>
-                    {SynType==0 && <Tooltip title="查看日志">
+                    {SynType==0 && <Tooltip visible={FinalStatus==""} title="查看日志">
                         <svg
                           style={{
                             cursor: "pointer"
@@ -218,7 +218,7 @@ class Index extends PureComponent {
           title={"日志"}
           onCancel={this.handleCancel}
           visible={true}
-          width="800px"
+          width="1000px"
           bodyStyle={{ background: "#222222", color: "#fff" }}
           footer={null}
         >

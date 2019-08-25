@@ -953,16 +953,6 @@ class Main extends PureComponent {
             </Button>
           </Dropdown>
         </ButtonGroup>
-        {/* {(appUtil.canDeploy(appDetail) && appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
-                    // {(appStatusUtil.canDeploy(status) && appDetail.service.service_source != "market") || (appDetail.service.service_source == "market" && appDetail.service.is_upgrate)
-                    ?
-                    this.state.showDeployTips ?
-                        <Tooltip title="应用配置已更改，更新后生效">
-                            <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
-                        </Tooltip>
-                        : isShowThirdParty ? "" :
-                            <Button onClick={this.handleDeploy} loading={this.state.deployCanClick}>构建</Button>
-                    : ''} */}
 
         {isShowThirdParty
           ? ""

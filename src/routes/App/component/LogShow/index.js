@@ -1,44 +1,67 @@
 import React, { PureComponent } from "react";
-import {
-  Form,
-} from "antd";
+import { Form } from "antd";
 import { connect } from "dva";
 import styles from "./index.less";
 import globalUtil from "../../../../utils/global";
 var Convert = require("ansi-to-html");
 var convert = new Convert();
 
-@connect()
-@Form.create()
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser
+}), null, null, { withRef: true })
 class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       visible: false,
       logs: [],
-      status: null,
+      dockerprogress: {},
+      status: null
     };
   }
   componentDidMount() {
-    this.loadEventLog()
+    this.loadEventLog();
   }
   shouldComponentUpdate() {
-    return true
+    return true;
   }
   showSocket() {
-      const {EventID} = this.props
-      this.props.socket.watchEventLog((message)=>{
-         var logs = this.state.logs || []
-         logs.push(message)
-         this.setState({ logs: logs })
-      },()=>{
-        this.setState({ status: "操作已成功" })
-      },()=>{
-        this.setState({ status: "操作出现异常" })
-      },EventID)
+    const { EventID } = this.props;
+    this.props.socket.watchEventLog(
+      message => {
+        var logs = this.state.logs || [];
+        if (message.message.indexOf('"status"') != -1) {
+          let m = JSON.parse(message.message);
+          if (m && m.status!=undefined && m.id!=undefined) {
+            var dockerprogress = this.state.dockerprogress
+            if (dockerprogress[m.id] != undefined){
+              dockerprogress[m.id] = m
+            }else{
+              dockerprogress[m.id] = m
+              logs.push(message);
+            }
+            this.setState({ dockerprogress: dockerprogress, logs: logs });
+            return
+          }
+        }else{
+          logs.push(message);
+        }
+        if (this.refs.box) {
+          this.refs.box.scrollTop = this.refs.box.scrollHeight
+        }
+        this.setState({ logs: logs });
+      },
+      () => {
+        this.setState({ status: <p style={{ color: "green" }}>操作已成功</p> });
+      },
+      () => {
+        this.setState({ status: <p style={{ color: "red" }}>操作失败</p> });
+      },
+      EventID
+    );
   }
   loadEventLog() {
-    const {EventID} = this.props
+    const { EventID } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "appControl/fetchLogContent",
@@ -50,18 +73,18 @@ class Index extends PureComponent {
         if (res) {
           this.setState(
             {
-              LogContentList: res.list,
+              logs: res.list,
               logVisible: true
             },
             () => {
               if (this.props.showSocket) {
-                this.showSocket()
+                this.showSocket();
               }
             }
           );
         } else {
           if (this.props.showSocket) {
-            this.showSocket()
+            this.showSocket();
           }
         }
       }
@@ -69,25 +92,65 @@ class Index extends PureComponent {
   }
 
   handleCancel = () => {
-    this.props.handleCancel()
+    this.props.handleCancel();
   };
 
   render() {
-    const {logs, status} = this.state
+    const { logs, status, dockerprogress } = this.state;
     return (
       <div>
-          <div className={styles.logsss} ref="box">
-            {logs && logs.map((log, index) => {
-                return (
-                  <div key={index}>
-                    {convert.toHtml(log.message)}
-                  </div>
-                );
-              })}
-          </div>
-          {status && <div style={{textAlign:"center"}}>{status}</div>}
+        <div className={styles.logsss} ref="box">
+          {logs &&
+            logs.map((log, index) => {
+              if (log.message.indexOf('"stream"') != -1) {
+                let m = JSON.parse(log.message);
+                if (m && m.stream != undefined) {
+                  return (
+                    <div key={index}>
+                      {convert.toHtml(m.stream)}
+                    </div>
+                  );
+                }
+              }
+              if (log.message.indexOf('"status"') != -1) {
+                let m = JSON.parse(log.message);
+                if (m && m.status!=undefined && m.id!=undefined) {
+                  let dp = dockerprogress[m.id]
+                  if (dp.progress != undefined){
+                    return (
+                      <div key={index}>
+                         {dp.id}:{m.progress}
+                      </div>
+                    );
+                  }else{
+                    return (
+                      <div key={index}>
+                         {dp.id}:{m.status}
+                      </div>
+                    );
+                  }
+                }
+                if (m && m.status!=undefined) {
+                  return (
+                    <div key={index}>
+                      {m.status}
+                    </div>
+                  );
+                }
+              }
+              return (
+                <div key={index}>
+                  {convert.toHtml(log.message)}
+                </div>
+              );
+            })}
+        </div>
+        {status &&
+          <div style={{ textAlign: "center" }}>
+            {status}
+          </div>}
       </div>
-    )
+    );
   }
 }
 
