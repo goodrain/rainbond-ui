@@ -22,9 +22,9 @@ class Index extends PureComponent {
   }
   componentDidMount() {}
 
-  handleMore = () => {
+  handleMore = state => {
     const { handleMore } = this.props;
-    handleMore && handleMore(true);
+    handleMore && handleMore(state);
   };
   render() {
     const { status, beanData, more, memory, disk, dataList } = this.props;
@@ -77,16 +77,12 @@ class Index extends PureComponent {
                             paddingLeft: "20px"
                           }}
                         >
-                          {beanData && beanData.finish_time ? "   " : "-"}
-                          {beanData &&
-                            beanData.dur_hours &&
-                            `${beanData.dur_hours}小时`}
-                          {beanData &&
-                            beanData.dur_minutes &&
-                            `${beanData.dur_minutes}分钟`}
-                          {beanData &&
-                            beanData.dur_seconds &&
-                            `${beanData.dur_seconds}秒`}
+                          {status && status.start_time
+                            ? globalUtil.fetchTime(
+                                Date.parse(new Date()) -
+                                  new Date(status.start_time).getTime()
+                              )
+                            : "-"}
                         </span>
                       </a>
                     </li>
@@ -125,19 +121,18 @@ class Index extends PureComponent {
                     <li>
                       <a target="_blank">
                         <svg
-                          t="1565779448163"
-                          className={styles.icon}
+                          style={{ marginRight: "6px" }}
+                          t="1566640777774"
                           viewBox="0 0 1024 1024"
                           version="1.1"
                           xmlns="http://www.w3.org/2000/svg"
-                          p-id="2108"
-                          width="16"
-                          height="16"
+                          p-id="20451"
+                          width="15"
+                          height="14"
                         >
                           <path
-                            d="M631 117l286 286v504H107V117h524m16.5-40H67v870h890V386.5L647.5 77z m-50 40v248.6H250V117h347.5m40-40H210v328.6h427.5V77zM774 658.4V907H250V658.4h524m40-40H210V947h604V618.4zM360.7 158.1h-40v160h40v-160zM705 718.5H319v40h386v-40z m0 86.2H319v40h386v-40z"
-                            fill=""
-                            p-id="2109"
+                            d="M615.7 82H67v860h890V368.4L615.7 82z m-317.1 50h298.9l2.1 1.7v214.9h-301V132zM724 892H298.6V642.6H724V892z m183 0H774V592.6H248.6V892H117V132h131.6v266.6h401v-223l257.5 216V892zM353.1 192.1h50v80h-50v-80z"
+                            p-id="20452"
                           />
                         </svg>
                         占用
@@ -160,66 +155,77 @@ class Index extends PureComponent {
               </div>
               <div className={styles.buildRightBox}>
                 <h2 className={` ${styles.alcen} ${styles.buildState} `}>
-                  <svg
-                    t="1565853114924"
-                    className={styles.icon}
-                    viewBox="0 0 1184 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="6049"
-                    width="16"
-                    height="16"
-                  >
-                    <path
-                      d="M448.576 576l118.272 0q-8 90.272-56.288 142.016t-122.56 51.712q-92.576 0-145.44-66.272t-52.864-180.576q0-110.848 53.152-178.016t133.152-67.136q84.576 0 132.576 49.728t55.424 141.152l-116 0q-2.848-36.576-20.288-56.576t-46.56-20q-32.576 0-50.56 34.56t-18.016 101.44q0 27.424 2.848 48t10.272 39.712 22.848 29.44 37.728 10.272q54.272 0 62.272-79.424zM855.424 576l117.728 0q-8 90.272-56 142.016t-122.272 51.712q-92.576 0-145.44-66.272t-52.864-180.576q0-110.848 53.152-178.016t133.152-67.136q84.576 0 132.576 49.728t55.424 141.152l-116.576 0q-2.272-36.576-20-56.576t-46.272-20q-32.576 0-50.56 34.56t-18.016 101.44q0 27.424 2.848 48t10.272 39.712 22.56 29.44 37.44 10.272q28 0 43.712-21.728t19.136-57.728zM1060.576 508q0-118.272-8.864-175.424t-34.56-92q-3.424-4.576-7.712-8t-12.288-8.576-9.152-6.272q-49.152-36-398.272-36-357.152 0-405.728 36-2.848 2.272-10.016 6.56t-12 8-8.288 8.288q-25.728 34.272-34.272 91.136t-8.576 176.288q0 118.848 8.576 175.712t34.272 91.712q3.424 4.576 8.576 8.576t11.712 8 10.016 6.848q25.152 18.848 136.864 28t268.864 9.152q348.576 0 398.272-37.152 2.848-2.272 9.728-6.272t11.712-8 7.712-9.152q26.272-34.272 34.848-90.848t8.576-176.576zM1170.272 73.152l0 877.728-1170.272 0 0-877.728 1170.272 0z"
-                      p-id="6050"
-                    />
-                  </svg>
-
-                  {beanData && beanData.build_version
-                    ? beanData.build_version
-                    : "-"}
+                  <span className={` ${styles.alcen} ${styles.buildwidth} `}>
+                    <svg
+                      t="1565853114924"
+                      className={styles.icon}
+                      viewBox="0 0 1184 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="6049"
+                      width="16"
+                      height="16"
+                    >
+                      <path
+                        d="M448.576 576l118.272 0q-8 90.272-56.288 142.016t-122.56 51.712q-92.576 0-145.44-66.272t-52.864-180.576q0-110.848 53.152-178.016t133.152-67.136q84.576 0 132.576 49.728t55.424 141.152l-116 0q-2.848-36.576-20.288-56.576t-46.56-20q-32.576 0-50.56 34.56t-18.016 101.44q0 27.424 2.848 48t10.272 39.712 22.848 29.44 37.728 10.272q54.272 0 62.272-79.424zM855.424 576l117.728 0q-8 90.272-56 142.016t-122.272 51.712q-92.576 0-145.44-66.272t-52.864-180.576q0-110.848 53.152-178.016t133.152-67.136q84.576 0 132.576 49.728t55.424 141.152l-116.576 0q-2.272-36.576-20-56.576t-46.272-20q-32.576 0-50.56 34.56t-18.016 101.44q0 27.424 2.848 48t10.272 39.712 22.56 29.44 37.44 10.272q28 0 43.712-21.728t19.136-57.728zM1060.576 508q0-118.272-8.864-175.424t-34.56-92q-3.424-4.576-7.712-8t-12.288-8.576-9.152-6.272q-49.152-36-398.272-36-357.152 0-405.728 36-2.848 2.272-10.016 6.56t-12 8-8.288 8.288q-25.728 34.272-34.272 91.136t-8.576 176.288q0 118.848 8.576 175.712t34.272 91.712q3.424 4.576 8.576 8.576t11.712 8 10.016 6.848q25.152 18.848 136.864 28t268.864 9.152q348.576 0 398.272-37.152 2.848-2.272 9.728-6.272t11.712-8 7.712-9.152q26.272-34.272 34.848-90.848t8.576-176.576zM1170.272 73.152l0 877.728-1170.272 0 0-877.728 1170.272 0z"
+                        p-id="6050"
+                      />
+                    </svg>
+                    <span style={{ color: "rgba(0,0,0,0.65)" }}>版本号</span>
+                  </span>
+                  <span>
+                    {beanData && beanData.build_version
+                      ? beanData.build_version
+                      : "-"}
+                  </span>
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
                     <li>
                       <a target="_blank">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 17 17"
-                          className={styles.icon}
+                        <span
+                          className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
-                          <circle
-                            cx="8.51"
-                            cy="8.5"
-                            r="3.5"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <path
-                            d="M16.5 8.5h-4.49m-7 0H.5"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 17 17"
+                            className={styles.icon}
+                          >
+                            <circle
+                              cx="8.51"
+                              cy="8.5"
+                              r="3.5"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <path
+                              d="M16.5 8.5h-4.49m-7 0H.5"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                          </svg>
+                          {beanData &&
+                          beanData.kind &&
+                          beanData.kind === "源码构建"
+                            ? "代码版本"
+                            : "仓库地址"}
+                        </span>
                         <Tooltip
                           title={
                             beanData && beanData.code_version
                               ? beanData.code_version
                               : beanData && beanData.image_domain
-                              ? "镜像域名"
+                              ? beanData.image_domain
                               : "-"
                           }
                         >
-                          <span
-                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
-                          >
+                          <span className={styles.buildText}>
                             {beanData && beanData.code_version
                               ? beanData.code_version
                               : beanData && beanData.image_domain
@@ -231,52 +237,59 @@ class Index extends PureComponent {
                     </li>
                     <li>
                       <a target="_blank">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 17 17"
-                          className={styles.icon}
+                        <span
+                          className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
-                          <circle
-                            cx="3.8"
-                            cy="3.2"
-                            r="1.7"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <path
-                            d="M6.75 15.5s1.95-1.95 1.95-1.98H6.3s-2.48.15-2.48-2.46V4.92m2.93 6.64s1.95 1.95 1.95 1.97"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <g
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 17 17"
+                            className={styles.icon}
                           >
-                            <circle cx="13.2" cy="13.8" r="1.7" />
-                            <path d="M10.25 1.5S8.3 3.45 8.3 3.47h2.4s2.48-.15 2.48 2.46v6.14m-2.93-6.63S8.3 3.49 8.3 3.47" />
-                          </g>
-                        </svg>
+                            <circle
+                              cx="3.8"
+                              cy="3.2"
+                              r="1.7"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <path
+                              d="M6.75 15.5s1.95-1.95 1.95-1.98H6.3s-2.48.15-2.48-2.46V4.92m2.93 6.64s1.95 1.95 1.95 1.97"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <g
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            >
+                              <circle cx="13.2" cy="13.8" r="1.7" />
+                              <path d="M10.25 1.5S8.3 3.45 8.3 3.47h2.4s2.48-.15 2.48 2.46v6.14m-2.93-6.63S8.3 3.49 8.3 3.47" />
+                            </g>
+                          </svg>
+                          {beanData &&
+                          beanData.kind &&
+                          beanData.kind === "源码构建"
+                            ? "提交信息"
+                            : "镜像名称"}
+                        </span>
                         <Tooltip
                           title={
                             beanData && beanData.commit_msg
                               ? beanData.commit_msg
                               : beanData && beanData.image_repo
-                              ? "镜像名称"
+                              ? beanData.image_repo
                               : "-"
                           }
                         >
-                          <span
-                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
-                          >
+                          <span className={styles.buildText}>
                             {beanData && beanData.commit_msg
                               ? beanData.commit_msg
                               : beanData && beanData.image_repo
@@ -288,50 +301,59 @@ class Index extends PureComponent {
                     </li>
                     <li>
                       <a target="_blank">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 17 17"
-                          className={styles.icon}
+                        <span
+                          className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
-                          <circle
-                            cx="4.94"
-                            cy="2.83"
-                            r="1.83"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <circle
-                            cx="11.78"
-                            cy="5.15"
-                            r="1.83"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <circle
-                            cx="4.98"
-                            cy="14.17"
-                            r="1.83"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                          <path
-                            d="M11.78 6.99s.09 2.68-1.9 3.38c-1.76.62-2.92-.04-4.93 1.97V4.66"
-                            fill="none"
-                            stroke="#9d9d9d"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-miterlimit="10"
-                          />
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 17 17"
+                            className={styles.icon}
+                          >
+                            <circle
+                              cx="4.94"
+                              cy="2.83"
+                              r="1.83"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <circle
+                              cx="11.78"
+                              cy="5.15"
+                              r="1.83"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <circle
+                              cx="4.98"
+                              cy="14.17"
+                              r="1.83"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                            <path
+                              d="M11.78 6.99s.09 2.68-1.9 3.38c-1.76.62-2.92-.04-4.93 1.97V4.66"
+                              fill="none"
+                              stroke="#9d9d9d"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-miterlimit="10"
+                            />
+                          </svg>
+                          {beanData &&
+                          beanData.kind &&
+                          beanData.kind === "源码构建"
+                            ? "代码分支"
+                            : "镜像tag"}
+                        </span>
                         <Tooltip
                           title={
                             beanData && beanData.branch
@@ -341,9 +363,7 @@ class Index extends PureComponent {
                               : "-"
                           }
                         >
-                          <span
-                            style={{  color: "rgba(0,0,0,0.45)", paddingLeft: "10px" }}
-                          >
+                          <span className={styles.buildText}>
                             {beanData && beanData.branch
                               ? beanData.branch
                               : beanData && beanData.image_tag
@@ -355,12 +375,25 @@ class Index extends PureComponent {
                     </li>
                   </ul>
                   <p className={styles.buildAuthor}>
-                    <a onClick={this.handleMore}>
-                      {dataList &&
-                        dataList.length > 0 &&
-                        !more &&
-                        "查看更多版本"}
-                    </a>
+                    {dataList && dataList.length > 0 && !more ? (
+                      <a
+                        onClick={() => {
+                          this.handleMore(true);
+                        }}
+                      >
+                        查看更多版本
+                      </a>
+                    ) : (
+                      more===true && (
+                        <a
+                          onClick={() => {
+                            this.handleMore(false);
+                          }}
+                        >
+                          返回实例列表
+                        </a>
+                      )
+                    )}
                   </p>
                 </div>
               </div>

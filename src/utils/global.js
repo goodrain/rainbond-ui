@@ -97,7 +97,7 @@ const global = {
       closed: "已关闭",
       undeploy: "未部署",
       unKnow: "未知",
-      ABNORMAL: "异常",
+      ABNORMAL: "运行异常",
       TEMINATING: "关闭中",
       INITIATING: "初始化中",
       SCHEDULING: "调度中",
@@ -107,6 +107,42 @@ const global = {
       expired: "过期"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
+  },
+  fetchTime(value) {
+    var date3 = value; //时间差的毫秒数
+    let result = "";
+
+    //计算出相差天数
+    var days = Math.floor(date3 / (24 * 3600 * 1000));
+
+    //计算出小时数
+
+    var leave1 = date3 % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
+    var hours = Math.floor(leave1 / (3600 * 1000));
+    //计算相差分钟数
+    var leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
+    var minutes = Math.floor(leave2 / (60 * 1000));
+
+    //计算相差秒数
+    var leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
+    var seconds = Math.round(leave3 / 1000);
+
+    if (days) {
+      result += days + "天";
+    }
+    if (hours) {
+      result += hours + "小时";
+    }
+
+    if (minutes) {
+      result += minutes + "分钟";
+    }
+
+    if (seconds) {
+      result += seconds + "秒";
+    }
+
+    return result;
   },
   fetchStateOptTypeText(state) {
     const statusOptType = {

@@ -449,18 +449,35 @@ export default class Index extends PureComponent {
     this.mounted = true;
     this.fetchAppDiskAndMemory();
     this.getVersionList();
-    this.fetchPods();
-    this.fetchOperationLog(true);
+    this.fetchOperationLog();
+    this.fetchPods()
+    this.interval = setInterval(() => this.fetchPods(), 5000);
+
   }
   componentWillUnmount() {
     this.mounted = false;
-    clearTimeout(this.cyclepod);
-    clearTimeout(this.cycleevent);
+    this.props.dispatch({ type: "appControl/clearDisk" });
+    this.props.dispatch({ type: "appControl/clearMemory" });
+    this.props.dispatch({ type: "appControl/clearRequestTime" });
+    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
+    this.props.dispatch({ type: "appControl/clearRequest" });
+    this.props.dispatch({ type: "appControl/clearRequestRange" });
+    clearTimeout(this.timeout);
+    clearInterval(this.interval);
+
   }
+
+
+
+
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.state.status !== nextProps.status) {
+  //     this.fetchPods(nextProps.status);
+  //   }
+  // }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.status !== prevState.status) {
-      // this.fetchPods();
       return {
         status: nextProps.status
       };
@@ -519,6 +536,67 @@ export default class Index extends PureComponent {
         });
       }
     });
+  };
+
+  // loadLog = append => {
+  //   const { dispatch, appAlias } = this.props;
+  //   getActionLog({
+  //     app_alias: appAlias,
+  //     page: this.state.page,
+  //     page_size: this.state.page_size,
+  //     start_time: "",
+  //     team_name: globalUtil.getCurrTeamName()
+  //   }).then(data => {
+  //     if (data) {
+  //       if (!append) {
+  //         this.setState({
+  //           hasNext: data.has_next,
+  //           logList: data.list || []
+  //         });
+  //       } else {
+  //         this.setState({
+  //           hasNext: data.has_next,
+  //           logList: this.state.logList.concat(data.list || [])
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
+  onAction = actionLog => {
+    if (actionLog) {
+      this.watchLog(actionLog.event_id);
+      this.setState({
+        logList: [actionLog].concat(this.state.logList),
+        showUpgrade: true
+      });
+    }
+  };
+
+  watchLog = EventID => {
+    const { socket } = this.props;
+    socket.watchEventLog(
+      messages => {
+        if (messages && messages.length > 0) {
+          console.log("messages", messages);
+        }
+      },
+      message => {
+        // var LogContentList = this.state.LogContentList || [];
+        // if (LogContentList.length >= 5000) {
+        //   LogContentList.shift();
+        // }
+        // LogContentList.push(message);
+        // if (this.refs.box) {
+        //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
+        // }
+        // this.setState({ LogContentList: logs });
+        console.log("message", message);
+      },
+      error => {
+        console.log("err", error);
+      },
+      EventID
+    );
   };
 
   handleNextPage = () => {
@@ -601,7 +679,10 @@ export default class Index extends PureComponent {
       }
     });
   };
-
+  // componentDidUpdate(){
+  //   console.log('statusstatusstatusstatus',this.state.status)
+  //   this.fetchPods()
+  // }
   fetchPods = () => {
     const { appAlias, dispatch } = this.props;
     dispatch({
@@ -616,11 +697,6 @@ export default class Index extends PureComponent {
             new_pods: data.list.new_pods,
             old_pods: data.list.old_pods
           });
-          if (data.list.old_pods) {
-            this.cyclepod = setTimeout(() => {
-              this.fetchPods(); // Fix duplicate onPressEnter
-            }, 5000);
-          }
         }
         this.setState({
           runLoading: false
@@ -689,7 +765,6 @@ export default class Index extends PureComponent {
             beanData={beanData}
             current_version={current_version}
             dataList={dataList}
-            handleMore={this.handleMore}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
             socket={this.props.socket}

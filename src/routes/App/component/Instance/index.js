@@ -70,8 +70,12 @@ class Index extends PureComponent {
     switch (state) {
       case "Running":
         return <span style={{ color: "#39aa56" }}>成功</span>;
+      case "Waiting":
+        return <span style={{ color: "#39aa56" }}>等待</span>;
+      case "Terminated":
+        return <span style={{ color: "rgb(205, 2, 0)" }}>停止</span>;
       default:
-        return <span>state</span>;
+        return <span>{state}</span>;
     }
   };
 
