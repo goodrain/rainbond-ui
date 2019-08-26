@@ -6,9 +6,14 @@ import globalUtil from "../../../../utils/global";
 var Convert = require("ansi-to-html");
 var convert = new Convert();
 
-@connect(({ user, appControl }) => ({
-  currUser: user.currentUser
-}), null, null, { withRef: true })
+@connect(
+  ({ user, appControl }) => ({
+    currUser: user.currentUser
+  }),
+  null,
+  null,
+  { withRef: true }
+)
 class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -32,22 +37,22 @@ class Index extends PureComponent {
         var logs = this.state.logs || [];
         if (message.message.indexOf('"status"') != -1) {
           let m = JSON.parse(message.message);
-          if (m && m.status!=undefined && m.id!=undefined) {
-            var dockerprogress = this.state.dockerprogress
-            if (dockerprogress[m.id] != undefined){
-              dockerprogress[m.id] = m
-            }else{
-              dockerprogress[m.id] = m
+          if (m && m.status != undefined && m.id != undefined) {
+            var dockerprogress = this.state.dockerprogress;
+            if (dockerprogress[m.id] != undefined) {
+              dockerprogress[m.id] = m;
+            } else {
+              dockerprogress[m.id] = m;
               logs.push(message);
             }
             this.setState({ dockerprogress: dockerprogress, logs: logs });
-            return
+            return;
           }
-        }else{
+        } else {
           logs.push(message);
         }
         if (this.refs.box) {
-          this.refs.box.scrollTop = this.refs.box.scrollHeight
+          this.refs.box.scrollTop = this.refs.box.scrollHeight;
         }
         this.setState({ logs: logs });
       },
@@ -95,41 +100,48 @@ class Index extends PureComponent {
     this.props.handleCancel();
   };
   getLineHtml = (lineNumber, message) => {
-    return (<div className={styles.logline} key={lineNumber}>
-        <a>{lineNumber}</a>
+    return (
+      <div className={styles.logline} key={lineNumber}>
+        <a>
+          {lineNumber}
+        </a>
         {message}
-    </div>)
-  }
+      </div>
+    );
+  };
   render() {
     const { logs, status, dockerprogress } = this.state;
-  
+
     return (
       <div>
         <div className={styles.logsss} ref="box">
           {logs &&
             logs.map((log, index) => {
-              let lineNumber = index+1
+              let lineNumber = index + 1;
               if (log.message.indexOf('"stream"') != -1) {
                 let m = JSON.parse(log.message);
                 if (m && m.stream != undefined) {
-                  return this.getLineHtml(lineNumber, convert.toHtml(m.stream))
+                  return this.getLineHtml(lineNumber, convert.toHtml(m.stream));
                 }
               }
               if (log.message.indexOf('"status"') != -1) {
                 let m = JSON.parse(log.message);
-                if (m && m.status!=undefined && m.id!=undefined) {
-                  let dp = dockerprogress[m.id]
-                  if (dp.progress != undefined){
-                    return this.getLineHtml(lineNumber, dp.id+":"+m.progress)
-                  }else{
-                    return this.getLineHtml(lineNumber, dp.id+":"+m.status)
+                if (m && m.status != undefined && m.id != undefined) {
+                  let dp = dockerprogress[m.id];
+                  if (dp.progress != undefined) {
+                    return this.getLineHtml(
+                      lineNumber,
+                      dp.id + ":" + dp.progress
+                    );
+                  } else {
+                    return this.getLineHtml(lineNumber, dp.id + ":" + m.status);
                   }
                 }
-                if (m && m.status!=undefined) {
-                  return this.getLineHtml(lineNumber, m.status)
+                if (m && m.status != undefined) {
+                  return this.getLineHtml(lineNumber, m.status);
                 }
               }
-              return this.getLineHtml(lineNumber, convert.toHtml(log.message))
+              return this.getLineHtml(lineNumber, convert.toHtml(log.message));
             })}
         </div>
         {status &&
