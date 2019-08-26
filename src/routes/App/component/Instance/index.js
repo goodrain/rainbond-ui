@@ -67,13 +67,14 @@ class Index extends PureComponent {
   };
 
   containerState = state => {
-    switch (state) {
-      case "Running":
-        return <span style={{ color: "#39aa56" }}>成功</span>;
-      case "Waiting":
-        return <span style={{ color: "#39aa56" }}>等待</span>;
-      case "Terminated":
-        return <span style={{ color: "rgb(205, 2, 0)" }}>停止</span>;
+    let states = state.toLowerCase();
+    switch (states) {
+      case "running":
+        return <span style={{ color: "#39aa56" }}>运行中</span>;
+      case "waiting":
+        return <span style={{ color: "#39aa56" }}>等待中</span>;
+      case "terminated":
+        return <span style={{ color: "rgb(205, 2, 0)" }}>已终止</span>;
       default:
         return <span>{state}</span>;
     }
@@ -152,7 +153,7 @@ class Index extends PureComponent {
                       <span>创建时间:</span>
                       <span>
                         {moment(instanceInfo.start_time).format(
-                          "YYYY年-MM月-DD日"
+                          "YYYY-MM-DD hh:mm:ss"
                         )}
                       </span>
                     </li>
@@ -163,9 +164,10 @@ class Index extends PureComponent {
                         <span>{instanceInfo.ip}</span>
                       </Tooltip>
                     </li>
+
                     <li>
-                      <span />
-                      <span />
+                      <span>{instanceInfo.version ? "版本号:" : ""}</span>
+                      <span>{instanceInfo.version || ""}</span>
                     </li>
                     <li>
                       <span>实例状态:</span>
@@ -241,35 +243,6 @@ class Index extends PureComponent {
                             )
                           },
                           {
-                            title: "状态",
-                            dataIndex: "state",
-                            key: "state",
-                            width: "10%",
-                            render: state => this.containerState(state)
-                          },
-                          {
-                            title: "异常状态的原因",
-                            dataIndex: "reason",
-                            key: "reason",
-                            width: "20%",
-                            render: reason => <span>{reason || "-"}</span>
-                          },
-                          {
-                            title: "创建时间",
-                            dataIndex: "started",
-                            key: "started",
-                            width: "20%",
-                            render: started => (
-                              <Tooltip
-                                title={moment(started).format(
-                                  "YYYY年-MM月-DD日"
-                                )}
-                              >
-                                {moment(started).format("YYYY年-MM月-DD日")}
-                              </Tooltip>
-                            )
-                          },
-                          {
                             title: "内存",
                             dataIndex: "limit_memory",
                             key: "limit_memory",
@@ -282,8 +255,35 @@ class Index extends PureComponent {
                             key: "limit_cpu",
                             width: "10%",
                             render: limit_cpu => <span>{limit_cpu}</span>
+                          },
+                          {
+                            title: "创建时间",
+                            dataIndex: "started",
+                            key: "started",
+                            width: "20%",
+                            render: started =>
+                              moment(started).format("YYYY-MM-DD hh:mm:ss")
+                          },
+                          {
+                            title: "状态",
+                            dataIndex: "state",
+                            key: "state",
+                            width: "10%",
+                            render: state => this.containerState(state)
+                          },
+                          {
+                            title: "说明",
+                            dataIndex: "reason",
+                            key: "reason",
+                            width: "20%",
+                            render: reason => <span>{reason || "-"}</span>
                           }
                         ]}
+                        pagination={{
+                          hideOnSinglePage: true,
+                          pageSize: 999,
+                          current: 1
+                        }}
                       />
                     )}
                 </div>
@@ -325,13 +325,13 @@ class Index extends PureComponent {
                         title: "时间",
                         dataIndex: "age",
                         key: "age",
-                        width: "10%"
+                        width: "20%"
                       },
                       {
                         title: "说明",
                         dataIndex: "message",
                         key: "message",
-                        width: "50%",
+                        width: "40%",
                         render: message => (
                           <Tooltip title={message}>
                             <span
@@ -346,6 +346,11 @@ class Index extends PureComponent {
                         )
                       }
                     ]}
+                    pagination={{
+                      hideOnSinglePage: true,
+                      pageSize: 999,
+                      current: 1
+                    }}
                   />
                 </div>
               </div>

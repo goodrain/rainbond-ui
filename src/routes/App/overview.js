@@ -21,7 +21,7 @@ import {
   Card,
   Form,
   Button,
-  Icon,
+  notification,
   Menu,
   Dropdown,
   Progress,
@@ -553,6 +553,7 @@ export default class Index extends PureComponent {
 
   onAction = action => {
     this.fetchOperationLog(false);
+    this.getVersionList();
   };
   onPageChange = page => {};
 
@@ -560,12 +561,12 @@ export default class Index extends PureComponent {
     this.props.dispatch({
       type: "appControl/delAppVersion",
       payload: {
-        team_name: this.props.team_name,
-        service_alias: this.props.service_alias,
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.props.appAlias,
         version_id: item.build_version
       },
-      callback: data => {
-        if (data) {
+      callback: res => {
+        if (res) {
           notification.success({
             message: "删除成功"
           });

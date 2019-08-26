@@ -549,7 +549,6 @@ class Main extends PureComponent {
       app_alias: this.getAppAlias()
     }).then(data => {
       if (data) {
-        console.log('data',data)
         notification.success({ message: `操作成功，重启中` });
         var child = this.getChildCom();
         if (child && child.onAction) {
