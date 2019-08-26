@@ -1,4 +1,5 @@
 import styles from "./utils.less";
+import moment from "moment";
 
 const global = {
   getCurrTeamName() {
@@ -23,12 +24,12 @@ const global = {
     const statusColorMap = {
       RUNNING: "#00D777", //运行中 绿色
       running: "#00D777", //运行中 绿色
-      starting: "#F69D4A", //开启中
-      Starting: "#F69D4A", //开启中
+      starting: "#F69D4A", //启动中
+      Starting: "#F69D4A", //启动中
       checking: "F69D4A", //检测中
       SCHEDULING: "#F69D4A", //检测中
-      stoping: "#20124A", //关闭中 紫色
-      Stoping: "#20124A", //关闭中 紫色
+      stopping: "#20124A", //关闭中 紫色
+      Stopping: "#20124A", //关闭中 紫色
       unusual: "#CD0200", //异常 纯红
       ABNORMAL: "#CD0200", //异常 纯红
       closed: "#000021", //已关闭 黑色
@@ -445,10 +446,10 @@ const global = {
       running:
         "linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat", //运行中 绿色
       starting:
-        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", //开启中
+        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", //启动中
       checking:
         "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", //检测中
-      stoping:
+      stopping:
         "linear-gradient(to right, #20124A 0, #20124A 10px, #fff 10px, #fff 100%) no-repeat", //关闭中 紫色
       unusual:
         "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat", //异常
@@ -472,9 +473,9 @@ const global = {
     const statusColorMap = {
       RUNNING: "运行中",
       running: "运行中",
-      starting: "开启中",
+      starting: "启动中",
       checking: "检测中",
-      stoping: "关闭中",
+      stopping: "关闭中",
       unusual: "运行异常",
       closed: "已关闭",
       undeploy: "未部署",
@@ -491,41 +492,73 @@ const global = {
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
   fetchTime(value) {
-    var date3 = value; //时间差的毫秒数
+    let second = value; //时间差的毫秒数
     let result = "";
 
     //计算出相差天数
-    var days = Math.floor(date3 / (24 * 3600 * 1000));
+    let days = Math.floor(second / (24 * 3600 * 1000));
 
     //计算出小时数
 
-    var leave1 = date3 % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
-    var hours = Math.floor(leave1 / (3600 * 1000));
+    let leave1 = second % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
+    let hours = Math.floor(leave1 / (3600 * 1000));
     //计算相差分钟数
-    var leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
-    var minutes = Math.floor(leave2 / (60 * 1000));
+    let leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
+    let minutes = Math.floor(leave2 / (60 * 1000));
 
     //计算相差秒数
-    var leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
-    var seconds = Math.round(leave3 / 1000);
+    let leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
+    let seconds = Math.round(leave3 / 1000);
 
-    if (days) {
+    if (days && days >= 1) {
       result += days + "天";
     }
-    if (hours) {
+    if (hours && hours >= 1) {
       result += hours + "小时";
     }
 
-    if (minutes) {
+    if (minutes && minutes >= 1) {
       result += minutes + "分钟";
     }
 
     if (seconds && seconds >= 1) {
       result += seconds + "秒";
     }
-
     return result ? result : "1秒";
   },
+  fetchdayTime(date) {
+    let second = Date.parse(new Date()) - new Date(date).getTime();
+    //计算出相差天数
+    let days = Math.floor(second / (24 * 3600 * 1000));
+    //计算出小时数
+
+    let leave1 = second % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
+    let hours = Math.floor(leave1 / (3600 * 1000));
+    //计算相差分钟数
+    let leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
+    let minutes = Math.floor(leave2 / (60 * 1000));
+
+    //计算相差秒数
+    let leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
+    let seconds = Math.round(leave3 / 1000);
+
+    let result = "";
+    if (days && days > 7) {
+      result = moment(date).format("YYYY-MM-DD");
+    } else if (days && days >= 1 && days < 7) {
+      result += days + "天前";
+    } else if (hours && hours >= 1 && hours <= 23) {
+      result += hours + "小时前";
+    } else if (minutes && minutes >= 1 && minutes <= 59) {
+      result += minutes + "分钟前";
+    } else if (seconds && seconds >= 1 && seconds <= 59) {
+      result += seconds + "秒前";
+    } else {
+      result = "1秒前";
+    }
+    return result;
+  },
+
   fetchStateOptTypeText(state) {
     const statusOptType = {
       "": "-",

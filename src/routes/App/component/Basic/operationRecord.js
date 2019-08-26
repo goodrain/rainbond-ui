@@ -52,11 +52,7 @@ class Index extends PureComponent {
         );
       }
       if (finalstatus == "timeout") {
-        return (
-          <span>
-            操作已超时
-          </span>
-        );
+        return <span>操作已超时</span>;
       }
       switch (status) {
         case "success":
@@ -99,7 +95,7 @@ class Index extends PureComponent {
                     <div
                       style={{ wordBreak: "break-word", lineHeight: "17px" }}
                     >
-                      {dateUtil.dateToCN(StartTime, "yyyy-MM-dd")}
+                      {globalUtil.fetchdayTime(StartTime)}
                     </div>
                     <div>
                       <Tooltip title={Message}>
@@ -130,14 +126,17 @@ class Index extends PureComponent {
                         </Tooltip>
                       </span>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <span>
-                        {globalUtil.fetchTime(
-                          (new Date(EndTime).getTime()
-                            ? new Date(EndTime).getTime()
-                            : Date.parse(new Date())) -
-                            new Date(StartTime).getTime()
-                        )}
+                    <div>
+                      <span className={styles.alcen} style={{ justifyContent: "flex-end" }}>
+                        {globalUtil.fetchSvg("runTime")}
+                        <span>
+                          {globalUtil.fetchTime(
+                            (new Date(EndTime).getTime()
+                              ? new Date(EndTime).getTime()
+                              : Date.parse(new Date())) -
+                              new Date(StartTime).getTime()
+                          )}
+                        </span>
                       </span>
                     </div>
                     <div>

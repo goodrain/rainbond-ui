@@ -39,15 +39,13 @@ class Index extends PureComponent {
     });
   };
 
-  handleOk = e => {
-    console.log(e);
+  handleOk = () => {
     this.setState({
       logVisible: false
     });
   };
 
-  handleCancel = e => {
-    console.log(e);
+  handleCancel = () => {
     this.setState({
       logVisible: false
     });
@@ -66,6 +64,7 @@ class Index extends PureComponent {
   render() {
     const { dataList, beanData, current_version } = this.props;
     const { LogHistoryList, showHighlighted, EventID, logVisible } = this.state;
+
     return (
       <Row gutter={24}>
         {logVisible && (
@@ -95,7 +94,6 @@ class Index extends PureComponent {
                   dataList.map(item => {
                     const {
                       code_commit_msg,
-                      repo_url,
                       image_domain,
                       build_user,
                       code_version,
@@ -103,18 +101,15 @@ class Index extends PureComponent {
                       create_time,
                       build_version,
                       finish_time,
-                      dur_hours,
-                      dur_minutes,
-                      dur_seconds,
                       upgrade_or_rollback,
                       EventID,
                       image_repo,
-                      kind,
                       code_branch,
                       image_tag
                     } = item;
                     return (
                       <li
+                        key={build_version}
                         className={`${styles.rowLi} ${styles.prRow} ${
                           status === "success"
                             ? styles.passed
@@ -341,7 +336,7 @@ class Index extends PureComponent {
                                   }}
                                 >
                                   {moment(create_time).format(
-                                    "YYYY年-MM月-DD日"
+                                    "YYYY-MM-DD hh:mm:ss"
                                   )}
                                 </font>
                               </time>
@@ -409,7 +404,7 @@ class Index extends PureComponent {
                           <Popconfirm
                             title="确定要删除此版本吗?"
                             onConfirm={() => {
-                              this.handleDel(beanData);
+                              this.handleDel(item);
                             }}
                           >
                             {build_version != current_version &&
