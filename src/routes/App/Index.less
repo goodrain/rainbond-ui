@@ -1,100 +1,130 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
-.nowarpText{
-  overflow: hidden;
+
+.nowarpText {
+  overflow     : hidden;
   text-overflow: ellipsis;
-  word-break: break-all;
-  white-space: nowrap;
+  word-break   : break-all;
+  white-space  : nowrap;
 }
+
 :global {
   td a {
     margin: 0 3px;
   }
 }
 
-.logsss {
-	background:#212121;
-	min-height: 300px;
-	padding: 15px;
-	max-height: 600px;
-	overflow: auto;
+.logModal {
+  :global {
+    .ant-modal-close-x {
+      color: #fff;
+    }
 
-	div{
-		margin-bottom:0;
-		display: flex;
-		min-height: 19px;
-		font-size: 12px;
-		line-height: 19px;
-		span:nth-of-type(1){
-			display: inline-block;
-			text-align: right;
-			min-width: 40px;
-			display: flex;
-			padding-right: 6px;
-			// b{
-			// 	display: inline-block;
-			// 	width: 20%;
-			// }
-			span{
-				display: inline-block;
-				width: 20px;
-				text-align: right;
-			}
-		}
-		span:nth-of-type(2){
-			width: 80%;
-		}
-		span:nth-of-type(3){
-			width: 14%;
-			border-radius:6px;
-			height: 16px;
-			text-align: center;
-			line-height: 16px;
-		}
-	}
-	div:hover{
-		background: #444444
-	}
+    .ant-modal-header {
+      background   : #444;
+      color        : #fff;
+      border-bottom: none;
+    }
+
+    .ant-modal-title {
+      color: #fff;
+    }
+  }
+}
+
+.logsss {
+  background: #212121;
+  min-height: 300px;
+  padding   : 15px;
+  max-height: 600px;
+  overflow  : auto;
+
+  div {
+    margin-bottom: 0;
+    display      : flex;
+    min-height   : 19px;
+    font-size    : 12px;
+    line-height  : 19px;
+
+    span:nth-of-type(1) {
+      display      : inline-block;
+      text-align   : right;
+      min-width    : 40px;
+      display      : flex;
+      padding-right: 6px;
+
+      // b{
+      // 	display: inline-block;
+      // 	width  : 20%;
+      // }
+      span {
+        display   : inline-block;
+        width     : 20px;
+        text-align: right;
+      }
+    }
+
+    span:nth-of-type(2) {
+      width: 80%;
+    }
+
+    span:nth-of-type(3) {
+      width        : 14%;
+      border-radius: 6px;
+      height       : 16px;
+      text-align   : center;
+      line-height  : 16px;
+    }
+  }
+
+  div:hover {
+    background: #444444
+  }
 
 
 }
 
-.History1000Log{
-	div{
-		margin-bottom:0;
-		display: flex;
-		min-height: 19px;
-		font-size: 12px;
-		line-height: 19px;
-		span:nth-of-type(1){
-			display: inline-block;
-			text-align: right;
-			min-width: 40px;
-			display: flex;
-			padding-right: 6px;
-			// b{
-			// 	display: inline-block;
-			// 	width: 20%;
-			// }
-			span{
-				display: inline-block;
-				width: 20px;
-				text-align: right;
-			}
-		}
-		span:nth-of-type(2){
-			width: 80%;
-		}
-		span:nth-of-type(3){
-			width: 14%;
-			border-radius:6px;
-			height: 19px;
-			text-align: center;
-		}
-	}
-	div:hover{
-		background: #444444
-	}
+.History1000Log {
+  div {
+    margin-bottom: 0;
+    display      : flex;
+    min-height   : 19px;
+    font-size    : 12px;
+    line-height  : 19px;
+
+    span:nth-of-type(1) {
+      display      : inline-block;
+      text-align   : right;
+      min-width    : 40px;
+      display      : flex;
+      padding-right: 6px;
+
+      // b{
+      // 	display: inline-block;
+      // 	width  : 20%;
+      // }
+      span {
+        display   : inline-block;
+        width     : 20px;
+        text-align: right;
+      }
+    }
+
+    span:nth-of-type(2) {
+      width: 80%;
+    }
+
+    span:nth-of-type(3) {
+      width        : 14%;
+      border-radius: 6px;
+      height       : 19px;
+      text-align   : center;
+    }
+  }
+
+  div:hover {
+    background: #444444
+  }
 }
 
 .instanceBox {
@@ -183,7 +213,7 @@
 
 
     .buildLeftBox {
-      width       : 45%;
+      width       : 50%;
       padding-left: 2.2rem;
 
       .buildState {
@@ -207,7 +237,7 @@
         white-space: nowrap;
 
         a {
-          color      : rgba(0,0,0,0.65);
+          color      : rgba(0, 0, 0, 0.65);
           display    : flex;
           align-items: center;
           font-size  : 14px;
@@ -226,7 +256,7 @@
     }
 
     .buildRightBox {
-      width       : 45%;
+      width       : 50%;
       padding-left: 2rem;
 
       .buildState {
@@ -236,6 +266,11 @@
         font-weight : 400;
         font-size   : 14px;
       }
+
+      .buildwidth {
+        width: 90px;
+      }
+
 
       .buildCommitInfo {
         font-size   : 15px;
@@ -271,9 +306,11 @@
 .logfailed {
   background: linear-gradient(to right, #db4545 0, #db4545 5px, #fff 5px, #fff 100%) no-repeat;
 }
+
 .logfored {
   background: linear-gradient(to right, #F69C49 0, #F69C49 5px, #fff 5px, #fff 100%) no-repeat;
 }
+
 .logcanceled {
   background: linear-gradient(to right, #9d9d9d 0, #9d9d9d 5px, #fff 5px, #fff 100%) no-repeat;
 }
@@ -403,7 +440,15 @@ font {
 .icon {
   width       : 15px;
   height      : 16px;
-  margin-right: 4px;
+  margin-right: 6px;
+}
+
+.buildText {
+  overflow     : hidden;
+  white-space  : nowrap;
+  text-overflow: ellipsis;
+  color        : rgba(0, 0, 0, 0.45);
+  width        : 78%;
 }
 
 .passeda {
@@ -499,7 +544,7 @@ font {
 
 .rowMessage {
   padding-left : 0.5em;
-  flex         : 0 0 60%;
+  flex         : 0 0 55%;
   overflow     : hidden;
   position     : relative;
   font-size    : 13px;
@@ -518,7 +563,7 @@ font {
       padding     : 0;
       margin      : .4em 0;
       white-space : nowrap;
-      width       : 55%;
+      width       : 50%;
       padding-left: .5em;
       border-right: 1px solid #EFF0EC;
     }
@@ -538,12 +583,13 @@ font {
     }
 
     .linefour {
-      // flex   : 0 0 22%;
-      width     : 10%;
-      display: flex;
-      align-items: center;
-      text-align: center;
-      justify-content: space-evenly;;
+      // flex        : 0 0 22%;
+      width          : 15%;
+      display        : flex;
+      align-items    : center;
+      text-align     : center;
+      justify-content: space-evenly;
+      ;
     }
 
     // .fadeOute:after {
@@ -596,7 +642,7 @@ font {
     }
 
     .rowBranch {
-      flex    : 0 0 40%;
+      flex    : 0 0 45%;
       position: relative;
       overflow: hidden;
 

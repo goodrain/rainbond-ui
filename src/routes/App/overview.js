@@ -449,18 +449,20 @@ export default class Index extends PureComponent {
     this.mounted = true;
     this.fetchAppDiskAndMemory();
     this.getVersionList();
-    this.fetchPods();
     this.fetchOperationLog(true);
+    this.fetchPods()
+    this.interval = setInterval(() => this.fetchPods(), 5000);
   }
   componentWillUnmount() {
     this.mounted = false;
-    clearTimeout(this.cyclepod);
+
     clearTimeout(this.cycleevent);
+    clearInterval(this.interval);
+
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.status !== prevState.status) {
-      // this.fetchPods();
       return {
         status: nextProps.status
       };
@@ -520,6 +522,7 @@ export default class Index extends PureComponent {
       }
     });
   };
+
 
   handleNextPage = () => {
     this.setState(
@@ -601,7 +604,10 @@ export default class Index extends PureComponent {
       }
     });
   };
-
+  // componentDidUpdate(){
+  //   console.log('statusstatusstatusstatus',this.state.status)
+  //   this.fetchPods()
+  // }
   fetchPods = () => {
     const { appAlias, dispatch } = this.props;
     dispatch({
@@ -616,11 +622,6 @@ export default class Index extends PureComponent {
             new_pods: data.list.new_pods,
             old_pods: data.list.old_pods
           });
-          if (data.list.old_pods) {
-            this.cyclepod = setTimeout(() => {
-              this.fetchPods(); // Fix duplicate onPressEnter
-            }, 5000);
-          }
         }
         this.setState({
           runLoading: false
@@ -689,7 +690,6 @@ export default class Index extends PureComponent {
             beanData={beanData}
             current_version={current_version}
             dataList={dataList}
-            handleMore={this.handleMore}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
             socket={this.props.socket}

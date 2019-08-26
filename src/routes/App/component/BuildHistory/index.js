@@ -11,6 +11,7 @@ import {
   Col,
   Tooltip
 } from "antd";
+import LogShow from "../LogShow";
 import { connect } from "dva";
 import styles from "../../Index.less";
 import globalUtil from "../../../../utils/global";
@@ -25,79 +26,18 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       LogHistoryList: [],
-      showHighlighted: ""
+      showHighlighted: "",
+      EventID: ""
     };
   }
   componentDidMount() {}
 
-  handleMore = () => {
-    const { handleMore } = this.props;
-    handleMore && handleMore(false);
-  };
-
   showModal = EventID => {
     this.setState({
-      // LogHistoryList: res.list,
-      LogHistoryList: [
-        {
-          message: "App runtime begin restart app service gr1e74e4",
-          time: "2019-08-20T11:53:25+08:00",
-          utime: 1566273205
-        }
-      ],
+      EventID,
       logVisible: true
     });
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: "appControl/fetchLogContent",
-      payload: {
-        team_name,
-        eventID: EventID
-      },
-      callback: res => {
-        if (res) {
-          console.log("res", res);
-          this.setState({
-            // LogHistoryList: res.list,
-            LogHistoryList: [
-              {
-                message: "App runtime begin restart app service gr1e74e4",
-                time: "2019-08-20T11:53:25+08:00",
-                utime: 1566273205
-              }
-            ],
-            logVisible: true
-          });
-        }
-      }
-    });
   };
-  watchLog(EventID) {
-    this.props.socket.watchEventLog(
-      messages => {
-        if (messages && messages.length > 0) {
-          this.setState({ LogHistoryList: messages });
-        }
-      },
-      message => {
-        if (this.state.started) {
-          var LogHistoryList = this.state.LogHistoryList || [];
-          if (LogHistoryList.length >= 5000) {
-            LogHistoryList.shift();
-          }
-          LogHistoryList.push(message);
-          if (this.refs.box) {
-            this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          }
-          this.setState({ LogHistoryList: logs });
-        }
-      },
-      error => {
-        console.log("err", error);
-      },
-      EventID
-    );
-  }
 
   handleOk = e => {
     console.log(e);
@@ -125,50 +65,27 @@ class Index extends PureComponent {
 
   render() {
     const { dataList, beanData, current_version } = this.props;
-    const { LogHistoryList, showHighlighted } = this.state;
+    const { LogHistoryList, showHighlighted, EventID, logVisible } = this.state;
     return (
       <Row gutter={24}>
-        <Modal
-          title="构建日志"
-          visible={this.state.logVisible}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-          width="1200px"
-          bodyStyle={{ background: "#222222", color: "#fff" }}
-          footer={null}
-        >
-          <div className={styles.logsss} ref="box">
-            {LogHistoryList &&
-              LogHistoryList.length > 0 &&
-              LogHistoryList.map((item, index) => {
-                const { message, utime } = item;
-                return (
-                  <div key={utime}>
-                    <span
-                      style={{
-                        color: "#666666"
-                      }}
-                    >
-                      <span>{index + 1}</span>
-                    </span>
-                    <span
-                      ref="texts"
-                      style={{
-                        color: "#FFF"
-                      }}
-                    >
-                      {message}
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-        </Modal>
+        {logVisible && (
+          <Modal
+            className={styles.logModal}
+            title="构建日志"
+            visible={logVisible}
+            onOk={this.handleOk}
+            onCancel={this.handleCancel}
+            width="1200px"
+            bodyStyle={{ background: "#222222", color: "#fff" }}
+            footer={null}
+          >
+            <LogShow EventID={EventID} />
+          </Modal>
+        )}
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
             bordered={false}
             title="构建版本历史"
-            extra={<a onClick={this.handleMore}>返回实例列表</a>}
             style={{ margin: "20px 0" }}
           >
             <div className={styles.buildHistoryBox}>
@@ -191,7 +108,10 @@ class Index extends PureComponent {
                       dur_seconds,
                       upgrade_or_rollback,
                       EventID,
-                      image_repo
+                      image_repo,
+                      kind,
+                      branch,
+                      image_tag
                     } = item;
                     return (
                       <li
@@ -207,7 +127,11 @@ class Index extends PureComponent {
                           <div
                             className={`${styles.rowRtem} ${styles.buildInfo}`}
                           >
-                            <h2 className={`${styles.rowBranch}`}>
+                            <div
+                              className={` ${styles.alcen}  ${
+                                styles.rowBranch
+                              }`}
+                            >
                               <span className={`${styles.statusIcon} `}>
                                 {status === "success" ? (
                                   <svg
@@ -264,22 +188,39 @@ class Index extends PureComponent {
                                   </svg>
                                 )}
                               </span>
-                              <a className={styles.passeda}>
+                              <a
+                                className={` ${styles.alcen} ${
+                                  styles.passeda
+                                } `}
+                              >
+                                <span
+                                  style={{
+                                    color: "rgba(0,0,0,0.65)",
+                                    fontSize: "13px",
+                                    margin: "0 3px"
+                                  }}
+                                >
+                                  版本号
+                                </span>
                                 <font
                                   style={{
-                                    width: "95%",
+                                    width: "125px",
                                     display: "inline-block",
                                     overflow: "hidden",
                                     whiteSpace: "nowrap",
-                                    textOverflow: "ellipsis"
+                                    textOverflow: "ellipsis",
+                                    fontSize: "13px"
                                   }}
                                 >
-                                  {" "}
                                   {build_version}
                                 </font>
                               </a>
-                            </h2>
-                            <div className={styles.rowMessage}>
+                            </div>
+                            <div
+                              className={` ${styles.alcen} ${
+                                styles.rowMessage
+                              } `}
+                            >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 17 17"
@@ -304,10 +245,16 @@ class Index extends PureComponent {
                                   stroke-miterlimit="10"
                                 />
                               </svg>
+                              <span style={{ margin: "0 3px" }}>
+                                {kind && kind === "源码构建"
+                                  ? "代码版本"
+                                  : "仓库地址"}
+                              </span>
+
                               <Tooltip
                                 title={
-                                  commit_msg
-                                    ? commit_msg
+                                  code_version
+                                    ? code_version
                                     : image_domain
                                     ? image_domain
                                     : "-"
@@ -323,8 +270,8 @@ class Index extends PureComponent {
                                     color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
-                                  {commit_msg
-                                    ? commit_msg
+                                  {code_version
+                                    ? code_version
                                     : image_domain
                                     ? image_domain
                                     : "-"}
@@ -336,23 +283,108 @@ class Index extends PureComponent {
                           <div
                             className={`${styles.rowRtem} ${
                               styles.buildCommitter
-                            }`}
+                            } ${styles.alcen}`}
                           >
                             <a>
-                              {/* <img
-                                class="real-avatar"
-                                src="https://avatars1.githubusercontent.com/u/18493394?v=4?v=3&amp;s=18"
-                                srcset="https://avatars1.githubusercontent.com/u/18493394?v=4?v=3&amp;s=18 1x, https://avatars1.githubusercontent.com/u/18493394?v=4?v=3&amp;s=36 2x"
-                                alt="barnettZQG头像"
-                              /> */}
-                              <font style={{ marginLeft: "10px" }}>
-                                {build_user}
+                              <font
+                                style={{
+                                  marginLeft: "10px",
+                                  width: "100px",
+                                  display: "inline-block",
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                  textOverflow: "ellipsis",
+                                  fontSize: "13px"
+                                }}
+                              >
+                                {build_user ? build_user : "-"}
                               </font>
+                            </a>
+
+                            <a className={` ${styles.alcen} `}>
+                              <span
+                                className={` ${styles.alcen} ${
+                                  styles.buildwidth
+                                } `}
+                                style={{ color: "rgba(0, 0, 0, 0.65)" }}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 17 17"
+                                  className={styles.icon}
+                                >
+                                  <circle
+                                    cx="4.94"
+                                    cy="2.83"
+                                    r="1.83"
+                                    fill="none"
+                                    stroke="#9d9d9d"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-miterlimit="10"
+                                  />
+                                  <circle
+                                    cx="11.78"
+                                    cy="5.15"
+                                    r="1.83"
+                                    fill="none"
+                                    stroke="#9d9d9d"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-miterlimit="10"
+                                  />
+                                  <circle
+                                    cx="4.98"
+                                    cy="14.17"
+                                    r="1.83"
+                                    fill="none"
+                                    stroke="#9d9d9d"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-miterlimit="10"
+                                  />
+                                  <path
+                                    d="M11.78 6.99s.09 2.68-1.9 3.38c-1.76.62-2.92-.04-4.93 1.97V4.66"
+                                    fill="none"
+                                    stroke="#9d9d9d"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-miterlimit="10"
+                                  />
+                                </svg>
+                                {kind && kind === "源码构建"
+                                  ? "代码分支"
+                                  : "镜像tag"}
+                              </span>
+                              <Tooltip
+                                title={
+                                  branch ? branch : image_tag ? image_tag : "-"
+                                }
+                              >
+                                <span
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                    overflow: "hidden",
+                                    whiteSpace: "nowrap",
+                                    textOverflow: "ellipsis",
+                                    fontSize: "13px",
+                                    paddingLeft: "10px",
+                                    color: "rgba(0, 0, 0, 0.45)"
+                                  }}
+                                >
+                                  {branch
+                                    ? branch
+                                    : image_tag
+                                    ? image_tag
+                                    : "-"}
+                                </span>
+                              </Tooltip>
                             </a>
                           </div>
                         </div>
                         <div className={`${styles.linetwo}`}>
-                          <h3 className={`${styles.rowRtem} ${styles.alcen}`}>
+                          <div className={`${styles.rowRtem} ${styles.alcen}`}>
                             <a
                               className={
                                 status === "success"
@@ -377,8 +409,18 @@ class Index extends PureComponent {
                                   p-id="26202"
                                 />
                               </svg>
+                              <span
+                                style={{
+                                  color: "rgba(0,0,0,0.65)",
+                                  fontSize: "13px",
+                                  marginRight: "3px"
+                                }}
+                              >
+                                状态
+                              </span>
                               <font
                                 style={{
+                                  fontSize: "14px",
                                   color:
                                     status === "success" ? "#39AA56" : "#db4545"
                                 }}
@@ -386,7 +428,7 @@ class Index extends PureComponent {
                                 {status === "success" ? "成功" : "失败"}
                               </font>
                             </a>
-                          </h3>
+                          </div>
                           <div className={`${styles.rowRtem} `}>
                             <a className={`${styles.alcen}`}>
                               <svg
@@ -423,35 +465,45 @@ class Index extends PureComponent {
                                   <path d="M10.25 1.5S8.3 3.45 8.3 3.47h2.4s2.48-.15 2.48 2.46v6.14m-2.93-6.63S8.3 3.49 8.3 3.47" />
                                 </g>
                               </svg>
-                              <Tooltip title={image_repo ? image_repo : "-"}>
-                                <font
+                              <span
+                                style={{
+                                  color: "rgba(0,0,0,0.65)",
+                                  fontSize: "13px",
+                                  marginRight: "3px"
+                                }}
+                              >
+                                {kind && kind === "源码构建"
+                                  ? "提交信息"
+                                  : "镜像名称"}
+                              </span>
+
+                              <Tooltip
+                                title={
+                                  commit_msg
+                                    ? commit_msg
+                                    : image_repo
+                                    ? image_repo
+                                    : "-"
+                                }
+                              >
+                                <span
                                   style={{
-                                    maxWidth: "95%",
+                                    width: "95%",
                                     display: "inline-block",
                                     overflow: "hidden",
                                     whiteSpace: "nowrap",
                                     textOverflow: "ellipsis",
-                                    color: "rgba(0,0,0,0.45)"
+                                    color: "rgba(0,0,0,0.45)",
+                                    fontSize: "13px"
                                   }}
-                                  className={styles.passeda}
                                 >
-                                  {image_repo ? image_repo : "-"}
-                                </font>
+                                  {commit_msg
+                                    ? commit_msg
+                                    : image_repo
+                                    ? image_repo
+                                    : "-"}
+                                </span>
                               </Tooltip>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 17 17"
-                                className={styles.icon}
-                              >
-                                <path
-                                  d="M11.34 10.96v1.1c0 .55-.45 1-1 1H4.83c-.55 0-1-.45-1-1V6.55c0-.55.41-1 .91-1h.91m1.24 4.34l5.92-5.93m-3.9-.02h3.92v3.92"
-                                  fill="none"
-                                  stroke="#9d9d9d"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-miterlimit="10"
-                                />
-                              </svg>
                             </a>
                           </div>
                         </div>
@@ -481,17 +533,36 @@ class Index extends PureComponent {
                                   p-id="1206"
                                 />
                               </svg>
+
                               <time className={styles.labelAlign}>
+                                {/* <span
+                                  style={{
+                                    color: "rgba(0,0,0,0.65)",
+                                    fontSize: "13px",
+                                    marginRight: "3px"
+                                  }}
+                                >
+                                  运行
+                                </span> */}
                                 <font
                                   style={{
                                     display: "inline-block",
                                     color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
-                                  {finish_time ? "   " : "-"}
-                                  {dur_hours && `${dur_hours}小时`}
-                                  {dur_minutes && `${dur_minutes}分钟`}
-                                  {dur_seconds && `${dur_seconds}秒`}
+                                  {!finish_time && "-"}
+                                  {finish_time &&
+                                    dur_hours &&
+                                    dur_hours !== "0" &&
+                                    `${dur_hours}小时`}
+                                  {finish_time &&
+                                    dur_minutes &&
+                                    dur_minutes !== "0" &&
+                                    `${dur_minutes}分钟`}
+                                  {finish_time &&
+                                    dur_seconds &&
+                                    dur_seconds !== "0" &&
+                                    `${dur_seconds}秒`}
                                 </font>
                               </time>
                             </div>
@@ -529,6 +600,15 @@ class Index extends PureComponent {
                                 />
                               </svg>
                               <time className={styles.labelAlign}>
+                                {/* <span
+                                  style={{
+                                    color: "rgba(0,0,0,0.65)",
+                                    fontSize: "13px",
+                                    marginRight: "3px"
+                                  }}
+                                >
+                                  创建时间
+                                </span> */}
                                 <font
                                   style={{
                                     display: "inline-block",
