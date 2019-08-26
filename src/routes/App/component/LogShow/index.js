@@ -94,22 +94,25 @@ class Index extends PureComponent {
   handleCancel = () => {
     this.props.handleCancel();
   };
-
+  getLineHtml = (lineNumber, message) => {
+    return (<div className={styles.logline} key={lineNumber}>
+        <a>{lineNumber}</a>
+        {message}
+    </div>)
+  }
   render() {
     const { logs, status, dockerprogress } = this.state;
+  
     return (
       <div>
         <div className={styles.logsss} ref="box">
           {logs &&
             logs.map((log, index) => {
+              let lineNumber = index+1
               if (log.message.indexOf('"stream"') != -1) {
                 let m = JSON.parse(log.message);
                 if (m && m.stream != undefined) {
-                  return (
-                    <div key={index}>
-                      {convert.toHtml(m.stream)}
-                    </div>
-                  );
+                  return this.getLineHtml(lineNumber, convert.toHtml(m.stream))
                 }
               }
               if (log.message.indexOf('"status"') != -1) {
@@ -117,32 +120,16 @@ class Index extends PureComponent {
                 if (m && m.status!=undefined && m.id!=undefined) {
                   let dp = dockerprogress[m.id]
                   if (dp.progress != undefined){
-                    return (
-                      <div key={index}>
-                         {dp.id}:{m.progress}
-                      </div>
-                    );
+                    return this.getLineHtml(lineNumber, dp.id+":"+m.progress)
                   }else{
-                    return (
-                      <div key={index}>
-                         {dp.id}:{m.status}
-                      </div>
-                    );
+                    return this.getLineHtml(lineNumber, dp.id+":"+m.status)
                   }
                 }
                 if (m && m.status!=undefined) {
-                  return (
-                    <div key={index}>
-                      {m.status}
-                    </div>
-                  );
+                  return this.getLineHtml(lineNumber, m.status)
                 }
               }
-              return (
-                <div key={index}>
-                  {convert.toHtml(log.message)}
-                </div>
-              );
+              return this.getLineHtml(lineNumber, convert.toHtml(log.message))
             })}
         </div>
         {status &&

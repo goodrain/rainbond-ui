@@ -53,8 +53,8 @@ class Index extends PureComponent {
       }
       if (finalstatus == "timeout") {
         return (
-          <span style={{ color: "#F69C49", paddingLeft: "5px" }}>
-            超时了但仍然在进行
+          <span>
+            操作已超时
           </span>
         );
       }
