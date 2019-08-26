@@ -69,7 +69,7 @@ $ npm start         # visit http://localhost:9001
 
 ## 特别感谢
 
-感谢一下开源项目
+感谢以下开源项目
 
 - [Kubernetes](https://github.com/kubernetes/kubernetes)
 - [Docker/Moby](https://github.com/moby/moby)

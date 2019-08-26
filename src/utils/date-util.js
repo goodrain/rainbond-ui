@@ -78,7 +78,8 @@ const dateUtil = {
 
     function getShowData(date) {
       if (isToday(date)) {
-        return '今天';
+        // return '今天';
+        return dateUtil.format(date, 'yyyy-MM-dd hh:mm:ss');
       } else if (isYestday(date)) {
         return '昨天';
       } else if (isBeforeYestday(date)) {
