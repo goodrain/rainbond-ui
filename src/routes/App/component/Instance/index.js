@@ -67,7 +67,7 @@ class Index extends PureComponent {
   };
 
   containerState = state => {
-    let states = state.toLowerCase();
+    let states = state ? state.toLowerCase() : state;
     switch (states) {
       case "running":
         return <span style={{ color: "#39aa56" }}>运行中</span>;
@@ -145,8 +145,8 @@ class Index extends PureComponent {
                   <ul className={styles.instanceInfo}>
                     <li>
                       <span>所在节点:</span>
-                      <Tooltip title={instanceInfo.node}>
-                        <span>{instanceInfo.node}</span>
+                      <Tooltip title={instanceInfo.node_ip}>
+                        <span>{instanceInfo.node_ip || ""}</span>
                       </Tooltip>
                     </li>
                     <li>
@@ -166,7 +166,7 @@ class Index extends PureComponent {
                     </li>
 
                     <li>
-                      <span>{instanceInfo.version ? "版本号:" : ""}</span>
+                      <span>{instanceInfo.version ? "版本:" : ""}</span>
                       <span>{instanceInfo.version || ""}</span>
                     </li>
                     <li>
@@ -228,17 +228,10 @@ class Index extends PureComponent {
                             title: "镜像名",
                             dataIndex: "image",
                             key: "image",
-                            width: 100,
+                            width: "20%",
                             render: image => (
                               <Tooltip title={image}>
-                                <span
-                                  style={{
-                                    wordWrap: "break-word",
-                                    wordBreak: "break-all"
-                                  }}
-                                >
-                                  {image}
-                                </span>
+                                <span className={styles.wordText}>{image}</span>
                               </Tooltip>
                             )
                           },
@@ -247,14 +240,24 @@ class Index extends PureComponent {
                             dataIndex: "limit_memory",
                             key: "limit_memory",
                             width: "10%",
-                            render: limit_memory => <span>{limit_memory}</span>
+                            render: limit_memory => (
+                              <Tooltip title={limit_memory}>
+                                <span className={styles.wordText}>
+                                  {limit_memory}
+                                </span>
+                              </Tooltip>
+                            )
                           },
                           {
                             title: "CPU",
                             dataIndex: "limit_cpu",
                             key: "limit_cpu",
                             width: "10%",
-                            render: limit_cpu => <span>{limit_cpu}</span>
+                            render: limit_cpu => (
+                              <span className={styles.wordText}>
+                                {limit_cpu || ""}
+                              </span>
+                            )
                           },
                           {
                             title: "创建时间",
@@ -269,14 +272,23 @@ class Index extends PureComponent {
                             dataIndex: "state",
                             key: "state",
                             width: "10%",
-                            render: state => this.containerState(state)
+
+                            render: state => (
+                              <span className={styles.wordText}>
+                                {this.containerState(state)}
+                              </span>
+                            )
                           },
                           {
                             title: "说明",
                             dataIndex: "reason",
                             key: "reason",
-                            width: "20%",
-                            render: reason => <span>{reason || "-"}</span>
+                            width: "30%",
+                            render: reason => (
+                              <span className={styles.wordText}>
+                                {reason || ""}
+                              </span>
+                            )
                           }
                         ]}
                         pagination={{
@@ -308,16 +320,19 @@ class Index extends PureComponent {
                         title: "类型",
                         dataIndex: "type",
                         key: "type",
-                        width: "20%"
+                        width: "10%",
+                        render: type => (
+                          <span className={styles.wordText}>{type}</span>
+                        )
                       },
                       {
                         title: "原因",
                         dataIndex: "reason",
                         key: "reason",
-                        width: "20%",
+                        width: "15%",
                         render: reason => (
                           <Tooltip title={reason}>
-                            <span>{reason}</span>
+                            <span className={styles.wordText}>{reason}</span>
                           </Tooltip>
                         )
                       },
@@ -325,23 +340,19 @@ class Index extends PureComponent {
                         title: "时间",
                         dataIndex: "age",
                         key: "age",
-                        width: "20%"
+                        width: "25%",
+                        render: age => (
+                          <span className={styles.wordText}>{age}</span>
+                        )
                       },
                       {
                         title: "说明",
                         dataIndex: "message",
                         key: "message",
-                        width: "40%",
+                        width: "50%",
                         render: message => (
                           <Tooltip title={message}>
-                            <span
-                              style={{
-                                wordWrap: "break-word",
-                                wordBreak: "break-all"
-                              }}
-                            >
-                              {message}
-                            </span>
+                            <span className={styles.wordText}>{message}</span>
                           </Tooltip>
                         )
                       }
@@ -383,7 +394,7 @@ class Index extends PureComponent {
               <div>
                 <p style={{ marginTop: "40px", textAlign: "center" }}>
                   正在
-                  {(status && status.status_cn) || "-"}
+                  {(status && status.status_cn) || ""}
                   &#8680;
                 </p>
               </div>

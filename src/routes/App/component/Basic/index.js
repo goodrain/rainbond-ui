@@ -45,7 +45,7 @@ class Index extends PureComponent {
                     color: globalUtil.fetchStateColor(status && status.status)
                   }}
                 >
-                  {(status && status.status_cn) || "-"}
+                  {(status && status.status_cn) || ""}
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
@@ -64,7 +64,7 @@ class Index extends PureComponent {
                                 Date.parse(new Date()) -
                                   new Date(status.start_time).getTime()
                               )
-                            : "-"}
+                            : ""}
                         </span>
                       </a>
                     </li>
@@ -117,7 +117,7 @@ class Index extends PureComponent {
                   <span>
                     {beanData && beanData.build_version
                       ? beanData.build_version
-                      : "-"}
+                      : ""}
                   </span>
                 </h2>
                 <div className={styles.buildCommitInfo}>
@@ -136,19 +136,18 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData && beanData.code_version
-                              ? ""
-                              : beanData && beanData.image_domain
-                              ? beanData.image_domain
-                              : "-"
+                            beanData &&
+                            (beanData.kind && beanData.kind === "源码构建"
+                              ? beanData.code_version && beanData.code_version
+                              : beanData.image_domain && beanData.image_domain)
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData && beanData.code_version
-                              ? beanData.code_version.substr(0, 8)
-                              : beanData && beanData.image_domain
-                              ? beanData.image_domain
-                              : "-"}
+                            {beanData &&
+                              (beanData.kind && beanData.kind === "源码构建"
+                                ? beanData.code_version && beanData.code_version
+                                : beanData.image_domain &&
+                                  beanData.image_domain)}
                           </span>
                         </Tooltip>
                       </a>
@@ -168,19 +167,19 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData && beanData.code_commit_msg
-                              ? beanData.code_commit_msg
-                              : beanData && beanData.image_repo
-                              ? beanData.image_repo
-                              : "-"
+                            beanData &&
+                            (beanData.kind && beanData.kind === "源码构建"
+                              ? beanData.code_commit_msg &&
+                                beanData.code_commit_msg
+                              : beanData.image_repo && beanData.image_repo)
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData && beanData.code_commit_msg
-                              ? beanData.code_commit_msg
-                              : beanData && beanData.image_repo
-                              ? beanData.image_repo
-                              : "-"}
+                            {beanData &&
+                              (beanData.kind && beanData.kind === "源码构建"
+                                ? beanData.code_commit_msg &&
+                                  beanData.code_commit_msg
+                                : beanData.image_repo && beanData.image_repo)}
                           </span>
                         </Tooltip>
                       </a>
@@ -200,19 +199,17 @@ class Index extends PureComponent {
                         </span>
                         <Tooltip
                           title={
-                            beanData && beanData.code_branch
-                              ? beanData.code_branch
-                              : beanData && beanData.image_tag
-                              ? "镜像tag"
-                              : "-"
+                            beanData &&
+                            (beanData.kind && beanData.kind === "源码构建"
+                              ? beanData.code_branch && beanData.code_branch
+                              : beanData.image_tag && beanData.image_tag)
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData && beanData.code_branch
-                              ? beanData.code_branch
-                              : beanData && beanData.image_tag
-                              ? beanData.image_tag
-                              : "-"}
+                            {beanData &&
+                              (beanData.kind && beanData.kind === "源码构建"
+                                ? beanData.code_branch && beanData.code_branch
+                                : beanData.image_tag && beanData.image_tag)}
                           </span>
                         </Tooltip>
                       </a>
