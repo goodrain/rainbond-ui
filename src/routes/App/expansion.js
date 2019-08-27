@@ -42,14 +42,27 @@ export default class Index extends PureComponent {
     this.state = {
       node: 0,
       memory: 0,
-      instances: this.props.instances ? this.props.instances : [],
+      new_pods: this.props.instances && this.props.instances.new_pods
+      ? this.props.instances.new_pods
+      : [],
+      old_pods:  this.props.instances && this.props.instances.old_pods
+      ? this.props.instances.old_pods
+      : [],
+      instances: [],
       loading: false
     };
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.instances !== this.state.instances) {
+    if (
+      nextProps.instances.new_pods !== this.state.new_pods ||
+      nextProps.instances.old_pods !== this.state.old_pods
+    ) {
       this.setState({
-        instances: nextProps.instances,
+        new_pods: nextProps.instances.new_pods || [],
+        old_pods: nextProps.instances.old_pods || [],
+        instances: (nextProps.instances.new_pods || []).concat(
+          nextProps.instances.old_pods || []
+        ),
         loading: false
       });
     } else {
@@ -139,7 +152,10 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            instances: res.list,
+            //接口变化
+            instances: (res.list.new_pods || []).concat(
+              res.list.old_pods || []
+            ),
             loading: false
           });
         } else {
@@ -200,22 +216,24 @@ export default class Index extends PureComponent {
               <div>
                 <Row>
                   <Col span={12}>
-                    <span style={{lineHeight: "32px"}}>
+                    <span style={{ lineHeight: "32px" }}>
                       查询详细的服务实例信息，请复制以下查询命令到Rainbond管理节点查询：
                     </span>
                   </Col>
                   <Col span={12}>
-                    <Input 
-                        style={{width: "70%"}}
-                        value={grctlCmd}
-                    />
+                    <Input style={{ width: "70%" }} value={grctlCmd} />
                     <CopyToClipboard
                       text={grctlCmd}
                       onCopy={() => {
                         notification.success({ message: "复制成功" });
                       }}
                     >
-                      <Button type="primary" style={{width: "25%", marginLeft: 16}}>复制查询命令</Button>
+                      <Button
+                        type="primary"
+                        style={{ width: "25%", marginLeft: 16 }}
+                      >
+                        复制查询命令
+                      </Button>
                     </CopyToClipboard>
                   </Col>
                 </Row>

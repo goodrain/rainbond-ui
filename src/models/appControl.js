@@ -962,7 +962,7 @@ export default {
     clearPods(state, action) {
       return {
         ...state,
-        pods: []
+        pods: {}
       };
     },
     savePods(state, action) {
