@@ -3,15 +3,26 @@
 
 .activitiesList {
   padding: 0 24px 8px 24px;
+
   .username {
     color: @text-color;
   }
+
   .event {
     font-weight: normal;
   }
 }
+
 .contents {
   margin: 10px 24px 0;
+}
+
+.cancelMargin {
+  :global {
+    .ant-table-scroll-position-left {
+      margin-top: 0 !important;
+    }
+  }
 }
 
 @media screen and (max-width: @screen-sm) {
@@ -23,85 +34,94 @@
 
 .pageHeaderContent {
   background: #fff;
-  display: flex;
+  display   : flex;
+
   .avatar {
-    flex: 0 1 72px;
+    flex         : 0 1 72px;
     margin-bottom: 8px;
-    & > span {
+
+    &>span {
       border-radius: 72px;
-      display: block;
-      width: 72px;
-      height: 72px;
+      display      : block;
+      width        : 72px;
+      height       : 72px;
     }
   }
+
   .content {
-    position: relative;
-    top: 0px;
-    margin:0 24px;
-    flex: 1 1 auto;
-    color: @text-color-secondary;
+    position   : relative;
+    top        : 0px;
+    margin     : 0 24px;
+    flex       : 1 1 auto;
+    color      : @text-color-secondary;
     line-height: 22px;
+
     .contentTitle {
-      font-size: 20px;
+      font-size  : 20px;
       line-height: 28px;
       font-weight: 500;
-      color: @heading-color;
-      margin: 12px;
+      color      : @heading-color;
+      margin     : 12px;
     }
   }
 }
-.teamListStyle{
-  display: flex;
+
+.teamListStyle {
+  display   : flex;
   margin-top: 5px;
-  div{
+
+  div {
     width: 30%;
   }
 }
+
 .extraContent {
   background: #fff;
   .clearfix();
-  white-space: nowrap;
-  // border: 1px solid #BBBBBB;
+  white-space  : nowrap;
+  // border    : 1px solid #BBBBBB;
   margin-bottom: 10px;
-  display: flex;
-  width: 100%;
-  padding: 10px 0;
+  display      : flex;
+  width        : 100%;
+  padding      : 10px 0;
 
   .statItem {
-    width: 16.6%;
+    width     : 16.6%;
     text-align: center;
-  
-    > p {
-      width: 100%;
+
+    >p {
+      width        : 100%;
       margin-bottom: 4px;
-      color: rgba(0,0,0,.45);
-      font-size: 14px;
-      line-height: 22px;
+      color        : rgba(0, 0, 0, .45);
+      font-size    : 14px;
+      line-height  : 22px;
     }
 
-    > div {
-      cursor:pointer;
-      // color: @text-color-secondary;
-      overflow: hidden;
-      white-space: nowrap;
+    >div {
+      cursor       : pointer;
+      // color     : @text-color-secondary;
+      overflow     : hidden;
+      white-space  : nowrap;
       text-overflow: ellipsis;
-      margin: 0;
-      color: rgba(0,0,0,.85);
-      font-size: 22px;
-      line-height: 30px;
+      margin       : 0;
+      color        : rgba(0, 0, 0, .85);
+      font-size    : 22px;
+      line-height  : 30px;
     }
 
     &:after {
       // background-color: @border-color-split;
-      position: absolute;
-      top: 8px;
-      right: 0;
-      width: 1px;
-      height: 40px;
-      content: '';
+      position           : absolute;
+      top                : 8px;
+      right              : 0;
+      width              : 1px;
+      height             : 40px;
+      content            : '';
     }
+
     &:last-child {
       padding-right: 0;
+
       &:after {
         display: none;
       }
@@ -111,22 +131,24 @@
 
 .members {
   a {
-    display: block;
-    margin: 12px 0;
+    display    : block;
+    margin     : 12px 0;
     line-height: 24px;
-    height: 24px;
+    height     : 24px;
     .textOverflow();
+
     .member {
-      font-size: @font-size-base;
-      color: @text-color;
-      line-height: 24px;
-      max-width: 100px;
+      font-size     : @font-size-base;
+      color         : @text-color;
+      line-height   : 24px;
+      max-width     : 100px;
       vertical-align: top;
-      margin-left: 12px;
-      transition: all .3s;
-      display: inline-block;
+      margin-left   : 12px;
+      transition    : all .3s;
+      display       : inline-block;
       .textOverflow();
     }
+
     &:hover {
       span {
         color: @primary-color;
@@ -134,84 +156,100 @@
     }
   }
 }
-.modals{
+
+.modals {
   padding: 0 30px;
+
   :global {
     .ant-modal-header {
       border: none;
     }
   }
 }
+
 .projectList {
   :global {
     .ant-card-meta-description {
-      color: @text-color-secondary;
-      height: 44px;
+      color      : @text-color-secondary;
+      height     : 44px;
       line-height: 22px;
-      overflow: hidden;
+      overflow   : hidden;
     }
   }
+
   .cardTitle {
     font-size: 0;
+
     a {
-      color: @heading-color;
-      margin-left: 12px;
-      line-height: 24px;
-      height: 24px;
-      display: inline-block;
+      color         : @heading-color;
+      margin-left   : 12px;
+      line-height   : 24px;
+      height        : 24px;
+      display       : inline-block;
       vertical-align: top;
-      font-size: @font-size-base;
+      font-size     : @font-size-base;
+
       &:hover {
         color: @primary-color;
       }
     }
   }
+
   .projectGrid {
     width: 33.33%;
   }
+
   .projectItemContent {
-    display: flex;
-    margin-top: 8px;
-    overflow: hidden;
-    font-size: 12px;
-    height: 20px;
+    display    : flex;
+    margin-top : 8px;
+    overflow   : hidden;
+    font-size  : 12px;
+    height     : 20px;
     line-height: 20px;
     .textOverflow();
+
     a {
-      color: @text-color-secondary;
+      color  : @text-color-secondary;
       display: inline-block;
-      flex: 1 1 0;
+      flex   : 1 1 0;
       .textOverflow();
+
       &:hover {
         color: @primary-color;
       }
     }
+
     .datetime {
       color: @disabled-color;
-      flex: 0 0 auto;
+      flex : 0 0 auto;
       float: right;
     }
   }
 }
 
 .datetime {
-  // color: @disabled-color;
-  color: @text-color;
+  // color   : @disabled-color;
+  color      : @text-color;
   font-weight: normal;
 }
-.datatime_float{
+
+.datatime_float {
   float: right;
   color: rgba(0, 0, 0, 0.65);
 }
-@media screen and (max-width: @screen-xl)  and (min-width: @screen-lg) {
+
+@media screen and (max-width: @screen-xl) and (min-width: @screen-lg) {
   .activeCard {
     margin-bottom: 24px;
   }
+
   .members {
     margin-bottom: 0;
   }
+
   .extraContent {
     margin-left: -44px;
+
     .statItem {
       padding: 0 16px;
     }
@@ -222,15 +260,19 @@
   .activeCard {
     margin-bottom: 24px;
   }
+
   .members {
     margin-bottom: 0;
   }
+
   .extraContent {
-    float: none;
+    float       : none;
     margin-right: 0;
+
     .statItem {
-      padding: 0 16px;
+      padding   : 0 16px;
       text-align: left;
+
       &:after {
         display: none;
       }
@@ -242,6 +284,7 @@
   .extraContent {
     margin-left: -16px;
   }
+
   .projectList {
     .projectGrid {
       width: 50%;
@@ -252,10 +295,12 @@
 @media screen and (max-width: @screen-sm) {
   .pageHeaderContent {
     display: block;
+
     .content {
       margin-left: 0;
     }
   }
+
   .extraContent {
     .statItem {
       float: none;
@@ -276,6 +321,7 @@
 .tableList {
   .tableListOperator {
     margin-bottom: 16px;
+
     button {
       margin-right: 8px;
     }
@@ -286,23 +332,27 @@
   :global {
     .ant-form-item {
       margin-bottom: 24px;
-      margin-right: 0;
-      display: flex;
-      > .ant-form-item-label {
-        width: auto;
-        line-height: 32px;
+      margin-right : 0;
+      display      : flex;
+
+      >.ant-form-item-label {
+        width        : auto;
+        line-height  : 32px;
         padding-right: 8px;
       }
+
       .ant-form-item-control {
         line-height: 32px;
       }
     }
+
     .ant-form-item-control-wrapper {
       flex: 1;
     }
   }
+
   .submitButtons {
-    white-space: nowrap;
+    white-space  : nowrap;
     margin-bottom: 24px;
   }
 }
@@ -322,7 +372,7 @@
 .stepsbox {
   display        : flex;
   justify-content: space-around;
-  margin : 20px 0;
+  margin         : 20px 0;
 }
 
 .stepssuccess {
@@ -334,42 +384,43 @@
   cursor         : pointer;
 
   .stepssuccessbj {
-      display         : inline-block;
-      width           : 34px;
-      height          : 34px;
-      font-size       : 12px;
-      line-height     : 34px;
-      text-align      : center;
-      border-radius   : 34px;
-      background-color: #1890ff;
-      span {
-          color      : #fff;
-          position   : relative;
-          top        : 3px;
-          line-height: 1;
-      }
+    display         : inline-block;
+    width           : 34px;
+    height          : 34px;
+    font-size       : 12px;
+    line-height     : 34px;
+    text-align      : center;
+    border-radius   : 34px;
+    background-color: #1890ff;
+
+    span {
+      color      : #fff;
+      position   : relative;
+      top        : 3px;
+      line-height: 1;
+    }
   }
 
   .stepssuccesslux {
-      position        : absolute;
-      left            : 0;
-      top             : 18px;
-      margin-left     : 71px;
-      height          : 1px;
-      background-color: #1890ff;
-      width           : 100%;
-      box-sizing      : border-box;
+    position        : absolute;
+    left            : 0;
+    top             : 18px;
+    margin-left     : 71px;
+    height          : 1px;
+    background-color: #1890ff;
+    width           : 100%;
+    box-sizing      : border-box;
   }
 
   .stepssuccesscontent {
-      margin-top: 8px;
-      text-align: center;
+    margin-top: 8px;
+    text-align: center;
 
-      div {
-          font-size  : 13px;
-          color      : rgba(0, 0, 0, 0.65);
-          line-height: 34px;
-      }
+    div {
+      font-size  : 13px;
+      color      : rgba(0, 0, 0, 0.65);
+      line-height: 34px;
+    }
   }
 }
 
@@ -383,50 +434,50 @@
   cursor         : pointer;
 
   .stepsinfobj {
+    display         : inline-block;
+    width           : 34px;
+    height          : 34px;
+    font-size       : 12px;
+    line-height     : 32px;
+    text-align      : center;
+    border-radius   : 34px;
+    background-color: #fff;
+    border          : 1px solid #A8A2A2;
+
+    span {
       display         : inline-block;
-      width           : 34px;
-      height          : 34px;
-      font-size       : 12px;
-      line-height     : 32px;
-      text-align      : center;
-      border-radius   : 34px;
+      position        : relative;
+      top             : 3px;
+      line-height     : 1;
+      width           : 12px;
+      height          : 12px;
+      border-radius   : 12px;
       background-color: #fff;
       border          : 1px solid #A8A2A2;
 
-      span {
-          display         : inline-block;
-          position        : relative;
-          top             : 3px;
-          line-height     : 1;
-          width           : 12px;
-          height          : 12px;
-          border-radius   : 12px;
-          background-color: #fff;
-          border          : 1px solid #A8A2A2;
-
-      }
+    }
   }
 
   .stepsinfolux {
-      position        : absolute;
-      left            : 0;
-      top             : 18px;
-      margin-left     : 71px;
-      height          : 1px;
-      background-color: #A8A2A2;
-      width           : 100%;
-      box-sizing      : border-box;
+    position        : absolute;
+    left            : 0;
+    top             : 18px;
+    margin-left     : 71px;
+    height          : 1px;
+    background-color: #A8A2A2;
+    width           : 100%;
+    box-sizing      : border-box;
   }
 
   .stepsinfocontent {
-      margin-top: 8px;
-      text-align: center;
+    margin-top: 8px;
+    text-align: center;
 
-      div {
-          font-size  : 13px;
-          color      : rgba(0, 0, 0, 0.45);
-          line-height: 34px;
-      }
+    div {
+      font-size  : 13px;
+      color      : rgba(0, 0, 0, 0.45);
+      line-height: 34px;
+    }
   }
 }
 
@@ -439,10 +490,10 @@
   position        : relative;
 
   .icon {
-      position : absolute;
-      top      : -22px;
-      font-size: 30px;
-      color    : #1890ff;
-      left     : 22px;
+    position : absolute;
+    top      : -22px;
+    font-size: 30px;
+    color    : #1890ff;
+    left     : 22px;
   }
 }

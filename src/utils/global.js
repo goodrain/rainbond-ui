@@ -26,6 +26,7 @@ const global = {
       running: "#00D777", //运行中 绿色
       starting: "#F69D4A", //启动中
       Starting: "#F69D4A", //启动中
+      NOTREADY: "#F69D4A", //未就绪
       checking: "F69D4A", //检测中
       SCHEDULING: "#F69D4A", //检测中
       stopping: "#20124A", //关闭中 紫色
@@ -487,7 +488,8 @@ const global = {
       TheInternet: "未知",
       upgrade: "升级中",
       creating: "部署中",
-      expired: "过期"
+      expired: "过期",
+      NOTREADY: "未就绪"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
@@ -562,6 +564,7 @@ const global = {
   fetchStateOptTypeText(state) {
     const statusOptType = {
       "": "-",
+      "create-service": "创建服务",
       "build-service": "构建服务",
       build: "构建服务",
       upgrade: "滚动升级服务",
