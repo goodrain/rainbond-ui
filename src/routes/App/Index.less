@@ -8,6 +8,11 @@
   white-space  : nowrap;
 }
 
+.wordText {
+  word-wrap : break-word;
+  word-break: break-all;
+}
+
 .nowarpCorolText {
   display      : inline-block;
   overflow     : hidden;
@@ -553,7 +558,7 @@ font {
 
 .rowMessage {
   padding-left : 0.5em;
-  flex         : 0 0 55%;
+  flex         : 0 0 60%;
   overflow     : hidden;
   position     : relative;
   font-size    : 13px;
@@ -572,7 +577,7 @@ font {
       padding     : 0;
       margin      : .4em 0;
       white-space : nowrap;
-      width       : 50%;
+      width       : 55%;
       padding-left: .5em;
       border-right: 1px solid #EFF0EC;
     }
@@ -593,12 +598,11 @@ font {
 
     .linefour {
       // flex        : 0 0 22%;
-      width          : 15%;
+      width          : 10%;
       display        : flex;
       align-items    : center;
       text-align     : center;
-      justify-content: space-evenly;
-      ;
+      // justify-content: space-evenly;
     }
 
     // .fadeOute:after {
@@ -651,7 +655,8 @@ font {
     }
 
     .rowBranch {
-      flex    : 0 0 45%;
+      // flex    : 0 0 51%;
+      width: 200px;
       position: relative;
       overflow: hidden;
 

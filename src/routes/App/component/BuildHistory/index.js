@@ -105,7 +105,8 @@ class Index extends PureComponent {
                       EventID,
                       image_repo,
                       code_branch,
-                      image_tag
+                      image_tag,
+                      kind
                     } = item;
                     return (
                       <li
@@ -142,11 +143,20 @@ class Index extends PureComponent {
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: "125px"
+                                    width: "100%"
                                   }}
                                 >
                                   {build_version}
+                                  {build_version &&
+                                    build_version &&
+                                    current_version &&
+                                    build_version == current_version &&
+                                    "(当前版本)"}
                                 </font>
+
+                                {/* <Tooltip title="当前版本">
+                                  {globalUtil.fetchSvg("currentVersion")}
+                                </Tooltip> */}
                               </a>
                             </div>
                             <div
@@ -158,11 +168,10 @@ class Index extends PureComponent {
                               {/* 代码版本÷ */}
                               <Tooltip
                                 title={
-                                  code_version
-                                    ? ""
-                                    : image_domain
-                                    ? image_domain
-                                    : "-"
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? code_version && ""
+                                    : image_domain && image_domain)
                                 }
                               >
                                 <font
@@ -171,11 +180,13 @@ class Index extends PureComponent {
                                     width: "90%"
                                   }}
                                 >
-                                  {code_version
-                                    ? code_version.substr(0, 8)
-                                    : image_domain
-                                    ? image_domain
-                                    : "-"}
+                                  {kind &&
+                                    (kind === "源码构建"
+                                      ? code_version &&
+                                        code_version.substr(0, 8)
+                                      : image_domain
+                                      ? image_domain
+                                      : "")}
                                 </font>
                               </Tooltip>
                             </div>
@@ -188,28 +199,32 @@ class Index extends PureComponent {
                           >
                             <a
                               style={{
-                                width: "44%"
+                                width: "186px"
                               }}
                             >
                               <font
                                 className={styles.nowarpCorolText}
                                 style={{
-                                  width: "125px"
+                                  width: "90%"
                                 }}
                               >
-                                @&nbsp;{build_user ? build_user : "-"}
+                                {build_user && ` @&nbsp;${build_user}`}
                               </font>
                             </a>
-                            <a className={`${styles.alcen}`}>
+                            <a
+                              className={`${styles.alcen}`}
+                              style={{
+                                width: "60%"
+                              }}
+                            >
                               {globalUtil.fetchSvg("basicInfo")}
                               {/* 提交信息 */}
                               <Tooltip
                                 title={
-                                  code_commit_msg
-                                    ? code_commit_msg
-                                    : image_repo
-                                    ? image_repo
-                                    : "-"
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? code_commit_msg && code_commit_msg
+                                    : image_repo && image_repo)
                                 }
                               >
                                 <span
@@ -218,11 +233,10 @@ class Index extends PureComponent {
                                     width: "90%"
                                   }}
                                 >
-                                  {code_commit_msg
-                                    ? code_commit_msg
-                                    : image_repo
-                                    ? image_repo
-                                    : "-"}
+                                  {kind &&
+                                    (kind === "源码构建"
+                                      ? code_commit_msg && code_commit_msg
+                                      : image_repo && image_repo)}
                                 </span>
                               </Tooltip>
                             </a>
@@ -255,7 +269,7 @@ class Index extends PureComponent {
                             <a
                               className={` ${styles.alcen} `}
                               style={{
-                                width: "55%"
+                                width: "100%"
                               }}
                             >
                               <span
@@ -269,11 +283,10 @@ class Index extends PureComponent {
                               </span>
                               <Tooltip
                                 title={
-                                  code_branch
-                                    ? code_branch
-                                    : image_tag
-                                    ? image_tag
-                                    : "-"
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? code_branch && code_branch
+                                    : image_tag && image_tag)
                                 }
                               >
                                 <span
@@ -282,11 +295,10 @@ class Index extends PureComponent {
                                     width: "90%"
                                   }}
                                 >
-                                  {code_branch
-                                    ? code_branch
-                                    : image_tag
-                                    ? image_tag
-                                    : "-"}
+                                  {kind &&
+                                    (kind === "源码构建"
+                                      ? code_branch && code_branch
+                                      : image_tag && image_tag)}
                                 </span>
                               </Tooltip>
                             </a>
@@ -335,48 +347,46 @@ class Index extends PureComponent {
                                     color: "rgba(0,0,0,0.45)"
                                   }}
                                 >
-                                  {moment(create_time).format(
-                                    "YYYY-MM-DD hh:mm:ss"
-                                  )}
+                                  {create_time &&
+                                    moment(create_time).format(
+                                      "YYYY-MM-DD hh:mm:ss"
+                                    )}
                                 </font>
                               </time>
                             </div>
                           </div>
                         </div>
                         <div className={`${styles.linefour}`}>
-                          <Tooltip title="查看日志">
-                            <svg
-                              style={{
-                                cursor: "pointer"
-                              }}
-                              onClick={() => {
-                                this.showModal(EventID);
-                              }}
-                              t="1566527207023"
-                              class="icon"
-                              viewBox="0 0 1024 1024"
-                              version="1.1"
-                              xmlns="http://www.w3.org/2000/svg"
-                              p-id="5957"
-                              width="16"
-                              height="16"
-                            >
-                              <path
-                                d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
-                                fill="#1296db"
-                                p-id="5958"
-                              />
-                            </svg>
-                          </Tooltip>
-
-                          {build_version &&
-                            build_version &&
-                            current_version &&
-                            build_version == current_version && (
-                              <Tooltip title="当前版本">
-                                {globalUtil.fetchSvg("currentVersion")}
-                              </Tooltip>
-                            )}
+                          <span
+                            style={{
+                              marginLeft: "5px"
+                            }}
+                          >
+                            <Tooltip title="查看日志">
+                              <svg
+                                style={{
+                                  cursor: "pointer"
+                                }}
+                                onClick={() => {
+                                  this.showModal(EventID);
+                                }}
+                                t="1566527207023"
+                                class="icon"
+                                viewBox="0 0 1024 1024"
+                                version="1.1"
+                                xmlns="http://www.w3.org/2000/svg"
+                                p-id="5957"
+                                width="16"
+                                height="16"
+                              >
+                                <path
+                                  d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
+                                  fill="#cccccc"
+                                  p-id="5958"
+                                />
+                              </svg>
+                            </Tooltip>
+                          </span>
                           {upgrade_or_rollback == 1 ? (
                             <Popconfirm
                               title="确定要升级到此版本吗?"
@@ -384,7 +394,9 @@ class Index extends PureComponent {
                                 this.handleRolback(item);
                               }}
                             >
-                              {globalUtil.fetchSvg("upgrade")}
+                              <span style={{ marginLeft: "5px" }}>
+                                {globalUtil.fetchSvg("upgrade")}
+                              </span>
                             </Popconfirm>
                           ) : upgrade_or_rollback == -1 &&
                             status == "success" &&
@@ -396,20 +408,25 @@ class Index extends PureComponent {
                                 this.handleRolback(item);
                               }}
                             >
-                              {globalUtil.fetchSvg("rollback")}
+                              <span style={{ marginLeft: "5px" }}>
+                                {globalUtil.fetchSvg("rollback")}
+                              </span>
                             </Popconfirm>
                           ) : (
                             ""
                           )}
+
                           <Popconfirm
                             title="确定要删除此版本吗?"
                             onConfirm={() => {
                               this.handleDel(item);
                             }}
                           >
-                            {build_version != current_version &&
-                              current_version &&
-                              globalUtil.fetchSvg("delete")}
+                            <span style={{ marginLeft: "5px" }}>
+                              {build_version != current_version &&
+                                current_version &&
+                                globalUtil.fetchSvg("delete")}
+                            </span>
                           </Popconfirm>
                         </div>
                       </li>

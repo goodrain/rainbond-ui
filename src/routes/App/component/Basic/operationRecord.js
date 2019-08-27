@@ -127,19 +127,24 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div>
-                      <span className={styles.alcen} style={{ justifyContent: "flex-end" }}>
-                        {globalUtil.fetchSvg("runTime")}
+                      <span
+                        className={styles.alcen}
+                        style={{ justifyContent: "flex-end" }}
+                      >
+                        {EndTime && StartTime && globalUtil.fetchSvg("runTime")}
                         <span>
-                          {globalUtil.fetchTime(
-                            (new Date(EndTime).getTime()
-                              ? new Date(EndTime).getTime()
-                              : Date.parse(new Date())) -
-                              new Date(StartTime).getTime()
-                          )}
+                          {EndTime && StartTime
+                            ? globalUtil.fetchTime(
+                                new Date(EndTime).getTime()
+                                  ? new Date(EndTime).getTime() -
+                                      new Date(StartTime).getTime()
+                                  : ""
+                              )
+                            : ""}
                         </span>
                       </span>
                     </div>
-                    <div>
+                    <div style={{ textAlign: "right" }}>
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
                           <svg
