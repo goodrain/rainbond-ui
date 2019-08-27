@@ -43,7 +43,7 @@ import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
-import AppPubSubSocket from '../../utils/appPubSubSocket';
+import AppPubSubSocket from "../../utils/appPubSubSocket";
 
 import {
   deploy,
@@ -188,12 +188,15 @@ class ManageContainer extends PureComponent {
     });
   };
   handlePodClick = item => {
-    var key = item.key;
+    var { key } = item;
     var podName = key.split("_")[0];
     var manageName = key.split("_")[1];
     let pod_status = key.split("_")[2];
-    if (pod_status != "Running") {
-      notification.warning({ message: "当前节点暂不支持运行容器管理", duration: 5 });
+    if (pod_status != "RUNNING") {
+      notification.warning({
+        message: "当前节点暂不支持运行容器管理",
+        duration: 5
+      });
       return;
     }
 
@@ -229,18 +232,18 @@ class ManageContainer extends PureComponent {
     }
   };
   render() {
-    const pods = this.props.pods || [];
+    const pods = this.props.pods
+      ? (this.props.pods.new_pods || []).concat(this.props.pods.old_pods || [])
+      : [];
+
     const renderPods = (
       <Menu onClick={this.handlePodClick}>
         {pods &&
           pods.length > 0 &&
           pods.map((item, index) => {
+            const { pod_name, pod_status, manage_name } = item;
             return (
-              <Menu.Item
-                key={
-                  item.pod_name + "_" + item.manage_name + "_" + item.pod_status
-                }
-              >
+              <Menu.Item key={pod_name + "_" + manage_name + "_" + pod_status}>
                 实例{index + 1}
               </Menu.Item>
             );
@@ -380,15 +383,17 @@ class Main extends PureComponent {
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
             this.props.dispatch(
               routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appDetail
-                  .service.service_alias}`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${
+                  appDetail.service.service_alias
+                }`
               )
             );
           } else {
             this.props.dispatch(
               routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${appDetail
-                  .service.group_id}/${appDetail.service.compose_id}`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${
+                  appDetail.service.group_id
+                }/${appDetail.service.compose_id}`
               )
             );
           }
@@ -431,10 +436,7 @@ class Main extends PureComponent {
     if (currTeam) {
       var region = teamUtil.getRegionByName(currTeam, currRegionName);
       if (region) {
-        const websocketURL = regionUtil.getNewWebSocketUrl(
-          region,
-          service_id
-        );
+        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
         this.setState({ websocketURL: websocketURL }, () => {
           this.createSocket();
         });
@@ -515,7 +517,9 @@ class Main extends PureComponent {
       app_alias: this.getAppAlias(),
       deploy_version: datas.build_version
         ? datas.build_version
-        : datas.deploy_version ? datas.deploy_version : "",
+        : datas.deploy_version
+        ? datas.deploy_version
+        : "",
       upgrade_or_rollback: datas.upgrade_or_rollback
         ? datas.upgrade_or_rollback
         : -1
@@ -523,7 +527,9 @@ class Main extends PureComponent {
       if (data) {
         notification.success({
           message: datas.upgrade_or_rollback
-            ? datas.upgrade_or_rollback == 1 ? `操作成功，升级中` : `操作成功，回滚中`
+            ? datas.upgrade_or_rollback == 1
+              ? `操作成功，升级中`
+              : `操作成功，回滚中`
             : `操作成功，回滚中`
         });
         var child = this.getChildCom();
@@ -627,7 +633,7 @@ class Main extends PureComponent {
         url: websocketURL,
         serviceId: appDetail.service.service_id,
         isAutoConnect: true,
-        destroyed: false,
+        destroyed: false
       });
     }
   }
@@ -648,8 +654,9 @@ class Main extends PureComponent {
         });
         this.props.dispatch(
           routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this
-              .props.appDetail.service.group_id}`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              this.props.appDetail.service.group_id
+            }`
           )
         );
       }
@@ -834,12 +841,13 @@ class Main extends PureComponent {
     promptModal == "stop"
       ? this.handleStop()
       : promptModal == "start"
-        ? this.handleStart()
-        : promptModal == "restart" ? this.handleRestart() : "";
+      ? this.handleStart()
+      : promptModal == "restart"
+      ? this.handleRestart()
+      : "";
   };
   render() {
     const appDetail = this.props.appDetail;
-    // console.log('appDetail',appDetail)
     const status = this.state.status || {};
     const groups = this.props.groups || [];
     const isShowThirdParty = this.state.isShowThirdParty;
@@ -856,7 +864,7 @@ class Main extends PureComponent {
     }
     const menu = (
       <Menu onClick={this.handleDropClick}>
-        {!appDetail.is_third &&
+        {!appDetail.is_third && (
           <Menu.Item
             key="restart"
             disabled={
@@ -865,16 +873,19 @@ class Main extends PureComponent {
             }
           >
             重启
-          </Menu.Item>}
+          </Menu.Item>
+        )}
 
-        {!appDetail.is_third
-          ? <Menu.Item
-              key="moveGroup"
-              disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}
-            >
-              修改所属应用
-            </Menu.Item>
-          : <Menu.Item key="moveGroup">修改所属应用</Menu.Item>}
+        {!appDetail.is_third ? (
+          <Menu.Item
+            key="moveGroup"
+            disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}
+          >
+            修改所属应用
+          </Menu.Item>
+        ) : (
+          <Menu.Item key="moveGroup">修改所属应用</Menu.Item>
+        )}
         <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>
           删除
         </Menu.Item>
@@ -889,46 +900,47 @@ class Main extends PureComponent {
         <ButtonGroup>
           {appDetail.service.service_source == "market" &&
             appStatusUtil.canVisit(status) &&
-            !isShowThirdParty &&
-            <VisitBtn btntype="" app_alias={appAlias} />}
+            !isShowThirdParty && <VisitBtn btntype="" app_alias={appAlias} />}
           {appDetail.service.service_source != "market" &&
             appStatusUtil.canVisit(status) &&
-            !isShowThirdParty &&
-            <VisitBtn btntype="default" app_alias={appAlias} />}
-          {isShowThirdParty &&
-            <VisitBtn btntype="primary" app_alias={appAlias} />}
+            !isShowThirdParty && (
+              <VisitBtn btntype="default" app_alias={appAlias} />
+            )}
+          {isShowThirdParty && (
+            <VisitBtn btntype="primary" app_alias={appAlias} />
+          )}
 
           {appUtil.canStopApp(appDetail) &&
           !appStatusUtil.canStart(status) &&
-          !isShowThirdParty
-            ? <Button
-                disabled={!appStatusUtil.canStop(status)}
-                onClick={() => {
-                  this.handleOpenHelpfulHints("stop");
-                }}
-              >
-                关闭
-              </Button>
-            : status && status.status && status.status == "upgrade"
-              ? <Button
-                  onClick={() => {
-                    this.handleOpenHelpfulHints("stop");
-                  }}
-                >
-                  关闭
-                </Button>
-              : null}
+          !isShowThirdParty ? (
+            <Button
+              disabled={!appStatusUtil.canStop(status)}
+              onClick={() => {
+                this.handleOpenHelpfulHints("stop");
+              }}
+            >
+              关闭
+            </Button>
+          ) : status && status.status && status.status == "upgrade" ? (
+            <Button
+              onClick={() => {
+                this.handleOpenHelpfulHints("stop");
+              }}
+            >
+              关闭
+            </Button>
+          ) : null}
 
           {appUtil.canStartApp(appDetail) &&
           !appStatusUtil.canStop(status) &&
-          !isShowThirdParty
-            ? <Button
-                disabled={!appStatusUtil.canStart(status)}
-                onClick={this.handleStart}
-              >
-                启动
-              </Button>
-            : null}
+          !isShowThirdParty ? (
+            <Button
+              disabled={!appStatusUtil.canStart(status)}
+              onClick={this.handleStart}
+            >
+              启动
+            </Button>
+          ) : null}
 
           {/* {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
                         <Tooltip title="应用配置已更改，重启后生效">
@@ -941,9 +953,9 @@ class Main extends PureComponent {
 
           {appUtil.canManageContainter(appDetail) &&
           appStatusUtil.canManageDocker(status) &&
-          !isShowThirdParty
-            ? <ManageContainer app_alias={appDetail.service.service_alias} />
-            : null}
+          !isShowThirdParty ? (
+            <ManageContainer app_alias={appDetail.service.service_alias} />
+          ) : null}
 
           <Dropdown overlay={menu} placement="bottomRight">
             <Button>
@@ -953,24 +965,26 @@ class Main extends PureComponent {
           </Dropdown>
         </ButtonGroup>
 
-        {isShowThirdParty
-          ? ""
-          : this.state.BuildState
-            ? <Tooltip title={"有新版本"}>
-                <Button onClick={this.handleOpenBuild}>
-                  <Badge
-                    className={styles.badge}
-                    status="success"
-                    text=""
-                    count="有更新版本"
-                    title="有更新版本"
-                  />
-                  构建
-                </Button>
-              </Tooltip>
-            : status && status.status == "undeploy"
-              ? <Button onClick={this.handleOpenBuild}>构建</Button>
-              : <Button onClick={this.handleOpenBuild}>构建</Button>}
+        {isShowThirdParty ? (
+          ""
+        ) : this.state.BuildState ? (
+          <Tooltip title={"有新版本"}>
+            <Button onClick={this.handleOpenBuild}>
+              <Badge
+                className={styles.badge}
+                status="success"
+                text=""
+                count="有更新版本"
+                title="有更新版本"
+              />
+              构建
+            </Button>
+          </Tooltip>
+        ) : status && status.status == "undeploy" ? (
+          <Button onClick={this.handleOpenBuild}>构建</Button>
+        ) : (
+          <Button onClick={this.handleOpenBuild}>构建</Button>
+        )}
 
         {/* {
                     (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
@@ -980,15 +994,17 @@ class Main extends PureComponent {
         {status.status == "undeploy" ||
         status.status == "closed" ||
         status.status == "stopping" ||
-        isShowThirdParty
-          ? ""
-          : <Button
-              type="primary"
-              onClick={this.handleUpdateRolling}
-              loading={this.state.rollingCanClick}
-            >
-              更新(滚动)
-            </Button>}
+        isShowThirdParty ? (
+          ""
+        ) : (
+          <Button
+            type="primary"
+            onClick={this.handleUpdateRolling}
+            loading={this.state.rollingCanClick}
+          >
+            更新(滚动)
+          </Button>
+        )}
 
         {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
       </div>
@@ -1103,8 +1119,9 @@ class Main extends PureComponent {
           },
           {
             title: this.props.appDetail.service.group_name,
-            href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this
-              .props.appDetail.service.group_id}`
+            href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              this.props.appDetail.service.group_id
+            }`
           },
           {
             title: this.props.appDetail.service.service_cname,
@@ -1117,14 +1134,15 @@ class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
       >
-        {this.state.showMarketAppDetail &&
+        {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={this.state.showApp}
-          />}
+          />
+        )}
 
-        {this.state.promptModal &&
+        {this.state.promptModal && (
           <Modal
             title="友情提示"
             visible={this.state.promptModal}
@@ -1132,10 +1150,9 @@ class Main extends PureComponent {
             onCancel={this.handleOffHelpfulHints}
             confirmLoading={!this.state.promptModal}
           >
-            <p>
-              确定{codeObj[this.state.promptModal]}当前服务？
-            </p>
-          </Modal>}
+            <p>确定{codeObj[this.state.promptModal]}当前服务？</p>
+          </Modal>
+        )}
         <Modal
           title={[<span>从云市应用构建</span>]}
           visible={this.state.visibleBuild}
@@ -1183,99 +1200,112 @@ class Main extends PureComponent {
           }
         >
           <div>
-            {BuildList && BuildList.length > 0
-              ? <Form onSubmit={this.handleOkBuild}>
-                  <Alert
-                    message={[
-                      <span>从云市应用</span>,
-                      <a
-                        onClick={() => {
-                          this.hideMarketOpenAppDetail();
-                        }}
-                      >
-                        {this.state.BuildText}
-                      </a>,
-                      <span>构建而来,当前云市应用版本有更新!</span>
-                    ]}
-                    type="success"
-                    style={{ marginBottom: "5px" }}
-                  />
-                  <Form.Item {...formItemLayout} label="">
-                    {getFieldDecorator("group_version", {
-                      initialValue: BuildList[0],
-                      rules: [{ required: true, message: "选择版本" }]
-                    })(
-                      <RadioGroup>
-                        {BuildList.map((item, index) => {
-                          return (
-                            <div>
-                              版本:&nbsp;<Radio key={index} value={item}>
-                                <a>{item}</a>可更新
-                              </Radio>
-                            </div>
-                          );
-                        })}
-                      </RadioGroup>
-                    )}
-                  </Form.Item>
-                </Form>
-              : <Alert
-                  message="云市应用暂未有新版本更新，您无需构建。"
+            {BuildList && BuildList.length > 0 ? (
+              <Form onSubmit={this.handleOkBuild}>
+                <Alert
+                  message={[
+                    <span>从云市应用</span>,
+                    <a
+                      onClick={() => {
+                        this.hideMarketOpenAppDetail();
+                      }}
+                    >
+                      {this.state.BuildText}
+                    </a>,
+                    <span>构建而来,当前云市应用版本有更新!</span>
+                  ]}
                   type="success"
                   style={{ marginBottom: "5px" }}
-                />}
+                />
+                <Form.Item {...formItemLayout} label="">
+                  {getFieldDecorator("group_version", {
+                    initialValue: BuildList[0],
+                    rules: [{ required: true, message: "选择版本" }]
+                  })(
+                    <RadioGroup>
+                      {BuildList.map((item, index) => {
+                        return (
+                          <div>
+                            版本:&nbsp;
+                            <Radio key={index} value={item}>
+                              <a>{item}</a>可更新
+                            </Radio>
+                          </div>
+                        );
+                      })}
+                    </RadioGroup>
+                  )}
+                </Form.Item>
+              </Form>
+            ) : (
+              <Alert
+                message="云市应用暂未有新版本更新，您无需构建。"
+                type="success"
+                style={{ marginBottom: "5px" }}
+              />
+            )}
           </div>
         </Modal>
 
-        {Com
-          ? <Com
-              status={this.state.status}
-              ref={this.saveRef}
-              {...this.props.match.params}
-              {...this.props}
-              onshowDeployTips={msg => {
-                this.handleshowDeployTips(msg);
-              }}
-              onshowRestartTips={msg => {
-                this.handleshowRestartTips(msg);
-              }}
-              socket={this.socket}
-              onChecked={this.handleChecked}
-            />
-          : "参数错误"}
+        {Com ? (
+          <Com
+            status={this.state.status}
+            ref={this.saveRef}
+            {...this.props.match.params}
+            {...this.props}
+            onshowDeployTips={msg => {
+              this.handleshowDeployTips(msg);
+            }}
+            onshowRestartTips={msg => {
+              this.handleshowRestartTips(msg);
+            }}
+            socket={this.socket}
+            onChecked={this.handleChecked}
+          />
+        ) : (
+          "参数错误"
+        )}
 
-        {this.state.showDeleteApp &&
+        {this.state.showDeleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
             onCancel={this.cancelDeleteApp}
             title="删除应用"
             desc="确定要删除此应用吗？"
             subDesc="此操作不可恢复"
-          />}
-        {this.state.showEditName &&
+          />
+        )}
+        {this.state.showEditName && (
           <EditName
             name={appDetail.service.service_cname}
             onOk={this.handleEditName}
             onCancel={this.hideEditName}
             title="修改应用名称"
-          />}
-        {this.state.showMoveGroup &&
+          />
+        )}
+        {this.state.showMoveGroup && (
           <MoveGroup
             currGroup={appDetail.service.group_id}
             groups={groups}
             onOk={this.handleMoveGroup}
             onCancel={this.hideMoveGroup}
-          />}
+          />
+        )}
         <ManageAppGuide />
       </PageHeaderLayout>
     );
   }
 }
 @Form.create()
-@connect(({ user, groupControl }) => ({}), null, null, {
-  pure: false,
-  withRef: true
-})
+@connect(
+  ({ user, groupControl }) => ({}),
+  null,
+  null,
+  {
+    pure: false,
+    withRef: true
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
