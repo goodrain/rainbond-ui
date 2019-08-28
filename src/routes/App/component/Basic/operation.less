@@ -95,11 +95,12 @@
   height      : 50px;
   line-height : 50px;
   margin      : 5px 0;
-  padding-left: 20px;
+  padding-left: 10px;
   display     : flex;
   align-items : center;
   width       : 100%;
   border      : 1px solid #eaeaea;
+  justify-content: space-evenly;
 
   div:nth-of-type(1) {
     span {
@@ -130,14 +131,12 @@
     }
   }
   div:nth-of-type(4) {
-    width: 170px;
-    span:nth-of-type(1) {
-      padding-right: 10px;
-    }
+    max-width: 170px;
+    min-width: 120px;
   }
   div:nth-of-type(5) {
-    width: 60px;
-    text-align: center;
+    width: 30px;
+    text-align: right;
   }
 }
 

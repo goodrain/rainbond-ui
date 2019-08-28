@@ -105,7 +105,6 @@ class Index extends PureComponent {
                       </Tooltip>
                     </div>
                     <div
-                      style={{ textAlign: "right" }}
                       className={styles.nowarpText}
                     >
                       <span>
@@ -129,7 +128,7 @@ class Index extends PureComponent {
                     <div>
                       <span
                         className={styles.alcen}
-                        style={{ justifyContent: "flex-end" }}
+                        // style={{ justifyContent: "flex-end" }}
                       >
                         {EndTime && StartTime && globalUtil.fetchSvg("runTime")}
                         <span>

@@ -64,7 +64,6 @@ class Index extends PureComponent {
   render() {
     const { dataList, beanData, current_version } = this.props;
     const { LogHistoryList, showHighlighted, EventID, logVisible } = this.state;
-
     return (
       <Row gutter={24}>
         {logVisible && (
@@ -102,12 +101,13 @@ class Index extends PureComponent {
                       build_version,
                       finish_time,
                       upgrade_or_rollback,
-                      EventID,
+                      event_id,
                       image_repo,
                       code_branch,
                       image_tag,
                       kind
                     } = item;
+
                     return (
                       <li
                         key={build_version}
@@ -199,7 +199,7 @@ class Index extends PureComponent {
                           >
                             <a
                               style={{
-                                width: "186px"
+                                width: "190px"
                               }}
                             >
                               <font
@@ -214,7 +214,7 @@ class Index extends PureComponent {
                             <a
                               className={`${styles.alcen}`}
                               style={{
-                                width: "60%"
+                                width: "40%"
                               }}
                             >
                               {globalUtil.fetchSvg("basicInfo")}
@@ -240,36 +240,10 @@ class Index extends PureComponent {
                                 </span>
                               </Tooltip>
                             </a>
-                          </div>
-                        </div>
-                        <div className={`${styles.linetwo}`}>
-                          <div className={`${styles.rowRtem} ${styles.alcen}`}>
-                            <a
-                              className={
-                                status === "success"
-                                  ? styles.passeda
-                                  : status === "error"
-                                  ? styles.faileda
-                                  : styles.canceleda
-                              }
-                            >
-                              {globalUtil.fetchSvg("logState")}
-                              <font
-                                style={{
-                                  fontSize: "14px",
-                                  color:
-                                    status === "success" ? "#39AA56" : "#db4545"
-                                }}
-                              >
-                                {status === "success" ? "成功" : "失败"}
-                              </font>
-                            </a>
-                          </div>
-                          <div className={`${styles.rowRtem} `}>
                             <a
                               className={` ${styles.alcen} `}
                               style={{
-                                width: "100%"
+                                width: "30%"
                               }}
                             >
                               <span
@@ -302,6 +276,33 @@ class Index extends PureComponent {
                                 </span>
                               </Tooltip>
                             </a>
+                          </div>
+                        </div>
+                        <div className={`${styles.linetwo}`}>
+                          <div className={`${styles.rowRtem} ${styles.alcen}`}>
+                            <a
+                              className={
+                                status === "success"
+                                  ? styles.passeda
+                                  : status === "error"
+                                  ? styles.faileda
+                                  : styles.canceleda
+                              }
+                            >
+                              {globalUtil.fetchSvg("logState")}
+                              <font
+                                style={{
+                                  fontSize: "14px",
+                                  color:
+                                    status === "success" ? "#39AA56" : "#db4545"
+                                }}
+                              >
+                                {status === "success" ? "成功" : "失败"}
+                              </font>
+                            </a>
+                          </div>
+                          <div className={`${styles.rowRtem} `}>
+
                           </div>
                         </div>
                         <div className={`${styles.linestree}`}>
@@ -368,7 +369,7 @@ class Index extends PureComponent {
                                   cursor: "pointer"
                                 }}
                                 onClick={() => {
-                                  this.showModal(EventID);
+                                  this.showModal(event_id);
                                 }}
                                 t="1566527207023"
                                 class="icon"
