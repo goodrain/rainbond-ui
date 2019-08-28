@@ -138,14 +138,14 @@ class Index extends PureComponent {
                           title={
                             beanData &&
                             (beanData.kind && beanData.kind === "源码构建"
-                              ? beanData.code_version && beanData.code_version
+                              ? beanData.code_version &&''
                               : beanData.image_domain && beanData.image_domain)
                           }
                         >
                           <span className={styles.buildText}>
                             {beanData &&
                               (beanData.kind && beanData.kind === "源码构建"
-                                ? beanData.code_version && beanData.code_version
+                                ? beanData.code_version && beanData.code_version.substr(0, 8)
                                 : beanData.image_domain &&
                                   beanData.image_domain)}
                           </span>

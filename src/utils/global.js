@@ -566,6 +566,10 @@ const global = {
     const statusOptType = {
       "": "-",
       "create-service": "创建服务",
+      "batch-build-service": "批量构建服务",
+      "batch-start-service": "批量启动服务",
+      "batch-stop-service": "批量停止服务",
+      "batch-upgrade-service": "批量升级服务",
       "build-service": "构建服务",
       build: "构建服务",
       upgrade: "滚动升级服务",

@@ -111,7 +111,7 @@ export default class Index extends PureComponent {
   handlePodClick = (podName, manageName) => {
     let adPopup = window.open("about:blank");
     const appAlias = this.props.appAlias;
-    if (podName && manageName) {
+    // if (podName && manageName) {
       this.props.dispatch({
         type: "appControl/managePod",
         payload: {
@@ -124,7 +124,7 @@ export default class Index extends PureComponent {
           adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
         }
       });
-    }
+    // }
   };
   fetchExtendInfo = () => {
     const { dispatch } = this.props;
