@@ -25,24 +25,6 @@ class InstanceList extends PureComponent {
   };
 
   render() {
-    // const formItemLayout = {
-    //   labelCol: {
-    //     xs: {
-    //       span: 24,
-    //     },
-    //     sm: {
-    //       span: 12,
-    //     },
-    //   },
-    //   wrapperCol: {
-    //     xs: {
-    //       span: 24,
-    //     },
-    //     sm: {
-    //       span: 8,
-    //     },
-    //   },
-    // };
     const statusObj = {
       "Running":"正常运行",
       "Pending":"启动中",
@@ -50,7 +32,6 @@ class InstanceList extends PureComponent {
       "Failed":"运行失败",
       "Unknown":"未知",
     }
-    console.log('list',this.state.list)
     return (
       <List
         grid={{ gutter: 16, column: 4 }}
