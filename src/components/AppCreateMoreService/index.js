@@ -119,12 +119,12 @@ class BaseInfo extends PureComponent {
                 title: '模块名称',
                 dataIndex: 'name',
                 rowKey: 'name',
-                width: "20%"
+                width: "15%"
             }, {
                 title: '服务名称',
                 dataIndex: 'cname',
                 rowKey: 'cname',
-                width: "20%"
+                width: "15%"
 
             }, {
                 title: '包类型',
@@ -148,14 +148,14 @@ class BaseInfo extends PureComponent {
                 title: '构建变量信息',
                 dataIndex: 'envs',
                 rowKey: 'envs',
-                width: "30%",
+                width: "40%",
 
                 render: (val, index) => {
                     let buildValue = "";
                     let startValue = "";
                     if (val && val.length > 0) {
                         val.map((item) => {
-                            item.name == "BUILD_MAVEN_CUSTOM_OPTS" ? buildValue = item.value : ""
+                            item.name == "BUILD_MAVEN_CUSTOM_GOALS" ? buildValue = item.value : ""
                             item.name == "BUILD_PROCFILE" ? startValue = item.value : ""
                         })
                     }
@@ -163,11 +163,11 @@ class BaseInfo extends PureComponent {
 
                     return <div key={index}>
                         <div style={{ display: "flex" }}>
-                            <p style={{ width: "28%" }}>构建命令:</p>
-                            <div style={{ width: "72%" }}>{buildValue}</div></div>
+                            <p style={{ width: "30%" }}>Maven参数:</p>
+                            <div style={{ width: "70%" }}>{buildValue}</div></div>
                         <div style={{ display: "flex" }}>
-                            <p style={{ width: "28%" }}>启动命令:</p>
-                            <div style={{ width: "72%" }}>{startValue}</div>
+                            <p style={{ width: "30%" }}>启动命令:</p>
+                            <div style={{ width: "70%" }}>{startValue}</div>
                         </div>
                     </div >
                 }
