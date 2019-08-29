@@ -54,6 +54,10 @@ class Index extends PureComponent {
       if (finalstatus == "timeout") {
         return <span>操作已超时</span>;
       }
+
+      if (finalstatus == "empty") {
+        return <span></span>;
+      }
       switch (status) {
         case "success":
           return <span style={{ color: "#39AA56" }}>成功</span>;
@@ -69,7 +73,6 @@ class Index extends PureComponent {
             {logList &&
               logList.map(item => {
                 const {
-                  StartTime,
                   Status,
                   FinalStatus,
                   UserName,
@@ -77,7 +80,8 @@ class Index extends PureComponent {
                   Message,
                   EndTime,
                   SynType,
-                  EventID
+                  EventID,
+                  create_time
                 } = item;
                 return (
                   <div
@@ -95,7 +99,7 @@ class Index extends PureComponent {
                     <div
                       style={{ wordBreak: "break-word", lineHeight: "17px" }}
                     >
-                      {globalUtil.fetchdayTime(StartTime)}
+                      {globalUtil.fetchdayTime(create_time)}
                     </div>
                     <div>
                       <Tooltip title={Message}>
@@ -130,13 +134,13 @@ class Index extends PureComponent {
                         className={styles.alcen}
                         // style={{ justifyContent: "flex-end" }}
                       >
-                        {EndTime && StartTime && globalUtil.fetchSvg("runTime")}
+                        {EndTime && create_time && globalUtil.fetchSvg("runTime")}
                         <span>
-                          {EndTime && StartTime
+                          {EndTime && create_time
                             ? globalUtil.fetchTime(
                                 new Date(EndTime).getTime()
                                   ? new Date(EndTime).getTime() -
-                                      new Date(StartTime).getTime()
+                                      new Date(create_time).getTime()
                                   : ""
                               )
                             : ""}
