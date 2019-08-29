@@ -29,6 +29,9 @@ class Index extends PureComponent {
   };
 
   showLogModal = (EventID, showSocket) => {
+    const { isopenLog, onLogPush } = this.props;
+    isopenLog && onLogPush && onLogPush(false);
+
     this.setState({
       logVisible: true,
       selectEventID: EventID,
@@ -43,7 +46,7 @@ class Index extends PureComponent {
   };
 
   render() {
-    const { logList, has_next, recordLoading } = this.props;
+    const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket } = this.state;
     const statusCNMap = (finalstatus, status) => {
       if (finalstatus == "") {
@@ -83,6 +86,7 @@ class Index extends PureComponent {
                   EventID,
                   create_time
                 } = item;
+                // console.log('logListlogListlogListlogList',EventID)
                 return (
                   <div
                     key={EventID}
@@ -108,9 +112,7 @@ class Index extends PureComponent {
                         {Status === "success" ? "" : Message}
                       </Tooltip>
                     </div>
-                    <div
-                      className={styles.nowarpText}
-                    >
+                    <div className={styles.nowarpText}>
                       <span>
                         <Tooltip
                           title={
@@ -148,6 +150,13 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div style={{ textAlign: "right" }}>
+                      {isopenLog &&
+                        FinalStatus === "" &&
+                        EventID &&
+                        this.showLogModal(
+                          EventID,
+                          FinalStatus == "" ? true : false
+                        )}
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
                           <svg
