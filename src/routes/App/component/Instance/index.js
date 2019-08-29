@@ -219,85 +219,82 @@ class Index extends PureComponent {
                   </div>
 
                   <div style={{ height: "15px", background: "#fff" }} />
-                  {instanceInfo.containers &&
-                    instanceInfo.containers.length > 0 && (
-                      <Table
-                        dataSource={instanceInfo.containers}
-                        columns={[
-                          {
-                            title: "镜像名",
-                            dataIndex: "image",
-                            key: "image",
-                            width: "20%",
-                            render: image => (
-                              <Tooltip title={image}>
-                                <span className={styles.wordText}>{image}</span>
-                              </Tooltip>
-                            )
-                          },
-                          {
-                            title: "内存",
-                            dataIndex: "limit_memory",
-                            key: "limit_memory",
-                            width: "10%",
-                            render: limit_memory => (
-                              <Tooltip title={limit_memory}>
-                                <span className={styles.wordText}>
-                                  {limit_memory}
-                                </span>
-                              </Tooltip>
-                            )
-                          },
-                          {
-                            title: "CPU",
-                            dataIndex: "limit_cpu",
-                            key: "limit_cpu",
-                            width: "10%",
-                            render: limit_cpu => (
-                              <span className={styles.wordText}>
-                                {limit_cpu || ""}
-                              </span>
-                            )
-                          },
-                          {
-                            title: "创建时间",
-                            dataIndex: "started",
-                            key: "started",
-                            width: "20%",
-                            render: started =>
-                              moment(started).format("YYYY-MM-DD hh:mm:ss")
-                          },
-                          {
-                            title: "状态",
-                            dataIndex: "state",
-                            key: "state",
-                            width: "10%",
+                  <Table
+                    dataSource={instanceInfo.containers}
+                    columns={[
+                      {
+                        title: "镜像名",
+                        dataIndex: "image",
+                        key: "image",
+                        width: "40%",
+                        render: image => (
+                          <Tooltip title={image}>
+                            <span className={styles.wordText}>{image}</span>
+                          </Tooltip>
+                        )
+                      },
+                      {
+                        title: "内存",
+                        dataIndex: "limit_memory",
+                        key: "limit_memory",
+                        width: "10%",
+                        render: limit_memory => (
+                          <Tooltip title={limit_memory}>
+                            <span className={styles.wordText}>
+                              {limit_memory}
+                            </span>
+                          </Tooltip>
+                        )
+                      },
+                      {
+                        title: "CPU",
+                        dataIndex: "limit_cpu",
+                        key: "limit_cpu",
+                        width: "10%",
+                        render: limit_cpu => (
+                          <span className={styles.wordText}>
+                            {limit_cpu || ""}
+                          </span>
+                        )
+                      },
+                      {
+                        title: "创建时间",
+                        dataIndex: "started",
+                        key: "started",
+                        width: "20%",
+                        render: started =>
+                          moment(started).format("YYYY-MM-DD hh:mm:ss")
+                      },
+                      {
+                        title: "状态",
+                        dataIndex: "state",
+                        key: "state",
+                        width: "10%",
 
-                            render: state => (
-                              <span className={styles.wordText}>
-                                {this.containerState(state)}
-                              </span>
-                            )
-                          },
-                          {
-                            title: "说明",
-                            dataIndex: "reason",
-                            key: "reason",
-                            width: "30%",
-                            render: reason => (
-                              <span className={styles.wordText}>
-                                {reason || ""}
-                              </span>
-                            )
-                          }
-                        ]}
-                        pagination={{
-                          hideOnSinglePage: true,
-                          pageSize: 999,
-                          current: 1
-                        }}
-                      />
-                    )}
+                        render: state => (
+                          <span className={styles.wordText}>
+                            {this.containerState(state)}
+                          </span>
+                        )
+                      },
+                      {
+                        title: "说明",
+                        dataIndex: "reason",
+                        key: "reason",
+                        width: "10%",
+                        render: reason => (
+                          <span className={styles.wordText}>
+                            {reason || ""}
+                          </span>
+                        )
+                      }
+                    ]}
+                    pagination={{
+                      hideOnSinglePage: true,
+                      pageSize: 999,
+                      current: 1
+                    }}
+                  />
                 </div>
 
                 <div>

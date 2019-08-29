@@ -49,25 +49,30 @@ class Index extends PureComponent {
                 </h2>
                 <div className={styles.buildCommitInfo}>
                   <ul className={styles.buildInfo}>
-                    <li>
-                      <a target="_blank">
-                        {globalUtil.fetchSvg("runTime")}
-                        运行
-                        <span
-                          style={{
-                            color: "rgba(0,0,0,0.45)",
-                            paddingLeft: "20px"
-                          }}
-                        >
-                          {status && status.start_time
-                            ? globalUtil.fetchTime(
-                                Date.parse(new Date()) -
-                                  new Date(status.start_time).getTime()
-                              )
-                            : ""}
-                        </span>
-                      </a>
-                    </li>
+                    {status &&
+                      (status.status !== "undeploy" &&
+                        status.status !== "undeploy" &&
+                        status.status !== "closed") && (
+                        <li>
+                          <a target="_blank">
+                            {globalUtil.fetchSvg("runTime")}
+                            运行
+                            <span
+                              style={{
+                                color: "rgba(0,0,0,0.45)",
+                                paddingLeft: "20px"
+                              }}
+                            >
+                              {status && status.start_time
+                                ? globalUtil.fetchTime(
+                                    Date.parse(new Date()) -
+                                      new Date(status.start_time).getTime()
+                                  )
+                                : ""}
+                            </span>
+                          </a>
+                        </li>
+                      )}
                     <li>
                       <a>
                         {globalUtil.fetchSvg("distributionMemory")}
@@ -114,10 +119,17 @@ class Index extends PureComponent {
 
                     <span style={{ color: "rgba(0,0,0,0.65)" }}>版本号</span>
                   </span>
-                  <span>
+                  <span
+                    style={{
+                      color:
+                        beanData && beanData.build_version
+                          ? "#39aa56"
+                          : "rgba(0, 0, 0, 0.45)"
+                    }}
+                  >
                     {beanData && beanData.build_version
                       ? beanData.build_version
-                      : ""}
+                      : "暂无"}
                   </span>
                 </h2>
                 <div className={styles.buildCommitInfo}>
@@ -138,16 +150,20 @@ class Index extends PureComponent {
                           title={
                             beanData &&
                             (beanData.kind && beanData.kind === "源码构建"
-                              ? beanData.code_version &&''
+                              ? beanData.code_version && ""
                               : beanData.image_domain && beanData.image_domain)
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData &&
-                              (beanData.kind && beanData.kind === "源码构建"
-                                ? beanData.code_version && beanData.code_version.substr(0, 8)
-                                : beanData.image_domain &&
-                                  beanData.image_domain)}
+                            {beanData
+                              ? beanData.kind &&
+                                beanData.kind === "源码构建" &&
+                                beanData.code_version
+                                ? beanData.code_version.substr(0, 8)
+                                : beanData.image_domain
+                                ? beanData.image_domain
+                                : "暂无"
+                              : "暂无"}
                           </span>
                         </Tooltip>
                       </a>
@@ -175,11 +191,14 @@ class Index extends PureComponent {
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData &&
-                              (beanData.kind && beanData.kind === "源码构建"
+                            {beanData
+                              ? beanData.kind && beanData.kind === "源码构建"
                                 ? beanData.code_commit_msg &&
                                   beanData.code_commit_msg
-                                : beanData.image_repo && beanData.image_repo)}
+                                : beanData.image_repo
+                                ? beanData.image_repo
+                                : "暂无"
+                              : "暂无"}
                           </span>
                         </Tooltip>
                       </a>
@@ -206,10 +225,13 @@ class Index extends PureComponent {
                           }
                         >
                           <span className={styles.buildText}>
-                            {beanData &&
-                              (beanData.kind && beanData.kind === "源码构建"
+                            {beanData
+                              ? beanData.kind && beanData.kind === "源码构建"
                                 ? beanData.code_branch && beanData.code_branch
-                                : beanData.image_tag && beanData.image_tag)}
+                                : beanData.image_tag
+                                ? beanData.image_tag
+                                : "暂无"
+                              : "暂无"}
                           </span>
                         </Tooltip>
                       </a>

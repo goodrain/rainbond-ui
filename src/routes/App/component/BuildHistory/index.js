@@ -114,7 +114,7 @@ class Index extends PureComponent {
                         className={`${styles.rowLi} ${styles.prRow} ${
                           status === "success"
                             ? styles.passed
-                            : status === "error"
+                            : status === "failure"
                             ? styles.failed
                             : styles.canceled
                         } `}
@@ -129,11 +129,24 @@ class Index extends PureComponent {
                               }`}
                             >
                               <span className={`${styles.statusIcon} `}>
-                                {status === "success"
-                                  ? globalUtil.fetchSvg("success")
-                                  : status === "error"
-                                  ? globalUtil.fetchSvg("error")
-                                  : globalUtil.fetchSvg("close")}
+                                {status === "success" ? (
+                                  globalUtil.fetchSvg("success")
+                                ) : status === "failure" ? (
+                                  <span
+                                    className={styles.icon}
+                                    style={{
+                                      textAlign: "center",
+                                      color: "#db4545",
+                                      display: "inline-block",
+                                      lineHeight: 1
+                                    }}
+                                  >
+                                    !
+                                  </span>
+                                ) : (
+                                  // globalUtil.fetchSvg("error")
+                                  globalUtil.fetchSvg("close")
+                                )}
                               </span>
                               <a
                                 className={` ${styles.alcen} ${
@@ -143,7 +156,13 @@ class Index extends PureComponent {
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: "100%"
+                                    width: "100%",
+                                    color:
+                                      status === "success"
+                                        ? "#39aa56"
+                                        : status === "failure"
+                                        ? "#db4545"
+                                        : "#9d9d9d"
                                   }}
                                 >
                                   {build_version}
@@ -153,10 +172,6 @@ class Index extends PureComponent {
                                     build_version == current_version &&
                                     "(当前版本)"}
                                 </font>
-
-                                {/* <Tooltip title="当前版本">
-                                  {globalUtil.fetchSvg("currentVersion")}
-                                </Tooltip> */}
                               </a>
                             </div>
                             <div
@@ -164,17 +179,29 @@ class Index extends PureComponent {
                                 styles.rowMessage
                               } `}
                             >
-                              {globalUtil.fetchSvg("warehouse")}
-                              {/* 代码版本÷ */}
                               <Tooltip
                                 title={
                                   kind &&
                                   (kind === "源码构建"
-                                    ? code_version && ""
+                                    ? "提交信息"
+                                    : "仓库地址")
+                                }
+                              >
+                                {kind &&
+                                  (kind === "源码构建"
+                                    ? globalUtil.fetchSvg("basicInfo")
+                                    : globalUtil.fetchSvg("warehouse"))}
+                              </Tooltip>
+
+                              <Tooltip
+                                title={
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? code_commit_msg && code_commit_msg
                                     : image_domain && image_domain)
                                 }
                               >
-                                <font
+                                <span
                                   className={styles.nowarpCorolText}
                                   style={{
                                     width: "90%"
@@ -182,12 +209,9 @@ class Index extends PureComponent {
                                 >
                                   {kind &&
                                     (kind === "源码构建"
-                                      ? code_version &&
-                                        code_version.substr(0, 8)
-                                      : image_domain
-                                      ? image_domain
-                                      : "")}
-                                </font>
+                                      ? code_commit_msg && code_commit_msg
+                                      : image_domain && image_domain)}
+                                </span>
                               </Tooltip>
                             </div>
                           </div>
@@ -199,7 +223,8 @@ class Index extends PureComponent {
                           >
                             <a
                               style={{
-                                width: "190px"
+                                width: "193px",
+                                cursor: "auto"
                               }}
                             >
                               <font
@@ -214,47 +239,19 @@ class Index extends PureComponent {
                             <a
                               className={`${styles.alcen}`}
                               style={{
-                                width: "40%"
+                                width: "40%",
+                                cursor: "auto"
                               }}
                             >
-                              {globalUtil.fetchSvg("basicInfo")}
-                              {/* 提交信息 */}
                               <Tooltip
                                 title={
                                   kind &&
-                                  (kind === "源码构建"
-                                    ? code_commit_msg && code_commit_msg
-                                    : image_repo && image_repo)
+                                  (kind === "源码构建" ? "代码分支" : "镜像tag")
                                 }
                               >
-                                <span
-                                  className={styles.nowarpCorolText}
-                                  style={{
-                                    width: "90%"
-                                  }}
-                                >
-                                  {kind &&
-                                    (kind === "源码构建"
-                                      ? code_commit_msg && code_commit_msg
-                                      : image_repo && image_repo)}
-                                </span>
-                              </Tooltip>
-                            </a>
-                            <a
-                              className={` ${styles.alcen} `}
-                              style={{
-                                width: "30%"
-                              }}
-                            >
-                              <span
-                                className={` ${styles.alcen} ${
-                                  styles.buildwidth
-                                } `}
-                                style={{ color: "rgba(0, 0, 0, 0.65)" }}
-                              >
-                                {/* 代码分支 */}
                                 {globalUtil.fetchSvg("branch")}
-                              </span>
+                              </Tooltip>
+
                               <Tooltip
                                 title={
                                   kind &&
@@ -276,6 +273,58 @@ class Index extends PureComponent {
                                 </span>
                               </Tooltip>
                             </a>
+                            <a
+                              className={` ${styles.alcen} `}
+                              style={{
+                                width: "30%",
+                                cursor: "auto"
+                              }}
+                            >
+                              <Tooltip
+                                title={
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? "代码版本"
+                                    : "镜像名称")
+                                }
+                              >
+                                <span
+                                  className={` ${styles.alcen} ${
+                                    styles.buildwidth
+                                  } `}
+                                  style={{ color: "rgba(0, 0, 0, 0.65)" }}
+                                >
+                                  {kind &&
+                                    (kind === "源码构建"
+                                      ? globalUtil.fetchSvg("warehouse")
+                                      : globalUtil.fetchSvg("basicInfo"))}
+                                </span>
+                              </Tooltip>
+
+                              <Tooltip
+                                title={
+                                  kind &&
+                                  (kind === "源码构建"
+                                    ? code_version && ""
+                                    : image_repo && image_repo)
+                                }
+                              >
+                                <font
+                                  className={styles.nowarpCorolText}
+                                  style={{
+                                    width: "90%"
+                                  }}
+                                >
+                                  {kind &&
+                                    (kind === "源码构建"
+                                      ? code_version &&
+                                        code_version.substr(0, 8)
+                                      : image_repo
+                                      ? image_repo
+                                      : "")}
+                                </font>
+                              </Tooltip>
+                            </a>
                           </div>
                         </div>
                         <div className={`${styles.linetwo}`}>
@@ -284,12 +333,15 @@ class Index extends PureComponent {
                               className={
                                 status === "success"
                                   ? styles.passeda
-                                  : status === "error"
+                                  : status === "failure"
                                   ? styles.faileda
                                   : styles.canceleda
                               }
                             >
-                              {globalUtil.fetchSvg("logState")}
+                              {globalUtil.fetchSvg(
+                                "logState",
+                                status === "success" ? "#39AA56" : "#db4545"
+                              )}
                               <font
                                 style={{
                                   fontSize: "14px",
@@ -301,9 +353,7 @@ class Index extends PureComponent {
                               </font>
                             </a>
                           </div>
-                          <div className={`${styles.rowRtem} `}>
-
-                          </div>
+                          <div className={`${styles.rowRtem} `} />
                         </div>
                         <div className={`${styles.linestree}`}>
                           <div
@@ -312,8 +362,9 @@ class Index extends PureComponent {
                             }`}
                           >
                             <div className={styles.alcen}>
-                              {globalUtil.fetchSvg("runTime")}
-                              {/* 运行 */}
+                              <Tooltip title="运行时间">
+                                {globalUtil.fetchSvg("runTime")}
+                              </Tooltip>
 
                               <time className={styles.labelAlign}>
                                 <font
@@ -339,8 +390,10 @@ class Index extends PureComponent {
                             } ${styles.alcen}`}
                           >
                             <div className={styles.alcen}>
-                              {globalUtil.fetchSvg("createTime")}
-                              {/* 创建时间 */}
+                              <Tooltip title="创建时间">
+                                {globalUtil.fetchSvg("createTime")}
+                              </Tooltip>
+
                               <time className={styles.labelAlign}>
                                 <font
                                   style={{
@@ -382,7 +435,7 @@ class Index extends PureComponent {
                               >
                                 <path
                                   d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
-                                  fill="#cccccc"
+                                  fill="#000000"
                                   p-id="5958"
                                 />
                               </svg>
