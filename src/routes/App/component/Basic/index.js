@@ -140,13 +140,11 @@ class Index extends PureComponent {
                           className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
                           {globalUtil.fetchSvg("warehouse")}
-                          {beanData
-                            ? beanData &&
-                              beanData.kind &&
-                              beanData.kind === "源码构建"
-                              ? "代码版本"
-                              : "仓库地址"
-                            : "暂无"}
+                          {beanData &&
+                          beanData.kind &&
+                          beanData.kind === "源码构建"
+                            ? "代码版本"
+                            : "仓库地址"}
                         </span>
                         <Tooltip
                           title={
