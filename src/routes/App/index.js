@@ -501,6 +501,10 @@ class Main extends PureComponent {
         this.loadBuildState(this.props.appDetail);
         notification.success({ message: `操作成功，部署中` });
         var child = this.getChildCom();
+
+        if(child && child.onLogPush){
+          child.onLogPush(true);
+        }
         if (child && child.onAction) {
           child.onAction(data.bean);
         }

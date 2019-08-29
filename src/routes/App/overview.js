@@ -437,7 +437,8 @@ export default class Index extends PureComponent {
       more: false,
       total: 0,
       current_version: null,
-      status: ""
+      status: "",
+      isopenLog:false
     };
     this.inerval = 5000;
   }
@@ -555,6 +556,11 @@ export default class Index extends PureComponent {
     this.fetchOperationLog(false);
     this.getVersionList();
   };
+  onLogPush = isopen =>{
+   this.setState({
+    isopenLog:isopen
+   })
+  }
   onPageChange = page => {};
 
   handleDel = item => {
@@ -637,9 +643,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  shouldComponentUpdate() {
-    return true;
-  }
+
 
   render() {
     const topColResponsiveProps = {
@@ -668,6 +672,7 @@ export default class Index extends PureComponent {
       disk,
       page,
       total,
+      isopenLog,
       recordLoading,
       has_next,
       current_version
@@ -707,6 +712,8 @@ export default class Index extends PureComponent {
         {!more &&
           <OperationRecord
             socket={this.props.socket}
+            isopenLog={isopenLog}
+            onLogPush={this.onLogPush}
             has_next={has_next}
             logList={logList}
             recordLoading={recordLoading}
