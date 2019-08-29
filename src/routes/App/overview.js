@@ -4,11 +4,7 @@ import moment from "moment";
 import { connect } from "dva";
 import numeral from "numeral";
 import { Link, Switch, Route } from "dva/router";
-import {
-  Button,
-  notification,
-  Modal,
-} from "antd";
+import { Button, notification, Modal } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { getRoutes } from "../../utils/utils";
 import appAcionLogUtil from "../../utils/app-action-log-util";
@@ -126,34 +122,11 @@ class LogItem extends PureComponent {
     return "";
   };
   createSocket() {
-    const { socketUrl, data } = this.props;
-    let slef = this;
-    const protocolStr = document.location.protocol;
+    const { data } = this.props;
     let socketUrls = this.getSocketUrl();
     if (socketUrls) {
-      let str = socketUrls.substr(0, socketUrls.indexOf(":"));
-
-      if (protocolStr === "https:" && str && str.length === 2 && str === "ws") {
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为ws，请切换为http协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      }else if(protocolStr === "http:" && str && str.length === 3 && str === "wss"){
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为wss，请切换为https协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      }else {
+      let isThrough = dateUtil.isWebSocketOpen(socketUrls);
+      if (isThrough && isThrough === "through") {
         this.socket = new LogSocket({
           url: this.getSocketUrl(),
           eventId: data.event_id,

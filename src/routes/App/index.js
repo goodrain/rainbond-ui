@@ -45,6 +45,7 @@ import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
 import AppPubSubSocket from "../../utils/appPubSubSocket";
+import dateUtil from "../../utils/date-util";
 
 import {
   deploy,
@@ -628,31 +629,10 @@ class Main extends PureComponent {
   };
   createSocket() {
     const appDetail = this.props.appDetail;
-    const protocolStr = document.location.protocol;
     const { websocketURL } = this.state;
     if (websocketURL) {
-      let str = websocketURL.substr(0, websocketURL.indexOf(":"));
-      if (protocolStr === "https:" && str && str.length === 2 && str === "ws") {
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为ws，请切换为http协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      }else if(protocolStr === "http:" && str && str.length === 3 && str === "wss"){
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为wss，请切换为https协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      } else {
+      let isThrough = dateUtil.isWebSocketOpen(websocketURL);
+      if (isThrough && isThrough === "through") {
         this.socket = new AppPubSubSocket({
           url: websocketURL,
           serviceId: appDetail.service.service_id,

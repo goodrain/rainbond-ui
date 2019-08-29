@@ -17,32 +17,9 @@ export default class Index extends PureComponent {
   componentDidMount() {
     const resover = this.props.resover;
     this.createTmpElement();
-
-    const protocolStr = document.location.protocol;
     if (this.socketUrl) {
-      let str = this.socketUrl.substr(0, this.socketUrl.indexOf(":"));
-
-      if (protocolStr === "https:" && str && str.length === 2 && str === "ws") {
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为ws，请切换为http协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      }else if(protocolStr === "http:" && str && str.length === 3 && str === "wss"){
-        Modal.error({
-          title: '消息通道不可用',
-          content: (
-            <div>
-              <p>消息通道为wss，请切换为https协议访问本系统</p>
-            </div>
-          ),
-          onOk() {},
-        });
-      } else {
+      let isThrough = dateUtil.isWebSocketOpen(this.socketUrl);
+      if (isThrough && isThrough === "through") {
         this.socket = new LogSocket({
           eventId: this.eventId,
           url: this.socketUrl,
