@@ -15,7 +15,8 @@ import {
   Tooltip,
   Radio,
   Alert,
-  Badge
+  Badge,
+  message
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import Overview from "./overview";
@@ -44,6 +45,7 @@ import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
 import AppPubSubSocket from "../../utils/appPubSubSocket";
+import dateUtil from "../../utils/date-util";
 
 import {
   deploy,
@@ -633,12 +635,15 @@ class Main extends PureComponent {
     const appDetail = this.props.appDetail;
     const { websocketURL } = this.state;
     if (websocketURL) {
-      this.socket = new AppPubSubSocket({
-        url: websocketURL,
-        serviceId: appDetail.service.service_id,
-        isAutoConnect: true,
-        destroyed: false
-      });
+      let isThrough = dateUtil.isWebSocketOpen(websocketURL);
+      if (isThrough && isThrough === "through") {
+        this.socket = new AppPubSubSocket({
+          url: websocketURL,
+          serviceId: appDetail.service.service_id,
+          isAutoConnect: true,
+          destroyed: false
+        });
+      }
     }
   }
   handleDeleteApp = () => {
