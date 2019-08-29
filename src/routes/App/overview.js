@@ -2,32 +2,12 @@ import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
 import { connect } from "dva";
-import {
-  ChartCard,
-  yuan,
-  MiniArea,
-  MiniBar,
-  MiniProgress,
-  Field,
-  Bar,
-  Pie,
-  TimelineChart
-} from "../../components/Charts";
 import numeral from "numeral";
 import { Link, Switch, Route } from "dva/router";
 import {
-  Row,
-  Col,
-  Card,
-  Form,
   Button,
   notification,
-  Menu,
-  Dropdown,
-  Progress,
-  Tooltip,
-  Affix,
-  Table
+  Modal,
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { getRoutes } from "../../utils/utils";
@@ -148,17 +128,45 @@ class LogItem extends PureComponent {
   createSocket() {
     const { socketUrl, data } = this.props;
     let slef = this;
-    this.socket = new LogSocket({
-      url: this.getSocketUrl(),
-      eventId: data.event_id,
-      onMessage: data => {
-        let logs = this.state.logs;
-        logs.unshift(data);
-        this.setState({
-          logs: [].concat(logs)
+    const protocolStr = document.location.protocol;
+    let socketUrls = this.getSocketUrl();
+    if (socketUrls) {
+      let str = socketUrls.substr(0, socketUrls.indexOf(":"));
+
+      if (protocolStr === "https:" && str && str.length === 2 && str === "ws") {
+        Modal.error({
+          title: '消息通道不可用',
+          content: (
+            <div>
+              <p>消息通道为ws，请切换为http协议访问本系统</p>
+            </div>
+          ),
+          onOk() {},
+        });
+      }else if(protocolStr === "http:" && str && str.length === 3 && str === "wss"){
+        Modal.error({
+          title: '消息通道不可用',
+          content: (
+            <div>
+              <p>消息通道为wss，请切换为https协议访问本系统</p>
+            </div>
+          ),
+          onOk() {},
+        });
+      }else {
+        this.socket = new LogSocket({
+          url: this.getSocketUrl(),
+          eventId: data.event_id,
+          onMessage: data => {
+            let logs = this.state.logs;
+            logs.unshift(data);
+            this.setState({
+              logs: [].concat(logs)
+            });
+          }
         });
       }
-    });
+    }
   }
   onClose = () => {
     this.isDoing = false;
@@ -278,26 +286,30 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {!opened
-                ? <span onClick={this.open} className={styles.btn}>
-                    查看详情
-                  </span>
-                : <span onClick={this.close} className={styles.btn}>
-                    收起
-                  </span>}
+              {!opened ? (
+                <span onClick={this.open} className={styles.btn}>
+                  查看详情
+                </span>
+              ) : (
+                <span onClick={this.close} className={styles.btn}>
+                  收起
+                </span>
+              )}
             </div>
           </div>
-          {appAcionLogUtil.isShowCommitInfo(data)
-            ? <div className={styles.codeVersion}>
-                <div className={styles.versionInfo}>
-                  代码信息： {appAcionLogUtil.getCommitLog(data)}
-                </div>
-                <div className={styles.versionAuthor}>
-                  #{appAcionLogUtil.getCodeVersion(data)}
-                  by {appAcionLogUtil.getCommitUser(data)}
-                </div>
+          {appAcionLogUtil.isShowCommitInfo(data) ? (
+            <div className={styles.codeVersion}>
+              <div className={styles.versionInfo}>
+                代码信息： {appAcionLogUtil.getCommitLog(data)}
               </div>
-            : ""}
+              <div className={styles.versionAuthor}>
+                #{appAcionLogUtil.getCodeVersion(data)}
+                by {appAcionLogUtil.getCommitUser(data)}
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
 
           <ButtonGroup
             style={{
@@ -343,37 +355,37 @@ class LogItem extends PureComponent {
             className={`${styles.logContent} logs-cont`}
           >
             {/* 动态日志 */}
-            {status === "ing"
-              ? <LogProcress
-                  resover
-                  onClose={this.onClose}
-                  onComplete={this.onComplete}
-                  onSuccess={this.onSuccess}
-                  onTimeout={this.onTimeout}
-                  onFail={this.onFail}
-                  socketUrl={this.getSocketUrl()}
-                  eventId={data.event_id}
-                  opened={opened}
-                  list={this.state.logs}
-                />
-              : <div>
-                  {logs &&
-                    logs.length > 0 &&
-                    logs.map((item, index) =>
-                      <p key={index}>
-                        <span
-                          style={{
-                            marginRight: 10
-                          }}
-                        >
-                          {dateUtil.format(item.time, "hh:mm:ss")}
-                        </span>
-                        <span>
-                          {item.message}
-                        </span>
-                      </p>
-                    )}
-                </div>}
+            {status === "ing" ? (
+              <LogProcress
+                resover
+                onClose={this.onClose}
+                onComplete={this.onComplete}
+                onSuccess={this.onSuccess}
+                onTimeout={this.onTimeout}
+                onFail={this.onFail}
+                socketUrl={this.getSocketUrl()}
+                eventId={data.event_id}
+                opened={opened}
+                list={this.state.logs}
+              />
+            ) : (
+              <div>
+                {logs &&
+                  logs.length > 0 &&
+                  logs.map((item, index) => (
+                    <p key={index}>
+                      <span
+                        style={{
+                          marginRight: 10
+                        }}
+                      >
+                        {dateUtil.format(item.time, "hh:mm:ss")}
+                      </span>
+                      <span>{item.message}</span>
+                    </p>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -386,14 +398,14 @@ class LogList extends PureComponent {
     const list = this.props.list;
     return (
       <div className={styles.logs}>
-        {list.map(item =>
+        {list.map(item => (
           <LogItem
             appDetail={this.props.appDetail}
             key={item.event_id}
             appAlias={this.props.appAlias}
             data={item}
           />
-        )}
+        ))}
       </div>
     );
   }
@@ -450,7 +462,7 @@ export default class Index extends PureComponent {
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.fetchOperationLog(true);
-    this.fetchPods()
+    this.fetchPods();
     this.interval = setInterval(() => this.fetchPods(), 5000);
   }
   componentWillUnmount() {
@@ -458,7 +470,6 @@ export default class Index extends PureComponent {
 
     clearTimeout(this.cycleevent);
     clearInterval(this.interval);
-
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -505,7 +516,9 @@ export default class Index extends PureComponent {
               logList: res.list || [],
               total: res.bean.total
                 ? res.bean.total
-                : res.list ? res.list.length : 0
+                : res.list
+                ? res.list.length
+                : 0
             },
             () => {
               if (lool) {
@@ -522,7 +535,6 @@ export default class Index extends PureComponent {
       }
     });
   };
-
 
   handleNextPage = () => {
     this.setState(
@@ -686,7 +698,7 @@ export default class Index extends PureComponent {
           more={more}
           socket={this.props.socket}
         />
-        {more &&
+        {more && (
           <BuildHistory
             beanData={beanData}
             current_version={current_version}
@@ -694,8 +706,9 @@ export default class Index extends PureComponent {
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
             socket={this.props.socket}
-          />}
-        {!more &&
+          />
+        )}
+        {!more && (
           <Instance
             status={status}
             runLoading={runLoading}
@@ -703,15 +716,17 @@ export default class Index extends PureComponent {
             old_pods={old_pods}
             appAlias={this.props.appAlias}
             socket={this.props.socket}
-          />}
-        {!more &&
+          />
+        )}
+        {!more && (
           <OperationRecord
             socket={this.props.socket}
             has_next={has_next}
             logList={logList}
             recordLoading={recordLoading}
             handleNextPage={this.handleNextPage}
-          />}
+          />
+        )}
       </Fragment>
     );
   }

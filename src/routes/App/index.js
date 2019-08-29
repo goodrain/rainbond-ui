@@ -15,7 +15,8 @@ import {
   Tooltip,
   Radio,
   Alert,
-  Badge
+  Badge,
+  message
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import Overview from "./overview";
@@ -627,14 +628,38 @@ class Main extends PureComponent {
   };
   createSocket() {
     const appDetail = this.props.appDetail;
+    const protocolStr = document.location.protocol;
     const { websocketURL } = this.state;
     if (websocketURL) {
-      this.socket = new AppPubSubSocket({
-        url: websocketURL,
-        serviceId: appDetail.service.service_id,
-        isAutoConnect: true,
-        destroyed: false
-      });
+      let str = websocketURL.substr(0, websocketURL.indexOf(":"));
+      if (protocolStr === "https:" && str && str.length === 2 && str === "ws") {
+        Modal.error({
+          title: '消息通道不可用',
+          content: (
+            <div>
+              <p>消息通道为ws，请切换为http协议访问本系统</p>
+            </div>
+          ),
+          onOk() {},
+        });
+      }else if(protocolStr === "http:" && str && str.length === 3 && str === "wss"){
+        Modal.error({
+          title: '消息通道不可用',
+          content: (
+            <div>
+              <p>消息通道为wss，请切换为https协议访问本系统</p>
+            </div>
+          ),
+          onOk() {},
+        });
+      } else {
+        this.socket = new AppPubSubSocket({
+          url: websocketURL,
+          serviceId: appDetail.service.service_id,
+          isAutoConnect: true,
+          destroyed: false
+        });
+      }
     }
   }
   handleDeleteApp = () => {
