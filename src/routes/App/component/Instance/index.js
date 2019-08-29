@@ -80,7 +80,8 @@ class Index extends PureComponent {
     }
   };
 
-  schedulingBox = list => {
+  schedulingBox = (list, isupdate) => {
+    let wd = isupdate ? 3 : 2;
     return (
       <div>
         <Row>
@@ -90,11 +91,11 @@ class Index extends PureComponent {
               const { pod_status, pod_name } = item;
               return (
                 <Col
-                  xs={list.length > 4 ? 4 : 6}
-                  xm={list.length > 4 ? 4 : 6}
-                  md={list.length > 4 ? 4 : 6}
-                  lg={list.length > 4 ? 4 : 6}
-                  xl={list.length > 4 ? 4 : 6}
+                  xs={wd}
+                  xm={wd}
+                  md={wd}
+                  lg={wd}
+                  xl={wd}
                   key={pod_name}
                   className={styles.boxImg}
                 >
@@ -382,7 +383,8 @@ class Index extends PureComponent {
               xl={10}
               style={{ background: "#fff", padding: "15px 0" }}
             >
-              {old_pods && this.schedulingBox(old_pods)}
+              {old_pods &&
+                this.schedulingBox(old_pods, old_pods && old_pods.length)}
             </Col>
           )}
 
@@ -390,9 +392,7 @@ class Index extends PureComponent {
             <Col xs={4} xm={4} md={4} lg={4} xl={4}>
               <div>
                 <p style={{ marginTop: "40px", textAlign: "center" }}>
-                  正在
-                  {(status && status.status_cn) || ""}
-                  &#8680;
+                  正在更新中&#8680;
                 </p>
               </div>
             </Col>
@@ -406,7 +406,8 @@ class Index extends PureComponent {
             xl={old_pods && old_pods.length > 0 ? 10 : 24}
             style={{ background: "#fff", padding: "15px 0" }}
           >
-            {new_pods && this.schedulingBox(new_pods)}
+            {new_pods &&
+              this.schedulingBox(new_pods, old_pods && old_pods.length)}
           </Col>
         </Row>
         {!new_pods && !old_pods && (
