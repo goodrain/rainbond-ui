@@ -271,7 +271,7 @@ class Index extends PureComponent {
                                     kind &&
                                     (kind === "源码构建"
                                       ? code_branch && code_branch
-                                      : image_tag && image_tag)
+                                      : image_repo && image_repo)
                                   }
                                 >
                                   <span
@@ -283,7 +283,7 @@ class Index extends PureComponent {
                                     {kind &&
                                       (kind === "源码构建"
                                         ? code_branch && code_branch
-                                        : image_tag && image_tag)}
+                                        : image_repo && image_repo)}
                                   </span>
                                 </Tooltip>
                               </a>
@@ -320,7 +320,7 @@ class Index extends PureComponent {
                                     kind &&
                                     (kind === "源码构建"
                                       ? code_version && ""
-                                      : image_repo && image_repo)
+                                      : image_tag && image_tag)
                                   }
                                 >
                                   <font
@@ -333,8 +333,8 @@ class Index extends PureComponent {
                                       (kind === "源码构建"
                                         ? code_version &&
                                           code_version.substr(0, 8)
-                                        : image_repo
-                                        ? image_repo
+                                        : image_tag
+                                        ? image_tag
                                         : "")}
                                   </font>
                                 </Tooltip>
