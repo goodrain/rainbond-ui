@@ -245,9 +245,15 @@ class LogItem extends PureComponent {
               <span className="action-user" />
             </label>
             <div className={styles.btns}>
-              {!opened
-                ? <span onClick={this.open} className={styles.btn}>查看详情</span>
-                : <span onClick={this.close} className={styles.btn}>收起</span>}
+              {!opened ? (
+                <span onClick={this.open} className={styles.btn}>
+                  查看详情
+                </span>
+              ) : (
+                <span onClick={this.close} className={styles.btn}>
+                  收起
+                </span>
+              )}
             </div>
           </div>
           {appAcionLogUtil.isShowCommitInfo(data) ? (
@@ -403,7 +409,8 @@ export default class Index extends PureComponent {
       total: 0,
       current_version: null,
       status: "",
-      isopenLog:false
+      isopenLog: false,
+      buildSource: null
     };
     this.inerval = 5000;
   }
@@ -413,6 +420,7 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
+    this.loadBuildSourceInfo();
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.fetchOperationLog(true);
@@ -521,11 +529,11 @@ export default class Index extends PureComponent {
     this.fetchOperationLog(false);
     this.getVersionList();
   };
-  onLogPush = isopen =>{
-   this.setState({
-    isopenLog:isopen
-   })
-  }
+  onLogPush = isopen => {
+    this.setState({
+      isopenLog: isopen
+    });
+  };
   onPageChange = page => {};
 
   handleDel = item => {
@@ -576,10 +584,27 @@ export default class Index extends PureComponent {
       }
     });
   };
-  // componentDidUpdate(){
-  //   console.log('statusstatusstatusstatus',this.state.status)
-  //   this.fetchPods()
-  // }
+
+  loadBuildSourceInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "appControl/getAppBuidSource",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.props.appAlias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            buildSource:
+              data.bean && data.bean.service_source && data.bean.service_source
+          });
+        }
+      }
+    });
+  };
+
+
   fetchPods = () => {
     const { appAlias, dispatch } = this.props;
     dispatch({
@@ -608,25 +633,9 @@ export default class Index extends PureComponent {
     });
   };
 
-
-
   render() {
-    const topColResponsiveProps = {
-      xs: 24,
-      sm: 12,
-      md: 12,
-      lg: 12,
-      xl: 6,
-      style: {
-        marginBottom: 24
-      }
-    };
     const {
       logList,
-      hasNext,
-      anaPlugins,
-      opened,
-      showUpgrade,
       memory,
       beanData,
       dataList,
@@ -635,18 +644,17 @@ export default class Index extends PureComponent {
       runLoading,
       more,
       disk,
-      page,
-      total,
+      buildSource,
       isopenLog,
       recordLoading,
       has_next,
       current_version
     } = this.state;
-    const { appDetail, status } = this.props;
-    let hasAnaPlugins = !!anaPlugins.length;
+    const { status } = this.props;
     return (
       <Fragment>
         <Basic
+          buildSource={buildSource}
           beanData={beanData}
           memory={memory}
           disk={disk}

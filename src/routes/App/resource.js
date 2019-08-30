@@ -507,7 +507,6 @@ class JAVA extends PureComponent {
 
     render() {
         const runtimeInfo = this.props.runtimeInfo || "";
-        console.log(runtimeInfo)
         const formItemLayout = {
             labelCol: {
                 xs: {
