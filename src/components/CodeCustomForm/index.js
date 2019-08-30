@@ -128,17 +128,35 @@ export default class Index extends PureComponent {
       return "master";
     }
   };
-  fetchSubdirectories = serverType => {
-    if (serverType !== "svn") {
-      return (
-        <Col span={8}>
-          <Checkbox value="subdirectories">填写子目录路径</Checkbox>
-        </Col>
-      );
-    }
-    return null;
+  fetchCheckboxGroup = (type, serverType) => {
+    const { checkedList, showKey } = this.state;
+    let isSubdirectories = serverType !== "svn";
+    return (
+      <Checkbox.Group
+        style={{ width: "100%", marginBottom: "10px" }}
+        onChange={this.onChange}
+        value={checkedList}
+      >
+        <Row>
+          <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: "right" }}>
+            {type === "showKey" && (
+              <Checkbox value="showKey" checked={showKey}>
+                配置授权Key
+              </Checkbox>
+            )}
+            {type === "showUsernameAndPass" && (
+              <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
+            )}
+          </Col>
+          {isSubdirectories && (
+            <Col span={8} style={{ textAlign: "right" }}>
+              <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+            </Col>
+          )}
+        </Row>
+      </Checkbox.Group>
+    );
   };
-
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
@@ -249,40 +267,10 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          {gitUrl && isSSH && (
-            <Checkbox.Group
-              style={{ width: "100%", marginBottom: "10px" }}
-              onChange={this.onChange}
-              value={checkedList}
-            >
-              <Row>
-                <Col span={8} />
-                <Col span={8}>
-                  <Checkbox value="showKey" checked={showKey}>
-                    配置授权Key
-                  </Checkbox>
-                </Col>
-                {this.fetchSubdirectories(serverType)}
-              </Row>
-            </Checkbox.Group>
-          )}
-          {gitUrl && isHttp && (
-            <Checkbox.Group
-              style={{ width: "100%", marginBottom: "10px" }}
-              onChange={this.onChange}
-              value={checkedList}
-            >
-              <Row>
-                <Col span={8} />
-                <Col span={8}>
-                  <Checkbox value="showUsernameAndPass">
-                    填写仓库账号密码
-                  </Checkbox>
-                </Col>
-                {this.fetchSubdirectories(serverType)}
-              </Row>
-            </Checkbox.Group>
-          )}
+          {gitUrl && isSSH && this.fetchCheckboxGroup("showKey", serverType)}
+          {gitUrl &&
+            isHttp &&
+            this.fetchCheckboxGroup("showUsernameAndPass", serverType)}
 
           {showUsernameAndPass && isHttp && (
             <Form.Item {...formItemLayout} label="仓库用户名">
