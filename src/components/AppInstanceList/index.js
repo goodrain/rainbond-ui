@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import { List,Form } from "antd";
 import WaterWave from "../Charts/WaterWave";
 import style from "./index.less";
+import { log } from "util";
 
 class InstanceList extends PureComponent {
   constructor(arg) {
@@ -22,26 +23,8 @@ class InstanceList extends PureComponent {
     const num = podName.split("-")[1];
     return `实例${num}`;
   };
-  
+
   render() {
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 12,
-        },
-      },
-      wrapperCol: {
-        xs: {
-          span: 24,
-        },
-        sm: {
-          span: 8,
-        },
-      },
-    };
     const statusObj = {
       "Running":"正常运行",
       "Pending":"启动中",

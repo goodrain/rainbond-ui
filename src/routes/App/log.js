@@ -69,30 +69,30 @@ class History1000Log extends PureComponent {
                           <span ref="texts" style={{ color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#FFF" }}>
                             {log.substring(log.indexOf(":") + 1, log.length)}
                           </span>
-        
+
                           {list.length == 1 ?
                             <span style={{
                               color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#bbb", cursor: "pointer",
                               backgroundColor: log.substring(0, log.indexOf(":")) ? "#666" : ""
                             }}
-                              onClick={() => { this.setState({ 
+                              onClick={() => { this.setState({
                                                                 showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
-                                                                
+
                                                                 }}>
                               {log.substring(0, log.indexOf(":"))} </span>
-                            : 
+                            :
                             list.length > 1 && index>=1&&
                             log.substring(0, log.indexOf(":")) == list[index <= 0 ? index + 1 : index - 1].substring(0, list[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" :
                               <span style={{
                                 color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#bbb", cursor: "pointer",
                                 backgroundColor: (index==0&&log.substring(0, log.indexOf(":")) )?"#666":    log.substring(0, log.indexOf(":")) == list[index <= 0 ? index + 1 : index - 1].substring(0, list[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" : "#666"
                               }}
-                                onClick={() => { 
+                                onClick={() => {
                                   this.setState({
                                   showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                                 }}>
                                 {log.substring(0, log.indexOf(":"))} </span>}
-        
+
                         </div>
                         )
                       })
@@ -323,25 +323,25 @@ export default class Index extends PureComponent {
                       color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#bbb", cursor: "pointer",
                       backgroundColor: log.substring(0, log.indexOf(":")) ? "#666" : ""
                     }}
-                      onClick={() => { 
+                      onClick={() => {
                         this.setState({
                         showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                       }}
                       >
                       {log.substring(0, log.indexOf(":"))} </span>
-                    : 
+                    :
                     logs.length > 1 && index>=1&&
                     log.substring(0, log.indexOf(":")) == logs[index <= 0 ? index + 1 : index - 1].substring(0, logs[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" :
                       <span style={{
                         color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#bbb", cursor: "pointer",
                         backgroundColor: (index==0&&log.substring(0, log.indexOf(":")) )?"#666":    log.substring(0, log.indexOf(":")) == logs[index <= 0 ? index + 1 : index - 1].substring(0, logs[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" : "#666"
                       }}
-                        onClick={() => { 
+                        onClick={() => {
                           this.setState({
                           showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                         }}
                         >
-                        
+
                         {log.substring(0, log.indexOf(":"))} </span>}
 
                 </div>

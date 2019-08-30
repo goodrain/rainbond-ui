@@ -9,16 +9,26 @@ import {
 } from "../../components/Charts";
 import numeral from "numeral";
 import { Link } from "dva/router";
-import { Row, Col, Card, Button, Table, Icon, Tooltip } from "antd";
-import appUtil from "../../utils/app";
-import styles from "./Index.less";
+import {
+  DatePicker,
+  Row,
+  Col,
+  Card,
+  Button,
+  Table,
+  Icon,
+  Tooltip
+} from "antd";
+
+import ScrollerX from "../../components/ScrollerX";
+import NoPermTip from "../../components/NoPermTip";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
+import appUtil from "../../utils/app";
 import monitorDataUtil from "../../utils/monitorDataUtil";
-import ScrollerX from "../../components/ScrollerX";
-import NoPermTip from "../../components/NoPermTip";
+import styles from "./Index.less";
 
 const ButtonGroup = Button.Group;
 
@@ -55,7 +65,7 @@ class MonitorHistory extends PureComponent {
   }
   getStep() {
     var houer = this.state.houer;
-    return 60 * 60 * houer / 20 + "s";
+    return (60 * 60 * houer) / 20 + "s";
   }
   componentDidMount() {
     this.mounted = true;
@@ -182,9 +192,11 @@ class MonitorHistory extends PureComponent {
           }}
           extra={salesExtra}
         >
-          {requiestTime.length
-            ? <TimelineChart height={200} data={requiestTime} />
-            : <Empty />}
+          {requiestTime.length ? (
+            <TimelineChart height={200} data={requiestTime} />
+          ) : (
+            <Empty />
+          )}
         </Card>
         <Card
           extra={salesExtra}
@@ -193,14 +205,18 @@ class MonitorHistory extends PureComponent {
             marginBottom: 20
           }}
         >
-          {appRequest.length
-            ? <TimelineChart height={200} data={appRequest} />
-            : <Empty />}
+          {appRequest.length ? (
+            <TimelineChart height={200} data={appRequest} />
+          ) : (
+            <Empty />
+          )}
         </Card>
         <Card extra={salesExtra} title="在线人数">
-          {online.length
-            ? <TimelineChart height={200} data={online} />
-            : <Empty />}
+          {online.length ? (
+            <TimelineChart height={200} data={online} />
+          ) : (
+            <Empty />
+          )}
         </Card>
       </div>
     );
@@ -581,8 +597,9 @@ export default class Index extends PureComponent {
               }}
             >
               <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appDetail
-                  .service.service_alias}/plugin`}
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                  appDetail.service.service_alias
+                }/plugin`}
               >
                 去开通
               </Link>

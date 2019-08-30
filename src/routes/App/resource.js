@@ -643,7 +643,7 @@ class JAVA extends PureComponent {
                             )}
                         </Form.Item>
 
-                        <Form.Item {...formItemLayout} label="Maven构建全局参数">
+                        <Form.Item {...formItemLayout} label="Maven构建命令">
                             {getFieldDecorator('BUILD_MAVEN_CUSTOM_GOALS', {
                                 initialValue: runtimeInfo && runtimeInfo.BUILD_MAVEN_CUSTOM_GOALS || "clean dependency:list install",
                             })(
@@ -678,7 +678,6 @@ class JAVA extends PureComponent {
                                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
                             )}
                         </Form.Item>
-                        
                         {/* JDK SETTING */}
                         {jdkShow()}
 
