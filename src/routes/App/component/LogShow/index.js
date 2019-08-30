@@ -6,7 +6,7 @@ var Convert = require("ansi-to-html");
 var convert = new Convert();
 
 @connect(
-  ({ user, appControl }) => ({
+  ({ user }) => ({
     currUser: user.currentUser
   }),
   null,
@@ -120,8 +120,8 @@ class Index extends PureComponent {
         <div className={styles.logsss} ref="box">
           {logs &&
             logs.map((log, index) => {
+              let lineNumber = index + 1;
               try {
-                let lineNumber = index + 1;
                 if (log.message.indexOf('"stream"') != -1) {
                   let m = JSON.parse(log.message);
                   if (m && m.stream != undefined) {
