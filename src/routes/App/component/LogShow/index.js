@@ -132,7 +132,7 @@ class Index extends PureComponent {
                   let m = JSON.parse(log.message);
                   if (m && m.status != undefined && m.id != undefined) {
                     let dp = dockerprogress[m.id];
-                    if (dp.progress != undefined) {
+                    if (dp && dp.progress != undefined) {
                       return this.getLineHtml(
                         lineNumber,
                         dp.id + ":" + dp.progress
