@@ -27,7 +27,15 @@ class Index extends PureComponent {
     handleMore && handleMore(state);
   };
   render() {
-    const { status, beanData, more, memory, disk, dataList } = this.props;
+    const {
+      status,
+      beanData,
+      more,
+      memory,
+      disk,
+      dataList,
+      buildSource
+    } = this.props;
     return (
       <Row gutter={24}>
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
@@ -140,9 +148,7 @@ class Index extends PureComponent {
                           className={` ${styles.alcen} ${styles.buildwidth} `}
                         >
                           {globalUtil.fetchSvg("warehouse")}
-                          {beanData &&
-                          beanData.kind &&
-                          beanData.kind === "源码构建"
+                          {buildSource && buildSource === "source_code"
                             ? "代码版本"
                             : "仓库地址"}
                         </span>
@@ -175,9 +181,7 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchSvg("basicInfo")}
 
-                          {beanData &&
-                          beanData.kind &&
-                          beanData.kind === "源码构建"
+                          {buildSource && buildSource === "source_code"
                             ? "提交信息"
                             : "镜像名称"}
                         </span>
@@ -210,9 +214,7 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchSvg("branch")}
 
-                          {beanData &&
-                          beanData.kind &&
-                          beanData.kind === "源码构建"
+                          {buildSource && buildSource === "source_code"
                             ? "代码分支"
                             : "镜像tag"}
                         </span>
