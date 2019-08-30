@@ -43,7 +43,12 @@ export default class Index extends PureComponent {
     this.setState({ addGroup: true });
   };
   onChangeServerType = value => {
-    this.setState({ serverType: value });
+    this.setState({
+      serverType: value,
+      checkedList: [],
+      showUsernameAndPass: false,
+      subdirectories: false
+    });
   };
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
@@ -86,13 +91,16 @@ export default class Index extends PureComponent {
     });
   };
   hideShowKey = () => {
+    this.handkeDeleteCheckedList("showKey");
+    this.setState({ showKey: false });
+  };
+  handkeDeleteCheckedList = type => {
     const { checkedList } = this.state;
     let arr = checkedList;
-    if (arr.indexOf("showKey") > -1) {
-      arr.splice(arr.indexOf("showKey"), 1);
+    if (arr.indexOf(type) > -1) {
+      arr.splice(arr.indexOf(type), 1);
       this.setState({ checkedList: arr });
     }
-    this.setState({ showKey: false });
   };
   handleSubmit = e => {
     e.preventDefault();
@@ -105,8 +113,9 @@ export default class Index extends PureComponent {
       if (fieldsValue.version_type == "tag") {
         fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
-      if (fieldsValue.subdirectories) {
-        fieldsValue.git_url = fieldsValue.git_url + "?dir=" + fieldsValue.subdirectories;
+      if (fieldsValue.subdirectories && fieldsValue.server_type !== "svg") {
+        fieldsValue.git_url =
+          fieldsValue.git_url + "?dir=" + fieldsValue.subdirectories;
       }
 
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
@@ -119,7 +128,35 @@ export default class Index extends PureComponent {
       return "master";
     }
   };
-
+  fetchCheckboxGroup = (type, serverType) => {
+    const { checkedList, showKey } = this.state;
+    let isSubdirectories = serverType !== "svn";
+    return (
+      <Checkbox.Group
+        style={{ width: "100%", marginBottom: "10px" }}
+        onChange={this.onChange}
+        value={checkedList}
+      >
+        <Row>
+          <Col span={isSubdirectories ? 16 : 24} style={{ textAlign: "right" }}>
+            {type === "showKey" && (
+              <Checkbox value="showKey" checked={showKey}>
+                配置授权Key
+              </Checkbox>
+            )}
+            {type === "showUsernameAndPass" && (
+              <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
+            )}
+          </Col>
+          {isSubdirectories && (
+            <Col span={8} style={{ textAlign: "right" }}>
+              <Checkbox value="subdirectories">填写子目录路径</Checkbox>
+            </Col>
+          )}
+        </Row>
+      </Checkbox.Group>
+    );
+  };
   onChange = checkedValues => {
     this.setState({
       checkedList: checkedValues,
@@ -139,6 +176,7 @@ export default class Index extends PureComponent {
     } = this.state;
 
     const gitUrl = getFieldValue("git_url");
+
     let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
     if (this.state.serverType == "svn") {
@@ -167,6 +205,8 @@ export default class Index extends PureComponent {
         <Option value="tag">Tag</Option>
       </Select>
     );
+    const serverType = getFieldValue("server_type");
+
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -227,73 +267,35 @@ export default class Index extends PureComponent {
               />
             )}
           </Form.Item>
-          {gitUrl && isSSH && checkedList && (
-            <Checkbox.Group
-              style={{ width: "100%", marginBottom: "10px" }}
-              onChange={this.onChange}
-              value={checkedList}
-            >
-              <Row>
-                <Col span={8} />
-                <Col span={8}>
-                  <Checkbox value="showKey" checked={showKey}>
-                    配置授权Key
-                  </Checkbox>
-                </Col>
-                <Col span={8}>
-                  <Checkbox value="subdirectories">填写子目录路径</Checkbox>
-                </Col>
-              </Row>
-            </Checkbox.Group>
+          {gitUrl && isSSH && this.fetchCheckboxGroup("showKey", serverType)}
+          {gitUrl &&
+            isHttp &&
+            this.fetchCheckboxGroup("showUsernameAndPass", serverType)}
+
+          {showUsernameAndPass && isHttp && (
+            <Form.Item {...formItemLayout} label="仓库用户名">
+              {getFieldDecorator("username_1", {
+                initialValue: data.username || "",
+                rules: [{ required: false, message: "请输入仓库用户名" }]
+              })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+            </Form.Item>
           )}
-          {gitUrl && isHttp && (
-            <Checkbox.Group
-              style={{ width: "100%", marginBottom: "10px" }}
-              onChange={this.onChange}
-              value={checkedList}
-            >
-              <Row>
-                <Col span={8} />
-                <Col span={8}>
-                  <Checkbox value="showUsernameAndPass">
-                    填写仓库账号密码
-                  </Checkbox>
-                </Col>
-                <Col span={8}>
-                  <Checkbox value="subdirectories">填写子目录路径</Checkbox>
-                </Col>
-              </Row>
-            </Checkbox.Group>
+          {showUsernameAndPass && isHttp && (
+            <Form.Item {...formItemLayout} label="仓库密码">
+              {getFieldDecorator("password_1", {
+                initialValue: data.password || "",
+                rules: [{ required: false, message: "请输入仓库密码" }]
+              })(
+                <Input
+                  autoComplete="new-password"
+                  type="password"
+                  placeholder="请输入仓库密码"
+                />
+              )}
+            </Form.Item>
           )}
 
-          <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? "" : "none" }}
-            {...formItemLayout}
-            label="仓库用户名"
-          >
-            {getFieldDecorator("username_1", {
-              initialValue: data.username || "",
-              rules: [{ required: false, message: "请输入仓库用户名" }]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
-          </Form.Item>
-          <Form.Item
-            style={{ display: showUsernameAndPass && isHttp ? "" : "none" }}
-            {...formItemLayout}
-            label="仓库密码"
-          >
-            {getFieldDecorator("password_1", {
-              initialValue: data.password || "",
-              rules: [{ required: false, message: "请输入仓库密码" }]
-            })(
-              <Input
-                autoComplete="new-password"
-                type="password"
-                placeholder="请输入仓库密码"
-              />
-            )}
-          </Form.Item>
-
-          {subdirectories && (
+          {subdirectories && serverType !== "svn" && (
             <Form.Item {...formItemLayout} label="子目录路径">
               {getFieldDecorator("subdirectories", {
                 initialValue: "",
