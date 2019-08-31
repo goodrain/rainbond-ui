@@ -59,7 +59,7 @@ class Index extends PureComponent {
       }
 
       if (finalstatus == "empty") {
-        return <span></span>;
+        return <span />;
       }
       switch (status) {
         case "success":
@@ -106,8 +106,14 @@ class Index extends PureComponent {
                       {globalUtil.fetchdayTime(create_time)}
                     </div>
                     <div>
-                      <Tooltip title={Message}>
-                        {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
+                      <Tooltip title={Status !== "success" && Message}>
+                        <span
+                          style={{
+                            color: globalUtil.fetchAbnormalcolor(OptType)
+                          }}
+                        >
+                          {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
+                        </span>
                         {statusCNMap(FinalStatus, Status)}&nbsp;
                         {Status === "success" ? "" : Message}
                       </Tooltip>
@@ -136,7 +142,9 @@ class Index extends PureComponent {
                         className={styles.alcen}
                         // style={{ justifyContent: "flex-end" }}
                       >
-                        {EndTime && create_time && globalUtil.fetchSvg("runTime")}
+                        {EndTime &&
+                          create_time &&
+                          globalUtil.fetchSvg("runTime")}
                         <span>
                           {EndTime && create_time
                             ? globalUtil.fetchTime(
@@ -152,6 +160,8 @@ class Index extends PureComponent {
                     <div style={{ textAlign: "right" }}>
                       {isopenLog &&
                         FinalStatus === "" &&
+                        OptType &&
+                        OptType.indexOf("build") > -1 &&
                         EventID &&
                         this.showLogModal(
                           EventID,
@@ -159,31 +169,16 @@ class Index extends PureComponent {
                         )}
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
-                          <svg
-                            style={{
-                              cursor: "pointer"
-                            }}
+                          <span
                             onClick={() => {
                               this.showLogModal(
                                 EventID,
                                 FinalStatus == "" ? true : false
                               );
                             }}
-                            t="1566527207023"
-                            class="icon"
-                            viewBox="0 0 1024 1024"
-                            version="1.1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            p-id="5957"
-                            width="16"
-                            height="16"
                           >
-                            <path
-                              d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
-                              fill="#cccccc"
-                              p-id="5958"
-                            />
-                          </svg>
+                            {globalUtil.fetchSvg("logs", "#cccccc")}
+                          </span>
                         </Tooltip>
                       )}
                     </div>
