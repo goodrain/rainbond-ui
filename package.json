@@ -14,7 +14,7 @@
   "dependencies": {
     "@antv/data-set": "^0.8.0",
     "@babel/polyfill": "^7.0.0-beta.36",
-    "ansi-to-html": "^0.6.11",
+    "ansi-to-react": "^5.0.0",
     "antd": "^3.1.0",
     "axios": "^0.17.1",
     "babel-runtime": "6.9.2",

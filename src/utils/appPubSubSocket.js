@@ -9,8 +9,6 @@
 */
 
 import TimerQueue from "./timerQueue";
-var Convert = require("ansi-to-html");
-var convert = new Convert();
 
 function noop() {}
 
@@ -47,7 +45,7 @@ AppPubSubSocket.prototype = {
       autoStart: false,
       onExecute: message => {
         //ansi to html
-        this.onLogMessage(convert.toHtml(message));
+        this.onLogMessage(message);
       }
     });
     this.monitorLogQueue = new TimerQueue({

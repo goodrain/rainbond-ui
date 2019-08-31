@@ -2,8 +2,7 @@ import React, { PureComponent } from "react";
 import { connect } from "dva";
 import styles from "./index.less";
 import globalUtil from "../../../../utils/global";
-var Convert = require("ansi-to-html");
-var convert = new Convert();
+import Ansi from "ansi-to-react";
 
 @connect(
   ({ user }) => ({
@@ -19,9 +18,11 @@ class Index extends PureComponent {
     this.state = {
       visible: false,
       logs: [],
-      dockerprogress: {},
-      status: null
+      dockerprogress: null,
+      status: null,
+      dynamic: false,
     };
+    this.state.dockerprogress = new Map()
   }
   componentDidMount() {
     this.loadEventLog();
@@ -34,18 +35,18 @@ class Index extends PureComponent {
     this.props.socket.watchEventLog(
       message => {
         var logs = this.state.logs || [];
-        if (message.message.indexOf('"progress"') != -1) {
+        if (message.message.indexOf('id') != -1) {
           try {
             let m = JSON.parse(message.message);
-            if (m && m.progress != undefined && m.id != undefined) {
+            if (m && m.id != undefined) {
               var dockerprogress = this.state.dockerprogress;
-              if (dockerprogress[m.id] != undefined) {
-                dockerprogress[m.id] = m;
+              if (dockerprogress.get(m.id) != undefined) {
+                dockerprogress.set(m.id, m);
               } else {
-                dockerprogress[m.id] = m;
+                dockerprogress.set(m.id, m);
                 logs.push(message);
               }
-              this.setState({ dockerprogress: dockerprogress, logs: logs });
+              this.setState({ dockerprogress: dockerprogress, logs: logs, dynamic: true });
               return;
             }
           } catch(err) {
@@ -57,7 +58,7 @@ class Index extends PureComponent {
         if (this.refs.box) {
           this.refs.box.scrollTop = this.refs.box.scrollHeight;
         }
-        this.setState({ logs: logs });
+        this.setState({ logs: logs, dynamic: true });
       },
       () => {
         this.setState({ status: <p style={{ color: "green" }}>操作已成功</p> });
@@ -108,59 +109,48 @@ class Index extends PureComponent {
         <a>
           {lineNumber}
         </a>
-        {message}
+        <Ansi>{message}</Ansi>
       </div>
     );
   };
   render() {
-    const { logs, status, dockerprogress } = this.state;
-
+    const { logs, status, dockerprogress, dynamic } = this.state;
+    let lineNumber = 0;
     return (
       <div>
         <div className={styles.logsss} ref="box">
           {logs &&
             logs.map((log, index) => {
-              let lineNumber = index + 1;
+              lineNumber++
               try {
                 if (log.message.indexOf('"stream"') != -1) {
                   let m = JSON.parse(log.message);
                   if (m && m.stream != undefined) {
-                    return this.getLineHtml(lineNumber, convert.toHtml(m.stream));
+                    return this.getLineHtml(lineNumber, m.stream);
                   }
                 }
-                if (log.message.indexOf('"status"') != -1) {
+                if ((log.message.indexOf('"status"') != -1) || (log.message.indexOf('"progress"') != -1)) {
+                  if (!dynamic) {
+                    lineNumber--
+                    return 
+                  }
                   let m = JSON.parse(log.message);
                   if (m && m.status != undefined && m.id != undefined) {
-                    let dp = dockerprogress[m.id];
+                    let dp = dockerprogress.get(m.id);
                     if (dp && dp.progress != undefined) {
-                      return this.getLineHtml(
-                        lineNumber,
-                        dp.id + ":" + dp.progress
-                      );
+                      return this.getLineHtml(lineNumber, m.id + ":" + m.status +" "+ dp.progress);
                     } else {
-                      return this.getLineHtml(lineNumber, dp.id + ":" + m.status);
+                      return this.getLineHtml(lineNumber, m.id + ":" + m.status);
                     }
                   }
                   if (m && m.status != undefined) {
                     return this.getLineHtml(lineNumber, m.status);
                   }
                 }
-                if (log.message.indexOf('"progress"') != -1) {
-                  let m = JSON.parse(log.message);
-                  if (m && m.progress != undefined && m.id != undefined) {
-                    let dp = dockerprogress[m.id];
-                    if (dp.progress != undefined) {
-                      return this.getLineHtml(
-                        lineNumber,
-                        dp.id + ":" + dp.progress
-                      );
-                    }
-                  }
-                }
-                return this.getLineHtml(lineNumber, convert.toHtml(log.message));
+                return this.getLineHtml(lineNumber, log.message);
               } catch(err) {
                 //ignore
-                return this.getLineHtml(lineNumber, convert.toHtml(log.message));
+                return this.getLineHtml(lineNumber, log.message);
               }
             })}
         </div>

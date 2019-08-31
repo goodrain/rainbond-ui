@@ -222,6 +222,7 @@ class Index extends PureComponent {
             className={styles.logModal}
             onCancel={this.handleCancel}
             visible={true}
+            maskClosable={false}
             width="1000px"
             bodyStyle={{ background: "#222222", color: "#fff" }}
             footer={null}

@@ -119,7 +119,6 @@ export default class Index extends PureComponent {
 
 
   handleChangeDemo = (value) => {
-    console.log(`selected ${value}`);
     this.setState({
       demoHref: value
     })

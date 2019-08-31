@@ -6,7 +6,7 @@ import globalUtil from '../../utils/global';
 import { getMonitorLog, getHistoryLog } from '../../services/app';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
-
+import Ansi from "ansi-to-react";
 
 class History1000Log extends PureComponent {
   constructor(props) {
@@ -49,7 +49,6 @@ class History1000Log extends PureComponent {
             </div>
             : ''
         }
-
         {
           !loading ?
             <div style={{ padding:"20px 0", maxHeight: 600, overflowY: 'auto', background: '#212121' }}>
@@ -67,7 +66,7 @@ class History1000Log extends PureComponent {
                             <span>{log == "" ? "" : `${index + 1}`}</span>
                           </span>
                           <span ref="texts" style={{ color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#FFF" }}>
-                            {log.substring(log.indexOf(":") + 1, log.length)}
+                            <Ansi>{log.substring(log.indexOf(":") + 1, log.length)}</Ansi>
                           </span>
 
                           {list.length == 1 ?
@@ -79,7 +78,7 @@ class History1000Log extends PureComponent {
                                                                 showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
 
                                                                 }}>
-                              {log.substring(0, log.indexOf(":"))} </span>
+                              <Ansi>{log.substring(0, log.indexOf(":"))}</Ansi> </span>
                             :
                             list.length > 1 && index>=1&&
                             log.substring(0, log.indexOf(":")) == list[index <= 0 ? index + 1 : index - 1].substring(0, list[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" :
@@ -91,8 +90,7 @@ class History1000Log extends PureComponent {
                                   this.setState({
                                   showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                                 }}>
-                                {log.substring(0, log.indexOf(":"))} </span>}
-
+                                <Ansi>{log.substring(0, log.indexOf(":"))}</Ansi> </span>}
                         </div>
                         )
                       })
@@ -315,7 +313,7 @@ export default class Index extends PureComponent {
                     <span>{log == "" ? "" : `${index + 1}`}</span>
                   </span>
                   <span ref="texts" style={{ color: showHighlighted == log.substring(0, log.indexOf(":")) ? "#FFFF91" : "#FFF" }}>
-                    {log.substring(log.indexOf(":") + 1, log.length)}
+                    <Ansi>{log.substring(log.indexOf(":") + 1, log.length)}</Ansi>
                   </span>
 
                   {logs.length == 1 ?
@@ -328,7 +326,8 @@ export default class Index extends PureComponent {
                         showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                       }}
                       >
-                      {log.substring(0, log.indexOf(":"))} </span>
+                      <Ansi>{log.substring(0, log.indexOf(":"))}</Ansi>
+                    </span>
                     :
                     logs.length > 1 && index>=1&&
                     log.substring(0, log.indexOf(":")) == logs[index <= 0 ? index + 1 : index - 1].substring(0, logs[index <= 0 ? index + 1 : index - 1].indexOf(":")) ? "" :
@@ -341,9 +340,8 @@ export default class Index extends PureComponent {
                           showHighlighted: showHighlighted==log.substring(0, log.indexOf(":"))?"":log.substring(0, log.indexOf(":")) })
                         }}
                         >
-
-                        {log.substring(0, log.indexOf(":"))} </span>}
-
+                          <Ansi>{log.substring(0, log.indexOf(":"))}</Ansi> 
+                      </span>}
                 </div>
               )
             })
