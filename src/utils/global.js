@@ -52,7 +52,7 @@ const global = {
       upgrade: "#00FF4A", //升级中
       expired: "#CD0200", //过期 猩红
       Expired: "#CD0200", //猩红
-
+      UNHEALTHY: "#CD0200",
       INITIATING: "#F69D4A",
       TEMINATING: "#20124A", //关闭中 紫色
       tEMINATING: "#20124A", //关闭中 紫色
@@ -455,7 +455,8 @@ const global = {
       upgrade: "升级中",
       creating: "部署中",
       expired: "过期",
-      NOTREADY: "未就绪"
+      NOTREADY: "未就绪",
+      UNHEALTHY: "健康检测不通过",
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },

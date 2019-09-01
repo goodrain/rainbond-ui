@@ -124,7 +124,7 @@ class Index extends PureComponent {
     const { instanceInfo } = this.state;
     return (
       <Card
-        bordered={false}
+        bordered={0}
         loading={runLoading}
         title="运行实例"
         style={{ margin: "20px 0" }}
@@ -187,20 +187,26 @@ class Index extends PureComponent {
                     {instanceInfo.status.reason && (
                       <li style={{ width: "100%" }}>
                         <span>原因:</span>
-                        <span>{instanceInfo.status.reason}</span>
+                        <Tooltip title={instanceInfo.status.reason}>
+                          <span>{instanceInfo.status.reason}</span>
+                        </Tooltip>
                       </li>
                     )}
 
                     {instanceInfo.status.message && (
                       <li style={{ width: "100%" }}>
                         <span>说明:</span>
-                        <span>{instanceInfo.status.message}</span>
+                        <Tooltip title={instanceInfo.status.message}>
+                          <span>{instanceInfo.status.message}</span>
+                        </Tooltip>
                       </li>
                     )}
                     {instanceInfo.status.advice && (
                       <li style={{ width: "100%" }}>
                         <span>建议:</span>
-                        <span>{instanceInfo.status.advice}</span>
+                        <Tooltip title={instanceInfo.status.advice}>
+                          <span>{instanceInfo.status.advice}</span>
+                        </Tooltip>
                       </li>
                     )}
                   </ul>
