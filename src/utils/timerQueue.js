@@ -9,7 +9,8 @@ function TimerQueue(option) {
   this.queue = new Queue();
   this.timer = null;
   this.isStarted = false;
-  this.autoStart = option.autoStart || true;
+  this.autoStart = option.autoStart;
+  this.batchout = option.batchout || false;
   this.interval = option.interval || 10;
   this.onExecute = option.onExecute || util.noop;
   this.maxCache = option.maxCache || 10000;
@@ -21,7 +22,7 @@ TimerQueue.prototype = {
         this.start()
       }
     }
-    if (this.queue.getCount > this.maxCache){
+    if (this.queue.getCount() > this.maxCache){
       this.queue.shift()
     }
     this.queue.push(data);
@@ -48,7 +49,11 @@ TimerQueue.prototype = {
     return this.queue.shiftAll()
   },
   execute() {
-    this.onExecute(this.queue.shift());
+    if (this.batchout){
+      this.onExecute(this.queue.shiftAll());
+    }else{
+      this.onExecute(this.queue.shift());
+    }
   },
 };
 

@@ -403,7 +403,7 @@ export function getStatus(
 /*
 	获取监控日志--日志页面
 */
-export function getMonitorLog(
+export function getServiceLog(
   body = {
     team_name,
     app_alias,

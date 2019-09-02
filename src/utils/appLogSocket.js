@@ -40,6 +40,7 @@ AppLogSocket.prototype = {
     this.webSocket.onerror = this._onError.bind(this);
     this.timerQueue = new TimerQueue({
       onExecute: this.onMessage,
+      autoStart: true,
     });
     const i = 1;
   },

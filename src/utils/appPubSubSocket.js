@@ -41,10 +41,13 @@ AppPubSubSocket.prototype = {
     this.webSocket.onclose = this._onClose.bind(this);
     this.webSocket.onerror = this._onError.bind(this);
     this.serviceLogQueue = new TimerQueue({
-      interval: 5,
+      interval: 20,
       autoStart: false,
+      batchout: true,
       onExecute: message => {
-        //ansi to html
+        if (message == undefined){
+          return
+        }
         this.onLogMessage(message);
       }
     });
@@ -52,6 +55,9 @@ AppPubSubSocket.prototype = {
       interval: 5,
       autoStart: false,
       onExecute: message => {
+        if (message == undefined){
+          return
+        }
         this.onMonitorMessage(message);
       }
     });
@@ -66,12 +72,15 @@ AppPubSubSocket.prototype = {
     if (this.eventLogQueue.has(channel)) {
       return this.eventLogQueue.get(channel);
     }
-    this.eventLogQueue.set(channel, new TimerQueue());
+    this.eventLogQueue.set(channel, new TimerQueue({autoStart: true}));
   },
   watchEventLog(onMessage, onSuccess, onFailure, eventID) {
     let channel = "event-" + eventID;
     if (this.eventLogQueue.has(channel)) {
       this.eventLogQueue.get(channel).onExecute = item => {
+        if (message == undefined){
+          return
+        }
         if (item.action !== undefined && item.status !== undefined) {
           if (item.status == "success") {
             onSuccess(item.message);
@@ -85,6 +94,7 @@ AppPubSubSocket.prototype = {
       this.eventLogQueue.set(
         channel,
         new TimerQueue({
+          autoStart: true,
           onExecute: item => {
             if (item.action !== undefined && item.status !== undefined) {
               if (item.status == "success") {

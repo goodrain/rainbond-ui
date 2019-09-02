@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import { connect } from "dva";
 import styles from "./index.less";
 import globalUtil from "../../../../utils/global";
-import Ansi from "ansi-to-react";
+import Ansi from "../../../../components/Ansi";
 
 @connect(
   ({ user }) => ({

@@ -3,10 +3,10 @@ import { connect } from 'dva';
 import { Card, Button, Icon, Modal } from 'antd';
 import styles from './Log.less';
 import globalUtil from '../../utils/global';
-import { getMonitorLog, getHistoryLog } from '../../services/app';
+import { getServiceLog, getHistoryLog } from '../../services/app';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
-import Ansi from "ansi-to-react";
+import Ansi from '../../components/Ansi';
 
 class History1000Log extends PureComponent {
   constructor(props) {
@@ -196,7 +196,6 @@ export default class Index extends PureComponent {
   componentDidMount() {
     if (!this.canView()) return;
     this.loadLog();
-
   }
   componentWillUnmount() {
     this.props.socket.closeLogMessage()
@@ -207,7 +206,7 @@ export default class Index extends PureComponent {
   loadLog() {
     const {logs} = this.state
     if (logs.length == 0) {
-      getMonitorLog({
+      getServiceLog({
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias
       }).then((data) => {
@@ -225,17 +224,19 @@ export default class Index extends PureComponent {
   }
   watchLog() {
     this.props.socket.setOnLogMessage((messages)=>{
-        if ( messages && messages.length>0){
-          this.setState({ logs: messages })
+        if ( messages && messages.length > 0 ){
+          var logs = this.state.logs || [];
+          const newlogs = logs.concat(messages)
+          this.setState({ logs: newlogs })
         }
     },
-    (message) => {
+    (messages) => {
       if (this.state.started) {
         var logs = this.state.logs || [];
         if (logs.length >= 5000){
           logs.shift()
         }
-        logs.push(message)
+        logs = logs.concat(messages)
         if (this.refs.box) {
           this.refs.box.scrollTop = this.refs.box.scrollHeight
         }

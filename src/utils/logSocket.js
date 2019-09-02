@@ -21,6 +21,7 @@ function LogSocket(option) {
   this.webSocket.onerror = this._onError.bind(this);
   this.timerQueue = new TimerQueue({
     onExecute: this.onMessage,
+    autoStart: true,
     interval: option.interval || 10,
   });
 }
