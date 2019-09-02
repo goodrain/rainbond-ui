@@ -58,7 +58,7 @@ class Index extends PureComponent {
         return <span>操作已超时</span>;
       }
 
-      if (finalstatus == "empty") {
+      if (finalstatus == "empty" || finalstatus == "emptycomplete") {
         return <span />;
       }
       switch (status) {
