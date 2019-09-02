@@ -188,7 +188,11 @@ class Index extends PureComponent {
                       <li style={{ width: "100%" }}>
                         <span>原因:</span>
                         <Tooltip title={instanceInfo.status.reason}>
-                          <span>{instanceInfo.status.reason}</span>
+                          <span>
+                            {globalUtil.fetchInstanceReasons(
+                              instanceInfo.status.reason
+                            )}
+                          </span>
                         </Tooltip>
                       </li>
                     )}
@@ -205,7 +209,11 @@ class Index extends PureComponent {
                       <li style={{ width: "100%" }}>
                         <span>建议:</span>
                         <Tooltip title={instanceInfo.status.advice}>
-                          <span>{instanceInfo.status.advice}</span>
+                          <span>
+                            {globalUtil.fetchInstanceAdvice(
+                              instanceInfo.status.advice
+                            )}
+                          </span>
                         </Tooltip>
                       </li>
                     )}
