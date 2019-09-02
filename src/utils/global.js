@@ -52,7 +52,7 @@ const global = {
       upgrade: "#00FF4A", //升级中
       expired: "#CD0200", //过期 猩红
       Expired: "#CD0200", //猩红
-
+      UNHEALTHY: "#CD0200",
       INITIATING: "#F69D4A",
       TEMINATING: "#20124A", //关闭中 紫色
       tEMINATING: "#20124A", //关闭中 紫色
@@ -455,7 +455,8 @@ const global = {
       upgrade: "升级中",
       creating: "部署中",
       expired: "过期",
-      NOTREADY: "未就绪"
+      NOTREADY: "未就绪",
+      UNHEALTHY: "健康检测不通过"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
@@ -526,23 +527,66 @@ const global = {
     }
     return result;
   },
+  fetchInstanceReasons(type) {
+    const reasonsType = {
+      UnknownContainerStatuses: "未知的容器状态",
+      ContainersNotReady: "容器未就绪",
+      ContainersNotInitialized: "容器尚未初始化"
+    };
+    return reasonsType[type] || type;
+  },
+  fetchInstanceAdvice(type) {
+    const adviceType = {
+      OutOfMemory:
+        "内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存",
+      Unhealthy:
+        "健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确",
+      Initiating: "等待启动中, 请检查该服务所依赖的服务是否已经正常启动"
+    };
+    return adviceType[type] || type;
+  },
+  fetchOperation(finalstatus, status) {
+    if (finalstatus == "") {
+      return (
+        <span style={{ color: "#F69C49", paddingLeft: "5px" }}>进行中</span>
+      );
+    }
+    if (
+      finalstatus == "timeout" ||
+      (finalstatus == "complete" && status == "timeout")
+    ) {
+      return <span style={{ color: "#F5212D" }}>操作已超时</span>;
+    }
 
+    if (finalstatus == "empty" || finalstatus == "emptycomplete") {
+      return <span />;
+    }
+    switch (status) {
+      case "success":
+        return <span style={{ color: "#39AA56" }}>成功</span>;
+      case "failure":
+        return <span style={{ color: "#F5212D" }}>失败</span>;
+    }
+  },
   fetchAbnormalcolor(type) {
     const abnormalcolor = {
+      AbnormalRecovery: "#39AA56",
       OOMKilled: "#CD0200",
       LivenessProbeFailed: "#CD0200",
       ReadinessProbeFailed: "#CD0200",
       AbnormalShtdown: "#CD0200",
-      AbnormalRecovery: "#CD0200"
+      EventTypeAbnormalExited: "CD0200"
     };
     return abnormalcolor[type] || "rgba(0,0,0,0.65)";
   },
   fetchStateOptTypeText(state) {
     const statusOptType = {
+      EventTypeAbnormalExited: "服务异常退出",
       OOMKilled: "发生OOM",
       LivenessProbeFailed: "健康检查不通过(重启)",
       ReadinessProbeFailed: "健康检查不通过(下线)",
       AbnormalShtdown: " 服务异常退出",
+
       AbnormalRecovery: "恢复正常",
       "": "-",
       "create-service": "创建服务",
