@@ -451,7 +451,7 @@ export default class Index extends PureComponent {
                     {item.service_name}
                   </Link>
                 )}
-                <span className={styles.datetime}>应用</span>
+                <span>应用</span>
                 <span
                   style={{
                     color: globalUtil.fetchAbnormalcolor(OptType)
