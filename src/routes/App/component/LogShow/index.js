@@ -129,7 +129,7 @@ class Index extends PureComponent {
                     return this.getLineHtml(lineNumber, m.stream);
                   }
                 }
-                if ((log.message.indexOf('"status"') != -1) || (log.message.indexOf('"progress"') != -1)) {
+                if ((log.message.indexOf('status') != -1) || (log.message.indexOf('progress') != -1)) {
                   if (!dynamic) {
                     lineNumber--
                     return 
@@ -145,6 +145,9 @@ class Index extends PureComponent {
                   }
                   if (m && m.status != undefined) {
                     return this.getLineHtml(lineNumber, m.status);
+                  }
+                  if (m && m.progress != undefined && m.id != undefined) {
+                    return this.getLineHtml(lineNumber, m.id + ":" + m.progress);
                   }
                 }
                 return this.getLineHtml(lineNumber, log.message);
