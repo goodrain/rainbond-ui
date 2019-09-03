@@ -81,7 +81,7 @@ class Index extends PureComponent {
   };
 
   schedulingBox = (list, isupdate) => {
-    let wd = isupdate ? 4 : 3;
+    let wd = isupdate ? 3 : 2;
     return (
       <div>
         <Row>
