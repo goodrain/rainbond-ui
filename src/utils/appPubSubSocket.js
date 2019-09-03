@@ -62,8 +62,8 @@ AppPubSubSocket.prototype = {
       }
     });
     this.eventLogQueue = new Map();
-    this.opened = false
-    this.waitingSendMessage = []
+    this.opened = false;
+    this.waitingSendMessage = [];
   },
   getSocket() {
     return this.webSocket;
@@ -115,8 +115,8 @@ AppPubSubSocket.prototype = {
       };
       if (this.opened) {
         this.webSocket.send(JSON.stringify(message));
-      }else{
-        this.waitingSendMessage.push(JSON.stringify(message))
+      } else {
+        this.waitingSendMessage.push(JSON.stringify(message));
       }
     }
   },
@@ -133,7 +133,7 @@ AppPubSubSocket.prototype = {
     this.serviceLogQueue.stop();
   },
   close() {
-    this.webSocket.close();
+    this.webSocket && this.webSocket.close();
   },
 
   _onOpen(evt) {
@@ -148,11 +148,11 @@ AppPubSubSocket.prototype = {
       this.webSocket.send(JSON.stringify(message));
     }
     this.onOpen(this.webSocket);
-    this.opened = true
-    if (this.waitingSendMessage.length>0) {
-      this.waitingSendMessage.map((m)=>{
-        this.webSocket.send(m)
-      })
+    this.opened = true;
+    if (this.waitingSendMessage.length > 0) {
+      this.waitingSendMessage.map(m => {
+        this.webSocket.send(m);
+      });
     }
   },
   _onMessage(message) {

@@ -48,27 +48,6 @@ class Index extends PureComponent {
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket } = this.state;
-    const statusCNMap = (finalstatus, status) => {
-      if (finalstatus == "") {
-        return (
-          <span style={{ color: "#F69C49", paddingLeft: "5px" }}>进行中</span>
-        );
-      }
-      if (finalstatus == "timeout") {
-        return <span>操作已超时</span>;
-      }
-
-      if (finalstatus == "empty") {
-        return <span />;
-      }
-      switch (status) {
-        case "success":
-          return <span style={{ color: "#39AA56" }}>成功</span>;
-        case "failure":
-          return <span style={{ color: "#F5212D" }}>失败</span>;
-      }
-    };
-
     return (
       <Card bordered={false} title="操作记录" loading={recordLoading}>
         <Row gutter={24}>
@@ -114,7 +93,7 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
                         </span>
-                        {statusCNMap(FinalStatus, Status)}&nbsp;
+                        {globalUtil.fetchOperation(FinalStatus, Status)}&nbsp;
                         {Status === "success" ? "" : Message}
                       </Tooltip>
                     </div>
