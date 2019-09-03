@@ -66,6 +66,17 @@ class Index extends PureComponent {
                   create_time
                 } = item;
                 // console.log('logListlogListlogListlogList',EventID)
+                let UserNames =
+                  UserName == "system"
+                    ? "@系统"
+                    : UserName
+                    ? `@${UserName}`
+                    : "";
+                let Messages =
+                  Status !== "success" &&
+                  globalUtil.fetchAbnormalcolor(OptType) ===
+                    "rgba(0,0,0,0.65)" &&
+                  Message;
                 return (
                   <div
                     key={EventID}
@@ -85,7 +96,9 @@ class Index extends PureComponent {
                       {globalUtil.fetchdayTime(create_time)}
                     </div>
                     <div>
-                      <Tooltip title={Status !== "success" && Message}>
+                      <Tooltip
+                        title={Messages}
+                      >
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(OptType)
@@ -93,27 +106,14 @@ class Index extends PureComponent {
                         >
                           {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
                         </span>
-                        {globalUtil.fetchOperation(FinalStatus, Status)}&nbsp;
-                        {Status === "success" ? "" : Message}
+                        {globalUtil.fetchOperation(FinalStatus, Status)}
+                        &nbsp;
+                        {Messages}
                       </Tooltip>
                     </div>
                     <div className={styles.nowarpText}>
                       <span>
-                        <Tooltip
-                          title={
-                            UserName == "system"
-                              ? "@系统"
-                              : UserName
-                              ? `@${UserName}`
-                              : ""
-                          }
-                        >
-                          {UserName == "system"
-                            ? "@系统"
-                            : UserName
-                            ? `@${UserName}`
-                            : ""}
-                        </Tooltip>
+                        <Tooltip title={UserNames}>{UserNames}</Tooltip>
                       </span>
                     </div>
                     <div>

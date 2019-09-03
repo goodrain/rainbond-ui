@@ -555,7 +555,7 @@ const global = {
       finalstatus == "timeout" ||
       (finalstatus == "complete" && status == "timeout")
     ) {
-      return <span style={{ color: "#F5212D" }}>操作已超时</span>;
+      return <span style={{ color: "rgba(0, 0, 0, 0.65)" }}>操作已超时</span>;
     }
 
     if (finalstatus == "empty" || finalstatus == "emptycomplete") {
