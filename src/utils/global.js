@@ -456,7 +456,7 @@ const global = {
       creating: "部署中",
       expired: "过期",
       NOTREADY: "未就绪",
-      UNHEALTHY: "健康检测不通过"
+      UNHEALTHY: "不健康"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
