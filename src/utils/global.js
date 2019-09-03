@@ -575,7 +575,8 @@ const global = {
       LivenessProbeFailed: "#CD0200",
       ReadinessProbeFailed: "#CD0200",
       AbnormalShtdown: "#CD0200",
-      EventTypeAbnormalExited: "CD0200"
+      EventTypeAbnormalExited: "#CD0200",
+      AbnormalExited: "#CD0200"
     };
     return abnormalcolor[type] || "rgba(0,0,0,0.65)";
   },
@@ -586,7 +587,7 @@ const global = {
       LivenessProbeFailed: "健康检查不通过(重启)",
       ReadinessProbeFailed: "健康检查不通过(下线)",
       AbnormalShtdown: " 服务异常退出",
-
+      AbnormalExited: "服务异常退出",
       AbnormalRecovery: "恢复正常",
       "": "-",
       "create-service": "创建服务",
