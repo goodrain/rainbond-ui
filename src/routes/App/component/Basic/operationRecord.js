@@ -96,9 +96,7 @@ class Index extends PureComponent {
                       {globalUtil.fetchdayTime(create_time)}
                     </div>
                     <div>
-                      <Tooltip
-                        title={Messages}
-                      >
+                      <Tooltip title={Messages}>
                         <span
                           style={{
                             color: globalUtil.fetchAbnormalcolor(OptType)
@@ -209,7 +207,7 @@ class Index extends PureComponent {
             <LogShow
               showSocket={showSocket}
               EventID={selectEventID}
-              socket={this.props.socket}
+              socket={this.props.socket && this.props.socket}
             />
           </Modal>
         )}

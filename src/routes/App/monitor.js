@@ -9,16 +9,7 @@ import {
 } from "../../components/Charts";
 import numeral from "numeral";
 import { Link } from "dva/router";
-import {
-  DatePicker,
-  Row,
-  Col,
-  Card,
-  Button,
-  Table,
-  Icon,
-  Tooltip
-} from "antd";
+import { DatePicker, Row, Col, Card, Button, Table, Icon, Tooltip } from "antd";
 
 import ScrollerX from "../../components/ScrollerX";
 import NoPermTip from "../../components/NoPermTip";
@@ -397,9 +388,10 @@ class MonitorNow extends PureComponent {
     });
   }
   createSocket() {
-    this.props.socket.setOnMonitorMessage((messages)=>{
-      this.updateTable(messages);
-    })
+    this.props.socket &&
+      this.props.socket.setOnMonitorMessage(messages => {
+        this.updateTable(messages);
+      });
   }
   updateTable(event) {
     try {
@@ -427,7 +419,8 @@ class MonitorNow extends PureComponent {
               title="平均响应时间（ms）"
               action={
                 <Tooltip title="平均响应时间，单位毫秒">
-                  {" "}<Icon type="info-circle-o" />{" "}
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
                 </Tooltip>
               }
               total={numeral(
@@ -450,7 +443,8 @@ class MonitorNow extends PureComponent {
               title="吞吐率（dps）"
               action={
                 <Tooltip title="过去一分钟平均每5s的请求次数">
-                  {" "}<Icon type="info-circle-o" />{" "}
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
                 </Tooltip>
               }
               total={numeral(
@@ -473,7 +467,8 @@ class MonitorNow extends PureComponent {
               title="在线人数"
               action={
                 <Tooltip title="过去5分钟的独立IP数量">
-                  {" "}<Icon type="info-circle-o" />{" "}
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
                 </Tooltip>
               }
               total={numeral(
@@ -636,9 +631,11 @@ export default class Index extends PureComponent {
             </Button>
           </ButtonGroup>
         </div>
-        {type === "now"
-          ? <MonitorNow {...this.props} />
-          : <MonitorHistory {...this.props} />}
+        {type === "now" ? (
+          <MonitorNow {...this.props} />
+        ) : (
+          <MonitorHistory {...this.props} />
+        )}
       </Fragment>
     );
   }
