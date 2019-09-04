@@ -604,7 +604,6 @@ export default class Index extends PureComponent {
     });
   };
 
-
   fetchPods = () => {
     const { appAlias, dispatch } = this.props;
     dispatch({
@@ -662,7 +661,7 @@ export default class Index extends PureComponent {
           status={status}
           handleMore={this.handleMore}
           more={more}
-          socket={this.props.socket}
+          socket={this.props.socket && this.props.socket}
         />
         {more && (
           <BuildHistory
@@ -671,7 +670,7 @@ export default class Index extends PureComponent {
             dataList={dataList}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
           />
         )}
         {!more && (
@@ -681,12 +680,12 @@ export default class Index extends PureComponent {
             new_pods={new_pods}
             old_pods={old_pods}
             appAlias={this.props.appAlias}
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
           />
         )}
         {!more && (
           <OperationRecord
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}
