@@ -26,6 +26,7 @@ import numeral from "numeral";
 import EditGroupName from "../../components/AddOrEditGroup";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
+import configureGlobal from "../../utils/configureGlobal";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import guideutil from "../../utils/guide";
@@ -140,7 +141,7 @@ export default class Index extends PureComponent {
 
   componentWillMount() {
     this.getTeam();
-    this.getGuideState();
+    configureGlobal.newbieGuideShow && this.getGuideState();
   }
 
   getTeam = () => {
@@ -740,17 +741,19 @@ export default class Index extends PureComponent {
         </div>
         <Modal
           title={
-            <h1
-              style={{
-                color: "#1890FF",
-                textAlign: "center",
-                border: "none",
-                marginBottom: "0px",
-                marginTop: "10px"
-              }}
-            >
-              欢迎使用Rainbond云应用操作系统
-            </h1>
+            configureGlobal.rainbondTextShow && (
+              <h1
+                style={{
+                  color: "#1890FF",
+                  textAlign: "center",
+                  border: "none",
+                  marginBottom: "0px",
+                  marginTop: "10px"
+                }}
+              >
+                欢迎使用Rainbond云应用操作系统
+              </h1>
+            )
           }
           visible={this.state.guidevisible}
           onOk={this.handleOkGuidevisible}
@@ -760,9 +763,11 @@ export default class Index extends PureComponent {
           className={styles.modals}
           maskClosable={false}
         >
-          <p style={{ fontSize: "17px" }}>
-            Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。
-          </p>
+          {configureGlobal.rainbondTextShow && (
+            <p style={{ fontSize: "17px" }}>
+              Rainbond是开源的面向企业的基础性管理平台，服务于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。
+            </p>
+          )}
           {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
           <p>
             <div className={styles.stepsbox}>
@@ -1068,7 +1073,7 @@ export default class Index extends PureComponent {
                   padding: 0
                 }}
               >
-                <Col span={24} >
+                <Col span={24}>
                   <ChartCard
                     style={{
                       marginTop: "-20px",
@@ -1076,9 +1081,9 @@ export default class Index extends PureComponent {
                     }}
                   >
                     <Table
-                    className={styles.cancelMargin}
+                      className={styles.cancelMargin}
                       style={{
-                        height: '390px',
+                        height: "390px",
                         marginTop: "-20px",
                         overflow: "auto"
                       }}

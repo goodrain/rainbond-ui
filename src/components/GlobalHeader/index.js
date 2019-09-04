@@ -1,5 +1,16 @@
 import React, { PureComponent } from "react";
-import { Layout, Menu, Icon, Spin, Tag, Dropdown, Avatar, Divider, Tooltip, Modal } from "antd";
+import {
+  Layout,
+  Menu,
+  Icon,
+  Spin,
+  Tag,
+  Dropdown,
+  Avatar,
+  Divider,
+  Tooltip,
+  Modal
+} from "antd";
 import { connect } from "dva";
 import Ellipsis from "../Ellipsis";
 import moment from "moment";
@@ -14,6 +25,8 @@ import userIcon from "../../../public/images/user-icon-small.png";
 import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
+import configureGlobal from "../../utils/configureGlobal";
+
 import { Route, Redirect, Switch, routerRedux } from "dva/router";
 
 class DialogMessage extends PureComponent {
@@ -22,7 +35,7 @@ class DialogMessage extends PureComponent {
     this.modal = "";
   }
   componentDidMount() {
-    this.loadin(this.props.data)
+    this.loadin(this.props.data);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.data && nextProps.data[0].ID !== this.props.data[0].ID) {
@@ -32,8 +45,8 @@ class DialogMessage extends PureComponent {
   }
   gbdd = () => {
     Modal.destroyAll();
-  }
-  loadin = (data) => {
+  };
+  loadin = data => {
     if (data && data.length) {
       const ids = data.map(item => item.ID);
 
@@ -42,9 +55,9 @@ class DialogMessage extends PureComponent {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           msg_ids: ids.join(","),
-          action: "mark_read",
+          action: "mark_read"
         },
-        callback: (data) => { },
+        callback: data => {}
       });
 
       this.modal = Modal.info({
@@ -53,7 +66,7 @@ class DialogMessage extends PureComponent {
         width: 500,
         style: { left: "-100px" },
         onOk: () => {
-          this.gbdd()
+          this.gbdd();
           this.props.onCancel();
         },
         content: (
@@ -61,10 +74,10 @@ class DialogMessage extends PureComponent {
             dangerouslySetInnerHTML={{ __html: data[0].content }}
             style={{ whiteSpace: "pre-wrap" }}
           />
-        ),
+        )
       });
     }
-  }
+  };
   render() {
     return null;
   }
@@ -75,7 +88,7 @@ const { Header } = Layout;
 const noticeTit = {
   公告: "announcement",
   消息: "news",
-  提醒: "warn",
+  提醒: "warn"
 };
 @connect(({ global }) => ({}))
 export default class GlobalHeader extends PureComponent {
@@ -90,7 +103,7 @@ export default class GlobalHeader extends PureComponent {
       popupVisible: false,
       msg_ids: "",
       newNoticeList: {},
-      showDialogMessage: null,
+      showDialogMessage: null
     };
   }
   componentDidMount() {
@@ -103,9 +116,9 @@ export default class GlobalHeader extends PureComponent {
     if (notices.length === 0) {
       return {};
     }
-    const newNotices = notices.map((notice) => {
+    const newNotices = notices.map(notice => {
       const newNotice = {
-        ...notice,
+        ...notice
       };
       if (newNotice.create_time) {
         newNotice.datetime = moment(notice.create_time).fromNow();
@@ -133,11 +146,15 @@ export default class GlobalHeader extends PureComponent {
     });
     return groupBy(newNotices, "msg_type");
   }
-  handleVisibleChange = (flag) => {
-    this.setState({ popupVisible: flag, total: 0 }, () => { });
+  handleVisibleChange = flag => {
+    this.setState({ popupVisible: flag, total: 0 }, () => {});
   };
   onClear = () => {
-    this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/message`));
+    this.props.dispatch(
+      routerRedux.replace(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/message`
+      )
+    );
   };
   getuserMessage = (page_num, page_size, msg_type, is_read) => {
     this.props.dispatch({
@@ -147,32 +164,35 @@ export default class GlobalHeader extends PureComponent {
         page_num: 1,
         page_size: this.state.pageSize,
         msg_type: this.state.msg_type,
-        is_read: 0,
+        is_read: 0
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           const datalist = data.list;
           let ids = "";
-          datalist.map((order) => {
+          datalist.map(order => {
             ids += `${order.ID},`;
           });
           ids = ids.slice(0, ids.length - 1);
-          const newTotal = datalist.filter(item => item.is_read === false).length;
+          const newTotal = datalist.filter(item => item.is_read === false)
+            .length;
 
           this.setState(
             {
               total: newTotal,
               noticeList: data.list,
               msg_ids: ids,
-              showDialogMessage: data.list.filter(item => item.level === "high" && item.is_read === false),
+              showDialogMessage: data.list.filter(
+                item => item.level === "high" && item.is_read === false
+              )
             },
             () => {
               const newNotices = this.getNoticeData(this.state.noticeList);
               this.setState({ newNoticeList: newNotices });
-            },
+            }
           );
         }
-      },
+      }
     });
   };
 
@@ -193,7 +213,7 @@ export default class GlobalHeader extends PureComponent {
     const { currTeam } = this.props;
     const currentUser = this.props.currentUser;
     const teams = currentUser.teams || [];
-    const team = teams.filter((item) => {
+    const team = teams.filter(item => {
       item.team_name === currTeam;
     });
 
@@ -207,11 +227,13 @@ export default class GlobalHeader extends PureComponent {
         <Menu.Divider />
         {currentUser.is_user_enter_amdin && (
           <Menu.Item key="createTeam">
-            <Icon type="plus" />新建团队
+            <Icon type="plus" />
+            新建团队
           </Menu.Item>
         )}
         <Menu.Item key="joinTeam">
-          <Icon type="plus" />加入团队
+          <Icon type="plus" />
+          加入团队
         </Menu.Item>
       </Menu>
     );
@@ -229,12 +251,15 @@ export default class GlobalHeader extends PureComponent {
       return (
         <Menu className={styles.menu} selectedKeys={[]} onClick={onRegionClick}>
           {(team.region || []).map(item => (
-            <Menu.Item key={item.team_region_name}>{item.team_region_alias}</Menu.Item>
+            <Menu.Item key={item.team_region_name}>
+              {item.team_region_alias}
+            </Menu.Item>
           ))}
           <Menu.Divider />
           {teamUtil.canAddRegion(team) && (
             <Menu.Item key="openRegion">
-              <Icon type="plus" />开通数据中心
+              <Icon type="plus" />
+              开通数据中心
             </Menu.Item>
           )}
         </Menu>
@@ -254,7 +279,9 @@ export default class GlobalHeader extends PureComponent {
     const team = this.getCurrTeam();
     if (team) {
       const regions = team.region;
-      const selectedRegion = regions.filter(item => item.team_region_name === currRegion)[0];
+      const selectedRegion = regions.filter(
+        item => item.team_region_name === currRegion
+      )[0];
       if (selectedRegion) {
         return selectedRegion.team_region_alias;
       }
@@ -275,7 +302,7 @@ export default class GlobalHeader extends PureComponent {
       notifyCount,
       isPubCloud,
       currRegion,
-      currTeam,
+      currTeam
     } = this.props;
     const noticesList = this.state.newNoticeList;
 
@@ -294,18 +321,20 @@ export default class GlobalHeader extends PureComponent {
             <Icon
               type="edit"
               style={{
-                marginRight: 8,
+                marginRight: 8
               }}
-            />修改密码{" "}
+            />
+            修改密码{" "}
           </Menu.Item>
         )}
         <Menu.Item key="logout">
           <Icon
             type="logout"
             style={{
-              marginRight: 8,
+              marginRight: 8
             }}
-          />退出登录
+          />
+          退出登录
         </Menu.Item>
       </Menu>
     );
@@ -321,12 +350,12 @@ export default class GlobalHeader extends PureComponent {
             style={{
               width: "65px",
               display: "inline-block",
-              overflow: "hidden",
+              overflow: "hidden"
             }}
           >
             <img src={logo} alt="logo" />
           </Link>,
-          <Divider type="vertical" key="line" />,
+          <Divider type="vertical" key="line" />
         ]}
         <Icon
           className={styles.trigger}
@@ -348,7 +377,7 @@ export default class GlobalHeader extends PureComponent {
           <Divider
             type="vertical"
             style={{
-              margin: "0 20px 0 20px",
+              margin: "0 20px 0 20px"
             }}
           />
           <span className={styles.tit}>数据中心:</span>
@@ -364,16 +393,20 @@ export default class GlobalHeader extends PureComponent {
         </div>
 
         <div className={styles.right}>
-          <Tooltip title="平台使用手册">
-            <a
-              target="_blank"
-              href="https://www.rainbond.com/docs/user-manual/"
-              rel="noopener noreferrer"
-              className={styles.action}
-            >
-              <Icon type="question-circle-o" />
-            </a>
-          </Tooltip>
+          {configureGlobal.documentShow && (
+            <Tooltip title="平台使用手册">
+              <a
+                target="_blank"
+                href={`${
+                  configureGlobal.rainbondDocumentAddress
+                }docs/user-manual/`}
+                rel="noopener noreferrer"
+                className={styles.action}
+              >
+                <Icon type="question-circle-o" />
+              </a>
+            </Tooltip>
+          )}
           {/*
           <HeaderSearch
             className={`${styles.action} ${styles.search}`}
@@ -393,13 +426,25 @@ export default class GlobalHeader extends PureComponent {
             popupVisible={this.state.popupVisible}
             onPopupVisibleChange={this.handleVisibleChange}
             onClear={this.onClear}
-            onItemClick={(item) => {
+            onItemClick={item => {
               this.setState({ showDialogMessage: [item] });
             }}
           >
-            <NoticeIcon.Tab title="公告" emptyText="暂无数据" list={noticesList.announcement} />
-            <NoticeIcon.Tab title="消息" emptyText="暂无数据" list={noticesList.news} />
-            <NoticeIcon.Tab title="提醒" emptyText="暂无数据" list={noticesList.warn} />
+            <NoticeIcon.Tab
+              title="公告"
+              emptyText="暂无数据"
+              list={noticesList.announcement}
+            />
+            <NoticeIcon.Tab
+              title="消息"
+              emptyText="暂无数据"
+              list={noticesList.news}
+            />
+            <NoticeIcon.Tab
+              title="提醒"
+              emptyText="暂无数据"
+              list={noticesList.warn}
+            />
           </NoticeIcon>
 
           {currentUser ? (
@@ -410,13 +455,13 @@ export default class GlobalHeader extends PureComponent {
               </span>
             </Dropdown>
           ) : (
-              <Spin
-                size="small"
-                style={{
-                  marginLeft: 8,
-                }}
-              />
-            )}
+            <Spin
+              size="small"
+              style={{
+                marginLeft: 8
+              }}
+            />
+          )}
         </div>
         {this.state.showDialogMessage && this.state.showDialogMessage.length ? (
           <DialogMessage

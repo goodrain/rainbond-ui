@@ -12,6 +12,7 @@ import ImageCmd from "../Create/image-cmd";
 import Market from "../Create/market";
 import rainbondUtil from "../../utils/rainbond";
 import { languageObj } from "../../utils/utils";
+import configureGlobal from "../../utils/configureGlobal";
 
 const appStatusMap = {
   running: {
@@ -465,17 +466,19 @@ export default class AddServiceComponent extends PureComponent {
                 <Row style={{ marginBottom: "2px" }}>
                   <Alert
                     message={
-                      <p className={styles.prompt}>
-                        注:支持
-                        {Object.keys(languageObj).map(key => {
-                          return (
-                            <a href={languageObj[key]} target="_blank">
-                              {key}
-                            </a>
-                          );
-                        })}
-                        等语言规范
-                      </p>
+                      configureGlobal.documentShow && (
+                        <p className={styles.prompt}>
+                          注:支持
+                          {Object.keys(languageObj).map(key => {
+                            return (
+                              <a href={languageObj[key]} target="_blank">
+                                {key}
+                              </a>
+                            );
+                          })}
+                          等语言规范
+                        </p>
+                      )
                     }
                     type="info"
                     style={{ height: "50px" }}
@@ -521,7 +524,9 @@ export default class AddServiceComponent extends PureComponent {
                   <Market
                     handleType="Service"
                     scopeMax="localApplication"
-                    refreshCurrent={() => { this.refreshCurrent() }}
+                    refreshCurrent={() => {
+                      this.refreshCurrent();
+                    }}
                     groupId={this.props.groupId}
                     ButtonGroupState={ButtonGroupState}
                     moreState={moreState}
@@ -681,18 +686,33 @@ export default class AddServiceComponent extends PureComponent {
               }}
             />
           )}
-          {ServiceComponentTwoPage === "market" && <Market
-            scopeMax="localApplication"
-            groupId={this.props.groupId}
-            refreshCurrent={() => { this.refreshCurrent() }}
-            handleType="Service"
-            moreState={moreState}
-            ButtonGroupState={ButtonGroupState}
-            handleServiceBotton={(ButtonGroup, ButtonGroupState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState) }}
-            handleServiceGetData={(data) => { this.handleServiceComponent(false, null, "check", "ServiceGetData", data) }}
-            handleServiceComponent={() => { this.handleServiceComponent(false, "market", null) }}
-          />
-          }
+          {ServiceComponentTwoPage === "market" && (
+            <Market
+              scopeMax="localApplication"
+              groupId={this.props.groupId}
+              refreshCurrent={() => {
+                this.refreshCurrent();
+              }}
+              handleType="Service"
+              moreState={moreState}
+              ButtonGroupState={ButtonGroupState}
+              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
+                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
+              }}
+              handleServiceGetData={data => {
+                this.handleServiceComponent(
+                  false,
+                  null,
+                  "check",
+                  "ServiceGetData",
+                  data
+                );
+              }}
+              handleServiceComponent={() => {
+                this.handleServiceComponent(false, "market", null);
+              }}
+            />
+          )}
           <div
             style={{
               position: "absolute",
