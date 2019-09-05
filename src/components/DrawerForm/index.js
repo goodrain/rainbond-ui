@@ -19,6 +19,8 @@ import {
   Modal
 } from "antd";
 import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
+import teamUtil from "../../utils/team";
 import styles from "./index.less";
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -238,10 +240,18 @@ class DrawerForm extends PureComponent {
       });
     }
     /**筛选当前的数据中心 */
-    const { region } = this.props.currUser.teams[0];
-    const currentRegion = region.filter(item => {
-      return item.team_region_name == globalUtil.getCurrRegionName();
-    });
+
+    let currentRegion = "";
+    const { currUser } = this.props;
+    var currTeam = userUtil.getTeamByTeamName(
+      currUser && currUser,
+      globalUtil.getCurrTeamName()
+    );
+    var currRegionName = globalUtil.getCurrRegionName();
+    if (currTeam) {
+      currentRegion = teamUtil.getRegionByName(currTeam, currRegionName);
+    }
+
     const { routingConfiguration } = this.state;
 
     return (
@@ -289,7 +299,7 @@ class DrawerForm extends PureComponent {
               <span style={{ fontWeight: "bold", fontSize: "16px" }}>
                 <Icon type="question-circle" theme="filled" />
                 <a href="javascript:void(0)" onClick={this.showDescription}>
-                  请将域名解析到：{currentRegion[0].tcpdomain}
+                  请将域名解析到：{currentRegion && currentRegion.tcpdomain}
                 </a>
               </span>
             </FormItem>
@@ -345,7 +355,7 @@ class DrawerForm extends PureComponent {
                     style={{ zIndex: 999 }}
                   >
                     {getFieldDecorator("certificate_id", {
-                      initialValue: editInfo.certificate_id || ''
+                      initialValue: editInfo.certificate_id || ""
                     })(
                       <Select
                         placeholder="请绑定证书"
@@ -547,8 +557,9 @@ class DrawerForm extends PureComponent {
                 A记录 到当前数据中心的应用网关出口IP地址之上域名访问即可生效。
               </li>
               <li>
-                2.当前数据中心（{currentRegion[0].team_region_alias}
-                ）出口IP地址是: {currentRegion[0].tcpdomain}
+                2.当前数据中心（
+                {currentRegion && currentRegion.team_region_alias}
+                ）出口IP地址是: {currentRegion && currentRegion.tcpdomain}
               </li>
               <li>3.如有疑问请联系平台运营管理员</li>
             </ul>
