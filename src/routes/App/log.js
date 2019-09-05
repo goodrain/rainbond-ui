@@ -21,7 +21,7 @@ class History1000Log extends PureComponent {
     this.loadData();
   }
   loadData() {
-    getMonitorLog({
+    getServiceLog({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
       lines: 1000
