@@ -13,6 +13,7 @@ import NotFound from "../routes/Exception/404";
 import { getRoutes } from "../utils/utils";
 import userUtil from "../utils/user";
 import globalUtil from "../utils/global";
+import configureGlobal from "../utils/configureGlobal";
 import cookie from "../utils/cookie";
 import Authorized from "../utils/Authorized";
 import { getMenuData } from "../common/menu";
@@ -78,14 +79,14 @@ class BasicLayout extends React.PureComponent {
     showWelcomeCreateTeam: false,
     canCancelOpenRegion: true,
     market_info: "",
-    showAuthCompany: false,
+    showAuthCompany: false
   };
   componentDidMount() {
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
     this.fetchUserInfo();
-    this.setState({showAuthCompany: this.props.showAuthCompany})
+    this.setState({ showAuthCompany: this.props.showAuthCompany });
     var query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
       this.setState({ market_info: query.market_info });
@@ -164,7 +165,7 @@ class BasicLayout extends React.PureComponent {
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - ${title}`;
     }
-    return title;
+    return configureGlobal.rainbondTextShow && title;
   }
   getBashRedirect = () => {
     // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
@@ -501,13 +502,17 @@ class BasicLayout extends React.PureComponent {
           <PayMoneyTip dispatch={this.props.dispatch} />
         )}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
-          <AuthCompany market_info={this.state.market_info}
+          <AuthCompany
+            market_info={this.state.market_info}
             onOk={() => {
-              this.setState({showAuthCompany: false})
-              var jumpPath = this.props.location.pathname
-              var query = this.props.location.search.replace("market_info="+this.state.market_info,"")
-              this.setState({market_info:""})
-              this.props.dispatch(routerRedux.replace(jumpPath+query));
+              this.setState({ showAuthCompany: false });
+              var jumpPath = this.props.location.pathname;
+              var query = this.props.location.search.replace(
+                "market_info=" + this.state.market_info,
+                ""
+              );
+              this.setState({ market_info: "" });
+              this.props.dispatch(routerRedux.replace(jumpPath + query));
             }}
           />
         )}
