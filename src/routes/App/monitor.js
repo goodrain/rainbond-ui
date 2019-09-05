@@ -1,5 +1,4 @@
 import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
 import { connect } from "dva";
 import {
   ChartCard,
@@ -9,23 +8,8 @@ import {
   TimelineChart
 } from "../../components/Charts";
 import numeral from "numeral";
-import { Link, Switch, Route } from "dva/router";
-import {
-  DatePicker,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Table,
-  Icon,
-  Menu,
-  Dropdown,
-  Tooltip
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes, getTimeDistance } from "../../utils/utils";
-import { getRouterData } from "../../common/router";
+import { Link } from "dva/router";
+import { DatePicker, Row, Col, Card, Button, Table, Icon, Tooltip } from "antd";
 
 import ScrollerX from "../../components/ScrollerX";
 import NoPermTip from "../../components/NoPermTip";
@@ -38,7 +22,6 @@ import monitorDataUtil from "../../utils/monitorDataUtil";
 import styles from "./Index.less";
 
 const ButtonGroup = Button.Group;
-const { RangePicker } = DatePicker;
 
 class Empty extends PureComponent {
   render() {
@@ -267,13 +250,12 @@ class MonitorNow extends PureComponent {
   }
   componentWillUnmount() {
     this.mounted = false;
-    // this.destroySocket();
-    // this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
-    // this.props.dispatch({ type: "appControl/clearRequestTime" });
-    // this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
-    // this.props.dispatch({ type: "appControl/clearRequest" });
-    // this.props.dispatch({ type: "appControl/clearRequestRange" });
-    // this.props.dispatch({ type: "appControl/clearOnlineNumber" });
+    this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
+    this.props.dispatch({ type: "appControl/clearRequestTime" });
+    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
+    this.props.dispatch({ type: "appControl/clearRequest" });
+    this.props.dispatch({ type: "appControl/clearRequestRange" });
+    this.props.dispatch({ type: "appControl/clearOnlineNumber" });
   }
   getSocketUrl = () => {
     var currTeam = userUtil.getTeamByTeamName(
@@ -405,35 +387,11 @@ class MonitorNow extends PureComponent {
       }
     });
   }
-  // destroySocket() {
-  //   if (this.webSocket) {
-  //     this.webSocket.close();
-  //     this.webSocket = null;
-  //   }
-  // }
-  // createSocket() {
-  //   if (!this.mounted) return;
-
-  //   var self = this;
-  //   this.webSocket = new WebSocket(this.getSocketUrl());
-  //   this.webSocket.onopen = () => {
-  //     if (self.webSocket) {
-  //       self.webSocket.send("topic=" + this.props.appDetail.service.service_id);
-  //     }
-  //   };
-  //   this.webSocket.onmessage = function(e) {
-  //     if (self.webSocket && e.data && e.data !== "ok") {
-  //       self.updateTable(e.data);
-  //     }
-  //   };
-  //   this.webSocket.onclose = function() {
-  //     self.createSocket();
-  //   };
-  // }
   createSocket() {
-    this.props.socket.setOnMonitorMessage(messages => {
-      this.updateTable(messages);
-    });
+    this.props.socket &&
+      this.props.socket.setOnMonitorMessage(messages => {
+        this.updateTable(messages);
+      });
   }
   updateTable(event) {
     try {
@@ -483,7 +441,15 @@ class MonitorNow extends PureComponent {
             <ChartCard
               bordered={false}
               title="吞吐率（dps）"
-              action={<Tooltip title="过去一分钟平均每5s的请求次数" />}
+              action={
+                <Tooltip title="过去一分钟平均每5s的请求次数">
+                  {" "}
+                  <Icon type="info-circle-o" />{" "}
+                </Tooltip>
+              }
+              total={numeral(
+                monitorDataUtil.queryTog2(this.props.appRequest)
+              ).format("0,0")}
               footer={<Field label="最大吞吐率" value="-" />}
               contentHeight={46}
             >

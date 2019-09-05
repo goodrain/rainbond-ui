@@ -6,7 +6,6 @@ import Custom from "../Create/code-custom";
 import Github from "../Create/code-github";
 import Goodrain from "../Create/code-goodrain";
 import Check from "../Create/create-check";
-import OuterCustom from "../Create/outer-custom";
 import ImageName from "../Create/image-name";
 import ImageCmd from "../Create/image-cmd";
 import Market from "../Create/market";

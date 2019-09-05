@@ -1,19 +1,11 @@
 import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
-import moment from "moment";
 import { connect } from "dva";
-import numeral from "numeral";
-import { Link, Switch, Route } from "dva/router";
-import { Button, notification, Modal } from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes } from "../../utils/utils";
+import { Button, notification } from "antd";
 import appAcionLogUtil from "../../utils/app-action-log-util";
 import dateUtil from "../../utils/date-util";
-import { getRouterData } from "../../common/router";
-import { getActionLog, getActionLogDetail } from "../../services/app";
+import { getActionLogDetail } from "../../services/app";
 import LogSocket from "../../utils/logSocket";
-
-import StatusIcon from "../../components/StatusIcon";
 import BuildHistory from "./component/BuildHistory/index";
 import Basic from "./component/Basic/index";
 import OperationRecord from "./component/Basic/operationRecord";
@@ -21,15 +13,9 @@ import Instance from "./component/Instance/index";
 import LogProcress from "../../components/LogProcress";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
-import appUtil from "../../utils/app";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
 import regionUtil from "../../utils/region";
-import monitorDataUtil from "../../utils/monitorDataUtil";
-import AppVersionManage from "../../components/AppVersionManage";
-import Run from "../../../public/images/run.png";
-import Down from "../../../public/images/down.png";
-import Abnormal from "../../../public/images/abnormal.png";
 
 const ButtonGroup = Button.Group;
 
@@ -423,7 +409,8 @@ export default class Index extends PureComponent {
       total: 0,
       current_version: null,
       status: "",
-      isopenLog:false
+      isopenLog: false,
+      buildSource: null
     };
     this.inerval = 5000;
   }
@@ -433,6 +420,7 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
+    this.loadBuildSourceInfo();
     this.fetchAppDiskAndMemory();
     this.getVersionList();
     this.fetchOperationLog(true);
@@ -541,11 +529,11 @@ export default class Index extends PureComponent {
     this.fetchOperationLog(false);
     this.getVersionList();
   };
-  onLogPush = isopen =>{
-   this.setState({
-    isopenLog:isopen
-   })
-  }
+  onLogPush = isopen => {
+    this.setState({
+      isopenLog: isopen
+    });
+  };
   onPageChange = page => {};
 
   handleDel = item => {
@@ -596,10 +584,26 @@ export default class Index extends PureComponent {
       }
     });
   };
-  // componentDidUpdate(){
-  //   console.log('statusstatusstatusstatus',this.state.status)
-  //   this.fetchPods()
-  // }
+
+  loadBuildSourceInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "appControl/getAppBuidSource",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.props.appAlias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            buildSource:
+              data.bean && data.bean.service_source && data.bean.service_source
+          });
+        }
+      }
+    });
+  };
+
   fetchPods = () => {
     const { appAlias, dispatch } = this.props;
     dispatch({
@@ -628,25 +632,9 @@ export default class Index extends PureComponent {
     });
   };
 
-
-
   render() {
-    const topColResponsiveProps = {
-      xs: 24,
-      sm: 12,
-      md: 12,
-      lg: 12,
-      xl: 6,
-      style: {
-        marginBottom: 24
-      }
-    };
     const {
       logList,
-      hasNext,
-      anaPlugins,
-      opened,
-      showUpgrade,
       memory,
       beanData,
       dataList,
@@ -655,18 +643,17 @@ export default class Index extends PureComponent {
       runLoading,
       more,
       disk,
-      page,
-      total,
+      buildSource,
       isopenLog,
       recordLoading,
       has_next,
       current_version
     } = this.state;
-    const { appDetail, status } = this.props;
-    let hasAnaPlugins = !!anaPlugins.length;
+    const { status } = this.props;
     return (
       <Fragment>
         <Basic
+          buildSource={buildSource}
           beanData={beanData}
           memory={memory}
           disk={disk}
@@ -674,7 +661,7 @@ export default class Index extends PureComponent {
           status={status}
           handleMore={this.handleMore}
           more={more}
-          socket={this.props.socket}
+          socket={this.props.socket && this.props.socket}
         />
         {more && (
           <BuildHistory
@@ -683,7 +670,7 @@ export default class Index extends PureComponent {
             dataList={dataList}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
           />
         )}
         {!more && (
@@ -693,12 +680,12 @@ export default class Index extends PureComponent {
             new_pods={new_pods}
             old_pods={old_pods}
             appAlias={this.props.appAlias}
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
           />
         )}
         {!more && (
           <OperationRecord
-            socket={this.props.socket}
+            socket={this.props.socket && this.props.socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}

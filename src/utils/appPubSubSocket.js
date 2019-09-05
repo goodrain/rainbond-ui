@@ -9,8 +9,6 @@
 */
 
 import TimerQueue from "./timerQueue";
-var Convert = require("ansi-to-html");
-var convert = new Convert();
 
 function noop() {}
 
@@ -43,23 +41,29 @@ AppPubSubSocket.prototype = {
     this.webSocket.onclose = this._onClose.bind(this);
     this.webSocket.onerror = this._onError.bind(this);
     this.serviceLogQueue = new TimerQueue({
-      interval: 5,
+      interval: 20,
       autoStart: false,
+      batchout: true,
       onExecute: message => {
-        //ansi to html
-        this.onLogMessage(convert.toHtml(message));
+        if (message == undefined){
+          return
+        }
+        this.onLogMessage(message);
       }
     });
     this.monitorLogQueue = new TimerQueue({
       interval: 5,
       autoStart: false,
       onExecute: message => {
+        if (message == undefined){
+          return
+        }
         this.onMonitorMessage(message);
       }
     });
     this.eventLogQueue = new Map();
-    this.opened = false
-    this.waitingSendMessage = []
+    this.opened = false;
+    this.waitingSendMessage = [];
   },
   getSocket() {
     return this.webSocket;
@@ -68,7 +72,7 @@ AppPubSubSocket.prototype = {
     if (this.eventLogQueue.has(channel)) {
       return this.eventLogQueue.get(channel);
     }
-    this.eventLogQueue.set(channel, new TimerQueue());
+    this.eventLogQueue.set(channel, new TimerQueue({autoStart: true}));
   },
   watchEventLog(onMessage, onSuccess, onFailure, eventID) {
     let channel = "event-" + eventID;
@@ -87,6 +91,7 @@ AppPubSubSocket.prototype = {
       this.eventLogQueue.set(
         channel,
         new TimerQueue({
+          autoStart: true,
           onExecute: item => {
             if (item.action !== undefined && item.status !== undefined) {
               if (item.status == "success") {
@@ -107,8 +112,8 @@ AppPubSubSocket.prototype = {
       };
       if (this.opened) {
         this.webSocket.send(JSON.stringify(message));
-      }else{
-        this.waitingSendMessage.push(JSON.stringify(message))
+      } else {
+        this.waitingSendMessage.push(JSON.stringify(message));
       }
     }
   },
@@ -125,7 +130,7 @@ AppPubSubSocket.prototype = {
     this.serviceLogQueue.stop();
   },
   close() {
-    this.webSocket.close();
+    this.webSocket && this.webSocket.close();
   },
 
   _onOpen(evt) {
@@ -140,11 +145,11 @@ AppPubSubSocket.prototype = {
       this.webSocket.send(JSON.stringify(message));
     }
     this.onOpen(this.webSocket);
-    this.opened = true
-    if (this.waitingSendMessage.length>0) {
-      this.waitingSendMessage.map((m)=>{
-        this.webSocket.send(m)
-      })
+    this.opened = true;
+    if (this.waitingSendMessage.length > 0) {
+      this.waitingSendMessage.map(m => {
+        this.webSocket.send(m);
+      });
     }
   },
   _onMessage(message) {

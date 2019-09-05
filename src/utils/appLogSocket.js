@@ -40,6 +40,7 @@ AppLogSocket.prototype = {
     this.webSocket.onerror = this._onError.bind(this);
     this.timerQueue = new TimerQueue({
       onExecute: this.onMessage,
+      autoStart: true,
     });
     const i = 1;
   },
@@ -47,7 +48,7 @@ AppLogSocket.prototype = {
     return this.webSocket;
   },
   close() {
-    this.webSocket.close();
+    this.webSocket && this.webSocket.close();
   },
   _onOpen(evt) {
     // 通知服务器
@@ -85,7 +86,7 @@ AppLogSocket.prototype = {
   },
   destroy() {
     this.destroyed = true;
-    this.webSocket.close();
+    this.webSocket && this.webSocket.close();
   },
 };
 

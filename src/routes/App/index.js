@@ -16,7 +16,6 @@ import {
   Radio,
   Alert,
   Badge,
-  message
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import Overview from "./overview";
@@ -951,15 +950,6 @@ class Main extends PureComponent {
             </Button>
           ) : null}
 
-          {/* {(this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
-                        <Tooltip title="应用配置已更改，重启后生效">
-                            <Button onClick={this.handleRestart} className={styles.blueant}>重启</Button>
-                        </Tooltip> : null}
-
-                    {(!this.state.showreStartTips && appUtil.canRestartApp(appDetail) && appStatusUtil.canRestart(status)) ?
-                        <Button onClick={this.handleRestart}>重启</Button>
-                        : null} */}
-
           {appUtil.canManageContainter(appDetail) &&
           appStatusUtil.canManageDocker(status) &&
           !isShowThirdParty ? (
@@ -994,12 +984,6 @@ class Main extends PureComponent {
         ) : (
           <Button onClick={this.handleOpenBuild}>构建</Button>
         )}
-
-        {/* {
-                    (appDetail.service.service_source == "market" && appDetail.service.is_upgrate) && (
-                        <Button onClick={this.handleDeploy} type="primary">应用升级</Button>
-                    )
-                } */}
         {status.status == "undeploy" ||
         status.status == "closed" ||
         status.status == "stopping" ||

@@ -507,7 +507,6 @@ class JAVA extends PureComponent {
 
     render() {
         const runtimeInfo = this.props.runtimeInfo || "";
-        console.log(runtimeInfo)
         const formItemLayout = {
             labelCol: {
                 xs: {
@@ -678,7 +677,6 @@ class JAVA extends PureComponent {
                                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
                             )}
                         </Form.Item>
-
                         {/* JDK SETTING */}
                         {jdkShow()}
 

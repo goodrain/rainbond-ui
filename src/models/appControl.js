@@ -324,19 +324,6 @@ export default {
         callback && callback(response);
       }
     },
-
-    // * addVariable({ payload, callback }, { call, put }) {
-    //   const response = yield call(addVariable, payload);
-    //   if (response) {
-    //     callback && callback(response);
-    //   }
-    // },
-    // * putVariable({ payload, callback }, { call, put }) {
-    //   const response = yield call(putVariable, payload);
-    //   if (response) {
-    //     callback && callback(response);
-    //   }
-    // },
     *getVariable({ payload, callback }, { call, put }) {
       const response = yield call(getVariable, payload);
       if (response) {
@@ -355,7 +342,6 @@ export default {
         callback && callback(response);
       }
     },
-
     *addTag({ payload, callback }, { call, put }) {
       const response = yield call(addTags, payload);
       if (response) {
@@ -425,7 +411,6 @@ export default {
         callback && callback(response);
       }
     },
-
     *fetchApps({ payload }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {

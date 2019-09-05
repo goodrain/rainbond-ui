@@ -692,7 +692,6 @@ class JAVA extends PureComponent {
                 <Radio onClick={() => { this.handleRadio("NO_CACHE") }} checked={this.state.NO_CACHE} ></Radio>
               )}
             </Form.Item>
-
             {/* JDK SETTING */}
             {jdkShow()}
 

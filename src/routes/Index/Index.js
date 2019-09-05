@@ -423,14 +423,16 @@ export default class Index extends PureComponent {
       );
     }
 
-    const statusCNMap = {
-      "": "进行中",
-      complete: "完成",
-      failure: "失败",
-      timeout: "超时"
-    };
-
     return list.map(item => {
+      const {
+        UserName,
+        OptType,
+        FinalStatus,
+        Status,
+        create_time,
+        Target
+      } = item;
+
       const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
         item.service_alias
       }/overview`;
@@ -439,23 +441,31 @@ export default class Index extends PureComponent {
           <List.Item.Meta
             title={
               <span>
-                <a className={styles.username}>{item.nick_name}</a>
-                <span className={styles.event}>{item.type_cn}</span>
-                <Link to={linkTo} className={styles.event}>
-                  {item.service_cname}
-                </Link>
-                <span className={styles.datetime}>
-                  应用
-                  {statusCNMap[item.final_status]
-                    ? `${statusCNMap[item.final_status]}`
-                    : ""}
+                <a className={styles.username}>{UserName}</a>
+                <span className={styles.event}>
+                  {" "}
+                  {globalUtil.fetchStateOptTypeText(OptType)}
+                </span>
+                &nbsp;
+                {Target && Target === "service" && (
+                  <Link to={linkTo} className={styles.event}>
+                    {item.service_name}
+                  </Link>
+                )}
+                <span>应用</span>
+                <span
+                  style={{
+                    color: globalUtil.fetchAbnormalcolor(OptType)
+                  }}
+                >
+                  {globalUtil.fetchOperation(FinalStatus, Status)}
                 </span>
               </span>
             }
             description={
               <span className={styles.datatime_float} title={item.updatedAt}>
-                {" "}
-                {moment(item.start_time).fromNow()}{" "}
+                {globalUtil.fetchdayTime(create_time)}
+                {/* {moment(item.start_time).fromNow()}{" "} */}
               </span>
             }
           />

@@ -52,7 +52,7 @@ const global = {
       upgrade: "#00FF4A", //升级中
       expired: "#CD0200", //过期 猩红
       Expired: "#CD0200", //猩红
-
+      UNHEALTHY: "#CD0200",
       INITIATING: "#F69D4A",
       TEMINATING: "#20124A", //关闭中 紫色
       tEMINATING: "#20124A", //关闭中 紫色
@@ -63,6 +63,27 @@ const global = {
   },
   fetchSvg(type, color) {
     const svgType = {
+      logs: (
+        <svg
+          style={{
+            cursor: "pointer"
+          }}
+          t="1566527207023"
+          className={styles.iconm}
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="5957"
+          width="16"
+          height="16"
+        >
+          <path
+            d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
+            fill={color || "#000"}
+            p-id="5958"
+          />
+        </svg>
+      ),
       runTime: (
         <svg
           t="1567065687158"
@@ -434,7 +455,8 @@ const global = {
       upgrade: "升级中",
       creating: "部署中",
       expired: "过期",
-      NOTREADY: "未就绪"
+      NOTREADY: "未就绪",
+      UNHEALTHY: "不健康"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
@@ -505,13 +527,81 @@ const global = {
     }
     return result;
   },
+  fetchInstanceReasons(type) {
+    const reasonsType = {
+      UnknownContainerStatuses: "未知的容器状态",
+      ContainersNotReady: "容器未就绪",
+      ContainersNotInitialized: "容器尚未初始化"
+    };
+    return reasonsType[type] || type;
+  },
+  fetchInstanceAdvice(type) {
+    const adviceType = {
+      OutOfMemory:
+        "内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存",
+      Unhealthy:
+        "健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确",
+      Initiating: "等待启动中, 请检查该服务所依赖的服务是否已经正常启动"
+    };
+    return adviceType[type] || type;
+  },
+  fetchOperation(finalstatus, status) {
+    if (finalstatus == "") {
+      return (
+        <span style={{ color: "#F69C49", paddingLeft: "5px" }}>进行中</span>
+      );
+    }
+    if (
+      finalstatus == "timeout" ||
+      (finalstatus == "complete" && status == "timeout")
+    ) {
+      return <span style={{ color: "rgba(0, 0, 0, 0.65)" }}>操作已超时</span>;
+    }
 
+    if (finalstatus == "empty" || finalstatus == "emptycomplete") {
+      return <span />;
+    }
+    switch (status) {
+      case "success":
+        return <span style={{ color: "#39AA56" }}>成功</span>;
+      case "failure":
+        return <span style={{ color: "#F5212D" }}>失败</span>;
+    }
+  },
+  fetchAbnormalcolor(type) {
+    const abnormalcolor = {
+      AbnormalRecovery: "#39AA56",
+      OOMKilled: "#CD0200",
+      LivenessProbeFailed: "#CD0200",
+      ReadinessProbeFailed: "#CD0200",
+      AbnormalShtdown: "#CD0200",
+      EventTypeAbnormalExited: "#CD0200",
+      AbnormalExited: "#CD0200"
+    };
+    return abnormalcolor[type] || "rgba(0,0,0,0.65)";
+  },
   fetchStateOptTypeText(state) {
     const statusOptType = {
+      deploy: "构建服务",
+      delete: "删除服务",
+      HorizontalUpgrade: "水平升级",
+      VerticalUpgrade: "垂直升级",
+      create: "创建服务",
+      callback: "回滚",
+      "git-change": "代码仓库修改",
+      own_money: "欠费关闭",
+      add_label: "添加标签",
+      delete_label: "删除标签",
+      service_state: "应用状态修改",
+      reboot: "重启服务",
+      market_sync: "云市同步",
+      truncate: "删除服务",
+      EventTypeAbnormalExited: "服务异常退出",
       OOMKilled: "发生OOM",
       LivenessProbeFailed: "健康检查不通过(重启)",
       ReadinessProbeFailed: "健康检查不通过(下线)",
       AbnormalShtdown: " 服务异常退出",
+      AbnormalExited: "服务异常退出",
       AbnormalRecovery: "恢复正常",
       "": "-",
       "create-service": "创建服务",
@@ -537,6 +627,11 @@ const global = {
       "upgrade-service": "升级服务",
       "delete-buildversion": "删除构建版本",
       "share-service": "分享服务",
+      "share-wb": "分享到内部市场",
+      "share-ws": "分享到云端市场",
+      "share-yb": "发布到市场",
+      "share-ys": "发布到市场",
+      updata: "更新服务",
       "add-service-dependency": "添加服务依赖",
       "delete-service-dependency": "删除服务依赖",
       "add-service-env": "添加服务环境变量",
