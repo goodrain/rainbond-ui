@@ -180,7 +180,6 @@ export default function request(url, options) {
           cookie.remove("token", { domain: "" });
           cookie.set("nouse", true);
           location.reload();
-          dispatch && dispatch(routerRedux.push("/user/10400"));
           return;
         }
 
