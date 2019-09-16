@@ -4,6 +4,7 @@ import { routerRedux, Link } from "dva/router";
 import { Form, Input, Button, Row, Col, Progress } from "antd";
 import styles from "./Register.less";
 import config from "../../config/config";
+import cookie from "../../utils/cookie";
 
 const FormItem = Form.Item;
 
@@ -46,6 +47,11 @@ export default class Register extends Component {
 
   componentWillUnmount() {
     clearInterval(this.interval);
+  }
+  componentDidMount() {
+    const nouse = cookie.get("nouse");
+    const { dispatch } = this.props;
+    nouse && dispatch && dispatch(routerRedux.push("/user/10400"));
   }
 
   onGetCaptcha = () => {

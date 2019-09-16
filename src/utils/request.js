@@ -175,9 +175,12 @@ export default function request(url, options) {
           location.reload();
           return;
         }
-
-        if (resData.code === 10401) {
-          dispatch && dispatch(routerRedux.push("/exception/10401"));
+        if (resData.code === 10400) {
+          cookie.remove("token");
+          cookie.remove("token", { domain: "" });
+          cookie.set("nouse", true);
+          location.reload();
+          dispatch && dispatch(routerRedux.push("/user/10400"));
           return;
         }
 
