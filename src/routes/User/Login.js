@@ -19,12 +19,6 @@ export default class LoginPage extends Component {
     autoLogin: true
   };
 
-  componentDidMount() {
-    const nouse = cookie.get("nouse");
-    const { dispatch } = this.props;
-    nouse && dispatch && dispatch(routerRedux.push("/user/10400"));
-  }
-
   onTabChange = type => {
     this.setState({ type });
   };

@@ -61,7 +61,6 @@ export default {
         // parameters in the url const redirect = urlParams.searchParams.get('redirect',
         // pathname); yield put(routerRedux.push('/index'));
         cookie.set("token", response.bean.token);
-        cookie.set("nouse", false);
         window.location.reload();
       }
     },
@@ -92,7 +91,6 @@ export default {
         // changes to admin or user The refresh will automatically redirect to the home
         // page yield put(routerRedux.push('/'));
         cookie.set("token", response.bean.token);
-        cookie.set("nouse", false);
 
         const urlParams = new URL(window.location.href);
         const pathname = yield select(state => state.routing.location.pathname);

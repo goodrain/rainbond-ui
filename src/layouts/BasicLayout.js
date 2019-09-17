@@ -332,6 +332,7 @@ class BasicLayout extends React.PureComponent {
       currTeam,
       currRegion,
       groups,
+      nouse,
       rainbondInfo
     } = this.props;
     const bashRedirect = this.getBashRedirect();
@@ -364,23 +365,35 @@ class BasicLayout extends React.PureComponent {
         }
 
         // 数据中心维护中
-        if (isRegionMaintain) {
+        if (isRegionMaintain || nouse) {
           return (
             <div style={{ textAlign: "center", padding: "50px 0" }}>
-              <Icon style={{ fontSize: 50, marginBottom: 32 }} type="warning" />
+              <Icon
+                style={{ fontSize: 50, marginBottom: 32, color: "red" }}
+                type="warning"
+              />
               <h1
                 style={{
                   fontSize: 50,
                   color: "rgba(0, 0, 0, 0.65)",
-                  marginBottom: 8
+                  marginBottom: 20
                 }}
               >
-                数据中心维护中
+                {nouse ? "当前授权已过期" : "数据中心维护中"}
               </h1>
-              <p>请稍后访问当前数据中心</p>
+              <p
+                style={{
+                  fontSize: 20
+                }}
+              >
+                {nouse
+                  ? "请联系 010-64666786 获取更多商业服务。"
+                  : "请稍后访问当前数据中心"}
+              </p>
             </div>
           );
         }
+
         return (
           <Switch>
             {redirectData.map(item => (
@@ -521,7 +534,7 @@ class BasicLayout extends React.PureComponent {
   }
 }
 
-export default connect(({ user, global, loading }) => ({
+export default connect(({ user, global, index, loading }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -534,5 +547,7 @@ export default connect(({ user, global, loading }) => ({
   payTip: global.payTip,
   memoryTip: global.memoryTip,
   noMoneyTip: global.noMoneyTip,
-  showAuthCompany: global.showAuthCompany
+  showAuthCompany: global.showAuthCompany,
+  overviewInfo: index.overviewInfo,
+  nouse: global.nouse
 }))(BasicLayout);

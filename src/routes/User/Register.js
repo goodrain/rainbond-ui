@@ -48,11 +48,6 @@ export default class Register extends Component {
   componentWillUnmount() {
     clearInterval(this.interval);
   }
-  componentDidMount() {
-    const nouse = cookie.get("nouse");
-    const { dispatch } = this.props;
-    nouse && dispatch && dispatch(routerRedux.push("/user/10400"));
-  }
 
   onGetCaptcha = () => {
     let count = 59;

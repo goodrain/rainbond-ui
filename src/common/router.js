@@ -276,11 +276,6 @@ export const getRouterData = app => {
         import("../layouts/UserLayout")
       )
     },
-    "/user/10400": {
-      component: dynamicWrapper(app, ["error"], () =>
-        import("../routes/Exception/10400")
-      )
-    },
     "_/user/login": {
       component: dynamicWrapper(app, ["user"], () =>
         import("../routes/User/Login")

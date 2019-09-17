@@ -4,12 +4,12 @@ import {
   getTeamRegionAppsStatus,
   getTeamRegionOverview,
   getTeamRegionGroup,
-  getNewestEvent,
-} from '../services/team';
-import cookie from '../utils/cookie';
+  getNewestEvent
+} from "../services/team";
+import cookie from "../utils/cookie";
 
 export default {
-  namespace: 'index',
+  namespace: "index",
   state: {
     // 总览信息
     overviewInfo: {},
@@ -24,83 +24,86 @@ export default {
       pageSize: 10,
       currentPage: 1,
       total: 0,
-      order: '',
-      fields: '',
+      order: "",
+      fields: ""
     },
     appGroupSize: 0,
     appRuningSize: 0,
     appAbnormalSize: 0,
-    appClosedSize: 0,
+    appClosedSize: 0
   },
   effects: {
-    * fetchEvents({ payload, callback }, { call, put }) {
+    *fetchEvents({ payload, callback }, { call, put }) {
       const response = yield call(getNewestEvent, payload);
       if (response) {
         yield put({
-          type: 'saveEvents',
-          payload: response,
+          type: "saveEvents",
+          payload: response
         });
         if (callback) {
           callback(response);
         }
       }
     },
-    * fetchOverview({ payload }, { call, put }) {
-      const response = yield call(getTeamRegionOverview, payload);
+    *fetchOverview({ payload, callback,handleError }, { call, put }) {
+      const response = yield call(getTeamRegionOverview, payload,handleError);
       if (response) {
         yield put({
-          type: 'saveOverviewInfo',
-          payload: response.bean,
+          type: "saveOverviewInfo",
+          payload: response.bean
         });
+        if (callback) {
+          callback(response);
+        }
       }
     },
-    * fetchAppOverview({ payload }, { call, put }) {
+    *fetchAppOverview({ payload }, { call, put }) {
       const response = yield call(getTeamAppOverview, payload);
       if (response) {
         yield put({
-          type: 'saveAppOverviewInfo',
-          payload: response.bean,
+          type: "saveAppOverviewInfo",
+          payload: response.bean
         });
       }
     },
-    * fetchApps({ payload }, { put, select, call }) {
+    *fetchApps({ payload }, { put, select, call }) {
       const response = yield call(getTeamRegionApps, payload);
       if (response) {
         yield put({
-          type: 'saveApps',
-          payload: response.list || [],
+          type: "saveApps",
+          payload: response.list || []
         });
 
         yield put({
-          type: 'savePage',
+          type: "savePage",
           payload: {
-            total: response.total || 0,
-          },
+            total: response.total || 0
+          }
         });
       }
     },
-    * fetchAppsStatus({ payload }, { call, put }) {
+    *fetchAppsStatus({ payload }, { call, put }) {
       const response = yield call(getTeamRegionAppsStatus, payload);
       if (response) {
         yield put({
-          type: 'saveAppsStatus',
-          payload: response.list,
+          type: "saveAppsStatus",
+          payload: response.list
         });
       }
-    },
+    }
   },
 
   reducers: {
     saveEvents(state, { payload }) {
       return {
         ...state,
-        events: payload.list,
+        events: payload.list
       };
     },
     saveOverviewInfo(state, { payload }) {
       return {
         ...state,
-        overviewInfo: payload,
+        overviewInfo: payload
       };
     },
     saveAppOverviewInfo(state, { payload }) {
@@ -109,19 +112,19 @@ export default {
         appGroupSize: payload.appGroupSize,
         appRuningSize: payload.appGroupSize,
         appAbnormalSize: payload.appAbnormalSize,
-        appClosedSize: payload.appClosedSize,
+        appClosedSize: payload.appClosedSize
       };
     },
     saveAppsStatus(state, action) {
       return {
         ...state,
-        appsStatus: action.payload,
+        appsStatus: action.payload
       };
     },
     saveApps(state, action) {
       return {
         ...state,
-        apps: action.payload,
+        apps: action.payload
       };
     },
     savePage(state, action) {
@@ -129,9 +132,9 @@ export default {
         ...state,
         pagination: {
           ...state.pagination,
-          ...action.payload,
-        },
+          ...action.payload
+        }
       };
-    },
-  },
+    }
+  }
 };

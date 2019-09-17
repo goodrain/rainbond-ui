@@ -176,10 +176,13 @@ export default function request(url, options) {
           return;
         }
         if (resData.code === 10400) {
-          cookie.remove("token");
-          cookie.remove("token", { domain: "" });
-          cookie.set("nouse", true);
-          location.reload();
+          dispatch &&
+            dispatch({
+              type: "global/saveIsisNouse",
+              payload: {
+                isNouse: true
+              }
+            });
           return;
         }
 
