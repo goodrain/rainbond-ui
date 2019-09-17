@@ -34,6 +34,9 @@ const formItemLayout = {
     span: 19
   }
 };
+const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 @connect(
   ({ user, global }) => ({
@@ -119,8 +122,11 @@ export default class Index extends PureComponent {
         let num = 0;
 
         fieldsValue.static.map(item => {
-          var reg = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-          if (reg.test(item) && this.state.endpointsType == "static") {
+          if (
+            !rege.test(item || "") &&
+            (regs.test(item || "") || rega.test(item || "")) &&
+            this.state.endpointsType == "static"
+          ) {
             num++;
             if (num > 1) {
               message.destroy();
@@ -205,20 +211,10 @@ export default class Index extends PureComponent {
 
         if (
           this.state.endpointsType == "static" &&
-          !(/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/.test(
-            item || ""
-          ))
+          (!regs.test(item || "") &&
+            !rega.test(item || "") &&
+            !rege.test(tem || ""))
         ) {
-          if (
-            !(/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(
-              item || ""
-            ))
-          ) {
-            callback("请输入正确的地址");
-            return;
-          } else {
-            callback();
-          }
           callback("请输入正确的地址");
           return;
         }

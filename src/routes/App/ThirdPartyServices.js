@@ -17,16 +17,21 @@ import {
   Input,
   notification,
   Radio,
-  Modal
+  Modal,
+  message
 } from "antd";
+
+import DescriptionList from "../../components/DescriptionList";
+import globalUtil from "../../utils/global";
+import ConfirmModal from "../../components/ConfirmModal";
+
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
-
-import DescriptionList from "../../components/DescriptionList";
 const { Description } = DescriptionList;
-import globalUtil from "../../utils/global";
-import ConfirmModal from "../../components/ConfirmModal";
+const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 @connect(
   ({ user, appControl }) => ({
@@ -84,6 +89,7 @@ export default class Index extends PureComponent {
   };
 
   handleGetList = () => {
+    console.log("this.props", this.props);
     this.props.dispatch({
       type: "appControl/getInstanceList",
       payload: {
@@ -197,24 +203,16 @@ export default class Index extends PureComponent {
       callback("请输入正确的IP地址");
       return;
     }
+
     if (
-      !/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(
-        value || ""
-      )
+      !regs.test(value || "") &&
+      !rega.test(value || "") &&
+      !rege.test(value || "")
     ) {
-      if (
-        !/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]):\d{0,5}$/.test(
-          value || ""
-        )
-      ) {
-        callback("请输入正确的IP地址");
-        return;
-      } else {
-        callback();
-      }
-      callback("请输入正确的IP地址");
+      callback("请输入正确的地址");
       return;
     }
+
     callback();
   };
 
@@ -320,12 +318,17 @@ export default class Index extends PureComponent {
       appDetail &&
       appDetail.register_way &&
       appDetail.register_way === "static" &&
+      appDetail.service &&
+      appDetail.service.service_source &&
+      appDetail.service.service_source === "third_party" &&
       list &&
       list.length > 0
     ) {
       list.map(item => {
-        var reg = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
-        if (reg.test(item.address)) {
+        if (
+          !rege.test(item.address) &&
+          (regs.test(item.address) || rega.test(item.address))
+        ) {
           num++;
         }
       });
@@ -364,88 +367,89 @@ export default class Index extends PureComponent {
               )}
             </FormItem>
           </Modal>
-          {
-            (appDetail.service.service_source = "third_party" && (
-              <Card
-                title="服务实例"
-                extra={
-                  <div>
-                    {num < 1 && (
-                      <Button
-                        style={{ marginRight: "5px" }}
-                        onClick={() => {
-                          this.addInstance();
+          {appDetail.service.service_source === "third_party" && (
+            <Card
+              title="服务实例"
+              extra={
+                <div>
+                  <Button
+                    style={{ marginRight: "5px" }}
+                    onClick={() => {
+                      num > 0
+                        ? message.warning(
+                            "静态注册类型第三方服务只允许添加一个域名实例地址"
+                          )
+                        : this.addInstance();
+                    }}
+                  >
+                    新增
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      this.handleGetList();
+                    }}
+                  >
+                    刷新
+                  </Button>
+                </div>
+              }
+            >
+              <p>
+                注册方式：{" "}
+                {appDetail.register_way ? appDetail.register_way : ""}
+              </p>
+              {appDetail.api_url && (
+                <p>
+                  API地址： {appDetail.api_url ? appDetail.api_url : ""}
+                  <div style={{ margin: "5px 0" }}>
+                    <span>
+                      秘钥：{" "}
+                      <a>
+                        {api_service_key
+                          ? api_service_key
+                          : appDetail.api_service_key
+                          ? appDetail.api_service_key
+                          : ""}
+                      </a>
+                      <CopyToClipboard
+                        text={
+                          appDetail.api_service_key
+                            ? appDetail.api_service_key
+                            : ""
+                        }
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
                         }}
                       >
-                        新增
-                      </Button>
-                    )}
+                        <Button size="small" style={{ margin: "0 10px" }}>
+                          复制
+                        </Button>
+                      </CopyToClipboard>
+                      {/* </Description> */}
+                    </span>
                     <Button
+                      size="small"
                       onClick={() => {
-                        this.handleGetList();
+                        this.handleUpDatekey();
                       }}
                     >
-                      刷新
+                      重置密钥
                     </Button>
                   </div>
-                }
-              >
-                <p>
-                  注册方式：{" "}
-                  {appDetail.register_way ? appDetail.register_way : ""}
                 </p>
-                {appDetail.api_url && (
-                  <p>
-                    API地址： {appDetail.api_url ? appDetail.api_url : ""}
-                    <div style={{ margin: "5px 0" }}>
-                      <span>
-                        秘钥：{" "}
-                        <a>
-                          {api_service_key
-                            ? api_service_key
-                            : appDetail.api_service_key
-                            ? appDetail.api_service_key
-                            : ""}
-                        </a>
-                        <CopyToClipboard
-                          text={
-                            appDetail.api_service_key
-                              ? appDetail.api_service_key
-                              : ""
-                          }
-                          onCopy={() => {
-                            notification.success({ message: "复制成功" });
-                          }}
-                        >
-                          <Button size="small" style={{ margin: "0 10px" }}>
-                            复制
-                          </Button>
-                        </CopyToClipboard>
-                        {/* </Description> */}
-                      </span>
-                      <Button
-                        size="small"
-                        onClick={() => {
-                          this.handleUpDatekey();
-                        }}
-                      >
-                        重置密钥
-                      </Button>
-                    </div>
-                  </p>
-                )}
-                {endpoint_num && (
-                  <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ""}</p>
-                )}
-                {appDetail.discovery_type && (
-                  <p>动态类型: {appDetail.discovery_type}</p>
-                )}
-                {appDetail.discovery_key && (
-                  <p>动态key: {appDetail.discovery_key}</p>
-                )}
-              </Card>
-            ))
-          }
+              )}
+              {endpoint_num && (
+                <p>当前实例数: {endpoint_num > 0 ? endpoint_num : ""}</p>
+              )}
+              {appDetail.discovery_type && (
+                <p>动态类型: {appDetail.discovery_type}</p>
+              )}
+              {appDetail.discovery_key && (
+                <p>动态key: {appDetail.discovery_key}</p>
+              )}
+            </Card>
+          )}
         </Row>
         <Row>
           <Table
