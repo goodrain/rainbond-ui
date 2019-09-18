@@ -406,12 +406,12 @@ export default class Index extends PureComponent {
                   <span className={styles.label}>对外服务</span>
                   <Switch
                     checked={appPortUtil.isOpenOuter(port)}
-                    onChange={() => {
+                    onChange={(value) => {
                       num > 0
                         ? message.warning(
                             "静态注册类型第三方服务,域名服务实例暂不支持开启对外端口"
                           )
-                        : this.handleOuterChange;
+                        : this.handleOuterChange(value)
                     }}
                     size="small"
                   />
@@ -477,7 +477,6 @@ export default class Index extends PureComponent {
                 )}
               </div>
             </td>
-            {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
             {showDomain && (
               <td>
                 {appPortUtil.canBindDomain(port) ? (
