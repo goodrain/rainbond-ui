@@ -369,12 +369,12 @@ class BasicLayout extends React.PureComponent {
           return (
             <div style={{ textAlign: "center", padding: "50px 0" }}>
               <Icon
-                style={{ fontSize: 50, marginBottom: 32, color: "red" }}
+                style={{ fontSize: 40, marginBottom: 32, color: "red" }}
                 type="warning"
               />
               <h1
                 style={{
-                  fontSize: 50,
+                  fontSize: 40,
                   color: "rgba(0, 0, 0, 0.65)",
                   marginBottom: 20
                 }}
