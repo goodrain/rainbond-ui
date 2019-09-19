@@ -139,7 +139,7 @@ export default function request(url, options) {
         }
 
         if(resData.code === 10406){
-          dispatch && dispatch({ 
+          dispatch && dispatch({
             type: "global/showMemoryTip",
             payload: {
               message: resData.msg_show
@@ -166,6 +166,8 @@ export default function request(url, options) {
         if (resData.code === 10405) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
+          cookie.remove("newbie_guide");
+          cookie.remove("platform_url");
           location.reload();
           return;
         }
@@ -192,6 +194,8 @@ export default function request(url, options) {
           if (msg.indexOf("身份认证信息未提供") > -1) {
             cookie.remove("token");
             cookie.remove("token", { domain: "" });
+            cookie.remove("newbie_guide");
+            cookie.remove("platform_url");
             location.reload();
             return;
           }

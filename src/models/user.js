@@ -149,6 +149,8 @@ export default {
       cookie.remove("token", { domain: "" });
       cookie.remove("guide");
       cookie.remove("guide", { domain: "" });
+      cookie.remove("newbie_guide");
+      cookie.remove("platform_url");
     },
     save(state, action) {
       return {

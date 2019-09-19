@@ -601,7 +601,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const { form, appDetail } = this.props;
+    const { form, appDetail, rainbondInfo } = this.props;
     const { getFieldDecorator } = form;
     const {
       handleType,
@@ -660,12 +660,17 @@ export default class Main extends PureComponent {
               暂无应用， 你可以
               <br />
               <br />
-              分享应用 或{" "}
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
-              >
-                从云端同步
-              </Link>
+              分享应用
+              {rainbondInfo && rainbondInfo.cloud_market && (
+                <span>
+                  或{" "}
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
             </p>
           )
         }}
@@ -695,12 +700,17 @@ export default class Main extends PureComponent {
               暂无应用， 你可以
               <br />
               <br />
-              分享应用 或{" "}
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
-              >
-                从云端同步
-              </Link>
+              分享应用
+              {rainbondInfo && rainbondInfo.cloud_market && (
+                <span>
+                  或{" "}
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
             </p>
           )
         }}

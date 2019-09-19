@@ -141,7 +141,8 @@ export default class Index extends PureComponent {
 
   componentWillMount() {
     this.getTeam();
-    configureGlobal.newbieGuideShow && this.getGuideState();
+    const { rainbondInfo } = this.props;
+    rainbondInfo && rainbondInfo.newbie_guide && this.getGuideState();
   }
 
   getTeam = () => {

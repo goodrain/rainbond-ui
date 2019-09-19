@@ -465,7 +465,7 @@ export default class AddServiceComponent extends PureComponent {
                 <Row style={{ marginBottom: "2px" }}>
                   <Alert
                     message={
-                      configureGlobal.documentShow && (
+                      rainbondInfo && rainbondInfo.document && (
                         <p className={styles.prompt}>
                           注:支持
                           {Object.keys(languageObj).map(key => {

@@ -23,10 +23,10 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import BasicListStyles from "../List/BasicList.less";
 import CloudPlugin from "./CloudPlugin";
-import MarketPluginDetailShow from "../../components/MarketPluginDetailShow"
+import MarketPluginDetailShow from "../../components/MarketPluginDetailShow";
 const { Search } = Input;
 
-@connect()
+@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
 export default class PluginList extends PureComponent {
   constructor(props) {
     super(props);
@@ -43,7 +43,7 @@ export default class PluginList extends PureComponent {
       showOfflinePlugin: null,
       showCloudPlugin: false,
       showMarketPluginDetail: false,
-      showPlugin: {},
+      showPlugin: {}
     };
   }
   getParams = () => {
@@ -163,23 +163,27 @@ export default class PluginList extends PureComponent {
     this.setState({ showOfflinePlugin: null });
   };
   hideMarketPluginDetail = () => {
-    this.setState({ showMarketPluginDetail: false, showPlugin: {} })
-  }
-  showMarketPluginDetail = (plugin) => {
-    this.setState({ showMarketPluginDetail: true, showPlugin: plugin })
-  }
+    this.setState({ showMarketPluginDetail: false, showPlugin: {} });
+  };
+  showMarketPluginDetail = plugin => {
+    this.setState({ showMarketPluginDetail: true, showPlugin: plugin });
+  };
   render() {
+    const { rainbondInfo } = this.props;
+
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-        <Button
-          type="primary"
-          onClick={() => {
-            this.setState({ showCloudPlugin: true });
-          }}
-          value=""
-        >
-          云端同步
-        </Button>
+        {rainbondInfo && rainbondInfo.cloud_market && (
+          <Button
+            type="primary"
+            onClick={() => {
+              this.setState({ showCloudPlugin: true });
+            }}
+            value=""
+          >
+            云端同步
+          </Button>
+        )}
       </div>
     );
 
@@ -191,7 +195,6 @@ export default class PluginList extends PureComponent {
         this.handlePageChange(pageSize);
       }
     };
-
     return (
       <div
         className={BasicListStyles.standardList}
@@ -231,17 +234,23 @@ export default class PluginList extends PureComponent {
             locale={{
               emptyText: (
                 <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-                  暂无插件， 你可以<br />
+                  暂无插件， 你可以
                   <br />
-                  分享插件到内部市场 或{" "}
-                  <a
-                    onClick={() => {
-                      this.setState({ showCloudPlugin: true });
-                    }}
-                    href="javascript:;"
-                  >
-                    从云端同步
-                  </a>
+                  <br />
+                  分享插件到内部市场
+                  {rainbondInfo && rainbondInfo.cloud_market && (
+                    <span>
+                      或{" "}
+                      <a
+                        onClick={() => {
+                          this.setState({ showCloudPlugin: true });
+                        }}
+                        href="javascript:;"
+                      >
+                        从云端同步
+                      </a>
+                    </span>
+                  )}
                 </p>
               )
             }}
@@ -254,29 +263,29 @@ export default class PluginList extends PureComponent {
                   this.state.showCloudPlugin
                     ? null
                     : [
-                      item.is_complete ? (
-                        <Fragment>
-                          {item.source === "market" && (
+                        item.is_complete ? (
+                          <Fragment>
+                            {item.source === "market" && (
+                              <a
+                                style={{ marginRight: 8 }}
+                                href="javascript:;"
+                                onClick={() => {
+                                  this.handleLoadPluginDetail(item);
+                                }}
+                              >
+                                云端更新
+                              </a>
+                            )}
                             <a
-                              style={{ marginRight: 8 }}
                               href="javascript:;"
                               onClick={() => {
-                                this.handleLoadPluginDetail(item);
+                                this.showOfflinePlugin(item);
                               }}
                             >
-                              云端更新
-                              </a>
-                          )}
-                          <a
-                            href="javascript:;"
-                            onClick={() => {
-                              this.showOfflinePlugin(item);
-                            }}
-                          >
-                            删除
+                              删除
                             </a>
-                        </Fragment>
-                      ) : (
+                          </Fragment>
+                        ) : (
                           <a
                             href="javascript:;"
                             onClick={() => {
@@ -286,7 +295,7 @@ export default class PluginList extends PureComponent {
                             下载应用
                           </a>
                         )
-                    ]
+                      ]
                 }
               >
                 <List.Item.Meta
@@ -299,13 +308,21 @@ export default class PluginList extends PureComponent {
                       shape="square"
                       size="large"
                       onClick={() => {
-                        this.showMarketPluginDetail(item)
+                        this.showMarketPluginDetail(item);
                       }}
                     />
                   }
-                  title={<a style={{ color: "#1890ff" }} href="javascript:;" onClick={() => {
-                    this.showMarketPluginDetail(item)
-                  }}>{item.plugin_name}</a>}
+                  title={
+                    <a
+                      style={{ color: "#1890ff" }}
+                      href="javascript:;"
+                      onClick={() => {
+                        this.showMarketPluginDetail(item);
+                      }}
+                    >
+                      {item.plugin_name}
+                    </a>
+                  }
                   description={item.desc || "-"}
                 />
               </List.Item>

@@ -67,6 +67,8 @@ export default class Index extends PureComponent {
       callback: () => {
         cookie.remove("team");
         cookie.remove("region_name");
+        cookie.remove("newbie_guide");
+        cookie.remove("platform_url");
         this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`));
         location.reload();
       },

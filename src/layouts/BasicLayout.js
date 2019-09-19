@@ -151,6 +151,8 @@ class BasicLayout extends React.PureComponent {
         if (res && (res.status === 403 || res.status === 404)) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
+          cookie.remove("newbie_guide");
+          cookie.remove("platform_url");
           location.reload();
         }
       }

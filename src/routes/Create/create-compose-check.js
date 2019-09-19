@@ -88,7 +88,10 @@ class ModifyCompose extends PureComponent {
   }
 }
 
-@connect(({ user, appControl }) => ({ currUser: user.currentUser }))
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser,
+  rainbondInfo: global.rainbondInfo
+}))
 export default class CreateCheck extends PureComponent {
   constructor(props) {
     super(props);
@@ -376,6 +379,7 @@ export default class CreateCheck extends PureComponent {
     }
   };
   renderSuccess = () => {
+    const { rainbondInfo } = this.props;
     const serviceInfo = this.state.serviceInfo || [];
     const extra = (
       <div>
@@ -425,9 +429,10 @@ export default class CreateCheck extends PureComponent {
             <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
-              href={`${
-                configureGlobal.rainbondDocumentAddress
-              }docs/user-manual/app-creation/language-support/`}
+              href={`${rainbondInfo &&
+                rainbondInfo.document &&
+                rainbondInfo.document
+                  .platform_url}docs/user-manual/app-creation/language-support/`}
               target="_blank"
             >
               rainbond文档
