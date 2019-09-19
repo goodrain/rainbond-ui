@@ -8,6 +8,7 @@ import styles from "./UserLayout.less";
 import logo from "../../public/logo.png";
 import { getRoutes } from "../utils/utils";
 import configureGlobal from "../utils/configureGlobal";
+import cookie from "../utils/cookie";
 
 const links = [
   {
@@ -57,36 +58,39 @@ class UserLayout extends React.PureComponent {
   }
   render() {
     const { routerData, match, rainbondInfo } = this.props;
+    const nouse = cookie.get("nouse");
 
     return (
       <DocumentTitle title={this.getPageTitle()}>
         <div className={styles.container}>
           <div className={styles.content}>
-            <div className={styles.top}>
-              <div className={styles.header}>
-                <Link to="/">
-                  {/* <img
+            {!nouse && (
+              <div className={styles.top}>
+                <div className={styles.header}>
+                  <Link to="/">
+                    {/* <img
                     style={{
                     verticalAlign: 'middle'
                   }}
                     alt="logo"
                     className={styles.logo}
                     src={rainbondInfo.logo || logo}/> */}
-                  <h1
-                    style={{
-                      display: "inline-block",
-                      verticalAlign: "middle",
-                      marginBottom: 0
-                    }}
-                  >
-                    {rainbondInfo.title}
-                  </h1>
-                </Link>
+                    <h1
+                      style={{
+                        display: "inline-block",
+                        verticalAlign: "middle",
+                        marginBottom: 0
+                      }}
+                    >
+                      {rainbondInfo.title}
+                    </h1>
+                  </Link>
+                </div>
+                <div className={styles.desc}>
+                  无服务器PaaS、以应用为中心、软件定义一切
+                </div>
               </div>
-              <div className={styles.desc}>
-                无服务器PaaS、以应用为中心、软件定义一切
-              </div>
-            </div>
+            )}
             <Switch>
               {getRoutes(match.path, routerData).map(item => (
                 <Route
