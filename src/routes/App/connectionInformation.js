@@ -91,7 +91,7 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: this.state.deleteVar.attr_name,
+        ID: this.state.deleteVar.ID
       },
       callback: (res) => {
         if (res && res._code == 200) {
@@ -108,12 +108,13 @@ export default class Index extends React.Component {
   };
 
   handleEditVar = (vals) => {
+    const { showEditVar } = this.state;
     this.props.dispatch({
       type: "appControl/editEvns",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: vals.attr_name,
+        ID: showEditVar.ID,
         attr_value: vals.attr_value,
         name: vals.name,
       },
@@ -157,7 +158,7 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: transfer.attr_name,
+        ID: transfer.ID,
         scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: (res) => {
