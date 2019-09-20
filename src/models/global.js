@@ -83,10 +83,18 @@ export default {
     enterprise: null,
     isRegist: false,
     memoryTip: "",
-    is_enterprise_version: false
+    is_enterprise_version: false,
+    nouse: false
   },
 
   effects: {
+    *setNouse({ payload }, { call, put }) {
+      yield put({
+        type: "saveIsisNouse",
+        payload: payload.isNouse
+      });
+    },
+
     *getAllTeams({ payload, callback }, { call, put }) {
       const data = yield call(getAllTeams, payload);
       if (data && callback) {
@@ -602,6 +610,12 @@ export default {
       return {
         ...state,
         isRegist: payload
+      };
+    },
+    saveIsisNouse(state, { payload }) {
+      return {
+        ...state,
+        nouse: payload.isNouse
       };
     },
     saveEnterpriseInfo(state, { payload }) {

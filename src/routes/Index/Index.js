@@ -332,6 +332,26 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         region_name
+      },
+      callback: res => {
+        if (res) {
+          dispatch({
+            type: "global/setNouse",
+            payload: {
+              isNouse: false
+            }
+          });
+        }
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code && res.data.code === 10400) {
+          dispatch({
+            type: "global/setNouse",
+            payload: {
+              isNouse: true
+            }
+          });
+        }
       }
     });
   };
