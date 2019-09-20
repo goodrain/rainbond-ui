@@ -4,7 +4,6 @@ import configureGlobal from "../utils/configureGlobal";
 import cookie from "../utils/cookie";
 
 let newbie_guide = cookie.get("newbie_guide");
-
 const menuData = function() {
   let menuArr = [
     {
@@ -76,7 +75,9 @@ const menuData = function() {
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`
     }
   ];
-  if (newbie_guide) {
+  if (newbie_guide == "false") {
+    return menuArr;
+  } else if (newbie_guide !== undefined) {
     menuArr.push({
       name: "任务引导",
       icon: "exclamation-circle",

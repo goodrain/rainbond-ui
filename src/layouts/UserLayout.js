@@ -44,7 +44,7 @@ class UserLayout extends React.PureComponent {
     }
   }
   getPageTitle() {
-    const { routerData, location, rainbondInfo, nouse } = this.props;
+    const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
     let title =
       (rainbondInfo &&
@@ -57,7 +57,7 @@ class UserLayout extends React.PureComponent {
     return title;
   }
   render() {
-    const { routerData, match, rainbondInfo } = this.props;
+    const { routerData, match, rainbondInfo, nouse } = this.props;
 
     return (
       <DocumentTitle title={this.getPageTitle()}>

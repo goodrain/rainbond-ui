@@ -315,7 +315,7 @@ export default {
       if (data) {
         cookie.set(
           "newbie_guide",
-          data.bean && data.bean.newbie_guide!==undefined ? data.bean.newbie_guide : true
+          data.bean && data.bean.newbie_guide!==undefined ? data.bean.newbie_guide : false
         );
         cookie.set(
           "platform_url",
