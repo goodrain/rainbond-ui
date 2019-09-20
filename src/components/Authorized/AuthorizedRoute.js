@@ -17,7 +17,11 @@ class AuthorizedRoute extends React.Component {
       ...rest
     } = this.props;
     if (redirectPath === "/user/login") {
-      if (rainbondInfo && rainbondInfo.is_public) {
+      if (
+        rainbondInfo &&
+        rainbondInfo.is_public !== undefined &&
+        rainbondInfo.is_public
+      ) {
         return <PublicLogin />;
       }
       return (
@@ -26,7 +30,7 @@ class AuthorizedRoute extends React.Component {
           render={() => (
             <Redirect
               to={{
-                pathname: redirectPath,
+                pathname: redirectPath
               }}
             />
           )}
@@ -39,7 +43,7 @@ class AuthorizedRoute extends React.Component {
         render={() => (
           <Redirect
             to={{
-              pathname: redirectPath,
+              pathname: redirectPath
             }}
           />
         )}
@@ -57,10 +61,21 @@ class AuthorizedRoute extends React.Component {
       ...rest
     } = this.props;
     return (
-      <Authorized authority={authority} logined={logined} noMatch={this.getNoMatch()}>
-        <Route {...rest} render={props => (Component ? <Component {...props} /> : render(props))} />
+      <Authorized
+        authority={authority}
+        logined={logined}
+        noMatch={this.getNoMatch()}
+      >
+        <Route
+          {...rest}
+          render={props =>
+            Component ? <Component {...props} /> : render(props)
+          }
+        />
       </Authorized>
     );
   }
 }
-export default connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))(AuthorizedRoute);
+export default connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))(
+  AuthorizedRoute
+);

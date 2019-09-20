@@ -183,7 +183,9 @@ export default class Index extends PureComponent {
     const { eid } = this.state;
     const { rainbondInfo } = this.props;
     const domain =
-      rainbondInfo && rainbondInfo.market_url
+      rainbondInfo &&
+      rainbondInfo.market_url !== undefined &&
+      rainbondInfo.market_url
         ? rainbondInfo.market_url
         : "https://market.goodrain.com";
     const callback = window.location.href;
@@ -194,7 +196,9 @@ export default class Index extends PureComponent {
         "&callback_url=" +
         callback +
         "&rbd_version=" +
-        rainbondInfo && rainbondInfo.version;
+        rainbondInfo &&
+      rainbondInfo.version !== undefined &&
+      rainbondInfo.version;
     window.location.href = url;
   };
 

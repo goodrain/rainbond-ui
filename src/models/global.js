@@ -73,13 +73,7 @@ export default {
     currTeam: "",
     currRegion: "",
     // 云帮平台信息
-    rainbondInfo: {
-      document: { platform_url: "https://www.rainbond.com/" },
-      newbie_guide: true,
-      export_app: true,
-      official_demo: true,
-      cloud_market: true
-    },
+    rainbondInfo: null,
     apploadingnum: 0,
     // 显示充值提示
     payTip: false,
@@ -313,11 +307,11 @@ export default {
       if (data) {
         cookie.set(
           "newbie_guide",
-          data.bean && data.bean.newbie_guide ? data.bean.newbie_guide : true
+          data.bean && data.bean.newbie_guide!==undefined ? data.bean.newbie_guide : true
         );
         cookie.set(
           "platform_url",
-          data.bean && data.bean.document && data.bean.document.platform_url
+          data.bean && data.bean.document!==undefined && data.bean.document.platform_url!==undefined
             ? data.bean.document.platform_url
             : "https://www.rainbond.com/"
         );
@@ -508,7 +502,6 @@ export default {
       };
     },
     showMemoryTip(state, action) {
-      console.log(action);
       return {
         ...state,
         memoryTip: action.payload.message

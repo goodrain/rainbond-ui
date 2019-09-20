@@ -60,7 +60,10 @@ export default class Main extends PureComponent {
       cloudTotal: 0,
       showCreate: null,
       scope: "",
-      scopeMax: this.props.scopeMax || "cloudApplication",
+      scopeMax:
+        this.props.scopeMax || ( this.props.rainbondInfo &&  this.props.rainbondInfo.cloud_market)
+          ? "cloudApplication"
+          : "localApplication",
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
@@ -780,16 +783,19 @@ export default class Main extends PureComponent {
       }
     ];
 
-    const tabListMax = [
-      {
-        key: "cloudApplication",
-        tab: "云端应用"
-      },
+    let tabListMax = [
       {
         key: "localApplication",
         tab: "本地应用"
       }
     ];
+
+    if (rainbondInfo && rainbondInfo.cloud_market) {
+      tabListMax.unshift({
+        key: "cloudApplication",
+        tab: "云端应用"
+      });
+    }
 
     const loading = this.props.loading;
     return (

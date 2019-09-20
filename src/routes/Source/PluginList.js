@@ -265,17 +265,19 @@ export default class PluginList extends PureComponent {
                     : [
                         item.is_complete ? (
                           <Fragment>
-                            {item.source === "market" && (
-                              <a
-                                style={{ marginRight: 8 }}
-                                href="javascript:;"
-                                onClick={() => {
-                                  this.handleLoadPluginDetail(item);
-                                }}
-                              >
-                                云端更新
-                              </a>
-                            )}
+                            {item.source === "market" &&
+                              rainbondInfo &&
+                              rainbondInfo.cloud_market && (
+                                <a
+                                  style={{ marginRight: 8 }}
+                                  href="javascript:;"
+                                  onClick={() => {
+                                    this.handleLoadPluginDetail(item);
+                                  }}
+                                >
+                                  云端更新
+                                </a>
+                              )}
                             <a
                               href="javascript:;"
                               onClick={() => {

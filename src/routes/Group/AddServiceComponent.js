@@ -462,10 +462,11 @@ export default class AddServiceComponent extends PureComponent {
                     </Col>
                   </Tooltip>
                 </Row>
+
                 <Row style={{ marginBottom: "2px" }}>
-                  <Alert
-                    message={
-                      rainbondInfo && rainbondInfo.document && (
+                  {rainbondInfo && rainbondInfo.document && (
+                    <Alert
+                      message={
                         <p className={styles.prompt}>
                           注:支持
                           {Object.keys(languageObj).map(key => {
@@ -477,12 +478,12 @@ export default class AddServiceComponent extends PureComponent {
                           })}
                           等语言规范
                         </p>
-                      )
-                    }
-                    type="info"
-                    style={{ height: "50px" }}
-                    showIcon
-                  />
+                      }
+                      type="info"
+                      style={{ height: "50px" }}
+                      showIcon
+                    />
+                  )}
                 </Row>
               </div>
 

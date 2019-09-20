@@ -687,17 +687,22 @@ export default class AppList extends PureComponent {
                           item.is_complete ? (
                             <Fragment>
                               <ExportBtn app={item} />
-                              {item.source === "market" && (
-                                <a
-                                  style={{ marginRight: 8 }}
-                                  href="javascript:;"
-                                  onClick={() => {
-                                    this.handleLoadAppDetail(item, "云端更新");
-                                  }}
-                                >
-                                  云端更新
-                                </a>
-                              )}
+                              {item.source === "market" &&
+                                rainbondInfo &&
+                                rainbondInfo.cloud_market && (
+                                  <a
+                                    style={{ marginRight: 8 }}
+                                    href="javascript:;"
+                                    onClick={() => {
+                                      this.handleLoadAppDetail(
+                                        item,
+                                        "云端更新"
+                                      );
+                                    }}
+                                  >
+                                    云端更新
+                                  </a>
+                                )}
                               {item.enterprise_id === "public"
                                 ? userUtil.isSystemAdmin(
                                     this.props.currentUser
