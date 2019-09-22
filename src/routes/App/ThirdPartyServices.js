@@ -89,7 +89,6 @@ export default class Index extends PureComponent {
   };
 
   handleGetList = () => {
-    console.log("this.props", this.props);
     this.props.dispatch({
       type: "appControl/getInstanceList",
       payload: {
@@ -343,11 +342,11 @@ export default class Index extends PureComponent {
             onOk={this.handleSubmit}
             onCancel={this.handleCancel}
           >
-            <FormItem {...formItemLayout} label="实例IP地址">
+            <FormItem {...formItemLayout} label="实例地址">
               {getFieldDecorator("ip", {
                 rules: [{ required: true }, { validator: this.validAttrName }],
                 initialValue: undefined
-              })(<Input placeholder="请输入实例IP地址" />)}
+              })(<Input placeholder="请输入实例地址" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="是否上线">
               {getFieldDecorator("is_online", {
@@ -376,9 +375,10 @@ export default class Index extends PureComponent {
                     style={{ marginRight: "5px" }}
                     onClick={() => {
                       num > 0
-                        ? message.warning(
-                            "静态注册类型第三方服务只允许添加一个域名实例地址"
-                          )
+                        ? notification.error({
+                            message: "第三方服务",
+                            description: "只允许添加一个域名实例地址"
+                          })
                         : this.addInstance();
                     }}
                   >

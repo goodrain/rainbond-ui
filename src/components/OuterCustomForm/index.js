@@ -121,7 +121,7 @@ export default class Index extends PureComponent {
       if (!err) {
         let num = 0;
 
-        fieldsValue.static.map(item => {
+        fieldsValue.static&&fieldsValue.static.length>0&&fieldsValue.static.map(item => {
           if (
             !rege.test(item || "") &&
             (regs.test(item || "") || rega.test(item || "")) &&
@@ -213,7 +213,7 @@ export default class Index extends PureComponent {
           this.state.endpointsType == "static" &&
           (!regs.test(item || "") &&
             !rega.test(item || "") &&
-            !rege.test(tem || ""))
+            !rege.test(item || ""))
         ) {
           callback("请输入正确的地址");
           return;
