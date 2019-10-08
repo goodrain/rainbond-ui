@@ -44,6 +44,7 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || "modal";
+    const { is_enterprise_version } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
@@ -63,7 +64,7 @@ class OpenRegion extends PureComponent {
           onOk={this.handleSubmit}
           onCancel={this.handleCancel}
         >
-          {this.state.regions.length == 0 && !this.props.is_enterprise_version && (
+          {this.state.regions.length == 0 && !!is_enterprise_version && (
             <div style={{ width: "100%", textAlign: "center" }}>
               <a href="https://www.goodrain.com/info.html" target="_blank">
                 多云管理功能请咨询企业服务
