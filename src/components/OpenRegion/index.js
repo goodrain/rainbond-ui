@@ -7,7 +7,8 @@ import globalUtil from "../../utils/global";
 //开通数据中心
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  is_enterprise_version: global.is_enterprise_version
+  is_enterprise_version: global.is_enterprise_version,
+  rainbondInfo: global.rainbondInfo
 }))
 class OpenRegion extends PureComponent {
   constructor(props) {
@@ -44,7 +45,7 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || "modal";
-    const { is_enterprise_version } = this.props;
+    const { is_enterprise_version, rainbondInfo } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
@@ -64,13 +65,15 @@ class OpenRegion extends PureComponent {
           onOk={this.handleSubmit}
           onCancel={this.handleCancel}
         >
-          {this.state.regions.length == 0 && !!is_enterprise_version && (
-            <div style={{ width: "100%", textAlign: "center" }}>
-              <a href="https://www.goodrain.com/info.html" target="_blank">
-                多云管理功能请咨询企业服务
-              </a>
-            </div>
-          )}
+          {this.state.regions.length == 0 &&
+            rainbondInfo &&
+            !rainbondInfo.is_enterprise && (
+              <div style={{ width: "100%", textAlign: "center" }}>
+                <a href="https://www.goodrain.com/info.html" target="_blank">
+                  多云管理功能请咨询企业服务
+                </a>
+              </div>
+            )}
           <Table
             size="small"
             pagination={false}
