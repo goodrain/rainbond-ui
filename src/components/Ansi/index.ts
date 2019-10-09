@@ -34,6 +34,9 @@ function convertBundleIntoReact(
   if (bundle.fg) {
     style.color = "rgb("+bundle.fg+")";
   }
+  if(bundle.content && bundle.content.indexOf(" ")===0){
+    style.textIndent = "2em";
+  }
   return React.createElement("span", { style:style, key:key }, bundle.content);
 }
 
