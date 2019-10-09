@@ -91,6 +91,7 @@ export default {
         // changes to admin or user The refresh will automatically redirect to the home
         // page yield put(routerRedux.push('/'));
         cookie.set("token", response.bean.token);
+
         const urlParams = new URL(window.location.href);
         const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url

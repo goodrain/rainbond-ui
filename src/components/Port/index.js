@@ -285,6 +285,11 @@ export default class Index extends PureComponent {
       });
     }
 
+    const { region } = this.props.currUser.teams[0];
+    const currentRegion = region.filter(item => {
+      return item.team_region_name == globalUtil.getCurrRegionName();
+    });
+
     return (
       <table
         className={styles.table}
@@ -478,6 +483,7 @@ export default class Index extends PureComponent {
                 )}
               </div>
             </td>
+            {/* {console.log(showDomain, appPortUtil.canBindDomain(port))} */}
             {showDomain && (
               <td>
                 {appPortUtil.canBindDomain(port) ? (
@@ -535,6 +541,18 @@ export default class Index extends PureComponent {
                 {outerUrl ? (
                   <div>
                     {tcp_domains.map(domain => {
+                      let str = domain.end_point;
+                      if (
+                        str.indexOf("0.0.0.0") > -1 &&
+                        currentRegion &&
+                        currentRegion.length > 0
+                      ) {
+                        str = str.replace(
+                          /0.0.0.0/g,
+                          currentRegion[0].tcpdomain
+                        );
+                      }
+
                       return (
                         <div>
                           {
@@ -542,10 +560,7 @@ export default class Index extends PureComponent {
                               {domain.protocol == "http" ||
                               domain.protocol == "https" ? (
                                 <a
-                                  href={
-                                    "http://" +
-                                    domain.end_point.replace(/\s+/g, "")
-                                  }
+                                  href={"http://" + str.replace(/\s+/g, "")}
                                   target="blank"
                                 >
                                   {domain.end_point}
@@ -634,11 +649,28 @@ export default class Index extends PureComponent {
                 </li>
               )}
               <li>
+                推荐访问地址&nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: "10px" }}>
-                  {agreement.end_point}
+                  {agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                  currentRegion &&
+                  currentRegion.length > 0
+                    ? agreement.end_point.replace(
+                        /0.0.0.0/g,
+                        currentRegion[0].tcpdomain
+                      )
+                    : agreement.end_point.replace(/\s+/g, "")}
                 </a>
                 <CopyToClipboard
-                  text={agreement.end_point.replace(/\s+/g, "")}
+                  text={
+                    agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                    currentRegion &&
+                    currentRegion.length > 0
+                      ? agreement.end_point.replace(
+                          /0.0.0.0/g,
+                          currentRegion[0].tcpdomain
+                        )
+                      : agreement.end_point.replace(/\s+/g, "")
+                  }
                   onCopy={() => {
                     notification.success({ message: "复制成功" });
                   }}

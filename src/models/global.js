@@ -81,227 +81,235 @@ export default {
     // enterprise info
     enterprise: null,
     isRegist: false,
-    memoryTip: '',
+    memoryTip: "",
     is_enterprise_version: false,
+    nouse: false
   },
 
   effects: {
-    * getAllTeams({ payload, callback }, { call, put }) {
+    *setNouse({ payload }, { call, put }) {
+      yield put({
+        type: "saveIsisNouse",
+        payload: payload.isNouse
+      });
+    },
+
+    *getAllTeams({ payload, callback }, { call, put }) {
       const data = yield call(getAllTeams, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * joinTeam({ payload, callback }, { call, put }) {
+    *joinTeam({ payload, callback }, { call, put }) {
       const data = yield call(joinTeam, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getJoinTeams({ payload, callback }, { call, put }) {
+    *getJoinTeams({ payload, callback }, { call, put }) {
       const data = yield call(getJoinTeam, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * deleteJoinTeams({ payload, callback }, { call, put }) {
+    *deleteJoinTeams({ payload, callback }, { call, put }) {
       const data = yield call(deleteJoinTeam, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getAllRegionFee({ payload, callback }, { call, put }) {
+    *getAllRegionFee({ payload, callback }, { call, put }) {
       const data = yield call(getAllRegionFee, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getPayHistory({ payload, callback }, { call, put }) {
+    *getPayHistory({ payload, callback }, { call, put }) {
       const data = yield call(getPayHistory, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * deleteMarketPlugin({ payload, callback }, { call, put }) {
+    *deleteMarketPlugin({ payload, callback }, { call, put }) {
       const data = yield call(deleteMarketPlugin, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * InitTeam({ payload, callback }, { call, put }) {
+    *InitTeam({ payload, callback }, { call, put }) {
       const data = yield call(InitTeam, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * syncCloudPlugin({ payload, callback }, { call, put }) {
+    *syncCloudPlugin({ payload, callback }, { call, put }) {
       const data = yield call(syncCloudPlugin, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getVersion({ payload, callback }, { call, put }) {
+    *getVersion({ payload, callback }, { call, put }) {
       const data = yield call(getVersion, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getCloudPlugin({ payload, callback }, { call, put }) {
+    *getCloudPlugin({ payload, callback }, { call, put }) {
       const data = yield call(getCloudPlugin, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * complatePluginShare({ payload, callback }, { call, put }) {
+    *complatePluginShare({ payload, callback }, { call, put }) {
       const data = yield call(complatePluginShare, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getMarketPlugins({ payload, callback }, { call, put }) {
+    *getMarketPlugins({ payload, callback }, { call, put }) {
       const data = yield call(getMarketPlugins, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * syncMarketPlugins({ payload, callback }, { call, put }) {
+    *syncMarketPlugins({ payload, callback }, { call, put }) {
       const data = yield call(syncMarketPlugins, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * syncMarketPluginTmp({ payload, callback }, { call, put }) {
+    *syncMarketPluginTmp({ payload, callback }, { call, put }) {
       const data = yield call(syncMarketPluginTmp, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getAllRegion({ payload, callback }, { call, put }) {
+    *getAllRegion({ payload, callback }, { call, put }) {
       const data = yield call(getAllRegion, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * offlineMarketApp({ payload, callback }, { call, put }) {
+    *offlineMarketApp({ payload, callback }, { call, put }) {
       const data = yield call(offlineMarketApp, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getRegionSource({ payload, callback }, { call, put }) {
+    *getRegionSource({ payload, callback }, { call, put }) {
       const data = yield call(getRegionSource, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getTeamList({ payload, callback }, { call, put }) {
+    *getTeamList({ payload, callback }, { call, put }) {
       const data = yield call(getTeamList, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getGuideState({ payload, callback }, { call, put }) {
+    *getGuideState({ payload, callback }, { call, put }) {
       const data = yield call(getGuideState, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getDomainName({ payload, callback }, { call, put }) {
+    *getDomainName({ payload, callback }, { call, put }) {
       const data = yield call(getDomainName, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getDomainTime({ payload, callback }, { call, put }) {
+    *getDomainTime({ payload, callback }, { call, put }) {
       const data = yield call(getDomainTime, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    
-    * getService({ payload, callback }, { call, put }) {
+
+    *getService({ payload, callback }, { call, put }) {
       const data = yield call(getService, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getRegionOneDayMoney({ payload, callback }, { call, put }) {
+    *getRegionOneDayMoney({ payload, callback }, { call, put }) {
       const data = yield call(getRegionOneDayMoney, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getuserMessage({ payload, callback }, { call, put }) {
+    *getuserMessage({ payload, callback }, { call, put }) {
       const data = yield call(getuserMessage, payload);
       if (data && callback) {
         callback(data);
       }
     },
     // 消息标记为已读未读
-    * putMsgAction({ payload, callback }, { call, put }) {
+    *putMsgAction({ payload, callback }, { call, put }) {
       const data = yield call(putMsgAction, payload);
       if (data && callback) {
         callback(data);
       }
     },
     // 删除站内信
-    * deleteMsg({ payload, callback }, { call, put }) {
+    *deleteMsg({ payload, callback }, { call, put }) {
       const data = yield call(deleteMsg, payload);
       if (data && callback) {
         callback(data);
       }
     },
     // 资源价格计算
-    * resPrice({ payload, callback }, { call, put }) {
+    *resPrice({ payload, callback }, { call, put }) {
       const data = yield call(resPrice, payload);
       if (data && callback) {
         callback(data);
       }
     },
     // 资源购买
-    * buyPurchase({ payload, callback }, { call, put }) {
+    *buyPurchase({ payload, callback }, { call, put }) {
       const data = yield call(buyPurchase, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getCompanyInfo({ payload, callback }, { call, put }) {
+    *getCompanyInfo({ payload, callback }, { call, put }) {
       const data = yield call(getCompanyInfo, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * authEnterprise({ payload, callback,handleError }, { call, put }) {
-      const data = yield call(authEnterprise, payload,handleError);
+    *authEnterprise({ payload, callback, handleError }, { call, put }) {
+      const data = yield call(authEnterprise, payload, handleError);
       if (data && callback) {
         callback(data);
       }
     },
-    * getEnterpriseID({ payload, callback }, { call, put }) {
+    *getEnterpriseID({ payload, callback }, { call, put }) {
       const data = yield call(getEnterpriseID, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * syncMarketAppDetail({ payload, callback }, { call, put }) {
+    *syncMarketAppDetail({ payload, callback }, { call, put }) {
       const data = yield call(syncMarketAppDetail, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * getMarketApp({ payload, callback }, { call, put }) {
+    *getMarketApp({ payload, callback }, { call, put }) {
       const data = yield call(getMarketApp, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * syncMarketApp({ payload, callback }, { call, put }) {
+    *syncMarketApp({ payload, callback }, { call, put }) {
       const data = yield call(syncMarketApp, payload);
       if (data && callback) {
         callback(data);
       }
     },
-    * fetchRainbondInfo({ callback }, { call, put }) {
+    *fetchRainbondInfo({ callback }, { call, put }) {
       const data = yield call(getRainbondInfo);
       if (data) {
         yield put({ type: "saveRainBondInfo", payload: data.bean });
@@ -310,24 +318,24 @@ export default {
         });
       }
     },
-    * fetchIsPublic(_, { call, put }) {
+    *fetchIsPublic(_, { call, put }) {
       const data = yield call(isPubCloud);
       yield put({
         type: "saveIsPubCloud",
-        payload: !!data.bean.is_public,
+        payload: !!data.bean.is_public
       });
     },
-    * fetchNotices(_, { call, put }) {
+    *fetchNotices(_, { call, put }) {
       const data = yield call(queryNotices);
       yield put({ type: "saveNotices", payload: data });
       yield put({ type: "user/changeNotifyCount", payload: data.length });
     },
-    * clearNotices({ payload }, { put, select }) {
+    *clearNotices({ payload }, { put, select }) {
       yield put({ type: "saveClearedNotices", payload });
       const count = yield select(state => state.global.notices.length);
       yield put({ type: "user/changeNotifyCount", payload: count });
     },
-    * fetchGroups({ payload, callback }, { put, call }) {
+    *fetchGroups({ payload, callback }, { put, call }) {
       const response = yield call(getTeamRegionGroups, payload);
       if (response) {
         setTimeout(() => {
@@ -335,11 +343,11 @@ export default {
         });
         yield put({
           type: "saveGroups",
-          payload: response.list || [],
+          payload: response.list || []
         });
       }
     },
-    * application({ payload, callback }, { put, call }) {
+    *application({ payload, callback }, { put, call }) {
       const response = yield call(getApplication, payload);
       if (response) {
         setTimeout(() => {
@@ -347,7 +355,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdateOrder({ payload, callback }, { put, call }) {
+    *CloudAppUpdateOrder({ payload, callback }, { put, call }) {
       const response = yield call(postUpdateOrder, payload);
       if (response) {
         setTimeout(() => {
@@ -355,7 +363,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdatedVersion({ payload, callback }, { put, call }) {
+    *CloudAppUpdatedVersion({ payload, callback }, { put, call }) {
       const response = yield call(getUpdatedVersion, payload);
       if (response) {
         setTimeout(() => {
@@ -363,7 +371,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdatedInfo({ payload, callback }, { put, call }) {
+    *CloudAppUpdatedInfo({ payload, callback }, { put, call }) {
       const response = yield call(getUpdatedInfo, payload);
       if (response) {
         setTimeout(() => {
@@ -371,7 +379,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdatedTasks({ payload, callback }, { put, call }) {
+    *CloudAppUpdatedTasks({ payload, callback }, { put, call }) {
       const response = yield call(postUpdatedTasks, payload);
       if (response) {
         setTimeout(() => {
@@ -379,7 +387,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdateRecordsList({ payload, callback }, { put, call }) {
+    *CloudAppUpdateRecordsList({ payload, callback }, { put, call }) {
       const response = yield call(getUpdateRecordsList, payload);
       if (response) {
         setTimeout(() => {
@@ -387,7 +395,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdateRecordsInfo({ payload, callback }, { put, call }) {
+    *CloudAppUpdateRecordsInfo({ payload, callback }, { put, call }) {
       const response = yield call(getUpdateRecordsInfo, payload);
       if (response) {
         setTimeout(() => {
@@ -395,7 +403,7 @@ export default {
         });
       }
     },
-    * CloudAppUpdateRollback({ payload, callback }, { put, call }) {
+    *CloudAppUpdateRollback({ payload, callback }, { put, call }) {
       const response = yield call(getUpdateRollback, payload);
       if (response) {
         setTimeout(() => {
@@ -403,81 +411,81 @@ export default {
         });
       }
     },
-    * bindGithub({ payload, callback }, { put, call }) {
+    *bindGithub({ payload, callback }, { put, call }) {
       const response = yield call(bindGithub, payload);
       if (response) {
         callback && callback();
       }
     },
-    * putIsRegist({ payload, callback }, { put, call }) {
+    *putIsRegist({ payload, callback }, { put, call }) {
       const response = yield call(setRegist, payload);
       if (response) {
         callback && callback();
         yield put({
           type: "saveIsRegist",
-          payload: payload.isRegist,
+          payload: payload.isRegist
         });
       }
     },
-    * getIsRegist({ payload, callback }, { put, call }) {
+    *getIsRegist({ payload, callback }, { put, call }) {
       const response = yield call(getRegist, payload);
       if (response) {
         callback && callback();
         yield put({
           type: "saveIsRegist",
-          payload: response.bean.is_regist,
+          payload: response.bean.is_regist
         });
       }
     },
-    * getEnterpriseInfo({ payload, callback }, { put, call }) {
+    *getEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(getEnterpriseInfo, payload);
       if (response) {
         callback && callback();
         yield put({
           type: "saveEnterpriseInfo",
-          payload: response.bean,
+          payload: response.bean
         });
       }
     },
-    * getEnterpriseTeams({ payload, callback }, { put, call }) {
+    *getEnterpriseTeams({ payload, callback }, { put, call }) {
       const response = yield call(getEnterpriseTeams, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * requestAuthority({ callback, payload}, { call }) {
-      const response = yield call(queryAuthority,payload);
-      if ( callback) {
+    *requestAuthority({ callback, payload }, { call }) {
+      const response = yield call(queryAuthority, payload);
+      if (callback) {
         callback(response);
       }
     },
-    *creatUser({payload,callback},{call}){
-      const response = yield call(toCreatUser,payload);
-      if ( callback) {
+    *creatUser({ payload, callback }, { call }) {
+      const response = yield call(toCreatUser, payload);
+      if (callback) {
         callback(response);
       }
     },
-    *buildShape({payload,callback},{call}){
-      const response = yield call(toBuildShape,payload);
-      if ( callback) {
+    *buildShape({ payload, callback }, { call }) {
+      const response = yield call(toBuildShape, payload);
+      if (callback) {
         callback(response);
       }
     },
-    *fetAllTopology({payload,callback},{call}){
-      const response = yield call(toQueryTopology,payload);
-      if ( callback) {
+    *fetAllTopology({ payload, callback }, { call }) {
+      const response = yield call(toQueryTopology, payload);
+      if (callback) {
         callback(response);
       }
     },
-    *queryLinks({payload,callback},{call}){
-      const response = yield call(toQueryLinks,payload);
-      if ( callback) {
+    *queryLinks({ payload, callback }, { call }) {
+      const response = yield call(toQueryLinks, payload);
+      if (callback) {
         callback(response);
       }
     },
-    *searchTenant({payload,callback},{call}){
-      const response = yield call(toSearchTenant,payload);
-      if ( callback) {
+    *searchTenant({ payload, callback }, { call }) {
+      const response = yield call(toSearchTenant, payload);
+      if (callback) {
         callback(response);
       }
     }
@@ -487,119 +495,125 @@ export default {
     showPayTip(state) {
       return {
         ...state,
-        payTip: true,
+        payTip: true
       };
     },
-    showMemoryTip(state,action){
-      console.log(action)
+    showMemoryTip(state, action) {
+      console.log(action);
       return {
         ...state,
-        memoryTip: action.payload.message,
+        memoryTip: action.payload.message
       };
     },
-    hideMemoryTip(state,action){
+    hideMemoryTip(state, action) {
       return {
         ...state,
-        memoryTip: '',
+        memoryTip: ""
       };
     },
     showNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: true,
+        noMoneyTip: true
       };
     },
     hideNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: false,
+        noMoneyTip: false
       };
     },
     hidePayTip(state) {
       return {
         ...state,
-        payTip: false,
+        payTip: false
       };
     },
     saveRainBondInfo(state, { payload }) {
       return {
         ...state,
         rainbondInfo: payload,
-        isRegist: payload.is_regist,
+        isRegist: payload.is_regist
       };
     },
     saveIsPubCloud(state, { payload }) {
       return {
         ...state,
-        isPubCloud: payload,
+        isPubCloud: payload
       };
     },
     changeLayoutCollapsed(state, { payload }) {
       return {
         ...state,
-        collapsed: payload,
+        collapsed: payload
       };
     },
     saveNotices(state, { payload }) {
       return {
         ...state,
-        notices: payload,
+        notices: payload
       };
     },
     saveClearedNotices(state, { payload }) {
       return {
         ...state,
-        notices: state.notices.filter(item => item.type !== payload),
+        notices: state.notices.filter(item => item.type !== payload)
       };
     },
     saveGroups(state, { payload }) {
       return {
         ...state,
-        groups: payload,
+        groups: payload
       };
     },
     saveCurrTeamAndRegion(state, { payload }) {
       return {
         ...state,
-        ...payload,
+        ...payload
       };
     },
-    showLoading(state, { }) {
+    showLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum + 1,
+        apploadingnum: state.apploadingnum + 1
       };
     },
-    hiddenLoading(state, { }) {
+    hiddenLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum - 1,
+        apploadingnum: state.apploadingnum - 1
       };
     },
-    showAuthCompany(state, { }) {
+    showAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: true,
+        showAuthCompany: true
       };
     },
-    hideAuthCompany(state, { }) {
+    hideAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: false,
+        showAuthCompany: false
       };
     },
     saveIsRegist(state, { payload }) {
       return {
         ...state,
-        isRegist: payload,
+        isRegist: payload
+      };
+    },
+    saveIsisNouse(state, { payload }) {
+      return {
+        ...state,
+        nouse: payload.isNouse
       };
     },
     saveEnterpriseInfo(state, { payload }) {
       return {
         ...state,
-        enterprise: payload,
+        enterprise: payload
       };
-    },
+    }
   },
 
   subscriptions: {
@@ -610,6 +624,6 @@ export default {
           window.ga("send", "pageview", pathname + search);
         }
       });
-    },
-  },
+    }
+  }
 };

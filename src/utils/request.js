@@ -20,7 +20,7 @@ const codeMessage = {
   500: "服务器发生错误，请检查服务器",
   502: "网关错误",
   503: "服务不可用，服务器暂时过载或维护",
-  504: "网关超时",
+  504: "网关超时"
 };
 
 function checkStatus(response) {
@@ -28,7 +28,10 @@ function checkStatus(response) {
     return response;
   }
   const errortext = codeMessage[response.status] || response.statusText;
-  notification.error({ message: `请求错误 : ${response.url}`, description: errortext });
+  notification.error({
+    message: `请求错误 : ${response.url}`,
+    description: errortext
+  });
 
   const error = new Error(errortext);
   error.name = response.status;
@@ -46,18 +49,18 @@ function checkStatus(response) {
  */
 export default function request(url, options) {
   const defaultOptions = {
-    credentials: "include",
+    credentials: "include"
   };
   const newOptions = {
     ...defaultOptions,
-    ...options,
+    ...options
   };
   if (newOptions.method === "POST" || newOptions.method === "PUT") {
     newOptions.headers = {
       Accept: "application/json",
       "Content-Type": "application/json; charset=utf-8",
 
-      ...newOptions.headers,
+      ...newOptions.headers
     };
     newOptions.body = JSON.stringify(newOptions.body);
   }
@@ -69,7 +72,7 @@ export default function request(url, options) {
   const headers = newOptions.headers || {};
 
   newOptions.headers = {
-    ...headers,
+    ...headers
 
     // "Authorization": 'GRJWT '+ (cookie.get('token') ||
     // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxpY2hhbyIsImV4cCI6MTU
@@ -99,8 +102,10 @@ export default function request(url, options) {
     newOptions.params._ = Date.now();
   }
 
-  newOptions.showMessage = newOptions.showMessage === void 0 ? true : newOptions.showMessage;
-  const showLoading = newOptions.showLoading === void 0 ? true : newOptions.showLoading;
+  newOptions.showMessage =
+    newOptions.showMessage === void 0 ? true : newOptions.showMessage;
+  const showLoading =
+    newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
   let dispatch;
   if (store) {
@@ -110,15 +115,15 @@ export default function request(url, options) {
 
   return axios(newOptions)
     .then(checkStatus)
-    .then((response) => {
+    .then(response => {
       showLoading && dispatch && dispatch({ type: "global/hiddenLoading" });
       const res = response.data.data || {};
       res._code = response.status;
-      res._condition = response.data.code
-      res.msg_show = response.data.msg_show
+      res._condition = response.data.code;
+      res.msg_show = response.data.msg_show;
       return res;
     })
-    .catch((error) => {
+    .catch(error => {
       if (showLoading) {
         dispatch && dispatch({ type: "global/hiddenLoading" });
       }
@@ -138,13 +143,14 @@ export default function request(url, options) {
           return;
         }
 
-        if(resData.code === 10406){
-          dispatch && dispatch({ 
-            type: "global/showMemoryTip",
-            payload: {
-              message: resData.msg_show
-            }
-           });
+        if (resData.code === 10406) {
+          dispatch &&
+            dispatch({
+              type: "global/showMemoryTip",
+              payload: {
+                message: resData.msg_show
+              }
+            });
           return;
         }
         if (resData.code === 10408) {
@@ -152,8 +158,8 @@ export default function request(url, options) {
             dispatch({
               type: "global/showNoMoneyTip",
               payload: {
-                message: resData.msg_show,
-              },
+                message: resData.msg_show
+              }
             });
           return;
         }
@@ -169,16 +175,30 @@ export default function request(url, options) {
           location.reload();
           return;
         }
+        if (resData.code === 10400) {
+          dispatch &&
+            dispatch({
+              type: "global/saveIsisNouse",
+              payload: {
+                isNouse: true
+              }
+            });
+          return;
+        }
 
         // 访问资源数据中心与当前数据中心不一致
         if (resData.code === 10404) {
-          location.href = globalUtil.replaceUrlRegion(resData.data.bean.service_region);
+          location.href = globalUtil.replaceUrlRegion(
+            resData.data.bean.service_region
+          );
           return;
         }
 
         // 访问资源所属团队与当前团队不一致
         if (resData.code === 10403) {
-          location.href = globalUtil.replaceUrlTeam(resData.data.bean.service_team_name);
+          location.href = globalUtil.replaceUrlTeam(
+            resData.data.bean.service_team_name
+          );
           return;
         }
 
