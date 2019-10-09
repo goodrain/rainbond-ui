@@ -8,7 +8,6 @@ class Parameterinput extends Component {
         this.state = {
             values: this.props.editInfo && this.props.editInfo.length>0?this.props.editInfo : [{ key: '', value: '' }]
         }
-        console.log("editInfo",this.props.editInfo)
         // this.initFromProps();
     }
     add = () => {
