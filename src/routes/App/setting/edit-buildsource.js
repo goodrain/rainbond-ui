@@ -117,14 +117,14 @@ export default class ChangeBuildSource extends PureComponent {
       },
     };
     const gitUrl = getFieldValue("git_url");
-    let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
+    let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
     let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
     if (this.state.serverType == "svn") {
       isHttp = true;
       urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
-    
+
     const prefixSelector = getFieldDecorator("server_type", {
       initialValue: this.state.buildSource.server_type,
     })(<Select onChange={this.changeServerType} style={{ width: 100 }}>
@@ -185,7 +185,7 @@ export default class ChangeBuildSource extends PureComponent {
             })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
-            style={{ display: showImage ? "" : "none" }} 
+            style={{ display: showImage ? "" : "none" }}
             {...formItemLayout}
             label="密码"
           >

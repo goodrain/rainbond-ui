@@ -196,7 +196,7 @@ export default class Index extends PureComponent {
         const { groups } = this.props;
         const { showUsernameAndPass, showKey, endpointsType, staticList } = this.state;
         const gitUrl = getFieldValue("git_url");
-        let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
+        let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
         let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
         if (this.state.serverType == "svn") {
             isHttp = true;
