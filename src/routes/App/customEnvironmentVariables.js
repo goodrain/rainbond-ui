@@ -509,7 +509,7 @@ export default class Index extends React.Component {
           <Col span={12}>
             <Alert
               showIcon
-              message="服务环境配置变更后需要更新或重启服务生效"
+              message="组件环境配置变更后需要更新或重启组件生效"
               type="info"
               style={{
                 marginBottom: 24
@@ -619,7 +619,7 @@ export default class Index extends React.Component {
                             <p>
                               将此环境变量转换为
                               <br />
-                              服务连接信息变量
+                              组件连接信息变量
                             </p>
                           }
                         >
@@ -804,7 +804,7 @@ export default class Index extends React.Component {
                 //   }
                 // },
                 {
-                  title: "所属服务",
+                  title: "所属组件",
                   dataIndex: "dep_app_name",
                   key: "4",
                   width: "15%",
@@ -819,7 +819,7 @@ export default class Index extends React.Component {
                   )
                 },
                 {
-                  title: "服务所属应用",
+                  title: "组件所属应用",
                   dataIndex: "dep_app_group",
                   key: "5",
                   width: "15%",
@@ -914,7 +914,7 @@ export default class Index extends React.Component {
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
             title="转移环境变量"
-            desc="确定要将此环境变量转换为服务连接信息变量吗?"
+            desc="确定要将此环境变量转换为组件连接信息变量吗?"
             subDesc=""
           />
         )}

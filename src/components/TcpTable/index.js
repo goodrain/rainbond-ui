@@ -374,7 +374,7 @@ export default class TcpTable extends PureComponent {
                 )
             }
         }, {
-            title: '服务组件(端口)',
+            title: '组件(端口)',
             dataIndex: 'container_port',
             key: 'container_port',
             align: "center",

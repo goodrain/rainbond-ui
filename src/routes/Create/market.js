@@ -814,7 +814,7 @@ export default class Main extends PureComponent {
             )}
             {installBounced && (
               <Modal
-                title="确认要安装此应用作为你的服务组件么？"
+                title="确认要安装此应用作为你的组件么？"
                 visible={installBounced}
                 onOk={this.handleInstallBounced}
                 onCancel={() => {
@@ -840,7 +840,7 @@ export default class Main extends PureComponent {
                     >
                       安装
                     </Button>
-                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
+                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} > */}
                     <Radio
                       size="small"
                       onClick={this.renderSuccessOnChange}

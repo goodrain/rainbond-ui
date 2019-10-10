@@ -1986,7 +1986,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: "目标所属服务",
+                title: "目标所属组件",
                 dataIndex: "dep_app_name",
                 key: "5",
                 width: "10%",
@@ -2003,7 +2003,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: "目标服务所属应用",
+                title: "目标组件所属应用",
                 dataIndex: "dep_app_group",
                 key: "6",
                 width: "15%",
@@ -2158,7 +2158,7 @@ class Relation extends PureComponent {
   render() {
     const { linkList, relationList } = this.state;
     return (
-      <Card title={"服务依赖"}>
+      <Card title={"组件依赖"}>
         <Table
           pagination={false}
           columns={[

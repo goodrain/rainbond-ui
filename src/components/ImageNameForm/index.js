@@ -105,7 +105,7 @@ export default class Index extends PureComponent {
                   width:  (this.props.handleType && this.props.handleType === "Service") ?"":292,
                   marginRight: 15,
                 }}
-              disabled={(this.props.handleType && this.props.handleType === "Service") ?true:false} 
+              disabled={(this.props.handleType && this.props.handleType === "Service") ?true:false}
             >
               {(groups || []).map(group => (
                 <Option value={group.group_id}>{group.group_name}</Option>
@@ -113,18 +113,18 @@ export default class Index extends PureComponent {
                </Select>)}
             {(this.props.handleType && this.props.handleType === "Service") ?null:showCreateGroup ? <Button onClick={this.onAddGroup}>新建应用</Button> : null}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="服务组件名称">
+          <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator("service_cname", {
               initialValue: data.service_cname || "",
               rules: [
                 {
                   required: true,
-                  message: "要创建的服务组件还没有名字",
+                  message: "要创建的组件还没有名字",
                 },
               ],
             })(<Input
               disabled={disableds.indexOf("service_cname") > -1}
-              placeholder="请为创建的服务组件起个名字吧"
+              placeholder="请为创建的组件起个名字吧"
             />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="镜像地址">
@@ -186,12 +186,12 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-             
+
               {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建服务</Button>, false):
+                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建组件</Button>, false):
                 !this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建应用</Button>
                 }
-          
+
             </Form.Item>
           ) : null}
         </Form>

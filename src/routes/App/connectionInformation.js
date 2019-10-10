@@ -188,7 +188,7 @@ export default class Index extends React.Component {
           style={{
             marginBottom: 24,
           }}
-          title="服务连接信息"
+          title="组件连接信息"
         >
           <ScrollerX sm={600}>
             <Table

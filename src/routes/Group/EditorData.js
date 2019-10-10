@@ -384,7 +384,7 @@ class EditorData extends PureComponent {
       },
       callback: (res) => {
         if (res && res._code == 200) {
-          if (res.msg_show == "该服务已开启对外端口") {
+          if (res.msg_show == "该组件已开启对外端口") {
             this.handleUndo();
             return
           }
@@ -416,7 +416,7 @@ class EditorData extends PureComponent {
   onSaveEdgeData = (data) => {
     this.setState({
       edgeData: data,
-      edgeTitle: data.source.model.service_alias ? <div>是否取消<a>{data.source.model.label}</a>依赖<a>{data.target.model.label}</a></div> : <div>是否关闭<a>{data.target.model.label}</a>服务的所有对外端口</div>
+      edgeTitle: data.source.model.service_alias ? <div>是否取消<a>{data.source.model.label}</a>依赖<a>{data.target.model.label}</a></div> : <div>是否关闭<a>{data.target.model.label}</a>组件的所有对外端口</div>
     })
   }
   //打开弹框
@@ -455,7 +455,7 @@ class EditorData extends PureComponent {
     return (
       <div>
         {visible && <Modal
-          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>服务未开启对外端口</div> : <div>要关联的<a>{foreignTypeName}</a>服务暂未开启对内端口，是否打开?</div>}
+          title={foreignType === 1 ? <div><a>{foreignTypeName}</a>组件未开启对外端口</div> : <div>要关联的<a>{foreignTypeName}</a>组件暂未开启对内端口，是否打开?</div>}
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
