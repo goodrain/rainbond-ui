@@ -134,6 +134,15 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div style={{ textAlign: "right" }}>
+                      {isopenLog &&
+                        FinalStatus === "" &&
+                        OptType &&
+                        OptType.indexOf("build") > -1 &&
+                        EventID &&
+                        this.showLogModal(
+                          EventID,
+                          FinalStatus == "" ? true : false
+                        )}
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
                           <span
