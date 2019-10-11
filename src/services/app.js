@@ -632,7 +632,8 @@ export function getMnt(
     page,
     pageSize,
     type,
-    volume_type
+    volume_type,
+    query
   }
 ) {
   return request(
@@ -642,6 +643,7 @@ export function getMnt(
     {
       method: "get",
       params: {
+        query: body.query,
         page: body.page,
         page_size: body.page_size,
         type: body.type ? body.type : "mnt",
@@ -653,9 +655,9 @@ export function getMnt(
         const yourNewParams = params.volume_types
           .map(_ => `volume_types=${_}`)
           .join("&");
-        const str = `page=${params.page}&page_size=${params.page_size}&type=${
-          params.type
-        }&${yourNewParams}`;
+        const str = `query=${params.query}&page=${params.page}&page_size=${
+          params.page_size
+        }&type=${params.type}&${yourNewParams}`;
         return str;
       }
     }
@@ -2271,18 +2273,15 @@ export async function fetchOperationLog(
     page_size
   }
 ) {
-  return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/events`,
-    {
-      method: "get",
-      params: {
-        page: body.page ? body.page : 1,
-        page_size: body.page_size ? body.page_size : 10,
-        targetAlias: body.app_alias ? body.app_alias : "",
-        target: body.target ? body.target : "service"
-      }
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/events`, {
+    method: "get",
+    params: {
+      page: body.page ? body.page : 1,
+      page_size: body.page_size ? body.page_size : 10,
+      targetAlias: body.app_alias ? body.app_alias : "",
+      target: body.target ? body.target : "service"
     }
-  );
+  });
 }
 
 /*
