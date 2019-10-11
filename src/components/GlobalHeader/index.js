@@ -246,6 +246,7 @@ export default class GlobalHeader extends PureComponent {
   renderRegions = () => {
     const onRegionClick = this.props.onRegionClick;
     const team = this.getCurrTeam();
+    const { rainbondInfo } = this.props;
     if (team) {
       return (
         <Menu className={styles.menu} selectedKeys={[]} onClick={onRegionClick}>
@@ -255,12 +256,14 @@ export default class GlobalHeader extends PureComponent {
             </Menu.Item>
           ))}
           <Menu.Divider />
-          {teamUtil.canAddRegion(team) && (
-            <Menu.Item key="openRegion">
-              <Icon type="plus" />
-              开通数据中心
-            </Menu.Item>
-          )}
+          {teamUtil.canAddRegion(team) &&
+            rainbondInfo &&
+            rainbondInfo.data_center && (
+              <Menu.Item key="openRegion">
+                <Icon type="plus" />
+                开通数据中心
+              </Menu.Item>
+            )}
         </Menu>
       );
     }
