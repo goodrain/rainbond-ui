@@ -83,7 +83,7 @@ export default class Index extends PureComponent {
 							<CodeMirror options={options} placeholder="" />
 						)}
 					</Form.Item>
-					<span style={{ marginLeft: 100 }}>注意：Rainbond将解析DockerCompose配置中的服务相关属性用来便捷创建服务，其中的动态变量不支持解析赋值</span>
+					<span style={{ marginLeft: 100 }}>注意：Rainbond将解析DockerCompose配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值</span>
 
 					<div style={{ textAlign: "right",marginTop:20 }}>
 						这是一个私有仓库?{" "}

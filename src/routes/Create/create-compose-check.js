@@ -352,7 +352,7 @@ export default class CreateCheck extends PureComponent {
             </div>
             );
         const actions = [ <Button onClick={this.handleBuild} type="primary" > 构建应用 </Button>,
-            <Button type="default" onClick={this.handleSetting}>高级设置</Button >, 
+            <Button type="default" onClick={this.handleSetting}>高级设置</Button >,
             <Button onClick={this.showDelete} type="default" > 放弃创建 </Button>
                 ];
         return <Result
@@ -371,7 +371,7 @@ export default class CreateCheck extends PureComponent {
                     }
         renderChecking = () => {
             const actions = <Button onClick={this.showDelete} type="default">放弃创建</Button>;
-        
+
                     const extra = (
                 <div>
                         {this.state.eventId && <LogProcress socketUrl={this.socketUrl} eventId={this.state.eventId} />
@@ -380,7 +380,7 @@ export default class CreateCheck extends PureComponent {
                     );
             return <Result
                         type="ing"
-                        title="服务构建源检测中..."
+                        title="组件构建源检测中..."
                         extra={extra}
                         description="此过程可能比较耗时，请耐心等待"
                         actions={actions}
@@ -401,7 +401,7 @@ export default class CreateCheck extends PureComponent {
                     }
                     handleClick = (e) => {
             var parent = e.target;
-        
+
             while (parent) {
                 if (parent === document.body) {
                     return ;

@@ -675,7 +675,7 @@ class Main extends PureComponent {
           onOk={this.handlePromptModal_open}
           onCancel={this.handlePromptModal_close}
         >
-          <p>{codeObj[this.state.code]}当前应用下的全部服务？</p>
+          <p>{codeObj[this.state.code]}当前应用下的全部组件？</p>
         </Modal>}
       </PageHeaderLayout>
     );

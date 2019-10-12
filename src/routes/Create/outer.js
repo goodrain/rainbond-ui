@@ -64,14 +64,14 @@ export default class Main extends PureComponent {
             href: "",
           },
           {
-            title: "添加第三方服务",
+            title: "添加第三方组件",
             href: "",
           },
         ]}
-        title="添加第三方服务"
+        title="添加第三方组件"
         onTabChange={this.handleTabChange}
-        content={<p>第三方服务，即运行于Rainbond集群外的服务，在Rainbond中创建服务即可以将其与Rainbond网关无缝对接，同时也可以被Rainbond内服务访问。满足用户通过Rainbond可以对
-          各类服务进行统一的监控和管理的需要。</p>}
+        content={<p>第三方组件，即运行于Rainbond集群外的组件，在Rainbond中创建组件即可以将其与Rainbond网关无缝对接，同时也可以被Rainbond内服务访问。满足用户通过Rainbond可以对
+          各类组件进行统一的监控和管理的需要。</p>}
         // tabActiveKey={type}
         // tabList={tabList}
       >

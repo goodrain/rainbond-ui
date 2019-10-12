@@ -437,6 +437,7 @@ class JAVA extends PureComponent {
       BUILD_ONLINE,
       NODE_MODULES_CACHE,
       NODE_VERBOSE,
+      arr,
       setObj
     } = this.state;
     form.validateFields((err, fieldsValue) => {
@@ -457,8 +458,11 @@ class JAVA extends PureComponent {
         BUILD_PIP_INDEX_URL,
         // BUILD_RUNTIMES_HHVM,
         BUILD_DOTNET_RUNTIME_VERSION,
-        RUNTIMES
+        RUNTIMES,
+        set_dockerfile
       } = fieldsValue;
+
+
 
       NO_CACHE ? (subObject.NO_CACHE = true) : "";
       BUILD_MAVEN_MIRROR_DISABLE
@@ -567,7 +571,7 @@ class JAVA extends PureComponent {
   onSetObj = value => {
     let obj = {};
     value.map(item => {
-      obj["BUILD_ARG_" + item.key] = item.values;
+      obj["BUILD_ARG_" + item.key] = item.value;
     });
     this.setState({ setObj: obj });
   };
@@ -1076,7 +1080,7 @@ class JAVA extends PureComponent {
         {languageType == "dockerfile" && (
           <div>
             <Form.Item {...formItemLayout} label="ARG参数">
-              {getFieldDecorator("set_dockerfile", { initialValue: "" })(
+              {getFieldDecorator("set_dockerfile", { initialValue: [] })(
                 <Dockerinput
                   onChange={value => {
                     this.onSetObj(value);
@@ -1986,7 +1990,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: "目标所属服务",
+                title: "目标所属组件",
                 dataIndex: "dep_app_name",
                 key: "5",
                 width: "10%",
@@ -2003,7 +2007,7 @@ class Mnt extends PureComponent {
                 }
               },
               {
-                title: "目标服务所属应用",
+                title: "目标组件所属应用",
                 dataIndex: "dep_app_group",
                 key: "6",
                 width: "15%",
@@ -2158,7 +2162,7 @@ class Relation extends PureComponent {
   render() {
     const { linkList, relationList } = this.state;
     return (
-      <Card title={"服务依赖"}>
+      <Card title={"组件依赖"}>
         <Table
           pagination={false}
           columns={[

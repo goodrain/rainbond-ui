@@ -545,7 +545,7 @@ export default class Index extends React.Component {
   };
   setupAttribute = () => {
     if (appStatusUtil.canVisit(this.props.status)) {
-      notification.warning({ message: "请先关闭服务后再更改状态" });
+      notification.warning({ message: "请先关闭组件后再更改状态" });
       return;
     }
     this.setState({
@@ -795,7 +795,7 @@ export default class Index extends React.Component {
                 marginBottom: 0,
               }}
               {...formItemLayout}
-              label="服务名称"
+              label="组件名称"
             >
               {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} ref="myInput" /> : baseInfo.service_name || '无'}
               {this.state.isInput ? '' : <Button onClick={this.modifyText} size="small" style={{ marginLeft: "10px" }}>修改</Button>}

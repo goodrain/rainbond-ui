@@ -67,7 +67,7 @@ class DrawerForm extends PureComponent {
             // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
         }
     }
-    /**获取服务组件 */
+    /**获取组件 */
     handleServices = (groupObj) => {
         const { isPerform } = this.state
         const { dispatch, editInfo } = this.props;
@@ -234,14 +234,14 @@ class DrawerForm extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="服务组件"
+                            label="组件"
                             style={{ zIndex: 10011 }}
                         >
                             {getFieldDecorator('service_id', {
                                 rules: [{ required: true, message: '请选择' }],
                                 initialValue: editInfo && editInfo.service_id ? editInfo.service_id : this.state.serviceComponentList && this.state.serviceComponentList.length > 0 ? this.state.serviceComponentList[0].service_id : undefined,
                             })(
-                                <Select placeholder="请选择服务组件" onChange={this.handlePorts}>
+                                <Select placeholder="请选择组件" onChange={this.handlePorts}>
                                     {
                                         (this.state.serviceComponentList || []).map((service, index) => {
                                             return <Option value={service.service_id+""} key={index}>{service.service_cname}</Option>

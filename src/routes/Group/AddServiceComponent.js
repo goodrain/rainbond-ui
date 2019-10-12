@@ -78,7 +78,7 @@ export default class AddServiceComponent extends PureComponent {
     });
   };
 
-  //服务组件展示
+  //组件展示
   handleServiceComponent = (
     ServiceComponentOnePage,
     ServiceComponentTwoPage,
@@ -379,10 +379,10 @@ export default class AddServiceComponent extends PureComponent {
           style={{ marginLeft: "12px" }}
         >
           <Icon type="plus" />
-          添加服务组件
+          添加组件
         </Button>
         <Drawer
-          title="添加服务组件"
+          title="添加组件"
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}
