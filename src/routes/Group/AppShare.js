@@ -386,6 +386,8 @@ export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
+      previewVisible: false,
+      previewImage: "",
       toDelete: false,
       recordShare: false,
       checkShare: true,
@@ -399,12 +401,12 @@ export default class Main extends PureComponent {
       shareList: [],
       sharearrs: [],
       shareModal: null,
-      isShare: 'false',
+      isShare: "false",
       service_cname: "",
       dep_service_name: [],
       share_service_list: [],
       ShareTypeShow: false,
-      scopeValue: "goodrain:private",
+      scopeValue: "goodrain:private"
     };
     this.com = [];
     this.share_group_info = null;
@@ -530,7 +532,6 @@ export default class Main extends PureComponent {
           });
         });
 
-
         const comdata = this.com;
         comdata.map(app => {
           const apptab = app.props.tab;
@@ -591,7 +592,7 @@ export default class Main extends PureComponent {
             new_info: newinfo
           },
           callback: data => {
-            this.onCancels('false');
+            this.onCancels("false");
             dispatch(
               routerRedux.push(
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${groupId}/${shareId}`
@@ -605,10 +606,10 @@ export default class Main extends PureComponent {
     });
   };
 
-  onCancels = (isShare) => {
+  onCancels = isShare => {
     this.setState({
       shareModal: null,
-      isShare: isShare?isShare:this.state.isShare,
+      isShare: isShare ? isShare : this.state.isShare,
       service_cname: "",
       dep_service_name: []
     });
@@ -650,7 +651,6 @@ export default class Main extends PureComponent {
   };
 
   onFileChange = e => {
-
     const share_service_data = this.share_service_list;
     const { shareList, sharearrs } = this.state;
     // this.props.form.setFieldsValue({sharing:e})
@@ -695,7 +695,7 @@ export default class Main extends PureComponent {
         this.setState({
           shareModal: e,
           service_cname: name,
-          dep_service_name,
+          dep_service_name
         });
       } else {
         this.setState(
@@ -714,7 +714,7 @@ export default class Main extends PureComponent {
 
   handleSubmits = () => {
     this.setState(
-      { sharearrs: this.state.shareModal, isShare: 'true', shareModal: null },
+      { sharearrs: this.state.shareModal, isShare: "true", shareModal: null },
       () => {
         this.handleTabList();
       }
@@ -722,7 +722,7 @@ export default class Main extends PureComponent {
   };
 
   handleTabList = () => {
-    const { sharearrs} = this.state;
+    const { sharearrs } = this.state;
 
     const share_service_data = this.share_service_list;
     let arr = [];
@@ -758,6 +758,28 @@ export default class Main extends PureComponent {
     });
   };
 
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  handlePreview = async file => {
+    if (!file.url && !file.preview) {
+      file.preview = await this.getBase64(file.originFileObj);
+    }
+
+    this.setState({
+      previewImage: file.url || file.preview,
+      previewVisible: true
+    });
+  };
+
+  handleCancel = () => this.setState({ previewVisible: false });
+
   render() {
     const info = this.state.info;
     if (!info) {
@@ -771,7 +793,8 @@ export default class Main extends PureComponent {
     const loading = this.props.loading;
     const fileList = this.state.fileList;
     const {
-      shareList,
+      previewVisible,
+      previewImage,
       shareModal,
       sharearrs,
       share_service_list,
@@ -907,11 +930,23 @@ export default class Main extends PureComponent {
                           headers={myheaders}
                           onChange={this.handleLogoChange}
                           onRemove={this.handleLogoRemove}
+                          onPreview={this.handlePreview}
                         >
                           {fileList.length > 0 ? null : uploadButton}
                         </Upload>
                       )}
                     </Form.Item>
+                    <Modal
+                      visible={previewVisible}
+                      footer={null}
+                      onCancel={this.handleCancel}
+                    >
+                      <img
+                        alt="example"
+                        style={{ width: "100%" }}
+                        src={previewImage}
+                      />
+                    </Modal>
                   </Col>
                 </Row>
               </Form>
