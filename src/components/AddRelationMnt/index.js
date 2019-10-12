@@ -68,7 +68,7 @@ export default class Index extends PureComponent {
       page_size: this.state.pageSize,
       type: "unmnt",
       volume_type:this.props.volume_type?this.props.volume_type:["share-file","memoryfs","local"]
-   
+
 
     }).then(data => {
       if (data) {
@@ -177,7 +177,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: "目标所属服务",
+              title: "目标所属组件",
               dataIndex: "dep_app_name",
               key: "5",
               width: "15%",
@@ -199,7 +199,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: "目标服务所属应用",
+              title: "目标组件所属应用",
               dataIndex: "dep_app_group",
               key: "6",
               width: "15%",

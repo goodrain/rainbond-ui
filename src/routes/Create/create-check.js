@@ -417,7 +417,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="error"
-        title="服务构建源检测未通过"
+        title="组件构建源检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
         actions={ServiceGetData ? "" : actions}
@@ -512,7 +512,7 @@ export default class CreateCheck extends PureComponent {
               {" "}创建{" "}
             </Button>
             <div>
-              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} >
                 <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
               </Tooltip>
             </div>
@@ -545,7 +545,7 @@ export default class CreateCheck extends PureComponent {
                 创建{" "}
               </Button>
               {appDetail.service_source == "third_party"}
-              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+              <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} >
                 <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
               </Tooltip>
             </div>
@@ -585,11 +585,11 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" : "服务构建源检测通过"}
+        title={appDetail.service_source == "third_party" ? "第三方组件检测通过" : "组件构建源检测通过"}
         description={
           appDetail.service_source == "third_party" ? "" :
             <div>
-              <div>服务构建源检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+              <div>组件构建源检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
               90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
@@ -631,7 +631,7 @@ export default class CreateCheck extends PureComponent {
             放弃创建{" "}
           </Button>
           <Button type="primary" onClick={this.handleMoreService}>
-            进入多服务构建
+            进入多组件构建
           </Button>
         </div>
       ] : ServiceGetData ?
@@ -646,7 +646,7 @@ export default class CreateCheck extends PureComponent {
                 {" "}创建{" "}
               </Button>
               <div>
-                <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+                <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} >
                   <Radio size="small" onClick={this.renderSuccessOnChange} checked={is_deploy}>并构建启动</Radio>
                 </Tooltip>
               </div>
@@ -671,7 +671,7 @@ export default class CreateCheck extends PureComponent {
                 放弃创建{" "}
               </Button>
               <Button type="primary" onClick={this.handleMoreService}>
-                进入多服务构建
+                进入多组件构建
               </Button>
             </div>
           ];
@@ -697,11 +697,11 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title={appDetail.service_source == "third_party" ? "第三方服务检测通过" : "服务构建源检测出多模块构建"}
+        title={appDetail.service_source == "third_party" ? "第三方组件检测通过" : "组件构建源检测出多模块构建"}
         description={
           appDetail.service_source == "third_party" ? "" :
             <div>
-              <div>服务构建源检测通过仅代表平台可以检测到多模块构建。</div>
+              <div>组件构建源检测通过仅代表平台可以检测到多模块构建。</div>
               90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
@@ -738,7 +738,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="ing"
-        title="服务构建源检测中..."
+        title="组件构建源检测中..."
         extra={extra}
         description="此过程可能比较耗时，请耐心等待"
         actions={ServiceGetData ? "" : actions}
@@ -777,7 +777,7 @@ export default class CreateCheck extends PureComponent {
       return (
         <Result
           type="ing"
-          title="服务构建源检测中..."
+          title="组件构建源检测中..."
           extra={extra}
           description="此过程可能比较耗时，请耐心等待"
           actions={ServiceGetData ? "" : actions}
@@ -846,7 +846,7 @@ export default class CreateCheck extends PureComponent {
                 onOk={this.handleDelete}
                 title="放弃创建"
                 subDesc="此操作不可恢复"
-                desc="确定要放弃创建此服务吗？"
+                desc="确定要放弃创建此组件吗？"
                 onCancel={() => {
                   this.setState({ showDelete: false });
                 }}
@@ -904,7 +904,7 @@ export default class CreateCheck extends PureComponent {
                 onOk={this.handleDelete}
                 title="放弃创建"
                 subDesc="此操作不可恢复"
-                desc="确定要放弃创建此服务吗？"
+                desc="确定要放弃创建此组件吗？"
                 onCancel={() => {
                   this.setState({ showDelete: false });
                 }}

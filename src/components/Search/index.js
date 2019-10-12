@@ -25,7 +25,7 @@ class Search extends Component {
     return (
       <Form layout="inline" style={{ display: 'inline-block'}}>
         <FormItem>
-            <Input placeholder="搜索域名/应用/服务组件"  onChange={this.handelChange.bind(this)} onPressEnter={this.handleEnter} style={{width:250}} />
+            <Input placeholder="搜索域名/应用/组件"  onChange={this.handelChange.bind(this)} onPressEnter={this.handleEnter} style={{width:250}} />
         </FormItem>
         <FormItem>
           <Button type="primary" onClick={this.handleSearch} icon="search">

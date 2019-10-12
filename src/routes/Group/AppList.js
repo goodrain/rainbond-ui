@@ -320,7 +320,7 @@ export default class AppList extends PureComponent {
     };
     const columns = [
       {
-        title: "服务名称",
+        title: "组件名称",
         dataIndex: "service_cname",
         render: (val, data) => (
           <Link
@@ -332,7 +332,7 @@ export default class AppList extends PureComponent {
             {" "}
             {data.service_source && data.service_source == "third_party" ?
               <span>
-                <Tooltip title={"第三方服务"}>
+                <Tooltip title={"第三方组件"}>
                   <span style={{ borderRadius: "50%", height: "20px", width: "20px", display: "inline-block", background: "#1890ff", verticalAlign: "top", marginRight: "3px" }}>
                     <span style={{ display: "block", color: "#FFFFFF", height: "20px", lineHeight: "20px", textAlign: "center" }}>3</span>
                   </span>

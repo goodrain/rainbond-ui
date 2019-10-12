@@ -65,7 +65,7 @@ export default class Index extends PureComponent {
           content: '上线前必须开启端口对内或对外属性',
           okText:"去配置",
           onOk() {
-            _th.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${_th.props.appAlias}/port`)) 
+            _th.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${_th.props.appAlias}/port`))
           },
           onCancel() {
             console.log('Cancel');
@@ -73,7 +73,7 @@ export default class Index extends PureComponent {
         });
       }
 
-      
+
 
     handleGetList = () => {
         this.props.dispatch({
@@ -306,7 +306,7 @@ export default class Index extends PureComponent {
                     </Modal>
                     {appDetail.service.service_source = "third_party" &&
                         <Card
-                            title="服务实例"
+                            title="组件实例"
                             extra={
                                 [
                                     <Button style={{ marginRight: "5px" }} onClick={() => { this.addInstance() }}>新增</Button>,

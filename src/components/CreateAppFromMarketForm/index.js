@@ -116,7 +116,7 @@ export default class Index extends PureComponent {
           <Button onClick={this.handleSubmit} type="primary" disabled={this.props.disabled} >
             安装
           </Button>,
-          // <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} >
+          // <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} >
           <Radio size="small" onClick={this.renderSuccessOnChange} checked={this.state.is_deploy}>并构建启动</Radio>
           // </Tooltip>
         ]
@@ -143,7 +143,7 @@ export default class Index extends PureComponent {
               >
 
                 {
-                  
+
                   showCreate && showCreate.group_version_list ? showCreate.group_version_list.map((item, index) => {
                   return <Option key={index} value={item}>{item}</Option>
                 })

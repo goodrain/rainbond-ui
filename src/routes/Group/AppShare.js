@@ -708,7 +708,7 @@ export default class Main extends PureComponent {
         );
       }
     } else {
-      notification.warning({ message: "分享服务不能少于1个" });
+      notification.warning({ message: "分享组件不能少于1个" });
     }
   };
 
@@ -969,14 +969,14 @@ export default class Main extends PureComponent {
             >
               <div className={mytabcss.mytab}>
                 {/* <Form layout="horizontal" className={styles.stepForm}>
-                  <Form.Item {...sharingFormItemLayout} label="分享服务" required={true}> */}
+                  <Form.Item {...sharingFormItemLayout} label="分享组件" required={true}> */}
                 {/* {getFieldDecorator("sharing", {
                       initialValue: shareList,
                       // setFieldsValue:shareList,
                       rules: [
                         {
                           required: true,
-                          message: "请选择分享的服务",
+                          message: "请选择分享的组件",
                         },
                       ],
                     })( */}
@@ -1003,7 +1003,7 @@ export default class Main extends PureComponent {
                     marginBottom: 8
                   }}
                 >
-                  分享服务
+                  分享组件
                 </h4>
                 <div className={mytabcss.mytabtit} id="mytabtit">
                   <Checkbox.Group
@@ -1106,19 +1106,19 @@ export default class Main extends PureComponent {
               cancelText={"取消"}
             >
               <div>
-                <a>{this.state.service_cname}服务</a>被需要分享的
+                <a>{this.state.service_cname}组件</a>被需要分享的
                 {this.state.dep_service_name &&
                   this.state.dep_service_name.length > 0 &&
                   this.state.dep_service_name.map((item, index) => {
                     return (
                       <a style={{ marginLeft: "5px" }} key={index}>
-                        {item}服务
+                        {item}组件
                       </a>
                     );
                   })}
                 依赖,
                 <p style={{ marginTop: "5px" }}>
-                  是否确定取消分享<a>{this.state.service_cname}</a>服务
+                  是否确定取消分享<a>{this.state.service_cname}</a>组件
                 </p>
                 .
               </div>

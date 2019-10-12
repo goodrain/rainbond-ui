@@ -89,7 +89,7 @@ export default class AddThirdParty extends PureComponent {
     });
   }
 
-  //服务组件展示
+  //组件展示
   handleServiceComponent = (ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, dataName, data) => {
     // ServiceComponentOnePage 显示第一页
     // ServiceComponentTwoPage 显示第二页组件模块
@@ -199,28 +199,28 @@ export default class AddThirdParty extends PureComponent {
     );
     return (
       <div>
-        <Button type="default" onClick={this.toAddService} style={{ }}><Icon type="plus" />添加第三方服务</Button>
+        <Button type="default" onClick={this.toAddService} style={{ }}><Icon type="plus" />添加第三方组件</Button>
         <Drawer
-          title="添加第三方服务"
+          title="添加第三方组件"
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}
           maskClosable={false}
           width={550}
         >
-          
+
           {ServiceComponentThreePage === "check" && ServiceGetData && <Check ServiceGetData={ServiceGetData}
             handleType="Service"
             ButtonGroupState={ButtonGroupState}
             refreshCurrent={() => { this.refreshCurrent() }}
             ErrState={this.state.errState}
             handleServiceBotton={(ButtonGroup, ButtonGroupState,errState) => { this.handleServiceBotton(ButtonGroup, ButtonGroupState,errState) }}
-          
+
             handleServiceDataState={(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, data) => { this.handleServiceComponent(ServiceComponentOnePage, ServiceComponentTwoPage, ServiceComponentThreePage, "ServiceGetData", data);
             this.props.onload&&this.props.onload()
             }} />}
 
-       
+
           {ServiceComponentTwoPage === "market" && <Market
             groupId={this.props.groupId}
             refreshCurrent={() => { this.refreshCurrent() }}

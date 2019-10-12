@@ -217,7 +217,7 @@ export default class Index extends PureComponent {
                 <Row>
                   <Col span={12}>
                     <span style={{ lineHeight: "32px" }}>
-                      查询详细的服务实例信息，请复制以下查询命令到Rainbond管理节点查询：
+                      查询详细的组件实例信息，请复制以下查询命令到Rainbond管理节点查询：
                     </span>
                   </Col>
                   <Col span={12}>

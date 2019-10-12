@@ -23,7 +23,7 @@ class StandardTable extends PureComponent {
     const { list, pagination } = this.props;
 
     const columns = [
-  
+
       {
         title: "应用组",
         dataIndex: "group_name",
@@ -46,7 +46,7 @@ class StandardTable extends PureComponent {
           )),
       },
       {
-        title: "服务名称",
+        title: "组件名称",
         dataIndex: "service_cname",
         render: (val, data) => (
           <Link
