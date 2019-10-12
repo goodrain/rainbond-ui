@@ -7,26 +7,28 @@ import GlobalFooter from "../components/GlobalFooter";
 import styles from "./UserLayout.less";
 import logo from "../../public/logo.png";
 import { getRoutes } from "../utils/utils";
+import configureGlobal from "../utils/configureGlobal";
+import cookie from "../utils/cookie";
 
 const links = [
   {
     key: "help",
     title: "帮助",
-    href: "",
+    href: ""
   },
   {
     key: "privacy",
     title: "隐私",
-    href: "",
+    href: ""
   },
   {
     key: "terms",
     title: "条款",
-    href: "",
-  },
+    href: ""
+  }
 ];
 
-const copyright = (
+const copyright = configureGlobal.rainbondTextShow && (
   <div>
     Copyright
     <Icon type="copyright" />
@@ -44,46 +46,50 @@ class UserLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
-    let title = `${
-      rainbondInfo.title
-    } | Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.`;
+    let title =
+      (rainbondInfo &&
+        rainbondInfo.title !== undefined &&
+        rainbondInfo.title) ||
+      "Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - ${
-        rainbondInfo.title
-      } | Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.`;
+      title = `${routerData[pathname].name} - ${title} `;
     }
     return title;
   }
   render() {
-    const { routerData, match, rainbondInfo } = this.props;
+    const { routerData, match, rainbondInfo, nouse } = this.props;
 
     return (
       <DocumentTitle title={this.getPageTitle()}>
         <div className={styles.container}>
           <div className={styles.content}>
-            <div className={styles.top}>
-              <div className={styles.header}>
-                <Link to="/">
-                  {/* <img
+            {!nouse && (
+              <div className={styles.top}>
+                <div className={styles.header}>
+                  <Link to="/">
+                    {/* <img
                     style={{
                     verticalAlign: 'middle'
                   }}
                     alt="logo"
                     className={styles.logo}
                     src={rainbondInfo.logo || logo}/> */}
-                  <h1
-                    style={{
-                      display: "inline-block",
-                      verticalAlign: "middle",
-                      marginBottom: 0,
-                    }}
-                  >
-                    {rainbondInfo.title}
-                  </h1>
-                </Link>
+                    <h1
+                      style={{
+                        display: "inline-block",
+                        verticalAlign: "middle",
+                        marginBottom: 0
+                      }}
+                    >
+                      {rainbondInfo.title}
+                    </h1>
+                  </Link>
+                </div>
+                <div className={styles.desc}>
+                  无服务器PaaS、以应用为中心、软件定义一切
+                </div>
               </div>
-              <div className={styles.desc}>无服务器PaaS、以应用为中心、软件定义一切</div>
-            </div>
+            )}
             <Switch>
               {getRoutes(match.path, routerData).map(item => (
                 <Route
@@ -105,4 +111,5 @@ class UserLayout extends React.PureComponent {
 
 export default connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
+  nouse: global.nouse
 }))(UserLayout);

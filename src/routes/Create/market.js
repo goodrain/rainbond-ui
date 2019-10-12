@@ -62,7 +62,10 @@ export default class Main extends PureComponent {
       cloudTotal: 0,
       showCreate: null,
       scope: "",
-      scopeMax: this.props.scopeMax || "cloudApplication",
+      scopeMax:
+        this.props.scopeMax || ( this.props.rainbondInfo &&  this.props.rainbondInfo.cloud_market)
+          ? "cloudApplication"
+          : "localApplication",
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
@@ -615,7 +618,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const { form, appDetail } = this.props;
+    const { form, appDetail, rainbondInfo } = this.props;
     const { getFieldDecorator } = form;
     const {
       handleType,
@@ -675,12 +678,17 @@ export default class Main extends PureComponent {
               暂无应用， 你可以
               <br />
               <br />
-              分享应用 或{" "}
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
-              >
-                从云端同步
-              </Link>
+              分享应用
+              {rainbondInfo && rainbondInfo.cloud_market && (
+                <span>
+                  或{" "}
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
             </p>
           )
         }}
@@ -694,47 +702,45 @@ export default class Main extends PureComponent {
       />
     );
 
-    const cloudCardList =
-      cloudList && cloudList.length <= 0 && isSpincloudList === -1 ? (
-        <Alert
-          message={networkText}
-          type="info"
-          style={{ marginTop: "200px", textAlign: "center" }}
-        />
-      ) : (
-        <List
-          bordered={false}
-          grid={{
-            gutter: 24,
-            lg: 3,
-            md: 2,
-            sm: 1,
-            xs: 1
-          }}
-          locale={{
-            emptyText: cloudList && cloudList.length <= 0 && !isSpincloudList && (
-              <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-                暂无应用， 你可以
-                <br />
-                <br />
-                分享应用 或{" "}
-                <Link
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
-                >
-                  从云端同步
-                </Link>
-              </p>
-            )
-          }}
-          pagination={cloudPaginationProps}
-          dataSource={cloudList}
-          renderItem={item => (
-            <List.Item style={{ border: "none" }}>
-              {this.renderApp(item)}
-            </List.Item>
-          )}
-        />
-      );
+    const cloudCardList = (
+      <List
+        bordered={false}
+        grid={{
+          gutter: 24,
+          lg: 3,
+          md: 2,
+          sm: 1,
+          xs: 1
+        }}
+        locale={{
+          emptyText: !isSpincloudList && cloudList && cloudList.length <= 0 && (
+            <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
+              暂无应用， 你可以
+              <br />
+              <br />
+              分享应用
+              {rainbondInfo && rainbondInfo.cloud_market && (
+                <span>
+                  或{" "}
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
+            </p>
+          )
+        }}
+        pagination={cloudPaginationProps}
+        dataSource={cloudList}
+        renderItem={item => (
+          <List.Item style={{ border: "none" }}>
+            {this.renderApp(item)}
+          </List.Item>
+        )}
+      />
+    );
 
     const mainSearch = (
       <div
@@ -792,16 +798,19 @@ export default class Main extends PureComponent {
       }
     ];
 
-    const tabListMax = [
-      {
-        key: "cloudApplication",
-        tab: "云端应用"
-      },
+    let tabListMax = [
       {
         key: "localApplication",
         tab: "本地应用"
       }
     ];
+
+    if (rainbondInfo && rainbondInfo.cloud_market) {
+      tabListMax.unshift({
+        key: "cloudApplication",
+        tab: "云端应用"
+      });
+    }
 
     const loading = this.props.loading;
     return (

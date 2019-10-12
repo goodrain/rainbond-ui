@@ -13,6 +13,7 @@ import NotFound from "../routes/Exception/404";
 import { getRoutes } from "../utils/utils";
 import userUtil from "../utils/user";
 import globalUtil from "../utils/global";
+import configureGlobal from "../utils/configureGlobal";
 import cookie from "../utils/cookie";
 import Authorized from "../utils/Authorized";
 import { getMenuData } from "../common/menu";
@@ -78,14 +79,14 @@ class BasicLayout extends React.PureComponent {
     showWelcomeCreateTeam: false,
     canCancelOpenRegion: true,
     market_info: "",
-    showAuthCompany: false,
+    showAuthCompany: false
   };
   componentDidMount() {
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
     this.fetchUserInfo();
-    this.setState({showAuthCompany: this.props.showAuthCompany})
+    this.setState({ showAuthCompany: this.props.showAuthCompany });
     var query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
       this.setState({ market_info: query.market_info });
@@ -150,6 +151,8 @@ class BasicLayout extends React.PureComponent {
         if (res && (res.status === 403 || res.status === 404)) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
+          cookie.remove("newbie_guide");
+          cookie.remove("platform_url");
           location.reload();
         }
       }
@@ -159,7 +162,9 @@ class BasicLayout extends React.PureComponent {
     const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
     let title =
-      rainbondInfo.title ||
+      (rainbondInfo &&
+        rainbondInfo.title !== undefined &&
+        rainbondInfo.title) ||
       "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - ${title}`;
@@ -331,6 +336,7 @@ class BasicLayout extends React.PureComponent {
       currTeam,
       currRegion,
       groups,
+      nouse,
       rainbondInfo
     } = this.props;
     const bashRedirect = this.getBashRedirect();
@@ -363,23 +369,35 @@ class BasicLayout extends React.PureComponent {
         }
 
         // 数据中心维护中
-        if (isRegionMaintain) {
+        if (isRegionMaintain || nouse) {
           return (
             <div style={{ textAlign: "center", padding: "50px 0" }}>
-              <Icon style={{ fontSize: 50, marginBottom: 32 }} type="warning" />
+              <Icon
+                style={{ fontSize: 40, marginBottom: 32, color: "red" }}
+                type="warning"
+              />
               <h1
                 style={{
-                  fontSize: 50,
+                  fontSize: 40,
                   color: "rgba(0, 0, 0, 0.65)",
-                  marginBottom: 8
+                  marginBottom: 20
                 }}
               >
-                数据中心维护中
+                {nouse ? "当前授权已过期" : "数据中心维护中"}
               </h1>
-              <p>请稍后访问当前数据中心</p>
+              <p
+                style={{
+                  fontSize: 20
+                }}
+              >
+                {nouse
+                  ? "请联系 010-64666786 获取更多商业服务。"
+                  : "请稍后访问当前数据中心"}
+              </p>
             </div>
           );
         }
+
         return (
           <Switch>
             {redirectData.map(item => (
@@ -407,9 +425,18 @@ class BasicLayout extends React.PureComponent {
         <Layout>
           {!isRegionMaintain && hasRegion && (
             <SiderMenu
-              title={rainbondInfo.title}
+              title={
+                rainbondInfo &&
+                rainbondInfo.title !== undefined &&
+                rainbondInfo.title
+              }
               currentUser={currentUser}
-              logo={rainbondInfo.logo || logo}
+              logo={
+                (rainbondInfo &&
+                  rainbondInfo.logo !== undefined &&
+                  rainbondInfo.logo) ||
+                logo
+              }
               Authorized={Authorized}
               menuData={getMenuData(groups)}
               collapsed={collapsed}
@@ -422,7 +449,11 @@ class BasicLayout extends React.PureComponent {
           <Layout>
             <GlobalHeader
               logo={logo}
-              isPubCloud={rainbondInfo.is_public}
+              isPubCloud={
+                rainbondInfo &&
+                rainbondInfo.is_public !== undefined &&
+                rainbondInfo.is_public
+              }
               notifyCount={notifyCount}
               currentUser={currentUser}
               fetchingNotices={fetchingNotices}
@@ -455,7 +486,7 @@ class BasicLayout extends React.PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle()}>
           <CheckUserInfo
-            rainbondInfo={this.props.rainbondInfo}
+            rainbondInfo={rainbondInfo}
             onCurrTeamNoRegion={this.handleCurrTeamNoRegion}
             userInfo={currentUser}
             onInitTeamOk={this.handleInitTeamOk}
@@ -489,7 +520,9 @@ class BasicLayout extends React.PureComponent {
           />
         )}
         <Loading />
-        {rainbondInfo.is_public && <Meiqia />}
+        {rainbondInfo &&
+          rainbondInfo.is_public !== undefined &&
+          rainbondInfo.is_public && <Meiqia />}
         {this.props.payTip && <PayTip dispatch={this.props.dispatch} />}
         {this.props.memoryTip && (
           <MemoryTip
@@ -501,13 +534,17 @@ class BasicLayout extends React.PureComponent {
           <PayMoneyTip dispatch={this.props.dispatch} />
         )}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
-          <AuthCompany market_info={this.state.market_info}
+          <AuthCompany
+            market_info={this.state.market_info}
             onOk={() => {
-              this.setState({showAuthCompany: false})
-              var jumpPath = this.props.location.pathname
-              var query = this.props.location.search.replace("market_info="+this.state.market_info,"")
-              this.setState({market_info:""})
-              this.props.dispatch(routerRedux.replace(jumpPath+query));
+              this.setState({ showAuthCompany: false });
+              var jumpPath = this.props.location.pathname;
+              var query = this.props.location.search.replace(
+                "market_info=" + this.state.market_info,
+                ""
+              );
+              this.setState({ market_info: "" });
+              this.props.dispatch(routerRedux.replace(jumpPath + query));
             }}
           />
         )}
@@ -516,7 +553,7 @@ class BasicLayout extends React.PureComponent {
   }
 }
 
-export default connect(({ user, global, loading }) => ({
+export default connect(({ user, global, index, loading }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -529,5 +566,7 @@ export default connect(({ user, global, loading }) => ({
   payTip: global.payTip,
   memoryTip: global.memoryTip,
   noMoneyTip: global.noMoneyTip,
-  showAuthCompany: global.showAuthCompany
+  showAuthCompany: global.showAuthCompany,
+  overviewInfo: index.overviewInfo,
+  nouse: global.nouse
 }))(BasicLayout);

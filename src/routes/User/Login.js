@@ -1,28 +1,25 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link } from "dva/router";
+import { Link, routerRedux } from "dva/router";
 import { Checkbox, Alert } from "antd";
 import Login from "../../components/Login";
 import styles from "./Login.less";
+import cookie from "../../utils/cookie";
 
-const {
-  Tab, UserName, Password, Submit,
-} = Login;
+const { Tab, UserName, Password, Submit } = Login;
 
 @connect(({ loading, global }) => ({
   login: {},
   isRegist: global.isRegist,
-  submitting: loading.effects["user/login"],
+  submitting: loading.effects["user/login"]
 }))
 export default class LoginPage extends Component {
   state = {
     type: "account",
-    autoLogin: true,
+    autoLogin: true
   };
 
-  componentDidMount() {}
-
-  onTabChange = (type) => {
+  onTabChange = type => {
     this.setState({ type });
   };
 
@@ -31,20 +28,20 @@ export default class LoginPage extends Component {
       this.props.dispatch({
         type: "user/login",
         payload: {
-          ...values,
-        },
+          ...values
+        }
       });
     }
   };
 
-  changeAutoLogin = (e) => {
+  changeAutoLogin = e => {
     this.setState({ autoLogin: e.target.checked });
   };
 
   renderMessage = content => (
     <Alert
       style={{
-        marginBottom: 24,
+        marginBottom: 24
       }}
       message={content}
       type="error"
@@ -57,7 +54,11 @@ export default class LoginPage extends Component {
     const { type } = this.state;
     return (
       <div className={styles.main}>
-        <Login defaultActiveKey={type} onTabChange={this.onTabChange} onSubmit={this.handleSubmit}>
+        <Login
+          defaultActiveKey={type}
+          onTabChange={this.onTabChange}
+          onSubmit={this.handleSubmit}
+        >
           <Tab key="account" tab="">
             {login.status === "error" &&
               login.type === "account" &&
@@ -67,7 +68,10 @@ export default class LoginPage extends Component {
             <Password name="password" placeholder="密码" />
           </Tab>
           <div>
-            <Checkbox checked={this.state.autoLogin} onChange={this.changeAutoLogin}>
+            <Checkbox
+              checked={this.state.autoLogin}
+              onChange={this.changeAutoLogin}
+            >
               自动登录
             </Checkbox>
           </div>

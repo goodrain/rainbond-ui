@@ -8,17 +8,18 @@ import globalUtil from "../../../utils/global";
 import userUtil from "../../../utils/user";
 import OpenRegion from "../../OpenRegion";
 
-@connect(({ teamControl, loading, user }) => ({
+@connect(({ teamControl, loading, user, global }) => ({
   regions: teamControl.regions,
   currUser: user.currentUser,
   projectLoading: loading.effects["project/fetchNotice"],
   activitiesLoading: loading.effects["activities/fetchList"],
+  rainbondInfo: global.rainbondInfo
 }))
 export default class DatacenterList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      openRegion: false,
+      openRegion: false
     };
   }
   componentDidMount() {
@@ -30,18 +31,18 @@ export default class DatacenterList extends PureComponent {
   cancelOpenRegion = () => {
     this.setState({ openRegion: false });
   };
-  handleOpenRegion = (regions) => {
+  handleOpenRegion = regions => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "teamControl/openRegion",
       payload: {
         team_name,
-        region_names: regions.join(","),
+        region_names: regions.join(",")
       },
       callback: () => {
         this.fetchRegions();
         this.props.dispatch({ type: "user/fetchCurrent" });
-      },
+      }
     });
   };
   fetchRegions = () => {
@@ -50,12 +51,12 @@ export default class DatacenterList extends PureComponent {
     dispatch({
       type: "teamControl/fetchRegions",
       payload: {
-        team_name: teamName,
-      },
+        team_name: teamName
+      }
     });
   };
   render() {
-    const { regions, currUser, projectLoading } = this.props;
+    const { regions, currUser, projectLoading, rainbondInfo } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, teamName);
     return (
@@ -63,12 +64,14 @@ export default class DatacenterList extends PureComponent {
         <Card
           className={styles.projectList}
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title="已开通数据中心"
           bordered={false}
           extra={
-            teamUtil.canAddRegion(team) ? (
+            teamUtil.canAddRegion(team) &&
+            rainbondInfo &&
+            rainbondInfo.data_center ? (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 {" "}
                 开通数据中心{" "}
@@ -77,14 +80,14 @@ export default class DatacenterList extends PureComponent {
           }
           loading={projectLoading}
           bodyStyle={{
-            padding: 0,
+            padding: 0
           }}
         >
           {(regions || []).map(item => (
             <Card.Grid className={styles.projectGrid} key={item.ID}>
               <Card
                 bodyStyle={{
-                  padding: 0,
+                  padding: 0
                 }}
                 bordered={false}
               >
@@ -109,7 +112,7 @@ export default class DatacenterList extends PureComponent {
             <p
               style={{
                 textAlign: "center",
-                paddingTop: 20,
+                paddingTop: 20
               }}
             >
               暂无数据中心
@@ -119,7 +122,10 @@ export default class DatacenterList extends PureComponent {
           )}
         </Card>
         {this.state.openRegion && (
-          <OpenRegion onSubmit={this.handleOpenRegion} onCancel={this.cancelOpenRegion} />
+          <OpenRegion
+            onSubmit={this.handleOpenRegion}
+            onCancel={this.cancelOpenRegion}
+          />
         )}
       </div>
     );

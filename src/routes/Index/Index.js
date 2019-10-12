@@ -26,6 +26,7 @@ import numeral from "numeral";
 import EditGroupName from "../../components/AddOrEditGroup";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
+import configureGlobal from "../../utils/configureGlobal";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import guideutil from "../../utils/guide";
@@ -140,7 +141,8 @@ export default class Index extends PureComponent {
 
   componentWillMount() {
     this.getTeam();
-    this.getGuideState();
+    const { rainbondInfo } = this.props;
+    rainbondInfo && rainbondInfo.newbie_guide && this.getGuideState();
   }
 
   getTeam = () => {
@@ -330,6 +332,26 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
         region_name
+      },
+      callback: res => {
+        if (res) {
+          dispatch({
+            type: "global/setNouse",
+            payload: {
+              isNouse: false
+            }
+          });
+        }
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code && res.data.code === 10400) {
+          dispatch({
+            type: "global/setNouse",
+            payload: {
+              isNouse: true
+            }
+          });
+        }
       }
     });
   };
@@ -750,17 +772,19 @@ export default class Index extends PureComponent {
         </div>
         <Modal
           title={
-            <h1
-              style={{
-                color: "#1890FF",
-                textAlign: "center",
-                border: "none",
-                marginBottom: "0px",
-                marginTop: "10px"
-              }}
-            >
-              欢迎使用Rainbond云应用操作系统
-            </h1>
+            configureGlobal.rainbondTextShow && (
+              <h1
+                style={{
+                  color: "#1890FF",
+                  textAlign: "center",
+                  border: "none",
+                  marginBottom: "0px",
+                  marginTop: "10px"
+                }}
+              >
+                欢迎使用Rainbond云应用操作系统
+              </h1>
+            )
           }
           visible={this.state.guidevisible}
           onOk={this.handleOkGuidevisible}
