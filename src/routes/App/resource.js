@@ -1759,7 +1759,7 @@ export default class Index extends PureComponent {
                         onOk={this.onChangeBuildSource}
                         buildSource={this.state.buildSource}
                         appAlias={this.props.appDetail.service.service_alias}
-                        title="更改应用构建源"
+                        title="更改组件构建源"
                         onCancel={this.hideBuildSource}
                     />
                 )}

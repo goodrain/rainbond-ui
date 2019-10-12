@@ -464,7 +464,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="ing"
-        title="服务构建源检测中..."
+        title="组件构建源检测中..."
         extra={extra}
         description="此过程可能比较耗时，请耐心等待"
         actions={actions}
