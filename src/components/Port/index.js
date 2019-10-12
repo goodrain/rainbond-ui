@@ -15,6 +15,7 @@ import {
   Modal,
   Input,
   Table,
+  message,
   notification
 } from "antd";
 import appPortUtil from "../../utils/appPort-util";
@@ -22,8 +23,9 @@ import globalUtil from "../../utils/global";
 import styles from "./index.less";
 const FormItem = Form.Item;
 
-@connect(({ region }) => {
+@connect(({ region, appControl }) => {
   return {
+    appDetail: appControl.appDetail,
     protocols: region.protocols || []
   };
 })
@@ -87,7 +89,10 @@ class ChangeProtocol extends PureComponent {
   }
 }
 
-@connect(({ user, appControl }) => ({ currUser: user.currentUser }))
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser,
+  appDetail: appControl.appDetail
+}))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -95,7 +100,8 @@ export default class Index extends PureComponent {
       editProtocol: false,
       showEditAlias: null,
       showDomain: false,
-      showPort: false
+      showPort: false,
+      list: []
     };
   }
   onSubmitProtocol = protocol => {
@@ -184,6 +190,38 @@ export default class Index extends PureComponent {
       visibleModal: false
     });
   };
+
+  componentDidMount() {
+    this.handleGetList();
+  }
+  handleGetList = () => {
+    const { appDetail, dispatch } = this.props;
+    if (
+      appDetail &&
+      appDetail.service &&
+      appDetail.service.service_alias &&
+      appDetail.service.service_source &&
+      appDetail.service.service_source === "third_party" &&
+      appDetail.register_way &&
+      appDetail.register_way === "static"
+    ) {
+      dispatch({
+        type: "appControl/getInstanceList",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appDetail.service.service_alias
+        },
+        callback: res => {
+          if (res && res._code == 200) {
+            this.setState({
+              list: res.list
+            });
+          }
+        }
+      });
+    }
+  };
+
   showConnectInfo = infoArr => {
     return (
       <Table
@@ -226,11 +264,26 @@ export default class Index extends PureComponent {
     var showDomain = this.props.showDomain;
     var DomainText = this.domainsText(domains);
     const { agreement } = this.state;
-
     //是否显示对外访问地址,创建过程中不显示
     const showOuterUrl =
       this.props.showOuterUrl === void 0 ? true : this.props.showOuterUrl;
     showDomain = showDomain === void 0 ? true : showDomain;
+    let num = 0;
+    const { list } = this.state;
+    const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+    const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+    const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+
+    if (list && list.length > 0) {
+      list.map(item => {
+        if (
+          !rege.test(item.address) &&
+          (regs.test(item.address || "") || rega.test(item.address || ""))
+        ) {
+          num++;
+        }
+      });
+    }
 
     const { region } = this.props.currUser.teams[0];
     const currentRegion = region.filter(item => {
@@ -358,7 +411,14 @@ export default class Index extends PureComponent {
                   <span className={styles.label}>对外服务</span>
                   <Switch
                     checked={appPortUtil.isOpenOuter(port)}
-                    onChange={this.handleOuterChange}
+                    onChange={value => {
+                      num > 0
+                        ? notification.error({
+                            message: "第三方服务",
+                            description: "只允许添加一个域名实例地址"
+                          })
+                        : this.handleOuterChange(value);
+                    }}
                     size="small"
                   />
                 </p>
@@ -589,11 +649,28 @@ export default class Index extends PureComponent {
                 </li>
               )}
               <li>
+                推荐访问地址&nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: "10px" }}>
-                  {agreement.end_point}
+                  {agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                  currentRegion &&
+                  currentRegion.length > 0
+                    ? agreement.end_point.replace(
+                        /0.0.0.0/g,
+                        currentRegion[0].tcpdomain
+                      )
+                    : agreement.end_point.replace(/\s+/g, "")}
                 </a>
                 <CopyToClipboard
-                  text={agreement.end_point.replace(/\s+/g, "")}
+                  text={
+                    agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                    currentRegion &&
+                    currentRegion.length > 0
+                      ? agreement.end_point.replace(
+                          /0.0.0.0/g,
+                          currentRegion[0].tcpdomain
+                        )
+                      : agreement.end_point.replace(/\s+/g, "")
+                  }
                   onCopy={() => {
                     notification.success({ message: "复制成功" });
                   }}

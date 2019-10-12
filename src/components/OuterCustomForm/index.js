@@ -11,7 +11,8 @@ import {
   Row,
   Col,
   Icon,
-  Tooltip
+  Tooltip,
+  message
 } from "antd";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
@@ -33,6 +34,9 @@ const formItemLayout = {
     span: 19
   }
 };
+const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
+const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
+const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 @connect(
   ({ user, global }) => ({
@@ -116,7 +120,23 @@ export default class Index extends PureComponent {
         }
       }
       if (!err) {
-        this.props.onSubmit && this.props.onSubmit(fieldsValue);
+        let num = 0;
+
+        fieldsValue.static&&fieldsValue.static.length>0&&fieldsValue.static.map(item => {
+          if (
+            !rege.test(item || "") &&
+            (regs.test(item || "") || rega.test(item || "")) &&
+            this.state.endpointsType == "static"
+          ) {
+            num++;
+            if (num > 1) {
+              message.destroy();
+              return message.warning("服务地址目前只支持添加一个域名。");
+            }
+          }
+        });
+
+        num <= 1 && this.props.onSubmit && this.props.onSubmit(fieldsValue);
       }
     });
   };
@@ -184,24 +204,21 @@ export default class Index extends PureComponent {
       return;
     }
     if (typeof value == "object") {
-      value.map((item, index) => {
+      value.map(item => {
         if (item == "") {
           callback("请输入服务地址");
           return;
         }
-        // if (
-        //     (!/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(item || ""))
-        // ) {
-        //     if ((!/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]):\d{0,5}$/.test(item || ""))
-        //     ) {
-        //         callback("请输入正确的地址");
-        //         return;
-        //     } else {
-        //         callback();
-        //     }
-        //     callback("请输入正确的地址");
-        //     return;
-        // }
+
+        if (
+          this.state.endpointsType == "static" &&
+          (!regs.test(item || "") &&
+            !rega.test(item || "") &&
+            !rege.test(item || ""))
+        ) {
+          callback("请输入正确的地址");
+          return;
+        }
       });
     }
     if (

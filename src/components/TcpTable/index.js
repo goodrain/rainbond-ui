@@ -350,6 +350,7 @@ export default class TcpTable extends PureComponent {
     const currentRegion = region.filter(item => {
       return item.team_region_name == globalUtil.getCurrRegionName();
     });
+    console.log("currentRegion", currentRegion);
 
     const columns = [
       {
@@ -594,11 +595,28 @@ export default class TcpTable extends PureComponent {
                 </li>
               )}
               <li>
+                推荐访问地址&nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: "10px" }}>
-                  {agreement.end_point}
+                  {agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                  currentRegion &&
+                  currentRegion.length > 0
+                    ? agreement.end_point.replace(
+                        /0.0.0.0/g,
+                        currentRegion[0].tcpdomain
+                      )
+                    : agreement.end_point.replace(/\s+/g, "")}
                 </a>
                 <CopyToClipboard
-                  text={agreement.end_point.replace(/\s+/g, "")}
+                  text={
+                    agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                    currentRegion &&
+                    currentRegion.length > 0
+                      ? agreement.end_point.replace(
+                          /0.0.0.0/g,
+                          currentRegion[0].tcpdomain
+                        )
+                      : agreement.end_point.replace(/\s+/g, "")
+                  }
                   onCopy={() => {
                     notification.success({ message: "复制成功" });
                   }}

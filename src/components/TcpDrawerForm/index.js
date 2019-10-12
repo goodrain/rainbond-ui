@@ -205,7 +205,7 @@ class DrawerForm extends PureComponent {
       <div>
         {domain_port && (
           <Drawer
-            title={editInfo ? "编辑tcp访问策略" : "添加tcp访问策略"}
+            title={editInfo ? "编辑tcp/udp访问策略" : "添加tcp/udp访问策略"}
             placement="right"
             width={500}
             closable={false}
