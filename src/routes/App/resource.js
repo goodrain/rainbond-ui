@@ -442,6 +442,7 @@ class JAVA extends PureComponent {
             // BUILD_RUNTIMES_HHVM ? subObject.BUILD_RUNTIMES_HHVM = BUILD_RUNTIMES_HHVM : ""
             BUILD_DOTNET_RUNTIME_VERSION ? subObject.BUILD_DOTNET_RUNTIME_VERSION = BUILD_DOTNET_RUNTIME_VERSION : ""
 
+
             if (languageType && languageType == "dockerfile") {
                 this.props.onSubmit && this.props.onSubmit(setObj ? setObj : runtimeInfo)
             } else {
@@ -921,7 +922,7 @@ class JAVA extends PureComponent {
 
                     languageType == "dockerfile" && <div>
                         <Form.Item {...formItemLayout} label="ARG参数">
-                            {getFieldDecorator("set_dockerfile", { initialValue: "" })(<Dockerinput onChange={(value) => { this.onSetObj(value) }} editInfo={arr} />)}
+                            {getFieldDecorator("set_dockerfile", { initialValue: [] })(<Dockerinput onChange={(value) => { this.onSetObj(value) }} editInfo={arr} />)}
                         </Form.Item>
                     </div>
                 }

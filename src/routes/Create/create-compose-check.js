@@ -11,11 +11,9 @@ import {
   getComposeByComposeId
 } from "../../services/createApp";
 import globalUtil from "../../utils/global";
-import CodeCustomForm from "../../components/CodeCustomForm";
 import LogProcress from "../../components/LogProcress";
 import userUtil from "../../utils/user";
 import regionUtil from "../../utils/region";
-import configureGlobal from "../../utils/configureGlobal";
 import ConfirmModal from "../../components/ConfirmModal";
 import CodeMirror from "react-codemirror";
 require("codemirror/mode/yaml/yaml");

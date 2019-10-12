@@ -1,24 +1,17 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
 import { routerRedux } from "dva/router";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
   Row,
-  Col,
   Card,
   Form,
   Button,
-  Icon,
-  Menu,
-  Dropdown,
-  Tooltip,
   Table,
   Input,
   notification,
   Radio,
-  Modal,
-  message
+  Modal
 } from "antd";
 
 import DescriptionList from "../../components/DescriptionList";

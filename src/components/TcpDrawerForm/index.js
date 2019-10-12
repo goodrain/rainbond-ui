@@ -63,7 +63,6 @@ class DrawerForm extends PureComponent {
     const { editInfo } = this.props;
     if (editInfo) {
       this.handleServices({ key: editInfo.g_id });
-      // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
     }
   }
   /**获取服务组件 */
@@ -141,8 +140,6 @@ class DrawerForm extends PureComponent {
     });
   };
   handleChange = data => {
-    // console.log("data", data);
-    // this.props.form.setFieldsValue({end_point:data.})
   };
   checkport = (rules, value, callback) => {
     const { tcpType, editInfo } = this.props;
@@ -163,11 +160,6 @@ class DrawerForm extends PureComponent {
       callback("当前端口不可用!");
       return;
     }
-    // if(editInfo&&tcpType==0&&value.port<20000){
-    //     // callback('你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。');
-    //     // notification.info({message:'你填写的端口小于20000且选用默认IP, 应用网关将监听 0.0.0.0:20001 如不能访问请查询是否端口冲突。'})
-    //     return;
-    // }
     else {
       callback();
       return;
@@ -250,11 +242,11 @@ class DrawerForm extends PureComponent {
 
               <FormItem
                 {...formItemLayout}
-                label="应用(组)"
+                label="应用"
                 style={{ zIndex: 10011 }}
               >
                 {getFieldDecorator("group_id", {
-                  rules: [{ required: true, message: "请选择应用(组)" }],
+                  rules: [{ required: true, message: "请选择应用" }],
                   initialValue:
                     editInfo && editInfo.g_id && editInfo.group_name
                       ? {
@@ -265,10 +257,9 @@ class DrawerForm extends PureComponent {
                 })(
                   <Select
                     labelInValue
-                    placeholder="请选择要所属应用(组)"
+                    placeholder="请选择要所属应用"
                     onChange={this.handleServices}
                   >
-                    {/* <Option value="-1">请选择应用(组)</Option> */}
                     {(this.props.groups || []).map((group, index) => {
                       return (
                         <Option value={group.group_id + ""} key={index}>
@@ -281,7 +272,7 @@ class DrawerForm extends PureComponent {
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="服务组件"
+                label="组件"
                 style={{ zIndex: 10011 }}
               >
                 {getFieldDecorator("service_id", {
@@ -295,7 +286,7 @@ class DrawerForm extends PureComponent {
                       : undefined
                 })(
                   <Select
-                    placeholder="请选择服务组件"
+                    placeholder="请选择组件"
                     onChange={this.handlePorts}
                   >
                     {(this.state.serviceComponentList || []).map(
@@ -345,8 +336,6 @@ class DrawerForm extends PureComponent {
                 })(
                   <Select placeholder="请选择负载均衡类型">
                     <Option value="round-robin">轮询</Option>
-                    {/* <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option> */}
                   </Select>
                 )}
               </FormItem>

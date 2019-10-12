@@ -395,7 +395,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: this.state.deleteVar.attr_name
+        ID: this.state.deleteVar.ID
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -413,12 +413,13 @@ export default class Index extends PureComponent {
     this.setState({ showEditVar: null });
   };
   handleEditVar = vals => {
+    const { showEditVar } = this.state;
     this.props.dispatch({
       type: "appControl/editEvns",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: vals.attr_name,
+        ID: showEditVar.ID,
         attr_value: vals.attr_value,
         name: vals.name
       },
@@ -470,7 +471,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: transfer.attr_name,
+        ID: transfer.ID,
         scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: res => {
@@ -499,7 +500,7 @@ export default class Index extends PureComponent {
     const { outerEnvs } = this.props;
     return (
       <Fragment>
-        <Card style={{ marginBottom: 24 }} title={<span>服务连接信息</span>}>
+        <Card style={{ marginBottom: 24 }} title={<span>组件连接信息</span>}>
           <ScrollerX sm={650}>
             <Table
               pagination={{
@@ -629,9 +630,9 @@ export default class Index extends PureComponent {
         </Card>
         <Card
           title={[
-            <span>依赖服务信息</span>,
+            <span>依赖组件信息</span>,
             <span style={{ color: "red" }}>
-              {showText && "（依赖的服务有相同的端口冲突,请处理）"}
+              {showText && "（依赖的组件有相同的端口冲突,请处理）"}
             </span>
           ]}
         >
@@ -640,7 +641,7 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: "服务名",
+                  title: "组件名",
                   dataIndex: "service_cname",
                   render: (val, data) => (
                     <Link
@@ -666,7 +667,7 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: "服务说明",
+                  title: "组件说明",
                   dataIndex: "var",
                   render: (val, data) => {}
                 },

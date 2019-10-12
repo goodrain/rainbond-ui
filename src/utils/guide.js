@@ -14,7 +14,7 @@ const guideutil = {
             status: this.getStatus("app_create", info),
             key: "app_create"
         }, {
-            title: '基于源码创建服务',
+            title: '基于源码创建组件',
             status: this.getStatus("source_code_service_create", info),
             key: "source_code_service_create"
         }, {
@@ -22,7 +22,7 @@ const guideutil = {
             status: this.getStatus("image_service_create", info),
             key: "image_service_create"
         }, {
-            title: '服务连接数据库',
+            title: '组件连接数据库',
             status: this.getStatus("service_connect_db", info),
             key: "service_connect_db"
         }, {

@@ -175,7 +175,7 @@ export default class Index extends PureComponent {
             //   }
             // },
             {
-              title: "所属服务",
+              title: "所属组件",
               dataIndex: "dep_app_name",
               key: "5",
               width: "20%",
@@ -197,7 +197,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: "服务所属应用",
+              title: "组件所属应用",
               dataIndex: "dep_app_group",
               key: "6",
               width: "15%",

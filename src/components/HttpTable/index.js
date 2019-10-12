@@ -404,7 +404,7 @@ export default class HttpTable extends PureComponent {
                     this.setState({ appStatusVisable: true, record })
                     winHandler.close()
                 } else if (data && data.bean.status == "undeploy") {
-                    notification.warning({ message: "当前服务属于未部署状态", duration: 5 });
+                    notification.warning({ message: "当前组件属于未部署状态", duration: 5 });
                     that.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${record.service_alias}`))
                 }
                 else {
@@ -497,7 +497,7 @@ export default class HttpTable extends PureComponent {
 
             }
         }, {
-            title: '服务组件(端口)',
+            title: '组件(端口)',
             dataIndex: 'service_cname',
             key: 'service_cname',
             align: "center",

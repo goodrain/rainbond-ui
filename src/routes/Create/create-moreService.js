@@ -149,7 +149,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         notification.success({
-          message: "成功创建多服务应用",
+          message: "成功创建多组件应用",
           duration: "3",
         });
         this.setState({ buildState: false })

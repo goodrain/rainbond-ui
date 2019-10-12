@@ -12,7 +12,8 @@ import {
   Radio,
   Select,
   Tag,
-  Spin
+  Spin,
+  Alert
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
@@ -53,6 +54,7 @@ export default class Main extends PureComponent {
       total: 0,
       isSpinList: true,
       isSpincloudList: true,
+      networkText: "",
       cloudList: [],
       cloudApp_name: "",
       cloudPage: 1,
@@ -160,9 +162,21 @@ export default class Main extends PureComponent {
               cloudTotal: data.total
             },
             () => {
-              this.setState({
-                isSpincloudList: false
-              });
+              if (
+                data._code &&
+                data._code === 210 &&
+                data._condition &&
+                data._condition === 10503
+              ) {
+                this.setState({
+                  isSpincloudList: -1,
+                  networkText: data.msg_show
+                });
+              } else {
+                this.setState({
+                  isSpincloudList: false
+                });
+              }
             }
           );
         } else {
@@ -619,7 +633,8 @@ export default class Main extends PureComponent {
       cloudPageSize,
       cloudTotal,
       isSpinList,
-      isSpincloudList
+      isSpincloudList,
+      networkText
     } = this.state;
 
     const formItemLayout = {
@@ -830,7 +845,7 @@ export default class Main extends PureComponent {
             )}
             {installBounced && (
               <Modal
-                title="确认要安装此应用作为你的服务组件么？"
+                title="确认要安装此应用作为你的组件么？"
                 visible={installBounced}
                 onOk={this.handleInstallBounced}
                 onCancel={() => {
@@ -856,7 +871,7 @@ export default class Main extends PureComponent {
                     >
                       安装
                     </Button>
-                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对服务进行<br />高级设置再构建启动。</p>} > */}
+                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} > */}
                     <Radio
                       size="small"
                       onClick={this.renderSuccessOnChange}
@@ -986,7 +1001,7 @@ export default class Main extends PureComponent {
                 </div>
               ) : (
                 <div>
-                  {isSpincloudList ? (
+                  {isSpincloudList && isSpincloudList !== -1 ? (
                     <div
                       style={{
                         height: "300px",

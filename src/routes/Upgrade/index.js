@@ -222,7 +222,7 @@ export default class AppList extends PureComponent {
             width: "15%",
             render: status => <span >{infoUtil.getStatusCN(status)}</span>,
         }, {
-            title: '服务详情',
+            title: '组件详情',
             dataIndex: 'tenant_id',
             key: '5',
             width: "15%",

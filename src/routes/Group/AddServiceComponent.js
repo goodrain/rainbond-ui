@@ -79,7 +79,7 @@ export default class AddServiceComponent extends PureComponent {
     });
   };
 
-  //服务组件展示
+  //组件展示
   handleServiceComponent = (
     ServiceComponentOnePage,
     ServiceComponentTwoPage,
@@ -380,10 +380,10 @@ export default class AddServiceComponent extends PureComponent {
           style={{ marginLeft: "12px" }}
         >
           <Icon type="plus" />
-          添加服务组件
+          添加组件
         </Button>
         <Drawer
-          title="添加服务组件"
+          title="添加组件"
           placement="right"
           onClose={this.cancelAddService}
           visible={this.state.toAddService}
@@ -437,7 +437,7 @@ export default class AddServiceComponent extends PureComponent {
                   <Tooltip
                     placement="top"
                     title={
-                      !rainbondUtil.gitlabEnable(rainbondInfo) && "仅企业版可用"
+                      !rainbondUtil.githubEnable(rainbondInfo) && "仅企业版可用"
                     }
                   >
                     <Col
@@ -452,7 +452,7 @@ export default class AddServiceComponent extends PureComponent {
                       <p
                         className={styles.ServiceSmallTitle}
                         style={{
-                          color: rainbondUtil.gitlabEnable(rainbondInfo)
+                          color: rainbondUtil.githubEnable(rainbondInfo)
                             ? "rgba(16, 16, 16, 1)"
                             : "rgba(0, 0, 0, 0.25)"
                         }}

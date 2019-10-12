@@ -127,7 +127,7 @@ class BaseInfo extends PureComponent {
         width: "15%"
       },
       {
-        title: "服务名称",
+        title: "组件名称",
         dataIndex: "cname",
         rowKey: "cname",
         width: "15%"
@@ -263,13 +263,13 @@ class BaseInfo extends PureComponent {
             onOk={this.handleOk}
             onCancel={this.handleCancel}
           >
-            <Form.Item {...formItemLayout} label="服务名称">
+            <Form.Item {...formItemLayout} label="组件名称">
               {getFieldDecorator("cname", {
                 initialValue: editData && editData.cname,
                 rules: [
                   {
                     required: true,
-                    message: "请输入服务命令"
+                    message: "请输入组件命令"
                   }
                 ]
               })(<Input placeholder="" />)}

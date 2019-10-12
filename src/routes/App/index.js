@@ -1143,7 +1143,7 @@ class Main extends PureComponent {
             onCancel={this.handleOffHelpfulHints}
             confirmLoading={!this.state.promptModal}
           >
-            <p>确定{codeObj[this.state.promptModal]}当前服务？</p>
+            <p>确定{codeObj[this.state.promptModal]}当前组件？</p>
           </Modal>
         )}
         <Modal

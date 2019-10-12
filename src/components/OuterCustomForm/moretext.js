@@ -39,7 +39,7 @@ export default class Index extends Component {
         if (!arr.length) { arr.push("") };
         this.setState({ values: arr });
     }
-   
+
     triggerChange(values) {
         var onChange = this.props.onChange;
         onChange && onChange(values);
@@ -53,7 +53,7 @@ export default class Index extends Component {
         this.setValues(values);
     }
     render() {
-        const keyPlaceholder = this.props.keyPlaceholder || '请输入服务地址';
+        const keyPlaceholder = this.props.keyPlaceholder || '请输入组件地址';
         const values = this.state.values;
         return (
             <div>

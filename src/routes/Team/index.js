@@ -152,7 +152,7 @@ export default class Index extends PureComponent {
     const tabList = [
       {
         key: "event",
-        tab: "团队动态",
+        tab: "动态",
       },
       {
         key: "member",

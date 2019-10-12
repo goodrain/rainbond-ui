@@ -585,10 +585,8 @@ export default class AutoDeploy extends PureComponent {
                               size="small"
                             >
                               更新
-                            </Button>
-                            <p>
-                              注意：表达式为空时更新事件的tag与当前服务镜像tag一致时触发，不为空时表达式匹配正确触发
-                            </p>
+                       </Button>
+                            <p>注意：表达式为空时更新事件的tag与当前组件镜像tag一致时触发，不为空时表达式匹配正确触发</p>
                           </FormItem>
                         </Form>
                       </div>

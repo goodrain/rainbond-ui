@@ -175,20 +175,20 @@ class PluginList extends PureComponent {
       inandout_net_plugin: null,
       downstream_net_pluginData: {
         category: "downstream_net_plugin",
-        desc: "实现智能路由、A/B测试、灰度发布、端口复用等微服务治理功能",
-        plugin_alias: "服务出站网络治理插件",
+        desc: "实现智能路由、A/B测试、灰度发布、端口复用等微治理功能",
+        plugin_alias: "出站网络治理插件",
         hasInstall: false
       },
       perf_analyze_pluginData: {
         category: "perf_analyze_plugin",
         desc: "实时分析应用的吞吐率、响应时间、在线人数等指标",
-        plugin_alias: "服务实时性能分析",
+        plugin_alias: "实时性能分析",
         hasInstall: false
       },
       inandout_net_pluginData:{
         category: "inandout_net_plugin",
-        desc: "该插件支持服务的出站和入站网络治理，包括服务动态路由、限流、熔断等功能",
-        plugin_alias: "服务综合网络治理插件",
+        desc: "该插件支持的出站和入站网络治理，包括动态路由、限流、熔断等功能",
+        plugin_alias: "综合网络治理插件",
         hasInstall: false
       },
     };
@@ -242,7 +242,7 @@ class PluginList extends PureComponent {
             list.unshift(inandout_net_pluginData);
           }
           this.setState({
-            list: list 
+            list: list
           });
         }
       }

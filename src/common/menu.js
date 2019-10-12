@@ -29,10 +29,10 @@ const menuData = function() {
           path: "market"
         },
         {
-          name: "添加第三方服务",
-          path: "outer"
-        }
-      ]
+          name: "添加第三方组件",
+          path: "outer",
+        },
+      ],
     },
     {
       name: "应用管理",

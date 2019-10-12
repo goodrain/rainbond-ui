@@ -21,7 +21,7 @@ class History1000Log extends PureComponent {
     this.loadData();
   }
   loadData() {
-    getMonitorLog({
+    getServiceLog({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
       lines: 1000
@@ -38,14 +38,17 @@ class History1000Log extends PureComponent {
         title="最近1000条日志"
         visible={true}
         width={1000}
+        bodyStyle={{ background: "#222222", color: "#fff" }}
+        className={styles.logModal}
         onCancel={this.props.onCancel}
-        footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
+        footer={null}
+        // footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
       >
         {loading ? (
           <div style={{ textAlign: "center" }}>
             <Icon
               type="loading"
-              style={{ marginTop: 100, marginBottom: 100 }}
+              style={{ marginTop: 20, marginBottom: 20 }}
             />
           </div>
         ) : (
@@ -55,7 +58,7 @@ class History1000Log extends PureComponent {
           <div
             style={{
               padding: "20px 0",
-              maxHeight: 600,
+              maxHeight: 500,
               overflowY: "auto",
               background: "#212121"
             }}

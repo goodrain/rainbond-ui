@@ -1,7 +1,22 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Link } from "dva/router";
-import { Card, Form, Button, Icon, Table, Tag, notification, Tooltip, Row, Col, Alert, Popconfirm, Switch, Input } from "antd";
+import {
+  Card,
+  Form,
+  Button,
+  Icon,
+  Table,
+  Tag,
+  notification,
+  Tooltip,
+  Row,
+  Col,
+  Alert,
+  Popconfirm,
+  Switch,
+  Input
+} from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
 import AddVarModal from "./setting/env";
@@ -10,9 +25,8 @@ import globalUtil from "../../utils/global";
 import { volumeTypeObj } from "../../utils/utils";
 import RelationMnt from "../../components/AddStorage/relationMnt";
 import ScrollerX from "../../components/ScrollerX";
-import AddVolumes from "../../components/AddOrEditVolume"
-import AddStorage from "../../components/AddStorage"
-
+import AddVolumes from "../../components/AddOrEditVolume";
+import AddStorage from "../../components/AddStorage";
 
 const FormItem = Form.Item;
 const { Search } = Input;
@@ -30,11 +44,11 @@ const { Search } = Input;
     appControl,
 
     volumes: appControl.volumes,
-    appBaseInfo: appControl.baseInfo,
+    appBaseInfo: appControl.baseInfo
   }),
   null,
   null,
-  { withRef: true },
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends React.Component {
@@ -85,7 +99,7 @@ export default class Index extends React.Component {
 
     this.loadMntList();
     this.fetchVolumes();
-    this.fetchBaseInfo()
+    this.fetchBaseInfo();
     // this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
@@ -97,7 +111,7 @@ export default class Index extends React.Component {
     dispatch({ type: "appControl/clearRunningProbe" });
     dispatch({ type: "appControl/clearMembers" });
   }
-  onDeleteVar = (data) => {
+  onDeleteVar = data => {
     this.setState({ deleteVar: data });
   };
   // 变量信息
@@ -112,11 +126,11 @@ export default class Index extends React.Component {
         page_size,
         env_name
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }
-      },
+      }
     });
   };
 
@@ -127,13 +141,13 @@ export default class Index extends React.Component {
       type: "teamControl/fetchMember",
       payload: {
         team_name,
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ memberslist: data.list });
         }
-      },
+      }
     });
   };
 
@@ -144,13 +158,13 @@ export default class Index extends React.Component {
       type: "appControl/fetchpermsMember",
       payload: {
         team_name,
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ members: data.list });
         }
-      },
+      }
     });
   };
   handleAddVar = () => {
@@ -159,7 +173,7 @@ export default class Index extends React.Component {
   handleCancelAddVar = () => {
     this.setState({ showAddVar: false });
   };
-  handleSubmitAddVar = (vals) => {
+  handleSubmitAddVar = vals => {
     this.props.dispatch({
       type: "appControl/addInnerEnvs",
       payload: {
@@ -167,12 +181,12 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
-        name: vals.name,
+        name: vals.name
       },
-      callback: (res) => {
+      callback: res => {
         this.fetchInnerEnvs();
         this.handleCancelAddVar();
-      },
+      }
     });
   };
 
@@ -188,16 +202,16 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: this.state.deleteVar.attr_name,
+        ID: this.state.deleteVar.ID
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code == 200) {
           notification.success({ message: "操作成功" });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVar();
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
 
@@ -208,39 +222,40 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: transfer.attr_name,
+        ID: transfer.ID,
         scope: transfer.scope == "inner" ? "outer" : "inner"
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code == 200) {
           notification.success({ message: "操作成功" });
           this.fetchInnerEnvs();
         }
         this.cancelTransfer();
-      },
+      }
     });
   };
 
-  onEditVar = (data) => {
+  onEditVar = data => {
     this.setState({ showEditVar: data });
   };
   cancelEditVar = () => {
     this.setState({ showEditVar: null });
   };
-  handleEditVar = (vals) => {
+  handleEditVar = vals => {
+    const { showEditVar } = this.state;
     this.props.dispatch({
       type: "appControl/editEvns",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        attr_name: vals.attr_name,
+        ID: showEditVar.ID,
         attr_value: vals.attr_value,
-        name: vals.name,
+        name: vals.name
       },
       callback: () => {
         this.cancelEditVar();
         this.fetchInnerEnvs();
-      },
+      }
     });
   };
 
@@ -262,47 +277,42 @@ export default class Index extends React.Component {
       payload: {
         team_name,
         app_alias: this.props.appAlias,
-        user_id: this.state.toDeleteMember.user_id,
+        user_id: this.state.toDeleteMember.user_id
       },
       callback: () => {
         this.loadMembers();
         this.loadpermsMembers();
         this.hideDelMember();
-      },
+      }
     });
   };
 
-  onPageChange = (page) => {
-    this.setState({
-      page
-    }, () => {
-      this.fetchInnerEnvs()
-    })
-  }
-
-  handleSearch = (env_name) => {
-    this.setState({
-      page: 1,
-      env_name
-    }, () => {
-      this.fetchInnerEnvs()
-    })
-  }
-
-  onTransfer = (data) => {
-    this.setState({ transfer: data });
+  onPageChange = page => {
+    this.setState(
+      {
+        page
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
   };
 
+  handleSearch = env_name => {
+    this.setState(
+      {
+        page: 1,
+        env_name
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
+  };
 
-
-
-
-
-
-
-
-
-
+  onTransfer = data => {
+    this.setState({ transfer: data });
+  };
 
   fetchVolumes = () => {
     this.props.dispatch({
@@ -311,7 +321,7 @@ export default class Index extends React.Component {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         volume_type: ["config-file"]
-      },
+      }
     });
   };
   fetchBaseInfo = () => {
@@ -320,8 +330,8 @@ export default class Index extends React.Component {
       type: "appControl/fetchBaseInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
+        app_alias: this.props.appAlias
+      }
     });
   };
   loadMntList = () => {
@@ -330,12 +340,11 @@ export default class Index extends React.Component {
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type:["config-file"]
-
-    }).then((data) => {
+      volume_type: ["config-file"]
+    }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || [],
+          mntList: data.list || []
         });
       }
     });
@@ -343,15 +352,15 @@ export default class Index extends React.Component {
   handleAddVars = () => {
     this.setState({
       showAddVars: {
-        new: true,
-      },
+        new: true
+      }
     });
   };
   handleCancelAddVars = () => {
     this.setState({ showAddVars: null, editor: null });
   };
-  handleSubmitAddVars = (vals) => {
-    const { editor } = this.state
+  handleSubmitAddVars = vals => {
+    const { editor } = this.state;
     if (editor) {
       this.props.dispatch({
         type: "appControl/editorVolume",
@@ -367,7 +376,7 @@ export default class Index extends React.Component {
           this.handleCancelAddVars();
           notification.success({ message: "操作成功" });
           this.props.onshowRestartTips(true);
-        },
+        }
       });
     } else {
       this.props.dispatch({
@@ -375,14 +384,14 @@ export default class Index extends React.Component {
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals,
+          ...vals
         },
         callback: () => {
           this.fetchVolumes();
           this.handleCancelAddVars();
           notification.success({ message: "操作成功" });
           this.props.onshowRestartTips(true);
-        },
+        }
       });
     }
   };
@@ -392,12 +401,12 @@ export default class Index extends React.Component {
   handleCancelAddRelation = () => {
     this.setState({ showAddRelation: false });
   };
-  handleSubmitAddMnt = (mnts) => {
+  handleSubmitAddMnt = mnts => {
     addMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      body: mnts,
-    }).then((data) => {
+      body: mnts
+    }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
         this.loadMntList();
@@ -406,13 +415,13 @@ export default class Index extends React.Component {
       }
     });
   };
-  onDeleteMnt = (mnt) => {
+  onDeleteMnt = mnt => {
     this.setState({ toDeleteMnt: mnt });
   };
-  onDeleteVolume = (data) => {
+  onDeleteVolume = data => {
     this.setState({ toDeleteVolume: data });
   };
-  onEditVolume = (data) => {
+  onEditVolume = data => {
     this.setState({ showAddVars: data, editor: data });
   };
   onCancelDeleteVolume = () => {
@@ -424,14 +433,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_id: this.state.toDeleteVolume.ID,
+        volume_id: this.state.toDeleteVolume.ID
       },
       callback: () => {
         this.onCancelDeleteVolume();
         this.fetchVolumes();
         notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   handleDeleteMnt = () => {
@@ -440,14 +449,14 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        dep_vol_id: this.state.toDeleteMnt.dep_vol_id,
+        dep_vol_id: this.state.toDeleteMnt.dep_vol_id
       },
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
         notification.success({ message: "操作成功" });
         this.props.onshowRestartTips(true);
-      },
+      }
     });
   };
   cancelDeleteMnt = () => {
@@ -461,20 +470,20 @@ export default class Index extends React.Component {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 4,
-        },
+          span: 4
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 18,
-        },
-      },
+          span: 18
+        }
+      }
     };
     const appsetting_formItemLayout = {
       labelCol: {
@@ -485,17 +494,13 @@ export default class Index extends React.Component {
       }
     };
     const radioStyle = {
-      display: 'block',
-      height: '30px',
-      lineHeight: '30px'
+      display: "block",
+      height: "30px",
+      lineHeight: "30px"
     };
-    const {
-      innerEnvs,
-      baseInfo,
-      volumes
-    } = this.props;
+    const { innerEnvs, baseInfo, volumes } = this.props;
     const members = this.state.members || [];
-    if (typeof (baseInfo.build_upgrade) != "boolean") {
+    if (typeof baseInfo.build_upgrade != "boolean") {
       return null;
     }
     return (
@@ -504,10 +509,10 @@ export default class Index extends React.Component {
           <Col span={12}>
             <Alert
               showIcon
-              message="服务环境配置变更后需要更新或重启服务生效"
+              message="组件环境配置变更后需要更新或重启组件生效"
               type="info"
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             />
           </Col>
@@ -515,15 +520,16 @@ export default class Index extends React.Component {
         <Row>
           <Card
             style={{
-              marginBottom: 24,
+              marginBottom: 24
             }}
             title="自定义环境变量"
           >
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "20px"
-            }}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "20px"
+              }}
             >
               <Search
                 style={{ width: "260px" }}
@@ -531,8 +537,9 @@ export default class Index extends React.Component {
                 onSearch={this.handleSearch}
               />
               <Button onClick={this.handleAddVar}>
-                <Icon type="plus" />添加变量
-            </Button>
+                <Icon type="plus" />
+                添加变量
+              </Button>
             </div>
             <ScrollerX sm={600}>
               <Table
@@ -542,12 +549,16 @@ export default class Index extends React.Component {
                     dataIndex: "attr_name",
                     key: "1",
                     width: "20%",
-                    render: (v) => (
+                    render: v => (
                       <Tooltip title={v}>
-                        <div style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}>{v}</div>
+                        <div
+                          style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word"
+                          }}
+                        >
+                          {v}
+                        </div>
                       </Tooltip>
                     )
                   },
@@ -556,12 +567,16 @@ export default class Index extends React.Component {
                     dataIndex: "attr_value",
                     key: "2",
                     width: "40%",
-                    render: (v) => (
+                    render: v => (
                       <Tooltip title={v}>
-                        <div style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}>{v}</div>
+                        <div
+                          style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word"
+                          }}
+                        >
+                          {v}
+                        </div>
                       </Tooltip>
                     )
                   },
@@ -570,12 +585,16 @@ export default class Index extends React.Component {
                     dataIndex: "name",
                     key: "3",
                     width: "20%",
-                    render: (v) => (
+                    render: v => (
                       <Tooltip title={v}>
-                        <div style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}>{v}</div>
+                        <div
+                          style={{
+                            wordBreak: "break-all",
+                            wordWrap: "break-word"
+                          }}
+                        >
+                          {v}
+                        </div>
                       </Tooltip>
                     )
                   },
@@ -594,18 +613,26 @@ export default class Index extends React.Component {
                           style={{ marginRight: "5px" }}
                         >
                           删除
-                      </a>
-                      <Tooltip   title={<p>将此环境变量转换为<br/>服务连接信息变量</p>}>
-                        <a
-                          href="javascript:;"
-                          onClick={() => {
-                            this.onTransfer(data);
-                          }}
-                          style={{ marginRight: "5px" }}
+                        </a>
+                        <Tooltip
+                          title={
+                            <p>
+                              将此环境变量转换为
+                              <br />
+                              组件连接信息变量
+                            </p>
+                          }
                         >
-                          转移
-                      </a>
-                      </Tooltip>
+                          <a
+                            href="javascript:;"
+                            onClick={() => {
+                              this.onTransfer(data);
+                            }}
+                            style={{ marginRight: "5px" }}
+                          >
+                            转移
+                          </a>
+                        </Tooltip>
                         {data.is_change ? (
                           <a
                             href="javascript:;"
@@ -615,26 +642,24 @@ export default class Index extends React.Component {
                             style={{ marginRight: "5px" }}
                           >
                             修改
-                        </a>
+                          </a>
                         ) : (
-                            ""
-                          )}
+                          ""
+                        )}
                       </Fragment>
-                    ),
-                  },
+                    )
+                  }
                 ]}
                 dataSource={innerEnvs}
                 pagination={{
                   current: this.state.page,
                   pageSize: this.state.page_size,
                   total: this.state.total,
-                  onChange: this.onPageChange,
+                  onChange: this.onPageChange
                 }}
               />
             </ScrollerX>
-
           </Card>
-
 
           <Col span={12}>
             <Alert
@@ -642,14 +667,14 @@ export default class Index extends React.Component {
               message="配置文件内容支持使用环境变量动态渲染，方式为：${ENV_NAME}"
               type="info"
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             />
           </Col>
         </Row>
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title={<span> 配置文件设置 </span>}
         >
@@ -659,11 +684,11 @@ export default class Index extends React.Component {
               columns={[
                 {
                   title: "配置文件名称",
-                  dataIndex: "volume_name",
+                  dataIndex: "volume_name"
                 },
                 {
                   title: "配置文件挂载路径",
-                  dataIndex: "volume_path",
+                  dataIndex: "volume_path"
                 },
                 // {
                 //   title: "存储类型",
@@ -684,7 +709,7 @@ export default class Index extends React.Component {
                         href="javascript:;"
                       >
                         删除
-                    </a>
+                      </a>
                       <a
                         onClick={() => {
                           this.onEditVolume(data);
@@ -692,10 +717,10 @@ export default class Index extends React.Component {
                         href="javascript:;"
                       >
                         编辑
-                    </a>
+                      </a>
                     </div>
-                  ),
-                },
+                  )
+                }
               ]}
               dataSource={volumes}
             />
@@ -703,11 +728,12 @@ export default class Index extends React.Component {
           <div
             style={{
               marginTop: 10,
-              textAlign: "right",
+              textAlign: "right"
             }}
           >
             <Button onClick={this.handleAddVars}>
-              <Icon type="plus" />添加配置文件
+              <Icon type="plus" />
+              添加配置文件
             </Button>
           </div>
         </Card>
@@ -723,10 +749,14 @@ export default class Index extends React.Component {
                   width: "20%",
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{data}</span>
+                      <span
+                        style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {data}
+                      </span>
                     </Tooltip>
                   )
                 },
@@ -737,10 +767,14 @@ export default class Index extends React.Component {
                   width: "15%",
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{data}</span>
+                      <span
+                        style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {data}
+                      </span>
                     </Tooltip>
                   )
                 },
@@ -751,10 +785,14 @@ export default class Index extends React.Component {
                   width: "20%",
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{data}</span>
+                      <span
+                        style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {data}
+                      </span>
                     </Tooltip>
                   )
                 },
@@ -766,7 +804,7 @@ export default class Index extends React.Component {
                 //   }
                 // },
                 {
-                  title: "所属服务",
+                  title: "所属组件",
                   dataIndex: "dep_app_name",
                   key: "4",
                   width: "15%",
@@ -774,14 +812,14 @@ export default class Index extends React.Component {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
                         data.dep_app_alias
-                        }/overview`}
+                      }/overview`}
                     >
                       {v}
                     </Link>
-                  ),
+                  )
                 },
                 {
-                  title: "服务所属应用",
+                  title: "组件所属应用",
                   dataIndex: "dep_app_group",
                   key: "5",
                   width: "15%",
@@ -789,11 +827,11 @@ export default class Index extends React.Component {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
                         data.dep_group_id
-                        }`}
+                      }`}
                     >
                       {v}
                     </Link>
-                  ),
+                  )
                 },
                 {
                   title: "操作",
@@ -809,8 +847,8 @@ export default class Index extends React.Component {
                     >
                       取消挂载
                     </a>
-                  ),
-                },
+                  )
+                }
               ]}
               dataSource={mntList}
             />
@@ -818,7 +856,7 @@ export default class Index extends React.Component {
           <div
             style={{
               marginTop: 10,
-              textAlign: "right",
+              textAlign: "right"
             }}
           >
             <Button onClick={this.showAddRelation}>
@@ -865,29 +903,27 @@ export default class Index extends React.Component {
           <AddVarModal
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
-            isShowRestartTips={(onoffshow) => {
+            isShowRestartTips={onoffshow => {
               this.props.onshowRestartTips(onoffshow);
             }}
           />
         )}
 
-        {
-          this.state.transfer && (
-            <ConfirmModal
-              onOk={this.handleTransfer}
-              onCancel={this.cancelTransfer}
-              title="转移环境变量"
-              desc="确定要将此环境变量转换为服务连接信息变量吗?"
-              subDesc=""
-            />
-          )
-        }
+        {this.state.transfer && (
+          <ConfirmModal
+            onOk={this.handleTransfer}
+            onCancel={this.cancelTransfer}
+            title="转移环境变量"
+            desc="确定要将此环境变量转换为组件连接信息变量吗?"
+            subDesc=""
+          />
+        )}
         {this.state.showEditVar && (
           <AddVarModal
             onCancel={this.cancelEditVar}
             onSubmit={this.handleEditVar}
             data={this.state.showEditVar}
-            isShowRestartTips={(onoffshow) => {
+            isShowRestartTips={onoffshow => {
               this.props.onshowRestartTips(onoffshow);
             }}
           />
@@ -909,8 +945,6 @@ export default class Index extends React.Component {
             onCancel={this.hideDelMember}
           />
         )}
-
-
       </Fragment>
     );
   }
