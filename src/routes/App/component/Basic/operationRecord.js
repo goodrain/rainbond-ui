@@ -65,7 +65,6 @@ class Index extends PureComponent {
                   EventID,
                   create_time
                 } = item;
-                // console.log('logListlogListlogListlogList',EventID)
                 let UserNames =
                   UserName == "system"
                     ? "@系统"
@@ -147,6 +146,7 @@ class Index extends PureComponent {
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
                           <span
+                            style={{ display: "inline-block" }}
                             onClick={() => {
                               this.showLogModal(
                                 EventID,

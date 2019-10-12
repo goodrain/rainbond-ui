@@ -74,7 +74,7 @@ export default class Index extends PureComponent {
     });
   };
   loadMntList = () => {
-  
+
     getMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
@@ -144,7 +144,7 @@ export default class Index extends PureComponent {
     if (appBaseInfo && appBaseInfo.extend_method && appBaseInfo.extend_method != "stateless") {
       notification.warning({
         message: <div>
-          有状态服务存储配置发生变化后<br />
+          有状态组件存储配置发生变化后<br />
           需要重启应用才能生效!
         </div>,
       })
@@ -301,7 +301,7 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        <Card title={<span> 共享其他服务存储 </span>}>
+        <Card title={<span> 共享其他组件存储 </span>}>
           <ScrollerX sm={850}>
             <Table
               pagination={false}
@@ -358,7 +358,7 @@ export default class Index extends PureComponent {
                   }
                 },
                 {
-                  title: "目标所属服务",
+                  title: "目标所属组件",
                   dataIndex: "dep_app_name",
                   key: "5",
                   width: "10%",
@@ -373,7 +373,7 @@ export default class Index extends PureComponent {
                   ),
                 },
                 {
-                  title: "目标服务所属应用",
+                  title: "目标组件所属应用",
                   dataIndex: "dep_app_group",
                   key: "6",
                   width: "15%",

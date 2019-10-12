@@ -159,13 +159,13 @@ export default class Index extends PureComponent {
 
     validAttrName = (rule, value, callback) => {
         if (!value) {
-            callback("请输入服务地址");
+            callback("请输入组件地址");
             return;
         }
         if ((typeof (value) == "object")) {
             value.map((item, index) => {
                 if (item == "") {
-                    callback("请输入服务地址");
+                    callback("请输入组件地址");
                     return;
                 }
                 // if (
@@ -196,7 +196,7 @@ export default class Index extends PureComponent {
         const { groups } = this.props;
         const { showUsernameAndPass, showKey, endpointsType, staticList } = this.state;
         const gitUrl = getFieldValue("git_url");
-        let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
+        let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
         let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
         if (this.state.serverType == "svn") {
             isHttp = true;
@@ -209,14 +209,14 @@ export default class Index extends PureComponent {
         return (
             <Fragment>
                 <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-                    <Form.Item {...formItemLayout} label="服务名称">
+                    <Form.Item {...formItemLayout} label="组件名称">
                         {getFieldDecorator("service_cname", {
                             initialValue: data.service_cname || "",
                             rules: [
-                                { required: true, message: "请输入服务名称" },
-                                // { min: 4, message: "服务名称必须大于4位" },
+                                { required: true, message: "请输入组件名称" },
+                                // { min: 4, message: "组件名称必须大于4位" },
                             ],
-                        })(<Input placeholder="请输入服务名称"
+                        })(<Input placeholder="请输入组件名称"
                             style={{ display: "inline-block", width: (this.props.handleType && this.props.handleType === "Service") ? 350 : 277, marginRight: 15 }}
                         />)}
                     </Form.Item>
@@ -239,7 +239,7 @@ export default class Index extends PureComponent {
 
                     <FormItem
                         {...formItemLayout}
-                        label="服务注册方式"
+                        label="组件注册方式"
                     >
                         {getFieldDecorator('endpoints_type', {
                             rules: [{ required: true, message: '请选择endpoints类型!' }],
@@ -255,7 +255,7 @@ export default class Index extends PureComponent {
 
                     {endpointsType == "static" && <FormItem
                         {...formItemLayout}
-                        label={<span>服务地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
+                        label={<span>组件地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
                     >
                         {getFieldDecorator('static', {
                             rules: [{ validator: this.validAttrName }],
@@ -265,7 +265,7 @@ export default class Index extends PureComponent {
                                 {staticList.map((item, index) => {
                                     return (<Row style={{width:370}} key={index}>
                                         <Col span={18}>
-                                            <Input onChange={this.onKeyChange.bind(this, index, "static")} value={item} placeholder={"请输入服务地址"} />
+                                            <Input onChange={this.onKeyChange.bind(this, index, "static")} value={item} placeholder={"请输入组件地址"} />
                                         </Col>
                                         <Col span={4} style={{ textAlign: 'center' }}>
                                             {index == 0 ? <Icon type="plus-circle" onClick={() => { this.add("static") }} style={{ fontSize: "20px" }} />
@@ -309,19 +309,19 @@ export default class Index extends PureComponent {
                         >
                             <FormItem
                                 {...formItemLayout}
-                                label={<span>服务地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
+                                label={<span>组件地址<Tooltip title={<a href="https://www.rainbond.com/docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA" target="_blank" style={{ color: "#fff" }}>点击阅读文档</a>} > <Icon type="question-circle-o" /></Tooltip></span>}
                                 style={{ textAlign: "right" }}
                             >
                                 {getFieldDecorator('servers', {
                                     rules: [{ required: true }, { validator: this.validAttrName }],
-                                    // rules: [{ required: true, message: '请输入服务地址!' }],
+                                    // rules: [{ required: true, message: '请输入组件地址!' }],
                                     initialValue: "",
                                 })(
                                     <div>
                                         {staticList.map((item, index) => {
                                             return (<Row key={index}>
                                                 <Col span={20}>
-                                                    <Input onChange={this.onKeyChange.bind(this, index, "servers")} value={item} placeholder={"请输入服务地址"} />
+                                                    <Input onChange={this.onKeyChange.bind(this, index, "servers")} value={item} placeholder={"请输入组件地址"} />
                                                 </Col>
                                                 <Col span={4} style={{ textAlign: 'center' }}>
                                                     {index == 0 ? <Icon type="plus-circle" onClick={() => { this.add("servers") }} style={{ fontSize: "20px" }} />
@@ -381,17 +381,17 @@ export default class Index extends PureComponent {
                             label=""
                         >
                             {this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-                                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">创建服务</Button>, false) :
+                                this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary">创建组件</Button>, false) :
                                 !this.props.handleType && <div style={{
                                     display: "flex", alignItems: "center", justifyContent:
                                         endpointsType == "api" ?
                                             "space-evenly" : "start"
                                 }}>
-                                    <Button onClick={this.handleSubmit} type="primary">创建服务</Button>
-                                    {endpointsType == "api" && <Alert message="API地址在服务创建后获取" type="warning" showIcon />}
+                                    <Button onClick={this.handleSubmit} type="primary">创建组件</Button>
+                                    {endpointsType == "api" && <Alert message="API地址在组件创建后获取" type="warning" showIcon />}
                                 </div>
                             }
-                            {this.props.handleType && this.props.handleType === "Service" && endpointsType == "api" && <Alert message="API地址在服务创建后获取" type="warning" showIcon style={{ width: "350px" }} />}
+                            {this.props.handleType && this.props.handleType === "Service" && endpointsType == "api" && <Alert message="API地址在组件创建后获取" type="warning" showIcon style={{ width: "350px" }} />}
                         </Form.Item>
                     ) : null}
                 </Form>

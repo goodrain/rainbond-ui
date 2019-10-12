@@ -143,7 +143,7 @@ export default class AppList extends PureComponent {
     }
 
 
-    // 查询某云市应用下服务的更新信息
+    // 查询某云市应用下组件的更新信息
     getUpdatedInfo = (versions) => {
         const version = this.props.form.getFieldValue('upgradeVersions');
         const { group_id } = this.props;
@@ -321,7 +321,7 @@ export default class AppList extends PureComponent {
                 return [
                     {
                         title: '',
-                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>新增服务</div>
+                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>新增组件</div>
                         )
                     }
                 ]
@@ -333,7 +333,7 @@ export default class AppList extends PureComponent {
                 return [
                     {
                         title: '',
-                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>服务无变更，无需升级</div>
+                        description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>组件无变更，无需升级</div>
                         )
                     }
                 ]
@@ -367,11 +367,11 @@ export default class AppList extends PureComponent {
             //         // actions: [<a>删除</a>],
             //     } : ""
             //     let yl = dep_service_map_list && dep_service_map_list.length > 0 ? {
-            //         title: '依赖服务',
+            //         title: '依赖组件',
             //         description: (<div>
             //                 <p>新增对 {dep_service_map_list.map((item, index) => {
             //                     return <span key={index}>{item.dep_service_key}</span>
-            //                 })} 服务的依赖</p>
+            //                 })} 组件的依赖</p>
             //             </div>
             //         ),
             //         // actions: [<a>删除</a>],
@@ -407,7 +407,7 @@ export default class AppList extends PureComponent {
             return [
                 {
                     title: '',
-                    description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>服务无变更，无需升级</div>
+                    description: (<div style={{ textAlign: "center", lineHeight: "300px", fontSize: "25px" }}>组件无变更，无需升级</div>
                     )
                 }
             ]
@@ -498,7 +498,7 @@ export default class AppList extends PureComponent {
 
 
         let yl = {
-            title: '依赖服务',
+            title: '依赖组件',
             description: (<div>
                 {dep_services ?
                     <div>
@@ -508,14 +508,14 @@ export default class AppList extends PureComponent {
                                         {dep_services.add.map((item, index) => {
                                     return <span key={index}>{item.service_cname}</span>
                                 })}
-                                服务的依赖
+                                组件的依赖
                                     </div>}
                         {dep_services.del && dep_services.del.length > 0 &&
                             <div className={styles.textzt}>
                                 移除对{dep_services.del.map((item, index) => {
                                     return <span key={index}>{item.service_cname}</span>
                                 }
-                                )}服务的依赖
+                                )}组件的依赖
                                     </div>
                         }
                     </div>
@@ -713,7 +713,7 @@ export default class AppList extends PureComponent {
                                                                                     <Icon type="up" style={{ color: "#239B24" }} />
                                                                                 </Tooltip>:
                                                                                 (upgrade_info!=null || update!=null)&& (JSON.stringify(upgrade_info ? upgrade_info : update) != "{}")?
-                                                                                <Tooltip title="新增服务"><Icon type="plus" style={{ color: "#239B24" }} />
+                                                                                <Tooltip title="新增组件"><Icon type="plus" style={{ color: "#239B24" }} />
                                                                                 </Tooltip>:""
                                                                         }
                                                                     </div>
@@ -731,7 +731,7 @@ export default class AppList extends PureComponent {
                     </Col>
                     <Col xs={{ span: 18, offset: 0 }} lg={{ span: 18, offset: 0 }} style={{ background: "#fff" }}>
                         <div className={styles.zslbor}>
-                            <div className={styles.zslcen}>服务属性变更详情</div>
+                            <div className={styles.zslcen}>组件属性变更详情</div>
                             <Row gutter={24} style={{ margin: "10px 20px 20px", height: "400px", overflow: "auto" }}>
                                 {conshow ? <Spin size="large" /> :
                                     <List

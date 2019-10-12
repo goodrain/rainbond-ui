@@ -215,7 +215,7 @@ export default class EventList extends PureComponent {
               paddingTop: 12
             }}
             bordered={false}
-            title="团队动态"
+            title="动态"
             loading={activitiesLoading}
           >
             <List

@@ -116,13 +116,13 @@ export default class Index extends PureComponent {
 					</Form.Item>
 					<Form.Item
 						{...formItemLayout}
-						label="服务组件名称"
+						label="组件名称"
 					>
 						{getFieldDecorator('service_cname', {
 							initialValue: data.service_cname || '',
-							rules: [{ required: true, message: '要创建的服务组件还没有名字' }],
+							rules: [{ required: true, message: '要创建的组件还没有名字' }],
 						})(
-							<Input placeholder="请为创建的服务组件起个名字吧" />
+							<Input placeholder="请为创建的组件起个名字吧" />
 						)}
 					</Form.Item>
 
@@ -181,7 +181,7 @@ export default class Index extends PureComponent {
 								label=""
 							>
 								{this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
-									this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建服务</Button>, false) :
+									this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建组件</Button>, false) :
 									!this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建应用</Button>
 								}
 							</Form.Item>

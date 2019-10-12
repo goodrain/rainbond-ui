@@ -133,7 +133,7 @@ export default class Index extends PureComponent {
         onCancel={this.handleCancel}
       >
         <Search
-          style={{ width: "260px" }}
+          style={{ width: "350px", marginBottom: "20px" }}
           placeholder="请输入组件名称进行搜索"
           onSearch={this.handleSearchTeamList}
         />
@@ -215,7 +215,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: "目标所属服务",
+              title: "目标所属组件",
               dataIndex: "dep_app_name",
               key: "5",
               width: "15%",
@@ -241,7 +241,7 @@ export default class Index extends PureComponent {
               }
             },
             {
-              title: "目标服务所属应用",
+              title: "目标组件所属应用",
               dataIndex: "dep_app_group",
               key: "6",
               width: "15%",

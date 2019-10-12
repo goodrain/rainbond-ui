@@ -3,7 +3,16 @@ import globalUtil from "../../utils/global";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import BasicListStyles from "../List/BasicList.less";
 import Styles from "../Source/Index.less";
-import { Card, List, Avatar, Input, Radio, notification, Select } from "antd";
+import {
+  Card,
+  List,
+  Avatar,
+  Input,
+  Radio,
+  notification,
+  Select,
+  Alert
+} from "antd";
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
@@ -21,7 +30,8 @@ export default class CloudApp extends PureComponent {
       showMarketAppDetail: false,
       showApp: {},
       version: null,
-      versionList: null
+      versionList: null,
+      networkText: ""
     };
   }
   componentDidMount = () => {
@@ -29,7 +39,7 @@ export default class CloudApp extends PureComponent {
   };
   handleClose = () => {
     this.props.onClose && this.props.onClose();
-    this.setState({ versionList: null })
+    this.setState({ versionList: null });
   };
   handleSync = () => {
     this.loadApps();
@@ -60,12 +70,20 @@ export default class CloudApp extends PureComponent {
             pageSize: this.state.pageSize
           },
           callback: data => {
+            console.log("data", data);
             if (data) {
               this.setState({
                 apps: data.list || [],
-                loading: false,
+                loading:
+                  data._code &&
+                  data._code === 210 &&
+                  data._condition &&
+                  data._condition === 10503
+                    ? -1
+                    : false,
                 total: data.total,
-                version: null
+                version: null,
+                networkText: data.msg_show
               });
             }
           }
@@ -78,14 +96,14 @@ export default class CloudApp extends PureComponent {
       type: "global/syncMarketAppDetail",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        body:
-        {
+        body: {
           group_key: data.group_key,
           // version: data.version,
-          group_version: this.state.version ? [this.state.version] : [data.version[0]],
+          group_version: this.state.version
+            ? [this.state.version]
+            : [data.version[0]],
           template_version: data.template_version
         }
-
       },
       callback: data => {
         notification.success({ message: "操作成功" });
@@ -96,34 +114,31 @@ export default class CloudApp extends PureComponent {
   };
 
   shouldComponentUpdate = () => {
-    return true
-  }
-
+    return true;
+  };
 
   handleChange = (version, data, index) => {
-    this.setState({ version })
+    this.setState({ version });
     this.props.dispatch({
       type: "global/getVersion",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_name: data.group_name,
         group_key: data.group_key,
-        version: version,
+        version: version
       },
       callback: res => {
         if (res && res._code == 200) {
           if (res.list && res.list.length > 0) {
-            let arr = this.state.apps
-            arr[index].is_complete = res.list[0].is_complete
-            arr[index].is_upgrade = res.list[0].is_upgrade
-            this.setState({ apps: arr })
+            let arr = this.state.apps;
+            arr[index].is_complete = res.list[0].is_complete;
+            arr[index].is_upgrade = res.list[0].is_upgrade;
+            this.setState({ apps: arr });
           }
         }
       }
     });
-  }
-
-
+  };
 
   handlePageChange = page => {
     this.setState(
@@ -136,9 +151,9 @@ export default class CloudApp extends PureComponent {
     );
   };
   showMarketAppDetail = app => {
-    if (app && app.app_detail_url){
+    if (app && app.app_detail_url) {
       window.open(app.app_detail_url, "_blank");
-      return
+      return;
     }
     this.setState({
       showApp: app,
@@ -222,69 +237,94 @@ export default class CloudApp extends PureComponent {
           </div>
         }
       >
-        <List
-          size="large"
-          rowKey="id"
-          loading={this.state.loading}
-          pagination={paginationProps}
-          dataSource={this.state.apps}
-          renderItem={(item, index) => (
-            <List.Item actions={[this.getAction(item)]}>
-              <List.Item.Meta
-                avatar={
-                  <Avatar
-                    src={
-                      item.pic || require("../../../public/images/app_icon.jpg")
-                    }
-                    onClick={() => {
-                      this.showMarketAppDetail(item);
-                    }}
-                    shape="square"
-                    size="large"
-                  />
-                }
-                title={
-                  <a
-                    style={{ color: "#1890ff" }}
-                    href={"javascript:;"}
-                    onClick={() => {
-                      this.showMarketAppDetail(item);
-                    }}
-                  >
-                    {item.group_name}
-                    {item.is_official && "(官方推荐)"}
-                  </a>
-                }
-                description={
-                  <div className={Styles.conts} >
-                    {!this.state.loading && <p> <span style={{display:"inline-block",width:'60px'}}>版本:</span>
-                      <Select
-                        defaultValue={item.version[0]}
-                        onChange={(version) => { this.handleChange(version, item, index) }}
-                        size="small"
-                      >
-                        {
-                          item.version && item.version.map((item, index) => {
-                            return <Option value={item} key={index}>{item}</Option>
-                          })}
-                      </Select></p>}
+        {this.state.loading === -1 ? (
+          <div style={{ height: "300px" }}>
+            <Alert
+              style={{ marginTop: "130px", textAlign: "center" }}
+              message={this.state.networkText}
+              type="info"
+            />
+          </div>
+        ) : (
+          <List
+            size="large"
+            rowKey="id"
+            loading={this.state.loading === -1 ? false : this.state.loading}
+            pagination={paginationProps}
+            dataSource={this.state.apps}
+            renderItem={(item, index) => (
+              <List.Item actions={[this.getAction(item)]}>
+                <List.Item.Meta
+                  avatar={
+                    <Avatar
+                      src={
+                        item.pic ||
+                        require("../../../public/images/app_icon.jpg")
+                      }
+                      onClick={() => {
+                        this.showMarketAppDetail(item);
+                      }}
+                      shape="square"
+                      size="large"
+                    />
+                  }
+                  title={
+                    <a
+                      style={{ color: "#1890ff" }}
+                      href={"javascript:;"}
+                      onClick={() => {
+                        this.showMarketAppDetail(item);
+                      }}
+                    >
+                      {item.group_name}
+                      {item.is_official && "(官方推荐)"}
+                    </a>
+                  }
+                  description={
+                    <div className={Styles.conts}>
+                      {!this.state.loading && (
+                        <p>
+                          {" "}
+                          <span
+                            style={{ display: "inline-block", width: "60px" }}
+                          >
+                            版本:
+                          </span>
+                          <Select
+                            defaultValue={item.version[0]}
+                            onChange={version => {
+                              this.handleChange(version, item, index);
+                            }}
+                            size="small"
+                          >
+                            {item.version &&
+                              item.version.map((item, index) => {
+                                return (
+                                  <Option value={item} key={index}>
+                                    {item}
+                                  </Option>
+                                );
+                              })}
+                          </Select>
+                        </p>
+                      )}
 
-                    {item.enterprise && item.enterprise.name && <p className={Styles.publisher}>
-                      <span>发布者：</span>
-                      <a
-                        href= "javascript:;"
-                        title={item.enterprise.name}
-                      >
-                        {item.enterprise.name}
-                      </a>
-                    </p>}
-                    <div>{item.describe || "-"}</div>
-                  </div>
-                }
-              />
-            </List.Item>
-          )}
-        />
+                      {item.enterprise && item.enterprise.name && (
+                        <p className={Styles.publisher}>
+                          <span>发布者：</span>
+                          <a href="javascript:;" title={item.enterprise.name}>
+                            {item.enterprise.name}
+                          </a>
+                        </p>
+                      )}
+                      <div>{item.describe || "-"}</div>
+                    </div>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        )}
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
