@@ -24,9 +24,10 @@ import ModifyUrl from "./modify-url";
 const RadioGroup = Radio.Group;
 const RadioButton = Radio.Button;
 
-@connect(({ user, appControl }) => ({
+@connect(({ user, appControl, global }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail
+  appDetail: appControl.appDetail,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class CreateCheck extends PureComponent {
   constructor(props) {
@@ -531,6 +532,7 @@ export default class CreateCheck extends PureComponent {
   };
 
   renderSuccess = () => {
+    const { rainbondInfo } = this.props;
     const { ServiceGetData, is_deploy, appDetail } = this.state;
     const serviceInfo = this.state.serviceInfo;
     const extra =
@@ -713,19 +715,20 @@ export default class CreateCheck extends PureComponent {
               <div>
                 服务构建源检测通过仅代表平台可以检测到代码语言类型和代码源。
               </div>
-              90%以上的用户在检测通过后可部署成功，
-              {configureGlobal.rainbondTextShow && (
-                <span>
-                  ，如遇部署失败可参考{" "}
-                  <a
-                    href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
-                    target="_blank"
-                  >
-                    Rainbond源码支持规范
-                  </a>{" "}
-                  对代码进行调整。
-                </span>
-              )}
+              {configureGlobal.rainbondTextShow &&
+                rainbondInfo &&
+                rainbondInfo.document && (
+                  <span>
+                    90%以上的用户在检测通过后可部署成功 ，如遇部署失败可参考{" "}
+                    <a
+                      href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
+                      target="_blank"
+                    >
+                      Rainbond源码支持规范
+                    </a>{" "}
+                    对代码进行调整。
+                  </span>
+                )}
             </div>
           )
         }
@@ -739,6 +742,7 @@ export default class CreateCheck extends PureComponent {
   renderMoreService = () => {
     const { ServiceGetData, is_deploy, appDetail, is_multi } = this.state;
     const serviceInfo = this.state.serviceInfo;
+    const { rainbondInfo } = this.props;
     const extra =
       serviceInfo && serviceInfo.length > 0
         ? serviceInfo.map(item => (
@@ -878,19 +882,21 @@ export default class CreateCheck extends PureComponent {
           ) : (
             <div>
               <div>服务构建源检测通过仅代表平台可以检测到多模块构建。</div>
-              90%以上的用户在检测通过后可部署成功，如遇部署失败，
-              {configureGlobal.rainbondTextShow && (
-                <span>
-                  可参考{" "}
-                  <a
-                    href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
-                    target="_blank"
-                  >
-                    Rainbond源码支持规范
-                  </a>{" "}
-                  对代码进行调整。
-                </span>
-              )}
+
+              {configureGlobal.rainbondTextShow &&
+                rainbondInfo &&
+                rainbondInfo.document && (
+                  <span>
+                    90%以上的用户在检测通过后可部署成功，如遇部署失败， 可参考{" "}
+                    <a
+                      href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
+                      target="_blank"
+                    >
+                      Rainbond源码支持规范
+                    </a>{" "}
+                    对代码进行调整。
+                  </span>
+                )}
             </div>
           )
         }

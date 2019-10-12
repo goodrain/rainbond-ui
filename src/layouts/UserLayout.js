@@ -46,19 +46,18 @@ class UserLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location, rainbondInfo } = this.props;
     const { pathname } = location;
-    let title = `${
-      rainbondInfo.title
-    } | Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.`;
+    let title =
+      (rainbondInfo &&
+        rainbondInfo.title !== undefined &&
+        rainbondInfo.title) ||
+      "Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - ${
-        rainbondInfo.title
-      } | Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.`;
+      title = `${routerData[pathname].name} - ${title} `;
     }
-    return configureGlobal.rainbondTextShow && title;
+    return title;
   }
   render() {
-    const { routerData, match, rainbondInfo } = this.props;
-    const nouse = cookie.get("nouse");
+    const { routerData, match, rainbondInfo, nouse } = this.props;
 
     return (
       <DocumentTitle title={this.getPageTitle()}>
@@ -111,5 +110,6 @@ class UserLayout extends React.PureComponent {
 }
 
 export default connect(({ global }) => ({
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
+  nouse: global.nouse
 }))(UserLayout);

@@ -141,7 +141,8 @@ export default class Index extends PureComponent {
 
   componentWillMount() {
     this.getTeam();
-    configureGlobal.newbieGuideShow && this.getGuideState();
+    const { rainbondInfo } = this.props;
+    rainbondInfo && rainbondInfo.newbie_guide && this.getGuideState();
   }
 
   getTeam = () => {
@@ -335,7 +336,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           dispatch({
-            type: "global/saveIsisNouse",
+            type: "global/setNouse",
             payload: {
               isNouse: false
             }
@@ -345,7 +346,7 @@ export default class Index extends PureComponent {
       handleError: res => {
         if (res && res.data && res.data.code && res.data.code === 10400) {
           dispatch({
-            type: "global/saveIsisNouse",
+            type: "global/setNouse",
             payload: {
               isNouse: true
             }

@@ -1,5 +1,6 @@
 import moment from "moment";
 import configureGlobal from "./configureGlobal.js";
+import cookie from "./cookie";
 
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
@@ -180,34 +181,18 @@ export function isUrl(path) {
   return reg.test(path);
 }
 
+let platform_url = cookie.get("platform_url");
+
 export const languageObj = {
-  Dockefile: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/dockerfile/`,
-  Java: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/java/`,
-  PHP: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/php/`,
-  Python: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/python/`,
-  Nodejs: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/nodejs/`,
-  NodeJSStatic: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/nodejs-static/`,
-  Go: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/golang/`,
-  Netcore: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/netcore/`,
-  Html: `${
-    configureGlobal.rainbondDocumentAddress
-  }docs/user-manual/app-creation/language-support/html/`
+  Dockefile: `${platform_url}docs/user-manual/app-creation/language-support/dockerfile/`,
+  Java: `${platform_url}docs/user-manual/app-creation/language-support/java/`,
+  PHP: `${platform_url}docs/user-manual/app-creation/language-support/php/`,
+  Python: `${platform_url}docs/user-manual/app-creation/language-support/python/`,
+  Nodejs: `${platform_url}docs/user-manual/app-creation/language-support/nodejs/`,
+  NodeJSStatic: `${platform_url}docs/user-manual/app-creation/language-support/nodejs-static/`,
+  Go: `${platform_url}docs/user-manual/app-creation/language-support/golang/`,
+  Netcore: `${platform_url}docs/user-manual/app-creation/language-support/netcore/`,
+  Html: `${platform_url}docs/user-manual/app-creation/language-support/html/`
 };
 
 export const volumeTypeObj = {

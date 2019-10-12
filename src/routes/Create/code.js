@@ -3,7 +3,17 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
 import { Link, Switch, Route, routerRedux } from "dva/router";
-import { Row, Col, Card, Form, Button, Icon, Menu, Dropdown, notification } from "antd";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Icon,
+  Menu,
+  Dropdown,
+  notification
+} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { getRoutes } from "../../utils/utils";
 import { getRouterData } from "../../common/router";
@@ -19,11 +29,10 @@ import rainbondUtil from "../../utils/rainbond";
 const ButtonGroup = Button.Group;
 
 @connect(
-
-({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
+  ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
   null,
   null,
-  { pure: false },
+  { pure: false }
 )
 export default class Main extends PureComponent {
   constructor(arg) {
@@ -32,10 +41,14 @@ export default class Main extends PureComponent {
   }
   componentDidMount() {}
   componentWillUnmount() {}
-  handleTabChange = (key) => {
+  handleTabChange = key => {
     const { dispatch, match } = this.props;
     const { appAlias } = this.props.match.params;
-    dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}`));
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}`
+      )
+    );
   };
   render() {
     const rainbondInfo = this.props.rainbondInfo;
@@ -43,20 +56,18 @@ export default class Main extends PureComponent {
       custom: CodeCustom,
       demo: CodeDemo,
       goodrain: CodeGoodrain,
-      github: CodeGithub,
+      github: CodeGithub
     };
 
     const tabList = [
       {
         key: "custom",
-        tab: "自定义源码",
-      },
-      {
-        key: "demo",
-        tab: "官方DEMO",
-      },
+        tab: "自定义源码"
+      }
     ];
-
+    if (rainbondInfo && rainbondInfo.official_demo) {
+      tabList.push({ key: "demo", tab: "官方DEMO" });
+    }
     if (rainbondUtil.gitlabEnable(rainbondInfo)) {
       tabList.push({ key: "goodrain", tab: "Gitlab项目" });
     }
@@ -77,16 +88,16 @@ export default class Main extends PureComponent {
         breadcrumbList={[
           {
             title: "首页",
-            href: "/",
+            href: "/"
           },
           {
             title: "创建应用",
-            href: "",
+            href: ""
           },
           {
             title: "从源码创建",
-            href: "",
-          },
+            href: ""
+          }
         ]}
         title="由源码创建应用"
         onTabChange={this.handleTabChange}

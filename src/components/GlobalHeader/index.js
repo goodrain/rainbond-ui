@@ -25,7 +25,6 @@ import userIcon from "../../../public/images/user-icon-small.png";
 import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
-import configureGlobal from "../../utils/configureGlobal";
 
 import { Route, Redirect, Switch, routerRedux } from "dva/router";
 
@@ -90,7 +89,7 @@ const noticeTit = {
   消息: "news",
   提醒: "warn"
 };
-@connect(({ global }) => ({}))
+@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -247,6 +246,7 @@ export default class GlobalHeader extends PureComponent {
   renderRegions = () => {
     const onRegionClick = this.props.onRegionClick;
     const team = this.getCurrTeam();
+    const { rainbondInfo } = this.props;
     if (team) {
       return (
         <Menu className={styles.menu} selectedKeys={[]} onClick={onRegionClick}>
@@ -256,12 +256,14 @@ export default class GlobalHeader extends PureComponent {
             </Menu.Item>
           ))}
           <Menu.Divider />
-          {teamUtil.canAddRegion(team) && (
-            <Menu.Item key="openRegion">
-              <Icon type="plus" />
-              开通数据中心
-            </Menu.Item>
-          )}
+          {teamUtil.canAddRegion(team) &&
+            rainbondInfo &&
+            rainbondInfo.data_center && (
+              <Menu.Item key="openRegion">
+                <Icon type="plus" />
+                开通数据中心
+              </Menu.Item>
+            )}
         </Menu>
       );
     }
@@ -302,10 +304,10 @@ export default class GlobalHeader extends PureComponent {
       notifyCount,
       isPubCloud,
       currRegion,
-      currTeam
+      currTeam,
+      rainbondInfo
     } = this.props;
     const noticesList = this.state.newNoticeList;
-
     if (!currentUser) {
       return null;
     }
@@ -393,13 +395,11 @@ export default class GlobalHeader extends PureComponent {
         </div>
 
         <div className={styles.right}>
-          {configureGlobal.documentShow && (
+          {rainbondInfo && rainbondInfo.document && (
             <Tooltip title="平台使用手册">
               <a
                 target="_blank"
-                href={`${
-                  configureGlobal.rainbondDocumentAddress
-                }docs/user-manual/`}
+                href={`${rainbondInfo.document.platform_url}docs/user-manual/`}
                 rel="noopener noreferrer"
                 className={styles.action}
               >

@@ -37,7 +37,8 @@ const formItemLayout = {
 @connect(
   ({ user, global }) => ({
     currUser: user.currentUser,
-    groups: global.groups
+    groups: global.groups,
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -221,7 +222,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups } = this.props;
+    const { groups, rainbondInfo } = this.props;
     const {
       showUsernameAndPass,
       showKey,
@@ -328,9 +329,10 @@ export default class Index extends PureComponent {
                   <Tooltip
                     title={
                       <a
-                        href={`${
-                          configureGlobal.rainbondDocumentAddress
-                        }docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                        href={`${rainbondInfo &&
+                          rainbondInfo.document &&
+                          rainbondInfo.document
+                            .platform_url}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
                         target="_blank"
                         style={{ color: "#fff" }}
                       >
@@ -438,9 +440,10 @@ export default class Index extends PureComponent {
                       <Tooltip
                         title={
                           <a
-                            href={`${
-                              configureGlobal.rainbondDocumentAddress
-                            }docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                            href={`${rainbondInfo &&
+                              rainbondInfo.document &&
+                              rainbondInfo.document
+                                .platform_url}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
                             target="_blank"
                             style={{ color: "#fff" }}
                           >

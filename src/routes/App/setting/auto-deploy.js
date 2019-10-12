@@ -21,7 +21,7 @@ const { Description } = DescriptionList;
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 
-@connect()
+@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
 @Form.create()
 export default class AutoDeploy extends PureComponent {
   constructor(props) {
@@ -205,6 +205,7 @@ export default class AutoDeploy extends PureComponent {
   render() {
     if (!this.state.display) return null;
     const { getFieldDecorator } = this.props.form;
+    const { rainbondInfo } = this.props;
     const {
       tabActiveKey,
       status,
@@ -279,9 +280,10 @@ export default class AutoDeploy extends PureComponent {
                   <Tooltip
                     title={
                       <a
-                        href={`${
-                          configureGlobal.rainbondDocumentAddress
-                        }docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E`}
+                        href={`${rainbondInfo &&
+                          rainbondInfo.document &&
+                          rainbondInfo.document
+                            .platform_url}docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E`}
                         target="_blank"
                         style={{ color: "#fff" }}
                       >
@@ -405,9 +407,10 @@ export default class AutoDeploy extends PureComponent {
                 <Tooltip
                   title={
                     <a
-                      href={`${
-                        configureGlobal.rainbondDocumentAddress
-                      }docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA"
+                      href={`${rainbondInfo &&
+                        rainbondInfo.document &&
+                        rainbondInfo.document
+                          .platform_url}docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA"
                       target="_blank`}
                       style={{ color: "#fff" }}
                     >
@@ -496,9 +499,10 @@ export default class AutoDeploy extends PureComponent {
                   <Tooltip
                     title={
                       <a
-                        href={`${
-                          configureGlobal.rainbondDocumentAddress
-                        }docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E`}
+                        href={`${rainbondInfo &&
+                          rainbondInfo.document &&
+                          rainbondInfo.document
+                            .platform_url}docs/user-manual/app-service-manage/auto-deploy/#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E8%AF%B4%E6%98%8E`}
                         target="_blank"
                         style={{ color: "#fff" }}
                       >

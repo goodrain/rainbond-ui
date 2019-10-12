@@ -58,6 +58,7 @@ import {
   getUpdateRollback
 } from "../services/api";
 import { getTeamRegionGroups } from "../services/team";
+import cookie from "../utils/cookie";
 
 export default {
   namespace: "global",
@@ -312,6 +313,16 @@ export default {
     *fetchRainbondInfo({ callback }, { call, put }) {
       const data = yield call(getRainbondInfo);
       if (data) {
+        cookie.set(
+          "newbie_guide",
+          data.bean && data.bean.newbie_guide!==undefined ? data.bean.newbie_guide : false
+        );
+        cookie.set(
+          "platform_url",
+          data.bean && data.bean.document!==undefined && data.bean.document.platform_url!==undefined
+            ? data.bean.document.platform_url
+            : "https://www.rainbond.com/"
+        );
         yield put({ type: "saveRainBondInfo", payload: data.bean });
         setTimeout(() => {
           callback && callback(data.bean);
@@ -499,7 +510,6 @@ export default {
       };
     },
     showMemoryTip(state, action) {
-      console.log(action);
       return {
         ...state,
         memoryTip: action.payload.message

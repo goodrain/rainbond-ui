@@ -143,14 +143,13 @@ export default function request(url, options) {
           return;
         }
 
-        if (resData.code === 10406) {
-          dispatch &&
-            dispatch({
-              type: "global/showMemoryTip",
-              payload: {
-                message: resData.msg_show
-              }
-            });
+        if(resData.code === 10406){
+          dispatch && dispatch({
+            type: "global/showMemoryTip",
+            payload: {
+              message: resData.msg_show
+            }
+           });
           return;
         }
         if (resData.code === 10408) {
@@ -172,13 +171,15 @@ export default function request(url, options) {
         if (resData.code === 10405) {
           cookie.remove("token");
           cookie.remove("token", { domain: "" });
+          cookie.remove("newbie_guide");
+          cookie.remove("platform_url");
           location.reload();
           return;
         }
         if (resData.code === 10400) {
           dispatch &&
             dispatch({
-              type: "global/saveIsisNouse",
+              type: "global/setNouse",
               payload: {
                 isNouse: true
               }
@@ -212,6 +213,8 @@ export default function request(url, options) {
           if (msg.indexOf("身份认证信息未提供") > -1) {
             cookie.remove("token");
             cookie.remove("token", { domain: "" });
+            cookie.remove("newbie_guide");
+            cookie.remove("platform_url");
             location.reload();
             return;
           }

@@ -34,7 +34,8 @@ const formItemLayout = {
 @connect(
   ({ user, global, loading }) => ({
     groups: global.groups,
-    createAppByCodeLoading: loading.effects["createApp/createAppByCode"]
+    createAppByCodeLoading: loading.effects["createApp/createAppByCode"],
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -231,7 +232,7 @@ export default class Index extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByCodeLoading } = this.props;
+    const { groups, createAppByCodeLoading, rainbondInfo } = this.props;
     const data = this.props.data || {};
     const HeartSvg = () => (
       <svg
@@ -369,7 +370,7 @@ export default class Index extends PureComponent {
               </Option>
             </Select>
           )}
-          {this.state.demoHref && configureGlobal.documentShow && (
+          {this.state.demoHref && rainbondInfo && rainbondInfo.document && (
             <a target="_blank" href={this.state.demoHref}>
               查看源码
             </a>
