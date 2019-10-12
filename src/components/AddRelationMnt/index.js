@@ -10,6 +10,7 @@ import { Input, Table, Modal, notification, Pagination, Tooltip } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
 import { volumeTypeObj } from "../../utils/utils";
+const { Search } = Input;
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -20,12 +21,26 @@ export default class Index extends PureComponent {
       total: 0,
       current: 1,
       pageSize: 6,
+      query: "",
       localpaths: {}
     };
   }
   componentDidMount() {
     this.loadUnMntList();
   }
+
+  handleSearchTeamList = query => {
+    this.setState(
+      {
+        current: 1,
+        query
+      },
+      () => {
+        this.loadUnMntList();
+      }
+    );
+  };
+
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({ message: "请选择要挂载的目录" });
@@ -61,15 +76,18 @@ export default class Index extends PureComponent {
     );
   };
   loadUnMntList = () => {
+    const { current, pageSize, query } = this.state;
+
     getMnt({
+      query,
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      page: this.state.current,
-      page_size: this.state.pageSize,
+      page: current,
+      page_size: pageSize,
       type: "unmnt",
-      volume_type:this.props.volume_type?this.props.volume_type:["share-file","memoryfs","local"]
-
-
+      volume_type: this.props.volume_type
+        ? this.props.volume_type
+        : ["share-file", "memoryfs", "local"]
     }).then(data => {
       if (data) {
         this.setState({
@@ -114,6 +132,12 @@ export default class Index extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
+        <Search
+          style={{ width: "350px", marginBottom: "20px" }}
+          placeholder="请输入组件名称进行搜索"
+          onSearch={this.handleSearchTeamList}
+        />
+
         <Table
           pagination={pagination}
           dataSource={this.state.list}
@@ -141,10 +165,14 @@ export default class Index extends PureComponent {
               width: "15%",
               render: (data, index) => (
                 <Tooltip title={data}>
-                  <span style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{data}</span>
+                  <span
+                    style={{
+                      wordBreak: "break-all",
+                      wordWrap: "break-word"
+                    }}
+                  >
+                    {data}
+                  </span>
                 </Tooltip>
               )
             },
@@ -155,10 +183,14 @@ export default class Index extends PureComponent {
               width: "15%",
               render: (data, index) => (
                 <Tooltip title={data}>
-                  <span style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{data}</span>
+                  <span
+                    style={{
+                      wordBreak: "break-all",
+                      wordWrap: "break-word"
+                    }}
+                  >
+                    {data}
+                  </span>
                 </Tooltip>
               )
             },
@@ -168,12 +200,18 @@ export default class Index extends PureComponent {
               key: "4",
               width: "15%",
               render: (text, record) => {
-                return <Tooltip title={text}>
-                  <span style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}>{volumeTypeObj[text]}</span>
-                </Tooltip>
+                return (
+                  <Tooltip title={text}>
+                    <span
+                      style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word"
+                      }}
+                    >
+                      {volumeTypeObj[text]}
+                    </span>
+                  </Tooltip>
+                );
               }
             },
             {
@@ -187,12 +225,16 @@ export default class Index extends PureComponent {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
                         data.dep_app_alias
-                        }/overview`}
+                      }/overview`}
                     >
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</span>
+                      <span
+                        style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {v}
+                      </span>
                     </Link>
                   </Tooltip>
                 );
@@ -209,12 +251,16 @@ export default class Index extends PureComponent {
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
                         data.dep_group_id
-                        }`}
+                      }`}
                     >
-                      <span style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}>{v}</span>
+                      <span
+                        style={{
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
+                        }}
+                      >
+                        {v}
+                      </span>
                     </Link>
                   </Tooltip>
                 );
