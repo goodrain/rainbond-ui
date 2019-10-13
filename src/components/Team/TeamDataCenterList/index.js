@@ -71,7 +71,7 @@ export default class DatacenterList extends PureComponent {
           extra={
             teamUtil.canAddRegion(team) &&
             rainbondInfo &&
-            rainbondInfo.data_center ? (
+            rainbondInfo.is_open_data_center ? (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 {" "}
                 开通数据中心{" "}

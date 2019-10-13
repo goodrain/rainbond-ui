@@ -567,7 +567,16 @@ export default class CreateCheck extends PureComponent {
             >
               高级设置
             </Button>
-            <div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                onClick={this.handleBuild}
+                type="primary"
+                style={{ marginRight: "8px" }}
+                loading={this.state.buildAppLoading}
+              >
+                {" "}
+                创建{" "}
+              </Button>
               <Tooltip
                 placement="topLeft"
                 title={

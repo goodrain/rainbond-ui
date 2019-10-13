@@ -414,8 +414,8 @@ export default class Index extends PureComponent {
                     onChange={value => {
                       num > 0
                         ? notification.error({
-                            message: "第三方服务",
-                            description: "只允许添加一个域名实例地址"
+                            message: "第三方域名组件",
+                            description: "不允许开启对外服务"
                           })
                         : this.handleOuterChange(value);
                     }}
