@@ -16,6 +16,7 @@ import {
   Radio,
   Alert,
   Badge,
+  Divider
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import Overview from "./overview";
@@ -503,7 +504,7 @@ class Main extends PureComponent {
         notification.success({ message: `操作成功，部署中` });
         var child = this.getChildCom();
 
-        if(child && child.onLogPush){
+        if (child && child.onLogPush) {
           child.onLogPush(true);
         }
         if (child && child.onAction) {
@@ -611,14 +612,14 @@ class Main extends PureComponent {
     this.ref = ref;
   };
   handleDropClick = item => {
-    if (item.key === "deleteApp") {
+    if (item === "deleteApp") {
       this.onDeleteApp();
     }
 
-    if (item.key === "moveGroup") {
+    if (item === "moveGroup") {
       this.showMoveGroup();
     }
-    if (item.key === "restart") {
+    if (item === "restart") {
       this.setState({
         promptModal: "restart"
       });
@@ -725,6 +726,8 @@ class Main extends PureComponent {
     });
   };
   renderTitle(name) {
+    const { appDetail, groups } = this.props;
+    const { status } = this.state;
     return (
       <Fragment>
         {name || "-"}
@@ -735,6 +738,71 @@ class Main extends PureComponent {
           onClick={this.showEditName}
           type="edit"
         />
+
+        <div>
+          {!appDetail.is_third && (
+            <a
+              onClick={() => {
+                !(
+                  !appUtil.canRestartApp(appDetail) ||
+                  !appStatusUtil.canRestart(status)
+                ) && this.handleDropClick("restart");
+              }}
+              style={{
+                color: "#959595",
+                fontSize: "14px",
+                cursor:
+                  !appUtil.canRestartApp(appDetail) ||
+                  !appStatusUtil.canRestart(status)
+                    ? "no-drop"
+                    : "pointer"
+              }}
+            >
+              重启
+            </a>
+          )}
+          <Divider type="vertical" />
+          {!appDetail.is_third ? (
+            <a
+              onClick={() => {
+                !(groups.length <= 1 || !appUtil.canMoveGroup(appDetail)) &&
+                  this.handleDropClick("moveGroup");
+              }}
+              style={{
+                color: "#959595",
+                fontSize: "14px",
+                cursor:
+                  groups.length <= 1 || !appUtil.canMoveGroup(appDetail)
+                    ? "no-drop"
+                    : "pointer"
+              }}
+            >
+              修改所属应用
+            </a>
+          ) : (
+            <a
+              onClick={() => {
+                this.handleDropClick("moveGroup");
+              }}
+              style={{ color: "#959595", fontSize: "14px" }}
+            >
+              修改所属应用
+            </a>
+          )}
+          <Divider type="vertical" />
+          <a
+            onClick={() => {
+              appUtil.canDelete(appDetail) && this.handleDropClick("deleteApp");
+            }}
+            style={{
+              color: "#959595",
+              fontSize: "14px",
+              cursor: !appUtil.canDelete(appDetail) ? "no-drop" : "pointer"
+            }}
+          >
+            删除
+          </a>
+        </div>
       </Fragment>
     );
   }
@@ -870,99 +938,48 @@ class Main extends PureComponent {
     if (!appDetail.service) {
       return null;
     }
-    const menu = (
-      <Menu onClick={this.handleDropClick}>
-        {!appDetail.is_third && (
-          <Menu.Item
-            key="restart"
-            disabled={
-              !appUtil.canRestartApp(appDetail) ||
-              !appStatusUtil.canRestart(status)
-            }
-          >
-            重启
-          </Menu.Item>
-        )}
-
-        {!appDetail.is_third ? (
-          <Menu.Item
-            key="moveGroup"
-            disabled={groups.length <= 1 || !appUtil.canMoveGroup(appDetail)}
-          >
-            修改所属应用
-          </Menu.Item>
-        ) : (
-          <Menu.Item key="moveGroup">修改所属应用</Menu.Item>
-        )}
-        <Menu.Item key="deleteApp" disabled={!appUtil.canDelete(appDetail)}>
-          删除
-        </Menu.Item>
-      </Menu>
-    );
     const appAlias = this.getAppAlias();
     if (!status.status) {
       return null;
     }
     const action = (
       <div>
-        <ButtonGroup>
-          {appDetail.service.service_source == "market" &&
-            appStatusUtil.canVisit(status) &&
-            !isShowThirdParty && <VisitBtn btntype="" app_alias={appAlias} />}
-          {appDetail.service.service_source != "market" &&
-            appStatusUtil.canVisit(status) &&
-            !isShowThirdParty && (
-              <VisitBtn btntype="default" app_alias={appAlias} />
-            )}
-          {isShowThirdParty && (
-            <VisitBtn btntype="primary" app_alias={appAlias} />
-          )}
+        {appUtil.canStartApp(appDetail) &&
+        !appStatusUtil.canStop(status) &&
+        !isShowThirdParty ? (
+          <Button
+            disabled={!appStatusUtil.canStart(status)}
+            onClick={this.handleStart}
+          >
+            启动
+          </Button>
+        ) : null}
 
-          {appUtil.canStopApp(appDetail) &&
-          !appStatusUtil.canStart(status) &&
-          !isShowThirdParty ? (
-            <Button
-              disabled={!appStatusUtil.canStop(status)}
-              onClick={() => {
-                this.handleOpenHelpfulHints("stop");
-              }}
-            >
-              关闭
-            </Button>
-          ) : status && status.status && status.status == "upgrade" ? (
-            <Button
-              onClick={() => {
-                this.handleOpenHelpfulHints("stop");
-              }}
-            >
-              关闭
-            </Button>
-          ) : null}
-
-          {appUtil.canStartApp(appDetail) &&
-          !appStatusUtil.canStop(status) &&
-          !isShowThirdParty ? (
-            <Button
-              disabled={!appStatusUtil.canStart(status)}
-              onClick={this.handleStart}
-            >
-              启动
-            </Button>
-          ) : null}
-
-          {appUtil.canManageContainter(appDetail) &&
-          appStatusUtil.canManageDocker(status) &&
-          !isShowThirdParty ? (
-            <ManageContainer app_alias={appDetail.service.service_alias} />
-          ) : null}
-
-          <Dropdown overlay={menu} placement="bottomRight">
-            <Button>
-              {isShowThirdParty ? "更多操作" : "其他操作"}
-              <Icon type="ellipsis" />
-            </Button>
-          </Dropdown>
-        </ButtonGroup>
+        {appUtil.canStopApp(appDetail) &&
+        !appStatusUtil.canStart(status) &&
+        !isShowThirdParty ? (
+          <Button
+            disabled={!appStatusUtil.canStop(status)}
+            onClick={() => {
+              this.handleOpenHelpfulHints("stop");
+            }}
+          >
+            关闭
+          </Button>
+        ) : status && status.status && status.status == "upgrade" ? (
+          <Button
+            onClick={() => {
+              this.handleOpenHelpfulHints("stop");
+            }}
+          >
+            关闭
+          </Button>
+        ) : null}
+        {appUtil.canManageContainter(appDetail) &&
+        appStatusUtil.canManageDocker(status) &&
+        !isShowThirdParty ? (
+          <ManageContainer app_alias={appDetail.service.service_alias} />
+        ) : null}
 
         {isShowThirdParty ? (
           ""
@@ -991,12 +1008,23 @@ class Main extends PureComponent {
           ""
         ) : (
           <Button
-            type="primary"
             onClick={this.handleUpdateRolling}
             loading={this.state.rollingCanClick}
           >
             更新(滚动)
           </Button>
+        )}
+
+        {appDetail.service.service_source == "market" &&
+          appStatusUtil.canVisit(status) &&
+          !isShowThirdParty && <VisitBtn btntype="primary" app_alias={appAlias} />}
+        {appDetail.service.service_source != "market" &&
+          appStatusUtil.canVisit(status) &&
+          !isShowThirdParty && (
+            <VisitBtn btntype="primary" app_alias={appAlias} />
+          )}
+        {isShowThirdParty && (
+          <VisitBtn btntype="primary" app_alias={appAlias} />
         )}
 
         {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
