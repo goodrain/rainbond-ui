@@ -258,7 +258,7 @@ export default class GlobalHeader extends PureComponent {
           <Menu.Divider />
           {teamUtil.canAddRegion(team) &&
             rainbondInfo &&
-            rainbondInfo.data_center && (
+            rainbondInfo.is_open_data_center && (
               <Menu.Item key="openRegion">
                 <Icon type="plus" />
                 开通数据中心
