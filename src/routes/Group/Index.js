@@ -571,29 +571,29 @@ class Main extends PureComponent {
               )}
             </div>
             <div className={styles.content_Box}>
-              <a
-                onClick={this.toAdd}
-                href="javascript:;"
-              >
+              <a onClick={this.toAdd} href="javascript:;">
                 新增
               </a>
-              <Divider type="vertical" />
               {teamUtil.canManageGroup(team) && (
-                <a
-                  onClick={this.toDelete}
-                  href="javascript:;"
-                >
-                  删除
-                </a>
-              )}
-              <Divider type="vertical" />
+                <span>
+                  <Divider type="vertical" />
 
-              <a
-                onClick={this.handleTopology.bind(this, "stop")}
-                href="javascript:;"
-              >
-                停用
-              </a>
+                  <a onClick={this.toDelete} href="javascript:;">
+                    删除
+                  </a>
+                </span>
+              )}
+              {teamUtil.canManageGroup(team) && (
+                <span>
+                  <Divider type="vertical" />
+                  <a
+                    onClick={this.handleTopology.bind(this, "stop")}
+                    href="javascript:;"
+                  >
+                    停用
+                  </a>
+                </span>
+              )}
             </div>
           </div>
         </div>
