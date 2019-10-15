@@ -425,7 +425,7 @@ export default class HttpTable extends PureComponent {
             },
             callback: (data) => {
                 if (data) {
-                    notification.success({ message: "启动应用成功", duration: 5 })
+                    notification.success({ message: "启动成功", duration: 5 })
                     this.setState({ loading: false, appStatusVisable: false }, () => {
                         this.load();
                     })
@@ -566,7 +566,7 @@ export default class HttpTable extends PureComponent {
                     footer={[<Button type="primary" size="small" onClick={this.resolveOk}>确定</Button>]}
                     zIndex={9999}
                 >
-                    <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
+                    <p>您选择的组件未开启外部访问，是否自动打开并添加此访问策略？</p>
                 </Modal>}
                 {appStatusVisable && <Modal
                     title="友情提示"
@@ -574,7 +574,7 @@ export default class HttpTable extends PureComponent {
                     onOk={this.handleAppStatus}
                     onCancel={this.handleAppStatus_closed}
                 >
-                    <p>当前应用处于关闭状态，启动后方可访问，是否启动应用？</p>
+                    <p>当前组件处于关闭状态，启动后方可访问，是否启动组件？</p>
                 </Modal>}
             </div>
         )

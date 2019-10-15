@@ -351,7 +351,7 @@ export default class AutoDeploy extends PureComponent {
                             title={
                               <div>
                                 当Commit信息包含“@{this.state.deploy_keyword}
-                                ”时将自动触发应用自动部署
+                                ”时将自动触发组件自动部署
                               </div>
                             }
                           >

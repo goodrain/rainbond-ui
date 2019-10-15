@@ -375,8 +375,8 @@ export default class Index extends PureComponent {
               rules: [{ required: true, message: "请输入配置组名" }],
             })(<RadioGroup onChange={this.hanldeMetaTypeChange}>
               <Radio value="un_define">不依赖</Radio>
-              <Radio value="upstream_port">应用端口</Radio>
-              <Radio value="downstream_port">下游应用端口</Radio>
+              <Radio value="upstream_port">组件端口</Radio>
+              <Radio value="downstream_port">下游组件端口</Radio>
             </RadioGroup>)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="注入类型">

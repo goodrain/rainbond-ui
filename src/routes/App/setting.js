@@ -740,11 +740,11 @@ export default class Index extends React.Component {
                 marginBottom: 0
               }}
               {...formItemLayout}
-              label="应用部署类型"
+              label="组件部署类型"
             >
               {baseInfo.extend_method == "stateless"
-                ? "无状态应用"
-                : "有状态应用"}
+                ? "无状态组件"
+                : "有状态组件"}
               <Button
                 onClick={this.setupAttribute}
                 size="small"
@@ -758,7 +758,7 @@ export default class Index extends React.Component {
                 marginBottom: 0
               }}
               {...formItemLayout}
-              label="应用特性"
+              label="组件特性"
             >
               {(tags || []).map(tag => (
                 <Tag
@@ -780,7 +780,7 @@ export default class Index extends React.Component {
                 marginBottom: 0
               }}
               {...formItemLayout}
-              label="应用构建后自动升级"
+              label="组件构建后自动升级"
             >
               <Switch
                 defaultChecked={baseInfo.build_upgrade}
@@ -1258,7 +1258,7 @@ export default class Index extends React.Component {
         )}
         {this.state.visibleAppSetting && (
           <Modal
-            title="应用设置"
+            title="组件设置"
             visible={this.state.visibleAppSetting}
             // onOk={this.handleOk_AppSetting}
             onCancel={this.handleCancel_AppSetting}
@@ -1274,9 +1274,7 @@ export default class Index extends React.Component {
                   >
                     <Button type="primary">确定</Button>
                   </Popconfirm>,
-                  <Button type="primary" onClick={this.handleCancel_AppSetting}>
-                    取消
-                  </Button>
+                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
                 ]
               ) : (
                 <div>
@@ -1284,29 +1282,27 @@ export default class Index extends React.Component {
                   <Button type="primary" onClick={this.handleCancel_AppSetting}>
                     确定
                   </Button>
-                  <Button type="primary" onClick={this.handleCancel_AppSetting}>
-                    取消
-                  </Button>
+                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
                 </div>
               )
             }
           >
-            <Form.Item {...appsetting_formItemLayout} label="应用类型">
+            <Form.Item {...appsetting_formItemLayout} label="组件类型">
               {getFieldDecorator("extend_method", {
                 initialValue: baseInfo.extend_method || "stateless",
                 rules: [
                   {
                     required: true,
-                    message: "请选择应用类型"
+                    message: "请选择组件类型"
                   }
                 ]
               })(
                 <RadioGroup onChange={this.onChange1}>
                   <Radio style={radioStyle} value="stateless">
-                    无状态应用（包括Web类，API类）
+                    无状态组件（包括Web类，API类）
                   </Radio>
                   <Radio style={radioStyle} value={"state"}>
-                    有状态应用（包括DB类，集群类，消息中间件类，数据类）
+                    有状态组件（包括DB类，集群类，消息中间件类，数据类）
                   </Radio>
                 </RadioGroup>
               )}

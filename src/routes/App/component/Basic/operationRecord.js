@@ -133,7 +133,7 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                    <div style={{ textAlign: "right" }}>
+                    <div>
                       {isopenLog &&
                         FinalStatus === "" &&
                         OptType &&
@@ -145,8 +145,13 @@ class Index extends PureComponent {
                         )}
                       {SynType == 0 && (
                         <Tooltip visible={FinalStatus == ""} title="查看日志">
-                          <span
-                            style={{ display: "inline-block" }}
+                          <div
+                            style={{
+                              height: "16px",
+                              width: "16px",
+                              lineHeight: "16px",
+                              textAlign: "right"
+                            }}
                             onClick={() => {
                               this.showLogModal(
                                 EventID,
@@ -155,7 +160,7 @@ class Index extends PureComponent {
                             }}
                           >
                             {globalUtil.fetchSvg("logs", "#cccccc")}
-                          </span>
+                          </div>
                         </Tooltip>
                       )}
                     </div>

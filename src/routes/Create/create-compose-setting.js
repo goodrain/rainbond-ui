@@ -187,7 +187,7 @@ export default class Index extends PureComponent {
                         onOk={this.handleDelete}
                         title="放弃创建"
                         subDesc="此操作不可恢复"
-                        desc="确定要放弃创建此应用吗？"
+                        desc="确定要放弃创建此组件吗？"
                         onCancel={() => {
                         this.setState({showDelete: false})
                     }}/>}

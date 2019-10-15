@@ -19,18 +19,29 @@
   .content {
     position   : relative;
     top        : 4px;
-    margin-left: 24px;
+    margin-left: 14px;
     flex       : 1 1 auto;
     color      : @text-color-secondary;
     line-height: 22px;
 
     .contentTitle {
-      font-size    : 20px;
-      line-height  : 28px;
-      font-weight  : 500;
-      color        : @heading-color;
-      margin-bottom: 12px;
+      line-height   : 28px;
+      font-weight   : 500;
+      color         : @heading-color;
+      margin-bottom : 12px;
+      font-family   : 'PingFangSC-Medium';
+      font-size     : 24px;
+      letter-spacing: 0;
     }
+  }
+
+  .content_Box a {
+    font-size: 14px;
+    color    : rgba(0, 0, 0, .45);
+  }
+
+  .content_Box a:hover {
+    color: #1890ff !important;
   }
 }
 

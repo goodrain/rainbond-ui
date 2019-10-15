@@ -69,7 +69,7 @@ export default class AddDomain extends PureComponent {
       <Modal title="绑定域名" onOk={this.handleSubmit} visible onCancel={this.handleCancel}>
         <Alert
           style={{ textAlign: "center", marginBottom: 16 }}
-          message="请确保将域名cname指向到本应用的对外服务访问地址"
+          message="请确保将域名cname指向到本组件的对外服务访问地址"
           type="warning"
         />
         <Form onSubmit={this.handleSubmit}>

@@ -573,7 +573,7 @@ export default class TcpTable extends PureComponent {
             ]}
             zIndex={9999}
           >
-            <p>您选择的应用未开启外部访问，是否自动打开并添加此访问策略？</p>
+            <p>您选择的组件未开启外部访问，是否自动打开并添加此访问策略？</p>
           </Modal>
         )}
 

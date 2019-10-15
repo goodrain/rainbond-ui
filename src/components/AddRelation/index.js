@@ -107,8 +107,8 @@ export default class AddRelation extends PureComponent {
               onChange={this.handleConditionChange}
             >
               <Option value="">全部</Option>
-              <Option value="service_name">应用名称</Option>
-              <Option value="group_name">应用组</Option>
+              <Option value="group_name">应用名称</Option>
+              <Option value="service_name">组件名称</Option>
             </Select>
           </FormItem>
           <FormItem>
@@ -128,13 +128,14 @@ export default class AddRelation extends PureComponent {
           dataSource={this.state.apps || []}
           rowSelection={rowSelection}
           columns={[
+
             {
-              title: "应用名",
-              dataIndex: "service_cname",
+              title: "应用名称",
+              dataIndex: "group_name",
             },
             {
-              title: "所属组",
-              dataIndex: "group_name",
+              title: "组件名称",
+              dataIndex: "service_cname",
             },
           ]}
         />
