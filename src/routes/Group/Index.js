@@ -584,13 +584,14 @@ class Main extends PureComponent {
                 </span>
               )}
               <Divider type="vertical" />
-
-              <a
-                onClick={this.handleTopology.bind(this, "stop")}
-                href="javascript:;"
-              >
-                停用
-              </a>
+              {teamUtil.canManageGroup(team) && (
+                <a
+                  onClick={this.handleTopology.bind(this, "stop")}
+                  href="javascript:;"
+                >
+                  停用
+                </a>
+              )}
             </div>
           </div>
         </div>
