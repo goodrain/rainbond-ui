@@ -26,29 +26,35 @@ function convertBundleIntoReact(
   linkify: boolean,
   bundle: AnserJsonEntry,
   key: number
-){
+) {
   const style: { backgroundColor?: string; color?: string } = {};
   if (bundle.bg) {
-    style.backgroundColor = "rgb("+bundle.bg+")";
+    style.backgroundColor = "rgb(" + bundle.bg + ")";
   }
   if (bundle.fg) {
-    style.color = "rgb("+bundle.fg+")";
+    style.color = "rgb(" + bundle.fg + ")";
   }
-  return React.createElement("span", { style:style, key:key }, bundle.content);
+  if (bundle.content) {
+    if (bundle.content.indexOf('') > -1 && bundle.content.indexOf('') < 6) {
+      style.textIndent = bundle.content.indexOf('') !== 0 ? bundle.content.indexOf('') * 2 + "em" : "2em";
+    }
+  }
+
+  return React.createElement("span", { style: style, key: key }, bundle.content);
 }
 
 declare interface Props {
-    children: string;
-    className?: string;
-    linkify: boolean;
+  children: string;
+  className?: string;
+  linkify: boolean;
 }
 
 export default function Ansi(props: Props) {
-    return React.createElement(
-      "code",
-      { className: props.className },
-      ansiToJSON(props.children).map(
-        convertBundleIntoReact.bind(null, props.linkify)
-      )
-    );
-  }
+  return React.createElement(
+    "code",
+    { className: props.className },
+    ansiToJSON(props.children).map(
+      convertBundleIntoReact.bind(null, props.linkify)
+    )
+  );
+}
