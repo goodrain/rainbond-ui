@@ -99,9 +99,9 @@ export default class Main extends PureComponent {
             href: ""
           }
         ]}
-        title="由源码创建应用"
+        title="由源码创建组件"
         onTabChange={this.handleTabChange}
-        content={<p> 从指定源码仓库中获取源码，基于源码信息创建新应用 </p>}
+        content={<p> 从指定源码仓库中获取源码，基于源码信息创建新组件 </p>}
         tabActiveKey={type}
         tabList={tabList}
       >

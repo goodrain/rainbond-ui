@@ -269,7 +269,7 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="error"
-        title="应用检测未通过"
+        title="组件检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
         actions={actions}
@@ -388,7 +388,7 @@ export default class CreateCheck extends PureComponent {
                 marginBottom: 16
               }}
             >
-              <p>应用名称：{item.service_cname}</p>
+              <p>组件名称：{item.service_cname}</p>
               {(item.service_info || []).map(item => {
                 return (
                   <div
@@ -408,7 +408,7 @@ export default class CreateCheck extends PureComponent {
     const actions = [
       <Button onClick={this.handleBuild} type="primary">
         {" "}
-        构建应用{" "}
+        构建组件{" "}
       </Button>,
       <Button type="default" onClick={this.handleSetting}>
         高级设置
@@ -421,10 +421,10 @@ export default class CreateCheck extends PureComponent {
     return (
       <Result
         type="success"
-        title="应用检测通过"
+        title="组件检测通过"
         description={
           <div>
-            <div>应用检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
+            <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
               href={`${rainbondInfo &&
@@ -584,7 +584,7 @@ export default class CreateCheck extends PureComponent {
             onOk={this.handleDelete}
             title="放弃创建"
             subDesc="此操作不可恢复"
-            desc="确定要放弃创建此应用吗？"
+            desc="确定要放弃创建此组件吗？"
             onCancel={() => {
               this.setState({ showDelete: false });
             }}

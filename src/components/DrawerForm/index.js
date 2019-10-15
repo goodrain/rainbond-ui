@@ -425,7 +425,7 @@ class DrawerForm extends PureComponent {
             </h3>
             <FormItem
               {...formItemLayout}
-              label="应用(组)"
+              label="应用"
               style={{ zIndex: 999 }}
             >
               {getFieldDecorator("group_id", {
@@ -433,7 +433,7 @@ class DrawerForm extends PureComponent {
                 initialValue: (editInfo && editInfo.g_id + "") || undefined
               })(
                 <Select
-                  placeholder="请选择要所属应用组"
+                  placeholder="请选择要所属应用"
                   onChange={this.handleServices}
                 >
                   {(groups || []).map(group => {

@@ -134,7 +134,7 @@ export const getMenuData = groups => {
               group.group_id
             }`,
             link: true,
-            children,
+            // children,
             exact: true
           };
         });

@@ -567,7 +567,7 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              message="端口配置信息发生变化后需要重启应用才能生效"
+              message="端口配置信息发生变化后需要重启组件才能生效"
               type="info"
               style={{
                 marginBottom: 24

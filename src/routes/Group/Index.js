@@ -553,94 +553,88 @@ class Main extends PureComponent {
 
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
-        <div className={styles.content}>
-          <div className={styles.contentTitle}>
-            {groupDetail.group_name || "-"}
-            {teamUtil.canManageGroup(team) && (
-              <Icon
-                style={{
-                  cursor: "pointer"
-                }}
-                onClick={this.toEdit}
-                type="edit"
-              />
-            )}
+        <div style={{ display: "flex" }}>
+          <div style={{ marginTop: "3px" }}>
+            {globalUtil.fetchSvg("application")}
           </div>
-          <div>
-            <a
-              style={{ color: "#959595" }}
-              onClick={this.toAdd}
-              href="javascript:;"
-            >
-              新增
-            </a>
-            <Divider type="vertical" />
-            {teamUtil.canManageGroup(team) && (
+          <div className={styles.content}>
+            <div className={styles.contentTitle}>
+              {groupDetail.group_name || "-"}
+              {teamUtil.canManageGroup(team) && (
+                <Icon
+                  style={{
+                    cursor: "pointer"
+                  }}
+                  onClick={this.toEdit}
+                  type="edit"
+                />
+              )}
+            </div>
+            <div className={styles.content_Box}>
               <a
-                style={{ color: "#959595" }}
-                onClick={this.toDelete}
+                onClick={this.toAdd}
                 href="javascript:;"
               >
-                删除
+                新增
               </a>
-            )}
-            <Divider type="vertical" />
+              <Divider type="vertical" />
+              {teamUtil.canManageGroup(team) && (
+                <a
+                  onClick={this.toDelete}
+                  href="javascript:;"
+                >
+                  删除
+                </a>
+              )}
+              <Divider type="vertical" />
 
-            <a
-              style={{ color: "#959595" }}
-              onClick={this.handleTopology.bind(this, "stop")}
-              href="javascript:;"
-            >
-              停用
-            </a>
+              <a
+                onClick={this.handleTopology.bind(this, "stop")}
+                href="javascript:;"
+              >
+                停用
+              </a>
+            </div>
           </div>
         </div>
       </div>
     );
 
+    let BtnDisabled = this.state.json_data_length > 0 ? false : true;
+    let MR = { marginRight: "10px" };
     const extraContent = (
       <div className={styles.extraContent}>
-        {/* <ButtonGroup
-          style={{
-            marginRight: 10
-          }}
-        > */}
-        {/* {this.state.running == false ? <Button onClick={this.handleTopology.bind(this, "start")}>启动</Button>
-            : <Button onClick={this.handleTopology.bind(this, "stop")}>停止</Button>} */}
-        {/* <Button disabled={this.state.json_data_length > 0 ? false : true} onClick={this.handleTopology.bind(this, "restart")}>重启</Button> */}
         <Button
-          style={{ marginRight: "10px" }}
+          style={MR}
           onClick={this.handleTopology.bind(this, "start")}
+          disabled={BtnDisabled}
         >
           启动
         </Button>
 
         <Button
-          style={{ marginRight: "10px" }}
+          style={MR}
           onClick={this.handleTopology.bind(this, "upgrade")}
+          disabled={BtnDisabled}
         >
           更新
         </Button>
         <Button
-          style={{ marginRight: "10px" }}
-          disabled={this.state.json_data_length > 0 ? false : true}
+          style={MR}
+          disabled={BtnDisabled}
           onClick={this.handleTopology.bind(this, "deploy")}
         >
           构建
         </Button>
-        {teamUtil.canShareApp(team) && hasService && this.state.recordShare ? (
-          <Button style={{ marginRight: "10px" }} onClick={this.handleShare}>
+        {teamUtil.canShareApp(team) && hasService && this.state.recordShare && (
+          <Button style={MR} onClick={this.handleShare} disabled={BtnDisabled}>
             继续发布到市场
           </Button>
-        ) : (
-          ""
         )}
-        {teamUtil.canShareApp(team) && hasService && !this.state.recordShare ? (
-          <Button style={{ marginRight: "10px" }} onClick={this.handleShare}>
+        {teamUtil.canShareApp(team) && hasService && !this.state.recordShare && (
+          <Button style={MR} onClick={this.handleShare} disabled={BtnDisabled}>
             发布到市场
           </Button>
-        ) : (
-          ""
         )}
 
         {num > 0 ? (
@@ -648,7 +642,10 @@ class Main extends PureComponent {
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}
           >
             <Tooltip title={"有新版本"}>
-              <Button style={{ top: "-1px", marginRight: "10px" }}>
+              <Button
+                style={{ top: "-1px", marginRight: "10px" }}
+                disabled={BtnDisabled}
+              >
                 <Badge
                   className={styles.badge}
                   status="success"
@@ -663,7 +660,7 @@ class Main extends PureComponent {
         ) : (
           this.state.applicationList &&
           this.state.applicationList.length > 0 && (
-            <Button style={{ marginRight: "10px" }}>
+            <Button style={MR} disabled={BtnDisabled}>
               <Link
                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}
               >
@@ -672,14 +669,13 @@ class Main extends PureComponent {
             </Button>
           )
         )}
-        <Button style={{ marginRight: "10px" }}>
+        <Button style={MR} disabled={BtnDisabled}>
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}
           >
             备份&迁移
           </Link>
         </Button>
-        {/* </ButtonGroup> */}
         {this.state.linkList.length > 0 && (
           <VisterBtn linkList={this.state.linkList} />
         )}
@@ -720,19 +716,23 @@ class Main extends PureComponent {
           }}
         >
           <Col span={16} style={{ paddingleft: "12px" }}>
-            <a
-              onClick={() => {
-                this.changeType("shape");
-              }}
-              style={{
-                marginLeft: "30px",
-                color:
-                  this.state.type !== "list" ? "#1890ff" : "rgba(0, 0, 0, 0.65)"
-              }}
-              href="javascript:;"
-            >
-              拓扑图
-            </a>
+            {hasService && (
+              <a
+                onClick={() => {
+                  this.changeType("shape");
+                }}
+                style={{
+                  marginLeft: "30px",
+                  color:
+                    this.state.type !== "list"
+                      ? "#1890ff"
+                      : "rgba(0, 0, 0, 0.65)"
+                }}
+                href="javascript:;"
+              >
+                拓扑图
+              </a>
+            )}
             <a
               onClick={() => {
                 this.changeType("list");
@@ -740,7 +740,9 @@ class Main extends PureComponent {
               style={{
                 marginLeft: "30px",
                 color:
-                  this.state.type === "list" ? "#1890ff" : "rgba(0, 0, 0, 0.65)"
+                  this.state.type === "list" || !hasService
+                    ? "#1890ff"
+                    : "rgba(0, 0, 0, 0.65)"
               }}
               href="javascript:;"
             >

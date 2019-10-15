@@ -71,7 +71,7 @@ export default class MoveGroup extends PureComponent {
             dataSource={this.state.apps || []}
             columns={[
               {
-                title: "应用名",
+                title: "组件名称",
                 dataIndex: "service_cname"
               },
               {
@@ -95,7 +95,7 @@ export default class MoveGroup extends PureComponent {
                     );
                   }
                   if (data.status == 409) {
-                    return "请先关闭应用";
+                    return "请先关闭组件";
                   }
                   if (data.status == 200) {
                     return "已删除";
@@ -106,7 +106,7 @@ export default class MoveGroup extends PureComponent {
           />
         ) : (
           <div style={{ textAlign: "center" }}>
-            <p>{this.state.apps&&this.state.apps.length&&this.state.apps[0]!=undefined?"即将删除以下应用":"请刷新数据后删除"}</p>
+            <p>{this.state.apps&&this.state.apps.length&&this.state.apps[0]!=undefined?"即将删除以下组件":"请刷新数据后删除"}</p>
             <Row>
               {this.state.apps.map(item => {
                 if(item==undefined)return null

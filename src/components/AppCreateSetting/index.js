@@ -1506,22 +1506,22 @@ class BaseInfo extends PureComponent {
           marginBottom: 16
         }}
       >
-        <Form.Item {...formItemLayout} label="应用类型">
+        <Form.Item {...formItemLayout} label="组件类型">
           {getFieldDecorator("extend_method", {
             initialValue: extend_method || "stateless",
             rules: [
               {
                 required: true,
-                message: "请选择应用类型"
+                message: "请选择组件类型"
               }
             ]
           })(
             <RadioGroup>
               <Radio style={radioStyle} value="stateless">
-                无状态应用（包括Web类，API类）
+                无状态组件（包括Web类，API类）
               </Radio>
               <Radio style={radioStyle} value={"state"}>
-                有状态应用（包括DB类，集群类，消息中间件类，数据类）
+                有状态组件（包括DB类，集群类，消息中间件类，数据类）
               </Radio>
             </RadioGroup>
           )}
@@ -2167,7 +2167,7 @@ class Relation extends PureComponent {
           pagination={false}
           columns={[
             {
-              title: "应用名",
+              title: "组件名称",
               dataIndex: "service_cname",
               render: (val, data) => {
                 return (
@@ -2186,7 +2186,7 @@ class Relation extends PureComponent {
               dataIndex: "group_name"
             },
             {
-              title: "应用说明",
+              title: "组件说明",
               dataIndex: "describe",
               render: (val, data) => {}
             },

@@ -351,6 +351,7 @@ class BasicLayout extends React.PureComponent {
       if (hasRegion) {
         region =
           userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
+
         isRegionMaintain =
           region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
       }
@@ -371,7 +372,7 @@ class BasicLayout extends React.PureComponent {
         // 数据中心维护中
         if (isRegionMaintain || nouse) {
           return (
-            <div style={{ textAlign: "center", padding: "50px 0" }}>
+            <div style={{ textAlign: "center", padding: "200px 0" }}>
               <Icon
                 style={{ fontSize: 40, marginBottom: 32, color: "red" }}
                 type="warning"

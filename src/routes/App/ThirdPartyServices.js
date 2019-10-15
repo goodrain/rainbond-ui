@@ -370,7 +370,7 @@ export default class Index extends PureComponent {
                       num > 0
                         ? notification.error({
                             message: "第三方域名组件",
-                            description: "不允许开启对外服务"
+                            description: "不支持添加多实例地址"
                           })
                         : this.addInstance();
                     }}

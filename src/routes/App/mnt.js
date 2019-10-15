@@ -145,7 +145,7 @@ export default class Index extends PureComponent {
       notification.warning({
         message: <div>
           有状态组件存储配置发生变化后<br />
-          需要重启应用才能生效!
+          需要重启组件才能生效!
         </div>,
       })
     } else {
@@ -229,7 +229,7 @@ export default class Index extends PureComponent {
           <Col span={12}>
             <Alert
               showIcon
-              message="存储配置发生变化后需要更新应用才能生效"
+              message="存储配置发生变化后需要更新组件才能生效"
               type="info"
               style={{
                 marginBottom: 24,
