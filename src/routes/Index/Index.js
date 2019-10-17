@@ -473,7 +473,6 @@ export default class Index extends PureComponent {
                     {item.service_name}
                   </Link>
                 )}
-                <span>应用</span>
                 <span
                   style={{
                     color: globalUtil.fetchAbnormalcolor(OptType)
