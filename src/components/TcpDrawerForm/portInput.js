@@ -26,7 +26,7 @@ class PriceInput extends React.Component {
     super(props);
     this.state = {
       available_port: "",
-      ip: undefined,
+      ip: undefined
     };
   }
   handleNumberChange = e => {
@@ -79,7 +79,8 @@ class PriceInput extends React.Component {
   };
 
   render() {
-    const { domain_port } = this.props;
+    const { domain_port, current_enpoint } = this.props;
+
     const { ip, available_port } = this.state;
     return (
       <Row>
@@ -89,7 +90,11 @@ class PriceInput extends React.Component {
             onChange={this.handleCurrencyChange}
             style={{ width: "100%" }}
             placeholder="域名"
-            defaultValue={domain_port[0].ip}
+            defaultValue={
+              current_enpoint && current_enpoint.length > 0
+                ? current_enpoint[0].ip
+                : domain_port[0].ip
+            }
           >
             {(domain_port || []).map((item, index) => {
               return (
@@ -105,7 +110,11 @@ class PriceInput extends React.Component {
         </Col>
         <Col span={8}>
           <Input
-            defaultValue={domain_port[0].available_port}
+            defaultValue={
+              current_enpoint && current_enpoint.length > 0
+                ? current_enpoint[0].available_port
+                : domain_port[0].available_port
+            }
             placeholder="请输入端口"
             onChange={this.handleNumberChange}
             onBlur={this.handleBlur}

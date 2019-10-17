@@ -63,7 +63,8 @@ export default class Main extends PureComponent {
       showCreate: null,
       scope: "",
       scopeMax:
-        this.props.scopeMax || ( this.props.rainbondInfo &&  this.props.rainbondInfo.cloud_market)
+        this.props.scopeMax ||
+        (this.props.rainbondInfo && this.props.rainbondInfo.cloud_market)
           ? "cloudApplication"
           : "localApplication",
       target: "searchWrap",
@@ -1017,7 +1018,14 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{ paddingBottom: "20px" }}
                       >
-                        {cloudCardList}
+                        {isSpincloudList !== -1 && cloudCardList}
+                        {networkText && (
+                          <Alert
+                            style={{ textAlign: "center", marginBottom: 16 }}
+                            message={networkText}
+                            type="warning"
+                          />
+                        )}
                       </div>
                       {this.state.showCreate && (
                         <CreateAppFromMarketForm
