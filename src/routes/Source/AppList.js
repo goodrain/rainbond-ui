@@ -17,6 +17,7 @@ import {
 import ConfirmModal from "../../components/ConfirmModal";
 import BasicListStyles from "../List/BasicList.less";
 import globalUtil from "../../utils/global";
+import rainbondUtil from "../../utils/rainbond";
 import userUtil from "../../utils/user";
 import AppImport from "../../components/AppImport";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
@@ -177,7 +178,7 @@ class ExportBtn extends PureComponent {
     const { rainbondInfo } = this.props;
     return (
       <Fragment>
-        {rainbondInfo && rainbondInfo.export_app && (
+        {rainbondUtil.exportAppEnable(rainbondInfo) && (
           <Tooltip title="导出后的文件可直接在Rainbond平台安装">
             <a
               onClick={this.showAppExport}
@@ -552,7 +553,7 @@ export default class AppList extends PureComponent {
             离线导入应用
           </Button>
         )}
-        {rainbondInfo && rainbondInfo.cloud_market && (
+        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
           <Button
             style={{ marginLeft: 16 }}
             type="primary"
@@ -654,7 +655,7 @@ export default class AppList extends PureComponent {
                   <br />
                   <br />
                   分享应用到内部市场
-                  {rainbondInfo && rainbondInfo.cloud_market && (
+                  {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                     <span>
                       或
                       <a
@@ -688,8 +689,9 @@ export default class AppList extends PureComponent {
                             <Fragment>
                               <ExportBtn app={item} />
                               {item.source === "market" &&
-                                rainbondInfo &&
-                                rainbondInfo.cloud_market && (
+                                rainbondUtil.cloudMarketEnable(
+                                  rainbondInfo
+                                ) && (
                                   <a
                                     style={{ marginRight: 8 }}
                                     href="javascript:;"

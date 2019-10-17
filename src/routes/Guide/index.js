@@ -25,6 +25,7 @@ import globalUtil from "../../utils/global";
 import configureGlobal from "../../utils/configureGlobal";
 import EditGroupName from "../../components/AddOrEditGroup";
 import { languageObj } from "../../utils/utils";
+import rainbondUtil from "../../utils/rainbond";
 
 const { Option } = Select;
 
@@ -270,7 +271,7 @@ export default class Index extends PureComponent {
   CreateApp = () => {
     const grade = this.getGuide("app_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     if (!grade) {
       return "";
     }
@@ -346,7 +347,7 @@ export default class Index extends PureComponent {
   CreateSourceCode = () => {
     const grade = this.getGuide("source_code_service_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -431,11 +432,12 @@ export default class Index extends PureComponent {
           </a>
         </p>
         {this.lineShow()}
-        <p>完成任务说明: 使用你自己的源码或基于JavaDemo源码创建组件：
-                <code style={{ color: "#000000" }}>
-                https://github.com/goodrain/java-maven-demo.git
-                </code>
-              </p>
+        <p>
+          完成任务说明: 使用你自己的源码或基于JavaDemo源码创建组件：
+          <code style={{ color: "#000000" }}>
+            https://github.com/goodrain/java-maven-demo.git
+          </code>
+        </p>
         <p style={{ textAlign: "center" }}>
           {grade.status ? (
             this.completedShow()
@@ -443,9 +445,9 @@ export default class Index extends PureComponent {
             <div>
               <Button style={{ marginRight: "10px" }}>
                 <a
-                  href={`${rainbondInfo &&
-                    rainbondInfo.document &&
-                    rainbondInfo.document.platform_url}video.html`}
+                  href={`${rainbondUtil.documentPlatform_url(
+                    rainbondInfo
+                  )}video.html`}
                   target="_blank"
                 >
                   查看视频教程
@@ -473,7 +475,7 @@ export default class Index extends PureComponent {
   CreateByImageTaskShow = () => {
     const grade = this.getGuide("image_service_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -604,7 +606,7 @@ export default class Index extends PureComponent {
   Service = () => {
     const grade = this.getGuide("service_connect_db");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -664,7 +666,7 @@ export default class Index extends PureComponent {
   ReleaseMarket = () => {
     const grade = this.getGuide("share_app");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -727,7 +729,7 @@ export default class Index extends PureComponent {
   AccessStrategy = () => {
     const grade = this.getGuide("custom_gw_rule");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondInfo && rainbondInfo.document && rainbondInfo.document.platform_url;
+    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -1067,7 +1069,6 @@ export default class Index extends PureComponent {
                         ))}
                       </Select>
                     )}
-                    
                   </Form.Item>
                 </Form>
               </Modal>
