@@ -38,7 +38,6 @@ class DrawerForm extends PureComponent {
     e.preventDefault();
     const { onOk } = this.props;
     this.props.form.validateFields((err, values) => {
-      console.log("values", values);
       if (!err) {
         values.default_port =
           values.end_point && values.end_point.available_port;
@@ -139,8 +138,7 @@ class DrawerForm extends PureComponent {
       }
     });
   };
-  handleChange = data => {
-  };
+  handleChange = data => {};
   checkport = (rules, value, callback) => {
     const { tcpType, editInfo } = this.props;
     if (!value.ip || !value.available_port) {
@@ -159,8 +157,7 @@ class DrawerForm extends PureComponent {
     ) {
       callback("当前端口不可用!");
       return;
-    }
-    else {
+    } else {
       callback();
       return;
     }
@@ -193,6 +190,7 @@ class DrawerForm extends PureComponent {
         }
       ];
     }
+
     return (
       <div>
         {domain_port && (
@@ -226,6 +224,7 @@ class DrawerForm extends PureComponent {
                   initialValue: editInfo ? current_enpoint[0] : domain_port[0]
                 })(
                   <PortInput
+                    current_enpoint={current_enpoint}
                     domain_port={domain_port}
                     onChange={this.handleChange}
                   />
@@ -285,10 +284,7 @@ class DrawerForm extends PureComponent {
                       ? this.state.serviceComponentList[0].service_id
                       : undefined
                 })(
-                  <Select
-                    placeholder="请选择组件"
-                    onChange={this.handlePorts}
-                  >
+                  <Select placeholder="请选择组件" onChange={this.handlePorts}>
                     {(this.state.serviceComponentList || []).map(
                       (service, index) => {
                         return (

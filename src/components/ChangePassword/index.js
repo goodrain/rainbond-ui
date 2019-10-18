@@ -101,10 +101,10 @@ class ChangePassword extends PureComponent {
                             rules: [
                                 {
                                     required: true,
-                                    message: '请输入您的心密码'
+                                    message: '请输入您的新密码'
                                 }
                             ]
-                        })(<Input type="password" placeholder="请输入旧密码"/>)}
+                        })(<Input type="password" placeholder="请输入新密码"/>)}
 
                     </FormItem>
                     <FormItem {...formItemLayout} label="确认新密码" hasFeedback>

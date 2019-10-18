@@ -392,7 +392,7 @@ export default class Index extends PureComponent {
             type="primary"
             loading={createAppByCodeLoading}
           >
-            新建应用
+            确认创建
           </Button>
         </Form.Item>
         {this.state.addGroup && (

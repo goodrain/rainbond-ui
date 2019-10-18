@@ -1,5 +1,18 @@
 import React, { PureComponent, Fragment } from "react";
-import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip, Icon,notification } from "antd";
+import {
+  Row,
+  Col,
+  Button,
+  Modal,
+  Dropdown,
+  Menu,
+  Table,
+  Card,
+  Alert,
+  Tooltip,
+  Icon,
+  notification
+} from "antd";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
@@ -7,7 +20,7 @@ import globalUtil from "../../utils/global";
 import { openInNewTab } from "../../utils/utils";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { link } from "fs";
-import styles from './index.less';
+import styles from "./index.less";
 
 const { Description } = DescriptionList;
 
@@ -20,12 +33,15 @@ const { Description } = DescriptionList;
                 http_inner| http对内
 */
 
-@connect(({ user, appControl, global }) => ({ visitInfo: appControl.visitInfo }))
+@connect(({ user, appControl, global }) => ({
+  visitInfo: appControl.visitInfo,
+  currUser: user.currentUser
+}))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false,
+      showModal: false
     };
     this.mount = false;
   }
@@ -44,8 +60,8 @@ export default class Index extends PureComponent {
       type: "appControl/fetchVisitInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
-      },
+        app_alias: appAlias
+      }
     });
     setTimeout(() => {
       this.fetchVisitInfo();
@@ -58,14 +74,14 @@ export default class Index extends PureComponent {
   hiddenModal = () => {
     this.setState({ showModal: false });
   };
-  getHttpLinks = (accessInfo) => {
+  getHttpLinks = accessInfo => {
     let res = [];
     for (let i = 0; i < accessInfo.length; i++) {
       res = res.concat(accessInfo[i].access_urls || []);
     }
     return res;
   };
-  handleClickLink = (item) => {
+  handleClickLink = item => {
     // window.open(item.key);
     openInNewTab(item.key);
   };
@@ -73,7 +89,7 @@ export default class Index extends PureComponent {
     <div>
       <span
         style={{
-          marginRight: 16,
+          marginRight: 16
         }}
       >
         访问地址：{item.access_urls[0]}
@@ -81,14 +97,19 @@ export default class Index extends PureComponent {
       <span>访问协议： {item.protocol}</span>
     </div>
   );
-  renderNoPort = (visitInfo) => {
+  renderNoPort = visitInfo => {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
     return (
       <Fragment>
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
-          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
+        <Tooltip
+          title="跳转到组件对外访问端口对应的域名地址"
+          placement="topRight"
+        >
+          <Button type={this.props.btntype} onClick={this.showModal}>
+            访问
+          </Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -100,15 +121,16 @@ export default class Index extends PureComponent {
             <div
               style={{
                 textAlign: "center",
-                fontSize: 16,
+                fontSize: 16
               }}
             >
-              如需要提供访问服务, 请<Link
+              如需要提供访问服务, 请
+              <Link
                 onClick={this.hiddenModal}
                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
               >
                 配置端口
-                          </Link>
+              </Link>
             </div>
           </Modal>
         )}
@@ -116,7 +138,7 @@ export default class Index extends PureComponent {
     );
   };
 
-  showConnectInfo = (infoArr) => {
+  showConnectInfo = infoArr => {
     return (
       <Table
         rowKey={this.rowKey}
@@ -124,31 +146,32 @@ export default class Index extends PureComponent {
         bordered
         columns={[
           {
-            title: '变量名',
-            dataIndex: 'attr_name',
+            title: "变量名",
+            dataIndex: "attr_name",
             key: "attr_name",
-            align: 'center',
+            align: "center"
           },
           {
-            title: '变量值',
-            dataIndex: 'attr_value',
+            title: "变量值",
+            dataIndex: "attr_value",
             key: "attr_value",
-            align: 'center',
+            align: "center"
           },
           {
-            title: '说明',
-            dataIndex: 'name',
+            title: "说明",
+            dataIndex: "name",
             key: "name",
-            align: 'center',
-          },
+            align: "center"
+          }
         ]}
         pagination={false}
         dataSource={infoArr}
         bordered={false}
       />
-    )
-  }
-  renderHttpPort = (visitInfo) => {
+    );
+  };
+  renderHttpPort = visitInfo => {
+    console.log('visitInfo',visitInfo)
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
@@ -156,7 +179,8 @@ export default class Index extends PureComponent {
     if (links.length === 1) {
       return (
         <Tooltip title="跳转到组件对外访问端口对应的域名地址">
-          <Button type={this.props.btntype}
+          <Button
+            type={this.props.btntype}
             onClick={() => {
               // window.open(links[0]);
               openInNewTab(links[0]);
@@ -169,8 +193,13 @@ export default class Index extends PureComponent {
     } else if (links.length === 0) {
       return (
         <Fragment>
-          <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
-            <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
+          <Tooltip
+            title="跳转到组件对外访问端口对应的域名地址"
+            placement="topRight"
+          >
+            <Button type={this.props.btntype} onClick={this.showModal}>
+              访问
+            </Button>
           </Tooltip>
           {showModal && (
             <Modal
@@ -182,10 +211,11 @@ export default class Index extends PureComponent {
               <div
                 style={{
                   textAlign: "center",
-                  fontSize: 16,
+                  fontSize: 16
                 }}
               >
-                http协议端口需打开外部访问服务, 去<Link
+                http协议端口需打开外部访问服务, 去
+                <Link
                   onClick={this.hiddenModal}
                   to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
                 >
@@ -198,11 +228,16 @@ export default class Index extends PureComponent {
       );
     }
     return (
-      <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
+      <Tooltip
+        title="跳转到组件对外访问端口对应的域名地址"
+        placement="topRight"
+      >
         <Dropdown
           overlay={
             <Menu onClick={this.handleClickLink}>
-              {links.map(item => <Menu.Item key={item}>{item}</Menu.Item>)}
+              {links.map(item => (
+                <Menu.Item key={item}>{item}</Menu.Item>
+              ))}
               {/* <Menu.Item key={1}>{11}</Menu.Item> */}
             </Menu>
           }
@@ -219,8 +254,13 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
-          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
+        <Tooltip
+          title="跳转到组件对外访问端口对应的域名地址"
+          placement="topRight"
+        >
+          <Button type={this.props.btntype} onClick={this.showModal}>
+            访问
+          </Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -232,10 +272,11 @@ export default class Index extends PureComponent {
             <div
               style={{
                 textAlign: "center",
-                fontSize: 16,
+                fontSize: 16
               }}
             >
-              需要配置端口信息, 去<Link
+              需要配置端口信息, 去
+              <Link
                 onClick={this.hiddenModal}
                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
               >
@@ -247,17 +288,27 @@ export default class Index extends PureComponent {
       </Fragment>
     );
   };
-  renderNofHttpOuter = (visitInfo) => {
+  renderNofHttpOuter = visitInfo => {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
     const res = demo.access_info || [];
     const btn = <Button onClick={this.hiddenModal}>关闭</Button>;
     const btns = [btn];
+    const { region } = this.props.currUser.teams[0];
+    const currentRegion = region.filter(item => {
+      return item.team_region_name == globalUtil.getCurrRegionName();
+    });
+
     return (
       <Fragment>
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
-          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
+        <Tooltip
+          title="跳转到组件对外访问端口对应的域名地址"
+          placement="topRight"
+        >
+          <Button type={this.props.btntype} onClick={this.showModal}>
+            访问
+          </Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -274,34 +325,64 @@ export default class Index extends PureComponent {
                 <Card
                   type="inner"
                   style={{
-                    marginBottom: 24,
+                    marginBottom: 24
                   }}
-                // title={this.renderNoHttpOuterTitle(item)}
+                  // title={this.renderNoHttpOuterTitle(item)}
                 >
                   {/* {!item.connect_info.length ? (
                     "-"
                   ) : ( */}
-                      <Fragment>
+                  <Fragment>
+                    <ul className={styles.ul}>
+                      {item.protocol == "tcp" || item.protocol == "udp" ? (
+                        <li style={{ fontWeight: "bold" }}>
+                          您当前的访问协议是{item.protocol}
+                        </li>
+                      ) : (
+                        <li style={{ fontWeight: "bold" }}>
+                          您当前的访问协议是{item.protocol},打开MySQL客户端访问
+                        </li>
+                      )}
+                      <li>
+                        推荐访问地址&nbsp;
+                        <a
+                          href="javascript:void(0)"
+                          style={{ marginRight: "10px" }}
+                        >
+                          {item.access_urls[0].indexOf("0.0.0.0") > -1 &&
+                          currentRegion &&
+                          currentRegion.length > 0
+                            ? item.access_urls[0].replace(
+                                /0.0.0.0/g,
+                                currentRegion[0].tcpdomain
+                              )
+                            : item.access_urls[0].replace(/\s+/g, "")}
+                        </a>
+                        <CopyToClipboard
+                          text={
+                            item.access_urls[0].indexOf("0.0.0.0") > -1 &&
+                            currentRegion &&
+                            currentRegion.length > 0
+                              ? item.access_urls[0].replace(
+                                  /0.0.0.0/g,
+                                  currentRegion[0].tcpdomain
+                                )
+                              : item.access_urls[0].replace(/\s+/g, "")
+                          }
+                          onCopy={() => {
+                            notification.success({ message: "复制成功" });
+                          }}
+                        >
+                          <Button size="small" type="primary">
+                            <Icon type="copy" />
+                            复制
+                          </Button>
+                        </CopyToClipboard>
+                      </li>
+                      {this.showConnectInfo(connect_info)}
+                    </ul>
 
-                        <ul className={styles.ul}>
-                          {item.protocol == 'tcp' || item.protocol == 'udp' ? <li style={{ fontWeight: "bold" }}>您当前的访问协议是{item.protocol}</li> : <li style={{ fontWeight: "bold" }}>您当前的访问协议是{item.protocol},打开MySQL客户端访问</li>}
-                          <li><a href="javascript:void(0)" style={{ marginRight: "10px" }}>{item.access_urls[0]}</a>
-                            <CopyToClipboard
-                              // text={item.access_urls.replace(/\s+/g, "")}
-                              text={item.access_urls[0]}
-                              onCopy={() => {
-                                notification.success({ message: "复制成功" });
-                              }}
-                            >
-                              <Button size="small" type="primary"><Icon type="copy" />复制</Button>
-                            </CopyToClipboard>
-                          </li>
-                          {this.showConnectInfo(connect_info)}
-                        </ul>
-
-
-
-                        {/* <table
+                    {/* <table
                           style={{
                             width: "100%",
                           }}
@@ -343,8 +424,8 @@ export default class Index extends PureComponent {
                             ) : null}
                           </tbody>
                         </table> */}
-                      </Fragment>
-                    {/* )} */}
+                  </Fragment>
+                  {/* )} */}
                 </Card>
               );
             })}
@@ -353,7 +434,7 @@ export default class Index extends PureComponent {
       </Fragment>
     );
   };
-  renderNotHttpInner = (visitInfo) => {
+  renderNotHttpInner = visitInfo => {
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;
@@ -375,70 +456,75 @@ export default class Index extends PureComponent {
         <Card
           type="inner"
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title={renderTitle(item)}
         >
           {!item.connect_info.length ? (
             "-"
           ) : (
-              <Fragment>
-                <table
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  <thead>
+            <Fragment>
+              <table
+                style={{
+                  width: "100%"
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th
+                      style={{
+                        width: "33%"
+                      }}
+                    >
+                      变量名
+                    </th>
+                    <th
+                      style={{
+                        width: "33%"
+                      }}
+                    >
+                      变量值
+                    </th>
+                    <th>说明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {connect_info.map(item => (
                     <tr>
-                      <th
-                        style={{
-                          width: "33%",
-                        }}
-                      >
-                        变量名
-                    </th>
-                      <th
-                        style={{
-                          width: "33%",
-                        }}
-                      >
-                        变量值
-                    </th>
-                      <th>说明</th>
+                      <td width="150">{item.attr_name}</td>
+                      <td>{item.attr_value}</td>
+                      <td>{item.name}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {connect_info.map(item => (
-                      <tr>
-                        <td width="150">{item.attr_name}</td>
-                        <td>{item.attr_value}</td>
-                        <td>{item.name}</td>
-                      </tr>
-                    ))}
-                    {!connect_info.length ? (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          style={{
-                            textAlign: "center",
-                          }}
-                        >
-                          暂无数据
+                  ))}
+                  {!connect_info.length ? (
+                    <tr>
+                      <td
+                        colSpan="3"
+                        style={{
+                          textAlign: "center"
+                        }}
+                      >
+                        暂无数据
                       </td>
-                      </tr>
-                    ) : null}
-                  </tbody>
-                </table>
-              </Fragment>
-            )}
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </Fragment>
+          )}
         </Card>
       );
     }
 
     return (
       <Fragment>
-        <Tooltip title="跳转到组件对外访问端口对应的域名地址" placement="topRight">
-          <Button type={this.props.btntype} onClick={this.showModal}>访问</Button>
+        <Tooltip
+          title="跳转到组件对外访问端口对应的域名地址"
+          placement="topRight"
+        >
+          <Button type={this.props.btntype} onClick={this.showModal}>
+            访问
+          </Button>
         </Tooltip>
         {showModal && (
           <Modal
@@ -450,7 +536,7 @@ export default class Index extends PureComponent {
           >
             <Alert
               style={{
-                marginBottom: 16,
+                marginBottom: 16
               }}
               message="其他组件依赖此组件后来访问"
               type="info"
@@ -477,7 +563,10 @@ export default class Index extends PureComponent {
     if (visitInfo.access_type === "not_http_outer") {
       return this.renderNofHttpOuter(visitInfo);
     }
-    if (visitInfo.access_type === "not_http_inner" || visitInfo.access_type === "http_inner") {
+    if (
+      visitInfo.access_type === "not_http_inner" ||
+      visitInfo.access_type === "http_inner"
+    ) {
       return this.renderNotHttpInner(visitInfo);
     }
     return null;

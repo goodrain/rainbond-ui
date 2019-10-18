@@ -30,10 +30,10 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 6
   },
   wrapperCol: {
-    span: 19
+    span: 18
   }
 };
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
@@ -204,13 +204,13 @@ export default class Index extends PureComponent {
 
   validAttrName = (rule, value, callback) => {
     if (!value) {
-      callback("请输入服务地址");
+      callback("请输入组件地址");
       return;
     }
     if (typeof value == "object") {
       value.map(item => {
         if (item == "") {
-          callback("请输入服务地址");
+          callback("请输入组件地址");
           return;
         }
 
@@ -266,16 +266,13 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="服务名称">
+          <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator("service_cname", {
               initialValue: data.service_cname || "",
-              rules: [
-                { required: true, message: "请输入服务名称" }
-                // { min: 4, message: "服务名称必须大于4位" },
-              ]
+              rules: [{ required: true, message: "请输入组件名称" }]
             })(
               <Input
-                placeholder="请输入服务名称"
+                placeholder="请输入组件名称"
                 style={{
                   display: "inline-block",
                   width:
@@ -325,7 +322,7 @@ export default class Index extends PureComponent {
             ) : null}
           </Form.Item>
 
-          <FormItem {...formItemLayout} label="服务注册方式">
+          <FormItem {...formItemLayout} label="组件注册方式">
             {getFieldDecorator("endpoints_type", {
               rules: [{ required: true, message: "请选择endpoints类型!" }],
               initialValue: this.state.endpointsType
@@ -346,7 +343,7 @@ export default class Index extends PureComponent {
               {...formItemLayout}
               label={
                 <span>
-                  服务地址
+                  组件地址
                   <Tooltip
                     title={
                       <a
@@ -382,7 +379,7 @@ export default class Index extends PureComponent {
                               "static"
                             )}
                             value={item}
-                            placeholder={"请输入服务地址"}
+                            placeholder={"请输入组件地址"}
                           />
                         </Col>
                         <Col span={4} style={{ textAlign: "center" }}>
@@ -456,7 +453,7 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label={
                     <span>
-                      服务地址
+                      组件地址
                       <Tooltip
                         title={
                           <a
@@ -482,7 +479,6 @@ export default class Index extends PureComponent {
                       { required: true },
                       { validator: this.validAttrName }
                     ],
-                    // rules: [{ required: true, message: '请输入服务地址!' }],
                     initialValue: ""
                   })(
                     <div>
@@ -497,7 +493,7 @@ export default class Index extends PureComponent {
                                   "servers"
                                 )}
                                 value={item}
-                                placeholder={"请输入服务地址"}
+                                placeholder={"请输入组件地址"}
                               />
                             </Col>
                             <Col span={4} style={{ textAlign: "center" }}>
@@ -577,7 +573,7 @@ export default class Index extends PureComponent {
               this.props.ButtonGroupState
                 ? this.props.handleServiceBotton(
                     <Button onClick={this.handleSubmit} type="primary">
-                      创建服务
+                      新建组件
                     </Button>,
                     false
                   )
@@ -591,11 +587,11 @@ export default class Index extends PureComponent {
                       }}
                     >
                       <Button onClick={this.handleSubmit} type="primary">
-                        创建服务
+                        确认创建
                       </Button>
                       {endpointsType == "api" && (
                         <Alert
-                          message="API地址在服务创建后获取"
+                          message="API地址在组件创建后获取"
                           type="warning"
                           showIcon
                         />
@@ -606,7 +602,7 @@ export default class Index extends PureComponent {
                 this.props.handleType === "Service" &&
                 endpointsType == "api" && (
                   <Alert
-                    message="API地址在服务创建后获取"
+                    message="API地址在组件创建后获取"
                     type="warning"
                     showIcon
                     style={{ width: "350px" }}

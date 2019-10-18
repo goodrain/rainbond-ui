@@ -189,16 +189,18 @@ export default class Index extends PureComponent {
         ? rainbondInfo.market_url
         : "https://market.goodrain.com";
     const callback = window.location.href;
+    const version =
+      rainbondInfo && rainbondInfo.version !== undefined
+        ? rainbondInfo.version
+        : "";
     const url =
       domain +
-        "/manage/jointcloud?join_id=" +
-        eid +
-        "&callback_url=" +
-        callback +
-        "&rbd_version=" +
-        rainbondInfo &&
-      rainbondInfo.version !== undefined &&
-      rainbondInfo.version;
+      "/manage/jointcloud?join_id=" +
+      eid +
+      "&callback_url=" +
+      callback +
+      "&rbd_version=" +
+      version;
     window.location.href = url;
   };
 

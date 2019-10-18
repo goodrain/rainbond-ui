@@ -182,7 +182,7 @@ export default class Index extends PureComponent {
 							>
 								{this.props.handleType && this.props.handleType === "Service" && this.props.ButtonGroupState ?
 									this.props.handleServiceBotton(<Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建组件</Button>, false) :
-									!this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>新建应用</Button>
+									!this.props.handleType && <Button onClick={this.handleSubmit} type="primary" loading={createAppByDockerrunLoading}>确认创建</Button>
 								}
 							</Form.Item>
 							: null
