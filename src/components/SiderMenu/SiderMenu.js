@@ -43,10 +43,10 @@ export default class SiderMenu extends PureComponent {
    * @param  props
    */
   getDefaultCollapsedSubMenus(props) {
-    const { 
+    const {
 location: {
       pathname,
-    } 
+    }
 } = props || this.props;
     // eg. /list/search/articles = > ['','list','search','articles']
     let snippets = pathname.split("/");
@@ -134,7 +134,8 @@ location: {
   getSelectedMenuKeys = (path) => {
     const flatMenuKeys = this.getFlatMenuKeys(this.props.menuData);
     return flatMenuKeys.filter((item) => {
-      return path.indexOf(item) > -1;
+      // 选择当前菜单的数组
+      // return path.indexOf(item) > -1;
       return pathToRegexp(`/${item}`).test(path);
     });
   }
@@ -201,7 +202,7 @@ location: {
             {this.getNavMenuItems(item.children)}
           </SubMenu>
         );
-      } 
+      }
         return (
           <SubMenu
             title={item.icon
@@ -216,7 +217,7 @@ location: {
             {this.getNavMenuItems(item.children)}
           </SubMenu>
         );
-      
+
 
     } else {
       return (
@@ -247,9 +248,9 @@ location: {
   conversionPath = (path) => {
     if (path && path.indexOf('http') === 0) {
       return path;
-    } 
+    }
       return `/${path || ''}`.replace(/\/+/g, '/');
-    
+
   }
   // permission to check
   checkPermissionItem = (authority, ItemDom) => {
@@ -272,9 +273,9 @@ location: {
        }
       //  return null;
       return ItemDom;
-    } 
+    }
       return ItemDom;
-    
+
     if (this.props.Authorized && this.props.Authorized.check) {
       const {check} = this.props.Authorized;
       return check(authority, ItemDom);
@@ -294,7 +295,7 @@ location: {
     const {
  logo, collapsed, location: {
       pathname,
-    }, onCollapse, title 
+    }, onCollapse, title
 } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
@@ -305,6 +306,7 @@ location: {
       };
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
+
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
