@@ -4,6 +4,7 @@ import { Card, Avatar } from "antd";
 import moment from "moment";
 import styles from "./index.less";
 import teamUtil from "../../../utils/team";
+import rainbondUtil from "../../../utils/rainbond";
 import globalUtil from "../../../utils/global";
 import userUtil from "../../../utils/user";
 import OpenRegion from "../../OpenRegion";
@@ -70,8 +71,7 @@ export default class DatacenterList extends PureComponent {
           bordered={false}
           extra={
             teamUtil.canAddRegion(team) &&
-            rainbondInfo &&
-            rainbondInfo.is_open_data_center ? (
+            rainbondUtil.openDataCenterStatusEnable(rainbondInfo) ? (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 {" "}
                 开通数据中心{" "}

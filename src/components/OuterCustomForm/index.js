@@ -16,6 +16,8 @@ import {
 } from "antd";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
+import rainbondUtil from "../../utils/rainbond";
+
 import configureGlobal from "../../utils/configureGlobal";
 import ShowRegionKey from "../../components/ShowRegionKey";
 import styles from "./index.less";
@@ -133,7 +135,7 @@ export default class Index extends PureComponent {
               num++;
               if (num > 1) {
                 message.destroy();
-                return message.warning("组件地址目前只支持添加一个域名。");
+                return message.warning("服务地址目前只支持添加一个域名。");
               }
             }
           });
@@ -345,10 +347,9 @@ export default class Index extends PureComponent {
                   <Tooltip
                     title={
                       <a
-                        href={`${rainbondInfo &&
-                          rainbondInfo.document &&
-                          rainbondInfo.document
-                            .platform_url}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                        href={`${rainbondUtil.documentPlatform_url(
+                          rainbondInfo
+                        )}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
                         target="_blank"
                         style={{ color: "#fff" }}
                       >
@@ -456,10 +457,9 @@ export default class Index extends PureComponent {
                       <Tooltip
                         title={
                           <a
-                            href={`${rainbondInfo &&
-                              rainbondInfo.document &&
-                              rainbondInfo.document
-                                .platform_url}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
+                            href={`${rainbondUtil.documentPlatform_url(
+                              rainbondInfo
+                            )}docs/user-manual/app-creation/thirdparty-service/thirdparty-create/#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%88%9B%E5%BB%BA`}
                             target="_blank"
                             style={{ color: "#fff" }}
                           >

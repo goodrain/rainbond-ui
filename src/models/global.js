@@ -315,11 +315,15 @@ export default {
       if (data) {
         cookie.set(
           "newbie_guide",
-          data.bean && data.bean.newbie_guide!==undefined ? data.bean.newbie_guide : false
+          data.bean && data.bean.newbie_guide !== undefined
+            ? data.bean.newbie_guide.enable
+            : false
         );
         cookie.set(
           "platform_url",
-          data.bean && data.bean.document!==undefined && data.bean.document.platform_url!==undefined
+          data.bean &&
+            data.bean.document !== undefined &&
+            data.bean.document.platform_url !== undefined
             ? data.bean.document.platform_url
             : "https://www.rainbond.com/"
         );

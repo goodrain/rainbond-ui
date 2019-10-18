@@ -24,6 +24,8 @@ import ConfirmModal from "../../components/ConfirmModal";
 import BasicListStyles from "../List/BasicList.less";
 import CloudPlugin from "./CloudPlugin";
 import MarketPluginDetailShow from "../../components/MarketPluginDetailShow";
+import rainbondUtil from "../../utils/rainbond";
+
 const { Search } = Input;
 
 @connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
@@ -173,7 +175,7 @@ export default class PluginList extends PureComponent {
 
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-        {rainbondInfo && rainbondInfo.cloud_market && (
+        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
           <Button
             type="primary"
             onClick={() => {
@@ -238,7 +240,7 @@ export default class PluginList extends PureComponent {
                   <br />
                   <br />
                   分享插件到内部市场
-                  {rainbondInfo && rainbondInfo.cloud_market && (
+                  {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                     <span>
                       或{" "}
                       <a
@@ -266,8 +268,7 @@ export default class PluginList extends PureComponent {
                         item.is_complete ? (
                           <Fragment>
                             {item.source === "market" &&
-                              rainbondInfo &&
-                              rainbondInfo.cloud_market && (
+                              rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                                 <a
                                   style={{ marginRight: 8 }}
                                   href="javascript:;"
