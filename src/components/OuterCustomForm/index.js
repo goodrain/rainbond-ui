@@ -252,7 +252,7 @@ export default class Index extends PureComponent {
     } = this.state;
     const gitUrl = getFieldValue("git_url");
     let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || "");
-    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
+    let urlCheck = '';
     if (this.state.serverType == "svn") {
       isHttp = true;
       urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
