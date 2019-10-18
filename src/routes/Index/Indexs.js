@@ -19,7 +19,7 @@ import IndexTable from "../../components/IndexTable";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import EditableLinkGroup from "../../components/EditableLinkGroup";
 import ScrollerX from "../../components/ScrollerX";
-
+import rainbondUtil from "../../utils/rainbond";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
@@ -94,14 +94,14 @@ export default class Index extends PureComponent {
       }
     ];
     const rainbondInfo = this.props.rainbondInfo;
-    if (rainbondInfo.github_config.enable) {
+    if (rainbondUtil.githubEnable(rainbondInfo)) {
       codelinks.push({
         title: "Github项目",
         icontype: "github",
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
       });
     }
-    if (rainbondInfo.gitlab_config.enable) {
+    if (rainbondUtil.gitlabEnable(rainbondInfo)) {
       codelinks.push({
         title: "Gitlab仓库",
         icontype: "gitlab",
@@ -271,9 +271,15 @@ export default class Index extends PureComponent {
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="组件状态">
-              {getFieldDecorator("service_status", { initialValue: "all" })(<Select placeholder="请选择">
-                {status.map(item => <Option key={item.value} value={item.value}>{item.text}</Option>)}
-              </Select>)}
+              {getFieldDecorator("service_status", { initialValue: "all" })(
+                <Select placeholder="请选择">
+                  {status.map(item => (
+                    <Option key={item.value} value={item.value}>
+                      {item.text}
+                    </Option>
+                  ))}
+                </Select>
+              )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>

@@ -17,6 +17,7 @@ import {
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import globalUtil from "../../utils/global";
+import rainbondUtil from "../../utils/rainbond";
 import sourceUtil from "../../utils/source-unit";
 import CreateAppFromMarketForm from "../../components/CreateAppFromMarketForm";
 import Ellipsis from "../../components/Ellipsis";
@@ -63,7 +64,8 @@ export default class Main extends PureComponent {
       showCreate: null,
       scope: "",
       scopeMax:
-        this.props.scopeMax || ( this.props.rainbondInfo &&  this.props.rainbondInfo.cloud_market)
+        this.props.scopeMax ||
+        rainbondUtil.cloudMarketEnable(this.props.rainbondInfo)
           ? "cloudApplication"
           : "localApplication",
       target: "searchWrap",
@@ -679,7 +681,7 @@ export default class Main extends PureComponent {
               <br />
               <br />
               分享应用
-              {rainbondInfo && rainbondInfo.cloud_market && (
+              {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                 <span>
                   或{" "}
                   <Link
@@ -719,7 +721,7 @@ export default class Main extends PureComponent {
               <br />
               <br />
               分享应用
-              {rainbondInfo && rainbondInfo.cloud_market && (
+              {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                 <span>
                   或{" "}
                   <Link
@@ -805,7 +807,7 @@ export default class Main extends PureComponent {
       }
     ];
 
-    if (rainbondInfo && rainbondInfo.cloud_market) {
+    if (rainbondUtil.cloudMarketEnable(rainbondInfo)) {
       tabListMax.unshift({
         key: "cloudApplication",
         tab: "云端应用"
