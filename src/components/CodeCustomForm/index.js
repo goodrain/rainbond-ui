@@ -53,16 +53,22 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  checkURL = (rule, value, callback) => {
+  getUrlCheck() {
     if (this.state.serverType == "svn") {
-      if (!/^(svn:\/\/|http:\/\/|https:\/\/).+$/gi.test(value)) {
-        callback("不合法");
-      }
-    } else if (!/^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi.test(value)) {
-      callback("不合法");
+      return /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
-    callback();
+    return /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+  }
+
+  checkURL = (rule, value, callback) => {
+    const urlCheck = this.getUrlCheck();
+    if (urlCheck.test(value)) {
+      callback();
+    } else {
+      callback("非法仓库地址");
+    }
   };
+
   handleAddGroup = vals => {
     const { setFieldsValue } = this.props.form;
 
@@ -178,7 +184,7 @@ export default class Index extends PureComponent {
     const gitUrl = getFieldValue("git_url");
 
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
-    let urlCheck = /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi;
+    let urlCheck = /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     if (this.state.serverType == "svn") {
       isHttp = true;
       urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;

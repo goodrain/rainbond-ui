@@ -9,7 +9,7 @@ export default class ModifyUrl extends PureComponent {
   handleCancel = () => {
     this.props.onCancel && this.props.onCancel();
   };
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -20,11 +20,11 @@ export default class ModifyUrl extends PureComponent {
   render() {
     const formItemLayout = {
       labelCol: {
-        span: 5,
+        span: 5
       },
       wrapperCol: {
-        span: 19,
-      },
+        span: 19
+      }
     };
     const { getFieldDecorator } = this.props.form;
     const data = this.props.data || {};
@@ -44,9 +44,9 @@ export default class ModifyUrl extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: "要创建的应用还没有名字",
-                },
-              ],
+                  message: "要创建的应用还没有名字"
+                }
+              ]
             })(<Input disabled placeholder="请为创建的应用起个名字吧" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="仓库地址">
@@ -56,24 +56,26 @@ export default class ModifyUrl extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: "请输入仓库地址",
+                    message: "请输入仓库地址"
                   },
                   {
-                    pattern: /^(.+@.+\.git)|([^@]+\.git(\?.+)?)$/gi,
-                    message: "仓库地址不正确",
-                  },
-                ],
-              })(<Input
-                style={{
-                    width: "calc(100% - 100px)",
+                    pattern: /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi,
+                    message: "仓库地址不正确"
+                  }
+                ]
+              })(
+                <Input
+                  style={{
+                    width: "calc(100% - 100px)"
                   }}
-                placeholder="请输入仓库地址"
-              />)}
+                  placeholder="请输入仓库地址"
+                />
+              )}
             </Input.Group>
           </Form.Item>
           <Form.Item
             style={{
-              display: showUsernameAndPass ? "" : "none",
+              display: showUsernameAndPass ? "" : "none"
             }}
             {...formItemLayout}
             label="仓库用户名"
@@ -83,14 +85,14 @@ export default class ModifyUrl extends PureComponent {
               rules: [
                 {
                   required: false,
-                  message: "请输入仓库用户名",
-                },
-              ],
+                  message: "请输入仓库用户名"
+                }
+              ]
             })(<Input placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
             style={{
-              display: showUsernameAndPass ? "" : "none",
+              display: showUsernameAndPass ? "" : "none"
             }}
             {...formItemLayout}
             label="仓库密码"
@@ -100,9 +102,9 @@ export default class ModifyUrl extends PureComponent {
               rules: [
                 {
                   required: false,
-                  message: "请输入仓库密码",
-                },
-              ],
+                  message: "请输入仓库密码"
+                }
+              ]
             })(<Input type="password" placeholder="请输入仓库密码" />)}
           </Form.Item>
         </Form>
