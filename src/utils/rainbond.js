@@ -35,9 +35,9 @@ export default {
     false,
   // 判断平台是否配置了官方Demo
   officialDemoEnable: (bean = {}) =>
-    (bean.officialDemoEnable &&
-      bean.officialDemoEnable.enable &&
-      bean.officialDemoEnable.enable) ||
+    (bean.official_demo &&
+      bean.official_demo.enable &&
+      bean.official_demo.enable) ||
     false,
   // 判断平台是否配置了具有开通数据中心权限
   openDataCenterStatusEnable: (bean = {}) =>
