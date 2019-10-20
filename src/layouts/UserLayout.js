@@ -75,11 +75,7 @@ class UserLayout extends React.PureComponent {
                     className={styles.logo}
                     src={rainbondInfo.logo || logo}/> */}
                     <h1
-                      style={{
-                        display: "inline-block",
-                        verticalAlign: "middle",
-                        marginBottom: 0
-                      }}
+                      className={styles.titles}
                     >
                       {rainbondInfo.title}
                     </h1>
