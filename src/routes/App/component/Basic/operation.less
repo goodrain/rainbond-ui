@@ -1,11 +1,13 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../../../utils/utils.less";
-.nowarpText{
-  overflow: hidden;
+
+.nowarpText {
+  overflow     : hidden;
   text-overflow: ellipsis;
-  word-break: break-all;
-  white-space: nowrap;
+  word-break   : break-all;
+  white-space  : nowrap;
 }
+
 :global {
   td a {
     margin: 0 3px;
@@ -31,48 +33,53 @@
 }
 
 .logsss {
-	background:#212121;
-	min-height: 300px;
-	padding: 15px;
-	max-height: 600px;
-	overflow: auto;
+  background: #212121;
+  min-height: 300px;
+  padding   : 15px;
+  max-height: 600px;
+  overflow  : auto;
 
-	div{
-		margin-bottom:0;
-		display: flex;
-		min-height: 19px;
-		font-size: 12px;
-		line-height: 19px;
-		span:nth-of-type(1){
-			display: inline-block;
-			text-align: right;
-			min-width: 40px;
-			display: flex;
-			padding-right: 6px;
-			// b{
-			// 	display: inline-block;
-			// 	width: 20%;
-			// }
-			span{
-				display: inline-block;
-				width: 20px;
-				text-align: right;
-			}
-		}
-		span:nth-of-type(2){
-			width: 80%;
-		}
-		span:nth-of-type(3){
-			width: 14%;
-			border-radius:6px;
-			height: 16px;
-			text-align: center;
-			line-height: 16px;
-		}
-	}
-	div:hover{
-		background: #444444
-	}
+  div {
+    margin-bottom: 0;
+    display      : flex;
+    min-height   : 19px;
+    font-size    : 12px;
+    line-height  : 19px;
+
+    span:nth-of-type(1) {
+      display      : inline-block;
+      text-align   : right;
+      min-width    : 40px;
+      display      : flex;
+      padding-right: 6px;
+
+      // b{
+      // 	display: inline-block;
+      // 	width  : 20%;
+      // }
+      span {
+        display   : inline-block;
+        width     : 20px;
+        text-align: right;
+      }
+    }
+
+    span:nth-of-type(2) {
+      width: 80%;
+    }
+
+    span:nth-of-type(3) {
+      width        : 14%;
+      border-radius: 6px;
+      height       : 16px;
+      text-align   : center;
+      line-height  : 16px;
+    }
+  }
+
+  div:hover {
+    background: #444444
+  }
 
 
 }
@@ -84,22 +91,24 @@
 .logfailed {
   background: linear-gradient(to right, #db4545 0, #db4545 5px, #fff 5px, #fff 100%) no-repeat;
 }
+
 .logfored {
   background: linear-gradient(to right, #F69C49 0, #F69C49 5px, #fff 5px, #fff 100%) no-repeat;
 }
+
 .logcanceled {
   background: linear-gradient(to right, #9d9d9d 0, #9d9d9d 5px, #fff 5px, #fff 100%) no-repeat;
 }
 
 .loginfo {
-  height      : 50px;
-  line-height : 50px;
-  margin      : 5px 0;
-  padding-left: 10px;
-  display     : flex;
-  align-items : center;
-  width       : 100%;
-  border      : 1px solid #eaeaea;
+  height         : 50px;
+  line-height    : 50px;
+  margin         : 5px 0;
+  padding-left   : 10px;
+  display        : flex;
+  align-items    : center;
+  width          : 100%;
+  border         : 1px solid #eaeaea;
   justify-content: space-evenly;
 
   div:nth-of-type(1) {
@@ -122,21 +131,27 @@
     text-overflow: ellipsis;
     white-space  : nowrap;
     width        : 50%;
-    padding      : 0 10px;
+    padding      : 0 10pxß;
   }
+
   div:nth-of-type(3) {
     width: 15%;
+
     span:nth-of-type(1) {
       padding-right: 10px;
     }
   }
+
   div:nth-of-type(4) {
     max-width: 170px;
     min-width: 120px;
   }
+
   div:nth-of-type(5) {
-    width: 30px;
-    text-align: right;
+    width      : 30px;
+    height     : 16px;
+    line-height: 16px;
+    text-align : center;
   }
 }
 
@@ -354,12 +369,13 @@ font {
     }
 
     .linefour {
-      // flex   : 0 0 22%;
-      width     : 13%;
-      display: flex;
-      align-items: center;
-      text-align: center;
-      justify-content: space-evenly;;
+      // flex        : 0 0 22%;
+      width          : 13%;
+      display        : flex;
+      align-items    : center;
+      text-align     : center;
+      justify-content: space-evenly;
+      ;
     }
 
     // .fadeOute:after {
