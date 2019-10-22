@@ -146,7 +146,7 @@ class Index extends PureComponent {
                         )}
                       {SynType == 0 && (
                         <Tooltip
-                          visible={FinalStatus == ""}
+                          visible={FinalStatus == "" ? true : false}
                           placement="top"
                           arrowPointAtCenter={true}
                           autoAdjustOverflow={false}
@@ -154,10 +154,7 @@ class Index extends PureComponent {
                         >
                           <div
                             style={{
-                              height: "16px",
-                              width: "16px",
-                              lineHeight: "16px",
-                              textAlign: "right"
+                              width: "16px"
                             }}
                             onClick={() => {
                               this.showLogModal(

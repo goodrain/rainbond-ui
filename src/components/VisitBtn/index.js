@@ -171,7 +171,6 @@ export default class Index extends PureComponent {
     );
   };
   renderHttpPort = visitInfo => {
-    console.log('visitInfo',visitInfo)
     const { showModal } = this.state;
     const demo = visitInfo;
     const appAlias = this.props.app_alias;

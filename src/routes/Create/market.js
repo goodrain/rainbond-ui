@@ -65,9 +65,9 @@ export default class Main extends PureComponent {
       scope: "",
       scopeMax:
         this.props.scopeMax ||
-        rainbondUtil.cloudMarketEnable(this.props.rainbondInfo)
+        (rainbondUtil.cloudMarketEnable(this.props.rainbondInfo)
           ? "cloudApplication"
-          : "localApplication",
+          : "localApplication"),
       target: "searchWrap",
       showApp: {},
       showMarketAppDetail: false,
@@ -96,7 +96,6 @@ export default class Main extends PureComponent {
   handleChange = v => {};
   handleSearch = v => {
     const { scopeMax } = this.state;
-
     if (scopeMax == "localApplication") {
       this.setState(
         {
@@ -312,19 +311,17 @@ export default class Main extends PureComponent {
           type: "global/fetchGroups",
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          callback: () => {
+            this.props.dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                  vals.group_id
+                }`
+              )
+            );
           }
         });
-
-        // 关闭弹框
-        this.onCancelCreate();
-        this.setState({ is_deploy: true });
-        this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              vals.group_id
-            }`
-          )
-        );
       }
     });
   };
@@ -349,19 +346,20 @@ export default class Main extends PureComponent {
           type: "global/fetchGroups",
           payload: {
             team_name: globalUtil.getCurrTeamName()
+          },
+          callback: () => {
+            // 关闭弹框
+            this.onCancelCreate();
+            this.setState({ is_deploy: true });
+            this.props.dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                  vals.group_id
+                }`
+              )
+            );
           }
         });
-
-        // 关闭弹框
-        this.onCancelCreate();
-        this.setState({ is_deploy: true });
-        this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              vals.group_id
-            }`
-          )
-        );
       }
     });
   };
