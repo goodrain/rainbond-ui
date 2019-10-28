@@ -7,6 +7,7 @@ import appAcionLogUtil from "../../../../utils/app-action-log-util";
 
 import LogShow from "../LogShow";
 import styles from "./operation.less";
+import { relative } from "path";
 
 @connect()
 @Form.create()
@@ -134,7 +135,7 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                    <div>
+                    <div style={{position:'relative'}}>
                       {isopenLog &&
                         FinalStatus === "" &&
                         OptType &&
@@ -151,6 +152,7 @@ class Index extends PureComponent {
                           arrowPointAtCenter={true}
                           autoAdjustOverflow={false}
                           title="查看日志"
+                          style={{position:"absolute",left:"0",top:"0"}}
                         >
                           <div
                             style={{
