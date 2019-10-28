@@ -619,6 +619,7 @@ export default class AppList extends PureComponent {
             <AppImport
               cancelImport={this.hideImportApp}
               onOK={this.hideImportApp}
+              onOKsuccess={this.getApps}
             />
           ) : null}
         </div>
@@ -674,6 +675,7 @@ export default class AppList extends PureComponent {
             loading={this.state.loading}
             pagination={paginationProps}
             dataSource={this.state.apps}
+            //列表数据源是状态中的apps
             renderItem={(item, index) => {
               const itemID = item.ID;
               const querydata = this.state.querydatabox;

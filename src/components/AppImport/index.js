@@ -204,6 +204,8 @@ export default class Index extends PureComponent {
               message: "导入完成"
             });
             this.props.onOK && this.props.onOK()
+            this.props.onOKsuccess && this.props.onOKsuccess()
+            
             return
           }
           if (data.bean && data.bean.status == "failed") {

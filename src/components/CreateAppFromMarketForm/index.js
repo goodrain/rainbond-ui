@@ -1,24 +1,31 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Form, Button, Select, Modal, Tooltip, Radio } from "antd";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import {
+  Form,
+  Button,
+  Select,
+  Modal,
+  Tooltip,
+  Radio
+} from 'antd';
+import AddGroup from '../../components/AddOrEditGroup';
+import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 5,
   },
   wrapperCol: {
-    span: 19
-  }
+    span: 19,
+  },
 };
 
 @connect(
   ({ user, global }) => ({ groups: global.groups }),
   null,
   null,
-  { withRef: true }
+  { withRef: true },
 )
 @Form.create()
 export default class Index extends PureComponent {
