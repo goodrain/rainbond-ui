@@ -412,12 +412,7 @@ export default class Index extends PureComponent {
                   <Switch
                     checked={appPortUtil.isOpenOuter(port)}
                     onChange={value => {
-                      num > 0
-                        ? notification.error({
-                            message: "第三方域名组件",
-                            description: "不允许开启对外服务"
-                          })
-                        : this.handleOuterChange(value);
+                      this.handleOuterChange(value);
                     }}
                     size="small"
                   />
