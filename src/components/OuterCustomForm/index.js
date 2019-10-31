@@ -255,7 +255,7 @@ export default class Index extends PureComponent {
     let urlCheck = '';
     if (this.state.serverType == "svn") {
       isHttp = true;
-      urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+      urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
     const data = this.props.data || {};

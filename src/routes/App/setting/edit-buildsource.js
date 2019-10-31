@@ -35,9 +35,9 @@ export default class ChangeBuildSource extends PureComponent {
   }
   getUrlCheck() {
     if (this.state.serverType == "svn") {
-      return /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+      return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
-    return /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+    return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
   }
   changeServerType = value => {
     this.setState({ serverType: value, showUsernameAndPass: false });
@@ -117,10 +117,10 @@ export default class ChangeBuildSource extends PureComponent {
     };
     const gitUrl = getFieldValue("git_url");
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
-    let urlCheck = /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+    let urlCheck = /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     if (this.state.serverType == "svn") {
       isHttp = true;
-      urlCheck = /^(svn:\/\/|http:\/\/|https:\/\/).+$/gi;
+      urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
 

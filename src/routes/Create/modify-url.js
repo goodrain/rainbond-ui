@@ -59,7 +59,7 @@ export default class ModifyUrl extends PureComponent {
                     message: "请输入仓库地址"
                   },
                   {
-                    pattern: /^(git@|svn:\/\/|http:\/\/|https:\/\/).+$/gi,
+                    pattern: /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi,
                     message: "仓库地址不正确"
                   }
                 ]
