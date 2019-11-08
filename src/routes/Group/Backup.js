@@ -388,7 +388,7 @@ export default class AppList extends PureComponent {
 										<a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleRecovery.bind(this, data)}>恢复</a>
 										<a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleMove.bind(this, data)}>迁移</a>
 										{data.mode == 'full-online' && <a href="javascript:;" style={{ marginRight: '5px' }} onClick={this.handleExport.bind(this, data)}>导出</a>}
-										{/* <a  href="javascript:;" onClick={this.handleDel.bind(this,data)}>删除</a> */}
+										<a  href="javascript:;" onClick={this.handleDel.bind(this,data)}>删除</a> 
 									</Fragment>
 									: ''
 
