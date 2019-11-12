@@ -642,6 +642,7 @@ export default class Index extends PureComponent {
               columns={[
                 {
                   title: "组件名",
+                  width:"40%",
                   dataIndex: "service_cname",
                   render: (val, data) => (
                     <Link
@@ -655,6 +656,7 @@ export default class Index extends PureComponent {
                 },
                 {
                   title: "所属应用",
+                  width:"40%",
                   dataIndex: "group_name",
                   render: (val, data) => (
                     <Link
@@ -666,13 +668,14 @@ export default class Index extends PureComponent {
                     </Link>
                   )
                 },
-                {
-                  title: "组件说明",
-                  dataIndex: "var",
-                  render: (val, data) => {}
-                },
+                // {
+                //   title: "组件说明",
+                //   dataIndex: "var",
+                //   render: (val, data) => {}
+                // },
                 {
                   title: "操作",
+                  width:"20%",
                   dataIndex: "var",
                   render: (val, data) => (
                     <Fragment>
