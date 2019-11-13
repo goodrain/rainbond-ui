@@ -618,8 +618,7 @@ export default class AppList extends PureComponent {
           {this.state.showImportApp ? (
             <AppImport
               cancelImport={this.hideImportApp}
-              onOK={this.hideImportApp}
-              onOKsuccess={this.getApps}
+              onOK={this.hideImportApp,this.getApps}
             />
           ) : null}
         </div>
