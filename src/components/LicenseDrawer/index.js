@@ -129,7 +129,13 @@ class LicenseDrawer extends PureComponent {
                             style={{ textAlign: "right" }}
                         >
                             {getFieldDecorator('alias', {
-                                rules: [{ required: true, message: '请输入证书名称!' }]
+                                rules: [
+                                    { required: true, message: '请输入证书名称!' },
+                                    {
+                                        pattern: /^.{0,62}$/,
+                                        message: "证书长度超长",
+                                      },
+                            ]
                             })(
                                 <Input placeholder="请输入证书名称" />
                             )}
