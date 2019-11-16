@@ -6,12 +6,17 @@ import config from "../config/config";
   获取企业所有数据中心的每小时按需消费明细
  */
 export async function getAllRegionFee(body = { team_name, date }) {
-  return request(`${config.baseUrl}/console/enterprise/team/${body.team_name}/all-region-fee`, {
-    method: "get",
-    params: {
-      date: body.date,
-    },
-  });
+  return request(
+    `${config.baseUrl}/console/enterprise/team/${
+      body.team_name
+    }/all-region-fee`,
+    {
+      method: "get",
+      params: {
+        date: body.date
+      }
+    }
+  );
 }
 
 /*
@@ -22,8 +27,8 @@ export async function getAllTeams(body = { user_id, page_size }) {
     method: "get",
     params: {
       user_id: body.user_id,
-      page_size: body.page_size,
-    },
+      page_size: body.page_size
+    }
   });
 }
 
@@ -34,8 +39,8 @@ export async function joinTeam(body = { team_name }) {
   return request(`${config.baseUrl}/console/user/applicants/join`, {
     method: "post",
     data: {
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
 
@@ -46,8 +51,8 @@ export async function getJoinTeam(body = { user_id }) {
   return request(`${config.baseUrl}/console/user/applicants/join`, {
     method: "get",
     params: {
-      user_id: body.user_id,
-    },
+      user_id: body.user_id
+    }
   });
 }
 
@@ -60,26 +65,28 @@ export async function deleteJoinTeam(body = { user_id, is_pass, team_name }) {
     data: {
       user_id: body.user_id,
       is_pass: body.is_pass,
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
 
-
 /* 内部市场删除插件 */
 export async function deleteMarketPlugin(body = { plugin_id }) {
-  return request(`${config.baseUrl}/console/market/plugins/uninstall-template`, {
-    method: "post",
-    data: {
-      plugin_id: body.plugin_id,
-    },
-  });
+  return request(
+    `${config.baseUrl}/console/market/plugins/uninstall-template`,
+    {
+      method: "post",
+      data: {
+        plugin_id: body.plugin_id
+      }
+    }
+  );
 }
 
 /* 云端同步插件 */
 export async function syncCloudPlugin() {
   return request(`${config.baseUrl}/console/market/plugins/sync`, {
-    method: "post",
+    method: "post"
   });
 }
 
@@ -90,43 +97,52 @@ export async function getCloudPlugin(body = { plugin_name, page }) {
     params: {
       plugin_name: body.plugin_name,
       page: body.page,
-      limit: body.limit,
-    },
+      limit: body.limit
+    }
   });
 }
 
 /*
   获取企业充值记录
  */
-export async function getPayHistory(body = {
-  team_name,
-  start,
-  end,
-  page,
-  page_size,
-}) {
-  return request(`${config.baseUrl}/console/enterprise/team/${body.team_name}/recharge-records`, {
-    method: "get",
-    params: {
-      start: body.start,
-      end: body.end,
-      page: body.page,
-      page_size: body.page_size,
-    },
-  });
+export async function getPayHistory(
+  body = {
+    team_name,
+    start,
+    end,
+    page,
+    page_size
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/enterprise/team/${
+      body.team_name
+    }/recharge-records`,
+    {
+      method: "get",
+      params: {
+        start: body.start,
+        end: body.end,
+        page: body.page,
+        page_size: body.page_size
+      }
+    }
+  );
 }
 
 /* 完成分享 */
 export async function complatePluginShare(body = { team_name, share_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/plugin-share/${body.share_id}/complete`,
+    `${config.baseUrl}/console/teams/${body.team_name}/plugin-share/${
+      body.share_id
+    }/complete`,
     {
       method: "post",
       data: {
         plugin_key: body.plugin_key,
-        version: body.version,
-      },
-    },
+        version: body.version
+      }
+    }
   );
 }
 
@@ -136,15 +152,15 @@ export async function syncMarketPluginTmp(body = { plugin_key, version }) {
     method: "post",
     data: {
       plugin_key: body.plugin_key,
-      version: body.version,
-    },
+      version: body.version
+    }
   });
 }
 
 /* 同步云市插件 */
 export async function syncMarketPlugins() {
   return request(`${config.baseUrl}/console/market/plugins/sync`, {
-    method: "post",
+    method: "post"
   });
 }
 
@@ -155,8 +171,8 @@ export async function getMarketPlugins(body = { plugin_name, page }) {
     params: {
       plugin_name: body.plugin_name,
       page: body.page,
-      limit: body.limit,
-    },
+      limit: body.limit
+    }
   });
 }
 
@@ -166,7 +182,7 @@ export async function getMarketPlugins(body = { plugin_name, page }) {
 export async function InitTeam(body = { team_alias, region_name }) {
   return request(`${config.baseUrl}/console/teams/init`, {
     method: "post",
-    data: body,
+    data: body
   });
 }
 
@@ -176,40 +192,56 @@ export async function getRegionSource(body = { team_name, region }) {
     method: "get",
     params: {
       team_name: body.team_name,
-      region: body.region,
-    },
+      region: body.region
+    }
   });
 }
 /* 获取团队应用模块 */
-export async function getTeamList(body = {
-  team_name, region, page,
-  page_size
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/overview/app/over`, {
-    method: "get",
-    params: {
-      team_name: body.team_name,
-      page: body.page,
-      page_size: body.page_size,
-      team_name: ""
-    },
-  });
+export async function getTeamList(
+  body = {
+    team_name,
+    region,
+    page,
+    page_size
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/overview/app/over`,
+    {
+      method: "get",
+      params: {
+        team_name: body.team_name,
+        page: body.page,
+        page_size: body.page_size,
+        team_name: ""
+      }
+    }
+  );
 }
 
 /* 获取团队应用模块 */
-export async function getGuideState(body = {
-  team_name,
-}) {
-  return request(`${config.baseUrl}/console/enterprise/${body.enterprise_id}/base-guidance`, {
-    method: "get",
-  });
+export async function getGuideState(
+  body = {
+    team_name
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/enterprise/${body.enterprise_id}/base-guidance`,
+    {
+      method: "get"
+    }
+  );
 }
-
 
 /* 获取热门域名访问模块 */
-export async function getDomainName(body = { team_name, region_name, page, page_size, id, start, step, end }) {
+export async function getDomainName(
+  body = { team_name, region_name, page, page_size, id, start, step, end }
+) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_domain/query?repo=${body.id}`, {
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${
+      body.region_name
+    }/sort_domain/query?repo=${body.id}`,
+    {
       method: "get",
       params: {
         // query:`sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (host))`,
@@ -219,253 +251,320 @@ export async function getDomainName(body = { team_name, region_name, page, page_
         start: body.start,
         step: body.step,
         page: body.page,
-        page_size: body.page_size,
-      },
-    });
+        page_size: body.page_size
+      }
+    }
+  );
 }
 
-
 /* 获取热门服务访问模块 */
-export async function getService(body = { team_name, region_name, page, page_size }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_service/query`, {
-    method: "get",
-    params: {
-      // query:`sort_desc(sum(ceil(increase(app_request{method="total"}[1h])))by (service_id))`,
-      // query: `sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (service))`,
-      page: body.page,
-      page_size: body.page_size,
-    },
-  });
+export async function getService(
+  body = { team_name, region_name, page, page_size }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${
+      body.region_name
+    }/sort_service/query`,
+    {
+      method: "get",
+      params: {
+        // query:`sort_desc(sum(ceil(increase(app_request{method="total"}[1h])))by (service_id))`,
+        // query: `sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (service))`,
+        page: body.page,
+        page_size: body.page_size
+      }
+    }
+  );
 }
 // https://console.goodrain.com/console/teams/23ehgni5/apps/gr3698ab/monitor/query_range?query=sum(ceil(increase(app_request%7Bservice_id%3D%22dde947ccc8cc6fe46c734dddd13698ab%22,method%3D%22total%22%7D[1m])%2F12))
 /*
 	 获取应用吞吐率监控数据(一段时间内数据)
 */
-export async function getDomainTime(body = {
-  team_name,
-  app_alias,
-  tenant_id
-}) {
+export async function getDomainTime(
+  body = {
+    team_name,
+    app_alias,
+    tenant_id
+  }
+) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/query_range/query`, {
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${
+      body.region_name
+    }/query_range/query`,
+    {
       method: "get",
       showMessage: false,
       params: {
-        query:
-          `ceil(sum(increase(gateway_requests{namespace=”${
+        query: `ceil(sum(increase(gateway_requests{namespace=”${
           body.tenant_id
-          }”}[1h])))`,
+        }”}[1h])))`
         // start: body.start,
         // end: body.end || new Date().getTime() / 1000,
         // step: body.step,
       }
-    },
+    }
   );
 }
 
 /* 查询当前组下的云市应用 */
 export async function getApplication(body = { team_name, group_id }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps`, {
-    method: "get",
-    // params: {
-    //   team_name: body.team_name,
-    // },
-  });
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/apps`,
+    {
+      method: "get"
+      // params: {
+      //   team_name: body.team_name,
+      // },
+    }
+  );
 }
-
 
 /* 获取企业详情 */
 export async function getCompanyInfo(body = { team_name }) {
   return request(`${config.baseUrl}/console/enterprise/account`, {
     method: "get",
     params: {
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
-
 
 /* 获取某数据中心下某一天的资源费用数据 */
 export async function getRegionOneDayMoney(body = { team_name, date, region }) {
-  return request(`${config.baseUrl}/console/enterprise/team/${body.team_name}/fee`, {
-    method: "get",
-    params: {
-      date: body.date,
-      region: body.region,
-    },
-  });
+  return request(
+    `${config.baseUrl}/console/enterprise/team/${body.team_name}/fee`,
+    {
+      method: "get",
+      params: {
+        date: body.date,
+        region: body.region
+      }
+    }
+  );
 }
 
 /* 认证企业 */
-export async function authEnterprise(body = {
-  team_name,
-  enterprise_id,
-  market_info,
-  market_client_id,
-  market_client_token,
-},
-  handleError,
+export async function authEnterprise(
+  body = {
+    team_name,
+    enterprise_id,
+    market_info,
+    market_client_id,
+    market_client_token
+  },
+  handleError
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/enterprise/active/optimiz`, {
-    method: "post",
-    handleError,
-    data: {
-      enterprise_id: body.enterprise_id,
-      // market_client_id: body.market_client_id,
-      // market_client_token: body.market_client_token,
-      market_info: body.market_info.replace(/\s+/g, "")
-    },
-  });
+  return request(
+    `${config.baseUrl}/console/teams/${
+      body.team_name
+    }/enterprise/active/optimiz`,
+    {
+      method: "post",
+      handleError,
+      data: {
+        enterprise_id: body.enterprise_id,
+        // market_client_id: body.market_client_id,
+        // market_client_token: body.market_client_token,
+        market_info: body.market_info.replace(/\s+/g, "")
+      }
+    }
+  );
 }
 
-
 /* 获取当前团队的企业ID */
-export async function getEnterpriseID(body = {
-  team_name,
-}) {
+export async function getEnterpriseID(
+  body = {
+    team_name
+  }
+) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/overview`, {
-    method: "get",
+    method: "get"
   });
 }
 
 /* 生成升级订单 */
 
-export async function postUpdateOrder(body = {
-  team_name,
-  group_id,
-  group_key
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
-    method: "post",
-    data: {
-      group_key: body.group_key,
-    },
-  });
+export async function postUpdateOrder(
+  body = {
+    team_name,
+    group_id,
+    group_key
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-records`,
+    {
+      method: "post",
+      data: {
+        group_key: body.group_key
+      }
+    }
+  );
 }
-
-
 
 /* 创建升级任务 */
 
-export async function postUpdatedTasks(body = {
-  team_name,
-  group_id,
-  group_key,
-  services,
-  version,
-  upgrade_record_id
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-tasks`, {
-    method: "post",
-    data: {
-      upgrade_record_id: body.upgrade_record_id,
-      group_key: body.group_key,
-      version: body.version,
-      services: body.services,
-    },
-  });
+export async function postUpdatedTasks(
+  body = {
+    team_name,
+    group_id,
+    group_key,
+    services,
+    version,
+    upgrade_record_id
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-tasks`,
+    {
+      method: "post",
+      data: {
+        upgrade_record_id: body.upgrade_record_id,
+        group_key: body.group_key,
+        version: body.version,
+        services: body.services
+      }
+    }
+  );
 }
-
 
 /* 查询某云市应用的更新版本*/
 
-export async function getUpdatedVersion(body = {
-  group_key,
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-versions`, {
-    method: "get",
-    params: {
-      group_key: body.group_key,
-    },
-  });
+export async function getUpdatedVersion(
+  body = {
+    group_key
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-versions`,
+    {
+      method: "get",
+      params: {
+        group_key: body.group_key
+      }
+    }
+  );
 }
-
 
 /* 查询某云市应用下服务的更新信息*/
 
-export async function getUpdatedInfo(body = {
-  team_name,
-  group_id,
-  group_key,
-  version
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`, {
-    method: "get",
-    params: {
-      group_key: body.group_key,
-      version: body.version,
-    },
-  });
+export async function getUpdatedInfo(
+  body = {
+    team_name,
+    group_id,
+    group_key,
+    version
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-info`,
+    {
+      method: "get",
+      params: {
+        group_key: body.group_key,
+        version: body.version
+      }
+    }
+  );
 }
-
 
 /* 查询某应用的更新记录列表*/
 
-export async function getUpdateRecordsList(body = {
-  team_name,
-  group_id,
-  group_key,
-  version,
-  page,
-  pageSize,
-  status__gt,
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records`, {
-    method: "get",
-    params: {
-      group_key: body.group_key ? body.group_key : null,
-      version: body.version ? body.version : null,
-      page: body.page ? body.page : "",
-      page_size: body.pageSize ? body.pageSize : "",
-      status__gt: body.status__gt ? body.status__gt : 1,
-    },
-  });
+export async function getUpdateRecordsList(
+  body = {
+    team_name,
+    group_id,
+    group_key,
+    version,
+    page,
+    pageSize,
+    status__gt
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-records`,
+    {
+      method: "get",
+      params: {
+        group_key: body.group_key ? body.group_key : null,
+        version: body.version ? body.version : null,
+        page: body.page ? body.page : "",
+        page_size: body.pageSize ? body.pageSize : "",
+        status__gt: body.status__gt ? body.status__gt : 1
+      }
+    }
+  );
 }
-
 
 /* 查询某应用的更新记录列表*/
 
-export async function getUpdateRecordsInfo(body = {
-  team_name,
-  group_id,
-  record_id,
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`, {
-    method: "get",
-    params: {
-    },
-  });
+export async function getUpdateRecordsInfo(
+  body = {
+    team_name,
+    group_id,
+    record_id
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-records/${body.record_id}`,
+    {
+      method: "get",
+      params: {}
+    }
+  );
 }
 
-
 /* 查询某应用的更新记录列表*/
-export async function getUpdateRollback(body = {
-  team_name,
-  group_id,
-  record_id,
-  service_ids
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/rollback`, {
-    method: "post",
-    data: {
-      service_ids: body.service_ids,
-    },
-  });
+export async function getUpdateRollback(
+  body = {
+    team_name,
+    group_id,
+    record_id,
+    service_ids
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/groups/${
+      body.group_id
+    }/upgrade-records/${body.record_id}/rollback`,
+    {
+      method: "post",
+      data: {
+        service_ids: body.service_ids
+      }
+    }
+  );
 }
 
 /* 从云市同步应用的详细模板 */
-export async function getVersion(body = {
-  app_name,
-  version,
-  group_key,
-}) {
+export async function getVersion(
+  body = {
+    app_name,
+    version,
+    group_key
+  }
+) {
   return request(`${config.baseUrl}/console/app_market/version`, {
     method: "get",
     params: {
       app_name: body.app_name,
       version: body.version,
-      group_key: body.group_key,
-    },
+      group_key: body.group_key
+    }
   });
 }
 
@@ -477,71 +576,87 @@ export async function offlineMarketApp(body = { app_id }) {
       group_key: body.group_key,
       group_version_list: body.group_version_list,
       app_id: body.app_id,
-      action: "offline",
-    },
+      action: "offline"
+    }
   });
 }
 
 /* 从云市同步应用的详细模板 */
-export async function syncMarketAppDetail(body = {
-  team_name,
-  body,
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/template_details`, {
-    method: "post",
-    data: body.body,
-  });
+export async function syncMarketAppDetail(
+  body = {
+    team_name,
+    body
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/template_details`,
+    {
+      method: "post",
+      data: body.body
+    }
+  );
 }
 
 /* 查询所有同步的应用 */
-export async function getMarketApp(body = {
-  app_name,
-  page,
-  pageSize,
-  is_complete,
-}) {
+export async function getMarketApp(
+  body = {
+    app_name,
+    page,
+    pageSize,
+    is_complete
+  }
+) {
   return request(`${config.baseUrl}/console/app_market/all`, {
     method: "get",
     params: {
       app_name: body.app_name,
       page: body.page,
       page_size: body.pageSize,
-      is_complete: body.is_complete,
-    },
+      is_complete: body.is_complete
+    }
   });
 }
 
 /*
   从好雨云市同步应用
 */
-export async function syncMarketApp(body = {
-  team_name,
-}) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/all_apps`, {
-    method: "get",
-  });
+export async function syncMarketApp(
+  body = {
+    team_name
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/all_apps`,
+    {
+      method: "get"
+    }
+  );
 }
 
 /*
    获取云帮的公共信息、配置信息
 */
 export function getRainbondInfo() {
-  return request(`${config.baseUrl}/console/config/info`, { passAuthorization: false });
+  return request(`${config.baseUrl}/console/config/info`, {
+    passAuthorization: false
+  });
 }
 
 /*
    绑定github
 */
-export async function bindGithub(body = {
-  code,
-  state,
-}) {
+export async function bindGithub(
+  body = {
+    code,
+    state
+  }
+) {
   return request(`${config.baseUrl}/console/github/callback`, {
     method: "post",
     data: {
       code: body.code,
-      state: body.state,
-    },
+      state: body.state
+    }
   });
 }
 
@@ -576,8 +691,8 @@ export async function removeRule(params) {
     method: "POST",
     body: {
       ...params,
-      method: "delete",
-    },
+      method: "delete"
+    }
   });
 }
 
@@ -586,15 +701,15 @@ export async function addRule(params) {
     method: "POST",
     body: {
       ...params,
-      method: "post",
-    },
+      method: "post"
+    }
   });
 }
 
 export async function fakeSubmitForm(params) {
   return request("/api/forms", {
     method: "POST",
-    body: params,
+    body: params
   });
 }
 
@@ -621,14 +736,14 @@ export async function queryFakeList(params) {
 export async function fakeAccountLogin(params) {
   return request("/api/login/account", {
     method: "POST",
-    body: params,
+    body: params
   });
 }
 
 export async function fakeRegister(params) {
   return request("/api/register", {
     method: "POST",
-    body: params,
+    body: params
   });
 }
 
@@ -637,21 +752,23 @@ export async function queryNotices() {
 }
 
 /* 查询用户站内信 */
-export async function getuserMessage(body = {
-  team_name,
-  page_num,
-  page_size,
-  msg_type,
-  is_read,
-}) {
+export async function getuserMessage(
+  body = {
+    team_name,
+    page_num,
+    page_size,
+    msg_type,
+    is_read
+  }
+) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/message`, {
     method: "get",
     params: {
       page_num: body.page_num,
       page_size: body.page_size,
       msg_type: body.msg_type,
-      is_read: body.is_read,
-    },
+      is_read: body.is_read
+    }
   });
 }
 
@@ -661,8 +778,8 @@ export async function putMsgAction(body = { team_name, msg_ids, action }) {
     method: "put",
     data: {
       action: body.action,
-      msg_ids: body.msg_ids,
-    },
+      msg_ids: body.msg_ids
+    }
   });
 }
 
@@ -671,49 +788,61 @@ export async function deleteMsg(body = { team_name, msg_ids }) {
   return request(`${config.baseUrl}/console/teams/${body.team_name}/message`, {
     method: "delete",
     data: {
-      msg_ids: body.msg_ids,
-    },
+      msg_ids: body.msg_ids
+    }
   });
 }
 
 /* 资源价格计算 */
-export async function resPrice(body = {
-  team_name,
-  region_name,
-  memory,
-  disk,
-  rent_time,
-}) {
-  return request(`${config.baseUrl}/console/enterprise/regions/${body.region_name}/res-price`, {
-    method: "post",
-    data: {
-      team_name: body.team_name,
-      region_name: body.region_name,
-      memory: body.memory,
-      disk: body.disk,
-      rent_time: body.rent_time,
-    },
-  });
+export async function resPrice(
+  body = {
+    team_name,
+    region_name,
+    memory,
+    disk,
+    rent_time
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/enterprise/regions/${
+      body.region_name
+    }/res-price`,
+    {
+      method: "post",
+      data: {
+        team_name: body.team_name,
+        region_name: body.region_name,
+        memory: body.memory,
+        disk: body.disk,
+        rent_time: body.rent_time
+      }
+    }
+  );
 }
 
 /* 资源购买 */
-export async function buyPurchase(body = {
-  team_name,
-  region_name,
-  memory,
-  disk,
-  rent_time,
-}) {
-  return request(`${config.baseUrl}/console/enterprise/regions/${body.region_name}/purchase`, {
-    method: "post",
-    data: {
-      team_name: body.team_name,
-      region_name: body.region_name,
-      memory: body.memory,
-      disk: body.disk,
-      rent_time: body.rent_time,
-    },
-  });
+export async function buyPurchase(
+  body = {
+    team_name,
+    region_name,
+    memory,
+    disk,
+    rent_time
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/enterprise/regions/${body.region_name}/purchase`,
+    {
+      method: "post",
+      data: {
+        team_name: body.team_name,
+        region_name: body.region_name,
+        memory: body.memory,
+        disk: body.disk,
+        rent_time: body.rent_time
+      }
+    }
+  );
 }
 
 /* 查询企业信息 */
@@ -727,14 +856,16 @@ export async function getEnterpriseInfo(param) {
 }
 
 /* 查询企业信息 */
-export async function getEnterpriseTeams(body = { page_num, page_size, team_name }) {
+export async function getEnterpriseTeams(
+  body = { page_num, page_size, team_name }
+) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
     method: "get",
     params: {
       page_num: body.page_num,
       page_size: body.page_size,
       team_name: body.team_name
-    },
+    }
   });
 }
 
@@ -742,20 +873,66 @@ export async function getEnterpriseTeams(body = { page_num, page_size, team_name
 export async function setRegist(body = { isRegist }) {
   return request(`${config.baseUrl}/console/enterprise/registerstatus`, {
     method: "put",
-    data: { is_regist: body.isRegist },
+    data: { is_regist: body.isRegist }
   });
 }
 
 /* 设置注册功能 */
 export async function getRegist(body = {}) {
   return request(`${config.baseUrl}/console/enterprise/registerstatus`, {
-    method: "get",
+    method: "get"
   });
 }
 /** 获取权限 */
 export async function queryAuthority(params) {
-  return request(`${config.baseUrl}/console/teams/${params.selectedTeam}/role-list`, {
-    method: "get",
+  return request(
+    `${config.baseUrl}/console/teams/${params.selectedTeam}/role-list`,
+    {
+      method: "get"
+    }
+  );
+}
+/** 获取代码仓库信息 */
+export async function queryCodeWarehouseInfo(params) {
+  return request(
+    `${config.baseUrl}/console/oauth_service/${
+      params.oauth_service_id
+    }/repository`,
+    {
+      method: "get"
+    }
+  );
+}
+/** 获取代码仓库信息 */
+export async function queryTestCode(params) {
+  return request(
+    `${config.baseUrl}/console/oauth_service/${
+      params.oauth_service_id
+    }/repository/code_detection`,
+    {
+      method: "get"
+    }
+  );
+}
+
+/**创建第三方认证组件*/
+export async function toCeateSourceCode(params) {
+  return request(`${config.baseUrl}/console/apps/source_code`, {
+    method: "post",
+    data: {
+      code_from: params.code_from,
+      oauth_service_id: params.oauth_service_id,
+      group_name: params.group_name,
+      project: params.project,
+      branche: params.branche,
+      tag: params.tag,
+      code_type: params.code_type,
+      project_url: params.project_url,
+      oauth_type: params.oauth_type,
+      group_id: params.group_id,
+      service_cname: params.service_cname,
+      is_auto_construct: params.is_auto_construct
+    }
   });
 }
 
@@ -770,36 +947,65 @@ export async function toCreatUser(params) {
       email: params.email,
       password: params.password,
       re_password: params.password,
-      role_ids: params.identity.join(","),
+      role_ids: params.identity.join(",")
     }
   });
 }
-/**构建拓扑图 */
-export async function toBuildShape(params) {
-  return request(`${config.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/common_operation `, {
+/**创建Oauth 2.0 */
+export async function toCreatOauth(params) {
+  return request(`${config.baseUrl}/console/oauth-services`, {
     method: "post",
     data: {
-      tenantName: params.tenantName,
-      group_id: params.group_id,
-      action: params.action,
+      name: params.name,
+      endpoint: params.endpoint,
+      client_id: params.client_id,
+      client_secret: params.client_secret,
+      is_auto_login: params.is_auto_login,
+      oauth_type: params.oauth_type
     }
   });
+}
+
+/**构建拓扑图 */
+export async function toBuildShape(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenantName}/groups/${
+      params.group_id
+    }/common_operation `,
+    {
+      method: "post",
+      data: {
+        tenantName: params.tenantName,
+        group_id: params.group_id,
+        action: params.action
+      }
+    }
+  );
 }
 
 /**获取所有的拓扑图 */
 export async function toQueryTopology(params) {
-  return request(`${config.baseUrl}/console/teams/${params.team_name}/topological?group_id=${params.groupId}&region=${params.region_name}`, {
-    method: "get",
-  });
+  return request(
+    `${config.baseUrl}/console/teams/${params.team_name}/topological?group_id=${
+      params.groupId
+    }&region=${params.region_name}`,
+    {
+      method: "get"
+    }
+  );
 }
 
 /**获取所有可访问的link */
 export async function toQueryLinks(params) {
-  return request(`${config.baseUrl}/console/teams/${params.team_name}/group/service/visit?service_alias=${params.service_alias}`, {
-    method: "get",
-  });
+  return request(
+    `${config.baseUrl}/console/teams/${
+      params.team_name
+    }/group/service/visit?service_alias=${params.service_alias}`,
+    {
+      method: "get"
+    }
+  );
 }
-
 
 export async function toSearchTenant(params) {
   return request(`${config.baseUrl}/console/enterprise/teams`, {
@@ -807,7 +1013,7 @@ export async function toSearchTenant(params) {
     params: {
       tenant_alias: params.tenant,
       page_num: params.page_num || 1,
-      page_size: params.page_size || 1000,
+      page_size: params.page_size || 1000
     }
   });
 }

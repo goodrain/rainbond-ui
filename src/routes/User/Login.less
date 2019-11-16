@@ -1,16 +1,16 @@
 @import "~antd/lib/style/themes/default.less";
 
 .main {
-  width: 368px;
+  width : 368px;
   margin: 0 auto;
 
   .icon {
-    font-size: 24px;
-    color: rgba(0, 0, 0, 0.2);
-    margin-left: 16px;
+    font-size     : 24px;
+    color         : rgba(0, 0, 0, 0.2);
+    margin-left   : 16px;
     vertical-align: middle;
-    cursor: pointer;
-    transition: color .3s;
+    cursor        : pointer;
+    transition    : color .3s;
 
     &:hover {
       color: @primary-color;
@@ -18,12 +18,31 @@
   }
 
   .other {
-    text-align: left;
-    margin-top: 24px;
+    text-align : left;
+    margin-top : 24px;
     line-height: 22px;
 
     .register {
       float: right;
+    }
+  }
+}
+
+.thirdLoading {
+  color: #333 !important;
+}
+
+.third {
+  &>div {
+    text-align: center;
+
+    i {
+      font-size: 20px
+    }
+
+    img {
+      width : 18px;
+      height: 18px;
     }
   }
 }

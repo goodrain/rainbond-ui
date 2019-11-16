@@ -10,10 +10,13 @@ import InitRainbondInfo from "./components/InitRainbondInfo";
 
 const { ConnectedRouter } = routerRedux;
 const { AuthorizedRoute } = Authorized;
-dynamic.setDefaultLoadingComponent(() => <Spin size="large" className={styles.globalSpin} />);
+dynamic.setDefaultLoadingComponent(() => (
+  <Spin size="large" className={styles.globalSpin} />
+));
 
 function RouterConfig({ history, app }) {
   const routerData = getRouterData(app);
+  const OauthLayout = routerData["/oauth"].component;
   const UserLayout = routerData["/user"].component;
   const BasicLayout = routerData["/"].component;
   return (
@@ -21,6 +24,13 @@ function RouterConfig({ history, app }) {
       <LocaleProvider locale={zhCN}>
         <ConnectedRouter history={history}>
           <Switch>
+            {/* <AuthorizedRoute
+              path="/oauth"
+              render={props => <OauthLayout {...props} />}
+              authority={["admin", "user", "guest"]}
+              logined={false}
+              redirectPath="/"
+            /> */}
             <AuthorizedRoute
               path="/user"
               render={props => <UserLayout {...props} />}
@@ -33,7 +43,7 @@ function RouterConfig({ history, app }) {
               render={props => <BasicLayout {...props} />}
               authority={["admin", "user"]}
               logined
-              redirectPath="/user/login"
+              redirectPath="/user"
             />
           </Switch>
         </ConnectedRouter>

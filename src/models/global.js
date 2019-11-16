@@ -43,7 +43,11 @@ import {
   getEnterpriseInfo,
   getEnterpriseTeams,
   queryAuthority,
+  queryTestCode,
+  queryCodeWarehouseInfo,
   toCreatUser,
+  toCeateSourceCode,
+  toCreatOauth,
   toBuildShape,
   toQueryTopology,
   toQueryLinks,
@@ -474,8 +478,33 @@ export default {
         callback(response);
       }
     },
+    *testCode({ callback, payload }, { call }) {
+      const response = yield call(queryTestCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
+    *createSourceCode({ payload, callback }, { call }) {
+      const response = yield call(toCeateSourceCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *creatUser({ payload, callback }, { call }) {
       const response = yield call(toCreatUser, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *creatOauth({ payload, callback }, { call }) {
+      const response = yield call(toCreatOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *codeWarehouseInfo({ payload, callback }, { call }) {
+      const response = yield call(queryCodeWarehouseInfo, payload);
       if (callback) {
         callback(response);
       }

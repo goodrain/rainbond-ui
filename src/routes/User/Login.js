@@ -1,16 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "dva";
 import { Link, routerRedux } from "dva/router";
-import { Checkbox, Alert } from "antd";
+import { Checkbox, Alert, Divider, Row, Col, Icon } from "antd";
 import Login from "../../components/Login";
 import styles from "./Login.less";
 import cookie from "../../utils/cookie";
+import Gitte from "../../../public/images/gitee.svg";
+import rainbondUtil from "../../utils/rainbond";
 
 const { Tab, UserName, Password, Submit } = Login;
 
 @connect(({ loading, global }) => ({
   login: {},
   isRegist: global.isRegist,
+  rainbondInfo: global.rainbondInfo,
   submitting: loading.effects["user/login"]
 }))
 export default class LoginPage extends Component {
@@ -50,7 +53,7 @@ export default class LoginPage extends Component {
   );
 
   render() {
-    const { login, submitting } = this.props;
+    const { login, submitting, rainbondInfo } = this.props;
     const { type } = this.state;
     return (
       <div className={styles.main}>
@@ -84,6 +87,43 @@ export default class LoginPage extends Component {
             )}
           </div>
         </Login>
+        {rainbondUtil.OauthbEnable(rainbondInfo) && (
+          <div>
+            <Divider>
+              <div className={styles.thirdLoading}>第三方登录</div>
+            </Divider>
+            <Row className={styles.third}>
+              {rainbondInfo &&
+                rainbondInfo.oauth_services.value &&
+                rainbondInfo.oauth_services.value.map(item => {
+                  const {
+                    oauth_type,
+                    name,
+                    client_id,
+                    auth_url,
+                    redirect_uri,
+                    service_id
+                  } = item;
+                  return (
+                    <Col span="8" key={client_id} style={{ cursor: "pointer" }}>
+                      <a
+                        href={`${auth_url}?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}/console/oauth/redirect/${service_id}`}
+                      >
+                        {oauth_type === "gitte" ? (
+                          <img src={Gitte} />
+                        ) : (
+                          <Icon
+                            type={oauth_type === "other" ? "star" : oauth_type}
+                          />
+                        )}
+                        <p>{name}</p>
+                      </a>
+                    </Col>
+                  );
+                })}
+            </Row>
+          </div>
+        )}
       </div>
     );
   }

@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
-import { Card, Row, Col, DatePicker, notification, Button, Radio} from "antd";
+import { Card, Row, Col, DatePicker, notification, Button, Radio } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "../List/BasicList.less";
 import globalUtil from "../../utils/global";
@@ -14,13 +14,14 @@ import CreateTeam from "../../components/CreateTeam";
 import rainbond from "../../utils/rainbond";
 import DescriptionList from "../../components/DescriptionList";
 import CreatUser from "../../components/CreatUserForm";
+import { log } from "lodash-decorators/utils";
+
+import OauthForm from "../../components/OauthForm";
 
 const { Description } = DescriptionList;
 const RadioGroup = Radio.Group;
 
-@connect(({
-  user, list, loading, global,index
-}) => ({
+@connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
   list,
   loading: loading.models.list,
@@ -35,7 +36,8 @@ export default class BasicList extends PureComponent {
     const params = this.getParam();
     // const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
     const { user } = this.props;
-    const adminer = userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer =
+      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       date: moment(new Date().getTime()).format("YYYY-MM-DD"),
       companyInfo: {},
@@ -50,44 +52,45 @@ export default class BasicList extends PureComponent {
       teamsPageSize: 8,
       showAddTeam: false,
       adminer,
-      userVisible:false
+      userVisible: false,
+      openOauth: false
     };
   }
   componentDidMount() {
     this.props.dispatch({
       type: "global/getIsRegist",
-      callback: () => {},
+      callback: () => {}
     });
     this.props.dispatch({
       type: "global/getEnterpriseInfo",
-      payload:{
-        team_name:globalUtil.getCurrTeamName()
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
       },
-      callback: () => {},
+      callback: () => {}
     });
     this.loadTeams();
   }
-  onDelTeam = (teamName) => {
+  onDelTeam = teamName => {
     this.props.dispatch({
       type: "teamControl/delTeam",
       payload: {
-        team_name: teamName,
+        team_name: teamName
       },
       callback: () => {
         this.loadTeams();
-      },
+      }
     });
   };
   onAddTeam = () => {
     this.setState({ showAddTeam: true });
   };
-  onRegistChange = (e) => {
+  onRegistChange = e => {
     this.props.dispatch({
       type: "global/putIsRegist",
       payload: {
-        isRegist: e.target.value,
+        isRegist: e.target.value
       },
-      callback: () => {},
+      callback: () => {}
     });
   };
   getDefaultScope() {
@@ -104,17 +107,17 @@ export default class BasicList extends PureComponent {
       type: "global/getCompanyInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.user.enterprise_id,
+        enterprise_id: this.props.user.enterprise_id
       },
-      callback: (data) => {
-        if(data){
+      callback: data => {
+        if (data) {
           this.setState({ companyInfo: data.bean });
         }
-      },
+      }
     });
   };
- 
-  handleCreateTeam = (values) => {
+
+  handleCreateTeam = values => {
     this.props.dispatch({
       type: "teamControl/createTeam",
       payload: values,
@@ -124,7 +127,7 @@ export default class BasicList extends PureComponent {
         this.props.dispatch({ type: "user/fetchCurrent" });
         //添加完查询企业团队列表
         this.loadTeams();
-      },
+      }
     });
   };
   cancelCreateTeam = () => {
@@ -142,18 +145,18 @@ export default class BasicList extends PureComponent {
   hidePayHistory = () => {
     this.setState({ showPayHistory: false });
   };
-  handleTabChange = (key) => {
+  handleTabChange = key => {
     this.setState({ scope: key });
   };
- 
-  hanldePageChange = (page) => {
+
+  hanldePageChange = page => {
     this.setState(
       {
-        teamsPage: page,
+        teamsPage: page
       },
       () => {
         this.loadTeams();
-      },
+      }
     );
   };
   loadTeams = () => {
@@ -166,17 +169,16 @@ export default class BasicList extends PureComponent {
         page_num: this.state.teamsPage,
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: (data) => {
-        if(data){
+      callback: data => {
+        if (data) {
           this.setState({
             teamList: data.list || [],
-            teamsTotal: data.total,
+            teamsTotal: data.total
           });
         }
-      },
+      }
     });
   };
- 
 
   handelUnderstand = () => {
     window.open("https://www.goodrain.com/industrycloud");
@@ -184,26 +186,61 @@ export default class BasicList extends PureComponent {
   handelObtain = () => {
     window.open("https://t.goodrain.com/");
   };
+
+  handleOpen = () => {
+    this.setState({
+      openOauth: true
+    });
+  };
+  handelClone = () => {
+    this.setState({
+      openOauth: false
+    });
+  };
   getSettingShow = () => {
     if (!this.props.is_public) {
       return (
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           bodyStyle={{
-            paddingTop: 12,
+            paddingTop: 12
           }}
           bordered={false}
           title="平台设置"
         >
-          <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
+          <DescriptionList
+            col="1"
+            size="large"
+            style={{ marginBottom: 32, marginTop: 32 }}
+          >
             <Description term="用户注册">
-              <RadioGroup onChange={this.onRegistChange} value={this.props.isRegist}>
+              <RadioGroup
+                onChange={this.onRegistChange}
+                value={this.props.isRegist}
+              >
                 <Radio value>允许注册</Radio>
                 <Radio value={false}>禁止注册</Radio>
               </RadioGroup>
-              <Button size="small" type="primary" onClick={this.addUser} style={{float:"right"}}>添加用户</Button>
+              <Button
+                size="small"
+                type="primary"
+                onClick={this.addUser}
+                style={{ float: "right" }}
+              >
+                添加用户
+              </Button>
+            </Description>
+            <Description term="Oauth2.0">
+              <Button
+                size="small"
+                type="primary"
+                onClick={this.handleOpen}
+                style={{ float: "right" }}
+              >
+                开启
+              </Button>
             </Description>
           </DescriptionList>
         </Card>
@@ -215,23 +252,27 @@ export default class BasicList extends PureComponent {
       current: this.state.teamsPage,
       pageSize: this.state.teamsPageSize,
       total: this.state.teamsTotal,
-      onChange: (v) => {
+      onChange: v => {
         this.hanldePageChange(v);
-      },
+      }
     };
     return (
       <div>
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           bodyStyle={{
-            paddingTop: 12,
+            paddingTop: 12
           }}
           bordered={false}
           title="企业信息"
         >
-          <DescriptionList col="1" size="large" style={{ marginBottom: 32, marginTop: 32 }}>
+          <DescriptionList
+            col="1"
+            size="large"
+            style={{ marginBottom: 32, marginTop: 32 }}
+          >
             <Description term="企业名称">
               {this.props.enterprise && this.props.enterprise.enterprise_alias}
             </Description>
@@ -243,7 +284,11 @@ export default class BasicList extends PureComponent {
             </Description>
             <Description term="平台版本">
               {this.props.rainbondInfo.version || "V3.7.1-release"}
-              <Button type="primary" style={{ marginLeft: 16 }} onClick={this.handelUnderstand}>
+              <Button
+                type="primary"
+                style={{ marginLeft: 16 }}
+                onClick={this.handelUnderstand}
+              >
                 了解企业解决方案
               </Button>
               <Button style={{ marginLeft: 16 }} onClick={this.handelObtain}>
@@ -257,10 +302,10 @@ export default class BasicList extends PureComponent {
             {this.getSettingShow()}
             <Card
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
               bodyStyle={{
-                paddingTop: 12,
+                paddingTop: 12
               }}
               bordered={false}
               title="企业团队列表"
@@ -292,40 +337,60 @@ export default class BasicList extends PureComponent {
     }
     // 不是系统管理员
     if (!userUtil.isSystemAdmin(user) && !userUtil.isCompanyAdmin(user)) {
-      this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
+      this.props.dispatch(
+        routerRedux.replace(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`
+        )
+      );
       return null;
     }
   };
   //管理员添加用户
-  addUser=()=>{
+  addUser = () => {
     this.setState({
-      userVisible: true,
+      userVisible: true
     });
-  }
-  handleCreatUser=(values)=>{
+  };
+  handleCreatUser = values => {
     this.props.dispatch({
-      type:"global/creatUser",
-      payload:{
+      type: "global/creatUser",
+      payload: {
         ...values
       },
-      callback:(data)=>{
-        if(data&&data._condition==200){
-          notification.success({ message: data.msg_show});
-        }else{
+      callback: data => {
+        if (data && data._condition == 200) {
+          notification.success({ message: data.msg_show });
+        } else {
           notification.error({ message: data.msg_show });
         }
         // console.log(data)
       }
-    })
+    });
     this.cancelCreatUser();
-  }
+  };
+
+  handleCreatOauth = values => {
+    this.props.dispatch({
+      type: "global/creatOauth",
+      payload: {
+        ...values
+      },
+      callback: data => {
+        if (data) {
+          console.log("data", data);
+        }
+      }
+    });
+    this.handelClone();
+  };
+
   cancelCreatUser = () => {
     this.setState({
-      userVisible: false,
+      userVisible: false
     });
-  }
+  };
   render() {
-    const {userVisible} = this.state;
+    const { userVisible, openOauth } = this.state;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -337,8 +402,8 @@ export default class BasicList extends PureComponent {
     let tabList = [
       {
         key: "manage",
-        tab: "管理",
-      },
+        tab: "管理"
+      }
     ];
     return (
       <PageHeaderLayout
@@ -349,9 +414,20 @@ export default class BasicList extends PureComponent {
       >
         {this.renderContent()}
         {this.state.showAddTeam && (
-          <CreateTeam onOk={this.handleCreateTeam} onCancel={this.cancelCreateTeam} />
+          <CreateTeam
+            onOk={this.handleCreateTeam}
+            onCancel={this.cancelCreateTeam}
+          />
         )}
-        {userVisible && <CreatUser onOk={this.handleCreatUser} onCancel={this.cancelCreatUser}/>}
+        {userVisible && (
+          <CreatUser
+            onOk={this.handleCreatUser}
+            onCancel={this.cancelCreatUser}
+          />
+        )}
+        {openOauth && (
+          <OauthForm onOk={this.handleCreatOauth} onCancel={this.handelClone} />
+        )}
       </PageHeaderLayout>
     );
   }

@@ -312,33 +312,76 @@ export default class GlobalHeader extends PureComponent {
       return null;
     }
     const menu = (
-      <Menu selectedKeys={[]} onClick={onMenuClick}>
-        {/* <Menu.Item disabled><Icon type="user" />个人中心</Menu.Item>
+      <div className={styles.uesrInfo}>
+        <Menu selectedKeys={[]} onClick={onMenuClick}>
+          {/* <Menu.Item disabled><Icon type="user" />个人中心</Menu.Item>
         <Menu.Item disabled><Icon type="setting" />设置</Menu.Item>
         <Menu.Item key="triggerError"><Icon type="close-circle" />触发报错</Menu.Item>
         <Menu.Divider /> */}
-        {!isPubCloud && (
-          <Menu.Item key="cpw">
-            {" "}
-            <Icon
-              type="edit"
-              style={{
-                marginRight: 8
-              }}
-            />
-            修改密码{" "}
+          {rainbondUtil.OauthbTypes(rainbondInfo) && (
+            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+          )}
+          {rainbondUtil.OauthbTypes(rainbondInfo) &&
+            rainbondInfo.oauth_services.value.map(item => {
+              const { name, is_authenticated, is_expired } = item;
+              return (
+                <Menu.Item key={name}>
+                  <div className={styles.userInfoContent}>
+                    <span className={styles.oneSpan}>
+                      <Icon
+                        type="github"
+                        style={{
+                          marginRight: 8
+                        }}
+                      />
+                      {name}
+                    </span>
+                    <span>
+                      <Icon
+                        type={is_authenticated > 0 ? "check" : "close"}
+                        style={{
+                          color: is_authenticated > 0 ? "#58B8F8" : "#000"
+                        }}
+                      />
+                      {is_expired > 0 && is_authenticated > 0
+                        ? "已认证"
+                        : is_expired <= 0 && is_authenticated > 0
+                        ? "过期"
+                        : "未认证"}
+                    </span>
+                  </div>
+                </Menu.Item>
+              );
+            })}
+
+          <div className={styles.uesrInfoTitle}>账号设置：</div>
+
+          {!isPubCloud && (
+            <Menu.Item key="cpw">
+              <div className={styles.userInfoContent}>
+                <Icon
+                  type="edit"
+                  style={{
+                    marginRight: 8
+                  }}
+                />
+                修改密码{" "}
+              </div>
+            </Menu.Item>
+          )}
+          <Menu.Item key="logout">
+            <div className={styles.userInfoContent}>
+              <Icon
+                type="logout"
+                style={{
+                  marginRight: 8
+                }}
+              />
+              退出登录
+            </div>
           </Menu.Item>
-        )}
-        <Menu.Item key="logout">
-          <Icon
-            type="logout"
-            style={{
-              marginRight: 8
-            }}
-          />
-          退出登录
-        </Menu.Item>
-      </Menu>
+        </Menu>
+      </div>
     );
 
     return (

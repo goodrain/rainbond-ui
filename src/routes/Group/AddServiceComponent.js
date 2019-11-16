@@ -410,14 +410,14 @@ export default class AddServiceComponent extends PureComponent {
                   <Tooltip
                     placement="top"
                     title={
-                      !rainbondUtil.gitlabEnable(rainbondInfo) && "仅企业版可用"
+                      !rainbondUtil.OauthbTypes(rainbondInfo,'gitlab') && "仅企业版可用"
                     }
                   >
                     <Col
                       span={8}
                       className={styles.ServiceDiv}
                       onClick={() => {
-                        rainbondUtil.gitlabEnable(rainbondInfo) &&
+                        rainbondUtil.OauthbTypes(rainbondInfo,'gitlab') &&
                           this.handleServiceComponent(false, "goodrain");
                       }}
                     >
@@ -425,7 +425,7 @@ export default class AddServiceComponent extends PureComponent {
                       <p
                         className={styles.ServiceSmallTitle}
                         style={{
-                          color: rainbondUtil.gitlabEnable(rainbondInfo)
+                          color: rainbondUtil.OauthbTypes(rainbondInfo,'gitlab')
                             ? "rgba(16, 16, 16, 1)"
                             : "rgba(0, 0, 0, 0.25)"
                         }}
@@ -437,14 +437,15 @@ export default class AddServiceComponent extends PureComponent {
                   <Tooltip
                     placement="top"
                     title={
-                      !rainbondUtil.githubEnable(rainbondInfo) && "仅企业版可用"
+                      !rainbondUtil.OauthbTypes(rainbondInfo, "github") &&
+                      "仅企业版可用"
                     }
                   >
                     <Col
                       span={8}
                       className={styles.ServiceDiv}
                       onClick={() => {
-                        rainbondUtil.githubEnable(rainbondInfo) &&
+                        rainbondUtil.OauthbTypes(rainbondInfo, "github") &&
                           this.handleServiceComponent(false, "github");
                       }}
                     >
@@ -452,7 +453,10 @@ export default class AddServiceComponent extends PureComponent {
                       <p
                         className={styles.ServiceSmallTitle}
                         style={{
-                          color: rainbondUtil.githubEnable(rainbondInfo)
+                          color: rainbondUtil.OauthbTypes(
+                            rainbondInfo,
+                            "github"
+                          )
                             ? "rgba(16, 16, 16, 1)"
                             : "rgba(0, 0, 0, 0.25)"
                         }}

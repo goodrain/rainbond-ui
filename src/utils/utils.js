@@ -128,6 +128,11 @@ function getRenderArr(routes) {
     isAdd = renderArr.every(item => getRelation(item, routes[i]) === 3);
     // 去重
     renderArr = renderArr.filter(item => getRelation(item, routes[i]) !== 1);
+
+    if(routes[i].indexOf('oauth')>-1){
+
+      renderArr.push('oauth/callback');
+    }
     if (isAdd) {
       renderArr.push(routes[i]);
     }
@@ -157,8 +162,10 @@ export function getRoutes(path, routerData) {
 
   // Replace path to '' eg. path='user' /user/name => name
   routes = routes.map(item => item.replace(path, ""));
+
   // Get the route to be rendered to remove the deep rendering
   const renderArr = getRenderArr(routes);
+
   // Conversion and stitching parameters
   const renderRoutes = renderArr.map(item => {
     const exact = !routes.some(

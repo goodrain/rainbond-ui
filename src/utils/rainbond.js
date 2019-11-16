@@ -18,6 +18,16 @@ export default {
     (bean.appstore_image_hub && bean.appstore_image_hub.enable && "支持") ||
     "不支持",
 
+  // 判断平台是否配置了oautg 2.0
+  OauthbEnable: (bean = {}) =>
+    (bean.oauth_services && bean.oauth_services.enable) || false,
+  // 判断 有 oautgType 类型
+  OauthbTypes: (bean = {}, values) =>
+    (bean.oauth_services &&
+      bean.oauth_services.enable &&
+      bean.oauth_services.value &&
+      bean.oauth_services.value.find(item => item.name === values)) ||
+    false,
   // 判断平台是否配置了云应用市场
   cloudMarketEnable: (bean = {}) =>
     (bean.cloud_market && bean.cloud_market.enable) || false,

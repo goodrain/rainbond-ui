@@ -91,6 +91,15 @@ export const getRouterData = app => {
         () => import("../layouts/BasicLayout")
       )
     },
+    "/oauth/callback": {
+      component: dynamicWrapper(app, [], () =>
+        import("../routes/User/ThirdLogin")
+      ),
+      name: "第三方登录"
+    },
+    "/oauth": {
+      component: dynamicWrapper(app, [], () => import("../layouts/OauthLayout"))
+    },
     "/team/:team/region/:region/source/:type?/:name?": {
       component: dynamicWrapper(app, ["index"], () =>
         import("../routes/Source/Index")
@@ -238,8 +247,6 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, [], () => import("../routes/Result/Error"))
     },
 
-
-
     "/team/:team/region/:region/exception/403": {
       component: dynamicWrapper(app, [], () =>
         import("../routes/Exception/403")
@@ -288,6 +295,7 @@ export const getRouterData = app => {
     set "/user/login"(value) {
       this["_/user/login"] = value;
     },
+
     "/user/register": {
       component: dynamicWrapper(app, ["user"], () =>
         import("../routes/User/Register")

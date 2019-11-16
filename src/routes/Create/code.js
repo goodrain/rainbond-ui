@@ -68,13 +68,13 @@ export default class Main extends PureComponent {
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
-    if (rainbondUtil.gitlabEnable(rainbondInfo)) {
+    if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
       tabList.push({ key: "goodrain", tab: "Gitlab项目" });
     }
 
-    if (rainbondUtil.githubEnable(rainbondInfo)) {
-      tabList.push({ key: "github", tab: "GitHub项目" });
-    }
+    // if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
+    tabList.push({ key: "github", tab: "GitHub项目" });
+    // }
 
     const { match, routerData, location } = this.props;
     let type = this.props.match.params.type;

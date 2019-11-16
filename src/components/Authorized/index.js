@@ -25,6 +25,7 @@ const renderAuthorize = (currentAuthority) => {
   } else {
     CURRENT = "NULL";
   }
+  console.log('Authorized',Authorized)
   return Authorized;
 };
 

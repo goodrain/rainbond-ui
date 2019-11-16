@@ -94,14 +94,14 @@ export default class Index extends PureComponent {
       }
     ];
     const rainbondInfo = this.props.rainbondInfo;
-    if (rainbondUtil.githubEnable(rainbondInfo)) {
+    if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
       codelinks.push({
         title: "Github项目",
         icontype: "github",
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
       });
     }
-    if (rainbondUtil.gitlabEnable(rainbondInfo)) {
+    if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
       codelinks.push({
         title: "Gitlab仓库",
         icontype: "gitlab",
