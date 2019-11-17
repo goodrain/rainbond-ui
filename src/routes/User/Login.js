@@ -34,6 +34,17 @@ export default class LoginPage extends Component {
           ...values
         }
       });
+      let id = rainbondUtil.OauthParameter("id");
+      let service_id = rainbondUtil.OauthParameter("service_id");
+      if (id && service_id) {
+        this.props.dispatch({
+          type: "user/fetchThirdBinding",
+          payload: {
+            oauth_user_id: id,
+            service_id
+          }
+        });
+      }
     }
   };
 

@@ -63,9 +63,9 @@ class AuthorizedRoute extends React.Component {
     } = this.props;
     let hrefs = window.location.href;
 
-    if (hrefs.indexOf("oauth") > -1) {
-      return <Route {...rest} render={props => <ThirdLogin {...props} />} />
-    }
+    // if (hrefs.indexOf("oauth") > -1) {
+    //   return <Route {...rest} render={props => <ThirdLogin {...props} />} />
+    // }
 
     return (
       <Authorized

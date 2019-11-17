@@ -9,6 +9,7 @@ import {
   createGitlabProject,
   changePass,
   queryThirdInfo,
+  queryCertificationThird,
   getTeamByName
 } from "../services/user";
 import { setAuthority } from "../utils/authority";
@@ -45,9 +46,23 @@ export default {
         callback && callback();
       }
     },
-
+    //第三方登录信息
     *fetchThirdInfo({ payload, callback }, { call, put, select }) {
       const response = yield call(queryThirdInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //登录后三方用户与用户绑定接口
+    *fetchThirdBinding({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdBinding, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //重新认证
+    *fetchCertificationThird({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryCertificationThird, payload);
       if (response) {
         callback && callback(response);
       }

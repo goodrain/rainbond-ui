@@ -4,7 +4,7 @@ import { routerRedux } from "dva/router";
 import { Card, Button } from "antd";
 import rainbondUtil from "../../utils/rainbond";
 import globalUtil from "../../utils/global";
-import { getGithubInfo } from "../../services/team";
+// import { getGithubInfo } from "../../services/team";
 import CodeGithubForm from "../../components/CodeGithubForm";
 import ThirdList from "../../components/ThirdList";
 import styles from "./Index.less";
@@ -25,30 +25,41 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    const rainbondInfo = this.props.rainbondInfo;
-    if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
-      this.getGithubInfo();
+    const { rainbondInfo, type } = this.props;
+
+    if (rainbondUtil.OauthbTypes(rainbondInfo, type)) {
+      this.getGithubInfo(rainbondInfo, type);
     }
   }
-  getGithubInfo = () => {
-    let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, "github");
+  getGithubInfo = (rainbondInfo, type) => {
+    let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
     let is_auth = gitinfo.is_expired > 0 ? true : false;
+
     this.setState({
       is_auth
     });
   };
+
   toAuth = () => {
-    if (this.state.auth_url) {
-      location.href = this.state.auth_url;
+    const { rainbondInfo, type } = this.props;
+    let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
+    if (gitinfo) {
+      location.href = `${gitinfo.auth_url}?response_type=code&client_id=${
+        gitinfo.client_id
+      }&redirect_uri=${redirect_uri}/console/oauth/redirect/${service_id}`;
     }
   };
+
+
+
   handleSubmit = value => {
+    const { type } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "global/createSourceCode",
       payload: {
         team_name: teamName,
-        code_from: "github",
+        code_from: type,
         ...value
       },
       callback: data => {
@@ -65,7 +76,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const is_auth = this.state.is_auth;
-
+    const { type } = this.props;
     return (
       <Card bordered={false} className={styles.ClearCard}>
         <div
@@ -84,7 +95,7 @@ export default class Index extends PureComponent {
                 fontSize: 14
               }}
             >
-              尚未绑定Github账号
+              尚未绑定{type}账号
               {this.props.handleType &&
               this.props.handleType === "Service" &&
               this.props.ButtonGroupState

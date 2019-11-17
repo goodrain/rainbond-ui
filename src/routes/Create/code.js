@@ -55,7 +55,7 @@ export default class Main extends PureComponent {
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
-      goodrain: CodeGoodrain,
+      gitlab: CodeGithub,
       github: CodeGithub
     };
 
@@ -69,7 +69,7 @@ export default class Main extends PureComponent {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
     if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
-      tabList.push({ key: "goodrain", tab: "Gitlab项目" });
+      tabList.push({ key: "gitlab", tab: "Gitlab项目" });
     }
 
     // if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
@@ -105,7 +105,11 @@ export default class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
       >
-        {Com ? <Com {...this.props} /> : "参数错误"}
+        {Com ? (
+          <Com {...this.props} type={this.props.match.params.type} />
+        ) : (
+          "参数错误"
+        )}
       </PageHeaderLayout>
     );
   }

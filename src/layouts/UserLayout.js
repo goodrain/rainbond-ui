@@ -56,6 +56,10 @@ class UserLayout extends React.PureComponent {
     }
     return title;
   }
+
+  shouldComponentUpdate() {
+    return true;
+  }
   render() {
     const { routerData, match, rainbondInfo, nouse } = this.props;
 
@@ -74,11 +78,7 @@ class UserLayout extends React.PureComponent {
                     alt="logo"
                     className={styles.logo}
                     src={rainbondInfo.logo || logo}/> */}
-                    <h1
-                      className={styles.titles}
-                    >
-                      {rainbondInfo.title}
-                    </h1>
+                    <h1 className={styles.titles}>{rainbondInfo.title}</h1>
                   </Link>
                 </div>
                 <div className={styles.desc}>

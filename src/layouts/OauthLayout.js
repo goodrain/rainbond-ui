@@ -36,8 +36,15 @@ class OauthLayout extends React.PureComponent {
       <DocumentTitle title={this.getPageTitle()}>
         <div className={styles.container}>
           <Switch>
-            1234567890
-            {/* <Redirect exact from="/oauth" to="/oauth/callback" /> */}
+            {getRoutes('/oauth', routerData).map(item => (
+              <Route
+                key={item.key}
+                path={item.path}
+                component={item.component}
+                exact={item.exact}
+              />
+            ))}
+            <Redirect exact from="/oauth" to="/oauth/callback" />
           </Switch>
         </div>
       </DocumentTitle>

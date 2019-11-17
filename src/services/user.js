@@ -27,6 +27,29 @@ export async function queryThirdInfo(body = {}) {
   });
 }
 
+/* 重新认证第三方 */
+export async function queryCertificationThird(body = { service_id }) {
+  return request(`${config.baseUrl}/console/oauth/refresh/${body.service_id}`, {
+    method: "post",
+    data: {
+      service_id: body.service_id,
+      id: body.id
+    },
+  });
+}
+
+
+/* 绑定第三方 */
+export async function queryThirdBinding(body = { service_id }) {
+  return request(`${config.baseUrl}/console/oauth/service/user/link`, {
+    method: "post",
+    data: {
+      service_id: body.service_id,
+      oauth_user_id: body.id
+    },
+  });
+}
+
 /* 登录 */
 export async function login(
   body = {
