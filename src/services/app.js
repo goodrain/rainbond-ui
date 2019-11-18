@@ -2005,7 +2005,100 @@ export async function getPods(
     }
   );
 }
-
+/*
+	开启自动伸缩
+*/
+export async function addScalingRules(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
+    {
+      method: "post",
+      data:{
+        xpa_type:params.scalingType,
+        enable:params.enable,
+        min_replicas:params.minNum,
+        max_replicas:params.maxNum,
+        metrics:[
+          {
+            metric_type:"resource_metrics",
+            metric_name:"cpu",
+            metric_target_type:params.selectCpu,
+            metric_target_value:params.cpuValue
+          },
+          {
+            metric_type:"resource_metrics",
+            metric_name:"memory",
+            metric_target_type:params.selectMemory,
+            metric_target_value:params.memoryValue
+          }
+        ]
+      }
+    }
+  )
+}
+/*
+	获取自动伸缩列表
+*/
+export async function getScalingRules(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
+    {
+      method: "get"
+    }
+  )
+}
+/*
+	编辑自动伸缩
+*/
+export async function changeScalingRules(params) {
+    return request(
+      `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+        params.service_alias
+      }/xparules/${params.rule_id}`,
+      {
+        method: "put",
+        data:{
+          xpa_type:params.scalingType,
+          enable:true,
+          min_replicas:params.minNum,
+          max_replicas:params.maxNum,
+          metrics:[
+            {
+              metric_type:"resource_metrics",
+              metric_name:"cpu",
+              metric_target_type:params.selectCpu,
+              metric_target_value:params.cpuValue
+            },
+            {
+              metric_type:"resource_metrics",
+              metric_name:"memory",
+              metric_target_type:params.selectMemory,
+              metric_target_value:params.memoryValue
+            }
+          ]
+        }
+      }
+  )
+}
+/*获取伸缩记录 */
+export async function getScalingRecord(params) {
+  return request (
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparecords`,
+    {
+      method:"get",
+      data:{
+        page:params.page,
+        page_size:params.page_size
+      }
+    }
+  )
+}
 /*
 	管理实例
 */
