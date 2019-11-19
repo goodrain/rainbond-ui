@@ -59,7 +59,6 @@ class AddScaling extends PureComponent {
   render() {
     const { isvisable, onClose, editRules, data } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const minNumber = getFieldValue("minNum") || 0;
 
     let propsData = data ? data : false;
     const selectAfterCpu = (
@@ -90,6 +89,13 @@ class AddScaling extends PureComponent {
         )}
       </FormItem>
     );
+
+    const minNumber = getFieldValue("minNum") || 0;
+    const cpuSymbolPrompt =
+      getFieldValue("selectCpu") === "utilization" ? "率" : "量";
+    const memorySymbolPrompt =
+      getFieldValue("selectMemory") === "utilization" ? "率" : "量";
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -139,7 +145,7 @@ class AddScaling extends PureComponent {
                 rules: [{ required: true, message: "请输入CPU" }]
               })(<Input addonAfter={selectAfterCpu} placeholder="请输入CPU" />)}
               <div className={styles.conformDesc}>
-                当CPU的使用率超过低于目标值时, 将创建或删除副本
+                当CPU的使用{cpuSymbolPrompt}超过低于目标值时, 将创建或删除副本
               </div>
             </FormItem>
             <FormItem
@@ -165,7 +171,8 @@ class AddScaling extends PureComponent {
                 />
               )}
               <div className={styles.conformDesc}>
-                当内存的使用率超过或低于目标值时, 将创建或删除副本
+                当内存的使用{memorySymbolPrompt}超过或低于目标值时,
+                将创建或删除副本
               </div>
             </FormItem>
             <FormItem
@@ -186,7 +193,7 @@ class AddScaling extends PureComponent {
                 <InputNumber
                   style={{ width: "100%" }}
                   placeholder="请输入最小数量"
-                  min={0}
+                  min={1}
                   max={65535}
                 />
               )}

@@ -1852,8 +1852,8 @@ export async function newaddScalingRules(params) {
       data: {
         xpa_type: params.xpa_type ? params.xpa_type : "hpa",
         enable: params.enable,
-        min_replicas: params.minNum ? params.minNum : 0,
-        max_replicas: params.maxNum ? params.maxNum : 1,
+        min_replicas: params.minNum ? params.minNum : 1,
+        max_replicas: params.maxNum ? params.maxNum : 2,
         metrics: params.metrics
           ? params.metrics
           : [
@@ -1898,8 +1898,8 @@ export async function editScalingRules(params) {
       data: {
         xpa_type: params.xpa_type ? params.xpa_type : "hpa",
         enable: params.enable,
-        min_replicas: params.minNum ? params.minNum : 0,
-        max_replicas: params.maxNum ? params.maxNum : 1,
+        min_replicas: params.minNum ? params.minNum : 1,
+        max_replicas: params.maxNum ? params.maxNum : 2,
         metrics: params.metrics
           ? params.metrics
           : [
@@ -3014,7 +3014,6 @@ export async function putAppBuidSource(
 
 /**更改应用状态 */
 export async function updateAppStatus(params) {
-  console.log(params);
   return request(
     `${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`,
     {

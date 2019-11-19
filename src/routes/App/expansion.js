@@ -413,13 +413,19 @@ export default class Index extends PureComponent {
   };
 
   setMetric_target_value = (arr, types) => {
-    let arrays = arr && arr.length > 0 && arr.map((item) => {
-      const { metric_name, metric_target_value } = item
-      if (types === metric_name) {
-        return metric_target_value + '%'
-      }
-    })
-    return arrays[0] === undefined ? false : arrays
+
+    let values = '';
+    arr &&
+      arr.length > 0 &&
+      arr.map(item => {
+        const { metric_name, metric_target_value, metric_target_type } = item;
+        if (types === metric_name) {
+          let prompt = metric_target_type === 'utilization' ? "%" : types === 'cpu' ? "m" : "Mi"
+          values = metric_target_value + prompt
+          return metric_target_value;
+        }
+      });
+    return values === undefined ? 0 : values;
   }
 
 
