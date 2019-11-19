@@ -45,12 +45,13 @@ import {
   getAppMemory,
   getExtendInfo,
   getPods,
-  addScalingRules,
+  newaddScalingRules,
   getScalingRules,
-  changeScalingRules,
-  getScalingRecord,
+  editScalingRules,
+  queryScalingRecord,
   getVisitInfo,
   managePods,
+  TelescopicInfo,
   getTags,
   deleteTag,
   getVariable,
@@ -129,7 +130,7 @@ export default {
     // 应用的扩展信息
     extendInfo: null,
     //规则
-    scalingRules:null,
+    scalingRules: null,
     // 应用
     apps: [],
     // 应用详情
@@ -370,9 +371,16 @@ export default {
     *managePod({ payload, callback }, { call, put }) {
       const response = yield call(managePods, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
+    *telescopic({ payload, callback }, { call, put }) {
+      const response = yield call(TelescopicInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchVisitInfo({ payload }, { call, put }) {
       const response = yield call(getVisitInfo, payload);
       if (response) {
@@ -386,27 +394,27 @@ export default {
         callback && callback(response);
       }
     },
-    *addScalingRules({payload,callback},{call,put}) {
-      const response = yield call(addScalingRules,payload);
+    *addScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(newaddScalingRules, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    *getScalingRules({payload,callback},{call,put}) {
-      const response = yield call(getScalingRules,payload);
+    *getScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(getScalingRules, payload);
       if (response) {
         yield put({ type: "saveScalingRules", payload: response.bean });
         callback && callback(response);
       }
     },
-    *changeScalingRules({payload,callback},{call,put}) {
-      const response = yield call(changeScalingRules,payload);
+    *changeScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(editScalingRules, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    *getScalingRecord({payload,callback},{call,put}) {
-      const response = yield call(getScalingRecord,payload);
+    *getScalingRecord({ payload, callback }, { call, put }) {
+      const response = yield call(queryScalingRecord, payload);
       if (response) {
         callback && callback(response);
       }
@@ -999,10 +1007,10 @@ export default {
         extendInfo: action.payload
       };
     },
-    saveScalingRules(state,action) {
+    saveScalingRules(state, action) {
       return {
         ...state,
-        scalingRules:action.payload
+        scalingRules: action.payload
       };
     },
     saveBranch(state, action) {

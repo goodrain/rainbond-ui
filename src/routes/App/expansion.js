@@ -14,7 +14,8 @@ import {
   Spin,
   Divider,
   Input,
-  Table
+  Table,
+  Empty
 } from "antd";
 import sourceUtil from "../../utils/source";
 import { horizontal, vertical } from "../../services/app";
@@ -23,6 +24,11 @@ import appUtil from "../../utils/app";
 import NoPermTip from "../../components/NoPermTip";
 import InstanceList from "../../components/AppInstanceList";
 import AddScaling from "../App/component/AddScaling";
+import Cpuimg from "../../../public/images/automatic-telescoping-cpu.png";
+import Ramimg from "../../../public/images/automatic-telescoping-ram.png";
+import Maximg from "../../../public/images/automatic-telescoping-max.png";
+import Minimg from "../../../public/images/automatic-telescoping-min.png";
+import styles from "./Index.less";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -57,12 +63,14 @@ export default class Index extends PureComponent {
       instances: [],
       loading: false,
       showEditAutoScaling: false,
-      editRules: "",
+      editRules: false,
       rulesList: [],
       sclaingRecord: [],
       page_num: 1,
       page_size: 10,
-      enable: false
+      enable: false,
+      rulesInfo: false,
+      total: 0
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -91,14 +99,14 @@ export default class Index extends PureComponent {
     this.getScalingRecord();
     this.fetchInstanceInfo();
     this.fetchExtendInfo();
-    this.timeClick = setInterval(() => {
-      this.fetchInstanceInfo();
-    }, 60000);
+    // this.timeClick = setInterval(() => {
+    //   this.fetchInstanceInfo();
+    // }, 60000);
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearExtendInfo" });
-    clearInterval(this.timeClick);
+    // clearInterval(this.timeClick);
   }
   // 是否可以浏览当前界面
   canView() {
@@ -129,12 +137,42 @@ export default class Index extends PureComponent {
     });
   };
 
-  openEditModal = () => {
-    this.setState({ showEditAutoScaling: true });
+  openEditModal = (type) => {
+    const { dispatch, appDetail } = this.props
+    if (type === 'add') {
+      this.setState({ showEditAutoScaling: true });
+    } else {
+      const { id } = this.state
+      dispatch({
+        type: "appControl/telescopic",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          rule_id: id,
+          service_alias: appDetail.service.service_alias
+        },
+        callback: (res) => {
+          if (res) {
+            if (type === 'close') {
+              this.setState({
+                rulesInfo: res.bean,
+              }, () => {
+                this.shutDownAutoScaling()
+              })
+            } else {
+              this.setState({
+                rulesInfo: res.bean,
+                showEditAutoScaling: true
+              })
+            }
+
+          }
+        }
+      });
+    }
   };
 
   cancelEditAutoScaling = () => {
-    this.setState({ showEditAutoScaling: false, editRules: "" });
+    this.setState({ showEditAutoScaling: false, rulesInfo: false, });
   };
 
   handlePodClick = (podName, manageName) => {
@@ -203,38 +241,36 @@ export default class Index extends PureComponent {
     this.addScalingRules(values);
   };
   changeAutoScaling = values => {
-
     this.changeScalingRules(values);
   };
-/**关闭伸缩 */
+  /**关闭伸缩 */
+
+
+
   shutDownAutoScaling = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appDetail } = this.props;
+    const { rulesInfo, id } = this.state
     const user = globalUtil.getCurrTeamName();
-    const alias = this.props.appDetail.service.service_alias;
-    const {  enable } = this.state;
-    this.setState({
-      id: "",
-      enable: false
-    });
+    const alias = appDetail.service.service_alias;
     dispatch({
       type: "appControl/changeScalingRules",
       payload: {
-        selectMemory: "utilization",
-        selectCpu: "utilization",
-        scalingType: "hpa",
-        cpuValue: 1,
-        memoryValue: 1,
-        maxNum: 1,
-        minNum: 1,
+        xpa_type: 'hpa',
+        metrics: rulesInfo.metrics,
+        maxNum: rulesInfo.max_replicas,
+        minNum: rulesInfo.min_replicas,
         tenant_name: user,
         service_alias: alias,
-        enable: enable,
-        rule_id: this.state.id
+        enable: false,
+        rule_id: id
       },
       callback: res => {
         if (res && res._code == 200) {
           notification.success({ message: "关闭成功" });
-          this.setState({ showEditAutoScaling: false }, () => {
+          this.setState({
+            showEditAutoScaling: false, id: "",
+            enable: false
+          }, () => {
             this.getScalingRules();
           });
         } else {
@@ -246,90 +282,90 @@ export default class Index extends PureComponent {
 
   /**添加伸缩 */
   addScalingRules = values => {
-    const { dispatch } = this.props;
+    const { dispatch, appDetail } = this.props;
     const user = globalUtil.getCurrTeamName();
-    const alias = this.props.appDetail.service.service_alias;
+    const alias = appDetail.service.service_alias;
     // const { enable } = this.state;
-      dispatch({
-        type: "appControl/addScalingRules",
-        payload: {
-          selectMemory: values.selectMemory,
-          selectCpu: values.selectCpu,
-          scalingType: values.scalingType,
-          cpuValue: parseInt(values.cpuValue),
-          memoryValue: parseInt(values.memoryValue),
-          maxNum: parseInt(values.maxNum),
-          minNum: parseInt(values.minNum),
-          tenant_name: user,
-          service_alias: alias,
-          enable: true
-        },
-        callback: res => {
-          if (res && res._code == 200) {
-            notification.success({ message: "开通成功" });
-            this.setState({ showEditAutoScaling: false }, () => {
-              this.getScalingRules();
-            });
-          } else {
-            this.setState({ showEditAutoScaling: false, loading: false });
-          }
-        }
-      });
-  };
-  /*编辑伸缩规则 */
-  changeScalingRules = (values) =>{
-    console.log("编辑")
-    const { dispatch } = this.props;
-    const user = globalUtil.getCurrTeamName();
-    const alias = this.props.appDetail.service.service_alias;
     dispatch({
-      type: "appControl/changeScalingRules",
+      type: "appControl/addScalingRules",
       payload: {
-        selectMemory:values.selectMemory,
-        selectCpu:values.selectCpu,
-        scalingType:values.scalingType,
-        cpuValue:values.cpuValue,
-        memoryValue:values.memoryValue,
-        maxNum:values.maxNum,
-        minNum:values.minNum,
+        enable: true,
+        selectMemory: values.selectMemory,
+        selectCpu: values.selectCpu,
+        cpuValue: parseInt(values.cpuValue),
+        memoryValue: parseInt(values.memoryValue),
+        maxNum: parseInt(values.maxNum),
+        minNum: parseInt(values.minNum),
         tenant_name: user,
         service_alias: alias,
-        rule_id:this.state.id
       },
       callback: res => {
-        if (res) {
-         
-          notification.success({ message: "编辑成功！" });
-          this.getScalingRules();
-          this.setState({
-            showEditAutoScaling: false,
-            editRules: res.bean,
-            id: res.bean.id,
-          })
-        }else{
-          notification.success({ message: "编辑失败！" });
-          this.setState({showEditAutoScaling: false})
+        if (res && res._code == 200) {
+          notification.success({ message: "开通成功" });
+          this.setState({ showEditAutoScaling: false }, () => {
+            this.getScalingRules();
+          });
+        } else {
+          this.setState({ showEditAutoScaling: false, loading: false });
         }
       }
     });
-  }
+  };
+  /*编辑伸缩规则 */
+  changeScalingRules = values => {
+    const { dispatch, appDetail } = this.props;
+    const { id } = this.state
+    const user = globalUtil.getCurrTeamName();
+    const alias = appDetail.service.service_alias;
+    dispatch({
+      type: "appControl/changeScalingRules",
+      payload: {
+        xpa_type: 'hpa',
+        enable: true,
+        selectMemory: values.selectMemory,
+        selectCpu: values.selectCpu,
+        cpuValue: parseInt(values.cpuValue),
+        memoryValue: parseInt(values.memoryValue),
+        maxNum: parseInt(values.maxNum),
+        minNum: parseInt(values.minNum),
+        tenant_name: user,
+        service_alias: alias,
+        rule_id: id
+      },
+      callback: res => {
+        if (res) {
+          notification.success({ message: "成功！" });
+          this.getScalingRules();
+          this.setState({
+            showEditAutoScaling: false,
+            id: res.bean.id
+          });
+        } else {
+          notification.success({ message: "失败！" });
+          this.setState({ showEditAutoScaling: false });
+        }
+      }
+    });
+  };
 
   /*获取伸缩规则 */
   getScalingRules = () => {
-    const { dispatch } = this.props;
+    const { dispatch, appDetail } = this.props;
     dispatch({
       type: "appControl/getScalingRules",
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias
+        service_alias: appDetail.service.service_alias
       },
       callback: res => {
         if (res && res._code == 200) {
+          const { list } = res
+          let datavalue = list && list.length > 0 ? true : false
           this.setState({
-            enable: res.list[0].enable,
-            rulesList: res.list,
-            id: res.list[0].rule_id,
-            editRules: "",
+            enable: datavalue,
+            rulesList: datavalue ? list : [],
+            id: list && datavalue ? list[0].rule_id : '',
+            editRules: datavalue && list[0].enable ? true : false,
             loading: false
           });
         } else {
@@ -340,22 +376,27 @@ export default class Index extends PureComponent {
       }
     });
   };
-
+  onPageChange = (page_num) => {
+    this.setState({ page_num }, () => {
+      this.getScalingRecord();
+    });
+  }
   /*获取伸缩记录 */
   getScalingRecord = () => {
-    const { dispatch } = this.props;
-    const { sclaingRecord } = this.state;
+    const { dispatch, appDetail } = this.props;
+    const { page_num, page_size } = this.state;
     dispatch({
       type: "appControl/getScalingRecord",
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appDetail.service.service_alias,
-        page: this.state.page_num,
-        page_size: this.state.page_size
+        service_alias: appDetail.service.service_alias,
+        page: page_num,
+        page_size: page_size
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
+            total: res.bean.total,
             sclaingRecord: res.bean.data
           });
         }
@@ -365,21 +406,34 @@ export default class Index extends PureComponent {
 
   saveForm = form => {
     this.form = form;
-    if (this.state.editRules && this.form) {
-      this.form.setFieldsValue(this.state.editRules);
+    const { rulesList, enable } = this.state
+    if (enable && this.form) {
+      this.form.setFieldsValue(rulesList[0]);
     }
   };
+
+  setMetric_target_value = (arr, types) => {
+    let arrays = arr && arr.length > 0 && arr.map((item) => {
+      const { metric_name, metric_target_value } = item
+      if (types === metric_name) {
+        return metric_target_value + '%'
+      }
+    })
+    return arrays[0] === undefined ? false : arrays
+  }
+
+
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { extendInfo } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { loading, rulesList, sclaingRecord } = this.state;
+    const { extendInfo, appAlias, form } = this.props;
+    const { getFieldDecorator } = form;
+    const { page_num, page_size, total, loading, rulesList, sclaingRecord, rulesInfo, editRules, enable, showEditAutoScaling } = this.state;
     if (!extendInfo) {
       return null;
     }
     const grctlCmd =
       "grctl service get " +
-      this.props.appAlias +
+      appAlias +
       " -t " +
       globalUtil.getCurrTeamName();
     return (
@@ -409,39 +463,39 @@ export default class Index extends PureComponent {
               <div style={{ minHeight: "190px" }} />
             </Spin>
           ) : (
-            <div>
-              <InstanceList
-                handlePodClick={this.handlePodClick}
-                list={this.state.instances}
-              />
-              <Divider />
               <div>
-                <Row>
-                  <Col span={12}>
-                    <span style={{ lineHeight: "32px" }}>
-                      查询详细的组件实例信息，请复制以下查询命令到Rainbond管理节点查询：
+                <InstanceList
+                  handlePodClick={this.handlePodClick}
+                  list={this.state.instances}
+                />
+                <Divider />
+                <div>
+                  <Row>
+                    <Col span={12}>
+                      <span style={{ lineHeight: "32px" }}>
+                        查询详细的组件实例信息，请复制以下查询命令到Rainbond管理节点查询：
                     </span>
-                  </Col>
-                  <Col span={12}>
-                    <Input style={{ width: "70%" }} value={grctlCmd} />
-                    <CopyToClipboard
-                      text={grctlCmd}
-                      onCopy={() => {
-                        notification.success({ message: "复制成功" });
-                      }}
-                    >
-                      <Button
-                        type="primary"
-                        style={{ width: "25%", marginLeft: 16 }}
+                    </Col>
+                    <Col span={12}>
+                      <Input style={{ width: "70%" }} value={grctlCmd} />
+                      <CopyToClipboard
+                        text={grctlCmd}
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
+                        }}
                       >
-                        复制查询命令
+                        <Button
+                          type="primary"
+                          style={{ width: "25%", marginLeft: 16 }}
+                        >
+                          复制查询命令
                       </Button>
-                    </CopyToClipboard>
-                  </Col>
-                </Row>
+                      </CopyToClipboard>
+                    </Col>
+                  </Row>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </Card>
         <Card style={{ marginTop: 16 }} title="手动伸缩">
           <Row gutter={16}>
@@ -505,105 +559,138 @@ export default class Index extends PureComponent {
         </Card>
 
         <Card
-          style={{ marginTop: 16 }}
+          style={{ marginTop: 16, border: 'none' }}
+          className={styles.clearCard}
           title="自动伸缩"
           extra={
-            (this.state.enable ? (
-
+            enable && editRules ? (
               <div>
-              <Button
-                // styles={{ marginRight: "15px" }}
-                onClick={this.openEditModal}
-                type="default"
-              >
-                编辑
-              </Button>
-              <Button onClick={this.shutDownAutoScaling} type="primary">
-                关闭
-              </Button>
-            </div>
-
-
+                <Button
+                  onClick={() => { this.openEditModal('edit') }}
+                  type="default"
+                  style={{ marginRight: '10px' }}
+                >
+                  编辑
+                </Button>
+                <Button onClick={() => { this.openEditModal('close') }} type="primary">
+                  关闭
+                </Button>
+              </div>
             ) : (
-              
-              <Button onClick={this.openEditModal} type="primary">
-                开启
+                <Button onClick={() => { this.openEditModal(enable ? 'edit' : 'add') }} type="primary">
+                  开启
               </Button>
-            ))
+              )
           }
         >
-          <Row gutter={24}>
-            <Col span={6}>
-              最小个数<div>{rulesList[0].min_replicas}</div>
-            </Col>
-            <Col span={6}>
-              最大个数<div>{rulesList[0].max_replicas}</div>
-            </Col>
-            <Col span={6}>
-              cpu使用率
-              <div>
-                {rulesList[0].metrics.metric_target_value}%
-              </div>
-            </Col>
-            <Col span={6}>
-              内存使用量
-              <div>
-                {rulesList[0].metrics.metric_target_value}%
-              </div>
-            </Col>
-          </Row>
+
+          {
+            rulesList && rulesList.length > 0 ? <Row gutter={24} className={styles.automaTictelescoping}>
+              <Col span={6} className={styles.automaTictelescopingContent}>
+                <img src={Minimg} alt="" />
+                <div>
+                  <div>最小个数</div>
+                  <div>{rulesList[0].min_replicas || '-'}</div>
+                </div>
+
+              </Col>
+              <Col span={6} className={styles.automaTictelescopingContent}>
+                <img src={Maximg} alt="" />
+                <div>
+                  <div>最大个数</div>
+                  <div>{rulesList[0].max_replicas || '-'}</div>
+                </div>
+              </Col>
+              <Col span={6} className={styles.automaTictelescopingContent}>
+                <img src={Cpuimg} alt="" />
+                <div>
+                  <div>cpu使用率</div>
+                  <div>{this.setMetric_target_value(rulesList[0].metrics, 'cpu') || '-'}</div>
+                </div>
+              </Col>
+              <Col span={6} className={styles.automaTictelescopingContent}>
+                <img src={Ramimg} alt="" />
+                <div>
+                  <div>内存使用量</div>
+                  <div>{this.setMetric_target_value(rulesList[0].metrics, 'memory') || '-'}</div>
+                </div>
+              </Col>
+            </Row> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          }
+
         </Card>
 
-        {this.state.showEditAutoScaling && (
+        {showEditAutoScaling && (
           <AddScaling
-            data={rulesList}
+            data={rulesInfo}
             ref={this.saveForm}
-            isvisable={this.state.showEditAutoScaling}
+            isvisable={showEditAutoScaling}
             onClose={this.cancelEditAutoScaling}
             onOk={values => {
-              this.state.enable
+              enable
                 ? this.changeAutoScaling(values)
                 : this.openAutoScaling(values);
             }}
-            editRules={this.state.editRules}
+            editRules={editRules}
           />
         )}
 
- 
-          <Card style={{ marginTop: 16 }} title="水平伸缩记录">
-            <Table
-              dataSource={sclaingRecord}
-              columns={[
-                {
-                  title: "时间",
-                  dataIndex: "create_time",
-                  key: "create_time",
-                  width: "20%",
-                  render: val => (
-                    <span>{moment(val).format("YYYY-MM-DD HH:mm:ss")}</span>
-                  )
-                },
-                {
-                  title: "伸缩详情",
-                  dataIndex: "description",
-                  key: "description",
-                  width: "20%"
-                },
-                {
-                  title: "类型",
-                  dataIndex: "record_type",
-                  key: "record_type",
-                  width: "20%"
-                },
-                {
-                  title: "原因",
-                  dataIndex: "reason",
-                  key: "reason",
-                  width: "20%"
+        <Card className={styles.clearCard} style={{ marginTop: 16 }} title="水平伸缩记录">
+          <Table
+            className={styles.horizontalExpansionRecordTable}
+            dataSource={sclaingRecord}
+            pagination={{
+              current: page_num,
+              pageSize: page_size,
+              total: total,
+              onChange: this.onPageChange,
+            }}
+            columns={[
+              {
+                title: "时间",
+                dataIndex: "create_time",
+                key: "create_time",
+                width: 80,
+                render: val => (
+                  <span>{moment(val).format("YYYY-MM-DD HH:mm:ss")}</span>
+                )
+              },
+              {
+                title: "伸缩详情",
+                dataIndex: "description",
+                key: "description",
+                width: "30%"
+              },
+              {
+                title: "类型",
+                dataIndex: "record_type",
+                key: "record_type",
+                align: "center",
+                width: "10%"
+              },
+              {
+                title: "操作人",
+                dataIndex: "operator",
+                key: "operator",
+                align: "center",
+                width: "15%",
+                render: (operator) => {
+                  return (
+                    <span>
+                      {operator || '-'}
+                    </span>
+                  );
                 }
-              ]}
-            ></Table>
-          </Card>
+              },
+              {
+                title: "原因",
+                dataIndex: "reason",
+                key: "reason",
+                width: "25%"
+              }
+            ]}
+          ></Table>
+        </Card>
       </div>
     );
   }
