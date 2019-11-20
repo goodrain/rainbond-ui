@@ -56,6 +56,22 @@ class AddScaling extends PureComponent {
       });
     return values === undefined ? 0 : values;
   };
+  checkContent = (res, value, callback) => {
+    let min = res.field === "maxNum" || res.field === "minNum" ? 1 : 0;
+    let num = Number(value);
+    if (num || num === 0) {
+      if (num < min) {
+        callback("最小输入值" + min);
+        return;
+      }
+      if (num > 65535) {
+        callback("最大输入值65535");
+        return;
+      }
+    }
+    callback();
+  };
+
   render() {
     const { isvisable, onClose, editRules, data } = this.props;
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -141,9 +157,21 @@ class AddScaling extends PureComponent {
                 initialValue: propsData
                   ? this.setMetric_target_value(propsData.metrics, "cpu")
                   : 0,
-
-                rules: [{ required: true, message: "请输入CPU" }]
-              })(<Input addonAfter={selectAfterCpu} placeholder="请输入CPU" />)}
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
+                    message: "请输入数字"
+                  },
+                  { required: true, message: "请输入CPU" },
+                  { validator: this.checkContent }
+                ]
+              })(
+                <Input
+                  type="number"
+                  addonAfter={selectAfterCpu}
+                  placeholder="请输入CPU"
+                />
+              )}
               <div className={styles.conformDesc}>
                 当CPU的使用{cpuSymbolPrompt}超过低于目标值时, 将创建或删除副本
               </div>
@@ -163,9 +191,17 @@ class AddScaling extends PureComponent {
                 initialValue: propsData
                   ? this.setMetric_target_value(propsData.metrics, "memory")
                   : 0,
-                rules: [{ required: true, message: "请输入内存!" }]
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
+                    message: "请输入数字"
+                  },
+                  { required: true, message: "请输入内存" },
+                  { validator: this.checkContent }
+                ]
               })(
                 <Input
+                  type="number"
                   addonAfter={selectAfterMemory}
                   placeholder="请输入内存"
                 />
@@ -187,14 +223,19 @@ class AddScaling extends PureComponent {
               style={{ textAlign: "left" }}
             >
               {getFieldDecorator("minNum", {
-                initialValue: propsData ? propsData.min_replicas : 0,
-                rules: [{ required: true, message: "请输入最小数量" }]
+                initialValue: propsData ? propsData.min_replicas : 1,
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
+                    message: "请输入数字"
+                  },
+                  { required: true, message: "请输入最小数量" },
+                  { validator: this.checkContent }
+                ]
               })(
                 <InputNumber
                   style={{ width: "100%" }}
                   placeholder="请输入最小数量"
-                  min={1}
-                  max={65535}
                 />
               )}
               <div className={styles.conformDesc}>自动伸缩副本数的下限</div>
@@ -211,14 +252,20 @@ class AddScaling extends PureComponent {
               style={{ textAlign: "left" }}
             >
               {getFieldDecorator("maxNum", {
-                initialValue: propsData ? propsData.max_replicas : 0,
-                rules: [{ required: true, message: "请输入最大数量" }]
+                initialValue: propsData ? propsData.max_replicas : 1,
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
+                    message: "请输入数字"
+                  },
+                  { required: true, message: "请输入最大数量" },
+                  { validator: this.checkContent }
+                ]
               })(
                 <InputNumber
                   placeholder="请输入最大数量"
                   style={{ width: "100%" }}
                   min={minNumber}
-                  max={65535}
                 />
               )}
               <div className={styles.conformDesc}>自动伸缩副本数的上限</div>

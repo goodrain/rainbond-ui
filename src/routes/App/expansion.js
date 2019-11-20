@@ -235,9 +235,6 @@ export default class Index extends PureComponent {
   };
 
   openAutoScaling = values => {
-    this.setState({
-      enable: true
-    });
     this.addScalingRules(values);
   };
   changeAutoScaling = values => {
@@ -317,35 +314,38 @@ export default class Index extends PureComponent {
     const { id } = this.state
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
-    dispatch({
-      type: "appControl/changeScalingRules",
-      payload: {
-        xpa_type: 'hpa',
-        enable: true,
-        selectMemory: values.selectMemory,
-        selectCpu: values.selectCpu,
-        cpuValue: parseInt(values.cpuValue),
-        memoryValue: parseInt(values.memoryValue),
-        maxNum: parseInt(values.maxNum),
-        minNum: parseInt(values.minNum),
-        tenant_name: user,
-        service_alias: alias,
-        rule_id: id
-      },
-      callback: res => {
-        if (res) {
-          notification.success({ message: "成功！" });
-          this.getScalingRules();
-          this.setState({
-            showEditAutoScaling: false,
-            id: res.bean.id
-          });
-        } else {
-          notification.success({ message: "失败！" });
-          this.setState({ showEditAutoScaling: false });
+    if (id) {
+      dispatch({
+        type: "appControl/changeScalingRules",
+        payload: {
+          xpa_type: 'hpa',
+          enable: true,
+          selectMemory: values.selectMemory,
+          selectCpu: values.selectCpu,
+          cpuValue: parseInt(values.cpuValue),
+          memoryValue: parseInt(values.memoryValue),
+          maxNum: parseInt(values.maxNum),
+          minNum: parseInt(values.minNum),
+          tenant_name: user,
+          service_alias: alias,
+          rule_id: id
+        },
+        callback: res => {
+          if (res) {
+            notification.success({ message: "成功！" });
+            this.getScalingRules();
+            this.setState({
+              showEditAutoScaling: false,
+              id: res.bean.id
+            });
+          } else {
+            notification.success({ message: "失败！" });
+            this.setState({ showEditAutoScaling: false });
+          }
         }
-      }
-    });
+      });
+    }
+
   };
 
   /*获取伸缩规则 */
@@ -359,6 +359,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res._code == 200) {
+          console.log('rse', res)
           const { list } = res
           let datavalue = list && list.length > 0 ? true : false
           this.setState({
@@ -412,7 +413,7 @@ export default class Index extends PureComponent {
     }
   };
 
-  setMetric_target_value = (arr, types) => {
+  setMetric_target_value = (arr, types, Symbol = false) => {
 
     let values = '';
     arr &&
@@ -421,7 +422,14 @@ export default class Index extends PureComponent {
         const { metric_name, metric_target_value, metric_target_type } = item;
         if (types === metric_name) {
           let prompt = metric_target_type === 'utilization' ? "%" : types === 'cpu' ? "m" : "Mi"
-          values = metric_target_value + prompt
+          let symboltext = metric_target_type === 'utilization' ? "率" : "量"
+
+          if (Symbol) {
+            values = symboltext
+          } else {
+            values = metric_target_value + prompt
+          }
+
           return metric_target_value;
         }
       });
@@ -593,7 +601,9 @@ export default class Index extends PureComponent {
           {
             rulesList && rulesList.length > 0 ? <Row gutter={24} className={styles.automaTictelescoping}>
               <Col span={6} className={styles.automaTictelescopingContent}>
-                <img src={Minimg} alt="" />
+                <div>
+                  <img src={Minimg} alt="" />
+                </div>
                 <div>
                   <div>最小个数</div>
                   <div>{rulesList[0].min_replicas || '-'}</div>
@@ -601,23 +611,29 @@ export default class Index extends PureComponent {
 
               </Col>
               <Col span={6} className={styles.automaTictelescopingContent}>
-                <img src={Maximg} alt="" />
+                <div>
+                  <img src={Maximg} alt="" />
+                </div>
                 <div>
                   <div>最大个数</div>
                   <div>{rulesList[0].max_replicas || '-'}</div>
                 </div>
               </Col>
               <Col span={6} className={styles.automaTictelescopingContent}>
-                <img src={Cpuimg} alt="" />
                 <div>
-                  <div>cpu使用率</div>
+                  <img src={Cpuimg} alt="" />
+                </div>
+                <div>
+                  <div>cpu使用{this.setMetric_target_value(rulesList[0].metrics, 'cpu', true) || '率'}</div>
                   <div>{this.setMetric_target_value(rulesList[0].metrics, 'cpu') || '-'}</div>
                 </div>
               </Col>
               <Col span={6} className={styles.automaTictelescopingContent}>
-                <img src={Ramimg} alt="" />
                 <div>
-                  <div>内存使用量</div>
+                  <img src={Ramimg} alt="" />
+                </div>
+                <div>
+                  <div>内存使用{this.setMetric_target_value(rulesList[0].metrics, 'memory', true) || '量'}</div>
                   <div>{this.setMetric_target_value(rulesList[0].metrics, 'memory') || '-'}</div>
                 </div>
               </Col>
@@ -656,30 +672,37 @@ export default class Index extends PureComponent {
                 title: "时间",
                 dataIndex: "create_time",
                 key: "create_time",
-                width: 80,
+                align: "center",
+                width: '15%',
                 render: val => (
-                  <span>{moment(val).format("YYYY-MM-DD HH:mm:ss")}</span>
+                  <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                    {moment(val).format("YYYY-MM-DD HH:mm:ss")}</div>
                 )
               },
               {
                 title: "伸缩详情",
                 dataIndex: "description",
                 key: "description",
-                width: "30%"
+                align: "center",
+                width: "46%",
+                render: description => (
+                  <div style={{ textAlign: 'left', wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                    {description}</div>
+                )
               },
               {
                 title: "类型",
                 dataIndex: "record_type",
                 key: "record_type",
                 align: "center",
-                width: "10%"
+                width: "13%",
               },
               {
                 title: "操作人",
                 dataIndex: "operator",
                 key: "operator",
                 align: "center",
-                width: "15%",
+                width: "13%",
                 render: (operator) => {
                   return (
                     <span>
@@ -691,8 +714,9 @@ export default class Index extends PureComponent {
               {
                 title: "原因",
                 dataIndex: "reason",
+                align: "center",
                 key: "reason",
-                width: "25%"
+                width: "13%"
               }
             ]}
           ></Table>
