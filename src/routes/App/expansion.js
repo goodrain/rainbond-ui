@@ -696,6 +696,10 @@ export default class Index extends PureComponent {
                 key: "record_type",
                 align: "center",
                 width: "13%",
+                render: record_type => (
+                  <div>
+                    {record_type === 'hpa' ? "水平自动伸缩" : record_type === 'manual' ? '手动伸缩' : '垂直自动伸缩'}</div>
+                )
               },
               {
                 title: "操作人",
