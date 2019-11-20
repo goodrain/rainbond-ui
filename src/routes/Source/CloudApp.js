@@ -70,7 +70,6 @@ export default class CloudApp extends PureComponent {
             pageSize: this.state.pageSize
           },
           callback: data => {
-            console.log("data", data);
             if (data) {
               this.setState({
                 apps: data.list || [],
@@ -242,7 +241,7 @@ export default class CloudApp extends PureComponent {
             <Alert
               style={{ marginTop: "130px", textAlign: "center" }}
               message={this.state.networkText}
-              type="info"
+              type="warning"
             />
           </div>
         ) : (

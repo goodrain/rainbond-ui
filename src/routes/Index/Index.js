@@ -30,6 +30,7 @@ import configureGlobal from "../../utils/configureGlobal";
 import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import guideutil from "../../utils/guide";
+import rainbondUtil from "../../utils/rainbond";
 
 @connect(({ user, index, loading, global }) => ({
   currUser: user.currentUser,
@@ -142,7 +143,7 @@ export default class Index extends PureComponent {
   componentWillMount() {
     this.getTeam();
     const { rainbondInfo } = this.props;
-    rainbondInfo && rainbondInfo.newbie_guide && this.getGuideState();
+    rainbondUtil.newbieGuideEnable(rainbondInfo) && this.getGuideState();
   }
 
   getTeam = () => {
@@ -473,7 +474,6 @@ export default class Index extends PureComponent {
                     {item.service_name}
                   </Link>
                 )}
-                <span>应用</span>
                 <span
                   style={{
                     color: globalUtil.fetchAbnormalcolor(OptType)

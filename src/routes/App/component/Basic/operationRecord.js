@@ -7,6 +7,7 @@ import appAcionLogUtil from "../../../../utils/app-action-log-util";
 
 import LogShow from "../LogShow";
 import styles from "./operation.less";
+import { relative } from "path";
 
 @connect()
 @Form.create()
@@ -48,6 +49,7 @@ class Index extends PureComponent {
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket } = this.state;
+    const logsvg = globalUtil.fetchSvg("logs", "#cccccc");
     return (
       <Card bordered={false} title="操作记录" loading={recordLoading}>
         <Row gutter={24}>
@@ -133,7 +135,7 @@ class Index extends PureComponent {
                         </span>
                       </span>
                     </div>
-                    <div>
+                    <div style={{position:'relative'}}>
                       {isopenLog &&
                         FinalStatus === "" &&
                         OptType &&
@@ -144,13 +146,17 @@ class Index extends PureComponent {
                           FinalStatus == "" ? true : false
                         )}
                       {SynType == 0 && (
-                        <Tooltip visible={FinalStatus == ""} title="查看日志">
+                        <Tooltip
+                          visible={FinalStatus == "" ? true : false}
+                          placement="top"
+                          arrowPointAtCenter={true}
+                          autoAdjustOverflow={false}
+                          title="查看日志"
+                          style={{position:"absolute",left:"0",top:"0"}}
+                        >
                           <div
                             style={{
-                              height: "16px",
-                              width: "16px",
-                              lineHeight: "16px",
-                              textAlign: "right"
+                              width: "16px"
                             }}
                             onClick={() => {
                               this.showLogModal(
@@ -159,7 +165,7 @@ class Index extends PureComponent {
                               );
                             }}
                           >
-                            {globalUtil.fetchSvg("logs", "#cccccc")}
+                            {logsvg}
                           </div>
                         </Tooltip>
                       )}

@@ -30,9 +30,9 @@ const menuData = function() {
         },
         {
           name: "添加第三方组件",
-          path: "outer",
-        },
-      ],
+          path: "outer"
+        }
+      ]
     },
     {
       name: "应用管理",
@@ -111,7 +111,7 @@ function formatter(data, parentPath = "", parentAuthority) {
 
 // 处理我的应用二级和三级菜单
 
-export const getMenuData = groups => {
+export const getMenuData = (groups, is_complete) => {
   const menus = formatter(menuData());
 
   if (groups && groups.length) {
@@ -126,7 +126,8 @@ export const getMenuData = groups => {
               item.service_alias
             }`,
             link: true,
-            exact: true
+            exact: true,
+            hideInMenu: true // 隐藏该组
           }));
           return {
             name: group.group_name,
@@ -134,7 +135,8 @@ export const getMenuData = groups => {
               group.group_id
             }`,
             link: true,
-            // children,
+            children: is_complete ? children : false,
+            hideInBreadcrumb: true, // 隐藏该条
             exact: true
           };
         });

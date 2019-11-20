@@ -596,8 +596,16 @@ export default class TcpTable extends PureComponent {
               )}
 
               <li>
+                推荐访问地址&nbsp;
                 <a href="javascript:void(0)" style={{ marginRight: "10px" }}>
-                  {agreement.end_point}
+                  {agreement.end_point.indexOf("0.0.0.0") > -1 &&
+                  currentRegion &&
+                  currentRegion.length > 0
+                    ? agreement.end_point.replace(
+                        /0.0.0.0/g,
+                        currentRegion[0].tcpdomain
+                      )
+                    : agreement.end_point.replace(/\s+/g, "")}
                 </a>
                 <CopyToClipboard
                   text={

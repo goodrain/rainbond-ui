@@ -14,6 +14,7 @@ import globalUtil from "../../utils/global";
 import LogProcress from "../../components/LogProcress";
 import userUtil from "../../utils/user";
 import regionUtil from "../../utils/region";
+import rainbondUtil from "../../utils/rainbond";
 import ConfirmModal from "../../components/ConfirmModal";
 import CodeMirror from "react-codemirror";
 require("codemirror/mode/yaml/yaml");
@@ -427,10 +428,9 @@ export default class CreateCheck extends PureComponent {
             <div>组件检测通过仅代表平台可以检测到代码语言类型和代码源。</div>
             90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
             <a
-              href={`${rainbondInfo &&
-                rainbondInfo.document &&
-                rainbondInfo.document
-                  .platform_url}docs/user-manual/app-creation/language-support/`}
+              href={`${rainbondUtil.documentPlatform_url(
+                rainbondInfo
+              )}docs/user-manual/app-creation/language-support/`}
               target="_blank"
             >
               rainbond文档

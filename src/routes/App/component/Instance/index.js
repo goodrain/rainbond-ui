@@ -127,7 +127,7 @@ class Index extends PureComponent {
         bordered={0}
         loading={runLoading}
         title="运行实例"
-        style={{ margin: "20px 0" }}
+        style={{ margin: "20px 0", minHeight: "170px" }}
         bodyStyle={{ padding: "0", background: "#F0F2F5" }}
       >
         <Modal

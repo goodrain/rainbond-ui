@@ -25,6 +25,7 @@ import userIcon from "../../../public/images/user-icon-small.png";
 import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
+import rainbondUtil from "../../utils/rainbond";
 
 import { Route, Redirect, Switch, routerRedux } from "dva/router";
 
@@ -257,8 +258,7 @@ export default class GlobalHeader extends PureComponent {
           ))}
           <Menu.Divider />
           {teamUtil.canAddRegion(team) &&
-            rainbondInfo &&
-            rainbondInfo.is_open_data_center && (
+            rainbondUtil.openDataCenterStatusEnable(rainbondInfo) && (
               <Menu.Item key="openRegion">
                 <Icon type="plus" />
                 开通数据中心
@@ -395,11 +395,13 @@ export default class GlobalHeader extends PureComponent {
         </div>
 
         <div className={styles.right}>
-          {rainbondInfo && rainbondInfo.document && (
+          {rainbondUtil.documentEnable(rainbondInfo) && (
             <Tooltip title="平台使用手册">
               <a
                 target="_blank"
-                href={`${rainbondInfo.document.platform_url}docs/user-manual/`}
+                href={`${rainbondUtil.documentPlatform_url(
+                  rainbondInfo
+                )}docs/user-manual/`}
                 rel="noopener noreferrer"
                 className={styles.action}
               >

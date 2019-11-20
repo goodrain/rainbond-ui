@@ -65,7 +65,7 @@ export default class Main extends PureComponent {
         tab: "自定义源码"
       }
     ];
-    if (rainbondInfo && rainbondInfo.official_demo) {
+    if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
     if (rainbondUtil.gitlabEnable(rainbondInfo)) {

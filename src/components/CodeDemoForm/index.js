@@ -20,6 +20,7 @@ import {
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import configureGlobal from "../../utils/configureGlobal";
+import rainbondUtil from "../../utils/rainbond";
 
 const { Option } = Select;
 const formItemLayout = {
@@ -271,8 +272,13 @@ export default class Index extends PureComponent {
         <Form.Item {...formItemLayout} label="组件名称">
           {getFieldDecorator("service_cname", {
             initialValue: data.service_cname || "",
-            rules: [{ required: true, message: "要创建的组件还没有名字" }],
-          })(<Input style={{width: 292}} placeholder="请为创建的组件起个名字吧" />)}
+            rules: [{ required: true, message: "要创建的组件还没有名字" }]
+          })(
+            <Input
+              style={{ width: 292 }}
+              placeholder="请为创建的组件起个名字吧"
+            />
+          )}
         </Form.Item>
 
         <Form.Item
@@ -365,7 +371,7 @@ export default class Index extends PureComponent {
               </Option>
             </Select>
           )}
-          {this.state.demoHref && rainbondInfo && rainbondInfo.document && (
+          {this.state.demoHref && rainbondUtil.documentEnable(rainbondInfo) && (
             <a target="_blank" href={this.state.demoHref}>
               查看源码
             </a>
@@ -386,7 +392,7 @@ export default class Index extends PureComponent {
             type="primary"
             loading={createAppByCodeLoading}
           >
-            新建应用
+            确认创建
           </Button>
         </Form.Item>
         {this.state.addGroup && (
