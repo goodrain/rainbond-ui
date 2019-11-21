@@ -45,8 +45,13 @@ import {
   getAppMemory,
   getExtendInfo,
   getPods,
+  newaddScalingRules,
+  getScalingRules,
+  editScalingRules,
+  queryScalingRecord,
   getVisitInfo,
   managePods,
+  TelescopicInfo,
   getTags,
   deleteTag,
   getVariable,
@@ -124,6 +129,8 @@ export default {
     tags: null,
     // 应用的扩展信息
     extendInfo: null,
+    //规则
+    scalingRules: null,
     // 应用
     apps: [],
     // 应用详情
@@ -364,9 +371,16 @@ export default {
     *managePod({ payload, callback }, { call, put }) {
       const response = yield call(managePods, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
+    *telescopic({ payload, callback }, { call, put }) {
+      const response = yield call(TelescopicInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchVisitInfo({ payload }, { call, put }) {
       const response = yield call(getVisitInfo, payload);
       if (response) {
@@ -377,6 +391,31 @@ export default {
       const response = yield call(getPods, payload);
       if (response) {
         yield put({ type: "savePods", payload: response.list });
+        callback && callback(response);
+      }
+    },
+    *addScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(newaddScalingRules, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *getScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(getScalingRules, payload);
+      if (response) {
+        yield put({ type: "saveScalingRules", payload: response.bean });
+        callback && callback(response);
+      }
+    },
+    *changeScalingRules({ payload, callback }, { call, put }) {
+      const response = yield call(editScalingRules, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *getScalingRecord({ payload, callback }, { call, put }) {
+      const response = yield call(queryScalingRecord, payload);
+      if (response) {
         callback && callback(response);
       }
     },
@@ -966,6 +1005,12 @@ export default {
       return {
         ...state,
         extendInfo: action.payload
+      };
+    },
+    saveScalingRules(state, action) {
+      return {
+        ...state,
+        scalingRules: action.payload
       };
     },
     saveBranch(state, action) {
