@@ -3,7 +3,6 @@ import { Route, Redirect } from "dva/router";
 import { connect } from "dva";
 import Authorized from "./Authorized";
 import PublicLogin from "./PublicLogin";
-import ThirdLogin from "../../routes/User/ThirdLogin";
 
 class AuthorizedRoute extends React.Component {
   // not login
@@ -61,12 +60,6 @@ class AuthorizedRoute extends React.Component {
       rainbondInfo,
       ...rest
     } = this.props;
-    let hrefs = window.location.href;
-
-    // if (hrefs.indexOf("oauth") > -1) {
-    //   return <Route {...rest} render={props => <ThirdLogin {...props} />} />
-    // }
-
     return (
       <Authorized
             authority={authority}

@@ -25,35 +25,49 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    const { rainbondInfo, type } = this.props;
-
+    const { rainbondInfo } = this.props;
+    const type = this.setType();
     if (rainbondUtil.OauthbTypes(rainbondInfo, type)) {
       this.getGithubInfo(rainbondInfo, type);
     }
   }
+  setType = () => {
+    const { tabList, type, types } = this.props;
+    console.log("type", type);
+    console.log("tabList", tabList);
+    let typs = "";
+    tabList.map(item => {
+      const { key, types } = item;
+      if (type === key) {
+        typs = types;
+      }
+    });
+    return typs;
+  };
+
   getGithubInfo = (rainbondInfo, type) => {
     let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
     let is_auth = gitinfo.is_expired > 0 ? true : false;
-
     this.setState({
       is_auth
     });
   };
 
   toAuth = () => {
-    const { rainbondInfo, type } = this.props;
+    const { rainbondInfo } = this.props;
+    const type = this.setType();
     let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
     if (gitinfo) {
       location.href = `${gitinfo.auth_url}?response_type=code&client_id=${
         gitinfo.client_id
-      }&redirect_uri=${redirect_uri}/console/oauth/redirect/${service_id}`;
+      }&redirect_uri=${rainbondInfo.redirect_uri}/console/oauth/redirect/${
+        gitinfo.service_id
+      }`;
     }
   };
 
-
-
   handleSubmit = value => {
-    const { type } = this.props;
+    const type = this.setType();
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "global/createSourceCode",
@@ -75,7 +89,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const is_auth = this.state.is_auth;
+    const { is_auth } = this.state;
     const { type } = this.props;
     return (
       <Card bordered={false} className={styles.ClearCard}>
@@ -87,7 +101,7 @@ export default class Index extends PureComponent {
         //       : "500px"
         // }}
         >
-          {is_auth ? (
+          {!is_auth ? (
             <div
               style={{
                 textAlign: "center",

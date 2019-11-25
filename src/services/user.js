@@ -16,11 +16,22 @@ export async function queryCurrent() {
   return request("/api/currentUser");
 }
 
+/* 第三方认证 */
+export async function queryThirdCertification(body = {}) {
+  return request(`${config.baseUrl}/console/oauth/authorize`, {
+    method: "get",
+    params: body,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  });
+}
+
 /* 查询第三方信息 */
 export async function queryThirdInfo(body = {}) {
   return request(`${config.baseUrl}/console/oauth/user`, {
-    method: "post",
-    data: body,
+    method: "get",
+    params: body,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -34,19 +45,30 @@ export async function queryCertificationThird(body = { service_id }) {
     data: {
       service_id: body.service_id,
       id: body.id
-    },
+    }
+  });
+}
+
+/* 绑定第三方 */
+export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
+  return request(`${config.baseUrl}/console/oauth/user/link`, {
+    method: "post",
+    data: {
+      service_id: body.service_id,
+      oauth_user_id: body.oauth_user_id
+    }
   });
 }
 
 
-/* 绑定第三方 */
-export async function queryThirdBinding(body = { service_id }) {
-  return request(`${config.baseUrl}/console/oauth/service/user/link`, {
+/* 登录成功后绑定第三方 */
+export async function queryThirdLoginBinding(body = { service_id, oauth_user_id }) {
+  return request(`${config.baseUrl}/console/oauth/user/authorize`, {
     method: "post",
     data: {
       service_id: body.service_id,
-      oauth_user_id: body.id
-    },
+      oauth_user_id: body.oauth_user_id
+    }
   });
 }
 

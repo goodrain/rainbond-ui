@@ -42,12 +42,16 @@ import {
   getRegist,
   getEnterpriseInfo,
   getEnterpriseTeams,
+  queryOauthInfo,
+  deleteOauth,
   queryAuthority,
   queryTestCode,
   queryCodeWarehouseInfo,
+  queryCodeWarehouseType,
   toCreatUser,
   toCeateSourceCode,
   toCreatOauth,
+  toEditOauth,
   toBuildShape,
   toQueryTopology,
   toQueryLinks,
@@ -472,6 +476,19 @@ export default {
         callback && callback(response);
       }
     },
+    *getOauthInfo({ callback, payload }, { call }) {
+      const response = yield call(queryOauthInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteOauthInfo({ callback, payload }, { call }) {
+      const response = yield call(deleteOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
     *requestAuthority({ callback, payload }, { call }) {
       const response = yield call(queryAuthority, payload);
       if (callback) {
@@ -503,8 +520,21 @@ export default {
         callback(response);
       }
     },
+    *editOauth({ payload, callback }, { call }) {
+      const response = yield call(toEditOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
     *codeWarehouseInfo({ payload, callback }, { call }) {
       const response = yield call(queryCodeWarehouseInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *codeWarehouseType({ payload, callback }, { call }) {
+      const response = yield call(queryCodeWarehouseType, payload);
       if (callback) {
         callback(response);
       }

@@ -9,8 +9,11 @@ import {
   createGitlabProject,
   changePass,
   queryThirdInfo,
+  queryThirdCertification,
   queryCertificationThird,
-  getTeamByName
+  getTeamByName,
+  queryThirdBinding,
+  queryThirdLoginBinding
 } from "../services/user";
 import { setAuthority } from "../utils/authority";
 import cookie from "../utils/cookie";
@@ -46,7 +49,16 @@ export default {
         callback && callback();
       }
     },
-    //第三方登录信息
+
+    //第三方认证
+    *fetchThirdCertification({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdCertification, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    //第三方认证信息
     *fetchThirdInfo({ payload, callback }, { call, put, select }) {
       const response = yield call(queryThirdInfo, payload);
       if (response) {
@@ -56,6 +68,13 @@ export default {
     //登录后三方用户与用户绑定接口
     *fetchThirdBinding({ payload, callback }, { call, put, select }) {
       const response = yield call(queryThirdBinding, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //登录成功三方用户与用户绑定接口
+    *fetchThirdLoginBinding({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdLoginBinding, payload);
       if (response) {
         callback && callback(response);
       }
@@ -88,6 +107,15 @@ export default {
         window.location.reload();
       }
     },
+    *thirdLogin({ payload, callback }, { call, put, select }) {
+      const response = yield call(login, payload);
+
+      if (response) {
+        callback && callback(response);
+        yield put({ type: "changeLoginStatus", payload: response });
+      }
+    },
+
     *logout(_, { put, select }) {
       try {
         // get location pathname
@@ -127,6 +155,15 @@ export default {
       }
 
       complete && complete();
+    },
+    *thirdRegister({ payload, callback }, { call, put, select }) {
+      const response = yield call(register, payload);
+      if (response) {
+        callback && callback(response);
+        const urlParams = new URL(window.location.href);
+        const pathname = yield select(state => state.routing.location.pathname);
+        yield put({ type: "registerHandle", payload: response.bean, redirect });
+      }
     },
     *fetch(_, { call, put }) {
       const response = yield call(queryUsers);

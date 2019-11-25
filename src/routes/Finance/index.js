@@ -2,10 +2,20 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
-import { Card, Row, Col, DatePicker, notification, Button, Radio } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Switch,
+  notification,
+  Button,
+  Radio,
+  Icon
+} from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "../List/BasicList.less";
 import globalUtil from "../../utils/global";
+import Addimg from "../../../public/images/add.png";
 import TeamListTable from "../../components/tables/TeamListTable";
 import userUtil from "../../utils/user";
 import teamUtil from "../../utils/team";
@@ -15,6 +25,9 @@ import rainbond from "../../utils/rainbond";
 import DescriptionList from "../../components/DescriptionList";
 import CreatUser from "../../components/CreatUserForm";
 import { log } from "lodash-decorators/utils";
+import config from "../../config/config";
+import rainbondUtil from "../../utils/rainbond";
+import ConfirmModal from "../../components/ConfirmModal";
 
 import OauthForm from "../../components/OauthForm";
 
@@ -28,6 +41,7 @@ const RadioGroup = Radio.Group;
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
+  oauthLongin: loading.effects["global/creatOauth"],
   overviewInfo: index.overviewInfo
 }))
 export default class BasicList extends PureComponent {
@@ -53,15 +67,26 @@ export default class BasicList extends PureComponent {
       showAddTeam: false,
       adminer,
       userVisible: false,
-      openOauth: false
+      openOauth: false,
+      oauthInfo: false,
+      isOpen: false,
+      showDeleteDomain: false
     };
   }
   componentDidMount() {
-    this.props.dispatch({
+    const { dispatch, rainbondInfo } = this.props;
+
+    // if (rainbondUtil.OauthbIsEnable(rainbondInfo)) {
+    //   this.handelOauthInfo();
+    // }
+    this.handelOauthInfo();
+
+    dispatch({
       type: "global/getIsRegist",
       callback: () => {}
     });
-    this.props.dispatch({
+
+    dispatch({
       type: "global/getEnterpriseInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName()
@@ -187,6 +212,34 @@ export default class BasicList extends PureComponent {
     window.open("https://t.goodrain.com/");
   };
 
+  handlChooseeOpen = () => {
+    const { isOpen } = this.state;
+    isOpen ? this.handleOpenDomain() : this.handleOpen();
+  };
+
+  handleDeleteOauthInfo = () => {
+    const { oauthInfo } = this.state;
+    const { dispatch } = this.props;
+    dispatch({
+      type: "global/deleteOauthInfo",
+      payload: {
+        service_id: oauthInfo.service_id
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: "成功" });
+          this.handelOauthInfo();
+        }
+      }
+    });
+  };
+
+  handleOpenDomain = () => {
+    this.setState({
+      showDeleteDomain: true
+    });
+  };
+
   handleOpen = () => {
     this.setState({
       openOauth: true
@@ -194,11 +247,31 @@ export default class BasicList extends PureComponent {
   };
   handelClone = () => {
     this.setState({
-      openOauth: false
+      openOauth: false,
+      showDeleteDomain: false
     });
   };
+
+  handelOauthInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "global/getOauthInfo",
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState({
+            oauthInfo: res.data.bean.oauth_services,
+            isOpen: res.data.bean.oauth_services.enable
+          });
+        }
+      }
+    });
+  };
+
   getSettingShow = () => {
-    if (!this.props.is_public) {
+    const { rainbondInfo, is_public } = this.props;
+    const { oauthInfo, isOpen } = this.state;
+    let ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
+    if (!is_public) {
       return (
         <Card
           style={{
@@ -213,7 +286,10 @@ export default class BasicList extends PureComponent {
           <DescriptionList
             col="1"
             size="large"
-            style={{ marginBottom: 32, marginTop: 32 }}
+            style={{
+              marginBottom: 32,
+              marginTop: 32
+            }}
           >
             <Description term="用户注册">
               <RadioGroup
@@ -223,26 +299,58 @@ export default class BasicList extends PureComponent {
                 <Radio value>允许注册</Radio>
                 <Radio value={false}>禁止注册</Radio>
               </RadioGroup>
-              <Button
-                size="small"
-                type="primary"
+              <div
+                style={{
+                  float: "right",
+                  color: "rgba(153,153,153,1)",
+                  textAlign: "center",
+                  fontSize: "12px",
+                  cursor: "pointer"
+                }}
                 onClick={this.addUser}
-                style={{ float: "right" }}
               >
-                添加用户
-              </Button>
-            </Description>
-            <Description term="Oauth2.0">
-              <Button
-                size="small"
-                type="primary"
-                onClick={this.handleOpen}
-                style={{ float: "right" }}
-              >
-                开启
-              </Button>
+                <img style={{ width: "30px", height: "30px" }} src={Addimg} />
+                <div>添加用户</div>
+              </div>
             </Description>
           </DescriptionList>
+          <div
+            style={{
+              height: "1px",
+              background: " #E8E8E8 ",
+              margin: "0 -32px"
+            }}
+          />
+          {/* {ishow && ( */}
+          <DescriptionList
+            col="1"
+            size="large"
+            style={{ marginBottom: 32, marginTop: 32 }}
+          >
+            <Description term="Oauth2.0认证">
+              {oauthInfo && oauthInfo.enable && (
+                <span>
+                  类型：{oauthInfo.oauth_type}&nbsp;
+                  {oauthInfo.is_auto_login ? "已开启" : "关闭"}自动登录
+                </span>
+              )}
+
+              <Switch
+                style={{ float: "right" }}
+                onClick={this.handlChooseeOpen}
+                checked={isOpen}
+              />
+              {oauthInfo && oauthInfo.enable && (
+                <a
+                  onClick={this.handleOpen}
+                  style={{ float: "right", marginRight: "10px" }}
+                >
+                  编辑
+                </a>
+              )}
+            </Description>
+          </DescriptionList>
+          {/* )} */}
         </Card>
       );
     }
@@ -363,25 +471,89 @@ export default class BasicList extends PureComponent {
         } else {
           notification.error({ message: data.msg_show });
         }
-        // console.log(data)
       }
     });
     this.cancelCreatUser();
   };
 
   handleCreatOauth = values => {
-    this.props.dispatch({
-      type: "global/creatOauth",
+    let {
+      name,
+      client_id,
+      client_secret,
+      oauth_type,
+      auth_url,
+      access_token_url,
+      api_url,
+      home_url,
+      is_auto_login
+    } = values;
+
+    oauth_type = oauth_type.toLowerCase();
+
+    if (oauth_type === "github") {
+      home_url = "github.com";
+      auth_url = "https://github.com/login/oauth/authorize";
+      access_token_url = "https://github.com/login/oauth/access_token";
+      api_url = "https://api.github.com/user";
+    } else if (oauth_type === "gitlab") {
+      auth_url = `"http://${home_url}/oauth/authorize`;
+      access_token_url = `http://${home_url}/oauth/token`;
+      api_url = "http://git.goodrain.com/api/v4/user";
+    } else if (oauth_type === "gitee") {
+      auth_url = `"http://${home_url}/oauth/authorize`;
+      access_token_url = `http://${home_url}/oauth/token`;
+      api_url = "https://gitee.com/api/v5/user";
+    } else {
+      home_url = null;
+    }
+
+    let obj = {
+      name,
+      client_id,
+      client_secret,
+      is_auto_login,
+      oauth_type,
+      redirect_uri: config.baseUrl,
+      auth_url,
+      access_token_url,
+      api_url,
+      home_url,
+      is_console: true
+    };
+    if (oauth_type !== "other") {
+      obj.api_project_url =
+        oauth_type === "github"
+          ? "user/{}/repos?page={}"
+          : oauth_type === "gitlab"
+          ? "project?page={}"
+          : "user/repos?page={}";
+    }
+    this.handelRequest(obj);
+  };
+
+  handelRequest = (obj = {}, isclone) => {
+    const { dispatch, rainbondInfo } = this.props;
+    const { oauthInfo } = this.state;
+    obj.eid = rainbondInfo.eid;
+    oauthInfo ? (obj.id = oauthInfo.service_id) : (obj.id = null);
+    isclone ? (obj.enable = false) : (obj.enable = true);
+    dispatch({
+      type: oauthInfo ? "global/toEditOauth" : "global/creatOauth",
       payload: {
-        ...values
+        arr: [obj]
       },
       callback: data => {
         if (data) {
-          console.log("data", data);
+          notification.success({ message: "成功" });
+          this.handelOauthInfo();
+          dispatch({
+            type: "global/fetchRainbondInfo"
+          });
+          this.handelClone();
         }
       }
     });
-    this.handelClone();
   };
 
   cancelCreatUser = () => {
@@ -390,7 +562,8 @@ export default class BasicList extends PureComponent {
     });
   };
   render() {
-    const { userVisible, openOauth } = this.state;
+    const { userVisible, openOauth, showDeleteDomain, oauthInfo } = this.state;
+    const { oauthLongin } = this.props;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -426,7 +599,24 @@ export default class BasicList extends PureComponent {
           />
         )}
         {openOauth && (
-          <OauthForm onOk={this.handleCreatOauth} onCancel={this.handelClone} />
+          <OauthForm
+            loading={oauthLongin}
+            oauthInfo={oauthInfo}
+            onOk={this.handleCreatOauth}
+            onCancel={this.handelClone}
+          />
+        )}
+
+        {showDeleteDomain && (
+          <ConfirmModal
+            loading={oauthLongin}
+            title="关闭"
+            desc="确定要关闭Oauth2.0认证？"
+            onOk={() => {
+              this.handelRequest(oauthInfo, "clone");
+            }}
+            onCancel={this.handelClone}
+          />
         )}
       </PageHeaderLayout>
     );

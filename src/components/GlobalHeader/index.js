@@ -291,6 +291,15 @@ export default class GlobalHeader extends PureComponent {
 
     return "";
   }
+  onhandleThird = (auth_url, client_id, redirect_uri, service_id) => {
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.replace(
+        `${auth_url}?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}/console/oauth/redirect/${service_id}`
+      )
+    );
+  };
+
   render() {
     const {
       currentUser,
@@ -318,16 +327,34 @@ export default class GlobalHeader extends PureComponent {
         <Menu.Item disabled><Icon type="setting" />设置</Menu.Item>
         <Menu.Item key="triggerError"><Icon type="close-circle" />触发报错</Menu.Item>
         <Menu.Divider /> */}
-          {rainbondUtil.OauthbTypes(rainbondInfo) && (
+          {rainbondUtil.OauthbEnable(rainbondInfo) && (
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
-          {rainbondUtil.OauthbTypes(rainbondInfo) &&
+          {rainbondUtil.OauthbEnable(rainbondInfo) &&
             rainbondInfo.oauth_services.value.map(item => {
-              const { name, is_authenticated, is_expired } = item;
+              const {
+                name,
+                is_authenticated,
+                is_expired,
+                auth_url,
+                client_id,
+                service_id,
+                redirect_uri
+              } = item;
               return (
-                <Menu.Item key={name}>
+                <Menu.Item
+                  key={name}
+                  onClick={() => {
+                    this.onhandleThird(
+                      auth_url,
+                      client_id,
+                      redirect_uri,
+                      service_id
+                    );
+                  }}
+                >
                   <div className={styles.userInfoContent}>
-                    <span className={styles.oneSpan}>
+                    <span className={styles.oneSpan} title={name}>
                       <Icon
                         type="github"
                         style={{

@@ -54,9 +54,12 @@
   }
 
   .userInfoContent {
+    display    : flex;
+    align-items: center;
 
-    &:hover span {
-      color: #1890ff;
+    &:hover span,
+    &:hover span i {
+      color: #1890ff !important;
     }
 
     span {
@@ -75,6 +78,11 @@
     }
 
     .oneSpan {
+      overflow     : hidden;
+      text-overflow: ellipsis;
+      word-break   : break-all;
+      white-space  : nowrap;
+
       i {
         font-size: 12px;
       }

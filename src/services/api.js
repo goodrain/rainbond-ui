@@ -883,6 +883,28 @@ export async function getRegist(body = {}) {
     method: "get"
   });
 }
+
+/** 获取oath信息  */
+export async function queryOauthInfo() {
+  return request(`${config.baseUrl}/console/oauth/oauth-services`, {
+    method: "get"
+  });
+}
+
+/* 删除 oath信息*/
+
+export async function deleteOauth(body = { service_id }) {
+  return request(
+    `${config.baseUrl}/console/oauth/oauth-services/${body.service_id}`,
+    {
+      method: "delete",
+      data: {
+        service_id: body.service_id
+      }
+    }
+  );
+}
+
 /** 获取权限 */
 export async function queryAuthority(params) {
   return request(
@@ -895,15 +917,35 @@ export async function queryAuthority(params) {
 /** 获取代码仓库信息 */
 export async function queryCodeWarehouseInfo(params) {
   return request(
-    `${config.baseUrl}/console/oauth_service/${
+    `${config.baseUrl}/console/oauth/service/${
       params.oauth_service_id
-    }/repository`,
+    }/user/repositories`,
     {
-      method: "get"
+      method: "get",
+      params: {
+        page: params.page || 1,
+        search: params.search || ""
+      }
     }
   );
 }
-/** 获取代码仓库信息 */
+/** 获取类型 */
+export async function queryCodeWarehouseType(params) {
+  return request(
+    `${config.baseUrl}/console/oauth/service/${
+      params.oauth_service_id
+    }/user/repository/branches`,
+    {
+      method: "post",
+      data: {
+        type: params.type || "tags",
+        url: params.url
+      }
+    }
+  );
+}
+
+/** 代码检测 */
 export async function queryTestCode(params) {
   return request(
     `${config.baseUrl}/console/oauth_service/${
@@ -953,15 +995,20 @@ export async function toCreatUser(params) {
 }
 /**创建Oauth 2.0 */
 export async function toCreatOauth(params) {
-  return request(`${config.baseUrl}/console/oauth-services`, {
+  return request(`${config.baseUrl}/console/oauth/oauth-services`, {
     method: "post",
     data: {
-      name: params.name,
-      endpoint: params.endpoint,
-      client_id: params.client_id,
-      client_secret: params.client_secret,
-      is_auto_login: params.is_auto_login,
-      oauth_type: params.oauth_type
+      oauth_services: params.arr
+    }
+  });
+}
+
+/**修改Oauth 2.0 */
+export async function toEditOauth(params) {
+  return request(`${config.baseUrl}/console/oauth-config`, {
+    method: "put",
+    data: {
+      oauth_services: params.arr
     }
   });
 }

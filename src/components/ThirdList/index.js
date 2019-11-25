@@ -26,7 +26,7 @@ import {
   Select,
   Button,
   Cascader,
-  Switch
+  Tooltip
 } from "antd";
 
 const { Search } = Input;
@@ -40,21 +40,60 @@ class Index extends React.Component {
     super(props);
     this.state = {
       visible: false,
-      detection: false
+      detection: false,
+      lists: [],
+      page: 1,
+      page_size: 10,
+      total: 0,
+      loading: true,
+      thirdInfo: false,
+      search: ""
     };
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this.handleCodeWarehouseInfo(this.props);
+  }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.type !== this.props.type) {
+      this.handleCodeWarehouseInfo(nextProps);
+    }
+  }
+  onPageChange = page => {
+    this.setState({ page, loading: true }, () => {
+      this.handleCodeWarehouseInfo(this.props);
+    });
+  };
+  handleSearch = search => {
+    const _th = this;
+    this.setState(
+      {
+        page: 1,
+        search
+      },
+      () => {
+        _th.handleCodeWarehouseInfo(_th.props);
+      }
+    );
+  };
   //获取代码仓库信息
-  handleCodeWarehouseInfo = () => {
-    this.props.dispatch({
+  handleCodeWarehouseInfo = props => {
+    const { page, search } = this.state;
+    const { dispatch, type } = props;
+    dispatch({
       type: "global/codeWarehouseInfo",
       payload: {
-        oauth_service_id: 1
+        page,
+        search,
+        oauth_service_id: type
       },
-      callback: data => {
-        if (data) {
-          console.log("data", data);
+      callback: res => {
+        if (res) {
+          this.setState({
+            loading: false,
+            total: res.data.bean.total,
+            lists: res.data.bean.repositories
+          });
         }
       }
     });
@@ -65,7 +104,7 @@ class Index extends React.Component {
     this.props.dispatch({
       type: "global/testCode",
       payload: {
-        oauth_service_id: 1
+        oauth_service_id: this.props.type
       },
       callback: data => {
         if (data) {
@@ -75,21 +114,10 @@ class Index extends React.Component {
     });
   };
 
-  handleSearch = env_name => {
-    // this.setState(
-    //   {
-    //     page: 1,
-    //     env_name
-    //   },
-    //   () => {
-    //     this.fetchInnerEnvs();
-    //   }
-    // );
-  };
-
-  showModal = () => {
+  showModal = thirdInfo => {
     this.setState({
-      visible: true
+      visible: true,
+      thirdInfo
     });
   };
 
@@ -118,7 +146,7 @@ class Index extends React.Component {
     });
   };
   render() {
-    const { visible, detection } = this.state;
+    const { visible, detection, lists, loading, thirdInfo } = this.state;
     const { handleType } = this.props;
     const data = ["goodarin", "rainbond"];
     let ServiceComponent = handleType && handleType === "Service";
@@ -268,6 +296,7 @@ class Index extends React.Component {
 
         {!visible ? (
           <List
+            loading={loading}
             className={styles.lists}
             header={
               <Input.Search
@@ -284,17 +313,29 @@ class Index extends React.Component {
             }
             footer={
               <div style={{ textAlign: "right" }}>
-                <Pagination defaultCurrent={3} total={100} />
+                <Pagination
+                  size="small"
+                  current={this.state.page}
+                  pageSize={this.state.page_size}
+                  total={Number(this.state.total)}
+                  onChange={this.onPageChange}
+                />
               </div>
             }
-            dataSource={data}
+            dataSource={lists}
             gutter={1}
             renderItem={item => (
               <List.Item
                 className={styles.listItem}
                 actions={[
                   <div>
-                    <a onClick={this.showModal}>创建组件</a>
+                    <a
+                      onClick={() => {
+                        this.showModal(item);
+                      }}
+                    >
+                      创建组件
+                    </a>
                   </div>
                 ]}
               >
@@ -306,8 +347,13 @@ class Index extends React.Component {
                     avatar={<Avatar src={App} />}
                     title={
                       <div className={styles.listItemMataTitle}>
-                        <div>{item}</div>
-                        <div>{item}</div>
+                        <Tooltip title={item.project_fullname.split("/")[0]}>
+                          <div>{item.project_fullname.split("/")[0]}</div>
+                        </Tooltip>
+
+                        <Tooltip title={item.project_name}>
+                          <div>{item.project_name}</div>
+                        </Tooltip>
                       </div>
                     }
                   />
@@ -321,16 +367,23 @@ class Index extends React.Component {
                   >
                     {!ServiceComponent && (
                       <Col span={8}>
-                        <div className={styles.listItemMataDesc}>
-                          Ant Design
-                        </div>
+                        <Tooltip title={item.project_description}>
+                          <div className={styles.listItemMataDesc}>
+                            {item.project_description}
+                          </div>
+                        </Tooltip>
                       </Col>
                     )}
                     <Col span={ServiceComponent ? 12 : 8}>
-                      <div className={styles.listItemMataBranch}>
-                        <Icon type="apartment" style={{ marginRight: "5px" }} />
-                        分支v3.5
-                      </div>
+                      <Tooltip title={item.project_default_version}>
+                        <div className={styles.listItemMataBranch}>
+                          <Icon
+                            type="apartment"
+                            style={{ marginRight: "5px" }}
+                          />
+                          {item.project_default_version || "未检测语言"}
+                        </div>
+                      </Tooltip>
                     </Col>
                     <Col
                       span={ServiceComponent ? 12 : 8}
@@ -338,7 +391,11 @@ class Index extends React.Component {
                     >
                       <Badge
                         status="processing"
-                        text={<a onClick={this.handleOpenDetection}>JAVA</a>}
+                        text={
+                          <a onClick={this.handleOpenDetection}>
+                            {item.project_language}
+                          </a>
+                        }
                       />
                     </Col>
                   </Row>
@@ -354,7 +411,11 @@ class Index extends React.Component {
                 width: ServiceComponent ? "auto" : "500px"
               }}
             >
-              <ThirForm onSubmit={this.props.handleSubmit} {...this.props} />
+              <ThirForm
+                onSubmit={this.props.handleSubmit}
+                {...this.props}
+                thirdInfo={thirdInfo}
+              />
             </div>
           </Card>
         )}

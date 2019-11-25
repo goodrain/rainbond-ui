@@ -91,15 +91,7 @@ export const getRouterData = app => {
         () => import("../layouts/BasicLayout")
       )
     },
-    "/oauth/callback": {
-      component: dynamicWrapper(app, [], () =>
-        import("../routes/User/ThirdLogin")
-      ),
-      name: "第三方登录"
-    },
-    "/oauth": {
-      component: dynamicWrapper(app, [], () => import("../layouts/OauthLayout"))
-    },
+
     "/team/:team/region/:region/source/:type?/:name?": {
       component: dynamicWrapper(app, ["index"], () =>
         import("../routes/Source/Index")
@@ -277,7 +269,13 @@ export const getRouterData = app => {
         import("../routes/Exception/triggerException")
       )
     },
-
+    "/oauth/callback": {
+      component: dynamicWrapper(app, [], () => import("../routes/User/Third")),
+      name: "第三方认证"
+    },
+    "/oauth": {
+      component: dynamicWrapper(app, [], () => import("../layouts/OauthLayout"))
+    },
     "/user": {
       component: dynamicWrapper(app, ["user"], () =>
         import("../layouts/UserLayout")
@@ -301,6 +299,18 @@ export const getRouterData = app => {
         import("../routes/User/Register")
       ),
       name: "注册"
+    },
+    "/user/third/login": {
+      component: dynamicWrapper(app, ["user"], () =>
+        import("../routes/User/ThirdLogin")
+      ),
+      name: "第三方登录"
+    },
+    "/user/third/register": {
+      component: dynamicWrapper(app, ["user"], () =>
+        import("../routes/User/ThirdRegister")
+      ),
+      name: "第三方注册"
     },
     "/user/register-result": {
       component: dynamicWrapper(app, [], () =>

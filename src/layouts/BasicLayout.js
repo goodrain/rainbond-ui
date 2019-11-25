@@ -402,10 +402,7 @@ class BasicLayout extends React.PureComponent {
             </div>
           );
         }
-        // console.log(
-        //   "getRoutes(match.path, routerData).",
-        //   getRoutes(match.path, routerData)
-        // );
+
         return (
           <Switch>
             {redirectData.map(item => (

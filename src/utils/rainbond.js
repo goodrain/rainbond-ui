@@ -21,6 +21,12 @@ export default {
   // 判断平台是否配置了oautg 2.0
   OauthbEnable: (bean = {}) =>
     (bean.oauth_services && bean.oauth_services.enable) || false,
+
+  // 判断管理后台是否配置了oautg 2.0 oauth_services_is_sonsole
+  OauthbIsEnable: (bean = {}) =>
+    (bean.oauth_services_is_sonsole && bean.oauth_services_is_sonsole.enable) ||
+    false,
+
   // 判断 有 oautgType 类型
   OauthbTypes: (bean = {}, values) =>
     (bean.oauth_services &&

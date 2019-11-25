@@ -15,14 +15,16 @@ import {
   Tag,
   Select,
   Input,
+  Tabs,
   Tooltip
 } from "antd";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import configureGlobal from "../../utils/configureGlobal";
 import rainbondUtil from "../../utils/rainbond";
+import styles from "./index.less";
 
-const { Option } = Select;
+const { Option, OptGroup } = Select;
 const formItemLayout = {
   labelCol: {
     span: 5
@@ -31,6 +33,7 @@ const formItemLayout = {
     span: 19
   }
 };
+const { TabPane } = Tabs;
 
 @connect(
   ({ user, global, loading }) => ({
@@ -280,7 +283,21 @@ export default class Index extends PureComponent {
             />
           )}
         </Form.Item>
-
+        <Select style={{ width: 500 }} open={true}>
+          <OptGroup
+            label={
+              <Tabs defaultActiveKey="1" className={styles.selectTabs}>
+                <TabPane tab="分支" key="1" />
+                <TabPane tab="Tab" key="2" />
+              </Tabs>
+            }
+          >
+            <Option value="jack0">分支v3.0</Option>
+            <Option value="jack1">分支v3.1</Option>
+            <Option value="jack2">分支v3.2</Option>
+            <Option value="jack3">分支v3.3</Option>
+          </OptGroup>
+        </Select>
         <Form.Item
           {...formItemLayout}
           label={

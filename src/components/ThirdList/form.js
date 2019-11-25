@@ -68,10 +68,41 @@ class Index extends React.Component {
     super(props);
     this.state = {
       visible: false,
-      addGroup: false
+      addGroup: false,
+      tags: []
     };
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this.handleCodeWarehouseType(this.props);
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.type !== this.props.type) {
+      this.handleCodeWarehouseType(nextProps);
+    }
+  }
+  //获取类型
+  handleCodeWarehouseType = props => {
+    const { dispatch, type, thirdInfo } = props;
+    const visitType = this.props.form.getFieldValue("version_type");
+
+    dispatch({
+      type: "global/codeWarehouseType",
+      payload: {
+        type: visitType,
+        url: thirdInfo ? thirdInfo.deployments_url : "",
+        oauth_service_id: type
+      },
+      callback: res => {
+        if (res) {
+          this.setState({
+            tags: res.data.bean.tags
+          });
+          console.log("获取类型", res);
+        }
+      }
+    });
+  };
+
   handleSearch = env_name => {
     // this.setState(
     //   {
@@ -134,7 +165,7 @@ class Index extends React.Component {
     const showSubmitBtn =
       this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
     const versionSelector = getFieldDecorator("version_type", {
-      initialValue: this.state.version_type || "branch"
+      initialValue: "branch"
     })(
       <Select style={{ width: 100 }}>
         <Option value="branch">分支</Option>

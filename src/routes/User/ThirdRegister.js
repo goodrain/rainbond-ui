@@ -1,35 +1,37 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
-import {
-  Checkbox,
-  Alert,
-  Divider,
-  Row,
-  Col,
-  Icon,
-  notification,
-  message
-} from "antd";
-import Login from "../../components/Login";
-import styles from "./Login.less";
-import rainbondUtil from "../../utils/rainbond";
-import LoginComponent from "./loginComponent";
+import { routerRedux, Link } from "dva/router";
+import { Form, Input, Button, Row, Col, message } from "antd";
+import styles from "./Register.less";
+import config from "../../config/config";
 import cookie from "../../utils/cookie";
+import RegisterComponent from "./registerComponent";
+import rainbondUtil from "../../utils/rainbond";
 
+const FormItem = Form.Item;
+
+const passwordProgressMap = {
+  ok: "success",
+  pass: "normal",
+  poor: "exception"
+};
+
+const oauth_user_id = rainbondUtil.OauthParameter("oauth_user_id");
 const code = rainbondUtil.OauthParameter("code");
 const service_id = rainbondUtil.OauthParameter("service_id");
-const oauth_user_id = rainbondUtil.OauthParameter("oauth_user_id");
 
-@connect(({ loading, global }) => ({
-  login: {},
-  isRegist: global.isRegist,
+@connect(({ user, loading, global }) => ({
+  register: user.register,
   rainbondInfo: global.rainbondInfo,
-  submitting: loading.effects["user/login"]
+  isRegist: global.isRegist
 }))
-export default class LoginPage extends Component {
+@Form.create()
+export default class Register extends Component {
+  // first user, to register admin
   state = {
-    user_info: null
+    user_info: null,
+    firstRegist:
+      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register
   };
 
   componentDidMount() {
@@ -48,11 +50,12 @@ export default class LoginPage extends Component {
       }
     });
   }
+
   handleSubmit = values => {
     const { dispatch } = this.props;
     if (code && service_id && oauth_user_id) {
       dispatch({
-        type: "user/thirdLogin",
+        type: "user/thirdRegister",
         payload: {
           ...values
         },
@@ -83,11 +86,26 @@ export default class LoginPage extends Component {
     }
   };
 
+  changeTime = () => {
+    this.setState({
+      time: Date.now()
+    });
+  };
+
   render() {
-    const { login, submitting, rainbondInfo, user_info } = this.props;
-    const { type } = this.state;
-    let code = rainbondUtil.OauthParameter("code");
-    let service_id = rainbondUtil.OauthParameter("service_id");
+    if (!this.props.isRegist) {
+      this.props.dispatch(
+        routerRedux.replace(
+          code && service_id && oauth_user_id
+            ? `/user/login?code=${code}&service_id=${service_id}`
+            : "/user/login"
+        )
+      );
+      return null;
+    }
+    const { user_info } = this.state;
+    const { form } = this.props;
+    const { getFieldDecorator } = form;
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
@@ -95,11 +113,7 @@ export default class LoginPage extends Component {
           您好！你现在可以进行绑定
         </p>
         <Row style={{ marginBottom: "24px" }}>
-          <Col
-            span={10}
-            className={styles.boxJump}
-            style={{ background: "#CDE2FF" }}
-          >
+          <Col span={10} className={styles.boxJump}>
             {!this.state.firstRegist && (
               <Link
                 to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
@@ -108,7 +122,12 @@ export default class LoginPage extends Component {
               </Link>
             )}
           </Col>
-          <Col span={10} className={styles.boxJump} offset={4}>
+          <Col
+            span={10}
+            style={{ background: "#CDE2FF" }}
+            className={styles.boxJump}
+            offset={4}
+          >
             <Link
               to={`/user/third/register?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
             >
@@ -116,7 +135,12 @@ export default class LoginPage extends Component {
             </Link>
           </Col>
         </Row>
-        <LoginComponent onSubmit={this.handleSubmit} type="thirdLogin" />
+
+        <RegisterComponent
+          user_info={user_info}
+          onSubmit={this.handleSubmit}
+          type="thirdRegister"
+        />
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 
-import { routerRedux, Switch } from "dva/router";
+import { routerRedux, Switch, Route } from "dva/router";
 import { LocaleProvider, Spin } from "antd";
 import zhCN from "antd/lib/locale-provider/zh_CN";
 import dynamic from "dva/dynamic";
@@ -21,22 +21,11 @@ function RouterConfig({ history, app }) {
   const UserLayout = routerData["/user"].component;
   const BasicLayout = routerData["/"].component;
 
-  const ignoreLoginPath = () => {
-    const requestPath = history.location.pathname;
-    if (requestPath && requestPath.indexOf("oauth/callback") > -1) {
-      console.log("通过");
-      return true;
-    }
-    console.log("不通过");
-    return false;
-  };
-
   const oauths = () => {
     return (
       <AuthorizedRoute
-        path="/oauth"
-        render={props => <OauthLayout {...props} />}
-        authority={["admin", "user", "guest"]}
+        path="/"
+        component={OauthLayout}
         logined={false}
         redirectPath="/"
       />
@@ -47,29 +36,21 @@ function RouterConfig({ history, app }) {
       <LocaleProvider locale={zhCN}>
         <ConnectedRouter history={history}>
           <Switch>
-            {ignoreLoginPath() ? (
-              oauths()
-            ) : (
-              <AuthorizedRoute
-                path="/user"
-                render={props => <UserLayout {...props} />}
-                authority="guest"
-                logined={false}
-                redirectPath="/"
-              />
-            )}
-
-            {ignoreLoginPath() ? (
-              oauths()
-            ) : (
-              <AuthorizedRoute
-                path="/"
-                render={props => <BasicLayout {...props} />}
-                authority={["admin", "user"]}
-                logined
-                redirectPath="/user/login"
-              />
-            )}
+            <Route exact path="/oauth/callback" component={OauthLayout} />
+            <AuthorizedRoute
+              path="/user"
+              render={props => <UserLayout {...props} />}
+              authority="guest"
+              logined={false} //关键的判断条件
+              redirectPath="/"
+            />
+            <AuthorizedRoute
+              path="/"
+              render={props => <BasicLayout {...props} />}
+              authority={["admin", "user"]}
+              logined
+              redirectPath="/user"
+            />
           </Switch>
         </ConnectedRouter>
       </LocaleProvider>

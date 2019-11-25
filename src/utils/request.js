@@ -143,13 +143,14 @@ export default function request(url, options) {
           return;
         }
 
-        if(resData.code === 10406){
-          dispatch && dispatch({
-            type: "global/showMemoryTip",
-            payload: {
-              message: resData.msg_show
-            }
-           });
+        if (resData.code === 10406) {
+          dispatch &&
+            dispatch({
+              type: "global/showMemoryTip",
+              payload: {
+                message: resData.msg_show
+              }
+            });
           return;
         }
         if (resData.code === 10408) {

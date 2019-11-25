@@ -51,7 +51,7 @@ export default class Main extends PureComponent {
     );
   };
   render() {
-    const rainbondInfo = this.props.rainbondInfo;
+    const { rainbondInfo } = this.props;
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
@@ -68,13 +68,27 @@ export default class Main extends PureComponent {
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
-    if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
-      tabList.push({ key: "gitlab", tab: "Gitlab项目" });
-    }
 
-    // if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
-    tabList.push({ key: "github", tab: "GitHub项目" });
-    // }
+    tabList.push({ key: "github", tab: "github" });
+    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
+      rainbondInfo.oauth_services.value.map(item => {
+        const { name, service_id, oauth_type } = item;
+        map[service_id] = CodeGithub;
+        tabList.push({
+          key: service_id,
+          types: oauth_type,
+          tab:
+            oauth_type === "github"
+              ? "Github项目"
+              : oauth_type === "gitlab"
+              ? "Gitlab项目"
+              : oauth_type === "gitee"
+              ? "Gitee项目"
+              : name + "项目"
+        });
+        return tabList;
+      });
+    }
 
     const { match, routerData, location } = this.props;
     let type = this.props.match.params.type;
@@ -106,7 +120,11 @@ export default class Main extends PureComponent {
         tabList={tabList}
       >
         {Com ? (
-          <Com {...this.props} type={this.props.match.params.type} />
+          <Com
+            {...this.props}
+            type={this.props.match.params.type}
+            tabList={tabList}
+          />
         ) : (
           "参数错误"
         )}
