@@ -46,6 +46,7 @@ import {
   deleteOauth,
   queryAuthority,
   queryTestCode,
+  queryDetectionTestCode,
   queryCodeWarehouseInfo,
   queryCodeWarehouseType,
   toCreatUser,
@@ -501,7 +502,12 @@ export default {
         callback(response);
       }
     },
-
+    *detectionCode({ callback, payload }, { call }) {
+      const response = yield call(queryDetectionTestCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *createSourceCode({ payload, callback }, { call }) {
       const response = yield call(toCeateSourceCode, payload);
       if (callback) {

@@ -27,14 +27,13 @@ export default class Index extends PureComponent {
   componentDidMount() {
     const { rainbondInfo } = this.props;
     const type = this.setType();
+    console.log("type", type);
     if (rainbondUtil.OauthbTypes(rainbondInfo, type)) {
       this.getGithubInfo(rainbondInfo, type);
     }
   }
   setType = () => {
-    const { tabList, type, types } = this.props;
-    console.log("type", type);
-    console.log("tabList", tabList);
+    const { tabList, type } = this.props;
     let typs = "";
     tabList.map(item => {
       const { key, types } = item;
@@ -101,7 +100,7 @@ export default class Index extends PureComponent {
         //       : "500px"
         // }}
         >
-          {!is_auth ? (
+          {is_auth ? (
             <div
               style={{
                 textAlign: "center",

@@ -34,6 +34,34 @@ export default {
       bean.oauth_services.value &&
       bean.oauth_services.value.find(item => item.name === values)) ||
     false,
+
+  //判断平台和用户 是否开启了oauths 功能认证
+  OauthbAndUserEnable: (bean = {}, userBean = {}, type) => {
+    if (
+      bean.oauth_services &&
+      bean.oauth_services.enable &&
+      bean.oauth_services.value &&
+      bean.oauth_services.value.length > 0 &&
+      userBean.oauth_services &&
+      userBean.oauth_services.length > 0
+    ) {
+      let certification = false;
+      bean.oauth_services.value.map(item => {
+        const { oauth_type, enable } = item;
+        if (oauth_type === type && enable) {
+          userBean.oauth_services.map(items => {
+            const { oauth_type, is_authenticated } = items;
+            if (oauth_type === type && is_authenticated) {
+              certification = true;
+            }
+          });
+        }
+      });
+      return certification;
+    }
+    return false;
+  },
+
   // 判断平台是否配置了云应用市场
   cloudMarketEnable: (bean = {}) =>
     (bean.cloud_market && bean.cloud_market.enable) || false,

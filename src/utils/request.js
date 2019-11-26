@@ -55,7 +55,7 @@ export default function request(url, options) {
     ...defaultOptions,
     ...options
   };
-  if (newOptions.method === "POST" || newOptions.method === "PUT") {
+  // if (newOptions.method === "POST" || newOptions.method === "PUT") {
     newOptions.headers = {
       Accept: "application/json",
       "Content-Type": "application/json; charset=utf-8",
@@ -63,7 +63,7 @@ export default function request(url, options) {
       ...newOptions.headers
     };
     newOptions.body = JSON.stringify(newOptions.body);
-  }
+  // }
 
   if (newOptions.passAuthorization === void 0) {
     newOptions.passAuthorization = true;

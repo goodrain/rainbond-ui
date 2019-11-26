@@ -33,7 +33,6 @@ class CreateUserForm extends PureComponent {
   handleChange = tenant_name => {
     this.setState({ tenant_name });
   };
-
   handleSubmit = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
@@ -53,6 +52,7 @@ class CreateUserForm extends PureComponent {
       }
     };
     const oauthType = getFieldValue("oauth_type") || "Github";
+    console.log("oauthInfo", oauthInfo);
     return (
       <Modal
         visible={true}
@@ -78,7 +78,10 @@ class CreateUserForm extends PureComponent {
             }
           >
             {getFieldDecorator("oauth_type", {
-              initialValue: oauthInfo ? oauthInfo.oauth_type : "Github",
+              initialValue: oauthInfo
+                ? oauthInfo.oauth_type.charAt(0).toUpperCase() +
+                  oauthInfo.oauth_type.slice(1)
+                : "Github",
               rules: [{ required: true, message: "请选择oauth_type类型" }]
             })(
               <Select placeholder="请选择要oauth_type类型">
@@ -233,7 +236,10 @@ class CreateUserForm extends PureComponent {
 
             {getFieldDecorator("is_auto_login", {
               valuePropName: "checked",
-              initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
+              initialValue:
+                oauthInfo && oauthInfo.is_auto_login
+                  ? oauthInfo.is_auto_login
+                  : false,
               rules: [{ required: true, message: "是否打开自动登录" }]
             })(<Switch />)}
           </Form.Item>

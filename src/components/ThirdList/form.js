@@ -19,6 +19,7 @@ import {
   Skeleton,
   Badge,
   Row,
+  Tabs,
   Col,
   Input,
   Card,
@@ -34,7 +35,9 @@ import {
 
 const { Search } = Input;
 const { Text } = Typography;
-const { Option } = Select;
+const { Option, OptGroup } = Select;
+const { TabPane } = Tabs;
+
 const formItemLayout = {
   labelCol: {
     span: 5
@@ -69,7 +72,8 @@ class Index extends React.Component {
     this.state = {
       visible: false,
       addGroup: false,
-      tags: []
+      tags: [],
+      tabType: "branches"
     };
   }
   componentDidMount() {
@@ -83,21 +87,20 @@ class Index extends React.Component {
   //获取类型
   handleCodeWarehouseType = props => {
     const { dispatch, type, thirdInfo } = props;
-    const visitType = this.props.form.getFieldValue("version_type");
+    const { tabType } = this.state;
 
     dispatch({
       type: "global/codeWarehouseType",
       payload: {
-        type: visitType,
-        url: thirdInfo ? thirdInfo.deployments_url : "",
+        type: tabType,
+        full_name: thirdInfo ? thirdInfo.project_full_name : "",
         oauth_service_id: type
       },
       callback: res => {
-        if (res) {
+        if (res && res._code === 200) {
           this.setState({
-            tags: res.data.bean.tags
+            tags: res.data.bean[tabType]
           });
-          console.log("获取类型", res);
         }
       }
     });
@@ -153,10 +156,12 @@ class Index extends React.Component {
   onChange = (value, selectedOptions) => {
     console.log(value, selectedOptions);
   };
-
+  onTabChange = tabType => {
+    this.setState({ tabType });
+  };
   render() {
     const data = ["goodrain", "goodrain"];
-    const { visible, addGroup } = this.state;
+    const { tags, addGroup } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups, createAppByCodeLoading, ServiceComponent } = this.props;
     const showCreateGroup =
@@ -247,13 +252,31 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("code_version", {
-              initialValue: "master",
+              initialValue: "",
               rules: [{ required: true, message: "请输入代码版本" }]
             })(
-              <Input
-                addonBefore={versionSelector}
-                placeholder="请输入代码版本"
-              />
+              <Select  placeholder="请输入代码版本">
+                <OptGroup
+                  label={
+                    <Tabs
+                      defaultActiveKey="branches"
+                      onChange={this.onTabChange}
+                      className={styles.selectTabs}
+                    >
+                      <TabPane tab="分支" key="branches" />
+                      <TabPane tab="Tab" key="tags" />
+                    </Tabs>
+                  }
+                >
+                  {tags.map(item => {
+                    return (
+                      <Option key={item} value={item}>
+                        {item}
+                      </Option>
+                    );
+                  })}
+                </OptGroup>
+              </Select>
             )}
           </Form.Item>
           <Form.Item

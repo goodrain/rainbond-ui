@@ -35,7 +35,9 @@ export default class ThirdLogin extends Component {
             //有账号 未认证 is_authenticated
             let teamName = globalUtil.getCurrTeamName();
             let regionName = globalUtil.getCurrRegionName();
-            if (teamName && regionName && data) {
+            let token = cookie.get("token");
+
+            if (token && data) {
               dispatch({
                 type: "user/fetchThirdLoginBinding",
                 payload: {
@@ -47,7 +49,9 @@ export default class ThirdLogin extends Component {
                     message.warning("认证失败，请重新认证", 2, () => {
                       dispatch(
                         routerRedux.push(
-                          `/team/${teamName}/region/${regionName}/create/code`
+                          `/team/${teamName}/region/${regionName}/create/code/${
+                            data.result.oauth_type
+                          }`
                         )
                       );
                     });
@@ -55,7 +59,9 @@ export default class ThirdLogin extends Component {
                     message.success("认证成功", 2, () => {
                       dispatch(
                         routerRedux.push(
-                          `/team/${teamName}/region/${regionName}/create/code`
+                          `/team/${teamName}/region/${regionName}/create/code/${
+                            data.result.oauth_type
+                          }`
                         )
                       );
                     });
@@ -71,7 +77,9 @@ export default class ThirdLogin extends Component {
                   routerRedux.push(
                     `/user/third/register?code=${data.result.code}&service_id=${
                       data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}`
+                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
+                      data.result.oauth_type
+                    }`
                   )
                 );
               } else {
@@ -79,7 +87,9 @@ export default class ThirdLogin extends Component {
                   routerRedux.push(
                     `/user/third/login?code=${data.result.code}&service_id=${
                       data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}`
+                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
+                      data.result.oauth_type
+                    }`
                   )
                 );
               }

@@ -13,11 +13,9 @@ import LoginComponent from "./loginComponent";
 
 const { Tab, UserName, Password, Submit } = Login;
 
-@connect(({ loading, global }) => ({
-  login: {},
+@connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo,
-  submitting: loading.effects["user/login"]
+  rainbondInfo: global.rainbondInfo
 }))
 export default class LoginPage extends Component {
   handleSubmit = values => {
@@ -31,7 +29,7 @@ export default class LoginPage extends Component {
   };
 
   render() {
-    const { login, submitting, rainbondInfo } = this.props;
+    const { rainbondInfo } = this.props;
     const map = {
       github: Github,
       gitlab: Gitlab,
@@ -48,7 +46,7 @@ export default class LoginPage extends Component {
             </Divider>
             <Row className={styles.third}>
               {rainbondInfo &&
-                rainbondInfo.oauth_services.value &&
+                rainbondInfo.oauth_services.value.length > 0 &&
                 rainbondInfo.oauth_services.value.map(item => {
                   const {
                     oauth_type,
@@ -59,9 +57,9 @@ export default class LoginPage extends Component {
                     service_id
                   } = item;
 
-                  const githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
-                  const gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
-                  const giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+                  let githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
+                  let gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+                  let giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
                   const linkUrl = {
                     github: githubUrl,
                     gitlab: gitlabUrl,
@@ -87,4 +85,3 @@ export default class LoginPage extends Component {
     );
   }
 }
-

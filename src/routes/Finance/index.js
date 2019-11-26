@@ -49,7 +49,7 @@ export default class BasicList extends PureComponent {
     super(props);
     const params = this.getParam();
     // const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
-    const { user } = this.props;
+    const { user, rainbondInfo } = this.props;
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -70,15 +70,19 @@ export default class BasicList extends PureComponent {
       openOauth: false,
       oauthInfo: false,
       isOpen: false,
-      showDeleteDomain: false
+      showDeleteDomain: false,
+      israinbondTird: ainbondUtil.OauthbEnable(rainbondInfo)
     };
   }
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
 
-    // if (rainbondUtil.OauthbIsEnable(rainbondInfo)) {
-    //   this.handelOauthInfo();
-    // }
+    if (
+      rainbondUtil.OauthbIsEnable(rainbondInfo) &&
+      rainbondUtil.OauthbEnable(rainbondInfo)
+    ) {
+      this.handelOauthInfo();
+    }
     this.handelOauthInfo();
 
     dispatch({
@@ -213,8 +217,8 @@ export default class BasicList extends PureComponent {
   };
 
   handlChooseeOpen = () => {
-    const { isOpen } = this.state;
-    isOpen ? this.handleOpenDomain() : this.handleOpen();
+    const { isOpen, israinbondTird } = this.state;
+    israinbondTird && isOpen ? this.handleOpenDomain() : this.handleOpen();
   };
 
   handleDeleteOauthInfo = () => {
@@ -253,14 +257,16 @@ export default class BasicList extends PureComponent {
   };
 
   handelOauthInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, rainbondInfo } = this.props;
     dispatch({
       type: "global/getOauthInfo",
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             oauthInfo: res.data.bean.oauth_services,
-            isOpen: res.data.bean.oauth_services.enable
+            isOpen: rainbondUtil.OauthbEnable(rainbondInfo)
+              ? res.data.bean.oauth_services.enable
+              : false
           });
         }
       }
@@ -269,8 +275,9 @@ export default class BasicList extends PureComponent {
 
   getSettingShow = () => {
     const { rainbondInfo, is_public } = this.props;
-    const { oauthInfo, isOpen } = this.state;
+    const { oauthInfo, isOpen, israinbondTird } = this.state;
     let ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
+
     if (!is_public) {
       return (
         <Card
@@ -328,7 +335,7 @@ export default class BasicList extends PureComponent {
             style={{ marginBottom: 32, marginTop: 32 }}
           >
             <Description term="Oauth2.0认证">
-              {oauthInfo && oauthInfo.enable && (
+              {oauthInfo && oauthInfo.enable && israinbondTird && (
                 <span>
                   类型：{oauthInfo.oauth_type}&nbsp;
                   {oauthInfo.is_auto_login ? "已开启" : "关闭"}自动登录
@@ -338,9 +345,9 @@ export default class BasicList extends PureComponent {
               <Switch
                 style={{ float: "right" }}
                 onClick={this.handlChooseeOpen}
-                checked={isOpen}
+                checked={israinbondTird && isOpen}
               />
-              {oauthInfo && oauthInfo.enable && (
+              {oauthInfo && oauthInfo.enable && israinbondTird && (
                 <a
                   onClick={this.handleOpen}
                   style={{ float: "right", marginRight: "10px" }}
@@ -538,10 +545,11 @@ export default class BasicList extends PureComponent {
     obj.eid = rainbondInfo.eid;
     oauthInfo ? (obj.id = oauthInfo.service_id) : (obj.id = null);
     isclone ? (obj.enable = false) : (obj.enable = true);
+    let type = oauthInfo ? "global/editOauth" : "global/creatOauth";
     dispatch({
-      type: oauthInfo ? "global/toEditOauth" : "global/creatOauth",
+      type,
       payload: {
-        arr: [obj]
+        arr: oauthInfo ? { enable: obj.enable, value: null } : [obj]
       },
       callback: data => {
         if (data) {

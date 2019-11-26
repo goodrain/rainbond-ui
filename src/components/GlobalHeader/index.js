@@ -26,6 +26,9 @@ import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
 import rainbondUtil from "../../utils/rainbond";
+import Gitee from "../../../public/images/gitee.png";
+import Github from "../../../public/images/github.png";
+import Gitlab from "../../../public/images/gitlab.png";
 
 import { Route, Redirect, Switch, routerRedux } from "dva/router";
 
@@ -90,7 +93,10 @@ const noticeTit = {
   消息: "news",
   提醒: "warn"
 };
-@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
+@connect(({ global, appControl }) => ({
+  rainbondInfo: global.rainbondInfo,
+  appDetail: appControl.appDetail
+}))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -221,7 +227,7 @@ export default class GlobalHeader extends PureComponent {
       <Menu className={styles.menu} selectedKeys={[]} onClick={onTeamClick}>
         {teams.map(item => (
           <Menu.Item key={item.team_name}>
-            <Ellipsis tooltip>{item.team_alias}</Ellipsis>
+            <Ellipsis tooltip> {item.team_alias} </Ellipsis>
           </Menu.Item>
         ))}
         <Menu.Divider />
@@ -292,12 +298,10 @@ export default class GlobalHeader extends PureComponent {
     return "";
   }
   onhandleThird = (auth_url, client_id, redirect_uri, service_id) => {
-    const { dispatch } = this.props;
-    dispatch(
-      routerRedux.replace(
-        `${auth_url}?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}/console/oauth/redirect/${service_id}`
-      )
-    );
+    const githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
+    const gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+    const giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+    window.location.href = githubUrl;
   };
 
   render() {
@@ -313,13 +317,29 @@ export default class GlobalHeader extends PureComponent {
       notifyCount,
       isPubCloud,
       currRegion,
-      currTeam,
+      appDetail,
       rainbondInfo
     } = this.props;
     const noticesList = this.state.newNoticeList;
     if (!currentUser) {
       return null;
     }
+    const map = {
+      github: Github,
+      gitlab: Gitlab,
+      gitee: Gitee
+    };
+
+    const handleEditSvg = () => (
+      <svg width="15px" height="15px" viewBox="0 0 1024 1024">
+        <path d="M626.9 248.2L148.2 726.9 92.1 932.3l204.6-57 480.5-480.5-150.3-146.6z m274.3-125.8c-41-41-107.5-41-148.5 0l-80.5 80.5L823.1 349l78.1-78.2c41-41 41-107.5 0-148.4zM415.1 932.3h452.2v-64.6H415.1v64.6z m193.8-193.8h258.4v-64.6H608.9v64.6z" />
+      </svg>
+    );
+    const handleLogoutSvg = () => (
+      <svg width="15px" height="15px" viewBox="0 0 1024 1024">
+        <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
+      </svg>
+    );
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={onMenuClick}>
@@ -330,20 +350,22 @@ export default class GlobalHeader extends PureComponent {
           {rainbondUtil.OauthbEnable(rainbondInfo) && (
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
-          {rainbondUtil.OauthbEnable(rainbondInfo) &&
-            rainbondInfo.oauth_services.value.map(item => {
+          {currentUser.oauth_services &&
+            currentUser.oauth_services.length > 0 &&
+            currentUser.oauth_services.map(item => {
               const {
-                name,
+                service_name,
                 is_authenticated,
                 is_expired,
                 auth_url,
                 client_id,
                 service_id,
-                redirect_uri
+                redirect_uri,
+                oauth_type
               } = item;
               return (
                 <Menu.Item
-                  key={name}
+                  key={service_name}
                   onClick={() => {
                     this.onhandleThird(
                       auth_url,
@@ -354,25 +376,25 @@ export default class GlobalHeader extends PureComponent {
                   }}
                 >
                   <div className={styles.userInfoContent}>
-                    <span className={styles.oneSpan} title={name}>
-                      <Icon
-                        type="github"
+                    <span className={styles.oneSpan} title={service_name}>
+                      <img
+                        src={map[oauth_type]}
                         style={{
                           marginRight: 8
                         }}
                       />
-                      {name}
+                      {service_name}
                     </span>
                     <span>
                       <Icon
-                        type={is_authenticated > 0 ? "check" : "close"}
+                        type={is_authenticated ? "check" : "close"}
                         style={{
-                          color: is_authenticated > 0 ? "#58B8F8" : "#000"
+                          color: is_authenticated ? "#58B8F8" : "#000"
                         }}
                       />
-                      {is_expired > 0 && is_authenticated > 0
+                      {is_authenticated
                         ? "已认证"
-                        : is_expired <= 0 && is_authenticated > 0
+                        : is_expired
                         ? "过期"
                         : "未认证"}
                     </span>
@@ -387,11 +409,11 @@ export default class GlobalHeader extends PureComponent {
             <Menu.Item key="cpw">
               <div className={styles.userInfoContent}>
                 <Icon
-                  type="edit"
+                  component={handleEditSvg}
                   style={{
                     marginRight: 8
                   }}
-                />
+                />{" "}
                 修改密码{" "}
               </div>
             </Menu.Item>
@@ -399,7 +421,7 @@ export default class GlobalHeader extends PureComponent {
           <Menu.Item key="logout">
             <div className={styles.userInfoContent}>
               <Icon
-                type="logout"
+                component={handleLogoutSvg}
                 style={{
                   marginRight: 8
                 }}

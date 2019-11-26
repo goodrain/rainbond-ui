@@ -293,7 +293,6 @@ export const getRouterData = app => {
     set "/user/login"(value) {
       this["_/user/login"] = value;
     },
-
     "/user/register": {
       component: dynamicWrapper(app, ["user"], () =>
         import("../routes/User/Register")

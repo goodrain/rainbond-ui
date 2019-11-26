@@ -391,8 +391,7 @@ export default class Index extends PureComponent {
             }
             description={
               <span className={styles.datatime_float} title={item.updatedAt}>
-                {" "}
-                {moment(item.start_time).fromNow()}{" "}
+                {moment(item.start_time).fromNow()}
               </span>
             }
           />

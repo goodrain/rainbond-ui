@@ -9,7 +9,8 @@ const { UserName, Password, Submit } = Login;
 
 @connect(({ loading, global }) => ({
   isRegist: global.isRegist,
-  submitting: loading.effects["user/thirdLogin"]
+  thirdLogin: loading.effects["user/thirdLogin"],
+  userLogin: loading.effects["user/login"]
 }))
 export default class LoginComponent extends Component {
   handleSubmit = (err, values) => {
@@ -20,13 +21,13 @@ export default class LoginComponent extends Component {
   };
 
   render() {
-    const { submitting, type } = this.props;
+    const { thirdLogin, userLogin, type } = this.props;
     return (
       <div className={styles.main}>
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
           <UserName name="nick_name" placeholder="用户名/邮箱" />
           <Password name="password" placeholder="密码" />
-          <Submit loading={submitting}>
+          <Submit loading={type !== "thirdLogin" ? userLogin : thirdLogin}>
             {type === "thirdLogin" ? "登录并绑定" : "登录"}
           </Submit>
           <div className={styles.other}>

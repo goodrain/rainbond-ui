@@ -924,7 +924,7 @@ export async function queryCodeWarehouseInfo(params) {
       method: "get",
       params: {
         page: params.page || 1,
-        search: params.search || ""
+        search: params.search || null
       }
     }
   );
@@ -936,10 +936,10 @@ export async function queryCodeWarehouseType(params) {
       params.oauth_service_id
     }/user/repository/branches`,
     {
-      method: "post",
-      data: {
+      method: "get",
+      params: {
         type: params.type || "tags",
-        url: params.url
+        full_name: params.full_name
       }
     }
   );
@@ -948,11 +948,33 @@ export async function queryCodeWarehouseType(params) {
 /** 代码检测 */
 export async function queryTestCode(params) {
   return request(
-    `${config.baseUrl}/console/oauth_service/${
+    `${config.baseUrl}/console/oauth/service/${
       params.oauth_service_id
-    }/repository/code_detection`,
+    }/user/repository/code_detection`,
     {
-      method: "get"
+      method: "post",
+      data: {
+        region_name: params.region_name,
+        tenant_name: params.tenant_name,
+        project_url: params.project_url,
+        version: params.version
+      }
+    }
+  );
+}
+/** 代码检测结果 */
+export async function queryDetectionTestCode(params) {
+  return request(
+    `${config.baseUrl}/console/oauth/service/${
+      params.oauth_service_id
+    }/user/repository/code_detection`,
+    {
+      method: "get",
+      params: {
+        region: params.region,
+        tenant_name: params.tenant_name,
+        check_uuid: params.check_uuid
+      }
     }
   );
 }
@@ -1005,7 +1027,7 @@ export async function toCreatOauth(params) {
 
 /**修改Oauth 2.0 */
 export async function toEditOauth(params) {
-  return request(`${config.baseUrl}/console/oauth-config`, {
+  return request(`${config.baseUrl}/console/oauth/oauth-config`, {
     method: "put",
     data: {
       oauth_services: params.arr

@@ -7,6 +7,9 @@ import config from "../../config/config";
 import cookie from "../../utils/cookie";
 import RegisterComponent from "./registerComponent";
 import rainbondUtil from "../../utils/rainbond";
+import Gitee from "../../../public/images/gitee.png";
+import Github from "../../../public/images/github.png";
+import Gitlab from "../../../public/images/gitlab.png";
 
 const FormItem = Form.Item;
 
@@ -19,6 +22,7 @@ const passwordProgressMap = {
 const oauth_user_id = rainbondUtil.OauthParameter("oauth_user_id");
 const code = rainbondUtil.OauthParameter("code");
 const service_id = rainbondUtil.OauthParameter("service_id");
+const oauth_type = rainbondUtil.OauthParameter("oauth_type");
 
 @connect(({ user, loading, global }) => ({
   register: user.register,
@@ -103,13 +107,18 @@ export default class Register extends Component {
       );
       return null;
     }
+    const map = {
+      github: Github,
+      gitlab: Gitlab,
+      gitee: Gitee
+    };
     const { user_info } = this.state;
     const { form } = this.props;
     const { getFieldDecorator } = form;
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
-          来自 github 登录的{user_info && user_info.oauth_user_name}{" "}
+          来自 {map[oauth_type]} 登录的{user_info && user_info.oauth_user_name}{" "}
           您好！你现在可以进行绑定
         </p>
         <Row style={{ marginBottom: "24px" }}>

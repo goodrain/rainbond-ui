@@ -25,7 +25,7 @@ import {
   Form,
   Select,
   Button,
-  Cascader,
+  Spin,
   Tooltip
 } from "antd";
 
@@ -47,7 +47,12 @@ class Index extends React.Component {
       total: 0,
       loading: true,
       thirdInfo: false,
-      search: ""
+      search: "",
+      event_id: "",
+      check_uuid: "",
+      create_status: "",
+      service_info: "",
+      error_infos: ""
     };
   }
   componentDidMount() {
@@ -69,6 +74,7 @@ class Index extends React.Component {
     this.setState(
       {
         page: 1,
+        loading: true,
         search
       },
       () => {
@@ -101,19 +107,76 @@ class Index extends React.Component {
 
   //代码检测
   handleTestCode = () => {
-    this.props.dispatch({
+    const { thirdInfo } = this.state;
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+
+    dispatch({
       type: "global/testCode",
       payload: {
+        region_name,
+        tenant_name: team_name,
+        project_url: thirdInfo.project_url,
+        version: thirdInfo.project_default_branch,
         oauth_service_id: this.props.type
       },
-      callback: data => {
-        if (data) {
-          console.log("data", data);
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              event_id: res.data.bean && res.data.bean.event_id,
+              check_uuid: res.data.bean && res.data.bean.check_uuid,
+              create_status: "Checking"
+            },
+            () => {
+              this.handleDetectionCode();
+            }
+          );
         }
       }
     });
   };
-
+  handleDetectionCode = () => {
+    const { event_id, check_uuid } = this.state;
+    const { dispatch, type } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+    const _th = this;
+    dispatch({
+      type: "global/detectionCode",
+      payload: {
+        oauth_service_id: type,
+        region: region_name,
+        tenant_name: team_name,
+        check_uuid
+      },
+      callback: res => {
+        console.log("res", res);
+        if (res && res._code === 200) {
+          if (
+            res.data.bean &&
+            res.data.bean.check_status != "Success" &&
+            res.data.bean.check_status != "Failure"
+          ) {
+            this.timer = setTimeout(function() {
+              _th.handleDetectionCode();
+            }, 3000);
+          } else {
+            clearTimeout(this.timer);
+            this.setState({
+              create_status: res.data.bean && res.data.bean.check_status,
+              service_info: res.data.bean && res.data.bean.service_info,
+              error_infos: res.data.bean && res.data.bean.error_infos
+            });
+          }
+        }
+      }
+    });
+  };
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+  }
   showModal = thirdInfo => {
     this.setState({
       visible: true,
@@ -140,8 +203,9 @@ class Index extends React.Component {
       detection: false
     });
   };
-  handleOpenDetection = () => {
+  handleOpenDetection = thirdInfo => {
     this.setState({
+      thirdInfo,
       detection: true
     });
   };
@@ -175,7 +239,7 @@ class Index extends React.Component {
                       检测
                     </Button>
                   ]
-                : this.state.create_status == "success"
+                : this.state.create_status == "Success"
                 ? [
                     <Button key="back" onClick={this.handleDetection}>
                       关闭
@@ -192,8 +256,8 @@ class Index extends React.Component {
             }
           >
             <div>
-              {this.state.create_status == "checking" ||
-              this.state.create_status == "complete" ? (
+              {this.state.create_status == "Checking" ||
+              this.state.create_status == "Complete" ? (
                 <div>
                   <p style={{ textAlign: "center" }}>
                     <Spin />
@@ -205,7 +269,7 @@ class Index extends React.Component {
               ) : (
                 ""
               )}
-              {this.state.create_status == "failure" ? (
+              {this.state.create_status == "Failure" ? (
                 <div>
                   <p
                     style={{
@@ -223,13 +287,13 @@ class Index extends React.Component {
                     />
                   </p>
                   {this.state.error_infos &&
-                    this.state.error_infos.map(item => {
+                    this.state.error_infos.map(items => {
                       return (
                         <div>
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: `<span>${item.error_info ||
-                                ""} ${item.solve_advice || ""}</span>`
+                              __html: `<span>${items.error_info ||
+                                ""} ${items.solve_advice || ""}</span>`
                             }}
                           />
                         </div>
@@ -240,7 +304,7 @@ class Index extends React.Component {
               ) : (
                 ""
               )}
-              {this.state.create_status == "success" ? (
+              {this.state.create_status == "Success" ? (
                 <div>
                   <p
                     style={{
@@ -256,7 +320,7 @@ class Index extends React.Component {
                     this.state.service_info.map(item => {
                       return (
                         <p style={{ textAlign: "center", fontSize: "14px" }}>
-                          {item.key}:{item.value}{" "}
+                          检测语言:{item.language}{" "}
                         </p>
                       );
                     })}
@@ -264,7 +328,7 @@ class Index extends React.Component {
               ) : (
                 ""
               )}
-              {this.state.create_status == "failed" ? (
+              {this.state.create_status == "Failed" ? (
                 <div>
                   <p
                     style={{
@@ -346,15 +410,24 @@ class Index extends React.Component {
                     }}
                     avatar={<Avatar src={App} />}
                     title={
-                      <div className={styles.listItemMataTitle}>
-                        <Tooltip title={item.project_fullname.split("/")[0]}>
-                          <div>{item.project_fullname.split("/")[0]}</div>
-                        </Tooltip>
-
-                        <Tooltip title={item.project_name}>
-                          <div>{item.project_name}</div>
-                        </Tooltip>
-                      </div>
+                      <a target="_blank" href={item.project_url}>
+                        <div className={styles.listItemMataTitle}>
+                          <Tooltip title={item.project_name}>
+                            <div>{item.project_name || "-"}</div>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              item.project_full_name &&
+                              item.project_full_name.split("/")[0]
+                            }
+                          >
+                            <div>
+                              {item.project_full_name &&
+                                item.project_full_name.split("/")[0]}
+                            </div>
+                          </Tooltip>
+                        </div>
+                      </a>
                     }
                   />
                   <Row
@@ -375,13 +448,13 @@ class Index extends React.Component {
                       </Col>
                     )}
                     <Col span={ServiceComponent ? 12 : 8}>
-                      <Tooltip title={item.project_default_version}>
+                      <Tooltip title={item.project_default_branch}>
                         <div className={styles.listItemMataBranch}>
                           <Icon
                             type="apartment"
                             style={{ marginRight: "5px" }}
                           />
-                          {item.project_default_version || "未检测语言"}
+                          {item.project_default_branch || "-"}
                         </div>
                       </Tooltip>
                     </Col>
@@ -392,8 +465,12 @@ class Index extends React.Component {
                       <Badge
                         status="processing"
                         text={
-                          <a onClick={this.handleOpenDetection}>
-                            {item.project_language}
+                          <a
+                            onClick={() => {
+                              this.handleOpenDetection(item);
+                            }}
+                          >
+                            {item.project_language || "未检测语言"}
                           </a>
                         }
                       />
