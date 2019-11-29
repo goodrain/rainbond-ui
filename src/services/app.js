@@ -4,7 +4,9 @@ import config from "../config/config";
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version/${body.version_id}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/version/${body.version_id}`,
     {
       method: "DELETE"
     }
@@ -16,7 +18,9 @@ export function getAppVersionList(
   body = { team_name, service_alias, page_num, page_size }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/version`,
     {
       method: "get",
       params: {
@@ -44,7 +48,9 @@ export function getAutoDeployStatus(
   body = { team_name, app_alias, deployment_way }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/get-url?deployment_way=${body.deployment_way}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/webhooks/get-url?deployment_way=${body.deployment_way}`,
     {
       method: "get"
     }
@@ -58,7 +64,9 @@ export function cancelAutoDeploy(
   body = { team_name, app_alias, deployment_way }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/webhooks/status`,
     {
       method: "post",
       data: {
@@ -76,7 +84,9 @@ export function openAutoDeploy(
   body = { team_name, app_alias, deployment_way }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/webhooks/status`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/webhooks/status`,
     {
       method: "post",
       data: {
@@ -100,7 +110,9 @@ export function getActionLog(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/events`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/events`,
     {
       method: "get",
       params: {
@@ -127,7 +139,9 @@ export function getActionLogDetail(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/event_log`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/event_log`,
     {
       method: "get",
       params: {
@@ -150,7 +164,9 @@ export function deploy(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/deploy`,
     {
       method: "post",
       data: {
@@ -170,7 +186,9 @@ export function updateRolling(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/upgrade`,
     {
       method: "post"
     }
@@ -207,7 +225,9 @@ export function restart(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/restart`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/restart`,
     { method: "post" }
   );
 }
@@ -243,7 +263,9 @@ export function start(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/start`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/start`,
     {
       method: "post"
     }
@@ -280,7 +302,9 @@ export function stop(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/stop`,
     {
       method: "post"
     }
@@ -320,7 +344,9 @@ export function rollback(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/rollback`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/rollback`,
     {
       method: "post",
       data: {
@@ -344,7 +370,9 @@ export async function getDetail(
   handleError
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/detail`,
     {
       method: "get",
       handleError
@@ -362,7 +390,9 @@ export function getStatus(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/status`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/status`,
     {
       method: "get",
       showLoading: false
@@ -381,7 +411,9 @@ export function getServiceLog(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/log`,
     {
       method: "get",
       params: {
@@ -402,7 +434,9 @@ export function getMonitorWebSocketUrl(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/log_instance`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/log_instance`,
     { method: "get" }
   );
 }
@@ -417,7 +451,9 @@ export function getHistoryLog(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/history_log`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/history_log`,
     { method: "get" }
   );
 }
@@ -434,7 +470,9 @@ export function horizontal(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/horizontal`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/horizontal`,
     {
       method: "post",
       data: {
@@ -456,7 +494,9 @@ export function vertical(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vertical`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/vertical`,
     {
       method: "post",
       data: {
@@ -476,7 +516,9 @@ export function getRelationedApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/dependency`,
     { method: "get" }
   );
 }
@@ -495,7 +537,9 @@ export function getUnRelationedApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/un_dependency`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/un_dependency`,
     {
       method: "get",
       params: {
@@ -521,7 +565,9 @@ export function addRelationedApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/dependency`,
     {
       method: "post",
       data: {
@@ -544,7 +590,9 @@ export function batchAddRelationedApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/dependency`,
     {
       method: "patch",
       data: {
@@ -565,7 +613,9 @@ export function removeRelationedApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency/${body.dep_service_id}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/dependency/${body.dep_service_id}`,
     { method: "delete" }
   );
 }
@@ -587,7 +637,9 @@ export function getMnt(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/mnt`,
     {
       method: "get",
       params: {
@@ -603,7 +655,9 @@ export function getMnt(
         const yourNewParams = params.volume_types
           .map(_ => `volume_types=${_}`)
           .join("&");
-        const str = `query=${params.query}&page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`;
+        const str = `query=${params.query}&page=${params.page}&page_size=${
+          params.page_size
+        }&type=${params.type}&${yourNewParams}`;
         return str;
       }
     }
@@ -622,7 +676,9 @@ export function addMnt(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/mnt`,
     {
       method: "post",
       data: {
@@ -643,7 +699,9 @@ export async function deleteMnt(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/mnt/${body.dep_vol_id}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/mnt/${body.dep_vol_id}`,
     { method: "delete" }
   );
 }
@@ -658,7 +716,9 @@ export async function getPorts(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports`,
     {
       method: "get"
     }
@@ -678,7 +738,9 @@ export async function changePortProtocal(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -701,7 +763,9 @@ export async function openPortOuter(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -722,7 +786,9 @@ export async function closePortOuter(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -743,7 +809,9 @@ export async function openPortInner(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -764,7 +832,9 @@ export async function closePortInner(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -786,7 +856,9 @@ export async function editPortAlias(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -808,7 +880,9 @@ export async function deletePort(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports/${body.port}`,
     { method: "delete" }
   );
 }
@@ -829,7 +903,9 @@ export async function bindDomain(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/domain`,
     {
       method: "post",
       data: {
@@ -857,7 +933,9 @@ export async function unbindDomain(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/domain`,
     {
       method: "delete",
       data: {
@@ -880,7 +958,9 @@ export async function addPort(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/ports`,
     {
       method: "post",
       data: {
@@ -905,7 +985,9 @@ export async function getInnerEnvs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs`,
     {
       method: "get",
       params: {
@@ -928,7 +1010,9 @@ export async function getBuildInformation(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/market_service/upgrade`,
     {
       method: "get"
     }
@@ -986,7 +1070,9 @@ export async function addInnerEnvs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs`,
     {
       method: "post",
       data: {
@@ -1014,7 +1100,9 @@ export async function getOuterEnvs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs`,
     {
       method: "get",
       params: {
@@ -1040,7 +1128,9 @@ export async function addOuterEnvs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs`,
     {
       method: "post",
       data: {
@@ -1067,7 +1157,9 @@ export async function editEvns(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs/${body.ID}`,
     {
       method: "put",
       data: {
@@ -1089,7 +1181,9 @@ export async function deleteEvns(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs/${body.ID}`,
     { method: "delete" }
   );
 }
@@ -1106,7 +1200,9 @@ export async function putTransfer(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/envs/${body.ID}`,
     {
       method: "patch",
       data: {
@@ -1127,7 +1223,9 @@ export async function getInstanceList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/third_party/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/third_party/pods`,
     { method: "get" }
   );
 }
@@ -1142,7 +1240,9 @@ export async function deleteInstanceList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/third_party/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/third_party/pods`,
     {
       method: "delete",
       data: {
@@ -1163,7 +1263,9 @@ export async function modifyInstanceList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/third_party/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/third_party/pods`,
     {
       method: "put",
       data: {
@@ -1186,7 +1288,9 @@ export async function addInstanceList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/third_party/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/third_party/pods`,
     {
       method: "POST",
       data: {
@@ -1206,7 +1310,9 @@ export async function editUpDatekey(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/third_party/updatekey`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/third_party/updatekey`,
     {
       method: "put"
     }
@@ -1224,7 +1330,9 @@ export async function getHealthList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/3rd-party/health`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/3rd-party/health`,
     { method: "get" }
   );
 }
@@ -1242,7 +1350,9 @@ export async function editorHealthList(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/3rd-party/health`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/3rd-party/health`,
     {
       method: "put",
       data: {
@@ -1270,7 +1380,9 @@ export async function getRunningProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "get",
       params: {
@@ -1290,7 +1402,9 @@ export async function getStartProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "get",
       params: {
@@ -1318,7 +1432,9 @@ export async function addStartProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "post",
       data: {
@@ -1357,7 +1473,9 @@ export async function addRunningProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "post",
       data: {
@@ -1395,7 +1513,9 @@ export async function editStartProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "put",
       data: {
@@ -1437,7 +1557,9 @@ export async function editRunningProbe(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/probe`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/probe`,
     {
       method: "put",
       data: {
@@ -1468,7 +1590,9 @@ export async function getBaseInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/brief`,
     {
       method: "get"
     }
@@ -1488,7 +1612,9 @@ export async function getVolumes(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volumes`,
     {
       method: "get",
       params: {
@@ -1520,7 +1646,9 @@ export async function addVolume(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volumes`,
     {
       method: "post",
       data: {
@@ -1545,7 +1673,9 @@ export async function editorVolume(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.ID}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volumes/${body.ID}`,
     {
       method: "put",
       data: {
@@ -1567,7 +1697,9 @@ export async function deleteVolume(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes/${body.volume_id}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volumes/${body.volume_id}`,
     { method: "delete" }
   );
 }
@@ -1583,12 +1715,16 @@ export async function getAppRequestTime(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: "get",
       showMessage: false,
       params: {
-        query: `ceil(avg(app_requesttime{mode="avg",service_id="${body.serviceId}"}))`
+        query: `ceil(avg(app_requesttime{mode="avg",service_id="${
+          body.serviceId
+        }"}))`
       },
       showLoading: false
     }
@@ -1609,12 +1745,16 @@ export async function getAppRequestTimeRange(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query_range`,
     {
       method: "get",
       showMessage: false,
       params: {
-        query: `ceil(avg(app_requesttime{mode="avg",service_id="${body.serviceId}"}))`,
+        query: `ceil(avg(app_requesttime{mode="avg",service_id="${
+          body.serviceId
+        }"}))`,
         start: body.start,
         end: body.end || new Date().getTime() / 1000,
         step: body.step
@@ -1635,12 +1775,16 @@ export async function getAppRequest(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: "get",
       showMessage: false,
       params: {
-        query: `sum(ceil(increase(app_request{service_id="${body.serviceId}",method="total"}[1m])/12))`
+        query: `sum(ceil(increase(app_request{service_id="${
+          body.serviceId
+        }",method="total"}[1m])/12))`
       },
       showLoading: false
     }
@@ -1658,7 +1802,9 @@ export async function getAppDisk(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: "get",
       showMessage: false,
@@ -1681,7 +1827,9 @@ export async function getAppMemory(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: "get",
       showMessage: false,
@@ -1707,12 +1855,16 @@ export async function getAppRequestRange(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query_range`,
     {
       method: "get",
       showMessage: false,
       params: {
-        query: `sum(ceil(increase(app_request{service_id="${body.serviceId}",method="total"}[1m])/12))`,
+        query: `sum(ceil(increase(app_request{service_id="${
+          body.serviceId
+        }",method="total"}[1m])/12))`,
         start: body.start,
         end: body.end || new Date().getTime() / 1000,
         step: body.step
@@ -1733,7 +1885,9 @@ export async function getAppOnlineNumber(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query`,
     {
       method: "get",
       showMessage: false,
@@ -1759,7 +1913,9 @@ export async function getAppOnlineNumberRange(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/monitor/query_range`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/monitor/query_range`,
     {
       method: "get",
       showMessage: false,
@@ -1782,7 +1938,9 @@ export function getCodeBranch(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/code/branch`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/code/branch`,
     { method: "get" }
   );
 }
@@ -1796,7 +1954,9 @@ export function setCodeBranch(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/code/branch`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/code/branch`,
     {
       method: "put",
       data: {
@@ -1817,7 +1977,9 @@ export async function getExtendInfo(
   handleError
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/extend_method`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/extend_method`,
     {
       method: "get",
       handleError
@@ -1835,7 +1997,9 @@ export async function getPods(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/pods`,
     {
       method: "get"
     }
@@ -1846,7 +2010,9 @@ export async function getPods(
 */
 export async function newaddScalingRules(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${params.service_alias}/xparules`,
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
     {
       method: "post",
       data: {
@@ -1855,23 +2021,6 @@ export async function newaddScalingRules(params) {
         min_replicas: params.minNum ? params.minNum : 1,
         max_replicas: params.maxNum ? params.maxNum : 2,
         metrics: params.metrics
-          ? params.metrics
-          : [
-              {
-                metric_type: "resource_metrics",
-                metric_name: "cpu",
-                metric_target_type: params.selectCpu ? params.selectCpu : "",
-                metric_target_value: params.cpuValue ? params.cpuValue : 0
-              },
-              {
-                metric_type: "resource_metrics",
-                metric_name: "memory",
-                metric_target_type: params.selectMemory
-                  ? params.selectMemory
-                  : "",
-                metric_target_value: params.memoryValue ? params.memoryValue : 0
-              }
-            ]
       }
     }
   );
@@ -1881,7 +2030,9 @@ export async function newaddScalingRules(params) {
 */
 export async function getScalingRules(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${params.service_alias}/xparules`,
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
     {
       method: "get"
     }
@@ -1892,7 +2043,9 @@ export async function getScalingRules(params) {
 */
 export async function editScalingRules(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${params.service_alias}/xparules/${params.rule_id}`,
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules/${params.rule_id}`,
     {
       method: "put",
       data: {
@@ -1907,7 +2060,7 @@ export async function editScalingRules(params) {
                 metric_type: "resource_metrics",
                 metric_name: "cpu",
                 metric_target_type: params.selectCpu ? params.selectCpu : "",
-                metric_target_value: params.cpuValue ? params.cpuValue : 0
+                metric_target_value: params.cpuValue ? params.cpuValue : 1
               },
               {
                 metric_type: "resource_metrics",
@@ -1915,7 +2068,7 @@ export async function editScalingRules(params) {
                 metric_target_type: params.selectMemory
                   ? params.selectMemory
                   : "",
-                metric_target_value: params.memoryValue ? params.memoryValue : 0
+                metric_target_value: params.memoryValue ? params.memoryValue : 1
               }
             ]
       }
@@ -1925,7 +2078,9 @@ export async function editScalingRules(params) {
 /*获取伸缩记录 */
 export async function queryScalingRecord(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${params.service_alias}/xparecords`,
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparecords`,
     {
       method: "get",
       params: {
@@ -1947,7 +2102,9 @@ export async function managePods(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/pods`,
     {
       method: "post",
       data: {
@@ -1969,7 +2126,9 @@ export async function TelescopicInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/xparules/${body.rule_id}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/xparules/${body.rule_id}`,
     {
       method: "get"
     }
@@ -1985,7 +2144,9 @@ export async function getVisitInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/visit`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/visit`,
     {
       method: "get",
       showLoading: false
@@ -2003,7 +2164,9 @@ export async function getTags(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/labels`,
     { method: "get" }
   );
 }
@@ -2019,7 +2182,9 @@ export async function deleteTag(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/labels`,
     {
       method: "delete",
       data: {
@@ -2040,7 +2205,9 @@ export async function addTags(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/labels`,
     {
       method: "post",
       data: {
@@ -2061,7 +2228,9 @@ export async function editName(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/brief`,
     {
       method: "put",
       data: {
@@ -2084,7 +2253,9 @@ export async function openExternalPort(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/topological/ports`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/topological/ports`,
     {
       method: "put",
       data: {
@@ -2107,7 +2278,9 @@ export async function moveName(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/brief`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/brief`,
     {
       method: "put",
       data: {
@@ -2147,7 +2320,9 @@ export async function getMembers(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/perms`,
     {
       method: "get"
     }
@@ -2181,7 +2356,9 @@ export async function fetchInstanceDetails(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods/${body.pod_name}/detail`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/pods/${body.pod_name}/detail`,
     {
       method: "get"
     }
@@ -2223,7 +2400,9 @@ export async function fetchLogContent(
   //console/teams/{tenantAlias}/events/{eventID}/log
   // http://localhost:7070/console/teams/{tenantAlias}/{eventID}/logcontent
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/events/${body.eventID}/log`,
+    `${config.baseUrl}/console/teams/${body.team_name}/events/${
+      body.eventID
+    }/log`,
     {
       method: "get",
       params: {
@@ -2244,7 +2423,9 @@ export async function setMemberAction(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/perms`,
     {
       method: "post",
       data: {
@@ -2266,7 +2447,9 @@ export async function deleteMember(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/perms`,
     {
       method: "delete",
       data: {
@@ -2288,7 +2471,9 @@ export async function editMemberAction(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/perms`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/perms`,
     {
       method: "put",
       data: {
@@ -2332,7 +2517,9 @@ export async function moveGroup(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/group`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/group`,
     {
       method: "put",
       data: {
@@ -2353,7 +2540,9 @@ export async function getRuntimeInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/compile_env`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/compile_env`,
     { method: "get" }
   );
 }
@@ -2367,7 +2556,9 @@ export async function getRuntimeBuildInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build_envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/build_envs`,
     { method: "get" }
   );
 }
@@ -2385,7 +2576,9 @@ export async function editRuntimeInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/compile_env`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/compile_env`,
     {
       method: "put",
       data: {
@@ -2411,7 +2604,9 @@ export async function editRuntimeBuildInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build_envs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/build_envs`,
     {
       method: "put",
       data: {
@@ -2440,7 +2635,9 @@ export async function editAppCreateInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/check_update`,
     {
       method: "put",
       data: body
@@ -2461,7 +2658,9 @@ export async function deleteApp(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/delete`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/delete`,
     {
       method: "delete",
       data: {
@@ -2521,7 +2720,9 @@ export async function getAnalyzePlugins(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/analyze_plugins`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/analyze_plugins`,
     { method: "get" }
   );
 }
@@ -2537,7 +2738,9 @@ export async function getPlugins(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pluginlist`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/pluginlist`,
     {
       method: "get",
       params: {
@@ -2557,7 +2760,9 @@ export async function getMultipleModulesInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/multi/check?check_uuid=${body.check_uuid}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/multi/check?check_uuid=${
+      body.check_uuid
+    }`,
     {
       method: "get"
     }
@@ -2577,7 +2782,9 @@ export async function createService(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/multi/create`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/multi/create`,
     {
       method: "post",
       data: {
@@ -2598,7 +2805,9 @@ export async function installPlugin(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/install`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/install`,
     {
       method: "post",
       data: {
@@ -2619,7 +2828,9 @@ export async function unInstallPlugin(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/install`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/install`,
     { method: "delete" }
   );
 }
@@ -2635,7 +2846,9 @@ export async function startPlugin(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/open`,
     {
       method: "put",
       data: {
@@ -2657,7 +2870,9 @@ export async function updatePluginMemory(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/open`,
     {
       method: "put",
       data: {
@@ -2678,7 +2893,9 @@ export async function stopPlugin(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/open`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/open`,
     {
       method: "put",
       data: {
@@ -2700,7 +2917,9 @@ export async function getPluginConfigs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/configs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/configs`,
     {
       method: "get",
       params: {
@@ -2722,7 +2941,9 @@ export async function editPluginConfigs(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/plugins/${body.plugin_id}/configs`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/plugins/${body.plugin_id}/configs`,
     {
       method: "put",
       data: body.data
@@ -2733,7 +2954,9 @@ export async function editPluginConfigs(
 /* 查询应用的内存和磁盘使用情况 */
 export async function getAppResource(body = { team_name, app_alias }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/resource`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/resource`,
     {
       method: "get"
     }
@@ -2750,7 +2973,9 @@ export async function getSubDomain(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/sld-domain`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/sld-domain`,
     {
       method: "get",
       params: {
@@ -2773,7 +2998,9 @@ export async function SubDomain(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/sld-domain`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/sld-domain`,
     {
       method: "put",
       data: {
@@ -2795,7 +3022,9 @@ export async function getSubPort(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/tcp-ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/tcp-ports/${body.port}`,
     {
       method: "get",
       params: {
@@ -2820,7 +3049,9 @@ export async function SubPort(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/tcp-ports/${body.port}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/tcp-ports/${body.port}`,
     {
       method: "put",
       data: {
@@ -2842,7 +3073,9 @@ export async function putAutoDeploySecret(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/updatekey`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/webhooks/updatekey`,
     {
       method: "put",
       data: {
@@ -2863,7 +3096,9 @@ export async function putAutoDeployCommand(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/keyword`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/keyword`,
     {
       method: "put",
       data: {
@@ -2884,7 +3119,9 @@ export async function putMirrorCommand(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/trigger'`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/webhooks/trigger'`,
     {
       method: "put",
       data: {
@@ -2906,7 +3143,9 @@ export async function getMirrorCommand(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/webhooks/get-url`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/webhooks/get-url`,
     {
       method: "get",
       params: {
@@ -2927,7 +3166,9 @@ export async function getAppBuidSource(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/buildsource`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/buildsource`,
     {
       method: "get"
     }
@@ -2945,7 +3186,9 @@ export async function getLanguage(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/check?check_uuid=${body.check_uuid}`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/check?check_uuid=${body.check_uuid}`,
     {
       method: "get"
     }
@@ -2959,7 +3202,9 @@ export async function putLanguage(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/check`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/check`,
     {
       method: "post",
       data: {
@@ -2979,7 +3224,9 @@ export async function getTagInformation(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/labels/available`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/labels/available`,
     {
       method: "get"
     }
@@ -2996,7 +3243,9 @@ export async function putAppBuidSource(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/buildsource`,
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/buildsource`,
     {
       method: "put",
       data: {
@@ -3015,7 +3264,9 @@ export async function putAppBuidSource(
 /**更改应用状态 */
 export async function updateAppStatus(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_type`,
+    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/change/service_type`,
     {
       method: "put",
       data: {
@@ -3028,7 +3279,9 @@ export async function updateAppStatus(params) {
 /**修改服务名称 */
 export async function updateServiceName(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/change/service_name`,
+    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/change/service_name`,
     {
       method: "put",
       data: {
@@ -3041,7 +3294,9 @@ export async function updateServiceName(params) {
 /**修改应用状态 */
 export async function changeApplicationState(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/set/is_upgrade`,
+    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+      params.app_alias
+    }/set/is_upgrade`,
     {
       method: "put",
       data: {
