@@ -619,7 +619,7 @@ export default {
     saveIsisNouse(state, { payload }) {
       return {
         ...state,
-        nouse: payload.isNouse
+        nouse: payload
       };
     },
     saveEnterpriseInfo(state, { payload }) {
