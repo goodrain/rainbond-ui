@@ -81,7 +81,11 @@ export default class Index extends PureComponent {
       errorDesc: "",
       errorType: "",
       editInfo: false,
-      automaLoading: true
+      automaLoading: true,
+      errorMinNum: "",
+      errorMaxNum: "",
+      errorCpuValue: "",
+      errorMemoryValue: ""
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -611,143 +615,65 @@ export default class Index extends PureComponent {
     });
   };
 
-  handlerules = () => {
+  handlerules = type => {
     const { form } = this.props;
     const { rulesList } = this.state;
+
     const { getFieldValue, validateFields } = form;
-    validateFields((_, values) => {
-      const { maxNum, minNum, cpuValue, memoryValue } = values;
-      let rulesInfo = rulesList && rulesList.length > 0 && rulesList[0];
+    let rulesInfo = rulesList && rulesList.length > 0 && rulesList[0];
+    let num = getFieldValue(type);
+    const maxNum = Number(getFieldValue("maxNum"));
+    const minNum = Number(getFieldValue("minNum"));
+    const cpuValue = Number(getFieldValue("cpuValue"));
+    const memoryValue = Number(getFieldValue("memoryValue"));
 
-      const max_replicas = rulesInfo && Number(rulesInfo.max_replicas);
-      const min_replicas = rulesInfo && Number(rulesInfo.min_replicas);
-      let rulesInfocpuValue = 1;
-      let rulesInfomemoryValue = 1;
-      if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
-        rulesInfo.metrics.map(item => {
-          if (item.metric_name == "cpu") {
-            rulesInfocpuValue = Number(rulesInfo.cpuValue);
-          }
-          if (item.metric_name == "memory") {
-            rulesInfomemoryValue = Number(rulesInfo.memoryValue);
-          }
-        });
-      }
-
-      let obj = {
-        maxNum: Number(maxNum),
-        minNum: Number(minNum),
-        cpuValue: Number(cpuValue),
-        memoryValue: Number(memoryValue)
-      };
-      let dataObj = {
-        max_replicas,
-        min_replicas,
-        rulesInfocpuValue,
-        rulesInfomemoryValue
-      };
-
-      console.log("obj", obj);
-      console.log("dataObj", dataObj);
-      if (this.handlerulesa(obj, dataObj)) {
-        this.setState(
-          {
-            errorDesc: "",
-            errorType: "",
-            editInfo: values
-          },
-          () => {
-            this.handleAddIndicators("edit");
-          }
-        );
-      }
-    });
-  };
-
-  handlerulesa = (value, data) => {
-    const { maxNum, minNum, cpuValue, memoryValue } = value;
-    const {
-      max_replicas,
-      min_replicas,
-      rulesInfocpuValue,
-      rulesInfomemoryValue
-    } = data;
-    const { rulesList } = this.state;
-
-    let cpuUse =
-      rulesList &&
-      rulesList.length > 0 &&
-      this.setMetric_target_show(rulesList[0].metrics, "cpu");
-    let memoryUse =
-      rulesList &&
-      rulesList.length > 0 &&
-      this.setMetric_target_show(rulesList[0].metrics, "memory");
-
-    if (
-      this.handleempty(maxNum, "maxNum") &&
-      this.handleempty(minNum, "minNum") &&
-      this.handleSame(max_replicas, maxNum) &&
-      this.handleSame(min_replicas, minNum) &&
-      this.handleValue(maxNum, "maxNum", value) &&
-      this.handleValue(minNum, "minNum", value)
-    ) {
-      let Right = false;
-      if (
-        cpuUse &&
-        this.handleempty(cpuValue, "cpuValue") &&
-        this.handleSame(rulesInfocpuValue, cpuValue) &&
-        this.handleValue(cpuValue, "cpuValue", value)
-      ) {
-        Right = true;
-      } else if (!cpuUse && memoryUse) {
-        Right = true;
-      } else {
-        Right = false;
-      }
-
-      if (
-        memoryUse &&
-        this.handleempty(memoryValue, "memoryValue") &&
-        this.handleSame(rulesInfomemoryValue, memoryValue) &&
-        this.handleValue(memoryValue, "memoryValue", value)
-      ) {
-        Right = true;
-      } else if (!memoryUse && cpuUse && Right) {
-        Right = true;
-      } else {
-        Right = false;
-      }
-
-      return Right;
+    const max_replicas = rulesInfo && Number(rulesInfo.max_replicas);
+    const min_replicas = rulesInfo && Number(rulesInfo.min_replicas);
+    let rulesInfocpuValue = 1;
+    let rulesInfomemoryValue = 1;
+    if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
+      rulesInfo.metrics.map(item => {
+        if (item.metric_name == "cpu") {
+          rulesInfocpuValue = Number(rulesInfo.cpuValue);
+        }
+        if (item.metric_name == "memory") {
+          rulesInfomemoryValue = Number(rulesInfo.memoryValue);
+        }
+      });
     }
-    return false;
-  };
+    let errorDesc = "";
 
-  handleempty = (num, errorType) => {
+    let errorType =
+      type === "maxNum"
+        ? "errorMaxNum"
+        : type === "minNum"
+        ? "errorMinNum"
+        : type === "cpuValue"
+        ? "errorCpuValue"
+        : "errorMemoryValue";
+
     if (num == "" || num == null) {
       this.setState({
         errorDesc: "不能为空",
-        errorType
+        [errorType]: type
       });
       return false;
     }
-    return true;
-  };
 
-  handleSame = (oldValue, newVale) => {
-    if (oldValue === newVale) {
+    num = Number(num);
+
+    if (
+      maxNum === max_replicas &&
+      minNum === min_replicas &&
+      type === "cpuValue" &&
+      cpuValue === rulesInfocpuValue &&
+      type === "memoryValue" &&
+      memoryValue === rulesInfomemoryValue
+    ) {
       return false;
     }
-    return true;
-  };
 
-  handleValue = (nubmer, errorType, value) => {
-    let num = Number(nubmer);
-    let errorDesc = "";
     let re = /^[0-9]+.?[0-9]*/; //
-    console.log("num", num);
-    console.log("errorType", errorType);
-    console.log("value", value);
     if (!re.test(num)) {
       errorDesc = "请输入数字";
     } else if (num <= 0 || num > 65535) {
@@ -757,14 +683,23 @@ export default class Index extends PureComponent {
     } else if (errorType === "maxNum" && num < Number(value.minNum)) {
       errorDesc = "不能小于最小实例数";
     } else {
-      errorDesc = "";
-      return true;
+      validateFields((_, values) => {
+        this.setState(
+          {
+            errorDesc,
+            [errorType]: type,
+            editInfo: values
+          },
+          () => {
+            this.handleAddIndicators("edit");
+          }
+        );
+      });
     }
     this.setState({
       errorDesc,
-      errorType
+      [errorType]: type
     });
-    return false;
   };
 
   render() {
@@ -785,7 +720,11 @@ export default class Index extends PureComponent {
       showEditAutoScaling,
       addindicators,
       errorDesc,
-      errorType
+      errorType,
+      errorMinNum,
+      errorMaxNum,
+      errorCpuValue,
+      errorMemoryValue
     } = this.state;
     if (!extendInfo) {
       return null;
@@ -1169,13 +1108,13 @@ export default class Index extends PureComponent {
               <div />
               <div>
                 <span className={styles.errorDesc}>
-                  {errorType && errorType === "minNum" && errorDesc}
+                  {errorMinNum && errorMinNum === "minNum" && errorDesc}
                 </span>
               </div>
               <div>
                 <span className={styles.errorDesc}>
                   {" "}
-                  {errorType && errorType === "maxNum" && errorDesc}
+                  {errorMaxNum && errorMaxNum === "maxNum" && errorDesc}
                 </span>
               </div>
             </Col>
@@ -1183,14 +1122,18 @@ export default class Index extends PureComponent {
               {cpuUse && (
                 <div>
                   <span className={styles.errorDesc}>
-                    {errorType && errorType === "cpuValue" && errorDesc}
+                    {errorCpuValue &&
+                      errorCpuValue === "cpuValue" &&
+                      errorDesc}
                   </span>
                 </div>
               )}
               {memoryUse && (
                 <div>
                   <span className={styles.errorDesc}>
-                    {errorType && errorType === "memoryValue" && errorDesc}
+                    {errorMemoryValue &&
+                      errorMemoryValue === "memoryValue" &&
+                      errorDesc}
                   </span>
                 </div>
               )}
