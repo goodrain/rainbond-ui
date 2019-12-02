@@ -149,6 +149,8 @@ class Index extends React.Component {
       if (err) {
         return;
       }
+      fieldsValue.project_url = this.props.thirdInfo.project_url;
+      fieldsValue.full_name = this.props.thirdInfo.full_name;
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
@@ -160,7 +162,6 @@ class Index extends React.Component {
     this.setState({ tabType });
   };
   render() {
-    const data = ["goodrain", "goodrain"];
     const { tags, addGroup } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups, createAppByCodeLoading, ServiceComponent } = this.props;
@@ -194,7 +195,7 @@ class Index extends React.Component {
               initialValue:
                 this.props.handleType && this.props.handleType === "Service"
                   ? Number(this.props.groupId)
-                  : data.group_id,
+                  : "",
               rules: [{ required: true, message: "请选择" }]
             })(
               <Select
@@ -236,7 +237,7 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("service_cname", {
-              initialValue: data.service_cname || "",
+              initialValue: "",
               rules: [{ required: true, message: "要创建的组件还没有名字" }]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
@@ -255,7 +256,7 @@ class Index extends React.Component {
               initialValue: "",
               rules: [{ required: true, message: "请输入代码版本" }]
             })(
-              <Select  placeholder="请输入代码版本">
+              <Select placeholder="请输入代码版本">
                 <OptGroup
                   label={
                     <Tabs
@@ -290,6 +291,7 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("Cascader", {
+              initialValue: false,
               rules: [{ required: true, message: "请选择" }]
             })(<Switch defaultChecked onChange={this.onChange} />)}
           </Form.Item>

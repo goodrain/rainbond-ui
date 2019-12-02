@@ -98,9 +98,9 @@ export default function request(url, options) {
   newOptions.url = url;
   // newOptions.withCredentials = true;
   axios.defaults.withCredentials = true;
-  if (newOptions.params) {
-    newOptions.params._ = Date.now();
-  }
+  // if (newOptions.params) {
+  //   newOptions.params._ = Date.now();
+  // }
 
   newOptions.showMessage =
     newOptions.showMessage === void 0 ? true : newOptions.showMessage;

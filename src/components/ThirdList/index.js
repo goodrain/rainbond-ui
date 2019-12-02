@@ -152,7 +152,6 @@ class Index extends React.Component {
         check_uuid
       },
       callback: res => {
-        console.log("res", res);
         if (res && res._code === 200) {
           if (
             res.data.bean &&

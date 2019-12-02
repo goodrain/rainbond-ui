@@ -367,12 +367,13 @@ export default class GlobalHeader extends PureComponent {
                 <Menu.Item
                   key={service_name}
                   onClick={() => {
-                    this.onhandleThird(
-                      auth_url,
-                      client_id,
-                      redirect_uri,
-                      service_id
-                    );
+                    !is_authenticated &&
+                      this.onhandleThird(
+                        auth_url,
+                        client_id,
+                        redirect_uri,
+                        service_id
+                      );
                   }}
                 >
                   <div className={styles.userInfoContent}>

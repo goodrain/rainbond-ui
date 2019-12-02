@@ -945,6 +945,21 @@ export async function queryCodeWarehouseType(params) {
   );
 }
 
+/** 第三方oauth认证信息 */
+
+export async function queryThirdInfo(params) {
+  return request(
+    `${config.baseUrl}/console/oauth/service/${
+      params.oauth_service_id
+    }/user/repository/${params.full_name}`,
+    {
+      method: "get",
+    }
+  );
+}
+
+
+
 /** 代码检测 */
 export async function queryTestCode(params) {
   return request(
@@ -963,6 +978,7 @@ export async function queryTestCode(params) {
   );
 }
 /** 代码检测结果 */
+
 export async function queryDetectionTestCode(params) {
   return request(
     `${config.baseUrl}/console/oauth/service/${

@@ -71,7 +71,7 @@ export default class BasicList extends PureComponent {
       oauthInfo: false,
       isOpen: false,
       showDeleteDomain: false,
-      israinbondTird: ainbondUtil.OauthbEnable(rainbondInfo)
+      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo)
     };
   }
   componentDidMount() {

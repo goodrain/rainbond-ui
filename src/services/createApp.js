@@ -23,6 +23,30 @@ export async function createAppByCode(body = { team_name }) {
   });
 }
 
+
+
+/*
+   源码第三方创建应用
+*/
+export async function createThirtAppByCodes(body = { team_name }) {
+  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
+    method: "post",
+    data: {
+      service_id: body.service_id,
+      code_version: body.code_version,
+      git_url: body.git_url,
+      group_id: body.group_id,
+      server_type: body.server_type,
+      service_cname: body.service_cname,
+      is_oauth: body.is_oauth,
+      git_project_id: body.git_project_id || "",
+      check_uuid: body.check_uuid || "",
+      event_id: body.event_id || "",
+      open_webhook: body.open_webhook,
+      full_name: body.full_name,
+    },
+  });
+}
 /*
    源码创建应用
 */

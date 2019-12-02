@@ -49,6 +49,7 @@ import {
   queryDetectionTestCode,
   queryCodeWarehouseInfo,
   queryCodeWarehouseType,
+  queryThirdInfo,
   toCreatUser,
   toCeateSourceCode,
   toCreatOauth,
@@ -541,6 +542,12 @@ export default {
     },
     *codeWarehouseType({ payload, callback }, { call }) {
       const response = yield call(queryCodeWarehouseType, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *codeThirdInfo({ payload, callback }, { call }) {
+      const response = yield call(queryThirdInfo, payload);
       if (callback) {
         callback(response);
       }

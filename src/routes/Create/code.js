@@ -69,7 +69,6 @@ export default class Main extends PureComponent {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
 
-    tabList.push({ key: "github", tab: "github" });
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
       rainbondInfo.oauth_services.value.map(item => {
         const { name, service_id, oauth_type } = item;

@@ -27,7 +27,6 @@ export default class Index extends PureComponent {
   componentDidMount() {
     const { rainbondInfo } = this.props;
     const type = this.setType();
-    console.log("type", type);
     if (rainbondUtil.OauthbTypes(rainbondInfo, type)) {
       this.getGithubInfo(rainbondInfo, type);
     }
@@ -87,6 +86,38 @@ export default class Index extends PureComponent {
       }
     });
   };
+
+  handleSubmit = value => {
+    const type = this.setType();
+    const { type: service_id } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    this.props.dispatch({
+      type: "createApp/createThirtAppByCode",
+      payload: {
+        service_id,
+        code_version: value.code_version,
+        git_url: value.project_url,
+        group_id: value.group_id,
+        server_type: "git",
+        service_cname: value.service_cname,
+        is_oauth: true, // 是否为oauth创建
+
+        team_name: teamName,
+        open_webhook: true, // 是否开启webhook
+        full_name: value.full_name
+      },
+      callback: data => {
+        console.log('data',data)
+        const appAlias = data && data.bean.service_alias;
+        this.props.dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
+          )
+        );
+      }
+    });
+  };
+
   render() {
     const { is_auth } = this.state;
     const { type } = this.props;
