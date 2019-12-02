@@ -634,16 +634,16 @@ export default class Index extends PureComponent {
     if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
       rulesInfo.metrics.map(item => {
         if (item.metric_name == "cpu") {
-          rulesInfocpuValue = Number(rulesInfo.cpuValue);
+          rulesInfocpuValue = Number(item.metric_target_value);
         }
         if (item.metric_name == "memory") {
-          rulesInfomemoryValue = Number(rulesInfo.memoryValue);
+          rulesInfomemoryValue = Number(item.metric_target_value);
         }
       });
     }
     let errorDesc = "";
 
-    let errorType =
+    let errorTypeDesc =
       type === "maxNum"
         ? "errorMaxNum"
         : type === "minNum"
@@ -655,50 +655,74 @@ export default class Index extends PureComponent {
     if (num == "" || num == null) {
       this.setState({
         errorDesc: "不能为空",
-        [errorType]: type
+        [errorTypeDesc]: errorDesc,
+        errorType: type
       });
       return false;
     }
 
     num = Number(num);
+    let cpuUse =
+      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "cpu");
+    let memoryUse =
+      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "memory");
 
     if (
       maxNum === max_replicas &&
       minNum === min_replicas &&
-      type === "cpuValue" &&
-      cpuValue === rulesInfocpuValue &&
-      type === "memoryValue" &&
-      memoryValue === rulesInfomemoryValue
+      (cpuUse ? cpuValue === rulesInfocpuValue : true) &&
+      (memoryUse ? memoryValue === rulesInfomemoryValue : true)
     ) {
       return false;
     }
-
     let re = /^[0-9]+.?[0-9]*/; //
     if (!re.test(num)) {
       errorDesc = "请输入数字";
     } else if (num <= 0 || num > 65535) {
       errorDesc = "输入范围1-65535";
-    } else if (errorType === "minNum" && num >= Number(value.maxNum)) {
+    } else if (type === "minNum" && num > Number(maxNum)) {
       errorDesc = "不能大于最大实例数";
-    } else if (errorType === "maxNum" && num < Number(value.minNum)) {
+    } else if (type === "maxNum" && num < Number(minNum)) {
       errorDesc = "不能小于最小实例数";
     } else {
-      validateFields((_, values) => {
-        this.setState(
-          {
-            errorDesc,
-            [errorType]: type,
-            editInfo: values
-          },
-          () => {
-            this.handleAddIndicators("edit");
+      this.setState(
+        {
+          [errorTypeDesc]: "",
+          errorType: type
+        },
+        () => {
+          const {
+            errorMinNum,
+            errorMaxNum,
+            errorCpuValue,
+            errorMemoryValue
+          } = this.state;
+
+          if (
+            errorMinNum === "" &&
+            errorMaxNum === "" &&
+            errorCpuValue === "" &&
+            errorMemoryValue === ""
+          ) {
+            validateFields((_, values) => {
+              this.setState(
+                {
+                  editInfo: values
+                },
+                () => {
+                  this.handleAddIndicators("edit");
+                }
+              );
+            });
           }
-        );
-      });
+          return null;
+        }
+      );
     }
+
     this.setState({
-      errorDesc,
-      [errorType]: type
+      [errorTypeDesc]: errorDesc,
+      errorType: type
     });
   };
 
@@ -1107,34 +1131,21 @@ export default class Index extends PureComponent {
             <Col span={12} className={styles.automaTictelescopingTitle}>
               <div />
               <div>
-                <span className={styles.errorDesc}>
-                  {errorMinNum && errorMinNum === "minNum" && errorDesc}
-                </span>
+                <span className={styles.errorDesc}>{errorMinNum}</span>
               </div>
               <div>
-                <span className={styles.errorDesc}>
-                  {" "}
-                  {errorMaxNum && errorMaxNum === "maxNum" && errorDesc}
-                </span>
+                <span className={styles.errorDesc}> {errorMaxNum}</span>
               </div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
               {cpuUse && (
                 <div>
-                  <span className={styles.errorDesc}>
-                    {errorCpuValue &&
-                      errorCpuValue === "cpuValue" &&
-                      errorDesc}
-                  </span>
+                  <span className={styles.errorDesc}>{errorCpuValue}</span>
                 </div>
               )}
               {memoryUse && (
                 <div>
-                  <span className={styles.errorDesc}>
-                    {errorMemoryValue &&
-                      errorMemoryValue === "memoryValue" &&
-                      errorDesc}
-                  </span>
+                  <span className={styles.errorDesc}>{errorMemoryValue}</span>
                 </div>
               )}
             </Col>
