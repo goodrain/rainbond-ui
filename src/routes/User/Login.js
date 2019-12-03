@@ -54,7 +54,8 @@ export default class LoginPage extends Component {
                     client_id,
                     auth_url,
                     redirect_uri,
-                    service_id
+                    service_id,
+                    is_auto_login
                   } = item;
 
                   let githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
@@ -65,6 +66,10 @@ export default class LoginPage extends Component {
                     gitlab: gitlabUrl,
                     gitee: giteeUrl
                   };
+                  if (is_auto_login) {
+                    window.location.href = linkUrl[oauth_type];
+                  }
+
                   return (
                     <Col span="8" className={styles.thirdCol} key={client_id}>
                       <a href={linkUrl[oauth_type]}>
