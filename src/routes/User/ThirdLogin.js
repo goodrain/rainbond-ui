@@ -97,7 +97,6 @@ export default class LoginPage extends Component {
       gitlab: Gitlab,
       gitee: Gitee
     };
-    console.log("oauth_type", map[oauth_type]);
 
     return (
       <div className={styles.main}>

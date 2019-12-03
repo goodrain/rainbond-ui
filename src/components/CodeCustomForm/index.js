@@ -113,7 +113,6 @@ export default class Index extends PureComponent {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) {
-        console.log(err);
         return;
       }
       if (fieldsValue.version_type == "tag") {

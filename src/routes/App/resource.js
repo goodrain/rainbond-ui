@@ -1551,7 +1551,6 @@ export default class Index extends PureComponent {
         if (data) {
           let bean = data.bean;
           this.setState({ buildSource: bean }, () => {
-            console.log("data.bean", data.bean);
             if (
               bean &&
               bean.code_from &&
@@ -1576,7 +1575,6 @@ export default class Index extends PureComponent {
         oauth_service_id: buildSource.oauth_service_id
       },
       callback: res => {
-        console.log("res", res);
         if (res && res._code === 200) {
           this.setState({
             thirdInfo: res.data.bean
@@ -1780,7 +1778,6 @@ export default class Index extends PureComponent {
   handleSubmitOauth = () => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
-      console.log("fieldsValue", fieldsValue);
       if (err) return;
 
       this.props.dispatch({

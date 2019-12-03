@@ -3163,7 +3163,6 @@ export async function putAppBuidSource(
 
 /**更改应用状态 */
 export async function updateAppStatus(params) {
-  console.log(params);
   return request(
     `${config.baseUrl}/console/teams/${params.team_name}/apps/${
       params.app_alias

@@ -669,7 +669,6 @@ export default class Index extends PureComponent {
   renderUnInstalled = () => {
     const unInstalledList = this.state.unInstalledList;
     const loading = this.state.unInstalledList === null;
-    console.log(!unInstalledList.length);
     if (!unInstalledList.length) {
       return (
         <center>

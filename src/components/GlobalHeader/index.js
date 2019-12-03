@@ -361,7 +361,8 @@ export default class GlobalHeader extends PureComponent {
           {rainbondUtil.OauthbEnable(rainbondInfo) && (
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
-          {currentUser.oauth_services &&
+          {rainbondUtil.OauthbEnable(rainbondInfo) &&
+            currentUser.oauth_services &&
             currentUser.oauth_services.length > 0 &&
             currentUser.oauth_services.map(item => {
               const {

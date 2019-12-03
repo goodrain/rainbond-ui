@@ -403,7 +403,6 @@ export async function migrateApp(body = {
   event_id,
   notRecovered_restore_id
 }) {
-  console.log(body)
   return request(
     `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {

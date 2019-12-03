@@ -37,7 +37,6 @@ export default class Index extends PureComponent {
     tabList.map(item => {
       const { key, types } = item;
       if (type == key) {
-
         typs = types;
       }
     });
@@ -46,7 +45,7 @@ export default class Index extends PureComponent {
 
   getGithubInfo = (rainbondInfo, type) => {
     let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
-    let is_auth = gitinfo.is_expired > 0 ? true : false;
+    let is_auth = gitinfo ? true : false;
     this.setState({
       is_auth
     });
@@ -121,7 +120,6 @@ export default class Index extends PureComponent {
   render() {
     const { is_auth } = this.state;
     const type = this.setType();
-    console.log('is_auth',is_auth)
     return (
       <Card bordered={false} className={styles.ClearCard}>
         <div

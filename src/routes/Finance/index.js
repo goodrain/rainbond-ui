@@ -255,16 +255,17 @@ export default class BasicList extends PureComponent {
     });
   };
 
-  handelOauthInfo = () => {
+  handelOauthInfo = info => {
     const { dispatch, rainbondInfo } = this.props;
     dispatch({
       type: "global/getOauthInfo",
       callback: res => {
         if (res && res._code == 200) {
           let bean = res.data.bean;
+          let judge = rainbondUtil.OauthbEnable(info ? info : rainbondInfo);
           this.setState({
             oauthInfo: bean && bean.oauth_services,
-            isOpen: rainbondUtil.OauthbEnable(rainbondInfo)
+            isOpen: judge
               ? bean.oauth_services && bean.oauth_services.enable
               : false
           });
@@ -520,7 +521,7 @@ export default class BasicList extends PureComponent {
       client_secret,
       is_auto_login,
       oauth_type,
-      redirect_uri: config.baseUrl,
+      redirect_uri: `${config.baseUrl}/console/oauth/redirect`,
       auth_url,
       access_token_url,
       api_url,
@@ -571,17 +572,19 @@ export default class BasicList extends PureComponent {
                 this.setState({
                   israinbondTird: rainbondUtil.OauthbEnable(info)
                 });
+                this.handelOauthInfo(info);
               }
             }
           });
-
-          this.handelOauthInfo();
+          this.props.dispatch({ type: "user/fetchCurrent" });
+          // this.getDetail();
           notification.success({ message: "成功" });
           this.handelClone();
         }
       }
     });
   };
+
 
   cancelCreatUser = () => {
     this.setState({

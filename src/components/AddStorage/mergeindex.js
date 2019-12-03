@@ -126,7 +126,6 @@ export default class AddVolumes extends PureComponent {
   };
 
   render() {
-    console.log("this.", this.props);
     const { getFieldDecorator } = this.props.form;
     const { data, appBaseInfo } = this.props;
     const formItemLayout = {
