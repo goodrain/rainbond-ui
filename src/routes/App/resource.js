@@ -6,6 +6,7 @@ import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import appUtil from "../../utils/app";
 import Dockerinput from "../../components/Dockerinput";
 import { languageObj } from "../../utils/utils";
+import rainbondUtil from "../../utils/rainbond";
 import {
   Button,
   Icon,
@@ -19,6 +20,7 @@ import {
   Input,
   Form,
   Spin,
+  Select,
   notification
 } from "antd";
 import styles from "./resource.less";
@@ -26,6 +28,7 @@ const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
+const { Option, OptGroup } = Select;
 
 import AutoDeploy from "./setting/auto-deploy";
 
@@ -1227,13 +1230,6 @@ class PHP extends PureComponent {
     });
   };
 
-  handleSubmitOauth = e => {
-    const form = this.props.form;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      console.log("fieldsValue", fieldsValue);
-    });
-  };
   render() {
     const radioStyle = {
       display: "block",
@@ -1402,14 +1398,14 @@ class PHP extends PureComponent {
   }
 }
 @connect(
-  ({ user, appControl }) => ({
+  ({ user, appControl, global }) => ({
     currUser: user.currentUser,
-    createWay: appControl.createWay
+    createWay: appControl.createWay,
+    rainbondInfo: global.rainbondInfo
   }),
   { withRef: true }
 )
 @Form.create()
-
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -1424,10 +1420,31 @@ export default class Index extends PureComponent {
       languageBox: false,
       service_info: "",
       error_infos: "",
-      thirdInfo: false
+      thirdInfo: false,
+      tags: [],
+      tagsLoading: true,
+      tabType: "branches",
+      fullList: [],
+      tabList: [],
+      OauthLoading: true
     };
   }
   componentDidMount() {
+    const { rainbondInfo } = this.props;
+    let tabList = [];
+    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
+      rainbondInfo.oauth_services.value.map(item => {
+        const { oauth_type, service_id } = item;
+        tabList.push({
+          type: oauth_type,
+          id: service_id + ""
+        });
+      });
+      this.setState({
+        tabList
+      });
+    }
+
     this.getRuntimeInfo();
     this.loadBuildSourceInfo();
   }
@@ -1509,6 +1526,8 @@ export default class Index extends PureComponent {
   };
 
   changeEditOauth = () => {
+    this.handleCodeWarehouseType(this.props);
+    this.handleProvinceChange();
     this.setState({ editOauth: true });
   };
   hideEditOauth = () => {
@@ -1530,8 +1549,16 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ buildSource: data.bean }, () => {
-            this.loadThirdInfo();
+          let bean = data.bean;
+          this.setState({ buildSource: bean }, () => {
+            console.log("data.bean", data.bean);
+            if (
+              bean &&
+              bean.code_from &&
+              bean.code_from.indexOf("oauth") > -1
+            ) {
+              this.loadThirdInfo();
+            }
           });
         }
       }
@@ -1540,15 +1567,16 @@ export default class Index extends PureComponent {
 
   loadThirdInfo = () => {
     const { dispatch } = this.props;
-    const { tabType, buildSource } = this.state;
+    const { buildSource } = this.state;
 
     dispatch({
       type: "global/codeThirdInfo",
       payload: {
-        full_name: buildSource.project_full_name,
+        full_name: buildSource.full_name,
         oauth_service_id: buildSource.oauth_service_id
       },
       callback: res => {
+        console.log("res", res);
         if (res && res._code === 200) {
           this.setState({
             thirdInfo: res.data.bean
@@ -1650,6 +1678,131 @@ export default class Index extends PureComponent {
       showMarketAppDetail: false
     });
   };
+
+  //获取类型
+  handleCodeWarehouseType = props => {
+    const { dispatch, type } = props;
+    const { tabType, buildSource } = this.state;
+    const oauth_service_id = this.props.form.getFieldValue("oauth_service_id");
+    const project_full_name = this.props.form.getFieldValue("git_full_name");
+
+    dispatch({
+      type: "global/codeWarehouseType",
+      payload: {
+        type: tabType,
+        full_name: project_full_name
+          ? project_full_name
+          : buildSource.full_name,
+        oauth_service_id: oauth_service_id
+          ? oauth_service_id
+          : buildSource.oauth_service_id
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            tags: res.data.bean[tabType],
+            tagsLoading: false,
+            OauthLoading: false
+          });
+        }
+      }
+    });
+  };
+
+  onTabChange = tabType => {
+    this.setState({ tabType, tagsLoading: true }, () => {
+      this.handleCodeWarehouseType(this.props);
+    });
+  };
+
+  handleProvinceChange = id => {
+    //获取代码仓库信息
+    const { dispatch, form } = this.props;
+    const { setFieldsValue } = this.props.form;
+    const { tabList } = this.state;
+    const oauth_service_id = this.props.form.getFieldValue("oauth_service_id");
+    this.setState({ OauthLoading: true });
+
+    dispatch({
+      type: "global/codeWarehouseInfo",
+      payload: {
+        page: 1,
+        oauth_service_id: id
+          ? id
+          : oauth_service_id
+          ? oauth_service_id
+          : tabList.length > 0
+          ? tabList[0].id
+          : ""
+      },
+      callback: res => {
+        if (res) {
+          setFieldsValue({
+            git_full_name: res.data.bean.repositories[0].project_full_name
+          });
+          setFieldsValue({
+            git_url: res.data.bean.repositories[0].project_url
+          });
+
+          this.setState(
+            {
+              fullList: res.data.bean.repositories
+            },
+            () => {
+              this.handleCodeWarehouseType(this.props);
+            }
+          );
+        }
+      }
+    });
+  };
+
+  handleProjectChange = project_full_name => {
+    this.setState({ OauthLoading: true });
+    const { form } = this.props;
+    const { setFieldsValue } = this.props.form;
+    const { fullList } = this.state;
+
+    fullList.map(item => {
+      if (item.project_full_name === project_full_name) {
+        setFieldsValue(
+          {
+            git_url: item.project_url
+          },
+          () => {
+            this.setState({ OauthLoading: false });
+          }
+        );
+      }
+    });
+  };
+
+  handleSubmitOauth = () => {
+    const form = this.props.form;
+    form.validateFields((err, fieldsValue) => {
+      console.log("fieldsValue", fieldsValue);
+      if (err) return;
+
+      this.props.dispatch({
+        type: "appControl/putAppBuidSource",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          service_alias: this.props.appAlias,
+          is_oauth: true,
+          oauth_service_id: fieldsValue.oauth_service_id,
+          git_full_name: fieldsValue.git_full_name,
+          git_url: fieldsValue.git_url,
+          code_version: fieldsValue.code_version,
+          service_source: "source_code"
+        },
+        callback: () => {
+          notification.success({ message: "修改成功，下次构建部署时生效" });
+          this.hideEditOauth();
+        }
+      });
+    });
+  };
+
   render() {
     const language = appUtil.getLanguage(this.props.appDetail);
     const runtimeInfo = this.state.runtimeInfo;
@@ -1675,31 +1828,59 @@ export default class Index extends PureComponent {
         }
       }
     };
-    const versionLanguage = this.state.buildSource
-      ? this.state.buildSource.language
-      : "";
-    // const languageType = versionLanguage == 'Java-jar' || versionLanguage == 'Java-war' || versionLanguage == 'Java-maven' ? "Java" : versionLanguage;
+
+    const formOauthLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 5
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 19
+        }
+      }
+    };
+
     const languageType = versionLanguage ? versionLanguage : "";
-    const { thirdInfo } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const {
+      thirdInfo,
+      buildSource,
+      tags,
+      tagsLoading,
+      fullList,
+      tabList
+    } = this.state;
+    const { rainbondInfo, form } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+    const versionLanguage = buildSource ? buildSource.language : "";
 
     return (
       <Fragment>
-        {this.state.buildSource && (
+        {buildSource && (
           <Card
             title="构建源"
             style={{
               marginBottom: 24
             }}
             extra={[
-              !appUtil.isMarketAppByBuildSource(this.state.buildSource) && (
-                <a onClick={this.changeBuildSource} href="javascript:;">
-                  更改
+              appUtil.isOauthByBuildSource(buildSource) ? (
+                <a onClick={this.changeEditOauth} href="javascript:;">
+                  编辑
                 </a>
-              ),
-              <a onClick={this.changeEditOauth} href="javascript:;">
-                编辑
-              </a>
+              ) : (
+                !appUtil.isMarketAppByBuildSource(buildSource) && (
+                  <a onClick={this.changeBuildSource} href="javascript:;">
+                    更改
+                  </a>
+                )
+              )
             ]}
           >
             <div>
@@ -1710,15 +1891,13 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="创建方式"
               >
-                {thirdInfo
+                {appUtil.isOauthByBuildSource(buildSource)
                   ? thirdInfo.service_type
-                  : appUtil.getCreateTypeCNByBuildSource(
-                      this.state.buildSource
-                    )}
+                  : appUtil.getCreateTypeCNByBuildSource(buildSource)}
               </FormItem>
             </div>
 
-            {appUtil.isImageAppByBuildSource(this.state.buildSource) ? (
+            {appUtil.isImageAppByBuildSource(buildSource) ? (
               <div>
                 <FormItem
                   style={{
@@ -1727,7 +1906,7 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="镜像名称"
                 >
-                  {this.state.buildSource.image}
+                  {buildSource.image}
                 </FormItem>
                 <FormItem
                   style={{
@@ -1736,7 +1915,7 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="版本"
                 >
-                  {this.state.buildSource.version}
+                  {buildSource.version}
                 </FormItem>
                 <FormItem
                   style={{
@@ -1745,13 +1924,13 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="启动命令"
                 >
-                  {this.state.buildSource.cmd || ""}
+                  {buildSource.cmd || ""}
                 </FormItem>
               </div>
             ) : (
               ""
             )}
-            {appUtil.isMarketAppByBuildSource(this.state.buildSource) ? (
+            {appUtil.isMarketAppByBuildSource(buildSource) ? (
               <Fragment>
                 <FormItem
                   style={{
@@ -1760,21 +1939,21 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="云市应用名称"
                 >
-                  {this.state.buildSource.group_key ? (
+                  {buildSource.group_key ? (
                     <a
                       href="javascript:;"
                       onClick={() => {
                         this.setState({
                           showApp: {
-                            details: this.state.buildSource.details,
-                            group_name: this.state.buildSource.rain_app_name,
-                            group_key: this.state.buildSource.group_key
+                            details: buildSource.details,
+                            group_name: buildSource.rain_app_name,
+                            group_key: buildSource.group_key
                           },
                           showMarketAppDetail: true
                         });
                       }}
                     >
-                      {this.state.buildSource.rain_app_name}
+                      {buildSource.rain_app_name}
                     </a>
                   ) : (
                     "无法找到源应用，可能已删除"
@@ -1787,13 +1966,26 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="版本"
                 >
-                  {this.state.buildSource.version}
+                  {buildSource.version}
                 </FormItem>
               </Fragment>
             ) : (
               ""
             )}
-            {appUtil.isCodeAppByBuildSource(this.state.buildSource) ? (
+
+            {appUtil.isOauthByBuildSource(buildSource) && (
+              <FormItem
+                style={{
+                  marginBottom: 0
+                }}
+                {...formItemLayout}
+                label="项目名称"
+              >
+                {buildSource.full_name}
+              </FormItem>
+            )}
+
+            {appUtil.isCodeAppByBuildSource(buildSource) ? (
               <Fragment>
                 <FormItem
                   style={{
@@ -1802,8 +1994,8 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="仓库地址"
                 >
-                  <a href={this.state.buildSource.git_url} target="_blank">
-                    {this.state.buildSource.git_url}
+                  <a href={buildSource.git_url} target="_blank">
+                    {buildSource.git_url}
                   </a>
                 </FormItem>
                 <FormItem
@@ -1813,31 +2005,34 @@ export default class Index extends PureComponent {
                   {...formItemLayout}
                   label="代码版本"
                 >
-                  {this.state.buildSource.code_version}
+                  {buildSource.code_version}
                 </FormItem>
-                <FormItem
-                  style={{
-                    marginBottom: 0
-                  }}
-                  {...formItemLayout}
-                  className={styles.ant_form_item}
-                  label="语言"
-                >
-                  {languageType != "static" ? (
-                    <a target="blank" href={languageObj[`${languageType}`]}>
-                      {languageType}
-                    </a>
-                  ) : (
-                    <a href="javascript:void(0);">{languageType}</a>
-                  )}
-                  <Button
-                    size="small"
-                    type={"primary"}
-                    onClick={this.handleToDetect}
+
+                {!appUtil.isOauthByBuildSource(buildSource) && (
+                  <FormItem
+                    style={{
+                      marginBottom: 0
+                    }}
+                    {...formItemLayout}
+                    className={styles.ant_form_item}
+                    label="语言"
                   >
-                    重新检测
-                  </Button>
-                </FormItem>
+                    {languageType != "static" ? (
+                      <a target="blank" href={languageObj[`${languageType}`]}>
+                        {languageType}
+                      </a>
+                    ) : (
+                      <a href="javascript:void(0);">{languageType}</a>
+                    )}
+                    <Button
+                      size="small"
+                      type={"primary"}
+                      onClick={this.handleToDetect}
+                    >
+                      重新检测
+                    </Button>
+                  </FormItem>
+                )}
               </Fragment>
             ) : (
               ""
@@ -1852,12 +2047,10 @@ export default class Index extends PureComponent {
           </Card>
         )}
 
-        {this.state.buildSource && (
+        {buildSource && (
           <AutoDeploy
             app={this.props.appDetail}
-            service_source={appUtil.getCreateTypeCNByBuildSource(
-              this.state.buildSource
-            )}
+            service_source={appUtil.getCreateTypeCNByBuildSource(buildSource)}
           />
         )}
 
@@ -2012,7 +2205,7 @@ export default class Index extends PureComponent {
         {this.state.changeBuildSource && (
           <ChangeBuildSource
             onOk={this.onChangeBuildSource}
-            buildSource={this.state.buildSource}
+            buildSource={buildSource}
             appAlias={this.props.appDetail.service.service_alias}
             title="更改组件构建源"
             onCancel={this.hideBuildSource}
@@ -2024,26 +2217,104 @@ export default class Index extends PureComponent {
             visible={this.state.editOauth}
             onCancel={this.hideEditOauth}
             onOk={this.handleSubmitOauth}
+            loading={this.state.OauthLoading}
             title="编辑"
           >
-            <Form onSubmit={this.handleSubmitOauth}>
-              <FormItem {...formItemLayout} label="创建方式">
-                {getFieldDecorator("service_type", {
-                  initialValue: thirdInfo
-                    ? thirdInfo.service_type.toUpperCase()
-                    : "Github",
-                  rules: [{ required: true, message: "请选择service_type类型" }]
-                })(
-                  <Select placeholder="请选择要service_type类型">
-                    {["Github", "Gitlab", "Gitee", "Other"].map(item => (
-                      <Option key={item} value={item}>
-                        {item}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </FormItem>
-            </Form>
+            <Spin spinning={this.state.OauthLoading}>
+              <Form onSubmit={this.handleSubmitOauth}>
+                <FormItem {...formOauthLayout} label="创建方式">
+                  {getFieldDecorator("oauth_service_id", {
+                    initialValue: thirdInfo ? thirdInfo.service_id + "" : "",
+                    rules: [{ required: true, message: "请选择创建方式" }]
+                  })(
+                    <Select
+                      onChange={this.handleProvinceChange}
+                      placeholder="请选择要创建方式"
+                    >
+                      {tabList.length > 0 &&
+                        tabList.map(item => (
+                          <Option key={item.id} value={item.id}>
+                            {item.type}
+                          </Option>
+                        ))}
+                    </Select>
+                  )}
+                </FormItem>
+
+                <FormItem {...formOauthLayout} label="项目名称">
+                  {getFieldDecorator("git_full_name", {
+                    initialValue: buildSource
+                      ? buildSource.full_name
+                      : fullList.length > 0 && fullList[0].project_full_name,
+                    rules: [{ required: true, message: "请选择项目" }]
+                  })(
+                    <Select
+                      onChange={this.handleProjectChange}
+                      placeholder="请选择项目"
+                    >
+                      {fullList.length > 0 &&
+                        fullList.map(item => (
+                          <Option
+                            key={item.project_url}
+                            value={item.project_full_name}
+                          >
+                            {item.project_full_name}
+                          </Option>
+                        ))}
+                    </Select>
+                  )}
+                </FormItem>
+
+                <FormItem {...formOauthLayout} label="仓库地址">
+                  {getFieldDecorator("git_url", {
+                    initialValue: buildSource
+                      ? buildSource.git_url
+                      : fullList.length > 0 && fullList[0].git_url,
+                    rules: [{ required: true, message: "请选择创建方式" }]
+                  })(<Input placeholder="请输入配置组名" disabled={true} />)}
+                </FormItem>
+
+                <Form.Item
+                  className={styles.clearConform}
+                  {...formOauthLayout}
+                  label="代码版本"
+                >
+                  {getFieldDecorator("code_version", {
+                    initialValue: buildSource ? buildSource.code_version : "",
+                    rules: [{ required: true, message: "请输入代码版本" }]
+                  })(
+                    <Select placeholder="请输入代码版本">
+                      <OptGroup
+                        label={
+                          <Tabs
+                            defaultActiveKey="branches"
+                            onChange={this.onTabChange}
+                            className={styles.selectTabs}
+                          >
+                            <TabPane tab="分支" key="branches" />
+                            <TabPane tab="Tags" key="tags" />
+                          </Tabs>
+                        }
+                      >
+                        {tags.length > 0 ? (
+                          tags.map(item => {
+                            return (
+                              <Option key={item} value={item}>
+                                {item}
+                              </Option>
+                            );
+                          })
+                        ) : (
+                          <Option value={"loading"}>
+                            <Spin spinning={tagsLoading} />
+                          </Option>
+                        )}
+                      </OptGroup>
+                    </Select>
+                  )}
+                </Form.Item>
+              </Form>
+            </Spin>{" "}
           </Modal>
         )}
         {this.state.showMarketAppDetail && (

@@ -62,12 +62,12 @@ export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
 
 
 /* 登录成功后绑定第三方 */
-export async function queryThirdLoginBinding(body = { service_id, oauth_user_id }) {
+export async function queryThirdLoginBinding(body = { service_id, code }) {
   return request(`${config.baseUrl}/console/oauth/user/authorize`, {
     method: "post",
     data: {
       service_id: body.service_id,
-      oauth_user_id: body.oauth_user_id
+      code: body.code
     }
   });
 }

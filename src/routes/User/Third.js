@@ -3,7 +3,7 @@ import { connect } from "dva";
 import { Link, routerRedux } from "dva/router";
 import rainbondUtil from "../../utils/rainbond";
 import globalUtil from "../../utils/global";
-import { notification } from "antd";
+import { notification, message } from "antd";
 import cookie from "../../utils/cookie";
 import Result from "../../components/Result";
 @connect(({ loading, global }) => ({
@@ -21,8 +21,58 @@ export default class ThirdLogin extends Component {
   componentWillMount() {
     let code = rainbondUtil.OauthParameter("code");
     let service_id = rainbondUtil.OauthParameter("service_id");
+
     const { dispatch } = this.props;
     if (code && service_id) {
+      //有账号 未认证 is_authenticated
+      let teamName = cookie.get("region_name");
+      let regionName = cookie.get("team");
+      let token = cookie.get("token");
+
+      if (teamName && regionName && token) {
+        dispatch({
+          type: "user/fetchThirdLoginBinding",
+          payload: {
+            code,
+            service_id
+          },
+          callback: resdata => {
+            if (resdata && resdata.status && resdata.status === 400) {
+              this.setState(
+                {
+                  resultState: "error",
+                  title: "第三方认证未通过",
+                  desc: "认证失败,请重新认证"
+                },
+                () => {
+                  dispatch(
+                    routerRedux.push(
+                      `/team/${teamName}/region/${regionName}/create/code/${service_id}`
+                    )
+                  );
+                }
+              );
+            } else if (resdata && resdata._code === 200) {
+              this.setState(
+                {
+                  resultState: "success",
+                  title: "第三方认证通过",
+                  desc: ""
+                },
+                () => {
+                  dispatch(
+                    routerRedux.push(
+                      `/team/${teamName}/region/${regionName}/create/code/${service_id}`
+                    )
+                  );
+                }
+              );
+            }
+          }
+        });
+        return null;
+      }
+
       //获取第三方用户信息
       dispatch({
         type: "user/fetchThirdCertification",
@@ -39,7 +89,7 @@ export default class ThirdLogin extends Component {
                 desc: "未成功获取access_token,请重新认证。"
               },
               () => {
-                notification.warning({ message: "未成功获取access_token" });
+                // notification.warning({ message: "未成功获取access_token" });
                 dispatch(routerRedux.push(`/user/login`));
               }
             );
@@ -51,60 +101,6 @@ export default class ThirdLogin extends Component {
               cookie.set("token", data.token);
               window.location.reload();
               return null;
-            }
-
-            //有账号 未认证 is_authenticated
-            let teamName = cookie.get("region_name");
-            let regionName = cookie.get("team");
-            if (teamName && regionName && data) {
-              dispatch({
-                type: "user/fetchThirdLoginBinding",
-                payload: {
-                  oauth_user_id: data.result.oauth_user_id,
-                  service_id
-                },
-                callback: resdata => {
-                  if (resdata && resdata.status && resdata.status === 400) {
-                    this.setState(
-                      {
-                        resultState: "error",
-                        title: "第三方认证未通过",
-                        desc: "认证失败,请重新认证"
-                      },
-                      () => {
-                        message.warning("认证失败，请重新认证", 2, () => {
-                          dispatch(
-                            routerRedux.push(
-                              `/team/${teamName}/region/${regionName}/create/code/${
-                                data.result.oauth_type
-                              }`
-                            )
-                          );
-                        });
-                      }
-                    );
-                  } else if (resdata && resdata._code === 200) {
-                    this.setState(
-                      {
-                        resultState: "success",
-                        title: "第三方认证通过",
-                        desc: ""
-                      },
-                      () => {
-                        message.warning("认证成功", 2, () => {
-                          dispatch(
-                            routerRedux.push(
-                              `/team/${teamName}/region/${regionName}/create/code/${
-                                data.result.oauth_type
-                              }`
-                            )
-                          );
-                        });
-                      }
-                    );
-                  }
-                }
-              });
             }
 
             if (data && data.result) {

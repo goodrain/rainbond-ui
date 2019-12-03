@@ -50,6 +50,7 @@ class Index extends React.Component {
       search: "",
       event_id: "",
       check_uuid: "",
+      create_loading: false,
       create_status: "",
       service_info: "",
       error_infos: ""
@@ -111,31 +112,38 @@ class Index extends React.Component {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
-
-    dispatch({
-      type: "global/testCode",
-      payload: {
-        region_name,
-        tenant_name: team_name,
-        project_url: thirdInfo.project_url,
-        version: thirdInfo.project_default_branch,
-        oauth_service_id: this.props.type
+    this.setState(
+      {
+        create_loading: true
       },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState(
-            {
-              event_id: res.data.bean && res.data.bean.event_id,
-              check_uuid: res.data.bean && res.data.bean.check_uuid,
-              create_status: "Checking"
-            },
-            () => {
-              this.handleDetectionCode();
+      () => {
+        dispatch({
+          type: "global/testCode",
+          payload: {
+            region_name,
+            tenant_name: team_name,
+            project_url: thirdInfo.project_url,
+            version: thirdInfo.project_default_branch,
+            oauth_service_id: this.props.type
+          },
+          callback: res => {
+            if (res && res._code === 200) {
+              this.setState(
+                {
+                  event_id: res.data.bean && res.data.bean.event_id,
+                  check_uuid: res.data.bean && res.data.bean.check_uuid,
+                  create_status: "Checking",
+                  create_loading: false
+                },
+                () => {
+                  this.handleDetectionCode();
+                }
+              );
             }
-          );
-        }
+          }
+        });
       }
-    });
+    );
   };
   handleDetectionCode = () => {
     const { event_id, check_uuid } = this.state;
@@ -174,7 +182,7 @@ class Index extends React.Component {
     });
   };
   componentWillUnmount() {
-    clearTimeout(this.timer);
+    this.timer && clearTimeout(this.timer);
   }
   showModal = thirdInfo => {
     this.setState({
@@ -183,23 +191,19 @@ class Index extends React.Component {
     });
   };
 
-  handleOk = e => {
-    console.log(e);
-    this.setState({
-      visible: false
-    });
-  };
-
-  handleCancel = e => {
-    console.log(e);
+  handleCancel = () => {
     this.setState({
       visible: false
     });
   };
 
   handleDetection = () => {
+    this.timer && clearTimeout(this.timer);
     this.setState({
-      detection: false
+      detection: false,
+      create_status: "",
+      service_info: "",
+      error_infos: ""
     });
   };
   handleOpenDetection = thirdInfo => {
@@ -209,7 +213,14 @@ class Index extends React.Component {
     });
   };
   render() {
-    const { visible, detection, lists, loading, thirdInfo } = this.state;
+    const {
+      visible,
+      detection,
+      lists,
+      loading,
+      thirdInfo,
+      create_loading
+    } = this.state;
     const { handleType } = this.props;
     const data = ["goodarin", "rainbond"];
     let ServiceComponent = handleType && handleType === "Service";
@@ -233,6 +244,7 @@ class Index extends React.Component {
                     <Button
                       key="submit"
                       type="primary"
+                      loading={create_loading}
                       onClick={this.handleTestCode}
                     >
                       检测
@@ -251,7 +263,11 @@ class Index extends React.Component {
                       确认
                     </Button>
                   ]
-                : [<Button key="back">关闭</Button>]
+                : [
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>
+                  ]
             }
           >
             <div>
@@ -481,6 +497,7 @@ class Index extends React.Component {
           />
         ) : (
           <Card bordered={false} style={{ padding: "24px 32px" }}>
+            <Icon type="arrow-left" onClick={this.handleCancel} />
             <div
               className={styles.formWrap}
               style={{

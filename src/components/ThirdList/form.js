@@ -29,7 +29,7 @@ import {
   Form,
   Select,
   Button,
-  Cascader,
+  Spin,
   Switch
 } from "antd";
 
@@ -73,7 +73,8 @@ class Index extends React.Component {
       visible: false,
       addGroup: false,
       tags: [],
-      tabType: "branches"
+      tabType: "branches",
+      tagsLoading: true
     };
   }
   componentDidMount() {
@@ -99,7 +100,8 @@ class Index extends React.Component {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tags: res.data.bean[tabType]
+            tags: res.data.bean[tabType],
+            tagsLoading: false
           });
         }
       }
@@ -149,8 +151,10 @@ class Index extends React.Component {
       if (err) {
         return;
       }
+
+      fieldsValue.project_id = this.props.thirdInfo.project_id;
       fieldsValue.project_url = this.props.thirdInfo.project_url;
-      fieldsValue.full_name = this.props.thirdInfo.full_name;
+      fieldsValue.project_full_name = this.props.thirdInfo.project_full_name;
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
@@ -159,10 +163,12 @@ class Index extends React.Component {
     console.log(value, selectedOptions);
   };
   onTabChange = tabType => {
-    this.setState({ tabType });
+    this.setState({ tabType, tagsLoading: true }, () => {
+      this.handleCodeWarehouseType();
+    });
   };
   render() {
-    const { tags, addGroup } = this.state;
+    const { tags, addGroup, tagsLoading } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups, createAppByCodeLoading, ServiceComponent } = this.props;
     const showCreateGroup =
@@ -265,17 +271,23 @@ class Index extends React.Component {
                       className={styles.selectTabs}
                     >
                       <TabPane tab="分支" key="branches" />
-                      <TabPane tab="Tab" key="tags" />
+                      <TabPane tab="Tags" key="tags" />
                     </Tabs>
                   }
                 >
-                  {tags.map(item => {
-                    return (
-                      <Option key={item} value={item}>
-                        {item}
-                      </Option>
-                    );
-                  })}
+                  {tags.length > 0 ? (
+                    tags.map(item => {
+                      return (
+                        <Option key={item} value={item}>
+                          {item}
+                        </Option>
+                      );
+                    })
+                  ) : (
+                    <Option value={"loading"}>
+                      <Spin spinning={tagsLoading} />
+                    </Option>
+                  )}
                 </OptGroup>
               </Select>
             )}

@@ -36,7 +36,8 @@ export default class Index extends PureComponent {
     let typs = "";
     tabList.map(item => {
       const { key, types } = item;
-      if (type === key) {
+      if (type == key) {
+
         typs = types;
       }
     });
@@ -101,13 +102,12 @@ export default class Index extends PureComponent {
         server_type: "git",
         service_cname: value.service_cname,
         is_oauth: true, // 是否为oauth创建
-
+        git_project_id: value.project_id,
         team_name: teamName,
         open_webhook: true, // 是否开启webhook
-        full_name: value.full_name
+        full_name: value.project_full_name
       },
       callback: data => {
-        console.log('data',data)
         const appAlias = data && data.bean.service_alias;
         this.props.dispatch(
           routerRedux.push(
@@ -120,7 +120,8 @@ export default class Index extends PureComponent {
 
   render() {
     const { is_auth } = this.state;
-    const { type } = this.props;
+    const type = this.setType();
+    console.log('is_auth',is_auth)
     return (
       <Card bordered={false} className={styles.ClearCard}>
         <div
@@ -131,7 +132,7 @@ export default class Index extends PureComponent {
         //       : "500px"
         // }}
         >
-          {is_auth ? (
+          {!is_auth ? (
             <div
               style={{
                 textAlign: "center",

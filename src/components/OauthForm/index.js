@@ -52,7 +52,6 @@ class CreateUserForm extends PureComponent {
       }
     };
     const oauthType = getFieldValue("oauth_type") || "Github";
-    console.log("oauthInfo", oauthInfo);
     return (
       <Modal
         visible={true}

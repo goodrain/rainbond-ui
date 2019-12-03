@@ -3152,7 +3152,10 @@ export async function putAppBuidSource(
         image: body.image,
         cmd: body.cmd,
         user_name: body.user_name,
-        password: body.password
+        password: body.password,
+        is_oauth:  body.is_oauth,
+        oauth_service_id: body.oauth_service_id,
+        git_full_name: body.git_full_name,
       }
     }
   );

@@ -297,11 +297,22 @@ export default class GlobalHeader extends PureComponent {
 
     return "";
   }
-  onhandleThird = (auth_url, client_id, redirect_uri, service_id) => {
+  onhandleThird = (
+    oauth_type,
+    auth_url,
+    client_id,
+    redirect_uri,
+    service_id
+  ) => {
     const githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
     const gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
     const giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
-    window.location.href = githubUrl;
+    window.location.href =
+      oauth_type === "github"
+        ? githubUrl
+        : oauth_type === "gitlab"
+        ? gitlabUrl
+        : giteeUrl;
   };
 
   render() {
@@ -369,6 +380,7 @@ export default class GlobalHeader extends PureComponent {
                   onClick={() => {
                     !is_authenticated &&
                       this.onhandleThird(
+                        oauth_type,
                         auth_url,
                         client_id,
                         redirect_uri,

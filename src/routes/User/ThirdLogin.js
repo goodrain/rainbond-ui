@@ -97,12 +97,13 @@ export default class LoginPage extends Component {
       gitlab: Gitlab,
       gitee: Gitee
     };
+    console.log("oauth_type", map[oauth_type]);
 
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
-          来自 {map[oauth_type]} 登录的{user_info && user_info.oauth_user_name}{" "}
-          您好！你现在可以进行绑定
+          来自 <img src={map[oauth_type]} alt={oauth_type} /> 登录的
+          {user_info && user_info.oauth_user_name} 您好！你现在可以进行绑定
         </p>
         <Row style={{ marginBottom: "24px" }}>
           <Col
