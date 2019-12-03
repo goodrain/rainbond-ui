@@ -521,7 +521,7 @@ export default class BasicList extends PureComponent {
       client_secret,
       is_auto_login,
       oauth_type,
-      redirect_uri: `${config.baseUrl}/console/oauth/redirect`,
+      redirect_uri: `${window.location.host}/console/oauth/redirect`,
       auth_url,
       access_token_url,
       api_url,
@@ -543,48 +543,40 @@ export default class BasicList extends PureComponent {
     const { dispatch, rainbondInfo } = this.props;
     const { oauthInfo } = this.state;
     obj.eid = rainbondInfo.eid;
-    oauthInfo ? (obj.id = oauthInfo.service_id) : (obj.id = null);
+    oauthInfo ? (obj.service_id = oauthInfo.service_id) : (obj.service_id = null);
     isclone ? (obj.enable = false) : (obj.enable = true);
-    let type = oauthInfo ? "global/editOauth" : "global/creatOauth";
 
     dispatch({
-      type,
+      type: "global/editOauth",
       payload: {
-        arr: oauthInfo ? { enable: obj.enable, value: null } : [obj]
+        arr: { enable: obj.enable, value: null }
+      }
+    });
+
+    dispatch({
+      type: "global/creatOauth",
+      payload: {
+        arr: [obj]
       },
       callback: data => {
-        if (data && data._code === 200) {
-          if (type === "global/creatOauth") {
-            let obj = data.data.bean.oauth_services[0];
-            obj.is_console = true;
-            dispatch({
-              type: "global/editOauth",
-              payload: {
-                arr: obj
-              }
-            });
-          }
-
-          dispatch({
-            type: "global/fetchRainbondInfo",
-            callback: info => {
-              if (info) {
-                this.setState({
-                  israinbondTird: rainbondUtil.OauthbEnable(info)
-                });
-                this.handelOauthInfo(info);
-              }
+        dispatch({
+          type: "global/fetchRainbondInfo",
+          callback: info => {
+            if (info) {
+              this.setState({
+                israinbondTird: rainbondUtil.OauthbEnable(info)
+              });
+              this.handelOauthInfo(info);
             }
-          });
-          this.props.dispatch({ type: "user/fetchCurrent" });
-          // this.getDetail();
-          notification.success({ message: "成功" });
-          this.handelClone();
-        }
+          }
+        });
+        this.props.dispatch({ type: "user/fetchCurrent" });
+        // this.getDetail();
+        notification.success({ message: "成功" });
+        this.handelClone();
       }
     });
   };
-
 
   cancelCreatUser = () => {
     this.setState({
