@@ -521,7 +521,9 @@ export default class BasicList extends PureComponent {
       client_secret,
       is_auto_login,
       oauth_type,
-      redirect_uri: `${window.location.host}/console/oauth/redirect`,
+      redirect_uri: `${window.location.protocol}//${
+        window.location.host
+      }/console/oauth/redirect`,
       auth_url,
       access_token_url,
       api_url,
@@ -543,7 +545,9 @@ export default class BasicList extends PureComponent {
     const { dispatch, rainbondInfo } = this.props;
     const { oauthInfo } = this.state;
     obj.eid = rainbondInfo.eid;
-    oauthInfo ? (obj.service_id = oauthInfo.service_id) : (obj.service_id = null);
+    oauthInfo
+      ? (obj.service_id = oauthInfo.service_id)
+      : (obj.service_id = null);
     isclone ? (obj.enable = false) : (obj.enable = true);
 
     dispatch({

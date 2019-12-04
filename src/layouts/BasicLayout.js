@@ -204,6 +204,9 @@ class BasicLayout extends React.PureComponent {
       this.showChangePass();
     }
     if (key === "logout") {
+      cookie.remove("token", { domain: "" });
+      cookie.remove("team", { domain: "" });
+      cookie.remove("region_name", { domain: "" });
       this.props.dispatch({ type: "user/logout" });
     }
   };

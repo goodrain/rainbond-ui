@@ -89,6 +89,7 @@ export default class ThirdLogin extends Component {
                 desc: "未成功获取access_token,请重新认证。"
               },
               () => {
+
                 // notification.warning({ message: "未成功获取access_token" });
                 dispatch(routerRedux.push(`/user/login`));
               }
@@ -99,6 +100,7 @@ export default class ThirdLogin extends Component {
 
             if (data && data.token) {
               cookie.set("token", data.token);
+              dispatch(routerRedux.push(`/`));
               window.location.reload();
               return null;
             }
