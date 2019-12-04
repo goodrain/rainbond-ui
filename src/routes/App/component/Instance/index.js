@@ -227,7 +227,6 @@ class Index extends PureComponent {
                       padding: "10px",
                       color: "rgba(0, 0, 0, 0.85)",
                       fontSize: "14px"
-                      // background: "#fff"
                     }}
                   >
                     实例中的容器
