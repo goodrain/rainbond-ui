@@ -1,31 +1,19 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import {
-  Row,
-  Col,
-  Card,
-  Table,
   Button,
   Form,
-  Input,
   InputNumber,
   Select,
-  Radio,
-  Icon,
   Modal
 } from "antd";
 import styles from "./AddScaling.less";
-import Cpuimg from "../../../../../public/images/cpu.png";
-import Typesimg from "../../../../../public/images/types.png";
 import Testimg from "../../../../../public/images/test.png";
 import Shangxian from "../../../../../public/images/shangxian.png";
 import Indicators from "../../../../../public/images/indicators.png";
-import InputValue from "../../../../../public/images/inputValue.png";
-import Neicunshiyongimg from "../../../../../public/images/neicunshiyong.png";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const RadioGroup = Radio.Group;
 
 @connect(({ loading }) => ({
   changeScalingRules: loading.effects["appControl/changeScalingRules"],
@@ -93,41 +81,9 @@ class AddScaling extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { selectMemoryList } = this.state;
     let propsData = data ? data : false;
-    // const selectAfterCpu = (
-    //   <FormItem className={styles.selectItem}>
-    //     {getFieldDecorator("selectCpu", {
-    //       initialValue: propsData
-    //         ? this.setMetric_target_value(propsData.metrics, "cpu", true)
-    //         : "utilization"
-    //     })(
-    //       <Select className={styles.setSelect}>
-    //         <Option value="utilization">%</Option>
-    //         <Option value="average_value">m</Option>
-    //       </Select>
-    //     )}
-    //   </FormItem>
-    // );
-    // const selectAfterMemory = (
-    //   <FormItem className={styles.selectItem}>
-    //     {getFieldDecorator("selectMemory", {
-    //       initialValue: propsData
-    //         ? this.setMetric_target_value(propsData.metrics, "memory", true)
-    //         : "utilization"
-    //     })(
-    //       <Select className={styles.setSelect}>
-    //         <Option value="utilization">%</Option>
-    //         <Option value="average_value">Mi</Option>
-    //       </Select>
-    //     )}
-    //   </FormItem>
-    // );
 
     const minNumber = getFieldValue("minNum") || 0;
     const selectMemoryDesc = getFieldValue("selectMemory");
-    // const cpuSymbolPrompt =
-    //   getFieldValue("selectCpu") === "utilization" ? "率" : "量";
-    // const memorySymbolPrompt =
-    //   getFieldValue("selectMemory") === "utilization" ? "率" : "量";
 
     const formItemLayout = {
       labelCol: {
@@ -298,76 +254,6 @@ class AddScaling extends PureComponent {
                 使用量超过或低于该目标值时, 实例数量会增加或减少
               </div>
             </FormItem>
-
-            {/* <FormItem
-              className={styles.clearConform}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Cpuimg} alt="" />
-                  CPU&nbsp;:
-                </div>
-              }
-              {...formItemLayout}
-              style={{ textAlign: "left" }}
-            >
-              {getFieldDecorator("cpuValue", {
-                initialValue: propsData
-                  ? this.setMetric_target_value(propsData.metrics, "cpu")
-                  : 0,
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                    message: "请输入数字"
-                  },
-                  { required: true, message: "请输入CPU" },
-                  { validator: this.checkContent }
-                ]
-              })(
-                <Input
-                  type="number"
-                  addonAfter={selectAfterCpu}
-                  placeholder="请输入CPU"
-                />
-              )}
-              <div className={styles.conformDesc}>
-                当CPU的使用{cpuSymbolPrompt}超过低于目标值时, 将创建或删除副本
-              </div>
-            </FormItem>
-            <FormItem
-              className={styles.clearConform}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Testimg} alt="" />
-                  内存&nbsp;:
-                </div>
-              }
-              {...formItemLayout}
-              style={{ textAlign: "left" }}
-            >
-              {getFieldDecorator("memoryValue", {
-                initialValue: propsData
-                  ? this.setMetric_target_value(propsData.metrics, "memory")
-                  : 0,
-                rules: [
-                  {
-                    pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                    message: "请输入数字"
-                  },
-                  { required: true, message: "请输入内存" },
-                  { validator: this.checkContent }
-                ]
-              })(
-                <Input
-                  type="number"
-                  addonAfter={selectAfterMemory}
-                  placeholder="请输入内存"
-                />
-              )}
-              <div className={styles.conformDesc}>
-                当内存的使用{memorySymbolPrompt}超过或低于目标值时,
-                将创建或删除副本
-              </div>
-            </FormItem> */}
           </Form>
         </Modal>
       </div>

@@ -233,7 +233,6 @@ export default class AppList extends PureComponent {
   }
   componentDidMount = () => {
     this.mounted = true;
-    //this.queryImportingApp();
     this.getApps();
   };
   componentWillUnmount() {
@@ -450,7 +449,6 @@ export default class AppList extends PureComponent {
     let composeisSuccess = "none";
     const export_status = item.export_status;
     if (appquery) {
-      //
 
       if (appquery.is_export_before) {
         if (appquery.status == "success") {
@@ -466,7 +464,6 @@ export default class AppList extends PureComponent {
       } else {
         apptext = "rainbond-app(点击导出)";
       }
-      //
       if (composequery.is_export_before) {
         if (composequery.status == "success") {
           composetext = "docker_compose(点击下载)";
@@ -481,9 +478,6 @@ export default class AppList extends PureComponent {
       } else {
         composetext = "docker_compose(点击导出)";
       }
-      //
-
-      //
     } else {
       composetext = "docker_compose(点击下载)";
       apptext = "rainbond-app(点击下载)";

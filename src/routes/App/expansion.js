@@ -114,14 +114,14 @@ export default class Index extends PureComponent {
     this.getScalingRecord();
     this.fetchInstanceInfo();
     this.fetchExtendInfo();
-    // this.timeClick = setInterval(() => {
-    //   this.fetchInstanceInfo();
-    // }, 60000);
+    this.timeClick = setInterval(() => {
+      this.fetchInstanceInfo();
+    }, 60000);
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({ type: "appControl/clearExtendInfo" });
-    // clearInterval(this.timeClick);
+    this.timeClick && clearInterval(this.timeClick);
   }
   // 是否可以浏览当前界面
   canView() {
@@ -203,20 +203,20 @@ export default class Index extends PureComponent {
   handlePodClick = (podName, manageName) => {
     let adPopup = window.open("about:blank");
     const appAlias = this.props.appAlias;
-    // if (podName && manageName) {
-    this.props.dispatch({
-      type: "appControl/managePod",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
-        pod_name: podName,
-        manage_name: manageName
-      },
-      callback: () => {
-        adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
-      }
-    });
-    // }
+    if (podName && manageName) {
+      this.props.dispatch({
+        type: "appControl/managePod",
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appAlias,
+          pod_name: podName,
+          manage_name: manageName
+        },
+        callback: () => {
+          adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
+        }
+      });
+    }
   };
   fetchExtendInfo = () => {
     const { dispatch } = this.props;
@@ -316,7 +316,6 @@ export default class Index extends PureComponent {
     const { dispatch, appDetail } = this.props;
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
-    // const { enable } = this.state;
 
     let metrics = [
       {
@@ -573,7 +572,6 @@ export default class Index extends PureComponent {
             );
             this.changeScalingRules(obj);
           } else if (editInfo) {
-            // minNum: "1", memory: "128", node: 2, maxNum: 2, cpuValue: 0
 
             let obj = res.bean;
             obj.max_replicas = Number(editInfo.maxNum);
@@ -675,7 +673,7 @@ export default class Index extends PureComponent {
     ) {
       return false;
     }
-    let re = /^[0-9]+.?[0-9]*/; //
+    let re = /^[0-9]+.?[0-9]*/;
     if (!re.test(num)) {
       errorDesc = "请输入数字";
     } else if (num <= 0 || num > 65535) {
@@ -925,7 +923,7 @@ export default class Index extends PureComponent {
                     设置
                   </Button>
                   <div className={styles.remindDesc}>
-                    单实例最大内存，最大CPU将根据内存自动计算
+                    该值定义组件实例数量的初始值，实际值可能被自动伸缩调整
                   </div>
                 </Form.Item>
               </Form>
@@ -1102,7 +1100,6 @@ export default class Index extends PureComponent {
                             onBlur={e => {
                               this.handlerules("memoryValue");
                             }}
-                            // addonAfter={selectAfterMemory}
                           />
                         )}
                       </div>
