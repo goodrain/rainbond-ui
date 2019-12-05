@@ -4,13 +4,11 @@ import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
 import {
   Card,
-  Row,
-  Col,
   Switch,
   notification,
   Button,
   Radio,
-  Icon
+  Popconfirm
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import styles from "../List/BasicList.less";
@@ -18,14 +16,10 @@ import globalUtil from "../../utils/global";
 import Addimg from "../../../public/images/add.png";
 import TeamListTable from "../../components/tables/TeamListTable";
 import userUtil from "../../utils/user";
-import teamUtil from "../../utils/team";
 import ScrollerX from "../../components/ScrollerX";
 import CreateTeam from "../../components/CreateTeam";
-import rainbond from "../../utils/rainbond";
 import DescriptionList from "../../components/DescriptionList";
 import CreatUser from "../../components/CreatUserForm";
-import { log } from "lodash-decorators/utils";
-import config from "../../config/config";
 import rainbondUtil from "../../utils/rainbond";
 import ConfirmModal from "../../components/ConfirmModal";
 
@@ -220,23 +214,6 @@ export default class BasicList extends PureComponent {
     israinbondTird && isOpen ? this.handleOpenDomain() : this.handleOpen();
   };
 
-  // handleDeleteOauthInfo = () => {
-  //   const { oauthInfo } = this.state;
-  //   const { dispatch } = this.props;
-  //   dispatch({
-  //     type: "global/deleteOauthInfo",
-  //     payload: {
-  //       service_id: oauthInfo.service_id
-  //     },
-  //     callback: res => {
-  //       if (res && res._code == 200) {
-  //         notification.success({ message: "成功" });
-  //         this.handelOauthInfo();
-  //       }
-  //     }
-  //   });
-  // };
-
   handleOpenDomain = () => {
     this.setState({
       showDeleteDomain: true
@@ -261,7 +238,7 @@ export default class BasicList extends PureComponent {
       type: "global/getOauthInfo",
       callback: res => {
         if (res && res._code == 200) {
-          let bean = res.data.bean;
+          let bean = res.bean;
           let judge = rainbondUtil.OauthbEnable(info ? info : rainbondInfo);
           this.setState({
             oauthInfo: bean && bean.oauth_services,
@@ -273,6 +250,23 @@ export default class BasicList extends PureComponent {
       }
     });
   };
+
+  handleDeleteOauth = () => {
+    const { dispatch } = this.props;
+    const { oauthInfo } = this.state
+    dispatch({
+      type: "global/deleteOauthInfo",
+      payload: {
+        service_id: oauthInfo.service_id
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: "删除成功" });
+          window.location.reload()
+        }
+      }
+    });
+  }
 
   getSettingShow = () => {
     const { rainbondInfo, is_public } = this.props;
@@ -334,19 +328,29 @@ export default class BasicList extends PureComponent {
               size="large"
               style={{ marginBottom: 32, marginTop: 32 }}
             >
-              <Description term="Oauth2.0认证">
-                {oauthInfo && oauthInfo.enable && israinbondTird && (
+              <Description term="Oauth互联">
+                {oauthInfo && oauthInfo.enable && israinbondTird ? (
                   <span>
-                    类型：{oauthInfo.oauth_type}&nbsp;
-                    {oauthInfo.is_auto_login ? "已开启" : "关闭"}自动登录
+                    已开通{oauthInfo.oauth_type}类型的第三方OAuth互联服务&nbsp;
+                    {oauthInfo.is_auto_login && ", 且已开启自动登录"}
                   </span>
-                )}
+                ):(<span ctyle="color:rgba(0, 0, 0, 0.45)">支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目</span>)}
 
                 <Switch
                   style={{ float: "right" }}
                   onClick={this.handlChooseeOpen}
                   checked={israinbondTird && isOpen}
                 />
+                {oauthInfo && (
+                  <Popconfirm
+                  title="删除配置后已绑定的用户数据将清除，确认删除吗?"
+                  onConfirm={this.handleDeleteOauth}
+                  okText="确认"
+                  cancelText="我再想想"
+                >
+                  <a style={{ float: "right", marginRight: "10px" }} href="#">移除配置</a>
+                </Popconfirm>
+                )}
                 {oauthInfo && oauthInfo.enable && israinbondTird && (
                   <a
                     onClick={this.handleOpen}
@@ -493,24 +497,25 @@ export default class BasicList extends PureComponent {
       access_token_url,
       api_url,
       home_url,
-      is_auto_login
+      is_auto_login,
+      redirect_domain,
     } = values;
 
     oauth_type = oauth_type.toLowerCase();
 
     if (oauth_type === "github") {
-      home_url = "github.com";
+      home_url = "https://github.com";
       auth_url = "https://github.com/login/oauth/authorize";
       access_token_url = "https://github.com/login/oauth/access_token";
       api_url = "https://api.github.com/user";
     } else if (oauth_type === "gitlab") {
-      auth_url = `"http://${home_url}/oauth/authorize`;
-      access_token_url = `http://${home_url}/oauth/token`;
-      api_url = "http://git.goodrain.com/api/v4/user";
+      auth_url = `${home_url}/oauth/authorize`;
+      access_token_url = `${home_url}/oauth/token`;
+      api_url = `${home_url}/api/v4/user`;
     } else if (oauth_type === "gitee") {
-      auth_url = `"http://${home_url}/oauth/authorize`;
-      access_token_url = `http://${home_url}/oauth/token`;
-      api_url = "https://gitee.com/api/v5/user";
+      auth_url = `${home_url}/oauth/authorize`;
+      access_token_url = `${home_url}/oauth/token`;
+      api_url = `${home_url}/api/v5/user`;
     } else {
       home_url = null;
     }
@@ -521,9 +526,7 @@ export default class BasicList extends PureComponent {
       client_secret,
       is_auto_login,
       oauth_type,
-      redirect_uri: `${window.location.protocol}//${
-        window.location.host
-      }/console/oauth/redirect`,
+      redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       auth_url,
       access_token_url,
       api_url,
@@ -575,7 +578,6 @@ export default class BasicList extends PureComponent {
           }
         });
         this.props.dispatch({ type: "user/fetchCurrent" });
-        // this.getDetail();
         notification.success({ message: "成功" });
         this.handelClone();
       }

@@ -3,7 +3,6 @@ import { connect } from "dva";
 import { Link } from "dva/router";
 import Login from "../../components/Login";
 import styles from "./Login.less";
-import ThirdLogin from "./Third";
 
 const { UserName, Password, Submit } = Login;
 

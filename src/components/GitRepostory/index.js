@@ -1,16 +1,16 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import { Card, Button } from "antd";
+import { Card } from "antd";
 import rainbondUtil from "../../utils/rainbond";
 import globalUtil from "../../utils/global";
-// import { getGithubInfo } from "../../services/team";
-import CodeGithubForm from "../../components/CodeGithubForm";
+import oauthUtil from "../../utils/oauth";
 import ThirdList from "../../components/ThirdList";
-import styles from "./Index.less";
+import styles from "./index.less";
 
 @connect(({ user, groupControl, global }) => ({
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
+  currentUser: user.currentUser,
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -18,23 +18,30 @@ export default class Index extends PureComponent {
     this.state = {
       // 是否绑定了github仓库
       is_auth: false,
-      // 绑定github的地址
+      // oauth url
       auth_url: "",
       // 代码分支及版本信息
       codeList: []
     };
   }
   componentDidMount() {
-    const { rainbondInfo } = this.props;
-    const type = this.setType();
-    if (rainbondUtil.OauthbTypes(rainbondInfo, type)) {
-      this.getGithubInfo(rainbondInfo, type);
+    const { rainbondInfo, type } = this.props;
+    const git_type = this.setType();
+    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
+    if (gitinfo) {
+      this.setState({"auth_url":oauthUtil.getAuthredictURL(gitinfo)})
+    }
+    if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
+      this.getGitRepostoryInfo(rainbondInfo, type);
     }
   }
   setType = () => {
-    const { tabList, type } = this.props;
+    const { tabList, type, gitType } = this.props;
+    if (gitType) {
+        return gitType
+    }
     let typs = "";
-    tabList.map(item => {
+    tabList && tabList.map(item => {
       const { key, types } = item;
       if (type == key) {
         typs = types;
@@ -43,25 +50,10 @@ export default class Index extends PureComponent {
     return typs;
   };
 
-  getGithubInfo = (rainbondInfo, type) => {
-    let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
-    let is_auth = gitinfo ? true : false;
-    this.setState({
-      is_auth
-    });
-  };
-
-  toAuth = () => {
-    const { rainbondInfo } = this.props;
-    const type = this.setType();
-    let gitinfo = rainbondUtil.OauthbTypes(rainbondInfo, type);
-    if (gitinfo) {
-      location.href = `${gitinfo.auth_url}?response_type=code&client_id=${
-        gitinfo.client_id
-      }&redirect_uri=${rainbondInfo.redirect_uri}/console/oauth/redirect/${
-        gitinfo.service_id
-      }`;
-    }
+  getGitRepostoryInfo = (rainbondInfo, key) => {
+    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, key);
+    const { currentUser } = this.props
+    this.setState({is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key)});
   };
 
   handleSubmit = value => {
@@ -118,17 +110,11 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { is_auth } = this.state;
+    const { is_auth, auth_url } = this.state;
     const type = this.setType();
     return (
       <Card bordered={false} className={styles.ClearCard}>
         <div
-        // style={{
-        //   width:
-        //     this.props.handleType && this.props.handleType === "Service"
-        //       ? "auto"
-        //       : "500px"
-        // }}
         >
           {!is_auth ? (
             <div
@@ -143,21 +129,22 @@ export default class Index extends PureComponent {
               this.props.handleType === "Service" &&
               this.props.ButtonGroupState
                 ? this.props.handleServiceBotton(
-                    <Button onClick={this.toAuth} type="primary">
-                      点击绑定
-                    </Button>,
+                    <a href={auth_url} target="_blank" type="primary">
+                      去认证
+                    </a>,
                     false
                   )
                 : !this.props.handleType && (
-                    <Button
-                      onClick={this.toAuth}
+                    <a 
+                      href={auth_url}
+                      target="_blank" 
                       style={{
                         marginLeft: 20
                       }}
                       type="primary"
                     >
-                      点击绑定
-                    </Button>
+                      去认证
+                    </a>
                   )}
             </div>
           ) : (

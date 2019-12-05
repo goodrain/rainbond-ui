@@ -18,11 +18,9 @@ import groupBy from "lodash/groupBy";
 import Debounce from "lodash-decorators/debounce";
 import { Link } from "dva/router";
 import NoticeIcon from "../NoticeIcon";
-import HeaderSearch from "../HeaderSearch";
 import styles from "./index.less";
-import cookie from "../../utils/cookie";
+import oauthUtil from "../../utils/oauth";
 import userIcon from "../../../public/images/user-icon-small.png";
-import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
 import rainbondUtil from "../../utils/rainbond";
@@ -30,7 +28,7 @@ import Gitee from "../../../public/images/gitee.png";
 import Github from "../../../public/images/github.png";
 import Gitlab from "../../../public/images/gitlab.png";
 
-import { Route, Redirect, Switch, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 
 class DialogMessage extends PureComponent {
   constructor(props) {
@@ -139,15 +137,6 @@ export default class GlobalHeader extends PureComponent {
       if (newNotice.msg_type) {
         newNotice.msg_type = newNotice.msg_type;
       }
-      // if (newNotice.extra && newNotice.status) {
-      //     const color = ({
-      //       todo: '',
-      //       processing: 'blue',
-      //       urgent: 'red',
-      //       doing: 'gold',
-      //     })[newNotice.status];
-      //     newNotice.extra = <Tag color={color} style={{ marginRight: 0 }}>{newNotice.extra}</Tag>;
-      //   }
       return newNotice;
     });
     return groupBy(newNotices, "msg_type");
@@ -319,27 +308,16 @@ export default class GlobalHeader extends PureComponent {
     const {
       currentUser,
       collapsed,
-      fetchingNotices,
       isMobile,
       logo,
-      onNoticeVisibleChange,
       onMenuClick,
-      onNoticeClear,
-      notifyCount,
       isPubCloud,
-      currRegion,
-      appDetail,
       rainbondInfo
     } = this.props;
     const noticesList = this.state.newNoticeList;
     if (!currentUser) {
       return null;
     }
-    const map = {
-      github: Github,
-      gitlab: Gitlab,
-      gitee: Gitee
-    };
 
     const handleEditSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
@@ -354,10 +332,6 @@ export default class GlobalHeader extends PureComponent {
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={onMenuClick}>
-          {/* <Menu.Item disabled><Icon type="user" />个人中心</Menu.Item>
-        <Menu.Item disabled><Icon type="setting" />设置</Menu.Item>
-        <Menu.Item key="triggerError"><Icon type="close-circle" />触发报错</Menu.Item>
-        <Menu.Divider /> */}
           {rainbondUtil.OauthbEnable(rainbondInfo) && (
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
@@ -369,48 +343,23 @@ export default class GlobalHeader extends PureComponent {
                 service_name,
                 is_authenticated,
                 is_expired,
-                auth_url,
-                client_id,
-                service_id,
-                redirect_uri,
-                oauth_type
               } = item;
+              const authURL = oauthUtil.getAuthredictURL(item)
               return (
                 <Menu.Item
                   key={service_name}
-                  onClick={() => {
-                    !is_authenticated &&
-                      this.onhandleThird(
-                        oauth_type,
-                        auth_url,
-                        client_id,
-                        redirect_uri,
-                        service_id
-                      );
-                  }}
                 >
                   <div className={styles.userInfoContent}>
                     <span className={styles.oneSpan} title={service_name}>
-                      <img
-                        src={map[oauth_type]}
-                        style={{
-                          marginRight: 8
-                        }}
-                      />
+                      {oauthUtil.getIcon(item,"16px")}
                       {service_name}
                     </span>
                     <span>
-                      <Icon
-                        type={is_authenticated ? "check" : "close"}
-                        style={{
-                          color: is_authenticated ? "#58B8F8" : "#000"
-                        }}
-                      />
                       {is_authenticated
-                        ? "已认证"
+                        ? <span style={{"color":"green"}}>已认证</span>
                         : is_expired
-                        ? "过期"
-                        : "未认证"}
+                        ? <a href={authURL} target="_blank">已过期重新认证</a>
+                        : <a href={authURL} target="_blank">去认证</a>}
                     </span>
                   </div>
                 </Menu.Item>

@@ -1577,7 +1577,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            thirdInfo: res.data.bean
+            thirdInfo: res.bean
           });
         }
       }
@@ -1698,7 +1698,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tags: res.data.bean[tabType],
+            tags: res.bean[tabType],
             tagsLoading: false,
             OauthLoading: false
           });
@@ -1736,15 +1736,15 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           setFieldsValue({
-            git_full_name: res.data.bean.repositories[0].project_full_name
+            git_full_name: res.bean.repositories[0].project_full_name
           });
           setFieldsValue({
-            git_url: res.data.bean.repositories[0].project_url
+            git_url: res.bean.repositories[0].project_url
           });
 
           this.setState(
             {
-              fullList: res.data.bean.repositories
+              fullList: res.bean.repositories
             },
             () => {
               this.handleCodeWarehouseType(this.props);
@@ -1978,7 +1978,9 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="项目名称"
               >
-                {buildSource.full_name}
+              <a href={buildSource.git_url} target="_blank">
+                 {buildSource.full_name}
+              </a>
               </FormItem>
             )}
 

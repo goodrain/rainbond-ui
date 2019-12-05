@@ -77,19 +77,18 @@ class Index extends React.Component {
       tagsLoading: true
     };
   }
-  componentDidMount() {
+  componentWillMount() {
     this.handleCodeWarehouseType(this.props);
   }
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.type !== this.props.type) {
       this.handleCodeWarehouseType(nextProps);
     }
   }
-  //获取类型
+  //get repostory tag or branchs 
   handleCodeWarehouseType = props => {
     const { dispatch, type, thirdInfo } = props;
     const { tabType } = this.state;
-
     dispatch({
       type: "global/codeWarehouseType",
       payload: {
@@ -100,24 +99,12 @@ class Index extends React.Component {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tags: res.data.bean[tabType],
+            tags: res.bean[tabType],
             tagsLoading: false
           });
         }
       }
     });
-  };
-
-  handleSearch = env_name => {
-    // this.setState(
-    //   {
-    //     page: 1,
-    //     env_name
-    //   },
-    //   () => {
-    //     this.fetchInnerEnvs();
-    //   }
-    // );
   };
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -149,7 +136,6 @@ class Index extends React.Component {
       if (err) {
         return;
       }
-
       fieldsValue.project_id = this.props.thirdInfo.project_id;
       fieldsValue.project_url = this.props.thirdInfo.project_url;
       fieldsValue.project_full_name = this.props.thirdInfo.project_full_name;
@@ -157,12 +143,9 @@ class Index extends React.Component {
     });
   };
 
-  onChange = (value, selectedOptions) => {
-    console.log(value, selectedOptions);
-  };
   onTabChange = tabType => {
     this.setState({ tabType, tagsLoading: true }, () => {
-      this.handleCodeWarehouseType();
+      this.handleCodeWarehouseType(this.props);
     });
   };
   render() {
@@ -182,6 +165,7 @@ class Index extends React.Component {
         <Option value="tag">Tag</Option>
       </Select>
     );
+    const { thirdInfo } = this.props;
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -196,10 +180,7 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("group_id", {
-              initialValue:
-                this.props.handleType && this.props.handleType === "Service"
-                  ? Number(this.props.groupId)
-                  : "",
+              initialValue: groups && groups.length>0 && groups[0].group_id,
               rules: [{ required: true, message: "请选择" }]
             })(
               <Select
@@ -241,7 +222,7 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("service_cname", {
-              initialValue: "",
+              initialValue: thirdInfo ? thirdInfo.project_name : "",
               rules: [{ required: true, message: "要创建的组件还没有名字" }]
             })(<Input placeholder="请为创建的组件起个名字吧" />)}
           </Form.Item>
@@ -257,7 +238,7 @@ class Index extends React.Component {
             }
           >
             {getFieldDecorator("code_version", {
-              initialValue: "",
+              initialValue: tags && tags.length > 0 && tags[0],
               rules: [{ required: true, message: "请输入代码版本" }]
             })(
               <Select placeholder="请输入代码版本">
@@ -273,7 +254,7 @@ class Index extends React.Component {
                     </Tabs>
                   }
                 >
-                  {tags.length > 0 ? (
+                  {!tagsLoading && tags && tags.length > 0 ? (
                     tags.map(item => {
                       return (
                         <Option key={item} value={item}>
@@ -303,7 +284,7 @@ class Index extends React.Component {
             {getFieldDecorator("Cascader", {
               initialValue: false,
               rules: [{ required: true, message: "请选择" }]
-            })(<Switch defaultChecked onChange={this.onChange} />)}
+            })(<Switch />)}
           </Form.Item>
 
           {showSubmitBtn ? (

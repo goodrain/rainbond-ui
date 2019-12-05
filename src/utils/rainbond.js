@@ -32,7 +32,7 @@ export default {
     (bean.oauth_services &&
       bean.oauth_services.enable &&
       bean.oauth_services.value &&
-      bean.oauth_services.value.find(item => item.name === values)) ||
+      bean.oauth_services.value.find(item => item.oauth_type === values)) ||
     false,
 
   //判断平台和用户 是否开启了oauths 功能认证

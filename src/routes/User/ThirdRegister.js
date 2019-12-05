@@ -1,23 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
-import { Form, Input, Button, Row, Col, message } from "antd";
+import { Form, Row, Col, message } from "antd";
 import styles from "./Register.less";
-import config from "../../config/config";
 import cookie from "../../utils/cookie";
+import oauthUtil from "../../utils/oauth";
 import RegisterComponent from "./registerComponent";
 import rainbondUtil from "../../utils/rainbond";
-import Gitee from "../../../public/images/gitee.png";
-import Github from "../../../public/images/github.png";
-import Gitlab from "../../../public/images/gitlab.png";
-
-const FormItem = Form.Item;
-
-const passwordProgressMap = {
-  ok: "success",
-  pass: "normal",
-  poor: "exception"
-};
 
 const oauth_user_id = rainbondUtil.OauthParameter("oauth_user_id");
 const code = rainbondUtil.OauthParameter("code");
@@ -48,7 +37,7 @@ export default class Register extends Component {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            user_info: res.data.bean.user_info
+            user_info: res.bean.user_info
           });
         }
       }
@@ -64,8 +53,8 @@ export default class Register extends Component {
           ...values
         },
         callback: data => {
-          if (data && data._code === 200) {
-            cookie.set("token", data.bean.token);
+          if (data && data.token != "") {
+            cookie.set("token", data.token);
             dispatch({
               type: "user/fetchThirdBinding",
               payload: {
@@ -73,12 +62,12 @@ export default class Register extends Component {
                 oauth_user_id
               },
               callback: res => {
-                if (res && res.status && res.status === 400) {
-                  message.warning("认证失败，请重新认证", 2, () => {
+                if (res && res._code == 200) {
+                  message.success("认证成功", 2, () => {
                     window.location.reload();
                   });
-                } else if (res && res._code === 200) {
-                  message.success("认证成功", 2, () => {
+                } else {
+                  message.warning("认证失败，请重新认证", 2, () => {
                     window.location.reload();
                   });
                 }
@@ -107,29 +96,28 @@ export default class Register extends Component {
       );
       return null;
     }
-    const map = {
-      github: Github,
-      gitlab: Gitlab,
-      gitee: Gitee
-    };
     const { user_info } = this.state;
-    const { form } = this.props;
-    const { getFieldDecorator } = form;
+    const { form, rainbondInfo } = this.props;
+    let oauthServer = null;
+    rainbondInfo.oauth_services.value.map(item => {
+      if (item.service_id == service_id) {
+        oauthServer = item;
+      }
+    });
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
-          来自 {map[oauth_type]} 登录的{user_info && user_info.oauth_user_name}{" "}
-          您好！你现在可以进行绑定
+          来自{oauthServer.service_name}登录的{user_info && user_info.oauth_user_name}{" "}
+          您好！你需要补充完整平台账号信息
         </p>
         <Row style={{ marginBottom: "24px" }}>
           <Col span={10} className={styles.boxJump}>
-            {!this.state.firstRegist && (
+            {!this.state.firstRegist &&
               <Link
                 to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
               >
                 已有账号，马上绑定
-              </Link>
-            )}
+              </Link>}
           </Col>
           <Col
             span={10}

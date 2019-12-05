@@ -1,24 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
+import { Link } from "dva/router";
 import {
-  Checkbox,
-  Alert,
-  Divider,
   Row,
   Col,
-  Icon,
-  notification,
   message
 } from "antd";
-import Login from "../../components/Login";
 import styles from "./Login.less";
 import rainbondUtil from "../../utils/rainbond";
 import LoginComponent from "./loginComponent";
 import cookie from "../../utils/cookie";
-import Gitee from "../../../public/images/gitee.png";
-import Github from "../../../public/images/github.png";
-import Gitlab from "../../../public/images/gitlab.png";
+import oauthUtil from "../../utils/oauth";
 
 const code = rainbondUtil.OauthParameter("code");
 const service_id = rainbondUtil.OauthParameter("service_id");
@@ -46,7 +38,7 @@ export default class LoginPage extends Component {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            user_info: res.data.bean.user_info
+            user_info: res.bean.user_info
           });
         }
       }
@@ -88,21 +80,21 @@ export default class LoginPage extends Component {
   };
 
   render() {
-    const { login, submitting, rainbondInfo, user_info } = this.props;
-    const { type } = this.state;
+    const { rainbondInfo } = this.props;
+    const { user_info } = this.state
     let code = rainbondUtil.OauthParameter("code");
     let service_id = rainbondUtil.OauthParameter("service_id");
-    const map = {
-      github: Github,
-      gitlab: Gitlab,
-      gitee: Gitee
-    };
-
+    let oauthServer = null
+    rainbondInfo.oauth_services.value.map((item)=>{
+      if (item.service_id == service_id) {
+        oauthServer = item
+      }
+    })
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
-          来自 <img src={map[oauth_type]} alt={oauth_type} /> 登录的
-          {user_info && user_info.oauth_user_name} 您好！你现在可以进行绑定
+          来自{oauthServer.service_name}登录的
+          {user_info && user_info.oauth_user_name}您好！你需要补充完整平台账号信息
         </p>
         <Row style={{ marginBottom: "24px" }}>
           <Col

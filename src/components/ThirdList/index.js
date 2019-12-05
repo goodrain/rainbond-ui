@@ -1,11 +1,7 @@
 import React, { PureComponent, Fragment } from "react";
-import debounce from "lodash.debounce";
 import globalUtil from "../../utils/global";
 import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import config from "../../config/config";
 import App from "../../../public/images/app.svg";
-import AddGroup from "../../components/AddOrEditGroup";
 import ThirForm from "./form.js";
 import styles from "./Index.less";
 
@@ -14,13 +10,11 @@ import {
   Avatar,
   Icon,
   Skeleton,
-  Badge,
   Row,
   Col,
   Input,
   Card,
   Typography,
-  Pagination,
   Modal,
   Form,
   Select,
@@ -28,10 +22,6 @@ import {
   Spin,
   Tooltip
 } from "antd";
-
-const { Search } = Input;
-const { Text } = Typography;
-const { Option } = Select;
 
 @connect()
 @Form.create()
@@ -53,7 +43,9 @@ class Index extends React.Component {
       create_loading: false,
       create_status: "",
       service_info: "",
-      error_infos: ""
+      error_infos: "",
+      lastPage: true,
+      firstPage: true,
     };
   }
   componentDidMount() {
@@ -65,10 +57,22 @@ class Index extends React.Component {
       this.handleCodeWarehouseInfo(nextProps);
     }
   }
-  onPageChange = page => {
-    this.setState({ page, loading: true }, () => {
-      this.handleCodeWarehouseInfo(this.props);
-    });
+  onPagePre = () => {
+    if (this.state.page > 1) {
+      let page = this.state.page - 1;
+      const firstPage = page == 1;
+      this.setState({ firstPage, page, loading: true }, () => {
+        this.handleCodeWarehouseInfo(this.props);
+      });
+    }
+  };
+  onPageNext = () => {
+    if (!this.state.lastPage) {
+      let page = this.state.page + 1;
+      this.setState({ page, loading: true }, () => {
+        this.handleCodeWarehouseInfo(this.props);
+      });
+    }
   };
   handleSearch = search => {
     const _th = this;
@@ -96,10 +100,14 @@ class Index extends React.Component {
       },
       callback: res => {
         if (res) {
+          const firstPage = page == 1;
+          const lastPage = res.bean.repositories.length < 10;
           this.setState({
+            firstPage,
+            lastPage,
             loading: false,
-            total: res.data.bean.total,
-            lists: res.data.bean.repositories
+            total: res.bean.total,
+            lists: res.bean.repositories
           });
         }
       }
@@ -130,8 +138,8 @@ class Index extends React.Component {
             if (res && res._code === 200) {
               this.setState(
                 {
-                  event_id: res.data.bean && res.data.bean.event_id,
-                  check_uuid: res.data.bean && res.data.bean.check_uuid,
+                  event_id: res.bean && res.bean.event_id,
+                  check_uuid: res.bean && res.bean.check_uuid,
                   create_status: "Checking",
                   create_loading: false
                 },
@@ -162,9 +170,9 @@ class Index extends React.Component {
       callback: res => {
         if (res && res._code === 200) {
           if (
-            res.data.bean &&
-            res.data.bean.check_status != "Success" &&
-            res.data.bean.check_status != "Failure"
+            res.bean &&
+            res.bean.check_status != "Success" &&
+            res.bean.check_status != "Failure"
           ) {
             this.timer = setTimeout(function() {
               _th.handleDetectionCode();
@@ -172,9 +180,9 @@ class Index extends React.Component {
           } else {
             clearTimeout(this.timer);
             this.setState({
-              create_status: res.data.bean && res.data.bean.check_status,
-              service_info: res.data.bean && res.data.bean.service_info,
-              error_infos: res.data.bean && res.data.bean.error_infos
+              create_status: res.bean && res.bean.check_status,
+              service_info: res.bean && res.bean.service_info,
+              error_infos: res.bean && res.bean.error_infos
             });
           }
         }
@@ -219,7 +227,9 @@ class Index extends React.Component {
       lists,
       loading,
       thirdInfo,
-      create_loading
+      create_loading,
+      firstPage,
+      lastPage,
     } = this.state;
     const { handleType } = this.props;
     const data = ["goodarin", "rainbond"];
@@ -230,7 +240,7 @@ class Index extends React.Component {
           background: ServiceComponent ? "#fff " : "#F0F2F5"
         }}
       >
-        {this.state.detection && (
+        {this.state.detection &&
           <Modal
             visible={detection}
             onCancel={this.handleDetection}
@@ -251,267 +261,245 @@ class Index extends React.Component {
                     </Button>
                   ]
                 : this.state.create_status == "Success"
-                ? [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handleDetection}
-                    >
-                      确认
-                    </Button>
-                  ]
-                : [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>
-                  ]
+                  ? [
+                      <Button key="back" onClick={this.handleDetection}>
+                        关闭
+                      </Button>,
+                      <Button
+                        key="submit"
+                        type="primary"
+                        onClick={this.handleDetection}
+                      >
+                        确认
+                      </Button>
+                    ]
+                  : [
+                      <Button key="back" onClick={this.handleDetection}>
+                        关闭
+                      </Button>
+                    ]
             }
           >
             <div>
               {this.state.create_status == "Checking" ||
-              this.state.create_status == "Complete" ? (
-                <div>
-                  <p style={{ textAlign: "center" }}>
-                    <Spin />
-                  </p>
-                  <p style={{ textAlign: "center", fontSize: "14px" }}>
-                    检测中，请稍后(请勿关闭弹窗)
-                  </p>
-                </div>
-              ) : (
-                ""
-              )}
-              {this.state.create_status == "Failure" ? (
-                <div>
-                  <p
-                    style={{
-                      textAlign: "center",
-                      color: "#28cb75",
-                      fontSize: "36px"
-                    }}
-                  >
-                    <Icon
+              this.state.create_status == "Complete"
+                ? <div>
+                    <p style={{ textAlign: "center" }}>
+                      <Spin />
+                    </p>
+                    <p style={{ textAlign: "center", fontSize: "14px" }}>
+                      检测中，请稍后(请勿关闭弹窗)
+                    </p>
+                  </div>
+                : ""}
+              {this.state.create_status == "Failure"
+                ? <div>
+                    <p
                       style={{
-                        color: "#f5222d",
-                        marginRight: 8
+                        textAlign: "center",
+                        color: "#28cb75",
+                        fontSize: "36px"
                       }}
-                      type="close-circle-o"
-                    />
-                  </p>
-                  {this.state.error_infos &&
-                    this.state.error_infos.map(items => {
-                      return (
-                        <div>
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: `<span>${items.error_info ||
-                                ""} ${items.solve_advice || ""}</span>`
-                            }}
-                          />
-                        </div>
-                      );
-                      // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
-                    })}
-                </div>
-              ) : (
-                ""
-              )}
-              {this.state.create_status == "Success" ? (
-                <div>
-                  <p
-                    style={{
-                      textAlign: "center",
-                      color: "#28cb75",
-                      fontSize: "36px"
-                    }}
-                  >
-                    <Icon type="check-circle-o" />
-                  </p>
+                    >
+                      <Icon
+                        style={{
+                          color: "#f5222d",
+                          marginRight: 8
+                        }}
+                        type="close-circle-o"
+                      />
+                    </p>
+                    {this.state.error_infos &&
+                      this.state.error_infos.map(items => {
+                        return (
+                          <div>
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: `<span>${items.error_info ||
+                                  ""} ${items.solve_advice || ""}</span>`
+                              }}
+                            />
+                          </div>
+                        );
+                        // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
+                      })}
+                  </div>
+                : ""}
+              {this.state.create_status == "Success"
+                ? <div>
+                    <p
+                      style={{
+                        textAlign: "center",
+                        color: "#28cb75",
+                        fontSize: "36px"
+                      }}
+                    >
+                      <Icon type="check-circle-o" />
+                    </p>
 
-                  {this.state.service_info &&
-                    this.state.service_info.map(item => {
-                      return (
-                        <p style={{ textAlign: "center", fontSize: "14px" }}>
-                          检测语言:{item.language}{" "}
-                        </p>
-                      );
-                    })}
-                </div>
-              ) : (
-                ""
-              )}
-              {this.state.create_status == "Failed" ? (
-                <div>
-                  <p
-                    style={{
-                      textAlign: "center",
-                      color: "999",
-                      fontSize: "36px"
-                    }}
-                  >
-                    <Icon type="close-circle-o" />
-                  </p>
-                  <p style={{ textAlign: "center", fontSize: "14px" }}>
-                    检测失败，请重新检测
-                  </p>
-                </div>
-              ) : (
-                ""
-              )}
+                    {this.state.service_info &&
+                      this.state.service_info.map(item => {
+                        return (
+                          <p style={{ textAlign: "center", fontSize: "14px" }}>
+                            检测语言:{item.language}{" "}
+                          </p>
+                        );
+                      })}
+                  </div>
+                : ""}
+              {this.state.create_status == "Failed"
+                ? <div>
+                    <p
+                      style={{
+                        textAlign: "center",
+                        color: "999",
+                        fontSize: "36px"
+                      }}
+                    >
+                      <Icon type="close-circle-o" />
+                    </p>
+                    <p style={{ textAlign: "center", fontSize: "14px" }}>
+                      检测失败，请重新检测
+                    </p>
+                  </div>
+                : ""}
 
-              {!this.state.create_status && (
+              {!this.state.create_status &&
                 <div>
                   <p style={{ textAlign: "center", fontSize: "14px" }}>
                     确定要重新检测吗?
                   </p>
-                </div>
-              )}
+                </div>}
             </div>
-          </Modal>
-        )}
+          </Modal>}
 
-        {!visible ? (
-          <List
-            loading={loading}
-            className={styles.lists}
-            header={
-              <Input.Search
-                ref="searchs"
-                placeholder="请输入搜索内容"
-                enterButton="搜索"
-                size="large"
-                onSearch={this.handleSearch}
-                style={{
-                  width: 522,
-                  padding: "0 0 11px 0"
-                }}
-              />
-            }
-            footer={
-              <div style={{ textAlign: "right" }}>
-                <Pagination
-                  size="small"
-                  current={this.state.page}
-                  pageSize={this.state.page_size}
-                  total={Number(this.state.total)}
-                  onChange={this.onPageChange}
+        {!visible
+          ? <List
+              loading={loading}
+              className={styles.lists}
+              header={
+                <Input.Search
+                  ref="searchs"
+                  placeholder="请输入搜索内容"
+                  enterButton="搜索"
+                  size="large"
+                  onSearch={this.handleSearch}
+                  style={{
+                    width: 522,
+                    padding: "0 0 11px 0"
+                  }}
                 />
-              </div>
-            }
-            dataSource={lists}
-            gutter={1}
-            renderItem={item => (
-              <List.Item
-                className={styles.listItem}
-                actions={[
-                  <div>
-                    <a
-                      onClick={() => {
-                        this.showModal(item);
+              }
+              footer={
+                <div style={{ textAlign: "right" }}>
+                  {!firstPage && <Button  onClick={this.onPagePre}>上一页</Button>}
+                  {!lastPage && <Button onClick={this.onPageNext}>下一页</Button>}
+                </div>
+              }
+              dataSource={lists}
+              gutter={1}
+              renderItem={item =>
+                <List.Item
+                  className={styles.listItem}
+                  actions={[
+                    <div>
+                      <a
+                        onClick={() => {
+                          this.handleOpenDetection(item);
+                        }}
+                      >
+                        检测语言
+                      </a>
+                      <a
+                        style={{ marginLeft: "16px" }}
+                        onClick={() => {
+                          this.showModal(item);
+                        }}
+                      >
+                        创建组件
+                      </a>
+                    </div>
+                  ]}
+                >
+                  <Skeleton avatar title={false} loading={false} active>
+                    <List.Item.Meta
+                      style={{
+                        alignItems: "center"
+                      }}
+                      avatar={<Avatar src={App} />}
+                      title={
+                        <a target="_blank" href={item.project_url}>
+                          <div className={styles.listItemMataTitle}>
+                            <Tooltip title={item.project_name}>
+                              <div>
+                                {item.project_name || "-"}
+                              </div>
+                            </Tooltip>
+                            <Tooltip
+                              title={
+                                item.project_full_name &&
+                                item.project_full_name.split("/")[0]
+                              }
+                            >
+                              <div>
+                                {item.project_full_name &&
+                                  item.project_full_name.split("/")[0]}
+                              </div>
+                            </Tooltip>
+                          </div>
+                        </a>
+                      }
+                    />
+                    <Row
+                      justify="center"
+                      style={{
+                        width: "70%",
+                        display: "flex",
+                        alignItems: "center"
                       }}
                     >
-                      创建组件
-                    </a>
-                  </div>
-                ]}
-              >
-                <Skeleton avatar title={false} loading={false} active>
-                  <List.Item.Meta
-                    style={{
-                      alignItems: "center"
-                    }}
-                    avatar={<Avatar src={App} />}
-                    title={
-                      <a target="_blank" href={item.project_url}>
-                        <div className={styles.listItemMataTitle}>
-                          <Tooltip title={item.project_name}>
-                            <div>{item.project_name || "-"}</div>
-                          </Tooltip>
-                          <Tooltip
-                            title={
-                              item.project_full_name &&
-                              item.project_full_name.split("/")[0]
-                            }
-                          >
-                            <div>
-                              {item.project_full_name &&
-                                item.project_full_name.split("/")[0]}
+                      {!ServiceComponent &&
+                        <Col span={8}>
+                          <Tooltip title={item.project_description}>
+                            <div className={styles.listItemMataDesc}>
+                              {item.project_description}
                             </div>
                           </Tooltip>
-                        </div>
-                      </a>
-                    }
-                  />
-                  <Row
-                    justify="center"
-                    style={{
-                      width: "70%",
-                      display: "flex",
-                      alignItems: "center"
-                    }}
-                  >
-                    {!ServiceComponent && (
-                      <Col span={8}>
-                        <Tooltip title={item.project_description}>
-                          <div className={styles.listItemMataDesc}>
-                            {item.project_description}
+                        </Col>}
+                      <Col span={ServiceComponent ? 12 : 8}>
+                        <Tooltip title={item.project_default_branch}>
+                          <div className={styles.listItemMataBranch}>
+                            <Icon
+                              type="apartment"
+                              style={{ marginRight: "5px" }}
+                            />
+                            {item.project_default_branch || "-"}
                           </div>
                         </Tooltip>
                       </Col>
-                    )}
-                    <Col span={ServiceComponent ? 12 : 8}>
-                      <Tooltip title={item.project_default_branch}>
-                        <div className={styles.listItemMataBranch}>
-                          <Icon
-                            type="apartment"
-                            style={{ marginRight: "5px" }}
-                          />
-                          {item.project_default_branch || "-"}
-                        </div>
-                      </Tooltip>
-                    </Col>
-                    <Col
-                      span={ServiceComponent ? 12 : 8}
-                      style={{ textAlign: "center" }}
-                    >
-                      <Badge
-                        status="processing"
-                        text={
-                          <a
-                            onClick={() => {
-                              this.handleOpenDetection(item);
-                            }}
-                          >
-                            {item.project_language || "未检测语言"}
-                          </a>
-                        }
-                      />
-                    </Col>
-                  </Row>
-                </Skeleton>
-              </List.Item>
-            )}
-          />
-        ) : (
-          <Card bordered={false} style={{ padding: "24px 32px" }}>
-            <Icon type="arrow-left" onClick={this.handleCancel} />
-            <div
-              className={styles.formWrap}
-              style={{
-                width: ServiceComponent ? "auto" : "500px"
-              }}
-            >
-              <ThirForm
-                onSubmit={this.props.handleSubmit}
-                {...this.props}
-                thirdInfo={thirdInfo}
-              />
-            </div>
-          </Card>
-        )}
+                    </Row>
+                  </Skeleton>
+                </List.Item>}
+            />
+          : <Card bordered={false} style={{ padding: "24px 32px" }}>
+              <Icon
+                style={{ fontSize: "16px", marginRight: "8px" }}
+                type="arrow-left"
+                onClick={this.handleCancel}
+              />回到列表
+              <div
+                className={styles.formWrap}
+                style={{
+                  width: ServiceComponent ? "auto" : "500px"
+                }}
+              >
+                <ThirForm
+                  onSubmit={this.props.handleSubmit}
+                  {...this.props}
+                  thirdInfo={thirdInfo}
+                />
+              </div>
+            </Card>}
       </div>
     );
   }

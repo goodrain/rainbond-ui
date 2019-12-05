@@ -1,40 +1,13 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import {
-  Row,
-  Col,
   Button,
   Icon,
   Drawer,
-  Alert,
-  Tooltip
 } from "antd";
-import styles from "./Index.less";
-import Custom from "../Create/code-custom";
-import Github from "../Create/code-github";
-import Goodrain from "../Create/code-goodrain";
 import Check from "../Create/create-check";
 import OuterCustom from "../Create/outer-custom";
-import ImageName from "../Create/image-name";
-import ImageCmd from "../Create/image-cmd";
 import Market from "../Create/market";
-import rainbondUtil from "../../utils/rainbond";
-import { languageObj } from '../../utils/utils';
-
-const appStatusMap = {
-  running: {
-    iconUrl: "/static/www/img/appOutline/code.svg",
-    className: "roundloading",
-  },
-  starting: {
-    iconUrl: "/static/www/img/appOutline/docker.svg",
-    className: "",
-  },
-  unKnow: {
-    iconUrl: "/static/www/img/appOutline/github.svg",
-    className: "",
-  },
-};
 
 
 @connect(({ user, groupControl, global }) => ({

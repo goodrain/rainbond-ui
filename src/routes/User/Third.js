@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 import rainbondUtil from "../../utils/rainbond";
-import globalUtil from "../../utils/global";
-import { notification, message } from "antd";
 import cookie from "../../utils/cookie";
 import Result from "../../components/Result";
 @connect(({ loading, global }) => ({
@@ -21,15 +19,13 @@ export default class ThirdLogin extends Component {
   componentWillMount() {
     let code = rainbondUtil.OauthParameter("code");
     let service_id = rainbondUtil.OauthParameter("service_id");
-
     const { dispatch } = this.props;
-    if (code && service_id) {
-      //有账号 未认证 is_authenticated
-      let teamName = cookie.get("region_name");
-      let regionName = cookie.get("team");
-      let token = cookie.get("token");
-
-      if (teamName && regionName && token) {
+    if (code && service_id && code!="None" && service_id!="None" && code!="" && service_id!="") {
+      const token = cookie.get("token");
+      const teamName = cookie.get("region_name");
+      const regionName = cookie.get("team");
+      // if user login
+      if (token) {
         dispatch({
           type: "user/fetchThirdLoginBinding",
           payload: {
@@ -73,7 +69,8 @@ export default class ThirdLogin extends Component {
         return null;
       }
 
-      //获取第三方用户信息
+      //if not login
+      
       dispatch({
         type: "user/fetchThirdCertification",
         payload: {
@@ -89,24 +86,19 @@ export default class ThirdLogin extends Component {
                 desc: "未成功获取access_token,请重新认证。"
               },
               () => {
-
-                // notification.warning({ message: "未成功获取access_token" });
                 dispatch(routerRedux.push(`/user/login`));
               }
             );
           } else if (res && res._code === 200) {
-            const { rainbondInfo } = this.props;
-            const data = res.data.bean;
-
+            const data = res.bean;
             if (data && data.token) {
               cookie.set("token", data.token);
               dispatch(routerRedux.push(`/`));
               window.location.reload();
               return null;
             }
-
             if (data && data.result) {
-              //未绑定
+              //if not login
               if (!data.result.is_authenticated) {
                 dispatch(
                   routerRedux.push(
@@ -129,42 +121,11 @@ export default class ThirdLogin extends Component {
                 );
               }
             }
-
-            // if (!res.is_authenticated && !is_link) {
-            //   this.props.dispatch(
-            //     routerRedux.push(
-            //       `/user/third/register?code=${code}&service_id=${service_id}`
-            //     )
-            //   );
-            // }
-            // //认证过期
-            // else if (!is_expired) {
-            //   this.props.dispatch({
-            //     type: "user/fetchCertificationThird",
-            //     payload: {
-            //       code,
-            //       service_id
-            //     },
-            //     callback: res => {
-            //       if (res) {
-            //         this.props.dispatch(
-            //           routerRedux.push(
-            //             `/user/third/login?code=${code}&service_id=${service_id}`
-            //           )
-            //         );
-            //       }
-            //     }
-            //   });
-            // } else {
-            //   this.props.dispatch(
-            //     routerRedux.push(
-            //       `/user/third/login?code=${code}&service_id=${service_id}`
-            //     )
-            //   );
-            // }
           }
         }
       });
+    }else{
+      this.props.dispatch(routerRedux.replace("/user/login?disable_auto_login=true"));
     }
   }
 

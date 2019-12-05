@@ -177,7 +177,7 @@ export default class Index extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.data && res.data.code && res.data.code === 10400) {
+        if (res && res.code === 10400) {
           dispatch({
             type: "global/setNouse",
             payload: {

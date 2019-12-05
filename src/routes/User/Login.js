@@ -1,17 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
-import { Checkbox, Alert, Divider, Row, Col, Icon } from "antd";
-import Login from "../../components/Login";
+import { Divider, Row, Col } from "antd";
 import styles from "./Login.less";
-import cookie from "../../utils/cookie";
-import Gitee from "../../../public/images/gitee.png";
-import Github from "../../../public/images/github.png";
-import Gitlab from "../../../public/images/gitlab.png";
 import rainbondUtil from "../../utils/rainbond";
 import LoginComponent from "./loginComponent";
-
-const { Tab, UserName, Password, Submit } = Login;
+import oauthUtil from "../../utils/oauth"
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
@@ -27,19 +20,27 @@ export default class LoginPage extends Component {
       }
     });
   };
+  componentWillMount() {
+    //check auto login
+    const { rainbondInfo } = this.props;
+    let disable_auto_login = rainbondUtil.OauthParameter("disable_auto_login");
+    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
+      rainbondInfo.oauth_services.value.map(item => {
+        const { is_auto_login } = item;
+        if (is_auto_login && disable_auto_login!="true") {
+          window.location.href = oauthUtil.getAuthredictURL(item);
+        }
+      });
+    }
+  }
 
   render() {
     const { rainbondInfo } = this.props;
-    const map = {
-      github: Github,
-      gitlab: Gitlab,
-      gitee: Gitee
-    };
 
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
-        {rainbondUtil.OauthbEnable(rainbondInfo) && (
+        {rainbondUtil.OauthbEnable(rainbondInfo) &&
           <div className={styles.thirdBox}>
             <Divider>
               <div className={styles.thirdLoadingTitle}>第三方登录</div>
@@ -48,44 +49,22 @@ export default class LoginPage extends Component {
               {rainbondInfo &&
                 rainbondInfo.oauth_services.value.length > 0 &&
                 rainbondInfo.oauth_services.value.map(item => {
-                  const {
-                    oauth_type,
-                    name,
-                    client_id,
-                    auth_url,
-                    redirect_uri,
-                    service_id,
-                    is_auto_login
-                  } = item;
-
-                  let githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
-                  let gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
-                  let giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
-                  const linkUrl = {
-                    github: githubUrl,
-                    gitlab: gitlabUrl,
-                    gitee: giteeUrl
-                  };
-                  if (is_auto_login) {
-                    window.location.href = linkUrl[oauth_type];
-                  }
-
+                  const { name, client_id } = item;
+                  let url = oauthUtil.getAuthredictURL(item);
+                  let icon = oauthUtil.getIcon(item)
                   return (
                     <Col span="8" className={styles.thirdCol} key={client_id}>
-                      <a href={linkUrl[oauth_type]}>
-                        {oauth_type !== "other" ? (
-                          <img src={map[oauth_type]} />
-                        ) : (
-                          <Icon type="star" />
-                        )}
-                        <p>{name}</p>
+                      <a href={url}>
+                        {icon}
+                        <p>
+                          {name}
+                        </p>
                       </a>
                     </Col>
                   );
                 })}
             </Row>
-          </div>
-        )}
+          </div>}
       </div>
     );
   }
