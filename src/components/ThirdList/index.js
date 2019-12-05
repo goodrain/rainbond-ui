@@ -99,7 +99,7 @@ class Index extends React.Component {
         oauth_service_id: type
       },
       callback: res => {
-        if (res) {
+        if (res && res.bean) {
           const firstPage = page == 1;
           const lastPage = res.bean.repositories.length < 10;
           this.setState({

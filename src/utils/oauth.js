@@ -7,7 +7,7 @@ const oauthUtil = {
     let servers = [];
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
       rainbondInfo.oauth_services.value.map(item => {
-        if (item.enable) {
+        if (item.is_git && item.enable) {
           servers.push(item);
         }
       });
@@ -25,23 +25,23 @@ const oauthUtil = {
     const { oauth_type } = item;
     switch (oauth_type) {
       case "github":
-        return <Icon style={{ "font-size": size, color: "#40485B" }} type="github" />
+        return <Icon style={{ fontSize: size, color: "#40485B" }} type="github" />
       case "gitlab":
-        return <Icon style={{ "font-size": size }} type="gitlab" />;
+        return <Icon style={{ fontSize: size }} type="gitlab" />;
       case "gitee":
         return <img
-            style={{ height: size, width: size, "border-radius": "50%" }}
+            style={{ height: size, width: size, borderRadius: "50%" }}
             src={Gitee}
           />
       default:
-        return <Icon style={{ "font-size": size }} type="sync" />;
+        return <Icon style={{ fontSize: size }} type="sync" />;
     }
   },
   getGitOauthServer(rainbondInfo, service_id) {
     let selectServer = null
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
       rainbondInfo.oauth_services.value.map(item => {
-        if (item.service_id == service_id) {
+        if (item.is_git && item.service_id == service_id) {
           selectServer = item
         }
       });

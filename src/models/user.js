@@ -158,6 +158,10 @@ export default {
     *thirdRegister({ payload, callback }, { call, put, select }) {
       const response = yield call(register, payload);
       if (response) {
+        const urlParams = new URL(window.location.href);
+        const pathname = yield select(state => state.routing.location.pathname);
+        // add the parameters in the url
+        const redirect = urlParams.searchParams.get("redirect", pathname);
         yield put({ type: "registerHandle", payload: response.bean, redirect });
         callback && callback(response.bean);
       }

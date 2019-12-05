@@ -35,6 +35,18 @@ export default class Index extends PureComponent {
       this.getGitRepostoryInfo(rainbondInfo, type);
     }
   }
+  componentWillUpdate(props) {
+    this.props = props
+    const { rainbondInfo, type } = props;
+    const git_type = this.setType();
+    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
+    if (gitinfo) {
+      this.setState({"auth_url":oauthUtil.getAuthredictURL(gitinfo)})
+    }
+    if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
+      this.getGitRepostoryInfo(rainbondInfo, type);
+    }
+  }
   setType = () => {
     const { tabList, type, gitType } = this.props;
     if (gitType) {

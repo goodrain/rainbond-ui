@@ -93,7 +93,7 @@ export default class LoginPage extends Component {
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: "24px" }}>
-          来自{oauthServer.service_name}登录的
+          来自{oauthServer&&oauthServer.name}登录的
           {user_info && user_info.oauth_user_name}您好！你需要补充完整平台账号信息
         </p>
         <Row style={{ marginBottom: "24px" }}>

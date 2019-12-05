@@ -1734,7 +1734,7 @@ export default class Index extends PureComponent {
           : ""
       },
       callback: res => {
-        if (res) {
+        if (res && res.bean) {
           setFieldsValue({
             git_full_name: res.bean.repositories[0].project_full_name
           });
