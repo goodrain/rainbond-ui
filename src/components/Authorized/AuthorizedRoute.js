@@ -62,17 +62,17 @@ class AuthorizedRoute extends React.Component {
     } = this.props;
     return (
       <Authorized
-        authority={authority}
-        logined={logined}
-        noMatch={this.getNoMatch()}
-      >
-        <Route
-          {...rest}
-          render={props =>
-            Component ? <Component {...props} /> : render(props)
-          }
-        />
-      </Authorized>
+            authority={authority}
+            logined={logined}
+            noMatch={this.getNoMatch()}
+          >
+            <Route
+              {...rest}
+              render={props =>
+                Component ? <Component {...props} /> : render(props)
+              }
+            />
+          </Authorized>
     );
   }
 }

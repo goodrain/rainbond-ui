@@ -1,36 +1,37 @@
 import {
   createAppByCode,
+  createThirtAppByCodes,
   createThirdPartyServices,
   createAppByCompose,
   createAppByDockerrun,
   installApp,
-  getAppsByComposeId,
-} from '../services/createApp';
+  getAppsByComposeId
+} from "../services/createApp";
 
 export default {
-  namespace: 'createApp',
+  namespace: "createApp",
 
   state: {
-    extend_method: '',
-    min_memory: '',
-    service_runtimes: '',
-    service_server: '',
-    service_dependency: '',
+    extend_method: "",
+    min_memory: "",
+    service_runtimes: "",
+    service_server: "",
+    service_dependency: ""
   },
   effects: {
-    * getAppsByComposeId({ payload, callback }, { call, put }) {
+    *getAppsByComposeId({ payload, callback }, { call, put }) {
       const data = yield call(getAppsByComposeId, payload);
       if (data) {
         callback && callback(data);
       }
     },
-    * installApp({ payload, callback }, { call, put }) {
+    *installApp({ payload, callback }, { call, put }) {
       const data = yield call(installApp, payload);
       if (data) {
         callback && callback(data);
       }
     },
-    * createAppByCode({ payload, callback }, { call, put }) {
+    *createAppByCode({ payload, callback }, { call, put }) {
       const data = yield call(createAppByCode, payload);
       if (data) {
         setTimeout(() => {
@@ -38,7 +39,16 @@ export default {
         });
       }
     },
-    * createThirdPartyServices({ payload, callback }, { call, put }) {
+    *createThirtAppByCode({ payload, callback }, { call, put }) {
+      const data = yield call(createThirtAppByCodes, payload);
+      if (data) {
+        setTimeout(() => {
+          callback && callback(data);
+        });
+      }
+    },
+
+    *createThirdPartyServices({ payload, callback }, { call, put }) {
       const data = yield call(createThirdPartyServices, payload);
       if (data) {
         setTimeout(() => {
@@ -46,7 +56,7 @@ export default {
         });
       }
     },
-    * createAppByCompose({ payload, callback }, { call, put }) {
+    *createAppByCompose({ payload, callback }, { call, put }) {
       const data = yield call(createAppByCompose, payload);
       if (data) {
         setTimeout(() => {
@@ -54,7 +64,7 @@ export default {
         });
       }
     },
-    * createAppByDockerrun({ payload, callback }, { call, put }) {
+    *createAppByDockerrun({ payload, callback }, { call, put }) {
       const data = yield call(createAppByDockerrun, payload);
       if (data) {
         setTimeout(() => {
@@ -68,17 +78,17 @@ export default {
     saveRuntimeInfo(state, { payload }) {
       return {
         ...state,
-        ...payload,
+        ...payload
       };
     },
     clearRuntimeInfo(state) {
       return {
-        extend_method: '',
-        min_memory: '',
-        service_runtimes: '',
-        service_server: '',
-        service_dependency: '',
+        extend_method: "",
+        min_memory: "",
+        service_runtimes: "",
+        service_server: "",
+        service_dependency: ""
       };
-    },
-  },
+    }
+  }
 };

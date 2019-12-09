@@ -28,7 +28,6 @@ export default class PluginInfo extends PureComponent {
   };
 
   render() {
-    console.log(this.props.plugin);
     return <Fragment>{this.props.plugin.plugin_alias}</Fragment>;
   }
 }

@@ -1,158 +1,264 @@
 @import "~antd/lib/style/themes/default.less";
+
 .header {
-    padding: 0 12px 0 0;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
-    position: relative;
+  padding   : 0 12px 0 0;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+  position  : relative;
+}
+
+.uesrInfo {
+  width             : 200px;
+  background        : #fff;
+  border-radius     : 4px;
+  outline           : none;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow        : 0 2px 8px rgba(0, 0, 0, 0.15);
+  -webkit-transition: background .3s, width .2s;
+  transition        : background .3s, width .2s;
+  zoom              : 1;
+
+  :global {
+
+    .ant-menu-inline,
+    .ant-menu-vertical,
+    .ant-menu-vertical-left {
+      border: none !important;
+    }
+  }
+
+  li {
+    font-size  : 12px !important;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color      : rgba(51, 51, 51, 1);
+    height     : 17px !important;
+    line-height: 17px !important;
+
+    i {
+      font-size: 12px !important;
+    }
+  }
+
+  padding: 10px 21px 10px 16px;
+
+  .uesrInfoTitle {
+    width        : 100px;
+    height       : 17px;
+    font-size    : 12px;
+    font-family  : PingFangSC-Regular, PingFang SC;
+    font-weight  : 400;
+    color        : rgba(51, 51, 51, 1);
+    line-height  : 17px;
+    margin-bottom: 6px;
+  }
+
+  .userInfoContent {
+    display    : flex;
+    align-items: center;
+
+    &:hover span,
+    &:hover span i {
+      color: #1890ff !important;
+    }
+
+    span {
+      display    : inline-block;
+      width      : 63px;
+      height     : 17px;
+      font-size  : 12px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color      : rgba(51, 51, 51, 1);
+
+      i {
+        font-size   : 10px;
+        margin-right: 5px;
+      }
+    }
+
+    .oneSpan {
+      overflow     : hidden;
+      text-overflow: ellipsis;
+      word-break   : break-all;
+      white-space  : nowrap;
+      line-height: 16px;
+      i {
+        font-size: 12px;
+        margin-left: 5px;
+      }
+
+      margin-right: 8px;
+    }
+  }
 }
 
 :global {
-    .ant-layout {
-        /* overflow-x: hidden; */
-        overflow: hidden;
-    }
+  .ant-layout {
+    /* overflow-x: hidden; */
+    overflow     : hidden;
+  }
 }
 
 .logo {
-    height: 64px;
-    line-height: 58px;
-    vertical-align: top;
-    display: inline-block;
-    padding: 0 0 0 24px;
-    cursor: pointer;
-    font-size: 20px;
-    img {
-        display: inline-block;
-        vertical-align: middle;
-    }
+  height        : 64px;
+  line-height   : 58px;
+  vertical-align: top;
+  display       : inline-block;
+  padding       : 0 0 0 24px;
+  cursor        : pointer;
+  font-size     : 20px;
+
+  img {
+    display       : inline-block;
+    vertical-align: middle;
+  }
 }
 
 .menu {
-     :global(.anticon) {
-        margin-right: 8px;
-    }
-     :global(.ant-dropdown-menu-item) {
-        width: 160px;
-    }
+  :global(.anticon) {
+    margin-right: 8px;
+  }
+
+  :global(.ant-dropdown-menu-item) {
+    width: 160px;
+  }
 }
 
 i.trigger {
-    font-size: 20px;
-    line-height: 64px;
-    cursor: pointer;
-    transition: all .3s, padding 0s;
-    vertical-align: middle;
-    padding: 0 24px;
-    &:hover {
-        background: @primary-1;
-    }
+  font-size     : 20px;
+  line-height   : 64px;
+  cursor        : pointer;
+  transition    : all .3s, padding 0s;
+  vertical-align: middle;
+  padding       : 0 24px;
+
+  &:hover {
+    background: @primary-1;
+  }
 }
 
 .teamregion {
-    display: inline-block;
-    vertical-align: middle;
-    overflow: hidden;
-    border-left: 1px solid #e6e6e6;
-    border-right: 1px solid #e6e6e6;
-    padding: 0 35px 0 35px;
-    .tit {
-        margin-right: 10px;
-        color: #929292;
-    }
-    .dropdown {
-        cursor: pointer;
-    }
+  display       : inline-block;
+  vertical-align: middle;
+  overflow      : hidden;
+  border-left   : 1px solid #e6e6e6;
+  border-right  : 1px solid #e6e6e6;
+  padding       : 0 35px 0 35px;
+
+  .tit {
+    margin-right: 10px;
+    color       : #929292;
+  }
+
+  .dropdown {
+    cursor: pointer;
+  }
 }
 
 .smShow {
-    display: none;
+  display: none;
 }
 
 @media screen and (max-width: 480px) {
-    .teamregion {
-        .tit {
-            display: none;
-        }
+  .teamregion {
+    .tit {
+      display: none;
     }
-    .smShow {
-        display: inline-block;
-    }
-    .smHidden {
-        display: none;
-    }
+  }
+
+  .smShow {
+    display: inline-block;
+  }
+
+  .smHidden {
+    display: none;
+  }
 }
 
 .right {
-    float: right;
-    height: 100%;
-    .action {
-        cursor: pointer;
-        padding: 0 12px;
-        display: inline-block;
-        transition: all .3s;
-        height: 100%;
-        >i {
-            font-size: 16px;
-            vertical-align: middle;
-            color: rgba(0, 0, 0, 0.65)
-        }
-        &:hover,
-        &:global(.ant-popover-open) {
-            background: @primary-1;
-        }
-         :global {
-            .ant-avatar-image {
-                img {
-                    display: inline-block;
-                    vertical-align: middle;
-                    width: auto;
-                    height: auto;
-                }
-            }
-        }
+  float : right;
+  height: 100%;
+
+  .action {
+    cursor    : pointer;
+    padding   : 0 12px;
+    display   : inline-block;
+    transition: all .3s;
+    height    : 100%;
+
+    >i {
+      font-size     : 16px;
+      vertical-align: middle;
+      color         : rgba(0, 0, 0, 0.65)
     }
-    .search {
-        padding: 0;
-        margin: 0 12px;
-        &:hover {
-            background: transparent;
-        }
+
+    &:hover,
+    &:global(.ant-popover-open) {
+      background: @primary-1;
     }
-    .account {
-        .avatar {
-            margin: 20px 8px 20px 0;
-            color: @primary-color;
-            background: rgba(255, 255, 255, .85);
-            vertical-align: middle;
+
+    :global {
+      .ant-avatar-image {
+        img {
+          display       : inline-block;
+          vertical-align: middle;
+          width         : auto;
+          height        : auto;
         }
+      }
     }
+  }
+
+  .search {
+    padding: 0;
+    margin : 0 12px;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  .account {
+    .avatar {
+      margin        : 20px 8px 20px 0;
+      color         : @primary-color;
+      background    : rgba(255, 255, 255, .85);
+      vertical-align: middle;
+    }
+  }
 }
 
 @media only screen and (max-width: @screen-md) {
-    .header {
-         :global(.ant-divider-vertical) {
-            vertical-align: unset;
-        }
-        .name {
-            display: none;
-        }
-        i.trigger {
-            padding: 0 12px;
-        }
-        .logo {
-            padding-right: 12px;
-            position: relative;
-        }
-        .right {
-            position: absolute;
-            right: 12px;
-            top: 0;
-            background: #fff;
-            .account {
-                .avatar {
-                    margin-right: 0;
-                }
-            }
-        }
+  .header {
+    :global(.ant-divider-vertical) {
+      vertical-align: unset;
     }
+
+    .name {
+      display: none;
+    }
+
+    i.trigger {
+      padding: 0 12px;
+    }
+
+    .logo {
+      padding-right: 12px;
+      position     : relative;
+    }
+
+    .right {
+      position  : absolute;
+      right     : 12px;
+      top       : 0;
+      background: #fff;
+
+      .account {
+        .avatar {
+          margin-right: 0;
+        }
+      }
+    }
+  }
 }

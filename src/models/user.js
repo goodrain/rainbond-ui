@@ -8,7 +8,12 @@ import {
   gitlabRegister,
   createGitlabProject,
   changePass,
+  queryThirdInfo,
+  queryThirdCertification,
+  queryCertificationThird,
   getTeamByName,
+  queryThirdBinding,
+  queryThirdLoginBinding
 } from "../services/user";
 import { setAuthority } from "../utils/authority";
 import cookie from "../utils/cookie";
@@ -21,11 +26,11 @@ export default {
     list: [],
     currentUser: null,
     notifyCount: 0,
-    register: null,
+    register: null
   },
 
   effects: {
-    * getTeamByName({ payload, callback, fail }, { call, put, select }) {
+    *getTeamByName({ payload, callback, fail }, { call, put, select }) {
       const response = yield call(getTeamByName, payload);
       if (response) {
         yield put({ type: "saveOtherTeam", team: response.bean });
@@ -36,7 +41,7 @@ export default {
         fail && fail();
       }
     },
-    * changePass({ payload, callback }, { call, put, select }) {
+    *changePass({ payload, callback }, { call, put, select }) {
       const response = yield call(changePass, payload);
       if (response) {
         yield put({ type: "tologout" });
@@ -44,7 +49,45 @@ export default {
         callback && callback();
       }
     },
-    * login({ payload }, { call, put, select }) {
+
+    //第三方认证
+    *fetchThirdCertification({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdCertification, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    //第三方认证信息
+    *fetchThirdInfo({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //登录后三方用户与用户绑定接口
+    *fetchThirdBinding({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdBinding, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //登录成功三方用户与用户绑定接口
+    *fetchThirdLoginBinding({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryThirdLoginBinding, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //重新认证
+    *fetchCertificationThird({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryCertificationThird, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *login({ payload }, { call, put, select }) {
       const response = yield call(login, payload);
       //
       // cookie.set("token", "f8ocCLBCjzn4qHJU4oOzGwbLgzkdMI");
@@ -64,7 +107,16 @@ export default {
         window.location.reload();
       }
     },
-    * logout(_, { put, select }) {
+    *thirdLogin({ payload, callback }, { call, put, select }) {
+      const response = yield call(login, payload);
+
+      if (response) {
+        callback && callback(response);
+        yield put({ type: "changeLoginStatus", payload: response });
+      }
+    },
+
+    *logout(_, { put, select }) {
       try {
         // get location pathname
         const urlParams = new URL(window.location.href);
@@ -83,7 +135,7 @@ export default {
         window.location.reload();
       }
     },
-    * register({ payload, complete }, { call, put, select }) {
+    *register({ payload, complete }, { call, put, select }) {
       const response = yield call(register, payload);
 
       if (response) {
@@ -96,7 +148,6 @@ export default {
         const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
         const redirect = urlParams.searchParams.get("redirect", pathname);
-
         yield put({ type: "registerHandle", payload: response.bean, redirect });
 
         // yield put(routerRedux.push(redirect || '/index')); window.location.reload();
@@ -104,29 +155,40 @@ export default {
 
       complete && complete();
     },
-    * fetch(_, { call, put }) {
+    *thirdRegister({ payload, callback }, { call, put, select }) {
+      const response = yield call(register, payload);
+      if (response) {
+        const urlParams = new URL(window.location.href);
+        const pathname = yield select(state => state.routing.location.pathname);
+        // add the parameters in the url
+        const redirect = urlParams.searchParams.get("redirect", pathname);
+        yield put({ type: "registerHandle", payload: response.bean, redirect });
+        callback && callback(response.bean);
+      }
+    },
+    *fetch(_, { call, put }) {
       const response = yield call(queryUsers);
       yield put({ type: "save", payload: response });
     },
-    * fetchCurrent({ callback, handleError }, { call, put }) {
+    *fetchCurrent({ callback, handleError }, { call, put }) {
       const response = yield call(getDetail, handleError);
       if (response) {
         yield put({ type: "saveCurrentUser", payload: response.bean });
         callback && callback(response.bean);
       }
     },
-    * gitlabRegister({ payload, callback }, { call, put }) {
+    *gitlabRegister({ payload, callback }, { call, put }) {
       const response = yield call(gitlabRegister, payload);
       if (response) {
         callback && callback(response.bean);
       }
     },
-    * createGitlabProject({ payload, callback }, { call, put }) {
+    *createGitlabProject({ payload, callback }, { call, put }) {
       const response = yield call(createGitlabProject, payload);
       if (response) {
         callback && callback(response.bean);
       }
-    },
+    }
   },
 
   reducers: {
@@ -134,7 +196,7 @@ export default {
       return {
         ...state,
         register: payload,
-        redirect,
+        redirect
       };
     },
     changeLoginStatus(state, { payload }) {
@@ -142,7 +204,7 @@ export default {
       return {
         ...state,
         status: payload.status,
-        type: payload.type,
+        type: payload.type
       };
     },
     tologout(state, action) {
@@ -156,13 +218,13 @@ export default {
     save(state, action) {
       return {
         ...state,
-        list: action.payload,
+        list: action.payload
       };
     },
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload,
+        currentUser: action.payload
       };
     },
     saveOtherTeam(state, action) {
@@ -170,14 +232,14 @@ export default {
       currentUser.teams.push(action.team);
       return {
         ...state,
-        currentUser: Object.assign({}, currentUser),
+        currentUser: Object.assign({}, currentUser)
       };
     },
     changeNotifyCount(state, action) {
       return {
         ...state,
-        notifyCount: action.payload,
+        notifyCount: action.payload
       };
-    },
-  },
+    }
+  }
 };

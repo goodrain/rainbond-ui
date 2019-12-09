@@ -18,16 +18,17 @@ import groupBy from "lodash/groupBy";
 import Debounce from "lodash-decorators/debounce";
 import { Link } from "dva/router";
 import NoticeIcon from "../NoticeIcon";
-import HeaderSearch from "../HeaderSearch";
 import styles from "./index.less";
-import cookie from "../../utils/cookie";
+import oauthUtil from "../../utils/oauth";
 import userIcon from "../../../public/images/user-icon-small.png";
-import ScrollerX from "../../components/ScrollerX";
 import teamUtil from "../../utils/team";
 import globalUtil from "../../utils/global";
 import rainbondUtil from "../../utils/rainbond";
+import Gitee from "../../../public/images/gitee.png";
+import Github from "../../../public/images/github.png";
+import Gitlab from "../../../public/images/gitlab.png";
 
-import { Route, Redirect, Switch, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 
 class DialogMessage extends PureComponent {
   constructor(props) {
@@ -90,7 +91,10 @@ const noticeTit = {
   消息: "news",
   提醒: "warn"
 };
-@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
+@connect(({ global, appControl }) => ({
+  rainbondInfo: global.rainbondInfo,
+  appDetail: appControl.appDetail
+}))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -133,15 +137,6 @@ export default class GlobalHeader extends PureComponent {
       if (newNotice.msg_type) {
         newNotice.msg_type = newNotice.msg_type;
       }
-      // if (newNotice.extra && newNotice.status) {
-      //     const color = ({
-      //       todo: '',
-      //       processing: 'blue',
-      //       urgent: 'red',
-      //       doing: 'gold',
-      //     })[newNotice.status];
-      //     newNotice.extra = <Tag color={color} style={{ marginRight: 0 }}>{newNotice.extra}</Tag>;
-      //   }
       return newNotice;
     });
     return groupBy(newNotices, "msg_type");
@@ -221,7 +216,7 @@ export default class GlobalHeader extends PureComponent {
       <Menu className={styles.menu} selectedKeys={[]} onClick={onTeamClick}>
         {teams.map(item => (
           <Menu.Item key={item.team_name}>
-            <Ellipsis tooltip>{item.team_alias}</Ellipsis>
+            <Ellipsis tooltip> {item.team_alias} </Ellipsis>
           </Menu.Item>
         ))}
         <Menu.Divider />
@@ -291,54 +286,114 @@ export default class GlobalHeader extends PureComponent {
 
     return "";
   }
+  onhandleThird = (
+    oauth_type,
+    auth_url,
+    client_id,
+    redirect_uri,
+    service_id
+  ) => {
+    const githubUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
+    const gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+    const giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
+    window.location.href =
+      oauth_type === "github"
+        ? githubUrl
+        : oauth_type === "gitlab"
+        ? gitlabUrl
+        : giteeUrl;
+  };
+
   render() {
     const {
       currentUser,
       collapsed,
-      fetchingNotices,
       isMobile,
       logo,
-      onNoticeVisibleChange,
       onMenuClick,
-      onNoticeClear,
-      notifyCount,
       isPubCloud,
-      currRegion,
-      currTeam,
       rainbondInfo
     } = this.props;
     const noticesList = this.state.newNoticeList;
     if (!currentUser) {
       return null;
     }
+
+    const handleEditSvg = () => (
+      <svg width="15px" height="15px" viewBox="0 0 1024 1024">
+        <path d="M626.9 248.2L148.2 726.9 92.1 932.3l204.6-57 480.5-480.5-150.3-146.6z m274.3-125.8c-41-41-107.5-41-148.5 0l-80.5 80.5L823.1 349l78.1-78.2c41-41 41-107.5 0-148.4zM415.1 932.3h452.2v-64.6H415.1v64.6z m193.8-193.8h258.4v-64.6H608.9v64.6z" />
+      </svg>
+    );
+    const handleLogoutSvg = () => (
+      <svg width="15px" height="15px" viewBox="0 0 1024 1024">
+        <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
+      </svg>
+    );
     const menu = (
-      <Menu selectedKeys={[]} onClick={onMenuClick}>
-        {/* <Menu.Item disabled><Icon type="user" />个人中心</Menu.Item>
-        <Menu.Item disabled><Icon type="setting" />设置</Menu.Item>
-        <Menu.Item key="triggerError"><Icon type="close-circle" />触发报错</Menu.Item>
-        <Menu.Divider /> */}
-        {!isPubCloud && (
-          <Menu.Item key="cpw">
-            {" "}
-            <Icon
-              type="edit"
-              style={{
-                marginRight: 8
-              }}
-            />
-            修改密码{" "}
+      <div className={styles.uesrInfo}>
+        <Menu selectedKeys={[]} onClick={onMenuClick}>
+          {rainbondUtil.OauthbEnable(rainbondInfo) && (
+            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+          )}
+          {rainbondUtil.OauthbEnable(rainbondInfo) &&
+            currentUser.oauth_services &&
+            currentUser.oauth_services.length > 0 &&
+            currentUser.oauth_services.map(item => {
+              const {
+                service_name,
+                is_authenticated,
+                is_expired,
+              } = item;
+              const authURL = oauthUtil.getAuthredictURL(item)
+              return (
+                <Menu.Item
+                  key={service_name}
+                >
+                  <div className={styles.userInfoContent}>
+                    <span className={styles.oneSpan} title={service_name}>
+                      {oauthUtil.getIcon(item,"16px")}
+                      {service_name}
+                    </span>
+                    <span>
+                      {is_authenticated
+                        ? <span style={{"color":"green"}}>已认证</span>
+                        : is_expired
+                        ? <a href={authURL} target="_blank">已过期重新认证</a>
+                        : <a href={authURL} target="_blank">去认证</a>}
+                    </span>
+                  </div>
+                </Menu.Item>
+              );
+            })}
+
+          <div className={styles.uesrInfoTitle}>账号设置：</div>
+
+          {!isPubCloud && (
+            <Menu.Item key="cpw">
+              <div className={styles.userInfoContent}>
+                <Icon
+                  component={handleEditSvg}
+                  style={{
+                    marginRight: 8
+                  }}
+                />{" "}
+                修改密码{" "}
+              </div>
+            </Menu.Item>
+          )}
+          <Menu.Item key="logout">
+            <div className={styles.userInfoContent}>
+              <Icon
+                component={handleLogoutSvg}
+                style={{
+                  marginRight: 8
+                }}
+              />
+              退出登录
+            </div>
           </Menu.Item>
-        )}
-        <Menu.Item key="logout">
-          <Icon
-            type="logout"
-            style={{
-              marginRight: 8
-            }}
-          />
-          退出登录
-        </Menu.Item>
-      </Menu>
+        </Menu>
+      </div>
     );
 
     return (

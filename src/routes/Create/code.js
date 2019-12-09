@@ -1,32 +1,12 @@
 import React, { PureComponent } from "react";
-import moment from "moment";
-import PropTypes from "prop-types";
 import { connect } from "dva";
-import { Link, Switch, Route, routerRedux } from "dva/router";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification
-} from "antd";
+import { routerRedux } from "dva/router";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes } from "../../utils/utils";
-import { getRouterData } from "../../common/router";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import CodeCustom from "./code-custom";
 import CodeDemo from "./code-demo";
-import CodeGoodrain from "./code-goodrain";
-import CodeGithub from "./code-github";
+import CodeGitRepostory from "../../components/GitRepostory";
 import rainbondUtil from "../../utils/rainbond";
-
-const ButtonGroup = Button.Group;
 
 @connect(
   ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
@@ -51,12 +31,10 @@ export default class Main extends PureComponent {
     );
   };
   render() {
-    const rainbondInfo = this.props.rainbondInfo;
+    const { rainbondInfo } = this.props;
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
-      goodrain: CodeGoodrain,
-      github: CodeGithub
     };
 
     const tabList = [
@@ -68,15 +46,26 @@ export default class Main extends PureComponent {
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: "demo", tab: "官方DEMO" });
     }
-    if (rainbondUtil.gitlabEnable(rainbondInfo)) {
-      tabList.push({ key: "goodrain", tab: "Gitlab项目" });
-    }
 
-    if (rainbondUtil.githubEnable(rainbondInfo)) {
-      tabList.push({ key: "github", tab: "GitHub项目" });
+    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
+      rainbondInfo.oauth_services.value.map(item => {
+        const { name, service_id, oauth_type } = item;
+        map[service_id] = CodeGitRepostory;
+        tabList.push({
+          key: service_id,
+          types: oauth_type,
+          tab:
+            oauth_type === "github"
+              ? "Github项目"
+              : oauth_type === "gitlab"
+              ? "Gitlab项目"
+              : oauth_type === "gitee"
+              ? "Gitee项目"
+              : name + "项目"
+        });
+        return tabList;
+      });
     }
-
-    const { match, routerData, location } = this.props;
     let type = this.props.match.params.type;
     if (!type) {
       type = "custom";
@@ -105,7 +94,15 @@ export default class Main extends PureComponent {
         tabActiveKey={type}
         tabList={tabList}
       >
-        {Com ? <Com {...this.props} /> : "参数错误"}
+        {Com ? (
+          <Com
+            {...this.props}
+            type={this.props.match.params.type}
+            tabList={tabList}
+          />
+        ) : (
+          "参数错误"
+        )}
       </PageHeaderLayout>
     );
   }

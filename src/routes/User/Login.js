@@ -1,89 +1,70 @@
 import React, { Component } from "react";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
-import { Checkbox, Alert } from "antd";
-import Login from "../../components/Login";
+import { Divider, Row, Col } from "antd";
 import styles from "./Login.less";
-import cookie from "../../utils/cookie";
+import rainbondUtil from "../../utils/rainbond";
+import LoginComponent from "./loginComponent";
+import oauthUtil from "../../utils/oauth"
 
-const { Tab, UserName, Password, Submit } = Login;
-
-@connect(({ loading, global }) => ({
-  login: {},
+@connect(({ global }) => ({
   isRegist: global.isRegist,
-  submitting: loading.effects["user/login"]
+  rainbondInfo: global.rainbondInfo
 }))
 export default class LoginPage extends Component {
-  state = {
-    type: "account",
-    autoLogin: true
+  handleSubmit = values => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "user/login",
+      payload: {
+        ...values
+      }
+    });
   };
-
-  onTabChange = type => {
-    this.setState({ type });
-  };
-
-  handleSubmit = (err, values) => {
-    if (!err) {
-      this.props.dispatch({
-        type: "user/login",
-        payload: {
-          ...values
+  componentWillMount() {
+    //check auto login
+    const { rainbondInfo } = this.props;
+    let disable_auto_login = rainbondUtil.OauthParameter("disable_auto_login");
+    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
+      rainbondInfo.oauth_services.value.map(item => {
+        const { is_auto_login } = item;
+        if (is_auto_login && disable_auto_login!="true") {
+          window.location.href = oauthUtil.getAuthredictURL(item);
         }
       });
     }
-  };
-
-  changeAutoLogin = e => {
-    this.setState({ autoLogin: e.target.checked });
-  };
-
-  renderMessage = content => (
-    <Alert
-      style={{
-        marginBottom: 24
-      }}
-      message={content}
-      type="error"
-      showIcon
-    />
-  );
+  }
 
   render() {
-    const { login, submitting } = this.props;
-    const { type } = this.state;
+    const { rainbondInfo } = this.props;
+
     return (
       <div className={styles.main}>
-        <Login
-          defaultActiveKey={type}
-          onTabChange={this.onTabChange}
-          onSubmit={this.handleSubmit}
-        >
-          <Tab key="account" tab="">
-            {login.status === "error" &&
-              login.type === "account" &&
-              !login.submitting &&
-              this.renderMessage("账户或密码错误")}
-            <UserName name="nick_name" placeholder="用户名/邮箱" />
-            <Password name="password" placeholder="密码" />
-          </Tab>
-          <div>
-            <Checkbox
-              checked={this.state.autoLogin}
-              onChange={this.changeAutoLogin}
-            >
-              自动登录
-            </Checkbox>
-          </div>
-          <Submit loading={submitting}>登录</Submit>
-          <div className={styles.other}>
-            {this.props.isRegist && (
-              <Link className={styles.register} to="/user/register">
-                注册账户
-              </Link>
-            )}
-          </div>
-        </Login>
+        <LoginComponent onSubmit={this.handleSubmit} type="login" />
+        {rainbondUtil.OauthbEnable(rainbondInfo) &&
+          <div className={styles.thirdBox}>
+            <Divider>
+              <div className={styles.thirdLoadingTitle}>第三方登录</div>
+            </Divider>
+            <Row className={styles.third}>
+              {rainbondInfo &&
+                rainbondInfo.oauth_services.value.length > 0 &&
+                rainbondInfo.oauth_services.value.map(item => {
+                  const { name, client_id } = item;
+                  let url = oauthUtil.getAuthredictURL(item);
+                  let icon = oauthUtil.getIcon(item)
+                  return (
+                    <Col span="8" className={styles.thirdCol} key={client_id}>
+                      <a href={url}>
+                        {icon}
+                        <p>
+                          {name}
+                        </p>
+                      </a>
+                    </Col>
+                  );
+                })}
+            </Row>
+          </div>}
       </div>
     );
   }

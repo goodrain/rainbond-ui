@@ -7,78 +7,78 @@ const appStatusMap = {
     bgClass: "bg-green",
     disabledAction: ["restart"],
     activeAction: ["stop", "deploy", "visit", "manage_container"],
-    iconUrl: "/static/www/img/appOutline/appOutline0.png",
+    iconUrl: "/static/www/img/appOutline/appOutline0.png"
   },
   starting: {
     statusCN: "启动中",
     bgClass: "bg-yellow",
     disabledAction: ["deploy", "restart", "visit", "manage_container"],
     activeAction: ["stop"],
-    iconUrl: "/static/www/img/appOutline/appOutline7.png",
+    iconUrl: "/static/www/img/appOutline/appOutline7.png"
   },
   checking: {
     statusCN: "检测中",
     bgClass: "bg-yellow",
     disabledAction: ["deploy", "restart", "visit", "manage_container"],
     activeAction: ["stop"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   stoping: {
     statusCN: "关闭中",
     bgClass: "bg-yellow",
     disabledAction: ["deploy", "restart", "stop", "visit", "manage_container"],
     activeAction: [],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   unusual: {
     statusCN: "运行异常",
     bgClass: "bg-red",
     disabledAction: ["visit", "restart", "manage_container"],
     activeAction: ["stop", "deploy"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   closed: {
     statusCN: "已关闭",
     bgClass: "bg-red",
     disabledAction: ["visit", "stop", "manage_container"],
     activeAction: ["restart", "deploy"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   owed: {
     statusCN: "余额不足已关闭",
     bgClass: "bg-red",
     disabledAction: ["deploy", "visit", "restart", "stop", "manage_container"],
     activeAction: ["pay"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   Owed: {
     statusCN: "余额不足已关闭",
     bgClass: "bg-red",
     disabledAction: ["deploy", "visit", "restart", "stop", "manage_container"],
     activeAction: ["pay"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   expired: {
     statusCN: "试用已到期",
     bgClass: "bg-red",
     disabledAction: ["visit", "restart", "deploy", "stop", "manage_container"],
     activeAction: ["pay"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   undeploy: {
     statusCN: "未部署",
     bgClass: "bg-gray",
     disabledAction: ["restart", "stop", "visit", "manage_container"],
     activeAction: ["deploy"],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
   },
   unKnow: {
     statusCN: "未知",
     bgClass: "bg-red",
     disabledAction: ["deploy", "restart", "stop", "visit", "manage_container"],
     activeAction: [],
-    iconUrl: "/static/www/img/appOutline/appOutline1.png",
-  },
+    iconUrl: "/static/www/img/appOutline/appOutline1.png"
+  }
 };
 
 /*
@@ -100,7 +100,7 @@ const appUtil = {
       Owed: "error",
       expired: "error",
       undeploy: "default",
-      unKnow: "error",
+      unKnow: "error"
     };
     return map[status] || map.unKnow;
   },
@@ -133,7 +133,9 @@ const appUtil = {
   },
   // 获取权限数据
   getActions(appDetail) {
-    return [].concat(appDetail.tenant_actions || []).concat(appDetail.service_actions || []);
+    return []
+      .concat(appDetail.tenant_actions || [])
+      .concat(appDetail.service_actions || []);
   },
   // 是否可以管理应用
   canManageApp(appDetail) {
@@ -192,14 +194,28 @@ const appUtil = {
   isMarketAppByBuildSource(buildSource) {
     return buildSource.service_source === "market";
   },
+  isOauthByBuildSource(buildSource) {
+    return buildSource.code_from && buildSource.code_from.indexOf("oauth") > -1
+      ? true
+      : false;
+  },
+
   // 是否是镜像安装的应用
   isImageApp(appDetail) {
     const source = this.getInstallSource(appDetail);
-    return source === "docker_compose" || source === "docker_run" || source === "docker_image";
+    return (
+      source === "docker_compose" ||
+      source === "docker_run" ||
+      source === "docker_image"
+    );
   },
   isImageAppByBuildSource(buildSource) {
     const source = buildSource.service_source;
-    return source === "docker_compose" || source === "docker_run" || source === "docker_image";
+    return (
+      source === "docker_compose" ||
+      source === "docker_run" ||
+      source === "docker_image"
+    );
   },
   // 是否是源码创建的应用
   isCodeApp(appDetail) {
@@ -222,7 +238,11 @@ const appUtil = {
   // 是否是java类型的语言
   isJava(appDetail) {
     const language = this.getLanguage(appDetail);
-    return language === "java-war" || language === "java-jar" || language === "java-maven";
+    return (
+      language === "java-war" ||
+      language === "java-jar" ||
+      language === "java-maven"
+    );
   },
   // 是否是dockerfile类型的应用, dockerfile类型的应用也属于源码类型的应用
   isDockerfile(appDetail) {
@@ -247,7 +267,9 @@ const appUtil = {
   // 是否是自定义源码创建的应用
   isCreateFromCustomCode(appDetail) {
     const service = appDetail.service || {};
-    return this.isCreateFromCode(appDetail) && service.code_from === "gitlab_manual";
+    return (
+      this.isCreateFromCode(appDetail) && service.code_from === "gitlab_manual"
+    );
   },
   getCreateTypeCN(appDetail) {
     const source = this.getInstallSource(appDetail);
@@ -256,7 +278,7 @@ const appUtil = {
       market: "云市",
       docker_compose: "DockerCompose",
       docker_run: "DockerRun",
-      docker_image: "镜像",
+      docker_image: "镜像"
     };
     return map[source] || "";
   },
@@ -264,10 +286,10 @@ const appUtil = {
     const source = buildSource.service_source;
     const map = {
       source_code: "源码",
-      market: buildSource.install_from_cloud ? "云端市场":"本地市场",
+      market: buildSource.install_from_cloud ? "云端市场" : "本地市场",
       docker_compose: "DockerCompose",
       docker_run: "DockerRun",
-      docker_image: "镜像",
+      docker_image: "镜像"
     };
     return map[source] || "";
   },
@@ -302,7 +324,7 @@ const appUtil = {
     return true;
     const activeAction = this.getActions(appDetail);
     return activeAction.indexOf("manage_service_log") > -1;
-  },
+  }
 };
 
 export default appUtil;

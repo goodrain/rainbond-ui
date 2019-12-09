@@ -94,14 +94,14 @@ export default class Index extends PureComponent {
       }
     ];
     const rainbondInfo = this.props.rainbondInfo;
-    if (rainbondUtil.githubEnable(rainbondInfo)) {
+    if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
       codelinks.push({
         title: "Github项目",
         icontype: "github",
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
       });
     }
-    if (rainbondUtil.gitlabEnable(rainbondInfo)) {
+    if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
       codelinks.push({
         title: "Gitlab仓库",
         icontype: "gitlab",
@@ -177,7 +177,7 @@ export default class Index extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.data && res.data.code && res.data.code === 10400) {
+        if (res && res.code === 10400) {
           dispatch({
             type: "global/setNouse",
             payload: {
@@ -391,8 +391,7 @@ export default class Index extends PureComponent {
             }
             description={
               <span className={styles.datatime_float} title={item.updatedAt}>
-                {" "}
-                {moment(item.start_time).fromNow()}{" "}
+                {moment(item.start_time).fromNow()}
               </span>
             }
           />

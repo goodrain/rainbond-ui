@@ -183,7 +183,6 @@ export default class Index extends PureComponent {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) {
-        console.log(err);
         return;
       }
       this.handleShare(fieldsValue.group_id);

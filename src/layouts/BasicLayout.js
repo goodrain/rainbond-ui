@@ -176,7 +176,11 @@ class BasicLayout extends React.PureComponent {
     const urlParams = new URL(window.location.href);
 
     const redirect = urlParams.searchParams.get("redirect");
+    const oauth = urlParams.searchParams.get("oauth");
     // Remove the parameters in the url
+    if (oauth) {
+      window.history.replaceState(null, "oauth", urlParams.href);
+    }
     if (redirect) {
       urlParams.searchParams.delete("redirect");
       window.history.replaceState(null, "redirect", urlParams.href);
@@ -200,6 +204,9 @@ class BasicLayout extends React.PureComponent {
       this.showChangePass();
     }
     if (key === "logout") {
+      cookie.remove("token", { domain: "" });
+      cookie.remove("team", { domain: "" });
+      cookie.remove("region_name", { domain: "" });
       this.props.dispatch({ type: "user/logout" });
     }
   };
@@ -356,7 +363,6 @@ class BasicLayout extends React.PureComponent {
         isRegionMaintain =
           region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
       }
-
       const renderContent = () => {
         // 当前团队没有数据中心
         if (!hasRegion) {
@@ -441,7 +447,7 @@ class BasicLayout extends React.PureComponent {
               }
               Authorized={Authorized}
               menuData={getMenuData(groups)}
-              completeMenuData={getMenuData(groups,true)}
+              completeMenuData={getMenuData(groups, true)}
               collapsed={collapsed}
               location={location}
               isMobile={this.state.isMobile}

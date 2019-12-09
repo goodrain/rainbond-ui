@@ -144,7 +144,6 @@ export async function searchHttp(params) {
 
 /**添加http策略 */
 export async function addHttpStrategy(params) {
-  console.log(params);
   return request(
     `${config.baseUrl}/console/teams/${params.team_name}/httpdomain`,
     {

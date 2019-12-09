@@ -42,8 +42,18 @@ import {
   getRegist,
   getEnterpriseInfo,
   getEnterpriseTeams,
+  queryOauthInfo,
+  deleteOauth,
   queryAuthority,
+  queryTestCode,
+  queryDetectionTestCode,
+  queryCodeWarehouseInfo,
+  queryCodeWarehouseType,
+  queryThirdInfo,
   toCreatUser,
+  toCeateSourceCode,
+  toCreatOauth,
+  toEditOauth,
   toBuildShape,
   toQueryTopology,
   toQueryLinks,
@@ -468,14 +478,76 @@ export default {
         callback && callback(response);
       }
     },
+    *getOauthInfo({ callback, payload }, { call }) {
+      const response = yield call(queryOauthInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteOauthInfo({ callback, payload }, { call }) {
+      const response = yield call(deleteOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
     *requestAuthority({ callback, payload }, { call }) {
       const response = yield call(queryAuthority, payload);
       if (callback) {
         callback(response);
       }
     },
+    *testCode({ callback, payload }, { call }) {
+      const response = yield call(queryTestCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *detectionCode({ callback, payload }, { call }) {
+      const response = yield call(queryDetectionTestCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *createSourceCode({ payload, callback }, { call }) {
+      const response = yield call(toCeateSourceCode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *creatUser({ payload, callback }, { call }) {
       const response = yield call(toCreatUser, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *creatOauth({ payload, callback }, { call }) {
+      const response = yield call(toCreatOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editOauth({ payload, callback }, { call }) {
+      const response = yield call(toEditOauth, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+
+    *codeWarehouseInfo({ payload, callback }, { call }) {
+      const response = yield call(queryCodeWarehouseInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *codeWarehouseType({ payload, callback }, { call }) {
+      const response = yield call(queryCodeWarehouseType, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *codeThirdInfo({ payload, callback }, { call }) {
+      const response = yield call(queryThirdInfo, payload);
       if (callback) {
         callback(response);
       }

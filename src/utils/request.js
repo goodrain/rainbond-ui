@@ -55,7 +55,7 @@ export default function request(url, options) {
     ...defaultOptions,
     ...options
   };
-  if (newOptions.method === "POST" || newOptions.method === "PUT") {
+  // if (newOptions.method === "POST" || newOptions.method === "PUT") {
     newOptions.headers = {
       Accept: "application/json",
       "Content-Type": "application/json; charset=utf-8",
@@ -63,7 +63,7 @@ export default function request(url, options) {
       ...newOptions.headers
     };
     newOptions.body = JSON.stringify(newOptions.body);
-  }
+  // }
 
   if (newOptions.passAuthorization === void 0) {
     newOptions.passAuthorization = true;
@@ -98,9 +98,9 @@ export default function request(url, options) {
   newOptions.url = url;
   // newOptions.withCredentials = true;
   axios.defaults.withCredentials = true;
-  if (newOptions.params) {
-    newOptions.params._ = Date.now();
-  }
+  // if (newOptions.params) {
+  //   newOptions.params._ = Date.now();
+  // }
 
   newOptions.showMessage =
     newOptions.showMessage === void 0 ? true : newOptions.showMessage;
@@ -143,13 +143,14 @@ export default function request(url, options) {
           return;
         }
 
-        if(resData.code === 10406){
-          dispatch && dispatch({
-            type: "global/showMemoryTip",
-            payload: {
-              message: resData.msg_show
-            }
-           });
+        if (resData.code === 10406) {
+          dispatch &&
+            dispatch({
+              type: "global/showMemoryTip",
+              payload: {
+                message: resData.msg_show
+              }
+            });
           return;
         }
         if (resData.code === 10408) {
