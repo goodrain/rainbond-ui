@@ -1083,7 +1083,6 @@ font {
   .ant-btn-group {
     margin-right: 10px;
 
-    .right-btn {}
   }
 }
 
@@ -1214,7 +1213,6 @@ font {
     }
   }
 
-  .charContentMain {}
 }
 
 .logs {
@@ -1621,11 +1619,24 @@ font {
     width: 60% !important;
   }
 }
-
-@media screen and (max-width: 1800px) and (min-width: 1500px) {
+@media screen and (max-width: 1620px) and (min-width: 1500px) {
+  .nodeSelect {
+    width: 83.5% !important;
+  }
+  .commandWidth {
+    width: 87% !important;
+  }
+}
+@media screen and (max-width: 1800px) and (min-width: 1620px) {
+  .nodeSelect {
+    width: 84% !important;
+  }
   .commandWidth {
     width: 88% !important;
   }
+}
+@media screen and (max-width: 1800px) and (min-width: 1500px) {
+ 
   .memorySelect {
     width      : 84% !important;
     margin-left: -9px !important;
@@ -1634,15 +1645,58 @@ font {
   .rowMessage {
     width: 68% !important;
   }
-  .nodeSelect {
-    width: 84% !important;
-  }
 }
 
 @media screen and (max-width: 2000px) and (min-width: 1800px) {
+  .commandWidth {
+    width: 90% !important;
+  }
+  .memorySelect {
+    width      : 87% !important;
+    margin-left: -25px !important;
+  }
+  .nodeSelect {
+    width: 87% !important;
+  }
 
   .calcwd,
   .rowMessage {
     width: 73% !important;
   }
+
+  .automaTictelescopingBOX {
+    margin: 0 !important;
+  
+    &>div:nth-of-type(1) {
+      &>div:nth-of-type(1) {
+        padding-left: 6.2%;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 4%;
+      }
+  
+      &>div:nth-of-type(3) {
+        padding-left: 4%;
+      }
+    }
+  
+    &>div:nth-of-type(2) {
+  
+      &>div:nth-of-type(1) {
+        padding-left: 19%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 12%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(3) {
+        width: 10% !important;
+      }
+    }
+  }
+
 }

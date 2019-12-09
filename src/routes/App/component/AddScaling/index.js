@@ -248,10 +248,15 @@ class AddScaling extends PureComponent {
               <div className={styles.conformDesc}>
                 当
                 {selectMemoryDesc === "memoryaverage_value" ||
-                selectMemoryDesc === "memoryutilization"
+                  selectMemoryDesc === "memoryutilization"
                   ? "内存"
                   : "cpu"}
-                使用量超过或低于该目标值时, 实例数量会增加或减少
+                使用
+                {
+                  selectMemoryDesc === "memoryaverage_value" ||
+                    selectMemoryDesc === "cpuaverage_value"
+                    ? '量' : '率'
+                }超过或低于该目标值时, 实例数量会增加或减少
               </div>
             </FormItem>
           </Form>
