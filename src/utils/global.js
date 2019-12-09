@@ -636,6 +636,8 @@ const global = {
       upgrade: "滚动升级组件",
       "start-service": "启动组件",
       start: "启动组件",
+      "add-app-autoscaler-rule": "添加自动伸缩规则",
+      "update-app-autoscaler-rule": "更新自动伸缩规则",
       "stop-service": "停止组件",
       stop: "停止组件",
       "restart-service": "重启组件",

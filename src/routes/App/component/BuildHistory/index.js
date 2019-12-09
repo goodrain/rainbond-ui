@@ -144,7 +144,6 @@ class Index extends PureComponent {
                                     !
                                   </span>
                                 ) : (
-                                  // globalUtil.fetchSvg("error")
                                   globalUtil.fetchSvg("close")
                                 )}
                               </span>

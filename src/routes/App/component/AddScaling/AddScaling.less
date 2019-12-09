@@ -1,0 +1,85 @@
+.selectItem {
+  :global {
+    .ant-form-item-control-wrapper {
+      height: 5px !important;
+    }
+
+    .ant-select-selection-selected-value {
+      line-height: 30px;
+    }
+  }
+}
+
+.conformDesc {
+  height: 14px;
+  font-size: 10px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: rgba(153, 153, 153, 1);
+  line-height: 14px;
+}
+
+.setSelect {
+  :global {
+    .ant-select-selection__rendered {
+      line-height: 40px !important;
+    }
+  }
+}
+
+.clearConform {
+  :global {
+    .ant-form-item-label>label::after {
+      content: none !important;
+    }
+  }
+}
+
+.TelescopicModal {
+  :global {
+    .ant-form-item-label>label::after {
+      content: '' !important;
+    }
+
+    .ant-form-item-label {
+      height: 40px;
+    }
+
+    .ant-modal-header {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.18);
+      border-bottom: none !important;
+    }
+
+    .ant-modal-title {
+      text-align: center;
+    }
+
+    .ant-modal-body {
+      padding: 24px 24px 0 24px !important;
+    }
+
+    .ant-modal-footer {
+      text-align: center !important;
+      border: none !important;
+      padding: 0 16px 22px 16px !important;
+
+      button {
+        color: #fff;
+        width: 100px;
+        background: rgba(24, 121, 255, 1);
+        box-shadow: 0px 0px 8px 0px rgba(78, 152, 220, 0.8);
+      }
+    }
+  }
+}
+
+.clearConformMinTitle {
+  text-align: left;
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 5px;
+  }
+}

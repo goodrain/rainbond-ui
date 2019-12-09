@@ -2005,7 +2005,91 @@ export async function getPods(
     }
   );
 }
-
+/*
+	开启自动伸缩
+*/
+export async function newaddScalingRules(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
+    {
+      method: "post",
+      data: {
+        xpa_type: params.xpa_type ? params.xpa_type : "hpa",
+        enable: params.enable,
+        min_replicas: params.minNum ? params.minNum : 1,
+        max_replicas: params.maxNum ? params.maxNum : 2,
+        metrics: params.metrics
+      }
+    }
+  );
+}
+/*
+	获取自动伸缩列表
+*/
+export async function getScalingRules(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules`,
+    {
+      method: "get"
+    }
+  );
+}
+/*
+	编辑自动伸缩
+*/
+export async function editScalingRules(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparules/${params.rule_id}`,
+    {
+      method: "put",
+      data: {
+        xpa_type: params.xpa_type ? params.xpa_type : "hpa",
+        enable: params.enable,
+        min_replicas: params.minNum ? params.minNum : 1,
+        max_replicas: params.maxNum ? params.maxNum : 2,
+        metrics: params.metrics
+          ? params.metrics
+          : [
+              {
+                metric_type: "resource_metrics",
+                metric_name: "cpu",
+                metric_target_type: params.selectCpu ? params.selectCpu : "",
+                metric_target_value: params.cpuValue ? params.cpuValue : 1
+              },
+              {
+                metric_type: "resource_metrics",
+                metric_name: "memory",
+                metric_target_type: params.selectMemory
+                  ? params.selectMemory
+                  : "",
+                metric_target_value: params.memoryValue ? params.memoryValue : 1
+              }
+            ]
+      }
+    }
+  );
+}
+/*获取伸缩记录 */
+export async function queryScalingRecord(params) {
+  return request(
+    `${config.baseUrl}/console/teams/${params.tenant_name}/apps/${
+      params.service_alias
+    }/xparecords`,
+    {
+      method: "get",
+      params: {
+        page: params.page,
+        page_size: params.page_size
+      }
+    }
+  );
+}
 /*
 	管理实例
 */
@@ -2031,6 +2115,25 @@ export async function managePods(
   );
 }
 
+/*
+ 伸缩信息
+*/
+export async function TelescopicInfo(
+  body = {
+    team_name,
+    service_alias,
+    rule_id
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.service_alias
+    }/xparules/${body.rule_id}`,
+    {
+      method: "get"
+    }
+  );
+}
 /*
    获取应用的访问信息
 */

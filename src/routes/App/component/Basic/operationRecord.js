@@ -118,7 +118,6 @@ class Index extends PureComponent {
                     <div>
                       <span
                         className={styles.alcen}
-                        // style={{ justifyContent: "flex-end" }}
                       >
                         {EndTime &&
                           create_time &&

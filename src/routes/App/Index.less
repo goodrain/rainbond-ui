@@ -1,6 +1,304 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
 
+.InstancesCard {
+  :global {
+    .ant-card-head {
+      border: none !important;
+    }
+
+    .ant-card-head-title {
+      font-size  : 16px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color      : rgba(22, 22, 22, 1);
+      line-height: 22px;
+    }
+
+    .ant-divider-horizontal {
+      margin    : 0 !important;
+      background: #fff !important;
+    }
+
+    .ant-card-body {
+      padding: 17px 32px 4px !important;
+    }
+  }
+}
+
+.automaTictelescopingSwitch {
+  :global {
+
+
+    .ant-switch::after {
+      background: #C8C8C8 !important;
+      width     : 20px !important;
+      height    : 20px !important;
+
+    }
+  }
+}
+
+.errorDesc {
+  margin-top : 5px;
+  height     : 12px;
+  line-height: 12px;
+  font-size  : 12px;
+  color      : red !important;
+}
+
+.errorDescBox {
+  margin: 0 !important;
+
+  &>div:nth-of-type(2) {
+
+    &>div:nth-of-type(1) {
+      padding-left: 17%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(2) {
+      padding-left: 10%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(3) {
+      width: 10% !important;
+    }
+  }
+
+}
+
+.automaTictelescopingBOX {
+  margin: 0 !important;
+
+  &>div:nth-of-type(1) {
+    &>div:nth-of-type(1) {
+      padding-left: 6.2%;
+    }
+
+    &>div:nth-of-type(2) {
+      padding-left: 6%;
+    }
+
+    &>div:nth-of-type(3) {
+      padding-left: 6%;
+    }
+  }
+
+  &>div:nth-of-type(2) {
+
+    &>div:nth-of-type(1) {
+      padding-left: 18%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(2) {
+      padding-left: 12%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(3) {
+      width: 10% !important;
+    }
+  }
+}
+
+.automaTictelescopingTitle {
+  padding      : 0 !important;
+  display      : flex;
+  margin-bottom: 10px;
+
+  div {
+    width      : 33.33%;
+    font-size  : 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color      : rgba(102, 102, 102, 1);
+    line-height: 17px;
+    text-align : center;
+    display    : flex;
+    align-items: center;
+
+    img {
+      cursor     : pointer;
+      margin-left: 2px;
+    }
+  }
+}
+
+.fromItem {
+  width: 100% !important;
+
+  :global {
+    .ant-form-item-label>label {
+      font-size  : 14px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color      : rgba(22, 22, 22, 1) !important;
+      line-height: 20px;
+    }
+
+    .ant-select-selection {
+      text-align: center;
+      background: #F9FAFC !important;
+    }
+
+    .ant-select-selection-selected-value {
+      width: 100% !important;
+    }
+
+    .ant-form-item-label {
+      text-align: left !important;
+    }
+  }
+
+}
+
+.remindDesc {
+  color      : #999999;
+  line-height: 32px;
+  font-size  : 12px
+}
+
+.clerBorder {
+  margin-top: 16px;
+
+  :global {
+    .ant-card-body {
+      padding: 24px 32px 0 !important;
+    }
+
+    .ant-card-head {
+      border: none !important;
+    }
+  }
+}
+
+.automaTictelescoping {
+  &>div {
+    padding    : 10px 0 !important;
+    display    : flex;
+    align-items: center;
+  }
+
+  &>div:nth-of-type(1) {
+    border-right: 1px solid rgba(237, 239, 241, 1);
+
+    &>div:nth-of-type(1) {
+      padding-left: 6.8%;
+    }
+
+    &>div:nth-of-type(2) {
+      padding-left: 0.2%;
+    }
+
+    &>div:nth-of-type(3) {
+      padding-left: 0.2%;
+    }
+  }
+
+  &>div:nth-of-type(2) {
+
+    &>div:nth-of-type(1) {
+      padding-left: 16.5%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(2) {
+      padding-left: 9.5%;
+      width       : 45% !important;
+    }
+
+    &>div:nth-of-type(3) {
+      width: 10% !important;
+    }
+  }
+
+
+  margin       : 0 !important;
+  border-radius: 2px;
+  border       : 1px solid rgba(237, 239, 241, 1);
+}
+
+.clearCard {
+  :global {
+    .ant-card-head {
+      border: none !important;
+    }
+  }
+}
+
+.horizontalExpansionRecordTable {
+  :global {
+    .ant-table-thead>tr>th {
+      text-align   : center !important;
+      background   : #fff !important;
+      border-bottom: none !important;
+    }
+
+    .ant-table-tbody>tr>td {
+      color        : #333333 !important;
+      border-bottom: none !important;
+      font-size    : 14px;
+      font-family  : PingFangSC-Light, PingFang SC;
+    }
+  }
+}
+
+.automaTictelescopingContent {
+
+  width: 33.33%;
+
+  input {
+    border       : none;
+    background   : #F1F5F9;
+    text-align   : center;
+    width        : 113px;
+    height       : 56px;
+    border-radius: 3px
+  }
+
+  :global {
+
+    .ant-switch {
+      min-width    : 32px !important;
+      width        : 32px !important;
+      height       : 14px !important;
+      background   : rgba(234, 234, 234, 1) !important;
+      border-radius: 7px !important;
+    }
+
+    .ant-switch::after {
+      box-shadow: none !important;
+      background: #C8C8C8 !important;
+      width     : 20px !important;
+      height    : 20px !important;
+      top       : -5px !important;
+      left      : -5px !important;
+    }
+
+    .ant-input-disabled {
+      background: #E9E9E9 !important
+    }
+
+    .ant-switch-checked {
+      background-color: #A8F3B7 !important
+    }
+
+    .ant-switch-checked::after {
+      left             : 118% !important;
+      margin-left      : -1px !important;
+      -webkit-transform: translateX(-100%) !important;
+      transform        : translateX(-100%) !important;
+      background-color : #21B174 !important
+    }
+
+  }
+
+
+}
+
 .nowarpText {
   overflow     : hidden;
   text-overflow: ellipsis;
@@ -430,8 +728,8 @@ font {
   padding-right: 6px !important;
 
   p {
-    font-size: 12px;
-    margin   : 5px 0;
+    font-size : 12px;
+    margin    : 5px 0;
     word-break: keep-all;
   }
 }
@@ -785,8 +1083,14 @@ font {
   .ant-btn-group {
     margin-right: 10px;
 
-    .right-btn {}
   }
+}
+
+.commandText {
+  line-height: 32px;
+  color      : #333333;
+  width      : 70px !important;
+  display    : inline-block;
 }
 
 
@@ -909,7 +1213,6 @@ font {
     }
   }
 
-  .charContentMain {}
 }
 
 .logs {
@@ -1280,6 +1583,35 @@ font {
   }
 }
 
+.memorySelect {
+  width      : 78% !important;
+  margin-left: 5px !important;
+}
+
+.nodeSelect {
+  width: 80% !important;
+}
+
+.commandWidth {
+  width: 85% !important;
+}
+
+@media screen and (max-width: 1300px) and (min-width: 1000px) {
+  .commandText {
+    width: 72px !important;
+  }
+
+  .memorySelect {
+    width      : 70% !important;
+    margin-left: 15px !important;
+  }
+
+  .nodeSelect {
+    width: 78% !important;
+  }
+}
+
+
 @media screen and (max-width: 1500px) and (min-width: 1300px) {
 
   .calcwd,
@@ -1287,9 +1619,63 @@ font {
     width: 60% !important;
   }
 }
-
+@media screen and (max-width: 1620px) and (min-width: 1500px) {
+  .nodeSelect {
+    width: 83.5% !important;
+  }
+  .commandWidth {
+    width: 87% !important;
+  }
+}
+@media screen and (max-width: 1800px) and (min-width: 1620px) {
+  .nodeSelect {
+    width: 84% !important;
+  }
+  .commandWidth {
+    width: 88% !important;
+  }
+  
+}
 @media screen and (max-width: 1800px) and (min-width: 1500px) {
+  .automaTictelescopingBOX {
+    margin: 0 !important;
+  
+    &>div:nth-of-type(1) {
+      &>div:nth-of-type(1) {
+        padding-left: 6.2%;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 4%;
+      }
+  
+      &>div:nth-of-type(3) {
+        padding-left: 4%;
+      }
+    }
+  
+    &>div:nth-of-type(2) {
+  
+      &>div:nth-of-type(1) {
+        padding-left: 18.5%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 11.5%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(3) {
+        width: 10% !important;
+      }
+    }
+  }
 
+  .memorySelect {
+    width      : 84% !important;
+    margin-left: -9px !important;
+  }
   .calcwd,
   .rowMessage {
     width: 68% !important;
@@ -1297,9 +1683,55 @@ font {
 }
 
 @media screen and (max-width: 2000px) and (min-width: 1800px) {
+  .commandWidth {
+    width: 90% !important;
+  }
+  .memorySelect {
+    width      : 87% !important;
+    margin-left: -25px !important;
+  }
+  .nodeSelect {
+    width: 87% !important;
+  }
 
   .calcwd,
   .rowMessage {
     width: 73% !important;
   }
+
+  .automaTictelescopingBOX {
+    margin: 0 !important;
+  
+    &>div:nth-of-type(1) {
+      &>div:nth-of-type(1) {
+        padding-left: 6.2%;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 4%;
+      }
+  
+      &>div:nth-of-type(3) {
+        padding-left: 4%;
+      }
+    }
+  
+    &>div:nth-of-type(2) {
+  
+      &>div:nth-of-type(1) {
+        padding-left: 19%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(2) {
+        padding-left: 12%;
+        width       : 45% !important;
+      }
+  
+      &>div:nth-of-type(3) {
+        width: 10% !important;
+      }
+    }
+  }
+
 }
