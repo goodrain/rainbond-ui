@@ -71,7 +71,6 @@ export default class Index extends PureComponent {
 		this.mount = false;
 	}
 	handleRestore = (e) => {
-		console.log(this.state.notRecovered_restore_id)
 		this.props.dispatch({
 			type: 'groupControl/migrateApp',
 			payload: {

@@ -332,7 +332,9 @@ export default class GlobalHeader extends PureComponent {
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={onMenuClick}>
-          {rainbondUtil.OauthbEnable(rainbondInfo) && (
+          {rainbondUtil.OauthbEnable(rainbondInfo) &&
+            currentUser.oauth_services &&
+            currentUser.oauth_services.length > 0 &&(
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
           {rainbondUtil.OauthbEnable(rainbondInfo) &&
