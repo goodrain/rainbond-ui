@@ -157,8 +157,10 @@ export default class AddServiceComponent extends PureComponent {
     return oauth_type === "github"
       ? "Github项目"
       : oauth_type === "gitlab"
-        ? "Gitlab项目"
-        : oauth_type === "gitee" ? "Gitee项目" : name + "项目";
+      ? "Gitlab项目"
+      : oauth_type === "gitee"
+      ? "Gitee项目"
+      : name + "项目";
   };
 
   render() {
@@ -174,7 +176,7 @@ export default class AddServiceComponent extends PureComponent {
       gitType,
       gitServiceID
     } = this.state;
-    const codeSvg = () =>
+    const codeSvg = () => (
       <svg width="60px" height="60px" viewBox="0 0 50 50" version="1.1">
         <path
           d="M31.157459,0.325985833 C30.9361049,0.1167225 30.6431362,0 30.3385417,0 L10.5952381,0 C7.30933786,0.0037202381 4.64657738,2.66648071 4.64285714,5.95238095 L4.64285714,44.047619 C4.64657738,47.3335193 7.30933786,49.9962798 10.5952381,50 L39.4140625,50 C42.6999629,49.9962798 45.3627232,47.3335193 45.3664435,44.047619 L45.3664435,14.297805 C45.3664435,13.9708892 45.2320499,13.6583892 44.9944196,13.4333148 L31.157459,0.325985833 Z M31.7145648,4.13364952 L41.109561,13.0333892 L32.905041,13.0333892 C32.2479538,13.032459 31.7150298,12.5 31.7145648,11.842913 L31.7145648,4.13364952 Z M39.4140625,47.6190476 L10.5952381,47.6190476 C8.6235119,47.6167225 7.02613464,46.0193452 7.02380952,44.047619 L7.02380952,5.95238095 C7.02613464,3.98065476 8.6235119,2.3832775 10.5952381,2.38095238 L29.3331474,2.38095238 L29.3331474,11.842913 C29.3354725,13.814174 30.9333148,15.4120164 32.904576,15.4143415 L42.9850261,15.4143415 L42.9850261,44.047619 C42.983166,46.0188802 41.3853237,47.6167225 39.4140625,47.6190476 Z"
@@ -200,8 +202,9 @@ export default class AddServiceComponent extends PureComponent {
           fill="#006DF0"
           fill-rule="nonzero"
         />
-      </svg>;
-    const dockerSvg = () =>
+      </svg>
+    );
+    const dockerSvg = () => (
       <svg viewBox="0 0 50 50" version="1.1" width="60px" height="60px">
         <path
           style={{ fill: "#03A9F4" }}
@@ -231,8 +234,9 @@ export default class AddServiceComponent extends PureComponent {
           style={{ fill: "#0288D1" }}
           d="M 16 24 L 11 24 L 11 19 L 16 19 Z M 26 19 L 21 19 L 21 24 L 26 24 Z M 26 9 L 21 9 L 21 14 L 26 14 Z M 21 14 L 16 14 L 16 19 L 21 19 Z "
         />
-      </svg>;
-    const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo)
+      </svg>
+    );
+    const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo);
     return (
       <div>
         <Button
@@ -251,7 +255,7 @@ export default class AddServiceComponent extends PureComponent {
           maskClosable={false}
           width={550}
         >
-          {ServiceComponentOnePage &&
+          {ServiceComponentOnePage && (
             <div style={{ marginTop: "-12px" }}>
               <div className={styles.ServiceBox}>
                 <Row>
@@ -269,27 +273,37 @@ export default class AddServiceComponent extends PureComponent {
                     <p className={styles.ServiceSmallTitle}>自定义仓库</p>
                   </Col>
                   {servers.map(item => {
-                    return <Col
-                      key={item.service_id}
-                      span={8}
-                      className={styles.ServiceDiv}
-                      onClick={() => {
-                        this.setState({
-                          gitType: item.oauth_type,
-                          gitServiceID: item.service_id
-                        },()=>{
-                          this.handleServiceComponent(false, "gitrepostory");
-                        })
-                      }}
-                    >
-                      {oauthUtil.getIcon(item, "60px")}
-                      <p className={styles.ServiceSmallTitle}>{this.getGitServerName(item)}</p>
-                    </Col>
+                    return (
+                      <Col
+                        key={item.service_id}
+                        span={8}
+                        className={styles.ServiceDiv}
+                        onClick={() => {
+                          this.setState(
+                            {
+                              gitType: item.oauth_type,
+                              gitServiceID: item.service_id
+                            },
+                            () => {
+                              this.handleServiceComponent(
+                                false,
+                                "gitrepostory"
+                              );
+                            }
+                          );
+                        }}
+                      >
+                        {oauthUtil.getIcon(item, "60px")}
+                        <p className={styles.ServiceSmallTitle}>
+                          {this.getGitServerName(item)}
+                        </p>
+                      </Col>
+                    );
                   })}
                 </Row>
 
                 <Row style={{ marginBottom: "2px" }}>
-                  {rainbondUtil.documentEnable(rainbondInfo) &&
+                  {rainbondUtil.documentEnable(rainbondInfo) && (
                     <Alert
                       message={
                         <p className={styles.prompt}>
@@ -307,7 +321,8 @@ export default class AddServiceComponent extends PureComponent {
                       type="info"
                       style={{ height: "50px" }}
                       showIcon
-                    />}
+                    />
+                  )}
                 </Row>
               </div>
 
@@ -334,7 +349,9 @@ export default class AddServiceComponent extends PureComponent {
                     }}
                   >
                     <Icon component={dockerSvg} />
-                    <p className={styles.ServiceSmallTitle}>指定DockerRun命令</p>
+                    <p className={styles.ServiceSmallTitle}>
+                      指定DockerRun命令
+                    </p>
                   </Col>
                 </Row>
               </div>
@@ -376,8 +393,9 @@ export default class AddServiceComponent extends PureComponent {
                   />
                 </Row>
               </div>
-            </div>}
-          {ServiceComponentTwoPage === "custom" &&
+            </div>
+          )}
+          {ServiceComponentTwoPage === "custom" && (
             <Custom
               handleType="Service"
               groupId={this.props.groupId}
@@ -394,12 +412,30 @@ export default class AddServiceComponent extends PureComponent {
                   data
                 );
               }}
-            />}
-          {ServiceComponentTwoPage === "gitrepostory" &&
-            <CodeGitRepostory type={gitServiceID} gitType={gitType} />
-            }
-          {ServiceComponentThreePage === "check" &&
-            ServiceGetData &&
+            />
+          )}
+          {ServiceComponentTwoPage === "gitrepostory" && (
+            <CodeGitRepostory
+              type={gitServiceID}
+              gitType={gitType}
+              handleType="Service"
+              groupId={this.props.groupId}
+              ButtonGroupState={ButtonGroupState}
+              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
+                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
+              }}
+              handleServiceGetData={data => {
+                this.handleServiceComponent(
+                  false,
+                  null,
+                  "check",
+                  "ServiceGetData",
+                  data
+                );
+              }}
+            />
+          )}
+          {ServiceComponentThreePage === "check" && ServiceGetData && (
             <Check
               ServiceGetData={ServiceGetData}
               handleType="Service"
@@ -434,9 +470,10 @@ export default class AddServiceComponent extends PureComponent {
                 );
                 this.props.onload && this.props.onload();
               }}
-            />}
+            />
+          )}
 
-          {ServiceComponentTwoPage === "imageName" &&
+          {ServiceComponentTwoPage === "imageName" && (
             <ImageName
               groupId={this.props.groupId}
               handleType="Service"
@@ -453,9 +490,10 @@ export default class AddServiceComponent extends PureComponent {
                   data
                 );
               }}
-            />}
+            />
+          )}
 
-          {ServiceComponentTwoPage === "imageCmd" &&
+          {ServiceComponentTwoPage === "imageCmd" && (
             <ImageCmd
               groupId={this.props.groupId}
               handleType="Service"
@@ -472,8 +510,9 @@ export default class AddServiceComponent extends PureComponent {
                   data
                 );
               }}
-            />}
-          {ServiceComponentTwoPage === "market" &&
+            />
+          )}
+          {ServiceComponentTwoPage === "market" && (
             <Market
               scopeMax="localApplication"
               groupId={this.props.groupId}
@@ -498,7 +537,8 @@ export default class AddServiceComponent extends PureComponent {
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, "market", null);
               }}
-            />}
+            />
+          )}
           <div
             style={{
               position: "absolute",
@@ -514,8 +554,7 @@ export default class AddServiceComponent extends PureComponent {
               zIndex: 99999
             }}
           >
-            {!ServiceComponentOnePage &&
-              ServiceComponentThreePage !== "check" &&
+            {!ServiceComponentOnePage && ServiceComponentThreePage !== "check" && (
               <Button
                 style={{
                   marginRight: 8
@@ -525,11 +564,11 @@ export default class AddServiceComponent extends PureComponent {
                 }}
               >
                 上一步
-              </Button>}
-            {ButtonGroup &&
-              <span style={{ marginRight: 8 }}>
-                {ButtonGroup}
-              </span>}
+              </Button>
+            )}
+            {ButtonGroup && (
+              <span style={{ marginRight: 8 }}>{ButtonGroup}</span>
+            )}
             <Button
               style={{
                 marginRight: 8

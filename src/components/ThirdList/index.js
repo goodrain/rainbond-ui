@@ -45,7 +45,7 @@ class Index extends React.Component {
       service_info: "",
       error_infos: "",
       lastPage: true,
-      firstPage: true,
+      firstPage: true
     };
   }
   componentDidMount() {
@@ -58,18 +58,20 @@ class Index extends React.Component {
     }
   }
   onPagePre = () => {
-    if (this.state.page > 1) {
-      let page = this.state.page - 1;
+    const { page } = this.state;
+    if (page > 1) {
+      let pages = page - 1;
       const firstPage = page == 1;
-      this.setState({ firstPage, page, loading: true }, () => {
+      this.setState({ firstPage, page: pages, loading: true }, () => {
         this.handleCodeWarehouseInfo(this.props);
       });
     }
   };
   onPageNext = () => {
-    if (!this.state.lastPage) {
-      let page = this.state.page + 1;
-      this.setState({ page, loading: true }, () => {
+    const { lastPage, page } = this.state;
+    if (!lastPage) {
+      let pages = page + 1;
+      this.setState({ page: pages, loading: true }, () => {
         this.handleCodeWarehouseInfo(this.props);
       });
     }
@@ -229,10 +231,9 @@ class Index extends React.Component {
       thirdInfo,
       create_loading,
       firstPage,
-      lastPage,
+      lastPage
     } = this.state;
     const { handleType } = this.props;
-    const data = ["goodarin", "rainbond"];
     let ServiceComponent = handleType && handleType === "Service";
     return (
       <div
@@ -240,7 +241,7 @@ class Index extends React.Component {
           background: ServiceComponent ? "#fff " : "#F0F2F5"
         }}
       >
-        {this.state.detection &&
+        {this.state.detection && (
           <Modal
             visible={detection}
             onCancel={this.handleDetection}
@@ -261,211 +262,242 @@ class Index extends React.Component {
                     </Button>
                   ]
                 : this.state.create_status == "Success"
-                  ? [
-                      <Button key="back" onClick={this.handleDetection}>
-                        关闭
-                      </Button>,
-                      <Button
-                        key="submit"
-                        type="primary"
-                        onClick={this.handleDetection}
-                      >
-                        确认
-                      </Button>
-                    ]
-                  : [
-                      <Button key="back" onClick={this.handleDetection}>
-                        关闭
-                      </Button>
-                    ]
+                ? [
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>,
+                    <Button
+                      key="submit"
+                      type="primary"
+                      onClick={this.handleDetection}
+                    >
+                      确认
+                    </Button>
+                  ]
+                : [
+                    <Button key="back" onClick={this.handleDetection}>
+                      关闭
+                    </Button>
+                  ]
             }
           >
             <div>
               {this.state.create_status == "Checking" ||
-              this.state.create_status == "Complete"
-                ? <div>
-                    <p style={{ textAlign: "center" }}>
-                      <Spin />
-                    </p>
-                    <p style={{ textAlign: "center", fontSize: "14px" }}>
-                      检测中，请稍后(请勿关闭弹窗)
-                    </p>
-                  </div>
-                : ""}
-              {this.state.create_status == "Failure"
-                ? <div>
-                    <p
+              this.state.create_status == "Complete" ? (
+                <div>
+                  <p style={{ textAlign: "center" }}>
+                    <Spin />
+                  </p>
+                  <p style={{ textAlign: "center", fontSize: "14px" }}>
+                    检测中，请稍后(请勿关闭弹窗)
+                  </p>
+                </div>
+              ) : (
+                ""
+              )}
+              {this.state.create_status == "Failure" ? (
+                <div>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      color: "#28cb75",
+                      fontSize: "36px"
+                    }}
+                  >
+                    <Icon
                       style={{
-                        textAlign: "center",
-                        color: "#28cb75",
-                        fontSize: "36px"
+                        color: "#f5222d",
+                        marginRight: 8
                       }}
-                    >
-                      <Icon
-                        style={{
-                          color: "#f5222d",
-                          marginRight: 8
-                        }}
-                        type="close-circle-o"
-                      />
-                    </p>
-                    {this.state.error_infos &&
-                      this.state.error_infos.map(items => {
-                        return (
-                          <div>
-                            <span
-                              dangerouslySetInnerHTML={{
-                                __html: `<span>${items.error_info ||
-                                  ""} ${items.solve_advice || ""}</span>`
-                              }}
-                            />
-                          </div>
-                        );
-                        // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
-                      })}
-                  </div>
-                : ""}
-              {this.state.create_status == "Success"
-                ? <div>
-                    <p
-                      style={{
-                        textAlign: "center",
-                        color: "#28cb75",
-                        fontSize: "36px"
-                      }}
-                    >
-                      <Icon type="check-circle-o" />
-                    </p>
+                      type="close-circle-o"
+                    />
+                  </p>
+                  {this.state.error_infos &&
+                    this.state.error_infos.map(items => {
+                      return (
+                        <div>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: `<span>${items.error_info ||
+                                ""} ${items.solve_advice || ""}</span>`
+                            }}
+                          />
+                        </div>
+                      );
+                      // <p style={{ textAlign: 'center', fontSize: '14px' }}>{item.key}:{item.value} </p>
+                    })}
+                </div>
+              ) : (
+                ""
+              )}
+              {this.state.create_status == "Success" ? (
+                <div>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      color: "#28cb75",
+                      fontSize: "36px"
+                    }}
+                  >
+                    <Icon type="check-circle-o" />
+                  </p>
 
-                    {this.state.service_info &&
-                      this.state.service_info.map(item => {
-                        return (
-                          <p style={{ textAlign: "center", fontSize: "14px" }}>
-                            检测语言:{item.language}{" "}
-                          </p>
-                        );
-                      })}
-                  </div>
-                : ""}
-              {this.state.create_status == "Failed"
-                ? <div>
-                    <p
-                      style={{
-                        textAlign: "center",
-                        color: "999",
-                        fontSize: "36px"
-                      }}
-                    >
-                      <Icon type="close-circle-o" />
-                    </p>
-                    <p style={{ textAlign: "center", fontSize: "14px" }}>
-                      检测失败，请重新检测
-                    </p>
-                  </div>
-                : ""}
+                  {this.state.service_info &&
+                    this.state.service_info.map(item => {
+                      return (
+                        <p style={{ textAlign: "center", fontSize: "14px" }}>
+                          检测语言:{item.language}{" "}
+                        </p>
+                      );
+                    })}
+                </div>
+              ) : (
+                ""
+              )}
+              {this.state.create_status == "Failed" ? (
+                <div>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      color: "999",
+                      fontSize: "36px"
+                    }}
+                  >
+                    <Icon type="close-circle-o" />
+                  </p>
+                  <p style={{ textAlign: "center", fontSize: "14px" }}>
+                    检测失败，请重新检测
+                  </p>
+                </div>
+              ) : (
+                ""
+              )}
 
-              {!this.state.create_status &&
+              {!this.state.create_status && (
                 <div>
                   <p style={{ textAlign: "center", fontSize: "14px" }}>
                     确定要重新检测吗?
                   </p>
-                </div>}
-            </div>
-          </Modal>}
-
-        {!visible
-          ? <List
-              loading={loading}
-              className={styles.lists}
-              header={
-                <Input.Search
-                  ref="searchs"
-                  placeholder="请输入搜索内容"
-                  enterButton="搜索"
-                  size="large"
-                  onSearch={this.handleSearch}
-                  style={{
-                    width: 522,
-                    padding: "0 0 11px 0"
-                  }}
-                />
-              }
-              footer={
-                <div style={{ textAlign: "right" }}>
-                  {!firstPage && <Button  onClick={this.onPagePre}>上一页</Button>}
-                  {!lastPage && <Button onClick={this.onPageNext}>下一页</Button>}
                 </div>
-              }
-              dataSource={lists}
-              gutter={1}
-              renderItem={item =>
-                <List.Item
-                  className={styles.listItem}
-                  actions={[
-                    <div>
-                      <a
-                        onClick={() => {
-                          this.handleOpenDetection(item);
-                        }}
-                      >
-                        检测语言
-                      </a>
-                      <a
-                        style={{ marginLeft: "16px" }}
-                        onClick={() => {
-                          this.showModal(item);
-                        }}
-                      >
-                        创建组件
-                      </a>
-                    </div>
-                  ]}
-                >
-                  <Skeleton avatar title={false} loading={false} active>
-                    <List.Item.Meta
-                      style={{
-                        alignItems: "center"
+              )}
+            </div>
+          </Modal>
+        )}
+
+        {!visible ? (
+          <List
+            loading={loading}
+            className={styles.lists}
+            header={
+              <Input.Search
+                ref="searchs"
+                placeholder="请输入搜索内容"
+                enterButton="搜索"
+                size="large"
+                onSearch={this.handleSearch}
+                style={{
+                  width: 522,
+                  padding: "0 0 11px 0"
+                }}
+              />
+            }
+            footer={
+              <div
+                style={{
+                  textAlign: "right",
+                  marginBottom: ServiceComponent ? "40px" : "0"
+                }}
+              >
+                {!firstPage && (
+                  <Button
+                    style={{ marginRight: "5px" }}
+                    onClick={this.onPagePre}
+                    loading={loading}
+                  >
+                    上一页
+                  </Button>
+                )}
+                {!lastPage && (
+                  <Button loading={loading} onClick={this.onPageNext}>
+                    下一页
+                  </Button>
+                )}
+              </div>
+            }
+            dataSource={lists}
+            gutter={1}
+            renderItem={item => (
+              <List.Item
+                className={styles.listItem}
+                actions={[
+                  <div>
+                    <a
+                      onClick={() => {
+                        this.handleOpenDetection(item);
                       }}
-                      avatar={<Avatar src={App} />}
-                      title={
-                        <a target="_blank" href={item.project_url}>
-                          <div className={styles.listItemMataTitle}>
-                            <Tooltip title={item.project_name}>
-                              <div>
-                                {item.project_name || "-"}
-                              </div>
-                            </Tooltip>
-                            <Tooltip
-                              title={
-                                item.project_full_name &&
-                                item.project_full_name.split("/")[0]
-                              }
-                            >
-                              <div>
-                                {item.project_full_name &&
-                                  item.project_full_name.split("/")[0]}
-                              </div>
-                            </Tooltip>
-                          </div>
-                        </a>
-                      }
-                    />
+                    >
+                      检测语言
+                    </a>
+                    <a
+                      style={{ marginLeft: "16px" }}
+                      onClick={() => {
+                        this.showModal(item);
+                      }}
+                    >
+                      创建组件
+                    </a>
+                  </div>
+                ]}
+              >
+                <Skeleton avatar title={false} loading={false} active>
+                  <List.Item.Meta
+                    style={{
+                      alignItems: "center",
+                      overflow: "hidden"
+                    }}
+                    avatar={<Avatar src={App} />}
+                    title={
+                      <a target="_blank" href={item.project_url}>
+                        <div className={styles.listItemMataTitle}>
+                          <Tooltip title={item.project_name}>
+                            <div>{item.project_name || "-"}</div>
+                          </Tooltip>
+                          <Tooltip
+                            title={
+                              item.project_full_name &&
+                              item.project_full_name.split("/")[0]
+                            }
+                          >
+                            <div>
+                              {item.project_full_name &&
+                                item.project_full_name.split("/")[0]}
+                            </div>
+                          </Tooltip>
+                        </div>
+                      </a>
+                    }
+                  />
+                  {!ServiceComponent && (
                     <Row
                       justify="center"
                       style={{
                         width: "70%",
                         display: "flex",
-                        alignItems: "center"
+                        alignItems: "center",
+                        overflow: "hidden"
                       }}
                     >
-                      {!ServiceComponent &&
-                        <Col span={8}>
-                          <Tooltip title={item.project_description}>
-                            <div className={styles.listItemMataDesc}>
-                              {item.project_description}
-                            </div>
-                          </Tooltip>
-                        </Col>}
+                      <Col span={8}>
+                        <Tooltip title={item.project_description}>
+                          <div
+                            className={styles.listItemMataDesc}
+                            style={{ paddingLeft: "10px" }}
+                          >
+                            {item.project_description}
+                          </div>
+                        </Tooltip>
+                      </Col>
+
                       <Col span={ServiceComponent ? 12 : 8}>
                         <Tooltip title={item.project_default_branch}>
                           <div className={styles.listItemMataBranch}>
@@ -478,28 +510,35 @@ class Index extends React.Component {
                         </Tooltip>
                       </Col>
                     </Row>
-                  </Skeleton>
-                </List.Item>}
+                  )}
+                </Skeleton>
+              </List.Item>
+            )}
+          />
+        ) : (
+          <Card bordered={false} style={{ padding: "24px 32px" }}>
+            <Icon
+              style={{ fontSize: "16px", marginRight: "8px" }}
+              type="arrow-left"
+              onClick={this.handleCancel}
             />
-          : <Card bordered={false} style={{ padding: "24px 32px" }}>
-              <Icon
-                style={{ fontSize: "16px", marginRight: "8px" }}
-                type="arrow-left"
-                onClick={this.handleCancel}
-              />回到列表
-              <div
-                className={styles.formWrap}
-                style={{
-                  width: ServiceComponent ? "auto" : "500px"
-                }}
-              >
-                <ThirForm
-                  onSubmit={this.props.handleSubmit}
-                  {...this.props}
-                  thirdInfo={thirdInfo}
-                />
-              </div>
-            </Card>}
+            回到列表
+            <div
+              className={styles.formWrap}
+              style={{
+                marginTop: ServiceComponent ? "25px" : "0",
+                width: ServiceComponent ? "auto" : "500px"
+              }}
+            >
+              <ThirForm
+                onSubmit={this.props.handleSubmit}
+                {...this.props}
+                ServiceComponent={ServiceComponent}
+                thirdInfo={thirdInfo}
+              />
+            </div>
+          </Card>
+        )}
       </div>
     );
   }

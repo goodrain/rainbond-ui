@@ -10,7 +10,7 @@ import styles from "./index.less";
 
 @connect(({ user, groupControl, global }) => ({
   rainbondInfo: global.rainbondInfo,
-  currentUser: user.currentUser,
+  currentUser: user.currentUser
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -29,19 +29,19 @@ export default class Index extends PureComponent {
     const git_type = this.setType();
     let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
     if (gitinfo) {
-      this.setState({"auth_url":oauthUtil.getAuthredictURL(gitinfo)})
+      this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
     }
     if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
       this.getGitRepostoryInfo(rainbondInfo, type);
     }
   }
   componentWillUpdate(props) {
-    this.props = props
+    this.props = props;
     const { rainbondInfo, type } = props;
     const git_type = this.setType();
     let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
     if (gitinfo) {
-      this.setState({"auth_url":oauthUtil.getAuthredictURL(gitinfo)})
+      this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
     }
     if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
       this.getGitRepostoryInfo(rainbondInfo, type);
@@ -50,22 +50,25 @@ export default class Index extends PureComponent {
   setType = () => {
     const { tabList, type, gitType } = this.props;
     if (gitType) {
-        return gitType
+      return gitType;
     }
     let typs = "";
-    tabList && tabList.map(item => {
-      const { key, types } = item;
-      if (type == key) {
-        typs = types;
-      }
-    });
+    tabList &&
+      tabList.map(item => {
+        const { key, types } = item;
+        if (type == key) {
+          typs = types;
+        }
+      });
     return typs;
   };
 
   getGitRepostoryInfo = (rainbondInfo, key) => {
     let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, key);
-    const { currentUser } = this.props
-    this.setState({is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key)});
+    const { currentUser } = this.props;
+    this.setState({
+      is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key)
+    });
   };
 
   handleSubmit = value => {
@@ -112,22 +115,29 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         const appAlias = data && data.bean.service_alias;
-        this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
-          )
-        );
+
+        this.props.handleType && this.props.handleType === "Service"
+          ? this.props.handleServiceGetData(appAlias)
+          : this.props.dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
+              )
+            );
+        this.props.handleType &&
+          this.props.handleType === "Service" &&
+          this.props.handleServiceBotton(null, null);
       }
     });
   };
 
   render() {
     const { is_auth, auth_url } = this.state;
+    const { handleType, ButtonGroupState, handleServiceBotton } = this.props;
     const type = this.setType();
+
     return (
       <Card bordered={false} className={styles.ClearCard}>
-        <div
-        >
+        <div>
           {!is_auth ? (
             <div
               style={{
@@ -137,19 +147,17 @@ export default class Index extends PureComponent {
               }}
             >
               尚未绑定{type}账号
-              {this.props.handleType &&
-              this.props.handleType === "Service" &&
-              this.props.ButtonGroupState
-                ? this.props.handleServiceBotton(
+              {handleType && handleType === "Service" && ButtonGroupState
+                ? handleServiceBotton(
                     <a href={auth_url} target="_blank" type="primary">
                       去认证
                     </a>,
-                    false
+                    null
                   )
-                : !this.props.handleType && (
-                    <a 
+                : !handleType && (
+                    <a
                       href={auth_url}
-                      target="_blank" 
+                      target="_blank"
                       style={{
                         marginLeft: 20
                       }}
@@ -160,7 +168,13 @@ export default class Index extends PureComponent {
                   )}
             </div>
           ) : (
-            <ThirdList onSubmit={this.handleSubmit} {...this.props} />
+            <div>
+              {handleType &&
+                handleType === "Service" &&
+                (ButtonGroupState || ButtonGroupState === null) &&
+                handleServiceBotton(null, true)}
+              <ThirdList onSubmit={this.handleSubmit} {...this.props} />
+            </div>
           )}
         </div>
       </Card>

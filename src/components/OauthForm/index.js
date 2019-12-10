@@ -13,27 +13,40 @@ class CreateOAuthForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      authorityList: [],
+      oauthList: [],
       tenant_name: "",
-      edit:false,
+      edit: false
     };
   }
   componentDidMount() {
-    const {oauthInfo} = this.props
-    console.log(oauthInfo)
+    this.fetchOauthType();
+    const { oauthInfo } = this.props;
     if (oauthInfo) {
-      this.setState({edit: true})
+      this.setState({ edit: true });
     }
   }
   componentWillUpdate(props) {
-    const {oauthInfo} = props
+    const { oauthInfo } = props;
     if (oauthInfo) {
-      this.setState({edit: true})
+      this.setState({ edit: true });
     }
   }
-  /**
-   * 表单
-   */
+
+  fetchOauthType = () => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: "user/fetchOauthType",
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            oauthList: res.bean && res.bean.oauth_type
+          });
+        }
+      }
+    });
+  };
+
   handleChange = tenant_name => {
     this.setState({ tenant_name });
   };
@@ -44,18 +57,11 @@ class CreateOAuthForm extends PureComponent {
       }
     });
   };
-  checkURL = (rule, value, callback) => {
-    try {
-      
-      throw new Error('Something wrong!');
-    } catch (err) {
-      callback(err);
-    }
-  }
+
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { onCancel, loading, oauthInfo } = this.props;
-    const { edit } = this.state
+    const { edit, oauthList } = this.state;
     const formItemLayout = {
       labelCol: {
         span: 8
@@ -64,7 +70,7 @@ class CreateOAuthForm extends PureComponent {
         span: 16
       }
     };
-    const oauthType = getFieldValue("oauth_type") || "Github";
+    const oauthType = getFieldValue("oauth_type") || "github";
     return (
       <Modal
         visible={true}
@@ -92,21 +98,23 @@ class CreateOAuthForm extends PureComponent {
             }
           >
             {getFieldDecorator("oauth_type", {
-              initialValue: oauthInfo
-                ? oauthInfo.oauth_type.charAt(0).toUpperCase() +
-                  oauthInfo.oauth_type.slice(1)
-                : "Github",
+              initialValue: oauthInfo ? oauthInfo.oauth_type : "github",
               rules: [{ required: true, message: "请选择oauth_type类型" }]
             })(
               <Select disabled={edit} placeholder="请选择要oauth_type类型">
-                {["Github", "Gitlab", "Gitee", "Other"].map(item => (
-                  <Option key={item} value={item}>
-                    {item}
-                  </Option>
-                ))}
+                {oauthList &&
+                  oauthList.map(item => (
+                    <Option key={item} value={item}>
+                      {item}
+                    </Option>
+                  ))}
               </Select>
             )}
-            {edit && <div className={styles.conformDesc}>如需编辑类型，请删除配置后重新添加</div>}
+            {edit && (
+              <div className={styles.conformDesc}>
+                如需编辑类型，请删除配置后重新添加
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             className={styles.clearConform}
@@ -138,7 +146,10 @@ class CreateOAuthForm extends PureComponent {
             >
               {getFieldDecorator("auth_url", {
                 initialValue: oauthInfo ? oauthInfo.auth_url : "",
-                rules: [{ required: true, message: "请输入认证地址" }, { required: "url", message: "输入数据不是合法的URL" }]
+                rules: [
+                  { required: true, message: "请输入认证地址" },
+                  { required: "url", message: "输入数据不是合法的URL" }
+                ]
               })(<Input placeholder="请输入认证地址" />)}
               <div className={styles.conformDesc}>第三方平台认证路由</div>
             </Form.Item>
@@ -156,7 +167,10 @@ class CreateOAuthForm extends PureComponent {
             >
               {getFieldDecorator("access_token_url", {
                 initialValue: oauthInfo ? oauthInfo.access_token_url : "",
-                rules: [{ required: true, message: "请输入access_token_url" }, { required: "url", message: "输入数据不是合法的URL" }]
+                rules: [
+                  { required: true, message: "请输入access_token_url" },
+                  { required: "url", message: "输入数据不是合法的URL" }
+                ]
               })(<Input placeholder="请输入access_token_url" />)}
               <div className={styles.conformDesc}>获取第三方用户的地址</div>
             </Form.Item>
@@ -175,13 +189,16 @@ class CreateOAuthForm extends PureComponent {
             >
               {getFieldDecorator("api_url", {
                 initialValue: oauthInfo ? oauthInfo.api_url : "",
-                rules: [{ required: true, message: "请输入获取用户数据的API地址" }, { required: "url", message: "输入数据不是合法的URL" }]
+                rules: [
+                  { required: true, message: "请输入获取用户数据的API地址" },
+                  { required: "url", message: "输入数据不是合法的URL" }
+                ]
               })(<Input placeholder="请输入获取用户数据的API地址" />)}
               <div className={styles.conformDesc}>获取用户信息的API地址</div>
             </Form.Item>
           )}
 
-          {oauthType !== "Github" && oauthType !== "Other" && (
+          {oauthType !== "github" && oauthType !== "other" && (
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
@@ -194,7 +211,10 @@ class CreateOAuthForm extends PureComponent {
             >
               {getFieldDecorator("home_url", {
                 initialValue: oauthInfo ? oauthInfo.home_url : "",
-                rules: [{ required: true, message: "请输入服务地址" }, {type: "url", message:"输入数据不是合法的URL"}]
+                rules: [
+                  { required: true, message: "请输入服务地址" },
+                  { type: "url", message: "输入数据不是合法的URL" }
+                ]
               })(<Input disabled={edit} placeholder="请输入服务地址" />)}
               <div className={styles.conformDesc}>第三方服务访问地址</div>
             </Form.Item>
@@ -243,10 +263,17 @@ class CreateOAuthForm extends PureComponent {
             }
           >
             {getFieldDecorator("redirect_domain", {
-              initialValue: oauthInfo ? oauthInfo.redirect_uri.replace("/console/oauth/redirect","") : `${window.location.protocol}//${window.location.host}`,
-              rules: [{ required: true, message: "请输入正确的平台访问域名" }, { required: "url", message: "输入数据不是合法的URL" }]
+              initialValue: oauthInfo
+                ? oauthInfo.redirect_uri.replace("/console/oauth/redirect", "")
+                : `${window.location.protocol}//${window.location.host}`,
+              rules: [
+                { required: true, message: "请输入正确的平台访问域名" },
+                { required: "url", message: "输入数据不是合法的URL" }
+              ]
             })(<Input placeholder="请输入平台访问域名" />)}
-            <div className={styles.conformDesc}>平台访问域名是用于OAuth认证完回跳时的访问地址</div>
+            <div className={styles.conformDesc}>
+              平台访问域名是用于OAuth认证完回跳时的访问地址
+            </div>
           </Form.Item>
 
           <Form.Item

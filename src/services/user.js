@@ -26,6 +26,16 @@ export async function queryThirdCertification(body = {}) {
     }
   });
 }
+/* oauth认证 */
+export async function queryOauthType(body = {}) {
+  return request(`${config.baseUrl}/console/oauth/type`, {
+    method: "get",
+    params: body,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  });
+}
 
 /* 查询第三方信息 */
 export async function queryThirdInfo(body = {}) {
@@ -59,7 +69,6 @@ export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
     }
   });
 }
-
 
 /* 登录成功后绑定第三方 */
 export async function queryThirdLoginBinding(body = { service_id, code }) {

@@ -64,7 +64,6 @@ export default class Index extends PureComponent {
 			teamsArr.push(orderbox);
 		})
 		this.setState({ teamsData: teamsArr })
-		console.log(teamsArr)
 		this.queryIsFinished();
 
 	}

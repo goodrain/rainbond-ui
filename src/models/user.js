@@ -4,6 +4,7 @@ import {
   login,
   getDetail,
   logout,
+  queryOauthType,
   register,
   gitlabRegister,
   createGitlabProject,
@@ -61,6 +62,13 @@ export default {
     //第三方认证信息
     *fetchThirdInfo({ payload, callback }, { call, put, select }) {
       const response = yield call(queryThirdInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    //第三方认证类型
+    *fetchOauthType({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryOauthType, payload);
       if (response) {
         callback && callback(response);
       }
