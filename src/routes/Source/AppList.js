@@ -178,7 +178,7 @@ class ExportBtn extends PureComponent {
     const { rainbondInfo } = this.props;
     return (
       <Fragment>
-        {rainbondUtil.exportAppEnable(rainbondInfo) && (
+        {rainbondUtil.exportAppEnable(rainbondInfo) &&
           <Tooltip title="导出后的文件可直接在Rainbond平台安装">
             <a
               onClick={this.showAppExport}
@@ -187,16 +187,14 @@ class ExportBtn extends PureComponent {
             >
               导出应用{this.state.is_exporting ? "(导出中)" : ""}
             </a>
-          </Tooltip>
-        )}
-        {this.state.showExporterApp && (
+          </Tooltip>}
+        {this.state.showExporterApp &&
           <AppExporter
             setIsExporting={this.setIsExporting}
             app={this.props.app}
             onOk={this.hideAppExport}
             onCancel={this.hideAppExport}
-          />
-        )}
+          />}
       </Fragment>
     );
   }
@@ -542,12 +540,11 @@ export default class AppList extends PureComponent {
 
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-        {!this.state.showImportApp && (
+        {!this.state.showImportApp &&
           <Button value="test" onClick={this.handleShowImportApp}>
             离线导入应用
-          </Button>
-        )}
-        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+          </Button>}
+        {rainbondUtil.cloudMarketEnable(rainbondInfo) &&
           <Button
             style={{ marginLeft: 16 }}
             type="primary"
@@ -557,8 +554,7 @@ export default class AppList extends PureComponent {
             }}
           >
             云端同步
-          </Button>
-        )}
+          </Button>}
       </div>
     );
 
@@ -609,12 +605,15 @@ export default class AppList extends PureComponent {
             marginBottom: 16
           }}
         >
-          {this.state.showImportApp ? (
-            <AppImport
-              cancelImport={this.hideImportApp}
-              onOK={this.hideImportApp}
-            />
-          ) : null}
+          {this.state.showImportApp
+            ? <AppImport
+                cancelImport={this.hideImportApp}
+                onOK={() => {
+                  this.hideImportApp();
+                  this.getApps();
+                }}
+              />
+            : null}
         </div>
         <Card
           className={BasicListStyles.listCard}
@@ -649,7 +648,7 @@ export default class AppList extends PureComponent {
                   <br />
                   <br />
                   分享应用到内部市场
-                  {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+                  {rainbondUtil.cloudMarketEnable(rainbondInfo) &&
                     <span>
                       或
                       <a
@@ -660,8 +659,7 @@ export default class AppList extends PureComponent {
                       >
                         从云端同步
                       </a>
-                    </span>
-                  )}
+                    </span>}
                 </p>
               )
             }}
@@ -679,30 +677,26 @@ export default class AppList extends PureComponent {
                     this.state.showCloudApp
                       ? null
                       : [
-                          item.is_complete ? (
-                            <Fragment>
-                              <ExportBtn app={item} />
-                              {item.source === "market" &&
-                                rainbondUtil.cloudMarketEnable(
-                                  rainbondInfo
-                                ) && (
+                          item.is_complete
+                            ? <Fragment>
+                                <ExportBtn app={item} />
+                                {item.source === "market" &&
+                                  rainbondUtil.cloudMarketEnable(
+                                    rainbondInfo
+                                  ) &&
                                   <a
                                     style={{ marginRight: 8 }}
                                     href="javascript:;"
                                     onClick={() => {
-                                      this.handleLoadAppDetail(
-                                        item,
-                                        "云端更新"
-                                      );
+                                      this.handleLoadAppDetail(item, "云端更新");
                                     }}
                                   >
                                     云端更新
-                                  </a>
-                                )}
-                              {item.enterprise_id === "public"
-                                ? userUtil.isSystemAdmin(
-                                    this.props.currentUser
-                                  ) && (
+                                  </a>}
+                                {item.enterprise_id === "public"
+                                  ? userUtil.isSystemAdmin(
+                                      this.props.currentUser
+                                    ) &&
                                     <a
                                       href="javascript:;"
                                       onClick={() => {
@@ -711,10 +705,9 @@ export default class AppList extends PureComponent {
                                     >
                                       删除
                                     </a>
-                                  )
-                                : userUtil.isCompanyAdmin(
-                                    this.props.currentUser
-                                  ) && (
+                                  : userUtil.isCompanyAdmin(
+                                      this.props.currentUser
+                                    ) &&
                                     <a
                                       href="javascript:;"
                                       onClick={() => {
@@ -722,19 +715,16 @@ export default class AppList extends PureComponent {
                                       }}
                                     >
                                       删除
-                                    </a>
-                                  )}
-                            </Fragment>
-                          ) : (
-                            <a
-                              href="javascript:;"
-                              onClick={() => {
-                                this.handleLoadAppDetail(item);
-                              }}
-                            >
-                              下载应用
-                            </a>
-                          )
+                                    </a>}
+                              </Fragment>
+                            : <a
+                                href="javascript:;"
+                                onClick={() => {
+                                  this.handleLoadAppDetail(item);
+                                }}
+                              >
+                                下载应用
+                              </a>
                         ]
                   }
                 >
@@ -777,8 +767,7 @@ export default class AppList extends PureComponent {
                                   size="small"
                                   key={index}
                                 >
-                                  {" "}
-                                  {item}
+                                  {" "}{item}
                                 </Tag>
                               );
                             })}
@@ -804,7 +793,7 @@ export default class AppList extends PureComponent {
             width: "49%"
           }}
         >
-          {this.state.visibles && (
+          {this.state.visibles &&
             <Modal
               title={this.state.bouncedText}
               visible={this.state.visibles}
@@ -843,37 +832,34 @@ export default class AppList extends PureComponent {
                   )}
                 </FormItem>
               </Form>
-            </Modal>
-          )}
+            </Modal>}
 
-          {this.state.showCloudApp ? (
-            <CloudApp
-              onSyncSuccess={() => {
-                this.handlePageChange(1);
-              }}
-              onClose={() => {
-                this.setState({ showCloudApp: false });
-              }}
-              dispatch={this.props.dispatch}
-            />
-          ) : null}
+          {this.state.showCloudApp
+            ? <CloudApp
+                onSyncSuccess={() => {
+                  this.handlePageChange(1);
+                }}
+                onClose={() => {
+                  this.setState({ showCloudApp: false });
+                }}
+                dispatch={this.props.dispatch}
+              />
+            : null}
         </div>
-        {this.state.showOfflineApp && (
+        {this.state.showOfflineApp &&
           <ConfirmModal
             onOk={this.handleOfflineApp}
             desc="确定要删除此应用吗?"
             subDesc="删除后其他人将无法安装此应用"
             title="删除应用"
             onCancel={this.hideOfflineApp}
-          />
-        )}
-        {this.state.showMarketAppDetail && (
+          />}
+        {this.state.showMarketAppDetail &&
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={this.state.showApp}
-          />
-        )}
+          />}
       </div>
     );
   }

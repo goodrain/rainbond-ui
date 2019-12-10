@@ -78,10 +78,28 @@ class ViewRelationInfo extends PureComponent {
   //     type: "appControl/clearRelationOuterEnvs",
   //   });
   // }
+  handleOver = v => {
+    return (
+      <Tooltip title={v}>
+        <div
+          style={{
+            width: 150,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden"
+          }}
+        >
+          {v}
+        </div>
+      </Tooltip>
+    );
+  };
+  rowKey = (record, index) => (record ? record.attr_name : index);
 
   render() {
     const { relationOuterEnvs } = this.props;
     const { page, page_size, total } = this.state;
+
     return (
       <Modal
         title="依赖信息查看"
@@ -91,6 +109,7 @@ class ViewRelationInfo extends PureComponent {
         footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
       >
         <Table
+          rowKey={this.rowKey}
           pagination={{
             current: page,
             pageSize: page_size,
@@ -101,17 +120,17 @@ class ViewRelationInfo extends PureComponent {
             {
               title: "变量名",
               dataIndex: "attr_name",
-              key: "1"
+              render: v => this.handleOver(v)
             },
             {
               title: "变量值",
               dataIndex: "attr_value",
-              key: "2"
+              render: v => this.handleOver(v)
             },
             {
               title: "说明",
               dataIndex: "name",
-              key: "3"
+              render: v => this.handleOver(v)
             }
           ]}
           dataSource={relationOuterEnvs || []}
@@ -498,6 +517,10 @@ export default class Index extends PureComponent {
   render() {
     const { showText, relationList, page, page_size, total } = this.state;
     const { outerEnvs } = this.props;
+    let wraps = {
+      wordBreak: "break-all",
+      wordWrap: "break-word"
+    };
     return (
       <Fragment>
         <Card style={{ marginBottom: 24 }} title={<span>组件连接信息</span>}>
@@ -517,14 +540,7 @@ export default class Index extends PureComponent {
                   width: "30%",
                   render: v => (
                     <Tooltip title={v}>
-                      <div
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {v}
-                      </div>
+                      <div style={wraps}>{v}</div>
                     </Tooltip>
                   )
                 },
@@ -535,14 +551,7 @@ export default class Index extends PureComponent {
                   width: "30%",
                   render: v => (
                     <Tooltip title={v}>
-                      <div
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {v}
-                      </div>
+                      <div style={wraps}>{v}</div>
                     </Tooltip>
                   )
                 },
@@ -553,14 +562,7 @@ export default class Index extends PureComponent {
                   width: "25%",
                   render: v => (
                     <Tooltip title={v}>
-                      <div
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {v}
-                      </div>
+                      <div style={wraps}>{v}</div>
                     </Tooltip>
                   )
                 },

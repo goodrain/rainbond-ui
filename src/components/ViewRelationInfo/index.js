@@ -14,7 +14,7 @@ import {
   Dropdown,
   Table,
   Modal,
-  notification
+  Tooltip
 } from "antd";
 import globalUtil from "../../utils/global";
 
@@ -69,6 +69,25 @@ export default class ViewRelationInfo extends PureComponent {
       }
     });
   };
+  handleOver = v => {
+    return (
+      <Tooltip title={v}>
+        <div
+          style={{
+            width: 150,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden"
+          }}
+        >
+          {v}
+        </div>
+      </Tooltip>
+    );
+  };
+
+  rowKey = (record, index) => (record ? record.attr_name : index);
+
   render() {
     const { relationOuterEnvs } = this.props;
     const { page, page_size, total } = this.state;
@@ -82,6 +101,7 @@ export default class ViewRelationInfo extends PureComponent {
         footer={[<Button onClick={this.props.onCancel}>关闭</Button>]}
       >
         <Table
+          rowKey={this.rowKey}
           pagination={{
             current: page,
             pageSize: page_size,
@@ -91,15 +111,18 @@ export default class ViewRelationInfo extends PureComponent {
           columns={[
             {
               title: "变量名",
-              dataIndex: "attr_name"
+              dataIndex: "attr_name",
+              render: v => this.handleOver(v)
             },
             {
               title: "变量值",
-              dataIndex: "attr_value"
+              dataIndex: "attr_value",
+              render: v => this.handleOver(v)
             },
             {
               title: "说明",
-              dataIndex: "name"
+              dataIndex: "name",
+              render: v => this.handleOver(v)
             }
           ]}
           dataSource={relationOuterEnvs || []}
