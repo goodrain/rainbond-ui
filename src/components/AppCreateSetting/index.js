@@ -1459,7 +1459,7 @@ class BaseInfo extends PureComponent {
         },
         {
           text: "16G",
-          value: 1024 * 8
+          value: 1024 * 16
         }
       ]
     };
