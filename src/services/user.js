@@ -31,9 +31,6 @@ export async function queryOauthType(body = {}) {
   return request(`${config.baseUrl}/console/oauth/type`, {
     method: "get",
     params: body,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
   });
 }
 

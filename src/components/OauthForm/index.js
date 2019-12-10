@@ -133,7 +133,7 @@ class CreateOAuthForm extends PureComponent {
             <div className={styles.conformDesc}>OAuth服务显示名称</div>
           </Form.Item>
 
-          {oauthType === "Other" && (
+          {oauthType === "other" && (
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
@@ -148,13 +148,13 @@ class CreateOAuthForm extends PureComponent {
                 initialValue: oauthInfo ? oauthInfo.auth_url : "",
                 rules: [
                   { required: true, message: "请输入认证地址" },
-                  { required: "url", message: "输入数据不是合法的URL" }
+                  { type: "url", message: "输入数据不是合法的URL" }
                 ]
               })(<Input placeholder="请输入认证地址" />)}
               <div className={styles.conformDesc}>第三方平台认证路由</div>
             </Form.Item>
           )}
-          {oauthType === "Other" && (
+          {oauthType === "other" && (
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
@@ -169,14 +169,14 @@ class CreateOAuthForm extends PureComponent {
                 initialValue: oauthInfo ? oauthInfo.access_token_url : "",
                 rules: [
                   { required: true, message: "请输入access_token_url" },
-                  { required: "url", message: "输入数据不是合法的URL" }
+                  { type: "url", message: "输入数据不是合法的URL" }
                 ]
               })(<Input placeholder="请输入access_token_url" />)}
               <div className={styles.conformDesc}>获取第三方用户的地址</div>
             </Form.Item>
           )}
 
-          {oauthType === "Other" && (
+          {oauthType === "other" && (
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
@@ -191,7 +191,7 @@ class CreateOAuthForm extends PureComponent {
                 initialValue: oauthInfo ? oauthInfo.api_url : "",
                 rules: [
                   { required: true, message: "请输入获取用户数据的API地址" },
-                  { required: "url", message: "输入数据不是合法的URL" }
+                  { type: "url", message: "输入数据不是合法的URL" }
                 ]
               })(<Input placeholder="请输入获取用户数据的API地址" />)}
               <div className={styles.conformDesc}>获取用户信息的API地址</div>
@@ -268,7 +268,7 @@ class CreateOAuthForm extends PureComponent {
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
                 { required: true, message: "请输入正确的平台访问域名" },
-                { required: "url", message: "输入数据不是合法的URL" }
+                { type: "url", message: "输入数据不是合法的URL" }
               ]
             })(<Input placeholder="请输入平台访问域名" />)}
             <div className={styles.conformDesc}>
