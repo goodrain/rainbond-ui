@@ -4,7 +4,7 @@ import { Divider, Row, Col } from "antd";
 import styles from "./Login.less";
 import rainbondUtil from "../../utils/rainbond";
 import LoginComponent from "./loginComponent";
-import oauthUtil from "../../utils/oauth"
+import oauthUtil from "../../utils/oauth";
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
@@ -27,7 +27,7 @@ export default class LoginPage extends Component {
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
       rainbondInfo.oauth_services.value.map(item => {
         const { is_auto_login } = item;
-        if (is_auto_login && disable_auto_login!="true") {
+        if (is_auto_login && disable_auto_login != "true") {
           window.location.href = oauthUtil.getAuthredictURL(item);
         }
       });
@@ -41,30 +41,31 @@ export default class LoginPage extends Component {
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
         {rainbondUtil.OauthbEnable(rainbondInfo) &&
-          <div className={styles.thirdBox}>
-            <Divider>
-              <div className={styles.thirdLoadingTitle}>第三方登录</div>
-            </Divider>
-            <Row className={styles.third}>
-              {rainbondInfo &&
-                rainbondInfo.oauth_services.value.length > 0 &&
-                rainbondInfo.oauth_services.value.map(item => {
-                  const { name, client_id } = item;
-                  let url = oauthUtil.getAuthredictURL(item);
-                  let icon = oauthUtil.getIcon(item)
-                  return (
-                    <Col span="8" className={styles.thirdCol} key={client_id}>
-                      <a href={url}>
-                        {icon}
-                        <p>
-                          {name}
-                        </p>
-                      </a>
-                    </Col>
-                  );
-                })}
-            </Row>
-          </div>}
+          rainbondInfo &&
+          rainbondInfo.oauth_services.value.length > 0 && (
+            <div className={styles.thirdBox}>
+              <Divider>
+                <div className={styles.thirdLoadingTitle}>第三方登录</div>
+              </Divider>
+              <Row className={styles.third}>
+                {rainbondInfo &&
+                  rainbondInfo.oauth_services.value.length > 0 &&
+                  rainbondInfo.oauth_services.value.map(item => {
+                    const { name, client_id } = item;
+                    let url = oauthUtil.getAuthredictURL(item);
+                    let icon = oauthUtil.getIcon(item);
+                    return (
+                      <Col span="8" className={styles.thirdCol} key={client_id}>
+                        <a href={url}>
+                          {icon}
+                          <p>{name}</p>
+                        </a>
+                      </Col>
+                    );
+                  })}
+              </Row>
+            </div>
+          )}
       </div>
     );
   }
