@@ -2186,11 +2186,6 @@ class Relation extends PureComponent {
               dataIndex: "group_name"
             },
             {
-              title: "组件说明",
-              dataIndex: "describe",
-              render: (val, data) => {}
-            },
-            {
               title: "操作",
               dataIndex: "var",
               render: (val, data) => {
