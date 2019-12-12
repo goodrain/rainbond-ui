@@ -320,7 +320,7 @@ export default class Index extends PureComponent {
     let metrics = [
       {
         metric_type: "resource_metrics",
-        metric_name: "cpu",
+        metric_name: values.selectMemory.indexOf("cpu") > -1 ? "cpu" : "memory",
         metric_target_type:
           values.selectMemory.indexOf("utilization") > -1
             ? "utilization"
