@@ -110,7 +110,7 @@ class OpenRegion extends PureComponent {
     }
 
     return (
-      <Card title="当前团队没有数据中心，请先开通">
+      <Card title="当前团队没有数据中心，请先开通" style={{ height: "500px" }}>
         <Table
           size="small"
           pagination={false}
