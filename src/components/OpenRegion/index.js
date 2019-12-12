@@ -3,6 +3,7 @@ import { connect } from "dva";
 import { Button, Table, Modal, notification, Card } from "antd";
 import { unOpenRegion } from "../../services/team";
 import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
 
 //开通数据中心
 @connect(({ user, global }) => ({
@@ -19,13 +20,20 @@ class OpenRegion extends PureComponent {
   }
   componentDidMount() {
     this.getUnRelationedApp();
-    this.props.dispatch({
-      type: "global/getEnterpriseInfo",
-      payload: {
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: () => {}
-    });
+
+    const { currUser } = this.props;
+    const team = userUtil.getDefaultTeam(currUser);
+    // 当前团队里没有数据中心
+    const currRegion = team.region[0] ? team.region[0].team_region_name : "";
+
+    if (currRegion) {
+      this.props.dispatch({
+        type: "global/getEnterpriseInfo",
+        payload: {
+          team_name: globalUtil.getCurrTeamName()
+        }
+      });
+    }
   }
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
@@ -51,6 +59,7 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || "modal";
+    console.log("mode", mode);
     const { enterprise } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
@@ -101,7 +110,7 @@ class OpenRegion extends PureComponent {
     }
 
     return (
-      <Card title="当前团队没有数据中心，请先开通">
+      <Card title="当前团队没有数据中心，请先开通" style={{ height: "500px" }}>
         <Table
           size="small"
           pagination={false}
