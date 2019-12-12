@@ -9,7 +9,7 @@ import { Link, Switch, Route } from "dva/router";
 import { Input, Table, Modal, notification, Pagination, Tooltip } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
-import { volumeTypeObj } from "../../utils/utils";
+import { getVolumeTypeShowName } from "../../utils/utils";
 const { Search } = Input;
 
 export default class Index extends PureComponent {
@@ -208,7 +208,7 @@ export default class Index extends PureComponent {
                         wordWrap: "break-word"
                       }}
                     >
-                      {volumeTypeObj[text]}
+                      {getVolumeTypeShowName(text)}
                     </span>
                   </Tooltip>
                 );

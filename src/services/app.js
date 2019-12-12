@@ -1600,15 +1600,15 @@ export async function getBaseInfo(
 }
 
 /*
-  获取应用的持久化路径
-    volume_type: 查询的类别 share-file(非配置文件) | config-file(配置文件)
+  获取组件存储列表
+    is_config: 是否是配置文件类型
 
 */
 export async function getVolumes(
   body = {
     team_name,
     app_alias,
-    volume_type
+    is_config
   }
 ) {
   return request(
@@ -1618,22 +1618,33 @@ export async function getVolumes(
     {
       method: "get",
       params: {
-        volume_types: body.volume_type
-          ? body.volume_type
-          : ["share-file", "memoryfs", "local"]
+        is_config: body.is_config
       },
-      paramsSerializer: function(params) {
-        const yourNewParams = params.volume_types
-          .map(_ => `volume_types=${_}`)
-          .join("&");
-        return yourNewParams;
-      }
     }
   );
 }
 
 /*
-	添加应用的持久化路径
+  获取组件支持的存储类型
+*/
+export async function getVolumeOpts(
+  body = {
+    team_name,
+    app_alias,
+  }
+) {
+  return request(
+    `${config.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volume-opts`,
+    {
+      method: "get",
+    }
+  );
+}
+
+/*
+	添加组件的存储
 */
 export async function addVolume(
   body = {
@@ -1642,6 +1653,7 @@ export async function addVolume(
     volume_name,
     volume_type,
     volume_path,
+    volume_capacity,
     file_content
   }
 ) {
@@ -1655,6 +1667,7 @@ export async function addVolume(
         volume_name: body.volume_name,
         volume_type: body.volume_type,
         volume_path: body.volume_path,
+        volume_capacity: new Number(body.volume_capacity),
         file_content: body.volume_type == "config-file" ? body.file_content : ""
       }
     }

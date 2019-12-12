@@ -11,21 +11,18 @@ import {
   Table,
   Modal,
   notification,
-  Pagination,
   Tabs,
   Tooltip,
   Form,
   Radio,
-  Drawer,
   Button,
   Row,
   Col,
   Upload,
-  message
 } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
-import { volumeTypeObj } from "../../utils/utils";
+import { getVolumeTypeShowName } from "../../utils/utils";
 import apiconfig from "../../config/config";
 import cookie from "../../utils/cookie";
 
@@ -325,7 +322,7 @@ export default class AddVolumes extends PureComponent {
                             wordWrap: "break-word"
                           }}
                         >
-                          {volumeTypeObj[text]}
+                          {getVolumeTypeShowName(text)}
                         </span>
                       </Tooltip>
                     );

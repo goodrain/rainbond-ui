@@ -3,13 +3,10 @@
 */
 
 import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
-import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
-import { Input, Table, Modal, notification, Pagination, Tooltip } from "antd";
+import { Link } from "dva/router";
+import { Input, Table, Modal, notification, Tooltip } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
-import { volumeTypeObj } from "../../utils/utils";
 
 export default class Index extends PureComponent {
   constructor(props) {
@@ -160,20 +157,6 @@ export default class Index extends PureComponent {
                 </Tooltip>
               )
             },
-            // {
-            //   title: "配置文件类型",
-            //   dataIndex: "dep_vol_type",
-            //   key: "4",
-            //   width: "15%",
-            //   render: (text, record) => {
-            //     return <Tooltip title={text}>
-            //       <span style={{
-            //         wordBreak: "break-all",
-            //         wordWrap: "break-word"
-            //       }}>{volumeTypeObj[text]}</span>
-            //     </Tooltip>
-            //   }
-            // },
             {
               title: "所属组件",
               dataIndex: "dep_app_name",

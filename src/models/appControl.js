@@ -30,6 +30,7 @@ import {
   getBaseInfo,
   deleteMnt,
   getVolumes,
+  getVolumeOpts,
   addVolume,
   editorVolume,
   deleteVolume,
@@ -720,6 +721,12 @@ export default {
           type: "saveVolumes",
           payload: response.list || []
         });
+        callback && callback(response);
+      }
+    },
+    *fetchVolumeOpts({ payload, callback }, { call, put }) {
+      const response = yield call(getVolumeOpts, payload);
+      if (response) {
         callback && callback(response);
       }
     },

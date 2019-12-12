@@ -28,8 +28,6 @@ import {
   getMnt,
   addMnt,
   getRelationedApp,
-  getUnRelationedApp,
-  addRelationedApp,
   removeRelationedApp,
   batchAddRelationedApp
 } from "../../services/app";
@@ -42,13 +40,12 @@ import AddRelationMnt from "../../components/AddRelationMnt";
 import AddRelation from "../../components/AddRelation";
 import ViewRelationInfo from "../../components/ViewRelationInfo";
 import appUtil from "../../utils/app";
-import { volumeTypeObj } from "../../utils/utils";
+import { getVolumeTypeShowName } from "../../utils/utils";
 import Dockerinput from "../../components/Dockerinput";
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
-const { TextArea } = Input;
 const confirm = Modal.confirm;
 //node.js
 @connect(
@@ -243,12 +240,6 @@ class Golang extends PureComponent {
             </RadioGroup>
           )}
         </Form.Item>
-        {/* <Row>
-          <Col span="5"></Col>
-          <Col span="19">
-            <Button onClick={this.handleSubmit} type={'primary'}>确认修改</Button>
-          </Col>
-        </Row> */}
       </Card>
     );
   }
@@ -1580,17 +1571,6 @@ class RenderDeploy extends PureComponent {
     this.getRuntimeInfo();
   }
   handleEditRuntime = (build_env_dict = {}) => {
-    // this
-    //     .props
-    //     .dispatch({
-    //         type: 'appControl/editRuntimeInfo',
-    //         payload: {
-    //             team_name: globalUtil.getCurrTeamName(),
-    //             app_alias: this.props.appDetail.service.service_alias,
-    //             ...val
-    //         },
-    //         callback: (data) => { }
-    //     })
 
     this.props.dispatch({
       type: "appControl/editRuntimeBuildInfo",
@@ -1623,18 +1603,6 @@ class RenderDeploy extends PureComponent {
     });
   };
   getRuntimeInfo = () => {
-    // this
-    //     .props
-    //     .dispatch({
-    //         type: 'appControl/getRuntimeInfo',
-    //         payload: {
-    //             team_name: globalUtil.getCurrTeamName(),
-    //             app_alias: this.props.appDetail.service.service_alias
-    //         },
-    //         callback: (data) => {
-    //             this.setState({ runtimeInfo: data.bean })
-    //         }
-    //     })
 
     this.props.dispatch({
       type: "appControl/getRuntimeBuildInfo",
@@ -1742,12 +1710,13 @@ class Mnt extends PureComponent {
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
-      volumes: []
+      volumes: [],
+      volumeOpts: [],
     };
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    this.fetchVolumeOpts();
     this.loadMntList();
     this.fetchVolumes();
   }
@@ -1756,12 +1725,29 @@ class Mnt extends PureComponent {
       type: "appControl/fetchVolumes",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias
+        app_alias: this.props.appDetail.service.service_alias,
+        is_config: false,
       },
       callback: data => {
         if (data) {
           this.setState({
             volumes: data.list || []
+          });
+        }
+      }
+    });
+  };
+  fetchVolumeOpts = () => {
+    this.props.dispatch({
+      type: "appControl/fetchVolumeOpts",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumeOpts: data.list || []
           });
         }
       }
@@ -1863,6 +1849,10 @@ class Mnt extends PureComponent {
   cancelDeleteMnt = () => {
     this.setState({ toDeleteMnt: null });
   };
+  getVolumeTypeShowName = (volume_type) => {
+    const { volumeOpts } = this.state
+    return getVolumeTypeShowName(volumeOpts, volume_type)
+  }
   render() {
     const { mntList } = this.state;
     const { volumes } = this.state;
@@ -1877,7 +1867,38 @@ class Mnt extends PureComponent {
       },
       {
         title: "存储类型",
-        dataIndex: "volume_type"
+        dataIndex: "volume_type",
+        render: (text, record) => {
+          return (
+            <span>
+              {this.getVolumeTypeShowName(text)}
+            </span>
+          );
+        }
+      },
+      {
+        title: "存储容量",
+        dataIndex: "volume_capacity",
+        render: (text, record) => {
+          if (text == 0) {
+            return <span>不限制</span>;
+          }
+          return (
+            <span>
+              {text}GB
+            </span>
+          );
+        }
+      },
+      {
+        title: "状态",
+        dataIndex: "status",
+        render: (text, record) => {
+          if (text == 'not_bound') {
+            return <span style={{color: "red"}}>未挂载</span>;
+          }
+          return <span style={{color: "green"}}>已挂载</span>;
+        }
       },
       {
         title: "操作",
@@ -1986,7 +2007,7 @@ class Mnt extends PureComponent {
                 key: "4",
                 width: "10%",
                 render: (text, record) => {
-                  return <span>{volumeTypeObj[text]}</span>;
+                  return <span>{this.getVolumeTypeShowName(text)}</span>;
                 }
               },
               {
@@ -2058,7 +2079,7 @@ class Mnt extends PureComponent {
         </Card>
         {this.state.showAddVar && (
           <AddOrEditVolume
-            appBaseInfo={this.props.appDetail.service}
+            volumeOpts={this.state.volumeOpts}
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             data={this.state.showAddVar}

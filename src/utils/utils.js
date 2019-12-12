@@ -204,7 +204,25 @@ export const languageObj = {
 
 export const volumeTypeObj = {
   "share-file": "共享存储（文件）",
-  memoryfs: "内存文件存储",
-  local: "本地存储",
+  "memoryfs": "内存文件存储",
+  "local": "本地存储",
   "config-file": "配置文件"
+};
+
+export function getVolumeTypeShowName(volumeOpts, volume_type) {
+  let showName = null;
+  volumeOpts &&
+    volumeOpts.map(item => {
+      if (item.volume_type == volume_type && item.name_show) {
+        showName = item.name_show;
+      }
+    });
+  if (showName) {
+    return showName;
+  }
+  const name = volumeTypeObj[volume_type]
+  if (name) {
+    return name
+  }
+  return volume_type;
 };

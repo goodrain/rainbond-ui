@@ -7,28 +7,21 @@ import {
   Button,
   Icon,
   Table,
-  Tag,
   notification,
   Tooltip,
   Row,
   Col,
   Alert,
-  Popconfirm,
-  Switch,
   Input
 } from "antd";
 import ConfirmModal from "../../components/ConfirmModal";
-import NoPermTip from "../../components/NoPermTip";
 import AddVarModal from "./setting/env";
 import { getMnt, addMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
-import { volumeTypeObj } from "../../utils/utils";
 import RelationMnt from "../../components/AddStorage/relationMnt";
 import ScrollerX from "../../components/ScrollerX";
-import AddVolumes from "../../components/AddOrEditVolume";
 import AddStorage from "../../components/AddStorage";
 
-const FormItem = Form.Item;
 const { Search } = Input;
 @connect(
   ({ user, appControl, teamControl }) => ({
@@ -320,7 +313,7 @@ export default class Index extends React.Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_type: ["config-file"]
+        is_config: true
       }
     });
   };
@@ -690,13 +683,6 @@ export default class Index extends React.Component {
                   title: "配置文件挂载路径",
                   dataIndex: "volume_path"
                 },
-                // {
-                //   title: "存储类型",
-                //   dataIndex: "volume_type",
-                //   render: (text, record) => {
-                //     return <span>{volumeTypeObj[text]}</span>
-                //   }
-                // },
                 {
                   title: "操作",
                   dataIndex: "action",
@@ -796,13 +782,6 @@ export default class Index extends React.Component {
                     </Tooltip>
                   )
                 },
-                // {
-                //   title: "配置文件类型",
-                //   dataIndex: "dep_vol_type",
-                //   render: (text, record) => {
-                //     return <span>{volumeTypeObj[text]}</span>
-                //   }
-                // },
                 {
                   title: "所属组件",
                   dataIndex: "dep_app_name",
