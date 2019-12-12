@@ -1871,7 +1871,7 @@ class Mnt extends PureComponent {
         render: (text, record) => {
           return (
             <span>
-              {this.getVolumeTypeShowName(text)}
+              {this.getVolumeTypeShowName(null, text)}
             </span>
           );
         }
@@ -2007,7 +2007,7 @@ class Mnt extends PureComponent {
                 key: "4",
                 width: "10%",
                 render: (text, record) => {
-                  return <span>{this.getVolumeTypeShowName(text)}</span>;
+                  return <span>{this.getVolumeTypeShowName(null, text)}</span>;
                 }
               },
               {

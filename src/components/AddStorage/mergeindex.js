@@ -322,7 +322,7 @@ export default class AddVolumes extends PureComponent {
                             wordWrap: "break-word"
                           }}
                         >
-                          {getVolumeTypeShowName(text)}
+                          {getVolumeTypeShowName(null, text)}
                         </span>
                       </Tooltip>
                     );

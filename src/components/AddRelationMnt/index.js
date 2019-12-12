@@ -208,7 +208,7 @@ export default class Index extends PureComponent {
                         wordWrap: "break-word"
                       }}
                     >
-                      {getVolumeTypeShowName(text)}
+                      {getVolumeTypeShowName(null, text)}
                     </span>
                   </Tooltip>
                 );
