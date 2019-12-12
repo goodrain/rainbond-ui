@@ -129,7 +129,7 @@ class CreateOAuthForm extends PureComponent {
             {getFieldDecorator("name", {
               initialValue: oauthInfo ? oauthInfo.name : "",
               rules: [{ required: true, message: "请输入名称" }]
-            })(<Input placeholder="请输入名称" />)}
+            })(<Input placeholder="请输入名称" maxLength={32} />)}
             <div className={styles.conformDesc}>OAuth服务显示名称</div>
           </Form.Item>
 
@@ -150,7 +150,7 @@ class CreateOAuthForm extends PureComponent {
                   { required: true, message: "请输入认证地址" },
                   { type: "url", message: "输入数据不是合法的URL" }
                 ]
-              })(<Input placeholder="请输入认证地址" />)}
+              })(<Input placeholder="请输入认证地址" maxLength={255} />)}
               <div className={styles.conformDesc}>第三方平台认证路由</div>
             </Form.Item>
           )}
@@ -171,7 +171,7 @@ class CreateOAuthForm extends PureComponent {
                   { required: true, message: "请输入access_token_url" },
                   { type: "url", message: "输入数据不是合法的URL" }
                 ]
-              })(<Input placeholder="请输入access_token_url" />)}
+              })(<Input placeholder="请输入access_token_url" maxLength={255} />)}
               <div className={styles.conformDesc}>获取第三方用户的地址</div>
             </Form.Item>
           )}
@@ -193,7 +193,7 @@ class CreateOAuthForm extends PureComponent {
                   { required: true, message: "请输入获取用户数据的API地址" },
                   { type: "url", message: "输入数据不是合法的URL" }
                 ]
-              })(<Input placeholder="请输入获取用户数据的API地址" />)}
+              })(<Input placeholder="请输入获取用户数据的API地址" maxLength={255}/>)}
               <div className={styles.conformDesc}>获取用户信息的API地址</div>
             </Form.Item>
           )}
@@ -215,7 +215,7 @@ class CreateOAuthForm extends PureComponent {
                   { required: true, message: "请输入服务地址" },
                   { type: "url", message: "输入数据不是合法的URL" }
                 ]
-              })(<Input disabled={edit} placeholder="请输入服务地址" />)}
+              })(<Input disabled={edit} placeholder="请输入服务地址" maxLength={255}/>)}
               <div className={styles.conformDesc}>第三方服务访问地址</div>
             </Form.Item>
           )}
@@ -233,7 +233,7 @@ class CreateOAuthForm extends PureComponent {
             {getFieldDecorator("client_id", {
               initialValue: oauthInfo ? oauthInfo.client_id : "",
               rules: [{ required: true, message: "请输入client_id" }]
-            })(<Input disabled={edit} placeholder="请输入client_id" />)}
+            })(<Input disabled={edit} placeholder="请输入client_id" maxLength={64}/>)}
             <div className={styles.conformDesc}>Client ID</div>
           </Form.Item>
           <Form.Item
@@ -249,7 +249,7 @@ class CreateOAuthForm extends PureComponent {
             {getFieldDecorator("client_secret", {
               initialValue: oauthInfo ? oauthInfo.client_secret : "",
               rules: [{ required: true, message: "请输入client_secret" }]
-            })(<Input disabled={edit} placeholder="请输入client_secret" />)}
+            })(<Input disabled={edit} placeholder="请输入client_secret" maxLength={64}/>)}
             <div className={styles.conformDesc}>Client Secret</div>
           </Form.Item>
           <Form.Item
@@ -270,7 +270,7 @@ class CreateOAuthForm extends PureComponent {
                 { required: true, message: "请输入正确的平台访问域名" },
                 { type: "url", message: "输入数据不是合法的URL" }
               ]
-            })(<Input placeholder="请输入平台访问域名" />)}
+            })(<Input placeholder="请输入平台访问域名" maxLength={255}/>)}
             <div className={styles.conformDesc}>
               平台访问域名是用于OAuth认证完回跳时的访问地址
             </div>
