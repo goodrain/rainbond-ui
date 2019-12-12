@@ -283,7 +283,7 @@ export default class Index extends PureComponent {
                   render: (text, record) => {
                     return (
                       <span>
-                        {this.getVolumeTypeShowName(null, text)}
+                        {this.getVolumeTypeShowName(text)}
                       </span>
                     );
                   }
@@ -414,7 +414,7 @@ export default class Index extends PureComponent {
                   render: (text, record) => {
                     return (
                       <span>
-                        {this.getVolumeTypeShowName(null, text)}
+                        {this.getVolumeTypeShowName(text)}
                       </span>
                     );
                   }
