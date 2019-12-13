@@ -102,7 +102,7 @@ export default class ThirdLogin extends Component {
                 desc: "未成功获取access_token,请重新认证。"
               },
               () => {
-                dispatch(routerRedux.push(`/user/login`));
+                dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
               }
             );
           } else if (res && res._code === 200) {
@@ -142,7 +142,7 @@ export default class ThirdLogin extends Component {
         handleError: res => {
           if (res && res.status === 500) {
             message.warning("第三方认证失败，请重新认证", 1, () => {
-              this.props.dispatch(routerRedux.push(`/user/login`));
+              this.props.dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
             });
           }
         }
