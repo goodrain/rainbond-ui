@@ -93,27 +93,34 @@ class Index extends React.Component {
   handleCodeWarehouseInfo = props => {
     const { page, search } = this.state;
     const { dispatch, type } = props;
-    dispatch({
-      type: "global/codeWarehouseInfo",
-      payload: {
-        page,
-        search,
-        oauth_service_id: type
+    this.setState(
+      {
+        loading: true
       },
-      callback: res => {
-        if (res && res.bean) {
-          const firstPage = page == 1;
-          const lastPage = res.bean.repositories.length < 10;
-          this.setState({
-            firstPage,
-            lastPage,
-            loading: false,
-            total: res.bean.total,
-            lists: res.bean.repositories
-          });
-        }
+      () => {
+        dispatch({
+          type: "global/codeWarehouseInfo",
+          payload: {
+            page,
+            search,
+            oauth_service_id: type
+          },
+          callback: res => {
+            if (res && res.bean) {
+              const firstPage = page == 1;
+              const lastPage = res.bean.repositories.length < 10;
+              this.setState({
+                firstPage,
+                lastPage,
+                loading: false,
+                total: res.bean.total,
+                lists: res.bean.repositories
+              });
+            }
+          }
+        });
       }
-    });
+    );
   };
 
   //代码检测
