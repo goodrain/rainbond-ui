@@ -499,6 +499,7 @@ export default class BasicList extends PureComponent {
       home_url,
       is_auto_login,
       redirect_domain,
+      is_git,
     } = values;
 
     oauth_type = oauth_type.toLowerCase();
@@ -508,14 +509,23 @@ export default class BasicList extends PureComponent {
       auth_url = "https://github.com/login/oauth/authorize";
       access_token_url = "https://github.com/login/oauth/access_token";
       api_url = "https://api.github.com/user";
+      is_git = true
     } else if (oauth_type === "gitlab") {
       auth_url = `${home_url}/oauth/authorize`;
       access_token_url = `${home_url}/oauth/token`;
       api_url = `${home_url}/api/v4/user`;
+      is_git = true
     } else if (oauth_type === "gitee") {
       auth_url = `${home_url}/oauth/authorize`;
       access_token_url = `${home_url}/oauth/token`;
       api_url = `${home_url}/api/v5/user`;
+      is_git = true
+    } else if (oauth_type == 'dingtalk') {
+      home_url = `${home_url}`
+      auth_url = "https://oapi.dingtalk.com/connect/qrconnect"
+      access_token_url = "https://oapi.dingtalk.com/sns/gettoken"
+      api_url = "https://oapi.dingtalk.com/sns/getuserinfo_bycode"
+      is_git = false
     } else {
       home_url = null;
     }
@@ -531,7 +541,8 @@ export default class BasicList extends PureComponent {
       access_token_url,
       api_url,
       home_url,
-      is_console: true
+      is_console: true,
+      is_git
     };
     if (oauth_type !== "other") {
       obj.api_project_url =

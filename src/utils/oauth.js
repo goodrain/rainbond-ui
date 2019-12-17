@@ -19,6 +19,10 @@ const oauthUtil = {
     if (oauth_type == "github") {
       return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
     }
+    if (oauth_type == "dingtalk") {
+      const redirect_uri_with_sid = encodeURIComponent(`${redirect_uri}?service_id=${service_id}`)
+      return `${auth_url}?appid=${client_id}&redirect_uri=${redirect_uri_with_sid}&response_type=code&scope=snsapi_login`;
+    }
     return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
   },
   getIcon(item, size = "32px") {
