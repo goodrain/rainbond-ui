@@ -371,6 +371,20 @@ class JAVA extends PureComponent {
           : props.form.getFieldValue("RUNTIMES")
           ? props.form.getFieldValue("RUNTIMES")
           : "OpenJDK",
+      nodeBuildType:
+        props.runtimeInfo &&
+        (props.runtimeInfo.BUILD_NPM_BUILD_CMD ||
+          props.runtimeInfo.BUILD_YARN_BUILD_CMD)
+          ? props.runtimeInfo.BUILD_NPM_BUILD_CMD === "npm run build" ||
+            props.runtimeInfo.BUILD_NPM_BUILD_CMD === "yarn run build" ||
+            props.runtimeInfo.BUILD_YARN_BUILD_CMD === "npm run build" ||
+            props.runtimeInfo.BUILD_YARN_BUILD_CMD === "yarn run build"
+            ? props.runtimeInfo.BUILD_NPM_BUILD_CMD ||
+              props.runtimeInfo.BUILD_YARN_BUILD_CMD
+            : "custom"
+          : "",
+      nodeType: props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES,
+      webType: props.runtimeInfo && props.runtimeInfo.BUILD_RUNTIMES_SERVER,
       languageType: this.props.language,
       BUILD_ONLINE: false,
       NODE_MODULES_CACHE: false,
@@ -448,11 +462,18 @@ class JAVA extends PureComponent {
         BUILD_MAVEN_CUSTOM_GOALS,
         BUILD_MAVEN_JAVA_OPTS,
         BUILD_PROCFILE,
+        BUILD_NODE_URL,
         OpenJDK,
         BUILD_PIP_INDEX_URL,
         // BUILD_RUNTIMES_HHVM,
         BUILD_DOTNET_RUNTIME_VERSION,
-        RUNTIMES
+        RUNTIMES,
+        BUILD_NPM_REGISTRY,
+        BUILD_NODE_ENV,
+        BUILD_NPM_BUILD_CMD,
+        BUILD_YARN_BUILD_CMD,
+        BUILD_YARN_URL,
+        BUILD_NGINX_TARBALL_URL
       } = fieldsValue;
 
       NO_CACHE ? (subObject.NO_CACHE = true) : "";
@@ -480,7 +501,33 @@ class JAVA extends PureComponent {
           subObject.BUILD_RUNTIMES = BUILD_RUNTIMES;
         }
       } else {
+        subObject.BUILD_NODE_ENV = BUILD_NODE_ENV;
         BUILD_RUNTIMES ? (subObject.BUILD_RUNTIMES = BUILD_RUNTIMES) : "";
+        BUILD_NODE_URL && BUILD_RUNTIMES && BUILD_RUNTIMES === "custom"
+          ? (subObject.BUILD_NODE_URL = BUILD_NODE_URL)
+          : "";
+        BUILD_NGINX_TARBALL_URL &&
+        BUILD_RUNTIMES_SERVER &&
+        BUILD_RUNTIMES_SERVER === "custom"
+          ? (subObject.BUILD_NGINX_TARBALL_URL = BUILD_NGINX_TARBALL_URL)
+          : "";
+        BUILD_YARN_URL ? (subObject.BUILD_YARN_URL = BUILD_YARN_URL) : "";
+
+        if (BUILD_NPM_REGISTRY) {
+          subObject.BUILD_NPM_REGISTRY = BUILD_NPM_REGISTRY;
+          subObject.BUILD_YARN_REGISTRY = BUILD_NPM_REGISTRY;
+        }
+        if (
+          BUILD_NPM_BUILD_CMD &&
+          BUILD_NPM_BUILD_CMD === "custom" &&
+          BUILD_YARN_BUILD_CMD
+        ) {
+          subObject.BUILD_NPM_BUILD_CMD = BUILD_YARN_BUILD_CMD;
+          subObject.BUILD_YARN_BUILD_CMD = BUILD_YARN_BUILD_CMD;
+        } else if (BUILD_NPM_BUILD_CMD && BUILD_NPM_BUILD_CMD !== "custom") {
+          subObject.BUILD_NPM_BUILD_CMD = BUILD_NPM_BUILD_CMD;
+          subObject.BUILD_YARN_BUILD_CMD = BUILD_NPM_BUILD_CMD;
+        }
       }
 
       BUILD_RUNTIMES_MAVEN
@@ -489,6 +536,7 @@ class JAVA extends PureComponent {
       BUILD_RUNTIMES_SERVER
         ? (subObject.BUILD_RUNTIMES_SERVER = BUILD_RUNTIMES_SERVER)
         : "";
+
       BUILD_DOTNET_SDK_VERSION
         ? (subObject.BUILD_DOTNET_SDK_VERSION = BUILD_DOTNET_SDK_VERSION)
         : "";
@@ -537,7 +585,23 @@ class JAVA extends PureComponent {
       [name]: !this.state[name]
     });
   };
-  onRadioChange = e => {};
+
+  onRadioNodeBuildTypeChange = e => {
+    this.setState({
+      nodeBuildType: e.target.value
+    });
+  };
+
+  onRadioNodeTypeChange = e => {
+    this.setState({
+      nodeType: e.target.value
+    });
+  };
+  onRadioWebTypeChange = e => {
+    this.setState({
+      webType: e.target.value
+    });
+  };
 
   onRadioGroupChange = e => {
     this.setState({
@@ -577,6 +641,16 @@ class JAVA extends PureComponent {
     callback();
   };
 
+  validCustomNodeBuild = (rule, value, callback) => {
+    const runtime = this.props.form.getFieldValue("BUILD_NPM_BUILD_CMD");
+    if (runtime == "custom") {
+      if (!value) {
+        callback("自定义指定静态文件构建命令不能为空");
+      }
+    }
+    callback();
+  };
+
   render() {
     const runtimeInfo = this.props.runtimeInfo || "";
     const formItemLayout = {
@@ -598,7 +672,14 @@ class JAVA extends PureComponent {
       }
     };
     const { getFieldDecorator } = this.props.form;
-    const { JDKType, languageType, arr } = this.state;
+    const {
+      JDKType,
+      nodeBuildType,
+      languageType,
+      arr,
+      nodeType,
+      webType
+    } = this.state;
     const jdkShow = () => {
       return (
         <div>
@@ -648,6 +729,165 @@ class JAVA extends PureComponent {
             </Form.Item>
           )}
         </div>
+      );
+    };
+    const nodeShow = () => {
+      return (
+        <dir>
+          <Form.Item {...formItemLayout} label="开启清除构建缓存">
+            {getFieldDecorator("NO_CACHE", {
+              initialValue: ""
+            })(
+              <Radio
+                onClick={() => {
+                  this.handleRadio("NO_CACHE");
+                }}
+                checked={this.state.NO_CACHE}
+              />
+            )}
+          </Form.Item>
+
+          {languageType == "nodejsstatic" ||
+            (languageType == "static" && (
+              <Form.Item {...formItemLayout} label="web服务器支持">
+                {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
+                  initialValue:
+                    (runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER) ||
+                    "nginx"
+                })(
+                  <RadioGroup
+                    className={styles.ant_radio_disabled}
+                    onChange={this.onRadioWebTypeChange}
+                  >
+                    <Radio value="nginx" selected="selected">
+                      nginx(默认)
+                    </Radio>
+                    <Radio value="custom">自定义地址</Radio>
+                  </RadioGroup>
+                )}
+              </Form.Item>
+            ))}
+
+          {webType === "custom" &&
+            (languageType == "nodejsstatic" || languageType == "static") && (
+              <Form.Item {...formItemLayout} label="nginx安装地址">
+                {getFieldDecorator("BUILD_NGINX_TARBALL_URL", {
+                  initialValue:
+                    "http://lang.goodrain.me/static/r6d/nginx/nginx-${version}.tar.gz"
+                })(<Input placeholder="请输入nginx安装地址" />)}
+              </Form.Item>
+            )}
+
+          <Form.Item {...formItemLayout} label="Node版本">
+            {getFieldDecorator("BUILD_RUNTIMES", {
+              initialValue:
+                (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) || "8.12.0"
+            })(
+              <RadioGroup
+                className={styles.ant_radio_disabled}
+                onChange={this.onRadioNodeTypeChange}
+              >
+                <Radio value="8.12.0" selected="selected">
+                  8.12.0
+                </Radio>
+                <Radio value="4.9.1">4.9.1</Radio>
+                <Radio value="5.12.0">5.12.0</Radio>
+                <Radio value="6.14.4">6.14.4</Radio>
+                <Radio value="7.10.1">7.10.1</Radio>
+                <Radio value="9.11.2">9.11.2</Radio>
+                <Radio value="10.13.0">10.13.0</Radio>
+                <Radio value="11.1.0">11.1.0</Radio>
+                <Radio value="custom">自定义地址</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
+
+          {nodeType == "custom" && (
+            <Form.Item {...formItemLayout} label="Node安装地址">
+              {getFieldDecorator("BUILD_NODE_URL", {
+                initialValue:
+                  "http://lang.goodrain.me/nodejs/node/release/linux-x64/node-v$number-linux-x64.tar.gz"
+              })(<Input placeholder="请输入node安装地址" />)}
+            </Form.Item>
+          )}
+          <Form.Item {...formItemLayout} label="Yarn安装地址">
+            {getFieldDecorator("BUILD_YARN_URL", {
+              initialValue:
+                "http://lang.goodrain.me/nodejs/yarn/release/yarn-v$number.tar.gz"
+            })(<Input placeholder="请输入yarn安装地址" />)}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="BUILD_NODE_ENV">
+            {getFieldDecorator("BUILD_NODE_ENV", {
+              initialValue:
+                (runtimeInfo && runtimeInfo.BUILD_NODE_ENV) || "production"
+            })(<Input placeholder="production" />)}
+          </Form.Item>
+
+          <Form.Item {...formItemLayout} label="NPM MIRROR_URL">
+            {getFieldDecorator("BUILD_NPM_REGISTRY", {
+              initialValue:
+                (runtimeInfo &&
+                  (runtimeInfo.BUILD_NPM_REGISTRY ||
+                    runtimeInfo.BUILD_YARN_REGISTRY)) ||
+                "https://registry.npm.taobao.org"
+            })(<Input placeholder="https://registry.npm.taobao.org" />)}
+          </Form.Item>
+
+          <Form.Item {...formItemLayout} label="指定静态文件构建命令">
+            {getFieldDecorator("BUILD_NPM_BUILD_CMD", {
+              initialValue:
+                runtimeInfo &&
+                (runtimeInfo.BUILD_NPM_BUILD_CMD ||
+                  runtimeInfo.BUILD_YARN_BUILD_CMD)
+                  ? runtimeInfo.BUILD_NPM_BUILD_CMD === "npm run build" ||
+                    runtimeInfo.BUILD_NPM_BUILD_CMD === "yarn run build" ||
+                    runtimeInfo.BUILD_YARN_BUILD_CMD === "npm run build" ||
+                    runtimeInfo.BUILD_YARN_BUILD_CMD === "yarn run build"
+                    ? runtimeInfo.BUILD_NPM_BUILD_CMD ||
+                      runtimeInfo.BUILD_YARN_BUILD_CMD
+                    : "custom"
+                  : ""
+            })(
+              <RadioGroup
+                className={styles.ant_radio_disabled}
+                onChange={this.onRadioNodeBuildTypeChange}
+              >
+                <Radio value="npm run build">npm run build</Radio>
+                <Radio value="yarn run build">yarn run build</Radio>
+                <Radio value="custom">自定义构建命令</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
+          {nodeBuildType == "custom" && (
+            <Form.Item {...formItemLayout} label="自定义构建命令">
+              {getFieldDecorator("BUILD_YARN_BUILD_CMD", {
+                initialValue:
+                  runtimeInfo &&
+                  (runtimeInfo.BUILD_NPM_BUILD_CMD ||
+                    runtimeInfo.BUILD_YARN_BUILD_CMD),
+                rules: [{ validator: this.validCustomNodeBuild }]
+              })(<Input placeholder="自定义构建命令" />)}
+            </Form.Item>
+          )}
+
+          <Form.Item {...formItemLayout} label="启动命令">
+            {getFieldDecorator("BUILD_PROCFILE", {
+              initialValue:
+                (runtimeInfo && runtimeInfo.BUILD_PROCFILE) ||
+                (languageType == "nodejsstatic" || languageType == "static"
+                  ? "web: sh boot.sh"
+                  : "web: npm start")
+            })(
+              <Input
+                placeholder={
+                  languageType == "nodejsstatic" || languageType == "static"
+                    ? "web: sh boot.sh"
+                    : "web: npm start"
+                }
+              />
+            )}
+          </Form.Item>
+        </dir>
       );
     };
     return (
@@ -893,7 +1133,6 @@ class JAVA extends PureComponent {
                   "https://pypi.tuna.tsinghua.edu.cn/simple"
               })(<Input />)}
             </Form.Item>
-
             <Form.Item {...formItemLayout} label="开启清除构建缓存">
               {getFieldDecorator("NO_CACHE", {
                 initialValue: ""
@@ -921,7 +1160,6 @@ class JAVA extends PureComponent {
                 </RadioGroup>
               )}
             </Form.Item>
-
             <Form.Item {...formItemLayout} label="PHP版本">
               {getFieldDecorator("BUILD_RUNTIMES", {
                 initialValue:
@@ -960,72 +1198,12 @@ class JAVA extends PureComponent {
             </Form.Item>
           </div>
         )}
-        {(languageType == "nodejsstatic" || languageType == "static") && (
-          <Form.Item {...formItemLayout} label="web服务器支持">
-            {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-              initialValue:
-                (runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER) || "nginx"
-            })(
-              <RadioGroup className={styles.ant_radio_disabled}>
-                <Radio value="nginx" selected="selected">
-                  nginx(默认)
-                </Radio>
-                {languageType == "static" && (
-                  <Radio value="apache">apache</Radio>
-                )}
-              </RadioGroup>
-            )}
-          </Form.Item>
-        )}
+        {(languageType == "nodejsstatic" || languageType == "static") &&
+          nodeShow()}
         {(languageType == "nodejs" ||
           languageType == "Node" ||
-          languageType == "node") && (
-          <div>
-            <Form.Item {...formItemLayout} label="Node版本">
-              {getFieldDecorator("BUILD_RUNTIMES", {
-                initialValue:
-                  (runtimeInfo && runtimeInfo.BUILD_RUNTIMES) || "8.12.0"
-              })(
-                <RadioGroup className={styles.ant_radio_disabled}>
-                  <Radio value="8.12.0" selected="selected">
-                    8.12.0(默认)
-                  </Radio>
-                  <Radio value="4.9.1">4.9.1</Radio>
-                  <Radio value="5.12.0">5.12.0</Radio>
-                  <Radio value="6.14.4">6.14.4</Radio>
-                  <Radio value="7.10.1">7.10.1</Radio>
-                  <Radio value="9.11.2">9.11.2</Radio>
-                  <Radio value="10.13.0">10.13.0</Radio>
-                  <Radio value="11.1.0">11.1.0</Radio>
-                </RadioGroup>
-              )}
-            </Form.Item>
-
-            <Form.Item {...formItemLayout} label="开启清除构建缓存">
-              {getFieldDecorator("NO_CACHE", {
-                initialValue: ""
-              })(
-                <Radio
-                  onClick={() => {
-                    this.handleRadio("NO_CACHE");
-                  }}
-                  checked={this.state.NO_CACHE}
-                />
-              )}
-            </Form.Item>
-
-            {/* <Form.Item {...formItemLayout} label="web服务器支持">
-                            {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
-                                initialValue: runtimeInfo && runtimeInfo.BUILD_RUNTIMES_SERVER || "nginx",
-                            })(
-                                <RadioGroup className={styles.ant_radio_disabled}>
-                                    <Radio value='nginx'>nginx(默认)</Radio>
-                                    <Radio value='apache'>apache</Radio>
-                                </RadioGroup>
-                            )}
-                        </Form.Item> */}
-          </div>
-        )}
+          languageType == "node") &&
+          nodeShow()}
         {(languageType == "NetCore" ||
           languageType == "netCore" ||
           languageType == "netcore") && (
@@ -1979,9 +2157,9 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="项目名称"
               >
-              <a href={buildSource.git_url} target="_blank">
-                 {buildSource.full_name}
-              </a>
+                <a href={buildSource.git_url} target="_blank">
+                  {buildSource.full_name}
+                </a>
               </FormItem>
             )}
 
