@@ -63,11 +63,11 @@ export default class Register extends Component {
               },
               callback: res => {
                 if (res && res._code == 200) {
-                  message.success("认证成功", 2, () => {
+                  message.success("认证成功", 1, () => {
                     window.location.reload();
                   });
                 } else {
-                  message.warning("认证失败，请重新认证", 2, () => {
+                  message.warning("认证失败，请重新认证", 1, () => {
                     window.location.reload();
                   });
                 }
