@@ -15,7 +15,10 @@ const oauthUtil = {
     return servers;
   },
   getAuthredictURL(item) {
-    const { oauth_type, client_id, auth_url, redirect_uri, service_id } = item;
+    const { oauth_type, client_id, auth_url, redirect_uri, service_id, authorize_url } = item;
+    if (authorize_url) {
+      return authorize_url
+    }
     if (oauth_type == "github") {
       return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
     }
