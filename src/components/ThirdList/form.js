@@ -154,6 +154,34 @@ class Index extends React.Component {
       this.handleCodeWarehouseType(this.props);
     });
   };
+
+  handleAddGroup = vals => {
+    const { setFieldsValue } = this.props.form;
+    this.props.dispatch({
+      type: "groupControl/addGroup",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        ...vals
+      },
+      callback: group => {
+        if (group) {
+          // 获取群组
+          this.props.dispatch({
+            type: "global/fetchGroups",
+            payload: {
+              team_name: globalUtil.getCurrTeamName(),
+              region_name: globalUtil.getCurrRegionName()
+            },
+            callback: () => {
+              setFieldsValue({ group_id: group.ID });
+              this.cancelAddGroup();
+            }
+          });
+        }
+      }
+    });
+  };
+
   render() {
     const { tags, addGroup, tagsLoading, Loading } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;

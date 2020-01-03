@@ -352,18 +352,6 @@ export default class Index extends PureComponent {
                           <span style={{ padding: "0 5px" }}>
                             {appstatus[app.status]}
                           </span>
-                          {app.status == "failed" ? (
-                            <Button
-                              onClick={() => {
-                                this.reImportApp(app.file_name)
-                              }}
-                              size="small"
-                            >
-                              重新导入
-                          </Button>
-                          ) : (
-                              ""
-                            )}
                         </li>
                       );
                     })}

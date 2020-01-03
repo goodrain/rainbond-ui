@@ -52,8 +52,15 @@ export default {
     },
 
     //第三方认证
-    *fetchThirdCertification({ payload, callback }, { call, put, select }) {
-      const response = yield call(queryThirdCertification, payload);
+    *fetchThirdCertification(
+      { payload, callback, handleError },
+      { call, put, select }
+    ) {
+      const response = yield call(
+        queryThirdCertification,
+        payload,
+        handleError
+      );
       if (response) {
         callback && callback(response);
       }
@@ -81,8 +88,11 @@ export default {
       }
     },
     //登录成功三方用户与用户绑定接口
-    *fetchThirdLoginBinding({ payload, callback }, { call, put, select }) {
-      const response = yield call(queryThirdLoginBinding, payload);
+    *fetchThirdLoginBinding(
+      { payload, callback, handleError },
+      { call, put, select }
+    ) {
+      const response = yield call(queryThirdLoginBinding, payload, handleError);
       if (response) {
         callback && callback(response);
       }
