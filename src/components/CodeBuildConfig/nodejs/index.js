@@ -1,0 +1,118 @@
+import React, { PureComponent } from "react";
+import { Form, Radio, Switch, Input } from "antd";
+import { connect } from "dva";
+const RadioGroup = Radio.Group;
+
+@connect(null, null, null, { withRef: true })
+class Index extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+        webType: "",
+        nodeType: "",
+        nodeBuildType: "",
+    }
+  }
+
+  onRadioNodeBuildTypeChange = e => {
+    this.setState({
+      nodeBuildType: e.target.value
+    });
+  };
+
+  onRadioNodeTypeChange = e => {
+    this.setState({
+      nodeType: e.target.value
+    });
+  };
+  onRadioWebTypeChange = e => {
+    this.setState({
+      webType: e.target.value
+    });
+  };
+
+  render() {
+    const formItemLayout = {
+      labelCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 3
+        }
+      },
+      wrapperCol: {
+        xs: {
+          span: 24
+        },
+        sm: {
+          span: 21
+        }
+      }
+    };
+    const { envs, languageType } = this.props;
+    const { webType, nodeType, nodeBuildType } = this.state
+    const { getFieldDecorator } = this.props.form;
+    return (
+      <div>
+        <Form.Item
+          {...formItemLayout}
+          label="禁用缓存"
+          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+        >
+          {getFieldDecorator("BUILD_NO_CACHE", {
+            initialValue: envs && envs.BUILD_NO_CACHE ? true : false
+          })(
+            <Switch
+              defaultChecked={envs && envs.BUILD_NO_CACHE ? true : false}
+              checkedChildren="开"
+              unCheckedChildren="关"
+            />
+          )}
+        </Form.Item>
+          <Form.Item {...formItemLayout} label="Node版本">
+            {getFieldDecorator("BUILD_RUNTIMES", {
+              initialValue:
+                (envs && envs.BUILD_RUNTIMES) || "8.12.0"
+            })(
+              <RadioGroup
+                onChange={this.onRadioNodeTypeChange}
+              >
+                <Radio value="8.12.0" selected="selected">
+                  8.12.0(默认)
+                </Radio>
+                <Radio value="4.9.1">4.9.1</Radio>
+                <Radio value="5.12.0">5.12.0</Radio>
+                <Radio value="6.14.4">6.14.4</Radio>
+                <Radio value="7.10.1">7.10.1</Radio>
+                <Radio value="8.9.3">8.9.3</Radio>
+                <Radio value="9.11.2">9.11.2</Radio>
+                <Radio value="10.13.0">10.13.0</Radio>
+                <Radio value="11.1.0">11.1.0</Radio>
+              </RadioGroup>
+            )}
+          </Form.Item>
+
+          <Form.Item {...formItemLayout} label="BUILD_NODE_ENV">
+            {getFieldDecorator("BUILD_NODE_ENV", {
+              initialValue:
+                (envs && envs.BUILD_NODE_ENV) || "production"
+            })(<Input placeholder="production" />)}
+          </Form.Item>
+
+          <Form.Item {...formItemLayout} label="NPM MIRROR_URL">
+            {getFieldDecorator("BUILD_NPM_REGISTRY", {
+              initialValue:
+                (envs &&
+                  (envs.BUILD_NPM_REGISTRY ||
+                    envs.BUILD_YARN_REGISTRY)) ||
+                "https://registry.npm.taobao.org"
+            })(<Input placeholder="https://registry.npm.taobao.org" />)}
+          </Form.Item>
+
+      </div>
+    );
+  }
+}
+
+export default Index;
