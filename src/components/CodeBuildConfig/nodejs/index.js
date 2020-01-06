@@ -110,6 +110,20 @@ class Index extends PureComponent {
             })(<Input placeholder="https://registry.npm.taobao.org" />)}
           </Form.Item>
 
+          {languageType=="nodejsstatic" && <Form.Item {...formItemLayout} label="构建命令" help="不指定时根据编译工具类型填充为npm run build 或者 yarn run build">
+            {getFieldDecorator("BUILD_NODE_BUILD_CMD", {
+              initialValue: envs && envs.BUILD_NODE_BUILD_CMD
+            })(<Input />)}
+          </Form.Item>}
+
+          {languageType!="nodejsstatic" && <Form.Item {...formItemLayout} label="启动命令" help="默认使用执行package.json中的scripts.start">
+            {getFieldDecorator("BUILD_PROCFILE", {
+              initialValue: (envs && envs.BUILD_PROCFILE) || ""
+            })(
+              <Input placeholder="" />
+            )}
+          </Form.Item>}
+
       </div>
     );
   }
