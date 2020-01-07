@@ -291,13 +291,6 @@ export default class Index extends PureComponent {
                 >
                   删除
                 </a>
-                <a
-                  onClick={() => {
-                    this.handleModify(status);
-                  }}
-                >
-                  {status.is_online ? "下线" : "上线"}
-                </a>
               </div>
             )}
           </div>

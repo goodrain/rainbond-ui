@@ -1,7 +1,4 @@
 import React, { PureComponent } from 'react';
-import moment from 'moment';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
 import { Card } from 'antd';
 import Topological from '../../components/Topological'
 
