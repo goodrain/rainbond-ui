@@ -291,13 +291,6 @@ export default class Index extends PureComponent {
                 >
                   删除
                 </a>
-                <a
-                  onClick={() => {
-                    this.handleModify(status);
-                  }}
-                >
-                  {status.is_online ? "下线" : "上线"}
-                </a>
               </div>
             )}
           </div>
@@ -367,12 +360,7 @@ export default class Index extends PureComponent {
                   <Button
                     style={{ marginRight: "5px" }}
                     onClick={() => {
-                      num > 0
-                        ? notification.error({
-                            message: "第三方域名组件",
-                            description: "不支持添加多实例地址"
-                          })
-                        : this.addInstance();
+                      this.addInstance();
                     }}
                   >
                     新增
