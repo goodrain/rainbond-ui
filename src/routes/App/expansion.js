@@ -1192,8 +1192,8 @@ export default class Index extends PureComponent {
             columns={[
               {
                 title: "时间",
-                dataIndex: "create_time",
-                key: "create_time",
+                dataIndex: "last_time",
+                key: "last_time",
                 align: "center",
                 width: "18%",
                 render: val => (
