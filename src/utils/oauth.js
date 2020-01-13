@@ -1,5 +1,5 @@
 import Gitee from "../../public/images/gitee.png";
-import rainbondUtil from "./rainbond"
+import rainbondUtil from "./rainbond";
 import { Icon } from "antd";
 
 const oauthUtil = {
@@ -15,7 +15,10 @@ const oauthUtil = {
     return servers;
   },
   getAuthredictURL(item) {
-    const { oauth_type, client_id, auth_url, redirect_uri, service_id } = item;
+    const { oauth_type, client_id, auth_url, redirect_uri, service_id, authorize_url } = item;
+    if (authorize_url) {
+      return authorize_url
+    }
     if (oauth_type == "github") {
       return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
     }
@@ -25,38 +28,52 @@ const oauthUtil = {
     const { oauth_type } = item;
     switch (oauth_type) {
       case "github":
-        return <Icon style={{ fontSize: size, color: "#40485B" }} type="github" />
+        return (
+          <Icon style={{ fontSize: size, color: "#40485B" }} type="github" />
+        );
       case "gitlab":
         return <Icon style={{ fontSize: size }} type="gitlab" />;
       case "gitee":
-        return <img
-            style={{ height: size, width: size, borderRadius: "50%" }}
+        return (
+          <img
+            style={{
+              height: size,
+              width: size,
+              borderRadius: "50%",
+              marginRight: "5px"
+            }}
             src={Gitee}
           />
+        );
       default:
         return <Icon style={{ fontSize: size }} type="sync" />;
     }
   },
   getGitOauthServer(rainbondInfo, service_id) {
-    let selectServer = null
+    let selectServer = null;
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
       rainbondInfo.oauth_services.value.map(item => {
         if (item.is_git && item.service_id == service_id) {
-          selectServer = item
+          selectServer = item;
         }
       });
     }
-    return selectServer
+    return selectServer;
   },
   userbondOAuth(currentUser, service_id) {
-    let isBond =false
-    currentUser.oauth_services && currentUser.oauth_services.map((item)=>{
-        if (item.service_id == service_id && item.is_authenticated && !item.is_expired){
-          isBond = true
+    let isBond = false;
+    currentUser.oauth_services &&
+      currentUser.oauth_services.map(item => {
+        if (
+          item.service_id == service_id &&
+          item.is_authenticated &&
+          !item.is_expired
+        ) {
+          isBond = true;
         }
-    })
-    return isBond
+      });
+    return isBond;
   }
 };
 
-export default oauthUtil
+export default oauthUtil;

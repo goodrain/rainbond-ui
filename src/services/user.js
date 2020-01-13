@@ -17,10 +17,11 @@ export async function queryCurrent() {
 }
 
 /* 第三方认证 */
-export async function queryThirdCertification(body = {}) {
+export async function queryThirdCertification(body = {}, handleError) {
   return request(`${config.baseUrl}/console/oauth/authorize`, {
     method: "get",
     params: body,
+    handleError,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -30,7 +31,7 @@ export async function queryThirdCertification(body = {}) {
 export async function queryOauthType(body = {}) {
   return request(`${config.baseUrl}/console/oauth/type`, {
     method: "get",
-    params: body,
+    params: body
   });
 }
 
@@ -68,13 +69,17 @@ export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
 }
 
 /* 登录成功后绑定第三方 */
-export async function queryThirdLoginBinding(body = { service_id, code }) {
+export async function queryThirdLoginBinding(
+  body = { service_id, code },
+  handleError
+) {
   return request(`${config.baseUrl}/console/oauth/user/authorize`, {
     method: "post",
     data: {
       service_id: body.service_id,
       code: body.code
-    }
+    },
+    handleError
   });
 }
 

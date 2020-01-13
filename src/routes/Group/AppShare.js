@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
 import { Link } from "dva/router";
-import { Table } from "antd";
+import { Table, AutoComplete } from "antd";
 import {
   Row,
   Col,
@@ -13,6 +13,7 @@ import {
   Icon,
   Menu,
   Dropdown,
+  Spin,
   Modal,
   notification,
   Select,
@@ -30,6 +31,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import ConfirmModal from "../../components/ConfirmModal";
 import Ellipsis from "../../components/Ellipsis";
 import FooterToolbar from "../../components/FooterToolbar";
+import AddGroup from "../../components/AddOrEditGroup";
 import config from "../../config/config";
 import cookie from "../../utils/cookie";
 
@@ -41,9 +43,8 @@ import PluginInfo from "./PluginInfo";
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
-const { TextArea } = Input;
+const { TextArea, Search } = Input;
 const ButtonGroup = Button.Group;
-
 const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { SubMenu } = Menu;
@@ -58,21 +59,21 @@ const formItemLayout = {
 
 const sharingFormItemLayout = {
   labelCol: {
-    span: 2
+    span: 5
   },
   wrapperCol: {
-    span: 22
+    span: 19
   }
 };
 const tailFormItemLayout = {
   wrapperCol: {
     xs: {
-      span: 24,
+      span: 5,
       offset: 0
     },
     sm: {
-      span: 14,
-      offset: 6
+      span: 19,
+      offset: 0
     }
   }
 };
@@ -98,21 +99,6 @@ class AppInfo extends PureComponent {
     }
   }
 
-  handleSubmitApp = e => {
-    const { dispatch } = this.props;
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log(values);
-      }
-    });
-  };
-  getValue = fun => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        fun(values);
-      }
-    });
-  };
   handleCheckChange = (appname, val, e) => {
     const name = {};
     const thisval = val;
@@ -406,7 +392,12 @@ export default class Main extends PureComponent {
       dep_service_name: [],
       share_service_list: [],
       ShareTypeShow: false,
-      scopeValue: "goodrain:private"
+      scopeValue: "goodrain:private",
+      internalValue: "team",
+      Initialize: true,
+      appList: [],
+      ShareAppTypeShow: false,
+      ShareAppVersion: []
     };
     this.com = [];
     this.share_group_info = null;
@@ -420,12 +411,37 @@ export default class Main extends PureComponent {
   }
   componentDidMount() {
     this.getShareInfo();
+    this.getShareList();
   }
-  getShareInfo() {
+
+  getShareList = () => {
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    dispatch({
+      type: "groupControl/getShareList",
+      payload: {
+        team_name
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            appList: res.bean
+          });
+          if (res.bean && res.bean.length === 0) {
+            this.getShareInfo({
+              create_type: "new"
+            });
+          }
+        }
+      }
+    });
+  };
+  getShareInfo(obj) {
     const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
-    const params = this.getParams();
+    const param = this.getParams();
+    const params = obj ? Object.assign(param, obj) : param;
     dispatch({
       type: "groupControl/getShareInfo",
       payload: {
@@ -434,78 +450,84 @@ export default class Main extends PureComponent {
       },
       callback: data => {
         let selectedApp = "";
-        if (data) {
-          if (data.bean.share_service_list[0]) {
-            selectedApp = data.bean.share_service_list[0].service_alias;
+        if (data && data.bean) {
+          let bean = data.bean;
+          let share_group_info = bean.share_group_info;
+          let share_service_list = bean.share_service_list;
+
+          if (share_group_info) {
+            if (share_group_info.group_key) {
+              this.getSareVersion(
+                share_group_info.group_key,
+                obj ? true : false
+              );
+            }
+            if (share_group_info && share_group_info.scope == "goodrain") {
+              this.setState({
+                ShareTypeShow: true
+              });
+            }
+            if (share_group_info.pic) {
+              this.setState({
+                fileList: [
+                  {
+                    uid: -1,
+                    name: share_group_info.pic,
+                    status: "done",
+                    url: share_group_info.pic
+                  }
+                ]
+              });
+            }
+            this.share_group_info = share_group_info;
           }
-          if (
-            data.bean.share_group_info &&
-            data.bean.share_group_info.scope == "goodrain"
-          ) {
-            this.setState({
-              ShareTypeShow: true
-            });
-          }
+
           this.setState({
-            info: data.bean,
-            selectedApp,
-            key: data.bean.share_service_list[0].service_alias,
-            share_service_list: data.bean.share_service_list
+            Initialize: false,
+            info: bean,
+            share_service_list: share_service_list
           });
 
-          if (data.bean.share_group_info.pic) {
-            this.setState({
-              fileList: [
-                {
-                  uid: -1,
-                  name: data.bean.share_group_info.pic,
-                  status: "done",
-                  url: data.bean.share_group_info.pic
-                }
-              ]
-            });
-          }
-          this.share_group_info = data.bean.share_group_info;
-          this.share_service_list = data.bean.share_service_list;
+          this.share_service_list = share_service_list;
 
           let arr = [];
-          if (
-            data.bean.share_service_list &&
-            data.bean.share_service_list.length > 0
-          ) {
-            data.bean.share_service_list.map(item => {
+          if (share_service_list && share_service_list.length > 0) {
+            selectedApp = share_service_list[0].service_alias;
+            share_service_list.map(item => {
               arr.push(item.service_share_uuid);
             });
             this.setState({
+              selectedApp,
+              key: share_service_list[0].service_alias,
               shareList: arr,
               sharearrs: arr
             });
-            // this.props.form.setFieldsValue({ sharing: arr })
           }
         }
       },
       handleError: res => {
-        if (res && res.status === 404) {
-          this.props.dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-            )
-          );
-        }
+        this.setState({ Initialize: false });
+        // if (res && res.status === 404) {
+        //   this.props.dispatch(
+        //     routerRedux.push(
+        //       `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
+        //     )
+        //   );
+        // }
       }
     });
   }
 
   handleSubmit = e => {
     const { dispatch } = this.props;
-    const { scopeValue } = this.state;
+    const { scopeValue, internalValue } = this.state;
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.share_group_info.describe = values.describe;
         this.share_group_info.group_name = values.group_name;
         this.share_group_info.scope =
-          values.scope == "goodrain" ? scopeValue : values.scope;
+          values.scope == "goodrain" ? scopeValue : internalValue;
         this.share_group_info.version = values.version;
         if (this.state.fileList[0] != undefined) {
           this.state.fileList[0].response
@@ -751,10 +773,27 @@ export default class Main extends PureComponent {
     });
     setFieldsValue({ scope: value });
   };
+
+  hanldeShareType = e => {
+    const { getFieldDecorator, setFieldsValue } = this.props.form;
+    const value = e.target.value;
+    this.setState({
+      ShareAppTypeShow: value == "old" ? true : false
+    });
+    setFieldsValue({ create_type: value });
+  };
+
   hanldeScopeValueChange = e => {
     const value = e.target.value;
     this.setState({
       scopeValue: value
+    });
+  };
+
+  hanldeInternalValueChange = e => {
+    const value = e.target.value;
+    this.setState({
+      internalValue: value
     });
   };
 
@@ -780,6 +819,95 @@ export default class Main extends PureComponent {
 
   handleCancel = () => this.setState({ previewVisible: false });
 
+  getSareVersion = (group_key, isperform) => {
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    dispatch({
+      type: "groupControl/getSareVersion",
+      payload: {
+        team_name,
+        group_key
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          const { setFieldsValue } = this.props.form;
+
+          let arr = [];
+          res.bean &&
+            res.bean.length > 0 &&
+            res.bean.map(item => {
+              const { version } = item;
+              arr.push(version);
+            });
+
+          isperform && setFieldsValue({ version: arr.length > 0 ? arr : "" });
+          this.setState({
+            ShareAppVersion: arr
+          });
+        }
+      }
+    });
+  };
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
+  handleAddGroup = vals => {
+    const { appList } = this.state;
+    let isAppList = appList.filter(item => {
+      return item.group_name == vals.group_name;
+    });
+    const { setFieldsValue } = this.props.form;
+
+    if (isAppList.length > 0 && !isAppList[0].group_key) {
+      this.getShareInfo({
+        create_type: "new"
+      });
+    } else if (isAppList.length === 0) {
+      appList.unshift({ group_name: vals.group_name });
+      this.setState({
+        appList
+      });
+      this.getShareInfo({
+        create_type: "new"
+      });
+      setFieldsValue({ group_name: vals.group_name });
+    } else {
+      this.getShareInfo({
+        create_type: "old",
+        group_key: isAppList[0].group_key
+      });
+    }
+    this.setState({
+      Initialize: true,
+      addGroup: false
+    });
+  };
+  handleOnchange = value => {
+    const { appList } = this.state;
+    const _th = this;
+    let arr = appList.filter(item => item.group_name == value);
+    this.setState(
+      {
+        Initialize: true
+      },
+      () => {
+        _th.getShareInfo(
+          arr.length > 0 && arr[0].group_key
+            ? {
+                create_type: "old",
+                group_key: arr[0].group_key
+              }
+            : {
+                create_type: "new"
+              }
+        );
+      }
+    );
+  };
+
   render() {
     const info = this.state.info;
     if (!info) {
@@ -792,14 +920,20 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const fileList = this.state.fileList;
+
     const {
       previewVisible,
       previewImage,
       shareModal,
       sharearrs,
       share_service_list,
-      ShareTypeShow
+      ShareTypeShow,
+      Initialize,
+      appList,
+      ShareAppTypeShow,
+      ShareAppVersion
     } = this.state;
+    console.log("ShareTypeShow", ShareTypeShow);
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -812,165 +946,247 @@ export default class Main extends PureComponent {
 
     return (
       <PageHeaderLayout content={pageHeaderContent}>
-        <div>
-          <Card
-            style={{
-              marginBottom: 24
-            }}
-            title="基本信息"
-            bordered={false}
-            bodyStyle={{
-              padding: 0
-            }}
-          >
-            <div
+        <Spin spinning={Initialize} tip="Loading...">
+          <div>
+            {this.state.addGroup && (
+              <AddGroup
+                onCancel={this.cancelAddGroup}
+                onOk={this.handleAddGroup}
+              />
+            )}
+            <Card
               style={{
-                padding: "24px"
+                marginBottom: 24
+              }}
+              title="基本信息"
+              bordered={false}
+              bodyStyle={{
+                padding: 0
               }}
             >
-              <Form layout="horizontal" className={styles.stepForm}>
-                <Row gutter={24}>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="应用名">
-                      {getFieldDecorator("group_name", {
-                        initialValue: appinfo.group_name,
-                        rules: [
-                          {
-                            required: true,
-                            message: "应用名不能为空"
-                          }
-                        ]
-                      })(<Input placeholder="默认使用上次应用名或应用组名" />)}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="版本">
-                      {getFieldDecorator("version", {
-                        initialValue: appinfo.version,
-                        rules: [
-                          {
-                            required: true,
-                            message: "版本不能为空"
-                          }
-                        ]
-                      })(<Input placeholder="默认使用上次的版本" />)}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12" style={{ height: "104px" }}>
-                    <Form.Item {...formItemLayout} label="分享范围">
-                      {getFieldDecorator("scope", {
-                        initialValue: appinfo.scope || "team",
-                        rules: [
-                          {
-                            required: true
-                          }
-                        ]
-                      })(
-                        <RadioGroup onChange={this.hanldeShareTypeChange}>
-                          <Radio value="team">团队</Radio>
-                          <Radio value="enterprise">公司</Radio>
-                          <Radio value="goodrain">应用市场</Radio>
-                        </RadioGroup>
-                      )}
-
-                      {ShareTypeShow && (
-                        <div className={styles.connect}>
-                          <Icon
-                            className={styles.icon}
-                            type="caret-up"
-                            theme="filled"
-                          />
-
-                          <RadioGroup
-                            onChange={this.hanldeScopeValueChange}
-                            value={this.state.scopeValue}
-                          >
-                            <Radio value="goodrain:publish">公开应用</Radio>
-                            <Radio value="goodrain:private">私有应用</Radio>
+              <div
+                style={{
+                  padding: "24px"
+                }}
+              >
+                <Form layout="horizontal" className={styles.stepForm}>
+                  <Row gutter={24}>
+                    <Col span={12} style={{ height: "104px" }}>
+                      <Form.Item {...sharingFormItemLayout} label="分享范围">
+                        {getFieldDecorator("scope", {
+                          initialValue:
+                            appinfo.scope && appinfo.scope !== "goodrain"
+                              ? "internal"
+                              : "goodrain" || "internal",
+                          rules: [
+                            {
+                              required: true
+                            }
+                          ]
+                        })(
+                          <RadioGroup onChange={this.hanldeShareTypeChange}>
+                            <Radio value="internal">内部组件库</Radio>
+                            <Radio value="goodrain">应用市场</Radio>
                           </RadioGroup>
-                        </div>
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12" style={{ height: "104px" }}>
-                    <Form.Item {...formItemLayout} label="应用说明">
-                      {getFieldDecorator("describe", {
-                        initialValue: appinfo.describe,
-                        rules: [
-                          {
-                            required: false,
-                            message: "请输入应用说明"
-                          }
-                        ]
-                      })(
-                        <TextArea
-                          placeholder="请输入应用说明"
-                          style={{ height: "70px" }}
+                        )}
+                        {!ShareTypeShow && (
+                          <div
+                            className={`${styles.connect} ${styles.connects}`}
+                          >
+                            <Icon
+                              className={styles.icon}
+                              type="caret-up"
+                              theme="filled"
+                            />
+
+                            <RadioGroup
+                              onChange={this.hanldeInternalValueChange}
+                              value={this.state.internalValue}
+                            >
+                              <Radio value="team">团队</Radio>
+                              <Radio value="enterprise">公司</Radio>
+                            </RadioGroup>
+                          </div>
+                        )}
+                        {ShareTypeShow && (
+                          <div className={styles.connect}>
+                            <Icon
+                              className={styles.icon}
+                              type="caret-up"
+                              theme="filled"
+                            />
+
+                            <RadioGroup
+                              onChange={this.hanldeScopeValueChange}
+                              value={this.state.scopeValue}
+                            >
+                              <Radio value="goodrain:publish">公开应用</Radio>
+                              <Radio value="goodrain:private">私有应用</Radio>
+                            </RadioGroup>
+                          </div>
+                        )}
+                      </Form.Item>
+                    </Col>
+                    {ShareTypeShow && (
+                      <Col span={12}>
+                        <Form.Item {...sharingFormItemLayout} label="商店名称">
+                          {getFieldDecorator("group_name", {
+                            initialValue: appinfo.group_name,
+                            rules: [
+                              {
+                                required: true,
+                                message: "应用名称不能为空"
+                              }
+                            ]
+                          })(
+                            <Select
+                              onChange={this.handleOnchange}
+                              style={{ width: "300px", marginRight: "10px" }}
+                            >
+                              {appList.length > 0 &&
+                                appList.map(item => {
+                                  const { group_name } = item;
+                                  return (
+                                    <Option key={group_name} value={group_name}>
+                                      {group_name}
+                                    </Option>
+                                  );
+                                })}
+                            </Select>
+                          )}
+                        </Form.Item>
+                      </Col>
+                    )}
+                  </Row>
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item {...sharingFormItemLayout} label="应用名称">
+                        {getFieldDecorator("group_name", {
+                          initialValue: appinfo.group_name,
+                          rules: [
+                            {
+                              required: true,
+                              message: "应用名称不能为空"
+                            }
+                          ]
+                        })(
+                          <Select
+                            onChange={this.handleOnchange}
+                            style={{ width: "320px", marginRight: "12px" }}
+                          >
+                            {appList.length > 0 &&
+                              appList.map(item => {
+                                const { group_name } = item;
+                                return (
+                                  <Option key={group_name} value={group_name}>
+                                    {group_name}
+                                  </Option>
+                                );
+                              })}
+                          </Select>
+                        )}
+                        <Button onClick={this.onAddGroup}>新建应用</Button>
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item {...sharingFormItemLayout} label="版本">
+                        {getFieldDecorator("version", {
+                          initialValue: appinfo.version,
+                          rules: [
+                            {
+                              required: true,
+                              message: "版本不能为空"
+                            }
+                          ]
+                        })(
+                          <AutoComplete
+                            style={{ width: "300px", marginRight: "10px" }}
+                            dataSource={ShareAppVersion}
+                            placeholder="默认使用上次的版本"
+                          />
+                        )}
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={12} style={{ height: "104px" }}>
+                      <Form.Item {...sharingFormItemLayout} label="应用说明">
+                        {getFieldDecorator("describe", {
+                          initialValue: appinfo.describe,
+                          rules: [
+                            {
+                              required: false,
+                              message: "请输入应用说明"
+                            }
+                          ]
+                        })(
+                          <TextArea
+                            placeholder="请输入应用说明"
+                            style={{ height: "70px" }}
+                          />
+                        )}
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item {...sharingFormItemLayout} label="图标">
+                        {getFieldDecorator("pic", {
+                          rules: [
+                            {
+                              required: false,
+                              message: "请上传图标"
+                            }
+                          ]
+                        })(
+                          <Upload
+                            className="logo-uploader"
+                            name="file"
+                            accept="image/jpg,image/jpeg,image/png"
+                            action={config.imageUploadUrl}
+                            listType="picture-card"
+                            fileList={fileList}
+                            headers={myheaders}
+                            onChange={this.handleLogoChange}
+                            onRemove={this.handleLogoRemove}
+                            onPreview={this.handlePreview}
+                          >
+                            {fileList.length > 0 ? null : uploadButton}
+                          </Upload>
+                        )}
+                      </Form.Item>
+                      <Modal
+                        visible={previewVisible}
+                        footer={null}
+                        onCancel={this.handleCancel}
+                      >
+                        <img
+                          alt="example"
+                          style={{ width: "100%" }}
+                          src={previewImage}
                         />
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="图标">
-                      {getFieldDecorator("pic", {
-                        rules: [
-                          {
-                            required: false,
-                            message: "请上传图标"
-                          }
-                        ]
-                      })(
-                        <Upload
-                          className="logo-uploader"
-                          name="file"
-                          accept="image/jpg,image/jpeg,image/png"
-                          action={config.imageUploadUrl}
-                          listType="picture-card"
-                          fileList={fileList}
-                          headers={myheaders}
-                          onChange={this.handleLogoChange}
-                          onRemove={this.handleLogoRemove}
-                          onPreview={this.handlePreview}
-                        >
-                          {fileList.length > 0 ? null : uploadButton}
-                        </Upload>
-                      )}
-                    </Form.Item>
-                    <Modal
-                      visible={previewVisible}
-                      footer={null}
-                      onCancel={this.handleCancel}
-                    >
-                      <img
-                        alt="example"
-                        style={{ width: "100%" }}
-                        src={previewImage}
-                      />
-                    </Modal>
-                  </Col>
-                </Row>
-              </Form>
-            </div>
-          </Card>
-          <Card
-            style={{
-              marginBottom: 24
-            }}
-            title="应用信息配置"
-            bordered={false}
-            bodyStyle={{
-              padding: 0
-            }}
-          >
-            <div
+                      </Modal>
+                    </Col>
+                  </Row>
+                </Form>
+              </div>
+            </Card>
+            <Card
               style={{
-                padding: "24px"
+                marginBottom: 24
+              }}
+              title="应用信息配置"
+              bordered={false}
+              bodyStyle={{
+                padding: 0
               }}
             >
-              <div className={mytabcss.mytab}>
-                {/* <Form layout="horizontal" className={styles.stepForm}>
+              <div
+                style={{
+                  padding: "24px"
+                }}
+              >
+                <div className={mytabcss.mytab}>
+                  {/* <Form layout="horizontal" className={styles.stepForm}>
                   <Form.Item {...sharingFormItemLayout} label="分享组件" required={true}> */}
-                {/* {getFieldDecorator("sharing", {
+                  {/* {getFieldDecorator("sharing", {
                       initialValue: shareList,
                       // setFieldsValue:shareList,
                       rules: [
@@ -980,7 +1196,7 @@ export default class Main extends PureComponent {
                         },
                       ],
                     })( */}
-                {/* <Checkbox.Group
+                  {/* <Checkbox.Group
                       onChange={this.onFileChange}
                       value={sharearrs}
                       style={{ display: "block", marginTop: "9px" }}
@@ -993,154 +1209,155 @@ export default class Main extends PureComponent {
                         );
                       })}
                     </Checkbox.Group> */}
-                {/* )} */}
-                {/* </Form.Item>
+                  {/* )} */}
+                  {/* </Form.Item>
                 </Form> */}
 
-                <h4
-                  className={mytabcss.required}
-                  style={{
-                    marginBottom: 8
-                  }}
-                >
-                  分享组件
-                </h4>
-                <div className={mytabcss.mytabtit} id="mytabtit">
-                  <Checkbox.Group
-                    onChange={this.onFileChange}
-                    value={sharearrs}
-                    style={{ display: "block", marginTop: "9px" }}
+                  <h4
+                    className={mytabcss.required}
+                    style={{
+                      marginBottom: 8
+                    }}
                   >
-                    <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map(apptit => (
-                        <TabPane
-                          key={apptit.service_alias}
-                          tab={
-                            <span className={mytabcss.cont}>
-                              <Checkbox
-                                onChange={this.onChange}
-                                value={apptit.service_share_uuid}
-                                style={{ marginRight: "10px" }}
-                              />
-                              <a
-                                tab={apptit.service_cname}
-                                href="javacsript:;"
-                                onClick={this.tabClick.bind(
-                                  this,
-                                  apptit.service_alias
-                                )}
-                              >
-                                {apptit.service_cname}
-                              </a>
-                            </span>
-                          }
-                        />
-                      ))}
-                    </Tabs>
-                  </Checkbox.Group>
-                </div>
-                {share_service_list.map(app =>
-                  tabk == app.service_alias ? (
-                    <div key={app.service_alias}>
-                      <AppInfo
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: "none"
-                      }}
-                      key={app.service_alias}
+                    分享组件
+                  </h4>
+                  <div className={mytabcss.mytabtit} id="mytabtit">
+                    <Checkbox.Group
+                      onChange={this.onFileChange}
+                      value={sharearrs}
+                      style={{ display: "block", marginTop: "9px" }}
                     >
-                      <AppInfo
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  )
-                )}
+                      <Tabs activeKey={tabk} onChange={this.tabClick}>
+                        {apps.map(apptit => (
+                          <TabPane
+                            key={apptit.service_alias}
+                            tab={
+                              <span className={mytabcss.cont}>
+                                <Checkbox
+                                  onChange={this.onChange}
+                                  value={apptit.service_share_uuid}
+                                  style={{ marginRight: "10px" }}
+                                />
+                                <a
+                                  tab={apptit.service_cname}
+                                  href="javacsript:;"
+                                  onClick={this.tabClick.bind(
+                                    this,
+                                    apptit.service_alias
+                                  )}
+                                >
+                                  {apptit.service_cname}
+                                </a>
+                              </span>
+                            }
+                          />
+                        ))}
+                      </Tabs>
+                    </Checkbox.Group>
+                  </div>
+                  {share_service_list.map(app =>
+                    tabk == app.service_alias ? (
+                      <div key={app.service_alias}>
+                        <AppInfo
+                          app={app}
+                          getref={this.save}
+                          tab={app.service_alias}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "none"
+                        }}
+                        key={app.service_alias}
+                      >
+                        <AppInfo
+                          app={app}
+                          getref={this.save}
+                          tab={app.service_alias}
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
-          </Card>
-          <Card
-            style={{
-              marginBottom: 128
-            }}
-            title="插件信息"
-            bordered={false}
-          >
-            <Table
-              size="middle"
-              dataSource={plugins}
-              columns={[
-                {
-                  title: "插件名",
-                  dataIndex: "plugin_alias"
-                },
-                {
-                  title: "分类",
-                  dataIndex: "category",
-                  render: (v, data) => {
-                    return pluginUtil.getCategoryCN(v);
+            </Card>
+            <Card
+              style={{
+                marginBottom: 128
+              }}
+              title="插件信息"
+              bordered={false}
+            >
+              <Table
+                size="middle"
+                dataSource={plugins}
+                columns={[
+                  {
+                    title: "插件名",
+                    dataIndex: "plugin_alias"
+                  },
+                  {
+                    title: "分类",
+                    dataIndex: "category",
+                    render: (v, data) => {
+                      return pluginUtil.getCategoryCN(v);
+                    }
+                  },
+                  {
+                    title: "版本",
+                    dataIndex: "build_version"
                   }
-                },
-                {
-                  title: "版本",
-                  dataIndex: "build_version"
-                }
-              ]}
-            />
-          </Card>
+                ]}
+              />
+            </Card>
 
-          {shareModal && (
-            <Modal
-              title="依赖检测"
-              visible={shareModal}
-              onOk={this.handleSubmits}
-              onCancel={this.onCancels}
-              okText={"确定"}
-              cancelText={"取消"}
-            >
-              <div>
-                <a>{this.state.service_cname}组件</a>被需要分享的
-                {this.state.dep_service_name &&
-                  this.state.dep_service_name.length > 0 &&
-                  this.state.dep_service_name.map((item, index) => {
-                    return (
-                      <a style={{ marginLeft: "5px" }} key={index}>
-                        {item}组件
-                      </a>
-                    );
-                  })}
-                依赖,
-                <p style={{ marginTop: "5px" }}>
-                  是否确定取消分享<a>{this.state.service_cname}</a>组件
-                </p>
-                .
-              </div>
-            </Modal>
-          )}
+            {shareModal && (
+              <Modal
+                title="依赖检测"
+                visible={shareModal}
+                onOk={this.handleSubmits}
+                onCancel={this.onCancels}
+                okText={"确定"}
+                cancelText={"取消"}
+              >
+                <div>
+                  <a>{this.state.service_cname}组件</a>被需要分享的
+                  {this.state.dep_service_name &&
+                    this.state.dep_service_name.length > 0 &&
+                    this.state.dep_service_name.map((item, index) => {
+                      return (
+                        <a style={{ marginLeft: "5px" }} key={index}>
+                          {item}组件
+                        </a>
+                      );
+                    })}
+                  依赖,
+                  <p style={{ marginTop: "5px" }}>
+                    是否确定取消分享<a>{this.state.service_cname}</a>组件
+                  </p>
+                  .
+                </div>
+              </Modal>
+            )}
 
-          <FooterToolbar>
-            <Button
-              type="primary"
-              htmlType="submit"
-              onClick={this.handleSubmit}
-            >
-              提交
-            </Button>
-            <Button
-              disabled={loading.effects["groupControl/giveupShare"]}
-              onClick={this.handleGiveup}
-            >
-              放弃分享
-            </Button>
-          </FooterToolbar>
-        </div>
+            <FooterToolbar>
+              <Button
+                type="primary"
+                htmlType="submit"
+                onClick={this.handleSubmit}
+              >
+                提交
+              </Button>
+              <Button
+                disabled={loading.effects["groupControl/giveupShare"]}
+                onClick={this.handleGiveup}
+              >
+                放弃分享
+              </Button>
+            </FooterToolbar>
+          </div>
+        </Spin>
       </PageHeaderLayout>
     );
   }

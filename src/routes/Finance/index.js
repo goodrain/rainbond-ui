@@ -493,33 +493,14 @@ export default class BasicList extends PureComponent {
       client_id,
       client_secret,
       oauth_type,
-      auth_url,
-      access_token_url,
-      api_url,
       home_url,
       is_auto_login,
       redirect_domain,
     } = values;
-
     oauth_type = oauth_type.toLowerCase();
-
     if (oauth_type === "github") {
       home_url = "https://github.com";
-      auth_url = "https://github.com/login/oauth/authorize";
-      access_token_url = "https://github.com/login/oauth/access_token";
-      api_url = "https://api.github.com/user";
-    } else if (oauth_type === "gitlab") {
-      auth_url = `${home_url}/oauth/authorize`;
-      access_token_url = `${home_url}/oauth/token`;
-      api_url = `${home_url}/api/v4/user`;
-    } else if (oauth_type === "gitee") {
-      auth_url = `${home_url}/oauth/authorize`;
-      access_token_url = `${home_url}/oauth/token`;
-      api_url = `${home_url}/api/v5/user`;
-    } else {
-      home_url = null;
     }
-
     let obj = {
       name,
       client_id,
@@ -527,20 +508,9 @@ export default class BasicList extends PureComponent {
       is_auto_login,
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
-      auth_url,
-      access_token_url,
-      api_url,
       home_url,
       is_console: true
     };
-    if (oauth_type !== "other") {
-      obj.api_project_url =
-        oauth_type === "github"
-          ? "user/{}/repos?page={}"
-          : oauth_type === "gitlab"
-          ? "project?page={}"
-          : "user/repos?page={}";
-    }
     this.handelRequest(obj);
   };
 
