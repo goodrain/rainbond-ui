@@ -9,7 +9,7 @@ import {
   deleteCompose,
   buildCompose,
   getShare,
-  getSareVersion,
+  getSaremarkets,
   getShareAppRecord,
   getShareList,
   submitShare,
@@ -147,8 +147,8 @@ export default {
       }
     },
     // 查询分享版本
-    *getSareVersion({ payload, callback }, { call, put }) {
-      const response = yield call(getSareVersion, payload);
+    *getSaremarkets({ payload, callback }, { call, put }) {
+      const response = yield call(getSaremarkets, payload);
       if (response) {
         callback && callback(response);
       }

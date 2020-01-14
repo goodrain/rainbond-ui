@@ -338,14 +338,15 @@ export async function getShare(
 /*
 	查询需要分享应用版本信息
 */
-export async function getSareVersion(
+export async function getSaremarkets(
   body = {
     team_name,
     group_key
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/shared/app/versions`,
+    // "http://doc.goodrain.org/mock/18/teams/:team_name/shared/cloud/markets",
+    `${config.baseUrl}/console/teams/${body.team_name}/shared/cloud/markets`,
     {
       method: "get",
       params: {
@@ -380,13 +381,18 @@ export async function getShareAppRecord(
 export async function getShareList(
   body = {
     team_name,
-    shareId
+    shareId,
+    share_scope
   }
 ) {
   return request(
+    // "http://doc.goodrain.org/mock/18/teams/:team_name/shared/apps",
     `${config.baseUrl}/console/teams/${body.team_name}/shared/apps`,
     {
-      method: "get"
+      method: "get",
+      params: {
+        share_scope: body.share_scope ? body.share_scope : undefined
+      }
     }
   );
 }

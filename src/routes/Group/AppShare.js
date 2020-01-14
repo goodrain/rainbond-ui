@@ -397,7 +397,8 @@ export default class Main extends PureComponent {
       Initialize: true,
       appList: [],
       ShareAppTypeShow: false,
-      ShareAppVersion: []
+      ShareAppVersion: [],
+      ShareAppMarkets: []
     };
     this.com = [];
     this.share_group_info = null;
@@ -416,11 +417,13 @@ export default class Main extends PureComponent {
 
   getShareList = () => {
     const { dispatch } = this.props;
+    const { ShareTypeShow } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "groupControl/getShareList",
       payload: {
-        team_name
+        team_name,
+        share_scope: ShareTypeShow ? "goodrain" : undefined
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -457,7 +460,7 @@ export default class Main extends PureComponent {
 
           if (share_group_info) {
             if (share_group_info.group_key) {
-              this.getSareVersion(
+              this.getShareVersion(
                 share_group_info.group_key,
                 obj ? true : false
               );
@@ -466,6 +469,7 @@ export default class Main extends PureComponent {
               this.setState({
                 ShareTypeShow: true
               });
+              this.getSaremarkets();
             }
             if (share_group_info.pic) {
               this.setState({
@@ -526,6 +530,7 @@ export default class Main extends PureComponent {
       if (!err) {
         this.share_group_info.describe = values.describe;
         this.share_group_info.group_name = values.group_name;
+        this.share_group_info.market_id = values.market_id;
         this.share_group_info.scope =
           values.scope == "goodrain" ? scopeValue : internalValue;
         this.share_group_info.version = values.version;
@@ -768,9 +773,16 @@ export default class Main extends PureComponent {
   hanldeShareTypeChange = e => {
     const { getFieldDecorator, setFieldsValue } = this.props.form;
     const value = e.target.value;
-    this.setState({
-      ShareTypeShow: value == "goodrain" ? true : false
-    });
+    let ShareTypeShow = value == "goodrain" ? true : false;
+    ShareTypeShow && this.getSaremarkets();
+    this.setState(
+      {
+        ShareTypeShow
+      },
+      () => {
+        this.getShareList();
+      }
+    );
     setFieldsValue({ scope: value });
   };
 
@@ -819,31 +831,41 @@ export default class Main extends PureComponent {
 
   handleCancel = () => this.setState({ previewVisible: false });
 
-  getSareVersion = (group_key, isperform) => {
+  getShareVersion = (groupKey, isperform) => {
+    const { appList } = this.state;
+    const { setFieldsValue } = this.props.form;
+    if (groupKey && appList.length > 0) {
+      let arr = appList.filter(item => item.group_key === groupKey);
+      let ays = arr.length > 0 ? arr[0].version : [];
+      isperform && setFieldsValue({ version: ays });
+      this.setState({
+        ShareAppVersion: ays
+      });
+    }
+  };
+  getSaremarkets = (group_key, isperform) => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
-      type: "groupControl/getSareVersion",
+      type: "groupControl/getSaremarkets",
       payload: {
         team_name,
         group_key
       },
       callback: res => {
         if (res && res._code === 200) {
-          const { setFieldsValue } = this.props.form;
-
-          let arr = [];
-          res.bean &&
-            res.bean.length > 0 &&
-            res.bean.map(item => {
-              const { version } = item;
-              arr.push(version);
-            });
-
-          isperform && setFieldsValue({ version: arr.length > 0 ? arr : "" });
           this.setState({
-            ShareAppVersion: arr
+            ShareAppMarkets: res.bean ? [res.bean] : []
           });
+
+          if (!res.bean) {
+            notification.warning(
+              {
+                message: "请先开通企业商店"
+              },
+              5
+            );
+          }
         }
       }
     });
@@ -930,10 +952,10 @@ export default class Main extends PureComponent {
       ShareTypeShow,
       Initialize,
       appList,
+      ShareAppMarkets,
       ShareAppTypeShow,
       ShareAppVersion
     } = this.state;
-    console.log("ShareTypeShow", ShareTypeShow);
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
@@ -993,12 +1015,6 @@ export default class Main extends PureComponent {
                           <div
                             className={`${styles.connect} ${styles.connects}`}
                           >
-                            <Icon
-                              className={styles.icon}
-                              type="caret-up"
-                              theme="filled"
-                            />
-
                             <RadioGroup
                               onChange={this.hanldeInternalValueChange}
                               value={this.state.internalValue}
@@ -1010,12 +1026,6 @@ export default class Main extends PureComponent {
                         )}
                         {ShareTypeShow && (
                           <div className={styles.connect}>
-                            <Icon
-                              className={styles.icon}
-                              type="caret-up"
-                              theme="filled"
-                            />
-
                             <RadioGroup
                               onChange={this.hanldeScopeValueChange}
                               value={this.state.scopeValue}
@@ -1030,8 +1040,12 @@ export default class Main extends PureComponent {
                     {ShareTypeShow && (
                       <Col span={12}>
                         <Form.Item {...sharingFormItemLayout} label="商店名称">
-                          {getFieldDecorator("group_name", {
-                            initialValue: appinfo.group_name,
+                          {getFieldDecorator("market_id", {
+                            initialValue: appinfo.market_id
+                              ? appinfo.market_id
+                              : ShareAppMarkets.length > 0
+                              ? ShareAppMarkets[0].market_id
+                              : "",
                             rules: [
                               {
                                 required: true,
@@ -1040,15 +1054,14 @@ export default class Main extends PureComponent {
                             ]
                           })(
                             <Select
-                              onChange={this.handleOnchange}
                               style={{ width: "300px", marginRight: "10px" }}
                             >
-                              {appList.length > 0 &&
-                                appList.map(item => {
-                                  const { group_name } = item;
+                              {ShareAppMarkets.length > 0 &&
+                                ShareAppMarkets.map(item => {
+                                  const { market_id, name } = item;
                                   return (
-                                    <Option key={group_name} value={group_name}>
-                                      {group_name}
+                                    <Option key={market_id} value={market_id}>
+                                      {name}
                                     </Option>
                                   );
                                 })}
@@ -1072,7 +1085,7 @@ export default class Main extends PureComponent {
                         })(
                           <Select
                             onChange={this.handleOnchange}
-                            style={{ width: "320px", marginRight: "12px" }}
+                            style={{ width: "300px", marginRight: "12px" }}
                           >
                             {appList.length > 0 &&
                               appList.map(item => {
