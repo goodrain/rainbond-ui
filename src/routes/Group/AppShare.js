@@ -411,13 +411,12 @@ export default class Main extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getShareInfo();
-    this.getShareList();
+    this.getShareInfo(false, true);
   }
 
   getShareList = () => {
     const { dispatch } = this.props;
-    const { ShareTypeShow } = this.state;
+    const { ShareTypeShow, info } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "groupControl/getShareList",
@@ -430,6 +429,15 @@ export default class Main extends PureComponent {
           this.setState({
             appList: res.bean
           });
+
+          if (
+            info &&
+            info.share_group_info &&
+            info.share_group_info.group_key
+          ) {
+            this.getShareVersion(info.share_group_info.group_key, true);
+          }
+
           if (res.bean && res.bean.length === 0) {
             this.getShareInfo({
               create_type: "new"
@@ -439,12 +447,22 @@ export default class Main extends PureComponent {
       }
     });
   };
-  getShareInfo(obj) {
+  getShareInfo(obj, isnext) {
     const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     const param = this.getParams();
-    const params = obj ? Object.assign(param, obj) : param;
+    let params = obj ? Object.assign(param, obj) : param;
+    const { ShareTypeShow } = this.state;
+    const { getFieldValue } = this.props.form;
+    const version = getFieldValue("version");
+
+    if (ShareTypeShow) {
+      params.scope = "goodrain";
+      params.version =
+        typeof version === "object" ? version[version.length - 1] : version;
+    }
+
     dispatch({
       type: "groupControl/getShareInfo",
       payload: {
@@ -466,10 +484,18 @@ export default class Main extends PureComponent {
               );
             }
             if (share_group_info && share_group_info.scope == "goodrain") {
-              this.setState({
-                ShareTypeShow: true
-              });
+              this.setState(
+                {
+                  ShareTypeShow: true,
+                  info: bean,
+                },
+                () => {
+                  isnext && this.getShareList();
+                }
+              );
               this.getSaremarkets();
+            } else {
+              isnext && this.getShareList();
             }
             if (share_group_info.pic) {
               this.setState({
@@ -524,11 +550,15 @@ export default class Main extends PureComponent {
 
   handleSubmit = e => {
     const { dispatch } = this.props;
-    const { scopeValue, internalValue } = this.state;
+    const { scopeValue, internalValue, info } = this.state;
     const newinfo = {};
+    const appinfo = info.share_group_info || {};
+
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.share_group_info.describe = values.describe;
+        this.share_group_info.describe = values.describe
+          ? values.describe
+          : appinfo.describe;
         this.share_group_info.group_name = values.group_name;
         this.share_group_info.market_id = values.market_id;
         this.share_group_info.scope =
@@ -846,6 +876,7 @@ export default class Main extends PureComponent {
   getSaremarkets = (group_key, isperform) => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
+    this.setState({ Initialize: true });
     dispatch({
       type: "groupControl/getSaremarkets",
       payload: {
@@ -855,7 +886,8 @@ export default class Main extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            ShareAppMarkets: res.bean ? [res.bean] : []
+            ShareAppMarkets: res.bean ? [res.bean] : [],
+            Initialize: false
           });
 
           if (!res.bean) {
@@ -911,6 +943,7 @@ export default class Main extends PureComponent {
     const { appList } = this.state;
     const _th = this;
     let arr = appList.filter(item => item.group_name == value);
+    this.getShareVersion(arr.length > 0 && arr[0].group_key, true);
     this.setState(
       {
         Initialize: true
@@ -960,12 +993,11 @@ export default class Main extends PureComponent {
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
-            {info.share_group_info.group_name || "-"}
+            {(info.share_group_info && info.share_group_info.group_name) || "-"}
           </div>
         </div>
       </div>
     );
-
     return (
       <PageHeaderLayout content={pageHeaderContent}>
         <Spin spinning={Initialize} tip="Loading...">
@@ -993,8 +1025,8 @@ export default class Main extends PureComponent {
               >
                 <Form layout="horizontal" className={styles.stepForm}>
                   <Row gutter={24}>
-                    <Col span={12} style={{ height: "104px" }}>
-                      <Form.Item {...sharingFormItemLayout} label="分享范围">
+                    <Col span={12}>
+                      <Form.Item {...sharingFormItemLayout} label="分享类型">
                         {getFieldDecorator("scope", {
                           initialValue:
                             appinfo.scope && appinfo.scope !== "goodrain"
@@ -1011,7 +1043,7 @@ export default class Main extends PureComponent {
                             <Radio value="goodrain">应用市场</Radio>
                           </RadioGroup>
                         )}
-                        {!ShareTypeShow && (
+                        {/* {!ShareTypeShow && (
                           <div
                             className={`${styles.connect} ${styles.connects}`}
                           >
@@ -1034,10 +1066,10 @@ export default class Main extends PureComponent {
                               <Radio value="goodrain:private">私有应用</Radio>
                             </RadioGroup>
                           </div>
-                        )}
+                        )} */}
                       </Form.Item>
                     </Col>
-                    {ShareTypeShow && (
+                    {ShareTypeShow ? (
                       <Col span={12}>
                         <Form.Item {...sharingFormItemLayout} label="商店名称">
                           {getFieldDecorator("market_id", {
@@ -1066,6 +1098,26 @@ export default class Main extends PureComponent {
                                   );
                                 })}
                             </Select>
+                          )}
+                        </Form.Item>
+                      </Col>
+                    ) : (
+                      <Col span={12}>
+                        <Form.Item {...sharingFormItemLayout} label="分享范围">
+                          {getFieldDecorator("scopes", {
+                            initialValue: this.state.internalValue,
+                            rules: [
+                              {
+                                required: true
+                              }
+                            ]
+                          })(
+                            <RadioGroup
+                              onChange={this.hanldeInternalValueChange}
+                            >
+                              <Radio value="team">团队</Radio>
+                              <Radio value="enterprise">公司</Radio>
+                            </RadioGroup>
                           )}
                         </Form.Item>
                       </Col>

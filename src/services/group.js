@@ -317,7 +317,9 @@ export async function getShare(
     team_name,
     shareId,
     create_type,
-    group_key
+    group_key,
+    scope,
+    version
   },
   handleError
 ) {
@@ -328,6 +330,8 @@ export async function getShare(
     {
       method: "get",
       params: {
+        version: body.version ? body.version : undefined,
+        scope: body.scope ? body.scope : undefined,
         create_type: body.create_type ? body.create_type : undefined,
         group_key: body.group_key ? body.group_key : undefined
       },
