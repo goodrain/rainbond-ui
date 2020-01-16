@@ -669,11 +669,6 @@ export default class Index extends PureComponent {
                   )
                 },
                 {
-                  title: "组件说明",
-                  dataIndex: "var",
-                  render: (val, data) => {}
-                },
-                {
                   title: "操作",
                   dataIndex: "var",
                   render: (val, data) => (

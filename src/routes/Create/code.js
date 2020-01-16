@@ -7,6 +7,7 @@ import CodeCustom from "./code-custom";
 import CodeDemo from "./code-demo";
 import CodeGitRepostory from "../../components/GitRepostory";
 import rainbondUtil from "../../utils/rainbond";
+import oauthUtil from "../../utils/oauth";
 
 @connect(
   ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
@@ -48,7 +49,8 @@ export default class Main extends PureComponent {
     }
 
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      rainbondInfo.oauth_services.value.map(item => {
+      const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo)
+      servers.map(item => {
         const { name, service_id, oauth_type } = item;
         map[service_id] = CodeGitRepostory;
         tabList.push({

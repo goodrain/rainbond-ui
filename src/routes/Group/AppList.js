@@ -346,14 +346,12 @@ export default class AppList extends PureComponent {
           </Link>
         )
       },
-      // {
-      //   title: "应用类型",
-      //   dataIndex: "service_type"
-      // },
       {
         title: "内存",
         dataIndex: "min_memory",
-        render: (val, data) => `${val}MB`
+        render: (val, data) => (
+          <span>{data.service_source && data.service_source == "third_party" ? "-":`${val}MB`}</span>
+        )
       },
       {
         title: "状态",

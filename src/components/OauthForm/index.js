@@ -1,10 +1,8 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { Form, Input, Select, Modal, Switch, Button } from "antd";
-import App from "../../../public/images/app.svg";
 import Branches from "../../../public/images/branches.svg";
 import Application from "../../../public/images/application.svg";
-import Component from "../../../public/images/component.svg";
 import styles from "./Index.less";
 const Option = Select.Option;
 
@@ -128,77 +126,18 @@ class CreateOAuthForm extends PureComponent {
           >
             {getFieldDecorator("name", {
               initialValue: oauthInfo ? oauthInfo.name : "",
-              rules: [{ required: true, message: "请输入名称" }]
+              rules: [
+                { required: true, message: "请输入名称" },
+                {
+                  max: 32,
+                  message: "最大长度32位"
+                }
+              ]
             })(<Input placeholder="请输入名称" />)}
             <div className={styles.conformDesc}>OAuth服务显示名称</div>
           </Form.Item>
 
-          {oauthType === "other" && (
-            <Form.Item
-              className={styles.clearConform}
-              {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Component} alt="" />
-                  认证地址
-                </div>
-              }
-            >
-              {getFieldDecorator("auth_url", {
-                initialValue: oauthInfo ? oauthInfo.auth_url : "",
-                rules: [
-                  { required: true, message: "请输入认证地址" },
-                  { type: "url", message: "输入数据不是合法的URL" }
-                ]
-              })(<Input placeholder="请输入认证地址" />)}
-              <div className={styles.conformDesc}>第三方平台认证路由</div>
-            </Form.Item>
-          )}
-          {oauthType === "other" && (
-            <Form.Item
-              className={styles.clearConform}
-              {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Component} alt="" />
-                  获取令牌地址
-                </div>
-              }
-            >
-              {getFieldDecorator("access_token_url", {
-                initialValue: oauthInfo ? oauthInfo.access_token_url : "",
-                rules: [
-                  { required: true, message: "请输入access_token_url" },
-                  { type: "url", message: "输入数据不是合法的URL" }
-                ]
-              })(<Input placeholder="请输入access_token_url" />)}
-              <div className={styles.conformDesc}>获取第三方用户的地址</div>
-            </Form.Item>
-          )}
-
-          {oauthType === "other" && (
-            <Form.Item
-              className={styles.clearConform}
-              {...formItemLayout}
-              label={
-                <div className={styles.clearConformMinTitle}>
-                  <img src={Component} alt="" />
-                  API地址
-                </div>
-              }
-            >
-              {getFieldDecorator("api_url", {
-                initialValue: oauthInfo ? oauthInfo.api_url : "",
-                rules: [
-                  { required: true, message: "请输入获取用户数据的API地址" },
-                  { type: "url", message: "输入数据不是合法的URL" }
-                ]
-              })(<Input placeholder="请输入获取用户数据的API地址" />)}
-              <div className={styles.conformDesc}>获取用户信息的API地址</div>
-            </Form.Item>
-          )}
-
-          {oauthType !== "github" && oauthType !== "other" && (
+          {oauthType !== "github" && (
             <Form.Item
               className={styles.clearConform}
               {...formItemLayout}
@@ -213,7 +152,11 @@ class CreateOAuthForm extends PureComponent {
                 initialValue: oauthInfo ? oauthInfo.home_url : "",
                 rules: [
                   { required: true, message: "请输入服务地址" },
-                  { type: "url", message: "输入数据不是合法的URL" }
+                  { type: "url", message: "输入数据不是合法的URL" },
+                  {
+                    max: 255,
+                    message: "最大长度255位"
+                  }
                 ]
               })(<Input disabled={edit} placeholder="请输入服务地址" />)}
               <div className={styles.conformDesc}>第三方服务访问地址</div>
@@ -232,7 +175,13 @@ class CreateOAuthForm extends PureComponent {
           >
             {getFieldDecorator("client_id", {
               initialValue: oauthInfo ? oauthInfo.client_id : "",
-              rules: [{ required: true, message: "请输入client_id" }]
+              rules: [
+                { required: true, message: "请输入client_id" },
+                {
+                  max: 64,
+                  message: "最大长度64位"
+                }
+              ]
             })(<Input disabled={edit} placeholder="请输入client_id" />)}
             <div className={styles.conformDesc}>Client ID</div>
           </Form.Item>
@@ -248,7 +197,13 @@ class CreateOAuthForm extends PureComponent {
           >
             {getFieldDecorator("client_secret", {
               initialValue: oauthInfo ? oauthInfo.client_secret : "",
-              rules: [{ required: true, message: "请输入client_secret" }]
+              rules: [
+                { required: true, message: "请输入client_secret" },
+                {
+                  max: 64,
+                  message: "最大长度64位"
+                }
+              ]
             })(<Input disabled={edit} placeholder="请输入client_secret" />)}
             <div className={styles.conformDesc}>Client Secret</div>
           </Form.Item>
@@ -268,7 +223,11 @@ class CreateOAuthForm extends PureComponent {
                 : `${window.location.protocol}//${window.location.host}`,
               rules: [
                 { required: true, message: "请输入正确的平台访问域名" },
-                { type: "url", message: "输入数据不是合法的URL" }
+                { type: "url", message: "输入数据不是合法的URL" },
+                {
+                  max: 255,
+                  message: "最大长度255位"
+                }
               ]
             })(<Input placeholder="请输入平台访问域名" />)}
             <div className={styles.conformDesc}>

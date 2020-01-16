@@ -93,27 +93,34 @@ class Index extends React.Component {
   handleCodeWarehouseInfo = props => {
     const { page, search } = this.state;
     const { dispatch, type } = props;
-    dispatch({
-      type: "global/codeWarehouseInfo",
-      payload: {
-        page,
-        search,
-        oauth_service_id: type
+    this.setState(
+      {
+        loading: true
       },
-      callback: res => {
-        if (res && res.bean) {
-          const firstPage = page == 1;
-          const lastPage = res.bean.repositories.length < 10;
-          this.setState({
-            firstPage,
-            lastPage,
-            loading: false,
-            total: res.bean.total,
-            lists: res.bean.repositories
-          });
-        }
+      () => {
+        dispatch({
+          type: "global/codeWarehouseInfo",
+          payload: {
+            page,
+            search,
+            oauth_service_id: type
+          },
+          callback: res => {
+            if (res && res.bean) {
+              const firstPage = page == 1;
+              const lastPage = res.bean.repositories.length < 10;
+              this.setState({
+                firstPage,
+                lastPage,
+                loading: false,
+                total: res.bean.total,
+                lists: res.bean.repositories
+              });
+            }
+          }
+        });
       }
-    });
+    );
   };
 
   //代码检测
@@ -140,8 +147,9 @@ class Index extends React.Component {
             if (res && res._code === 200) {
               this.setState(
                 {
-                  event_id: res.bean && res.bean.event_id,
-                  check_uuid: res.bean && res.bean.check_uuid,
+                  event_id: res.data && res.data.bean && res.data.bean.event_id,
+                  check_uuid:
+                    res.data && res.data.bean && res.data.bean.check_uuid,
                   create_status: "Checking",
                   create_loading: false
                 },
@@ -245,7 +253,7 @@ class Index extends React.Component {
           <Modal
             visible={detection}
             onCancel={this.handleDetection}
-            title="重新检测"
+            title="检测语言"
             footer={
               !this.state.create_status
                 ? [
@@ -376,7 +384,7 @@ class Index extends React.Component {
               {!this.state.create_status && (
                 <div>
                   <p style={{ textAlign: "center", fontSize: "14px" }}>
-                    确定要重新检测吗?
+                    确定要检测语言吗?
                   </p>
                 </div>
               )}

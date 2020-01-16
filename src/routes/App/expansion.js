@@ -320,7 +320,7 @@ export default class Index extends PureComponent {
     let metrics = [
       {
         metric_type: "resource_metrics",
-        metric_name: "cpu",
+        metric_name: values.selectMemory.indexOf("cpu") > -1 ? "cpu" : "memory",
         metric_target_type:
           values.selectMemory.indexOf("utilization") > -1
             ? "utilization"
@@ -572,7 +572,6 @@ export default class Index extends PureComponent {
             );
             this.changeScalingRules(obj);
           } else if (editInfo) {
-
             let obj = res.bean;
             obj.max_replicas = Number(editInfo.maxNum);
             obj.min_replicas = Number(editInfo.minNum);
@@ -664,14 +663,14 @@ export default class Index extends PureComponent {
       rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "cpu");
     let memoryUse =
       rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "memory");
-
+    let repeat = true;
     if (
       maxNum === max_replicas &&
       minNum === min_replicas &&
       (cpuUse ? cpuValue === rulesInfocpuValue : true) &&
       (memoryUse ? memoryValue === rulesInfomemoryValue : true)
     ) {
-      return false;
+      repeat = false;
     }
     let re = /^[0-9]+.?[0-9]*/;
     if (!re.test(num)) {
@@ -697,6 +696,7 @@ export default class Index extends PureComponent {
           } = this.state;
 
           if (
+            repeat &&
             errorMinNum === "" &&
             errorMaxNum === "" &&
             errorCpuValue === "" &&
@@ -1192,8 +1192,8 @@ export default class Index extends PureComponent {
             columns={[
               {
                 title: "时间",
-                dataIndex: "create_time",
-                key: "create_time",
+                dataIndex: "last_time",
+                key: "last_time",
                 align: "center",
                 width: "18%",
                 render: val => (

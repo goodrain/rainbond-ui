@@ -275,7 +275,7 @@ export default class Index extends PureComponent {
     const { dispatch, type } = props;
     const { tabType, buildSource } = this.state;
     const oauth_service_id = this.props.form.getFieldValue("oauth_service_id");
-    const project_full_name = this.props.form.getFieldValue("git_full_name");
+    const project_full_name = this.props.form.getFieldValue("full_name");
 
     dispatch({
       type: "global/codeWarehouseType",
@@ -329,7 +329,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           setFieldsValue({
-            git_full_name: res.bean.repositories[0].project_full_name
+            full_name: res.bean.repositories[0].project_full_name
           });
           setFieldsValue({
             git_url: res.bean.repositories[0].project_url
@@ -380,13 +380,14 @@ export default class Index extends PureComponent {
           service_alias: this.props.appAlias,
           is_oauth: true,
           oauth_service_id: fieldsValue.oauth_service_id,
-          git_full_name: fieldsValue.git_full_name,
+          full_name: fieldsValue.full_name,
           git_url: fieldsValue.git_url,
           code_version: fieldsValue.code_version,
           service_source: "source_code"
         },
         callback: () => {
           notification.success({ message: "修改成功，下次构建部署时生效" });
+          this.loadBuildSourceInfo();
           this.hideEditOauth();
         }
       });
@@ -829,7 +830,7 @@ export default class Index extends PureComponent {
                 </FormItem>
 
                 <FormItem {...formOauthLayout} label="项目名称">
-                  {getFieldDecorator("git_full_name", {
+                  {getFieldDecorator("full_name", {
                     initialValue: buildSource
                       ? buildSource.full_name
                       : fullList.length > 0 && fullList[0].project_full_name,

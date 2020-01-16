@@ -15,20 +15,30 @@ class Index extends React.PureComponent {
       callback: (info) => {
         if (info) {
           this.setState({ inited: true });
-          this.putLog(info.eid || "", info.enterprise_name || "");
+          this.putLog(info);
         }
       },
     });
   }
-  putLog = (eid, enterprise_name) => {
+  putLog = (info) => {
+    // Solemnly declare:
+    // Collect active user information only from the user's browser and do not involve any sensitive data.
+    if (!info) {
+      return 
+    }
     try {
       const defaultOptions = {
         credentials: "same-origin",
       };
       defaultOptions.url = "https://log.rainbond.com/log";
       defaultOptions.method = "post";
-      defaultOptions.data = JSON.stringify({ url: window.location.href, eid: eid, e_name: enterprise_name });
-      defaultOptions.credentials = "same-origin";
+      defaultOptions.data = JSON.stringify({
+        url: window.location.href, 
+        eid: info.eid,
+        e_name: info.enterprise_name,
+        version: info.version,
+        title: info.title,
+      });
       axios(defaultOptions);
     } catch (e) {
     }

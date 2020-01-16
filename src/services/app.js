@@ -3270,8 +3270,8 @@ export async function putAppBuidSource(
         user_name: body.user_name,
         password: body.password,
         is_oauth:  body.is_oauth,
-        oauth_service_id: body.oauth_service_id,
-        git_full_name: body.git_full_name,
+        service_id: body.oauth_service_id,
+        full_name: body.full_name,
       }
     }
   );
