@@ -345,7 +345,6 @@ export async function getShare(
 export async function getSaremarkets(
   body = {
     team_name,
-    group_key
   }
 ) {
   return request(

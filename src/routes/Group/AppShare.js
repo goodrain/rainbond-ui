@@ -395,6 +395,7 @@ export default class Main extends PureComponent {
       scopeValue: "goodrain:private",
       internalValue: "team",
       Initialize: true,
+      marketLoading: false,
       appList: [],
       ShareAppTypeShow: false,
       ShareAppVersion: [],
@@ -415,9 +416,12 @@ export default class Main extends PureComponent {
   }
 
   getShareList = () => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     const { ShareTypeShow, info } = this.state;
     const team_name = globalUtil.getCurrTeamName();
+
+    const { setFieldsValue } = form;
+
     dispatch({
       type: "groupControl/getShareList",
       payload: {
@@ -426,10 +430,8 @@ export default class Main extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          this.setState({
-            appList: res.bean
-          });
-
+          const arr = res.bean;
+          let bean = JSON.stringify(arr) === "{}";
           if (
             info &&
             info.share_group_info &&
@@ -438,16 +440,42 @@ export default class Main extends PureComponent {
             this.getShareVersion(info.share_group_info.group_key, true);
           }
 
-          if (res.bean && res.bean.length === 0) {
-            this.getShareInfo({
-              create_type: "new"
-            });
+          if (bean) {
+            setFieldsValue({ version: [] });
+            setFieldsValue({ group_name: "" });
+            this.setState(
+              {
+                appList: [],
+                ShareAppVersion: []
+              },
+              () => {
+                this.getShareInfo({
+                  create_type: "new"
+                });
+              }
+            );
+          } else if (arr && arr.length > 0) {
+            this.setState(
+              {
+                appList: arr
+              },
+              () => {
+                this.getShareVersion(arr[0].group_key, true);
+                setFieldsValue({
+                  group_name: arr[0].group_name
+                });
+              }
+            );
           }
         }
       }
     });
   };
   getShareInfo(obj, isnext) {
+    this.setState({
+      Initialize: true
+    });
+
     const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
@@ -487,7 +515,7 @@ export default class Main extends PureComponent {
               this.setState(
                 {
                   ShareTypeShow: true,
-                  info: bean,
+                  info: bean
                 },
                 () => {
                   isnext && this.getShareList();
@@ -801,7 +829,7 @@ export default class Main extends PureComponent {
   };
 
   hanldeShareTypeChange = e => {
-    const { getFieldDecorator, setFieldsValue } = this.props.form;
+    const { setFieldsValue } = this.props.form;
     const value = e.target.value;
     let ShareTypeShow = value == "goodrain" ? true : false;
     ShareTypeShow && this.getSaremarkets();
@@ -817,7 +845,7 @@ export default class Main extends PureComponent {
   };
 
   hanldeShareType = e => {
-    const { getFieldDecorator, setFieldsValue } = this.props.form;
+    const { setFieldsValue } = this.props.form;
     const value = e.target.value;
     this.setState({
       ShareAppTypeShow: value == "old" ? true : false
@@ -867,30 +895,32 @@ export default class Main extends PureComponent {
     if (groupKey && appList.length > 0) {
       let arr = appList.filter(item => item.group_key === groupKey);
       let ays = arr.length > 0 ? arr[0].version : [];
-      isperform && setFieldsValue({ version: ays });
+      isperform &&
+        setFieldsValue({ version: ays.length > 0 ? ays[ays.length - 1] : ays });
       this.setState({
         ShareAppVersion: ays
       });
     }
   };
-  getSaremarkets = (group_key, isperform) => {
+  getSaremarkets = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
-    this.setState({ Initialize: true });
+    this.setState({ marketLoading: true });
     dispatch({
       type: "groupControl/getSaremarkets",
       payload: {
-        team_name,
-        group_key
+        team_name
       },
       callback: res => {
+        this.setState({
+          marketLoading: false
+        });
         if (res && res._code === 200) {
           this.setState({
-            ShareAppMarkets: res.bean ? [res.bean] : [],
-            Initialize: false
+            ShareAppMarkets: res.bean ? [res.bean] : []
           });
 
-          if (!res.bean) {
+          if (!res.bean || JSON.stringify(res.bean) === "{}") {
             notification.warning(
               {
                 message: "请先开通企业商店"
@@ -984,9 +1014,9 @@ export default class Main extends PureComponent {
       share_service_list,
       ShareTypeShow,
       Initialize,
+      marketLoading,
       appList,
       ShareAppMarkets,
-      ShareAppTypeShow,
       ShareAppVersion
     } = this.state;
     const pageHeaderContent = (
@@ -1000,7 +1030,7 @@ export default class Main extends PureComponent {
     );
     return (
       <PageHeaderLayout content={pageHeaderContent}>
-        <Spin spinning={Initialize} tip="Loading...">
+        <Spin spinning={Initialize || marketLoading} tip="Loading...">
           <div>
             {this.state.addGroup && (
               <AddGroup
@@ -1043,30 +1073,6 @@ export default class Main extends PureComponent {
                             <Radio value="goodrain">应用市场</Radio>
                           </RadioGroup>
                         )}
-                        {/* {!ShareTypeShow && (
-                          <div
-                            className={`${styles.connect} ${styles.connects}`}
-                          >
-                            <RadioGroup
-                              onChange={this.hanldeInternalValueChange}
-                              value={this.state.internalValue}
-                            >
-                              <Radio value="team">团队</Radio>
-                              <Radio value="enterprise">公司</Radio>
-                            </RadioGroup>
-                          </div>
-                        )}
-                        {ShareTypeShow && (
-                          <div className={styles.connect}>
-                            <RadioGroup
-                              onChange={this.hanldeScopeValueChange}
-                              value={this.state.scopeValue}
-                            >
-                              <Radio value="goodrain:publish">公开应用</Radio>
-                              <Radio value="goodrain:private">私有应用</Radio>
-                            </RadioGroup>
-                          </div>
-                        )} */}
                       </Form.Item>
                     </Col>
                     {ShareTypeShow ? (
@@ -1249,35 +1255,6 @@ export default class Main extends PureComponent {
                 }}
               >
                 <div className={mytabcss.mytab}>
-                  {/* <Form layout="horizontal" className={styles.stepForm}>
-                  <Form.Item {...sharingFormItemLayout} label="分享组件" required={true}> */}
-                  {/* {getFieldDecorator("sharing", {
-                      initialValue: shareList,
-                      // setFieldsValue:shareList,
-                      rules: [
-                        {
-                          required: true,
-                          message: "请选择分享的组件",
-                        },
-                      ],
-                    })( */}
-                  {/* <Checkbox.Group
-                      onChange={this.onFileChange}
-                      value={sharearrs}
-                      style={{ display: "block", marginTop: "9px" }}
-                    >
-                      {apps.map(order => {
-                        return (
-                          <Checkbox key={order.service_share_uuid} value={order.service_share_uuid} >
-                            {order.service_cname}
-                          </Checkbox>
-                        );
-                      })}
-                    </Checkbox.Group> */}
-                  {/* )} */}
-                  {/* </Form.Item>
-                </Form> */}
-
                   <h4
                     className={mytabcss.required}
                     style={{
