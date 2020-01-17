@@ -1,11 +1,11 @@
 import request from "../utils/request";
-import config from "../config/config";
+import apiconfig from '../../config/api.config';
 
 /*
    获取云市应用
 */
 export function getMarketApp(body = {}) {
-  return request(`${config.baseUrl}/console/apps`, {
+  return request(`${apiconfig.baseUrl}/console/apps`, {
     method: "get",
     params: body
   });
@@ -16,7 +16,7 @@ export function getMarketApp(body = {}) {
 */
 export function queryExport(body = { team_name, body,app_id }) {
   const team_name = body.team_name;
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/export`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/export`, {
     method: "get",
     params: body.body,
   });
@@ -27,7 +27,7 @@ export function queryExport(body = { team_name, body,app_id }) {
   */
   export function appExport(body = { team_name, app_id, format,group_version }) {
   const team_name = body.team_name;
-  return request(`${config.baseUrl}/console/teams/${team_name}/apps/export`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${team_name}/apps/export`, {
     method: "post",
     data: {
       app_id: body.app_id,
@@ -43,7 +43,7 @@ export function queryExport(body = { team_name, body,app_id }) {
   */
 export async function getExport(body = { team_name, app_id, format }) {
   return request(
-    `${config.baseUrl}/console/teams/${
+    `${apiconfig.baseUrl}/console/teams/${
       body.team_name
     }/apps/export/down?app_id=${body.app_id}&format=${body.format}`,
     {
@@ -57,7 +57,7 @@ export async function getExport(body = { team_name, app_id, format }) {
   */
 export function uploadApp(body = { team_name }) {
   const team_name = body.team_name;
-  return request(`${config.baseUrl}/console/teams/${team_name}/apps/upload`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${team_name}/apps/upload`, {
     method: "post"
   });
 }
@@ -77,7 +77,7 @@ export function importApp(
   const team_name = body.team_name;
   const event_id = body.event_id;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
     {
       method: "post",
       data: {
@@ -97,7 +97,7 @@ export function queryImportApp(body = { team_name, event_id }) {
   const team_name = body.team_name;
   const event_id = body.event_id;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
     {
       method: "get"
     }
@@ -111,7 +111,7 @@ export function queryImportApp(body = { team_name, event_id }) {
 export function importDir(body = { team_name }) {
   const team_name = body.team_name;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/dir`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/dir`,
     {
       method: "post"
     }
@@ -125,7 +125,7 @@ export function importDir(body = { team_name }) {
 export function queryImportDirApp(body = { team_name, event_id }) {
   const team_name = body.team_name;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/dir`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/dir`,
     {
       method: "get",
       params: {
@@ -142,7 +142,7 @@ export function queryImportDirApp(body = { team_name, event_id }) {
 export function queryImportingApp(body = { team_name }) {
   const team_name = body.team_name;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/importing-apps`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/importing-apps`,
     {
       method: "get"
     }
@@ -155,7 +155,7 @@ export function queryImportingApp(body = { team_name }) {
 export function queryImportRecord(body = { team_name }) {
   const team_name = body.team_name;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/record`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/record`,
     {
       method: "post"
     }
@@ -169,7 +169,7 @@ export function cancelImportApp(body = { team_name, event_id }) {
   const team_name = body.team_name;
   const event_id = body.event_id;
   return request(
-    `${config.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
     {
       method: "delete",
     }
@@ -183,7 +183,7 @@ export async function getRecommendMarketAppList(body = {
   page_size,
   is_complete,
 }) {
-  return request(`${config.baseUrl}/console/app_market/recommend/apps`, {
+  return request(`${apiconfig.baseUrl}/console/app_market/recommend/apps`, {
     method: "get",
     params: {
       app_name: body.app_name,

@@ -1,12 +1,12 @@
 import { stringify } from "qs";
 import request from "../utils/request";
-import config from "../config/config";
+import apiconfig from '../../config/api.config';
 
 /*
    源码创建应用
 */
 export async function createAppByCode(body = { team_name }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
     method: "post",
     data: {
       group_id: body.group_id,
@@ -29,7 +29,7 @@ export async function createAppByCode(body = { team_name }) {
    源码第三方创建应用
 */
 export async function createThirtAppByCodes(body = { team_name }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`, {
     method: "post",
     data: {
       service_id: body.service_id,
@@ -51,7 +51,7 @@ export async function createThirtAppByCodes(body = { team_name }) {
    源码创建应用
 */
 export async function createThirdPartyServices(body = { team_name, group_id, service_cname, endpoints_type, endpoints }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/third_party`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`, {
     method: "post",
     data: {
       group_id: body.group_id,
@@ -66,7 +66,7 @@ export async function createThirdPartyServices(body = { team_name, group_id, ser
    compose创建应用
 */
 export async function createAppByCompose(body = { team_name, group_name, yaml_content, user_name, password }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`, {
     method: "post",
     data: {
       group_name: body.group_name,
@@ -90,7 +90,7 @@ export async function createAppByDockerrun(body = {
   user_name,
   password
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/docker_run`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_run`, {
     method: "post",
     data: {
       group_id: body.group_id,
@@ -107,7 +107,7 @@ export async function createAppByDockerrun(body = {
    获取应用检测的事件Id
 */
 export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
     method: "post",
     handleError,
   });
@@ -117,7 +117,7 @@ export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
 	获取应用检测结果
 */
 export function getCreateCheckResult(body = { team_name, app_alias, check_uuid }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`, {
     method: "get",
     params: {
       check_uuid: body.check_uuid,
@@ -130,7 +130,7 @@ export function getCreateCheckResult(body = { team_name, app_alias, check_uuid }
 */
 export function getCreateComposeCheckInfo(body = { team_name, group_id, group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
       method: "post",
       data: {
@@ -150,7 +150,7 @@ export function getCreateComposeCheckResult(body = {
   group_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
       method: "get",
       params: {
@@ -165,7 +165,7 @@ export function getCreateComposeCheckResult(body = {
    构建应用
 */
 export function buildApp(body = { team_name, app_alias, is_deploy }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`, {
     method: "post",
     data: {
       is_deploy: body.is_deploy,
@@ -182,7 +182,7 @@ export function getCodeBranchs(body = {
   service_project_id,
   type,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/code_repo/branchs`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/branchs`, {
     method: "post",
     data: {
       type: body.type,
@@ -197,7 +197,7 @@ export function getCodeBranchs(body = {
 */
 export function getCheckuuid(body = { team_name, app_alias }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/get_check_uuid`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/get_check_uuid`,
     {
       method: "get",
     },
@@ -209,7 +209,7 @@ export function getCheckuuid(body = { team_name, app_alias }) {
 */
 export function getComposeCheckuuid(body = { team_name, group_id, compose_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/get_check_uuid`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/get_check_uuid`,
     {
       method: "get",
       params: {
@@ -223,7 +223,7 @@ export function getComposeCheckuuid(body = { team_name, group_id, compose_id }) 
    获取云市应用
 */
 export function getMarketApp(body = {}) {
-  return request(`${config.baseUrl}/console/apps`, {
+  return request(`${apiconfig.baseUrl}/console/apps`, {
     method: "get",
     params: body,
   });
@@ -233,7 +233,7 @@ export function getMarketApp(body = {}) {
   从云市安装应用
 */
 export async function installApp(body = { team_name, group_id, app_id, group_key, group_version,install_from_cloud }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`, {
     method: "post",
     data: {
       group_id: body.group_id,
@@ -251,7 +251,7 @@ export async function installApp(body = { team_name, group_id, app_id, group_key
 */
 export async function getAppsByComposeId(body = { team_name, compose_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/services`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/services`,
     {
       method: "get",
     },
@@ -263,7 +263,7 @@ export async function getAppsByComposeId(body = { team_name, compose_id }) {
 */
 export async function getComposeByComposeId(body = { team_name, compose_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
     {
       method: "get",
     },

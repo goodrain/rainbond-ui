@@ -16,7 +16,7 @@ import {
 } from 'antd';
 
 import globalUtil from '../../utils/global';
-import apiconfig from '../../config/config';
+import apiconfig from '../../../config/api.config';
 import cookie from "../../utils/cookie";
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;

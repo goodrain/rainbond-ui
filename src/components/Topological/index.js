@@ -3,7 +3,7 @@ import debounce from 'lodash.debounce';
 import globalUtil from '../../utils/global';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import config from '../../config/config'
+import apiconfig from '../../../config/api.config';
 
 @connect()
 class Index extends React.Component {
@@ -20,7 +20,7 @@ class Index extends React.Component {
     try {
 
       window.iframeGetNodeUrl = function () {
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
+        return apiconfig.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetMonitor = function (fn) {
@@ -37,7 +37,7 @@ class Index extends React.Component {
           }
         })
 
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
+        return apiconfig.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetTenantName = function () {
@@ -71,7 +71,7 @@ class Index extends React.Component {
   render() {
     return ((
       <iframe
-        src={config.baseUrl + '/static/www/weavescope/index.html'}
+        src={apiconfig.baseUrl + '/static/www/weavescope/index.html'}
         style={{
           width: '100%',
           height: '500px'

@@ -1,11 +1,11 @@
 import request from '../utils/request';
-import config from '../config/config';
+import apiconfig from '../../config/api.config';
 
  /*
    查询发票详情
  */
 export function getInvoiceInfo(body = {}){
-	return request(config.baseUrl + `/console/receipts/${body.receipt_id}`, {
+	return request(apiconfig.baseUrl + `/console/receipts/${body.receipt_id}`, {
         method: 'get',
         params: body
     });
@@ -15,7 +15,7 @@ export function getInvoiceInfo(body = {}){
    提交发票申请
  */
 export function submitApplyInvoice(body = {}){
-	return request(config.baseUrl + `/console/receipts`, {
+	return request(apiconfig.baseUrl + `/console/receipts`, {
         method: 'post',
         data: body
     });
@@ -26,7 +26,7 @@ export function submitApplyInvoice(body = {}){
    确认发票申请
  */
 export function confirmApplyInvoice(body = {}){
-	return request(config.baseUrl + `/console/receipts/confirm`, {
+	return request(apiconfig.baseUrl + `/console/receipts/confirm`, {
         method: 'post',
         data: body
     });
@@ -37,7 +37,7 @@ export function confirmApplyInvoice(body = {}){
    获取已申请发票记录
  */
 export function getInovices(body = {}){
-	return request(config.baseUrl + `/console/receipts`, {
+	return request(apiconfig.baseUrl + `/console/receipts`, {
         method: 'get',
         params: body
     });
@@ -47,7 +47,7 @@ export function getInovices(body = {}){
    获取可以申请发票的订单
  */
 export function getOrders(body = {}){
-	return request(config.baseUrl + `/console/receipt-orders`, {
+	return request(apiconfig.baseUrl + `/console/receipt-orders`, {
         method: 'get',
         params: body
     });

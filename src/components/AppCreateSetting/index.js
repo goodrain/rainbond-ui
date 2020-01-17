@@ -6,7 +6,6 @@ import {
   Modal,
   Row,
   Col,
-  Switch,
   Table,
   Radio,
   Tabs,
@@ -49,7 +48,7 @@ const RadioGroup = Radio.Group;
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -201,7 +200,7 @@ class BaseInfo extends PureComponent {
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 class RenderDeploy extends PureComponent {
   constructor(arg) {
@@ -290,7 +289,7 @@ class RenderDeploy extends PureComponent {
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 class Mnt extends PureComponent {
   constructor(arg) {
@@ -698,9 +697,9 @@ class Mnt extends PureComponent {
   }
 }
 
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true
-})
+@connect(({ user, appControl, teamControl }) => ({}), null, null,
+//  {withRef: true}
+ )
 class Relation extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -844,9 +843,9 @@ class Relation extends PureComponent {
 }
 
 //环境变量
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true
-})
+@connect(({ user, appControl, teamControl }) => ({}), null, null,
+//  {withRef: true}
+)
 class Env extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -1100,9 +1099,9 @@ class Env extends PureComponent {
 }
 
 //端口
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true
-})
+@connect(({ user, appControl, teamControl }) => ({}), null, null,
+//  {withRef: true}
+)
 class Ports extends PureComponent {
   constructor(props) {
     super(props);
@@ -1371,7 +1370,7 @@ class RenderProperty extends PureComponent {
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 export default class Index extends PureComponent {
   constructor(props) {

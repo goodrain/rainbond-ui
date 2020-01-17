@@ -1,84 +1,38 @@
 import React from "react";
-import { Link, Redirect, Switch, Route } from "dva/router";
-import DocumentTitle from "react-document-title";
-import { Icon } from "antd";
+import { Link } from "dva/router";
 import { connect } from "dva";
-import GlobalFooter from "../components/GlobalFooter";
 import styles from "./UserLayout.less";
-import logo from "../../public/logo.png";
-import { getRoutes } from "../utils/utils";
-import configureGlobal from "../utils/configureGlobal";
-import cookie from "../utils/cookie";
+import globalUtil from "../utils/global";
 
-const links = [
-  {
-    key: "help",
-    title: "帮助",
-    href: ""
-  },
-  {
-    key: "privacy",
-    title: "隐私",
-    href: ""
-  },
-  {
-    key: "terms",
-    title: "条款",
-    href: ""
-  }
-];
-
-const copyright = configureGlobal.rainbondTextShow && (
-  <div>
-    Copyright
-    <Icon type="copyright" />
-    2018 好雨科技
-  </div>
-);
 
 class UserLayout extends React.PureComponent {
+  constructor(props) {
+    super(props);
+  }
   componentDidMount() {
-    const load = document.getElementById("load");
-    if (load) {
-      document.body.removeChild(load);
-    }
-  }
-  getPageTitle() {
-    const { routerData, location, rainbondInfo } = this.props;
-    const { pathname } = location;
-    let title =
-      (rainbondInfo &&
-        rainbondInfo.title !== undefined &&
-        rainbondInfo.title) ||
-      "Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
-    if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - ${title} `;
-    }
-    return title;
-  }
-
-  shouldComponentUpdate() {
-    return true;
+    //初始化 获取RainbondInfo信息
+    this.props.dispatch({
+      type: "global/fetchRainbondInfo",
+      callback: info => {
+        if (info) {
+          globalUtil.putLog(info)
+        }
+      }
+    });
   }
   render() {
-    const { routerData, match, rainbondInfo, nouse } = this.props;
-
+    const { rainbondInfo, nouse ,children } = this.props;
+    if (!rainbondInfo) {
+      return null;
+    }
     return (
-      <DocumentTitle title={this.getPageTitle()}>
         <div className={styles.container}>
           <div className={styles.content}>
             {!nouse && (
               <div className={styles.top}>
                 <div className={styles.header}>
                   <Link to="/">
-                    {/* <img
-                    style={{
-                    verticalAlign: 'middle'
-                  }}
-                    alt="logo"
-                    className={styles.logo}
-                    src={rainbondInfo.logo || logo}/> */}
-                    <h1 className={styles.titles}>{rainbondInfo.title}</h1>
+                    <h1 className={styles.titles}>{rainbondInfo&&rainbondInfo.title}</h1>
                   </Link>
                 </div>
                 <div className={styles.desc}>
@@ -86,26 +40,16 @@ class UserLayout extends React.PureComponent {
                 </div>
               </div>
             )}
-            <Switch>
-              {getRoutes(match.path, routerData).map(item => (
-                <Route
-                  key={item.key}
-                  path={item.path}
-                  component={item.component}
-                  exact={item.exact}
-                />
-              ))}
-              <Redirect exact from="/user" to="/user/login" />
-            </Switch>
+            <div>
+               {children}
+            </div>
           </div>
-          <GlobalFooter links={links} copyright={copyright} />
         </div>
-      </DocumentTitle>
     );
   }
 }
 
 export default connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse
+  nouse: global.nouse,
 }))(UserLayout);

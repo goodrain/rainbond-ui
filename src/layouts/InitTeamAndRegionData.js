@@ -1,6 +1,6 @@
-import React from 'react';
-import { connect } from 'dva';
-import globalUtil from '../utils/global';
+import React from "react";
+import { connect } from "dva";
+import globalUtil from "../utils/global";
 
 @connect()
 export default class Index extends React.PureComponent {
@@ -9,32 +9,32 @@ export default class Index extends React.PureComponent {
     const currRegion = globalUtil.getCurrRegionName();
     // 获取群组
     this.props.dispatch({
-      type: 'global/fetchGroups',
+      type: "global/fetchGroups",
       payload: {
         team_name: currTeam,
-        region_name: currRegion,
-      },
+        region_name: currRegion
+      }
     });
 
     this.props.dispatch({
-      type: 'global/saveCurrTeamAndRegion',
+      type: "global/saveCurrTeamAndRegion",
       payload: {
         currTeam,
-        currRegion,
-      },
+        currRegion
+      }
     });
     // 获取当前数据中心的协议
     this.props.dispatch({
-      type: 'region/fetchProtocols',
+      type: "region/fetchProtocols",
       payload: {
         team_name: currTeam,
-        region_name: currRegion,
-      },
+        region_name: currRegion
+      }
     });
   }
-  componentWillUnmount() {
-  }
+  componentWillUnmount() {}
   render() {
-    return this.props.children;
+    const { children } = this.props;
+    return children;
   }
 }

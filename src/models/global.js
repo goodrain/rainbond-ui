@@ -456,9 +456,10 @@ export default {
       const response = yield call(getRegist, payload);
       if (response) {
         callback && callback();
+        console.log('response',response)
         yield put({
           type: "saveIsRegist",
-          payload: response.bean.is_regist
+          payload: response.bean&&response.bean.is_regist
         });
       }
     },

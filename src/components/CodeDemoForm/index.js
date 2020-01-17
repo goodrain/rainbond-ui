@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
-import { Link, Switch, Route, routerRedux } from "dva/router";
+import { Link,  Route, routerRedux } from "dva/router";
 import {
   Row,
   Col,
@@ -42,7 +42,7 @@ const { TabPane } = Tabs;
   }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {
@@ -270,7 +270,7 @@ export default class Index extends PureComponent {
               style={{ display: "inline-block", width: 292, marginRight: 15 }}
               onChange={this.handleChangeDemo}
             >
-              <Option 
+              <Option
                 value={`${configureGlobal.documentAddress}demo-2048.git`}
               >
                 2048小游戏

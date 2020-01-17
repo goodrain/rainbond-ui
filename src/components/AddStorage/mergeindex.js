@@ -5,7 +5,7 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
+import { Link, Route } from "dva/router";
 import {
   Input,
   Table,
@@ -18,7 +18,7 @@ import {
   Button,
   Row,
   Col,
-  Upload,
+  Upload
 } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";

@@ -1,7 +1,26 @@
 import styles from "./utils.less";
 import moment from "moment";
-
 const global = {
+  putLog (info){
+    if (!info) {
+      return null;
+    }
+    try {
+      const defaultOptions = {
+        credentials: "same-origin"
+      };
+      defaultOptions.url = "https://log.rainbond.com/log";
+      defaultOptions.method = "post";
+      defaultOptions.data = JSON.stringify({
+        url: window.location.href,
+        eid: info.eid,
+        e_name: info.enterprise_name,
+        version: info.version,
+        title: info.title
+      });
+      axios(defaultOptions);
+    } catch (e) {}
+  },
   getCurrTeamName() {
     const reg = /team\/([^\/]+)/;
     const hash = location.hash || "";

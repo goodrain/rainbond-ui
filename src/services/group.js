@@ -1,12 +1,12 @@
 import request from "../utils/request";
-import config from "../config/config";
+import apiconfig from '../../config/api.config';
 
 /*
    查询备份状态
 */
 export async function getBackupStatus(body = { team_name, backup_id, group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
       method: "get",
       params: {
@@ -20,7 +20,7 @@ export async function getBackupStatus(body = { team_name, backup_id, group_id })
    查询备份
 */
 export async function getBackup(body = { team_name, group_id }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groupapp/backup`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/backup`, {
     method: "get",
     params: {
       group_id: body.group_id,
@@ -35,7 +35,7 @@ export async function getBackup(body = { team_name, group_id }) {
  */
 
 export async function queryAllBackup(param) {
-  return request(`${config.baseUrl}/console/teams/${param.team_name}/all/groupapp/backup`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${param.team_name}/all/groupapp/backup`, {
     method: "get",
     params: {
       page: param.pageNum || 1,
@@ -45,7 +45,7 @@ export async function queryAllBackup(param) {
 }
 
 export async function queryRestoreState(param) {
-  return request(`${config.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${param.team_name}/groupapp/${param.group_id}/migrate/record`, {
     method: "get",
     params: {
       group_uuid: param.group_uuid
@@ -57,7 +57,7 @@ export async function queryRestoreState(param) {
 */
 export async function backup(body = { team_name, group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
       method: "POST",
       data: {
@@ -73,7 +73,7 @@ export async function backup(body = { team_name, group_id }) {
 */
 export async function groupMonitorData(body = { team_name, group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/monitor/batch_query`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/monitor/batch_query`,
     {
       method: "get",
       showLoading: false,
@@ -94,7 +94,7 @@ export async function editAppCreateCompose(body = {
   compose_content,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_update`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_update`,
     {
       method: "put",
       data: body,
@@ -112,7 +112,7 @@ export async function getGroupDetail(
   },
   handleError,
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
     handleError,
   });
 }
@@ -127,7 +127,7 @@ export async function getGroupApps(body = {
   page,
   page_size,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/service/group`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/service/group`, {
     method: "get",
     params: {
       group_id: body.group_id,
@@ -145,7 +145,7 @@ export async function deleteGroup(body = {
   team_name,
   group_id,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
     method: "delete",
   });
 }
@@ -159,7 +159,7 @@ export async function deleteCompose(body = {
   compose_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/delete`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/delete`,
     {
       method: "delete",
       data: {
@@ -177,7 +177,7 @@ export async function editGroup(body = {
   group_id,
   group_name,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
     method: "put",
     data: {
       group_name: body.group_name,
@@ -192,7 +192,7 @@ export async function addGroup(body = {
   team_name,
   group_name,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/groups`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`, {
     method: "post",
     data: {
       group_name: body.group_name,
@@ -208,7 +208,7 @@ export async function recordShare(body = {
   group_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
     {
       method: "get",
       params: {
@@ -227,7 +227,7 @@ export async function checkShare(body = {
   group_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/share/record`,
     {
       method: "post",
       data: {
@@ -245,7 +245,7 @@ export async function giveupShare(body = {
   share_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/giveup`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/giveup`,
     { method: "delete" },
   );
 }
@@ -257,7 +257,7 @@ export async function getShare(body = {
   team_name,
   shareId,
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/share/${body.shareId}/info`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.shareId}/info`, {
     method: "get",
   });
 }
@@ -271,7 +271,7 @@ export async function submitShare(body = {
   new_info,
   use_force
 }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/info`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/info`, {
     method: "post",
     data: body.new_info,
     params: {
@@ -289,7 +289,7 @@ export async function buildCompose(body = {
   compose_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_build`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/compose_build`,
     {
       method: "post",
       data: {
@@ -307,7 +307,7 @@ export async function getShareEventInfo(body = {
   share_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events`,
     { method: "get" },
   );
 }
@@ -321,7 +321,7 @@ export async function startShareEvent(body = {
   event_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
     body.event_id
     }`,
     { method: "post" },
@@ -337,7 +337,7 @@ export async function startPluginShareEventInShareApp(body = {
   event_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
     body.event_id
     }/plugin`,
     { method: "post" },
@@ -353,7 +353,7 @@ export async function getPluginShareEventInShareApp(body = {
   event_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
     body.event_id
     }/plugin`,
     { method: "get" },
@@ -369,7 +369,7 @@ export async function getShareStatus(body = {
   event_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${
     body.event_id
     }`,
     { method: "get" },
@@ -385,7 +385,7 @@ export async function completeShare(body = {
   event_id,
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/complete`,
     { method: "post" },
   );
 }
@@ -404,7 +404,7 @@ export async function migrateApp(body = {
   notRecovered_restore_id
 }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
       method: "post",
       data: {
@@ -424,7 +424,7 @@ export async function migrateApp(body = {
 */
 export async function queryMigrateApp(body = { team_name, restore_id, group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/migrate`,
     {
       method: "get",
       params: {
@@ -439,7 +439,7 @@ export async function queryMigrateApp(body = { team_name, restore_id, group_id }
 */
 export async function delRestore(body = { team_name, group_id, new_group_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/delete`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/delete`,
     {
       method: "DELETE",
       data: {
@@ -454,7 +454,7 @@ export async function delRestore(body = { team_name, group_id, new_group_id }) {
 */
 export async function delBackup(body = { team_name, group_id, backup_id }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
     {
       method: "DELETE",
       data: {
@@ -469,7 +469,7 @@ export async function delBackup(body = { team_name, group_id, backup_id }) {
 */
 export async function delFailureBackup(body = { team_name, group_id, backup_id }) {
 return request(
-  `${config.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
+  `${apiconfig.baseUrl}/console/teams/${body.team_name}/groupapp/${body.group_id}/backup`,
   {
     method: "DELETE",
     data: {

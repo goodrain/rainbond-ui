@@ -3,14 +3,21 @@ import PropTypes from "prop-types";
 import { Layout, Icon, message, notification } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
-import { Route, Redirect, Switch, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
+
+import memoizeOne from "memoize-one";
+import deepEqual from "lodash.isequal";
+
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
 import GlobalHeader from "../components/GlobalHeader";
 import SiderMenu from "../components/SiderMenu";
-import NotFound from "../routes/Exception/404";
-import { getRoutes } from "../utils/utils";
+import pathToRegexp from "path-to-regexp";
+
+// import NotFound from "../routes/Exception/404";
+// import { getRoutes } from "../utils/utils";
+
 import userUtil from "../utils/user";
 import globalUtil from "../utils/global";
 import configureGlobal from "../utils/configureGlobal";
@@ -34,7 +41,23 @@ import Meiqia from "./Meiqia";
 
 const qs = require("query-string");
 const { Content } = Layout;
-const { AuthorizedRoute } = Authorized;
+// const { AuthorizedRoute } = Authorized;
+const { check } = Authorized;
+
+const getBreadcrumbNameMap = memoizeOne(meun => {
+  const routerMap = {};
+  const mergeMeunAndRouter = meunData => {
+    meunData.forEach(meunItem => {
+      if (meunItem.children) {
+        mergeMeunAndRouter(meunItem.children);
+      }
+      // Reduce memory usage
+      routerMap[meunItem.path] = meunItem;
+    });
+  };
+  mergeMeunAndRouter(meun);
+  return routerMap;
+}, deepEqual);
 
 const query = {
   "screen-xs": {
@@ -69,19 +92,44 @@ class BasicLayout extends React.PureComponent {
     currRegion: PropTypes.string,
     currTeam: PropTypes.string
   };
-  state = {
-    isMobile,
-    isInit: false,
-    openRegion: false,
-    createTeam: false,
-    joinTeam: false,
-    showChangePassword: false,
-    showWelcomeCreateTeam: false,
-    canCancelOpenRegion: true,
-    market_info: "",
-    showAuthCompany: false
-  };
+
+  constructor(props) {
+    super(props);
+    this.getPageTitle = memoizeOne(this.getPageTitle);
+    this.breadcrumbNameMap = getBreadcrumbNameMap(getMenuData());
+    this.state = {
+      isMobile,
+      isInit: false,
+      openRegion: false,
+      createTeam: false,
+      joinTeam: false,
+      showChangePassword: false,
+      showWelcomeCreateTeam: false,
+      canCancelOpenRegion: true,
+      market_info: "",
+      showAuthCompany: false
+    };
+  }
+
+ 
   componentDidMount() {
+    this.initRaindbondInfo();
+  }
+
+  initRaindbondInfo = () =>{
+   //初始化 获取RainbondInfo信息
+   this.props.dispatch({
+    type: "global/fetchRainbondInfo",
+    callback: info => {
+      if (info) {
+        globalUtil.putLog(info)
+        this.load();
+      }
+    }
+  });
+  }
+
+  load = ()=>{
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -93,6 +141,10 @@ class BasicLayout extends React.PureComponent {
       this.setState({ showAuthCompany: true });
     }
   }
+
+
+
+
   onOpenRegion = () => {
     this.setState({ openRegion: true });
   };
@@ -132,9 +184,9 @@ class BasicLayout extends React.PureComponent {
       }
     });
   };
-  getChildContext() {
-    const { location, routerData } = this.props;
-    return { location, breadcrumbNameMap: routerData };
+  getChildContext=()=> {
+    const { location } = this.props;
+    return { location, breadcrumbNameMap:this.breadcrumbNameMap };
   }
 
   fetchUserInfo = () => {
@@ -158,20 +210,30 @@ class BasicLayout extends React.PureComponent {
       }
     });
   };
-  getPageTitle() {
-    const { routerData, location, rainbondInfo } = this.props;
-    const { pathname } = location;
-    let title =
-      (rainbondInfo &&
-        rainbondInfo.title !== undefined &&
-        rainbondInfo.title) ||
-      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
-    if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - ${title}`;
+  getPageTitle = pathname => {
+    // const { routerData, location, rainbondInfo } = this.props;
+    // const { pathname } = location;
+    // let title =
+    //   (rainbondInfo &&
+    //     rainbondInfo.title !== undefined &&
+    //     rainbondInfo.title) ||
+    //   "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
+    // if (routerData[pathname] && routerData[pathname].name) {
+    //   title = `${routerData[pathname].name} - ${title}`;
+    // }
+    let currRouterData = null;
+    Object.keys(this.breadcrumbNameMap).forEach(key => {
+      if (pathToRegexp(key).test(pathname)) {
+        currRouterData = this.breadcrumbNameMap[key];
+      }
+    });
+    if (!currRouterData) {
+      return "Ant Design Pro";
     }
-    return title;
-  }
-  getBashRedirect = () => {
+    return `${currRouterData.name} - Ant Design Pro`;
+    // return title;
+  };
+  getBaseRedirect = () => {
     // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
     const urlParams = new URL(window.location.href);
 
@@ -190,16 +252,20 @@ class BasicLayout extends React.PureComponent {
     return redirect;
   };
   handleMenuCollapse = collapsed => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: "global/changeLayoutCollapsed",
       payload: collapsed
     });
   };
   handleNoticeClear = type => {
     message.success(`清空了${type}`);
-    this.props.dispatch({ type: "global/clearNotices", payload: type });
+    const { dispatch } = this.props;
+    dispatch({ type: "global/clearNotices", payload: type });
   };
   handleMenuClick = ({ key }) => {
+    const { dispatch } = this.props;
+
     if (key === "cpw") {
       this.showChangePass();
     }
@@ -207,12 +273,13 @@ class BasicLayout extends React.PureComponent {
       cookie.remove("token", { domain: "" });
       cookie.remove("team", { domain: "" });
       cookie.remove("region_name", { domain: "" });
-      this.props.dispatch({ type: "user/logout" });
+      dispatch({ type: "user/logout" });
     }
   };
   handleNoticeVisibleChange = visible => {
+    const { dispatch } = this.props;
     if (visible) {
-      this.props.dispatch({ type: "global/fetchNotices" });
+      dispatch({ type: "global/fetchNotices" });
     }
   };
   handleTeamClick = ({ key }) => {
@@ -312,6 +379,28 @@ class BasicLayout extends React.PureComponent {
     });
   };
   render() {
+
+    const {
+      currentUser,
+      collapsed,
+      fetchingNotices,
+      notices,
+      // routerData,
+      // match,
+      // location,
+      children,
+      location: { pathname },
+      notifyCount,
+      currTeam,
+      currRegion,
+      groups,
+      nouse,
+      rainbondInfo
+    } = this.props;
+
+    if (!rainbondInfo) {
+      return null;
+    }
     /**
      * 根据菜单取得重定向地址.
      */
@@ -331,23 +420,9 @@ class BasicLayout extends React.PureComponent {
     };
     getMenuData().forEach(getRedirect);
 
-    const {
-      currentUser,
-      collapsed,
-      fetchingNotices,
-      notices,
-      routerData,
-      match,
-      location,
-      notifyCount,
-      currTeam,
-      currRegion,
-      groups,
-      nouse,
-      rainbondInfo
-    } = this.props;
+  
 
-    const bashRedirect = this.getBashRedirect();
+    const baseRedirect = this.getBaseRedirect();
     const layout = () => {
       const team = userUtil.getTeamByTeamName(
         currentUser,
@@ -363,71 +438,71 @@ class BasicLayout extends React.PureComponent {
         isRegionMaintain =
           region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
       }
-      const renderContent = () => {
-        // 当前团队没有数据中心
-        if (!hasRegion) {
-          return (
-            <OpenRegion
-              mode="card"
-              onSubmit={this.handleOpenRegion}
-              onCancel={this.cancelOpenRegion}
-            />
-          );
-          return null;
-        }
+      // const renderContent = () => {
+      //   // 当前团队没有数据中心
+      //   if (!hasRegion) {
+      //     return (
+      //       <OpenRegion
+      //         mode="card"
+      //         onSubmit={this.handleOpenRegion}
+      //         onCancel={this.cancelOpenRegion}
+      //       />
+      //     );
+      //     return null;
+      //   }
 
-        // 数据中心维护中
-        if (isRegionMaintain || nouse) {
-          return (
-            <div style={{ textAlign: "center", padding: "200px 0" }}>
-              <Icon
-                style={{ fontSize: 40, marginBottom: 32, color: "red" }}
-                type="warning"
-              />
-              <h1
-                style={{
-                  fontSize: 40,
-                  color: "rgba(0, 0, 0, 0.65)",
-                  marginBottom: 20
-                }}
-              >
-                {nouse ? "当前授权已过期" : "数据中心维护中"}
-              </h1>
-              <p
-                style={{
-                  fontSize: 20
-                }}
-              >
-                {nouse
-                  ? "请联系 010-64666786 获取更多商业服务。"
-                  : "请稍后访问当前数据中心"}
-              </p>
-            </div>
-          );
-        }
+      //   // 数据中心维护中
+      //   if (isRegionMaintain || nouse) {
+      //     return (
+      //       <div style={{ textAlign: "center", padding: "200px 0" }}>
+      //         <Icon
+      //           style={{ fontSize: 40, marginBottom: 32, color: "red" }}
+      //           type="warning"
+      //         />
+      //         <h1
+      //           style={{
+      //             fontSize: 40,
+      //             color: "rgba(0, 0, 0, 0.65)",
+      //             marginBottom: 20
+      //           }}
+      //         >
+      //           {nouse ? "当前授权已过期" : "数据中心维护中"}
+      //         </h1>
+      //         <p
+      //           style={{
+      //             fontSize: 20
+      //           }}
+      //         >
+      //           {nouse
+      //             ? "请联系 010-64666786 获取更多商业服务。"
+      //             : "请稍后访问当前数据中心"}
+      //         </p>
+      //       </div>
+      //     );
+      //   }
 
-        return (
-          <Switch>
-            {redirectData.map(item => (
-              <Redirect key={item.from} exact from={item.from} to={item.to} />
-            ))}
-            {getRoutes(match.path, routerData).map(item => (
-              <AuthorizedRoute
-                key={item.key}
-                path={item.path}
-                component={item.component}
-                exact={item.exact}
-                authority={item.authority}
-                logined
-                redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
-              />
-            ))}
+      //   return (
+      //     <div>
+      //       {redirectData.map(item => (
+      //         <Redirect key={item.from} exact from={item.from} to={item.to} />
+      //       ))}
+      //       {getRoutes(match.path, routerData).map(item => (
+      //         <AuthorizedRoute
+      //           key={item.key}
+      //           path={item.path}
+      //           component={item.component}
+      //           exact={item.exact}
+      //           authority={item.authority}
+      //           logined
+      //           redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
+      //         />
+      //       ))}
 
-            <Redirect exact from="/" to={bashRedirect} />
-            <Route render={NotFound} />
-          </Switch>
-        );
-      };
+      //       <Redirect exact from="/" to={baseRedirect} />
+      //       <Route render={NotFound} />
+      //     </div>
+      //   );
+      // };
 
       return (
         <Layout>
@@ -484,7 +559,8 @@ class BasicLayout extends React.PureComponent {
                 height: "100%"
               }}
             >
-              {renderContent()}
+              {children}
+              {/* {renderContent()} */}
             </Content>
           </Layout>
         </Layout>
@@ -493,7 +569,7 @@ class BasicLayout extends React.PureComponent {
 
     return (
       <Fragment>
-        <DocumentTitle title={this.getPageTitle()}>
+        <DocumentTitle title={this.getPageTitle(pathname)}>
           <CheckUserInfo
             rainbondInfo={rainbondInfo}
             onCurrTeamNoRegion={this.handleCurrTeamNoRegion}

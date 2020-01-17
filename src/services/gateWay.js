@@ -1,10 +1,10 @@
 import request from "../utils/request";
-import config from "../config/config";
+import apiconfig from '../../config/api.config';
 
 /**获取http数据 */
 export async function queryHttpData(param) {
   return request(
-    `${config.baseUrl}/console/teams/${param.team_name}/domain/query`,
+    `${apiconfig.baseUrl}/console/teams/${param.team_name}/domain/query`,
     {
       method: "get",
       params: {
@@ -18,7 +18,7 @@ export async function queryHttpData(param) {
 /**获取连接信息 */
 export async function fetchEnvs(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
       params.app_alias
     }/envs`,
     {
@@ -32,7 +32,7 @@ export async function fetchEnvs(params) {
 /**获取参数配置 */
 export async function getParameter(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/domain/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/domain/${
       params.rule_id
     }/put_gateway`,
     {
@@ -47,7 +47,7 @@ export async function getParameter(params) {
 /**设置参数配置 */
 export async function editParameter(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/domain/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/domain/${
       params.rule_id
     }/put_gateway`,
     {
@@ -62,7 +62,7 @@ export async function editParameter(params) {
 /**获取所证书列表 */
 export async function fetchAllLicense(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/certificates`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/certificates`,
     {
       method: "get",
       params: {
@@ -76,7 +76,7 @@ export async function fetchAllLicense(params) {
 /**添加证书 */
 export async function addLicense(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/certificates`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/certificates`,
     {
       method: "post",
       data: {
@@ -91,7 +91,7 @@ export async function addLicense(params) {
 /**编辑证书 */
 export async function editLicense(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/certificates/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/certificates/${
       params.certifiate_id
     }`,
     {
@@ -108,7 +108,7 @@ export async function editLicense(params) {
 /**删除证书 */
 export async function deleteLicense(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/certificates/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/certificates/${
       params.certifiate_id
     }`,
     {
@@ -119,7 +119,7 @@ export async function deleteLicense(params) {
 /**查看证书详情 */
 export async function queryDetail(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/certificates/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/certificates/${
       params.certifiate_id
     }`,
     {
@@ -130,7 +130,7 @@ export async function queryDetail(params) {
 /**搜索http */
 export async function searchHttp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/domain/query`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/domain/query`,
     {
       method: "get",
       params: {
@@ -145,7 +145,7 @@ export async function searchHttp(params) {
 /**添加http策略 */
 export async function addHttpStrategy(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/httpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/httpdomain`,
     {
       method: "post",
       data: {
@@ -172,7 +172,7 @@ export async function addHttpStrategy(params) {
 /**删除http */
 export async function deleteHttp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/httpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/httpdomain`,
     {
       method: "DELETE",
       data: {
@@ -187,7 +187,7 @@ export async function deleteHttp(params) {
 /**查询编辑详情 */
 export async function queryDetail_http(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/httpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/httpdomain`,
     {
       method: "get",
       params: {
@@ -200,7 +200,7 @@ export async function queryDetail_http(params) {
 /**编辑http */
 export async function editHttpStrategy(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/httpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/httpdomain`,
     {
       method: "put",
       data: {
@@ -234,7 +234,7 @@ export async function editHttpStrategy(params) {
 /**查询tcp */
 export async function queryTcpData(param) {
   return request(
-    `${config.baseUrl}/console/teams/${param.team_name}/tcpdomain/query`,
+    `${apiconfig.baseUrl}/console/teams/${param.team_name}/tcpdomain/query`,
     {
       method: "get",
       params: {
@@ -247,7 +247,7 @@ export async function queryTcpData(param) {
 /**搜索tcp */
 export async function searchTcp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/tcpdomain/query`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain/query`,
     {
       method: "get",
       params: {
@@ -261,7 +261,7 @@ export async function searchTcp(params) {
 /**删除tcp */
 export async function deleteTcp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
     {
       method: "DELETE",
       data: {
@@ -274,7 +274,7 @@ export async function deleteTcp(params) {
 /**查询ip */
 export async function querydomain_port(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/domain/get_port`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/domain/get_port`,
     {
       method: "get"
     }
@@ -283,7 +283,7 @@ export async function querydomain_port(params) {
 /**查询tcp详细信息 */
 export async function queryDetail_tcp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
     {
       method: "get",
       params: {
@@ -295,7 +295,7 @@ export async function queryDetail_tcp(params) {
 /**添加tcp */
 export async function addTcp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
     {
       method: "post",
       data: {
@@ -320,7 +320,7 @@ export async function addTcp(params) {
 /**编辑tcp */
 export async function editTcp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain`,
     {
       method: "put",
       data: {
@@ -348,7 +348,7 @@ export async function editTcp(params) {
 /**查询应用状态 */
 export async function query_app_status(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
       params.app_alias
     }/status`,
     {
@@ -359,7 +359,7 @@ export async function query_app_status(params) {
 
 export async function startApp(params) {
   return request(
-    `${config.baseUrl}/console/teams/${params.team_name}/apps/${
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
       params.app_alias
     }/start`,
     {

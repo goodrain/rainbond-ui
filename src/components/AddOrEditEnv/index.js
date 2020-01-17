@@ -1,14 +1,25 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Link, Route } from "dva/router";
-import { Row, Col, Card, Form, Button, Icon, Switch, Alert, Select, Modal, Input } from "antd";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Icon,
+  Alert,
+  Select,
+  Modal,
+  Input
+} from "antd";
 
 const FormItem = Form.Item;
 
 // 添加、编辑变量
 @Form.create()
 export default class AddVarModal extends PureComponent {
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
@@ -25,15 +36,20 @@ export default class AddVarModal extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 },
-      },
+        sm: { span: 16 }
+      }
     };
     return (
-      <Modal title="添加变量" onOk={this.handleSubmit} onCancel={this.handleCancel} visible>
+      <Modal
+        title="添加变量"
+        onOk={this.handleSubmit}
+        onCancel={this.handleCancel}
+        visible
+      >
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
             {getFieldDecorator("attr_name", {
@@ -43,24 +59,26 @@ export default class AddVarModal extends PureComponent {
                 {
                   // pattern: /^[A-Za-z].*$/,
                   pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-                  message: "格式不正确， /^[A-Za-z].*$/",
-                },
-              ],
-            })(<Input
-              disabled={!!data.attr_name}
-              placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
-            />)}
+                  message: "格式不正确， /^[A-Za-z].*$/"
+                }
+              ]
+            })(
+              <Input
+                disabled={!!data.attr_name}
+                placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
+              />
+            )}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
             {getFieldDecorator("attr_value", {
               initialValue: data.attr_value || "",
-              rules: [{ required: true, message: "请输入变量值" }],
+              rules: [{ required: true, message: "请输入变量值" }]
             })(<Input placeholder="请输入变量值" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="说明">
             {getFieldDecorator("name", {
               initialValue: data.name || "",
-              rules: [{ required: false, message: "请输入变量说明" }],
+              rules: [{ required: false, message: "请输入变量说明" }]
             })(<Input placeholder="请输入变量说明" />)}
           </FormItem>
         </Form>
