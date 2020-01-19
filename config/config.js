@@ -23,7 +23,7 @@ export default {
   // },
   ignoreMomentLocale: true,
   theme: {
-    "card-actions-background":  defaultSettings.primaryColor, 
+    "card-actions-background":  defaultSettings.primaryColor,
   },
   // env: {
   //   development: {

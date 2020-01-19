@@ -37,16 +37,16 @@ export default [
     authority: ['admin', 'user'],
     routes: [
       // dashboard
-      { path: '/', redirect: '/InitRainbondInfo', authority: ['admin', 'user'] },
-     
-      {
-        path: '/InitRainbondInfo',
-        component: './Index/Index',
-        name: 'InitRainbondInfo',
-        // icon: 'dashboard',
-        authority: ['admin', 'user'],
-        hideInMenu: true,
-      },
+      // { path: '/', redirect: '/team/:team/region/:region/index', authority: ['admin', 'user'] },
+
+      // {
+      //   path: '/InitRainbondInfo',
+      //   component: './Index/Index',
+      //   name: 'InitRainbondInfo',
+      //   // icon: 'dashboard',
+      //   authority: ['admin', 'user'],
+      //   hideInMenu: true,
+      // },
 
 
       //总览

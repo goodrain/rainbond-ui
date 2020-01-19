@@ -10,7 +10,7 @@ const modelNotExisted = (app, model) =>
     ({ namespace }) => namespace === model.substring(model.lastIndexOf("/") + 1)
   );
 
-// wrapper of dynamic
+// wrapper of dynamic 包装器的动态
 const dynamicWrapper = (app, models, component) => {
   // () => require('module') transformed by babel-plugin-dynamic-import-node-sync
   if (component.toString().indexOf(".then(") < 0) {
@@ -111,7 +111,7 @@ export const getRouterData = app => {
         import("../routes/Finance/resources")
       )
     },
-  
+
     "/team/:team/region/:region/message": {
       component: dynamicWrapper(app, ["index"], () =>
         import("../routes/Message/Index")
@@ -319,25 +319,25 @@ export const getRouterData = app => {
     // '/user/:id': {   component: dynamicWrapper(app, [], () =>
     // import('../routes/User/SomeComponent')), },
   };
-  // Get name from ./menu.js or just set it in the router data.
+  // 从。/menu.js中获取名称，或者在路由器数据中设置名称
   const menuData = getFlatMenuData(getMenuData());
 
-  // Route configuration data eg. {name,authority ...routerConfig }
+  // 路由配置数据 {name,authority ...routerConfig }
   const routerData = {};
-  // The route matches the menu
+  // 路线与菜单相匹配
   Object.keys(routerConfig).forEach(path => {
-    // Regular match item name eg.  router /user/:id === /user/chen
+    // 常规匹配项名称如.  router /user/:id === /user/chen
     const pathRegexp = pathToRegexp(path);
     const menuKey = Object.keys(menuData).find(key =>
       pathRegexp.test(`/${key}`)
     );
     let menuItem = {};
-    // If menuKey is not empty
+    // If menuKey is not empty menuKey不为空
     if (menuKey) {
       menuItem = menuData[menuKey];
     }
     let router = routerConfig[path];
-    // If you need to configure complex parameter routing,
+    // If you need to configure complex parameter routing,如果需要配置复杂的参数路由
     // https://github.com/ant-design/ant-design-pro-site/blob/master/docs/router-and
     // -
     // nav.md#%E5%B8%A6%E5%8F%82%E6%95%B0%E7%9A%84%E8%B7%AF%E7%94%B1%E8%8F%9C%E5%8D%

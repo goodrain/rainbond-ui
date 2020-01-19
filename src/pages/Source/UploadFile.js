@@ -14,7 +14,7 @@ import {
   Modal,
   Upload
 } from 'antd';
-import apiconfig from '../../config/api.config';
+import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 
 const token = cookie.get('token');

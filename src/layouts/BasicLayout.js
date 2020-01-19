@@ -23,7 +23,7 @@ import globalUtil from "../utils/global";
 import configureGlobal from "../utils/configureGlobal";
 import cookie from "../utils/cookie";
 import Authorized from "../utils/Authorized";
-import { getMenuData } from "../common/menu";
+import { getMenuData } from "../common/menussss";
 import logo from "../../public/logo.png";
 import OpenRegion from "../components/OpenRegion";
 import CreateTeam from "../components/CreateTeam";
@@ -96,7 +96,9 @@ class BasicLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.getPageTitle = memoizeOne(this.getPageTitle);
-    this.breadcrumbNameMap = getBreadcrumbNameMap(getMenuData());
+    this.breadcrumbNameMap = getBreadcrumbNameMap(
+      getMenuData(this.props.groups)
+    );
     this.state = {
       isMobile,
       isInit: false,
@@ -111,25 +113,24 @@ class BasicLayout extends React.PureComponent {
     };
   }
 
- 
   componentDidMount() {
     this.initRaindbondInfo();
   }
 
-  initRaindbondInfo = () =>{
-   //初始化 获取RainbondInfo信息
-   this.props.dispatch({
-    type: "global/fetchRainbondInfo",
-    callback: info => {
-      if (info) {
-        globalUtil.putLog(info)
-        this.load();
+  initRaindbondInfo = () => {
+    //初始化 获取RainbondInfo信息
+    this.props.dispatch({
+      type: "global/fetchRainbondInfo",
+      callback: info => {
+        if (info) {
+          globalUtil.putLog(info);
+          this.load();
+        }
       }
-    }
-  });
-  }
+    });
+  };
 
-  load = ()=>{
+  load = () => {
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -140,10 +141,7 @@ class BasicLayout extends React.PureComponent {
       this.setState({ market_info: query.market_info });
       this.setState({ showAuthCompany: true });
     }
-  }
-
-
-
+  };
 
   onOpenRegion = () => {
     this.setState({ openRegion: true });
@@ -184,10 +182,10 @@ class BasicLayout extends React.PureComponent {
       }
     });
   };
-  getChildContext=()=> {
+  getChildContext = () => {
     const { location } = this.props;
-    return { location, breadcrumbNameMap:this.breadcrumbNameMap };
-  }
+    return { location, breadcrumbNameMap: this.breadcrumbNameMap };
+  };
 
   fetchUserInfo = () => {
     // 获取用户信息、保存团队和数据中心信息
@@ -210,29 +208,28 @@ class BasicLayout extends React.PureComponent {
       }
     });
   };
+
   getPageTitle = pathname => {
-    // const { routerData, location, rainbondInfo } = this.props;
-    // const { pathname } = location;
-    // let title =
-    //   (rainbondInfo &&
-    //     rainbondInfo.title !== undefined &&
-    //     rainbondInfo.title) ||
-    //   "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
-    // if (routerData[pathname] && routerData[pathname].name) {
-    //   title = `${routerData[pathname].name} - ${title}`;
-    // }
-    let currRouterData = null;
-    Object.keys(this.breadcrumbNameMap).forEach(key => {
-      if (pathToRegexp(key).test(pathname)) {
-        currRouterData = this.breadcrumbNameMap[key];
-      }
-    });
+    const { rainbondInfo } = this.props;
+    let title =
+      (rainbondInfo &&
+        rainbondInfo.title !== undefined &&
+        rainbondInfo.title) ||
+      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
+    const currRouterData = this.matchParamsPath(pathname);
     if (!currRouterData) {
-      return "Ant Design Pro";
+      return `${currRouterData} - ${title}`;
     }
-    return `${currRouterData.name} - Ant Design Pro`;
-    // return title;
+    return title;
   };
+
+  matchParamsPath = pathname => {
+    const pathKey = Object.keys(this.breadcrumbNameMap).find(key =>
+      pathToRegexp(key).test(pathname)
+    );
+    return this.breadcrumbNameMap[pathKey];
+  };
+
   getBaseRedirect = () => {
     // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
     const urlParams = new URL(window.location.href);
@@ -378,8 +375,16 @@ class BasicLayout extends React.PureComponent {
       }
     });
   };
-  render() {
 
+  getContext() {
+    const { location } = this.props;
+    return {
+      location,
+      breadcrumbNameMap: this.breadcrumbNameMap
+    };
+  }
+
+  render() {
     const {
       currentUser,
       collapsed,
@@ -420,152 +425,151 @@ class BasicLayout extends React.PureComponent {
     };
     getMenuData().forEach(getRedirect);
 
-  
-
     const baseRedirect = this.getBaseRedirect();
-    const layout = () => {
-      const team = userUtil.getTeamByTeamName(
-        currentUser,
-        globalUtil.getCurrTeamName()
-      );
-      const hasRegion = !!(team.region && team.region.length);
-      let region = null;
-      let isRegionMaintain = false;
-      if (hasRegion) {
-        region =
-          userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
+    // const layout = () => {
+    // const team = userUtil.getTeamByTeamName(
+    //   currentUser,
+    //   globalUtil.getCurrTeamName()
+    // );
+    // console.log('team',team)
+    // const hasRegion = !!(team.region && team.region.length);
+    // let region = null;
+    // let isRegionMaintain = false;
+    // if (hasRegion) {
+    //   region =
+    //     userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
 
-        isRegionMaintain =
-          region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
-      }
-      // const renderContent = () => {
-      //   // 当前团队没有数据中心
-      //   if (!hasRegion) {
-      //     return (
-      //       <OpenRegion
-      //         mode="card"
-      //         onSubmit={this.handleOpenRegion}
-      //         onCancel={this.cancelOpenRegion}
-      //       />
-      //     );
-      //     return null;
-      //   }
+    //   isRegionMaintain =
+    //     region.region_status === "3" && !userUtil.isSystemAdmin(currentUser);
+    // }
+    // const renderContent = () => {
+    //   // 当前团队没有数据中心
+    //   if (!hasRegion) {
+    //     return (
+    //       <OpenRegion
+    //         mode="card"
+    //         onSubmit={this.handleOpenRegion}
+    //         onCancel={this.cancelOpenRegion}
+    //       />
+    //     );
+    //     return null;
+    //   }
 
-      //   // 数据中心维护中
-      //   if (isRegionMaintain || nouse) {
-      //     return (
-      //       <div style={{ textAlign: "center", padding: "200px 0" }}>
-      //         <Icon
-      //           style={{ fontSize: 40, marginBottom: 32, color: "red" }}
-      //           type="warning"
-      //         />
-      //         <h1
-      //           style={{
-      //             fontSize: 40,
-      //             color: "rgba(0, 0, 0, 0.65)",
-      //             marginBottom: 20
-      //           }}
-      //         >
-      //           {nouse ? "当前授权已过期" : "数据中心维护中"}
-      //         </h1>
-      //         <p
-      //           style={{
-      //             fontSize: 20
-      //           }}
-      //         >
-      //           {nouse
-      //             ? "请联系 010-64666786 获取更多商业服务。"
-      //             : "请稍后访问当前数据中心"}
-      //         </p>
-      //       </div>
-      //     );
-      //   }
+    //   // 数据中心维护中
+    //   if (isRegionMaintain || nouse) {
+    //     return (
+    //       <div style={{ textAlign: "center", padding: "200px 0" }}>
+    //         <Icon
+    //           style={{ fontSize: 40, marginBottom: 32, color: "red" }}
+    //           type="warning"
+    //         />
+    //         <h1
+    //           style={{
+    //             fontSize: 40,
+    //             color: "rgba(0, 0, 0, 0.65)",
+    //             marginBottom: 20
+    //           }}
+    //         >
+    //           {nouse ? "当前授权已过期" : "数据中心维护中"}
+    //         </h1>
+    //         <p
+    //           style={{
+    //             fontSize: 20
+    //           }}
+    //         >
+    //           {nouse
+    //             ? "请联系 010-64666786 获取更多商业服务。"
+    //             : "请稍后访问当前数据中心"}
+    //         </p>
+    //       </div>
+    //     );
+    //   }
 
-      //   return (
-      //     <div>
-      //       {redirectData.map(item => (
-      //         <Redirect key={item.from} exact from={item.from} to={item.to} />
-      //       ))}
-      //       {getRoutes(match.path, routerData).map(item => (
-      //         <AuthorizedRoute
-      //           key={item.key}
-      //           path={item.path}
-      //           component={item.component}
-      //           exact={item.exact}
-      //           authority={item.authority}
-      //           logined
-      //           redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
-      //         />
-      //       ))}
+    //   return (
+    //     <div>
+    //       {redirectData.map(item => (
+    //         <Redirect key={item.from} exact from={item.from} to={item.to} />
+    //       ))}
+    //       {getRoutes(match.path, routerData).map(item => (
+    //         <AuthorizedRoute
+    //           key={item.key}
+    //           path={item.path}
+    //           component={item.component}
+    //           exact={item.exact}
+    //           authority={item.authority}
+    //           logined
+    //           redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
+    //         />
+    //       ))}
 
-      //       <Redirect exact from="/" to={baseRedirect} />
-      //       <Route render={NotFound} />
-      //     </div>
-      //   );
-      // };
+    //       <Redirect exact from="/" to={baseRedirect} />
+    //       <Route render={NotFound} />
+    //     </div>
+    //   );
+    // };
 
-      return (
-        <Layout>
-          {!isRegionMaintain && hasRegion && (
-            <SiderMenu
-              title={
-                rainbondInfo &&
-                rainbondInfo.title !== undefined &&
-                rainbondInfo.title
-              }
-              currentUser={currentUser}
-              logo={
-                (rainbondInfo &&
-                  rainbondInfo.logo !== undefined &&
-                  rainbondInfo.logo) ||
-                logo
-              }
-              Authorized={Authorized}
-              menuData={getMenuData(groups)}
-              completeMenuData={getMenuData(groups, true)}
-              collapsed={collapsed}
-              location={location}
-              isMobile={this.state.isMobile}
-              onCollapse={this.handleMenuCollapse}
-            />
-          )}
+    //   return (
+    //     <Layout>
+    //       {!isRegionMaintain && hasRegion && (
+    //         <SiderMenu
+    //           title={
+    //             rainbondInfo &&
+    //             rainbondInfo.title !== undefined &&
+    //             rainbondInfo.title
+    //           }
+    //           currentUser={currentUser}
+    //           logo={
+    //             (rainbondInfo &&
+    //               rainbondInfo.logo !== undefined &&
+    //               rainbondInfo.logo) ||
+    //             logo
+    //           }
+    //           Authorized={Authorized}
+    //           menuData={getMenuData(groups)}
+    //           completeMenuData={getMenuData(groups, true)}
+    //           collapsed={collapsed}
+    //           location={location}
+    //           isMobile={this.state.isMobile}
+    //           onCollapse={this.handleMenuCollapse}
+    //         />
+    //       )}
 
-          <Layout>
-            <GlobalHeader
-              logo={logo}
-              isPubCloud={
-                rainbondInfo &&
-                rainbondInfo.is_public !== undefined &&
-                rainbondInfo.is_public
-              }
-              notifyCount={notifyCount}
-              currentUser={currentUser}
-              fetchingNotices={fetchingNotices}
-              notices={notices}
-              collapsed={collapsed}
-              isMobile={this.state.isMobile}
-              onNoticeClear={this.handleNoticeClear}
-              onCollapse={this.handleMenuCollapse}
-              onMenuClick={this.handleMenuClick}
-              onTeamClick={this.handleTeamClick}
-              onRegionClick={this.handleRegionClick}
-              onNoticeVisibleChange={this.handleNoticeVisibleChange}
-              currTeam={currTeam}
-              currRegion={currRegion}
-            />
-            <Content
-              style={{
-                margin: "24px 24px 0",
-                height: "100%"
-              }}
-            >
-              {children}
-              {/* {renderContent()} */}
-            </Content>
-          </Layout>
-        </Layout>
-      );
-    };
+    //       <Layout>
+    //         <GlobalHeader
+    //           logo={logo}
+    //           isPubCloud={
+    //             rainbondInfo &&
+    //             rainbondInfo.is_public !== undefined &&
+    //             rainbondInfo.is_public
+    //           }
+    //           notifyCount={notifyCount}
+    //           currentUser={currentUser}
+    //           fetchingNotices={fetchingNotices}
+    //           notices={notices}
+    //           collapsed={collapsed}
+    //           isMobile={this.state.isMobile}
+    //           onNoticeClear={this.handleNoticeClear}
+    //           onCollapse={this.handleMenuCollapse}
+    //           onMenuClick={this.handleMenuClick}
+    //           onTeamClick={this.handleTeamClick}
+    //           onRegionClick={this.handleRegionClick}
+    //           onNoticeVisibleChange={this.handleNoticeVisibleChange}
+    //           currTeam={currTeam}
+    //           currRegion={currRegion}
+    //         />
+    //         <Content
+    //           style={{
+    //             margin: "24px 24px 0",
+    //             height: "100%"
+    //           }}
+    //         >
+    //           {children}
+    //           {/* {renderContent()} */}
+    //         </Content>
+    //       </Layout>
+    //     </Layout>
+    //   );
+    // };
 
     return (
       <Fragment>
@@ -578,12 +582,16 @@ class BasicLayout extends React.PureComponent {
           >
             <InitTeamAndRegionData key={currTeam + currRegion}>
               <ContainerQuery query={query}>
-                {params => <div className={classNames(params)}>{layout()}</div>}
+                {params => (
+                  <Context.Provider value={this.getContext()}>
+                    <div className={classNames(params)}>{layout}</div>
+                  </Context.Provider>
+                )}
               </ContainerQuery>
             </InitTeamAndRegionData>
           </CheckUserInfo>
         </DocumentTitle>
-        {this.state.openRegion && (
+        {/* {this.state.openRegion && (
           <OpenRegion
             onSubmit={this.handleOpenRegion}
             onCancel={this.cancelOpenRegion}
@@ -632,7 +640,7 @@ class BasicLayout extends React.PureComponent {
               this.props.dispatch(routerRedux.replace(jumpPath + query));
             }}
           />
-        )}
+        )} */}
       </Fragment>
     );
   }

@@ -7,7 +7,7 @@ export default class Index extends React.PureComponent {
   componentWillMount() {
     const currTeam = globalUtil.getCurrTeamName();
     const currRegion = globalUtil.getCurrRegionName();
-    // 获取群组
+    // 获取 数据中心列表
     this.props.dispatch({
       type: "global/fetchGroups",
       payload: {
@@ -35,6 +35,7 @@ export default class Index extends React.PureComponent {
   componentWillUnmount() {}
   render() {
     const { children } = this.props;
-    return children;
+    // return children;
+    return <div>222</div>;
   }
 }

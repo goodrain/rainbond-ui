@@ -9,7 +9,7 @@ import {
 import cookie from "../utils/cookie";
 
 export default {
-  namespace: "team",
+  namespace: "index",
   state: {
     // 总览信息
     overviewInfo: {},
