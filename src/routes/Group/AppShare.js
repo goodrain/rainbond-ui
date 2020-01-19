@@ -523,6 +523,9 @@ export default class Main extends PureComponent {
               );
               this.getSaremarkets();
             } else {
+              this.setState({
+                internalValue: share_group_info.scope
+              });
               isnext && this.getShareList();
             }
             if (share_group_info.pic) {
@@ -994,7 +997,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const info = this.state.info;
+    const { info } = this.state;
     if (!info) {
       return null;
     }
