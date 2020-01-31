@@ -122,6 +122,7 @@ export default {
         // parameters in the url const redirect = urlParams.searchParams.get('redirect',
         // pathname); yield put(routerRedux.push('/index'));
         cookie.set("token", response.bean.token);
+        yield put(routerRedux.push("/"));
         window.location.reload();
       }
     },
@@ -138,9 +139,9 @@ export default {
       try {
         // get location pathname
         const urlParams = new URL(window.location.href);
-        const pathname = yield select(state => state.routing.location.pathname);
+        // const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
-        urlParams.searchParams.set("redirect", pathname);
+        // urlParams.searchParams.set("redirect", pathname);
         window.history.replaceState(null, "login", urlParams.href);
       } finally {
         // yield put(routerRedux.push('/user/login')); Login out after permission
@@ -150,7 +151,7 @@ export default {
 
         yield put({ type: "saveCurrentUser", payload: null });
 
-        window.location.reload();
+        yield put(routerRedux.push("/user/login"));
       }
     },
     *register({ payload, complete }, { call, put, select }) {
@@ -163,10 +164,11 @@ export default {
         cookie.set("token", response.bean.token);
 
         const urlParams = new URL(window.location.href);
-        const pathname = yield select(state => state.routing.location.pathname);
+        // const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
-        const redirect = urlParams.searchParams.get("redirect", pathname);
+        // const redirect = urlParams.searchParams.get("redirect", pathname);
         yield put({ type: "registerHandle", payload: response.bean, redirect });
+        yield put(routerRedux.push("/"));
 
         // yield put(routerRedux.push(redirect || '/index')); window.location.reload();
       }

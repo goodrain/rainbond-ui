@@ -115,8 +115,6 @@ export const getMenuData = (groups, is_complete) => {
   const menus = formatter(menuData());
 
   if (groups && groups.length) {
-  console.log('groups',groups)
-
     for (let i = 0; i < menus.length; i++) {
       const item = menus[i];
 

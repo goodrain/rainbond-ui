@@ -37,16 +37,16 @@ export default [
     authority: ['admin', 'user'],
     routes: [
       // dashboard
-      // { path: '/', redirect: '/team/:team/region/:region/index', authority: ['admin', 'user'] },
+      { path: '/', redirect: '/InitRainbondInfo', authority: ['admin', 'user'] },
 
-      // {
-      //   path: '/InitRainbondInfo',
-      //   component: './Index/Index',
-      //   name: 'InitRainbondInfo',
-      //   // icon: 'dashboard',
-      //   authority: ['admin', 'user'],
-      //   hideInMenu: true,
-      // },
+      {
+        path: '/InitRainbondInfo',
+        component: '../layouts/BasicLayout',
+        name: 'InitRainbondInfo',
+        // icon: 'dashboard',
+        authority: ['admin', 'user'],
+        hideInMenu: true,
+      },
 
 
       //总览
@@ -341,37 +341,6 @@ export default [
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-      // 监控数据中心
-      // {
-      //   path: '/monitoring/regions/:regionID',
-      //   name: 'monitoring',
-      //   // icon: 'monitoringCenter',
-      //   component: './MonitoringCenter/index',
-      //   hideInMenu: true,
-      //   manage: true,
-      //   authority: ['admin', 'user'],
-      //   routes: [
-      //     {
-      //       path: '/monitoring/regions/:regionID/cluster/:type/:nodeID',
-      //       name: 'cluster',
-      //       component: './MonitoringCenter/Cluster',
-      //       authority: ['admin', 'user'],
-      //     },
-      //     {
-      //       path: '/monitoring/regions/:regionID/tenants',
-      //       name: 'tenants',
-      //       component: './MonitoringCenter/Tenant',
-      //       authority: ['admin', 'user'],
-      //     },
-      //     {
-      //       path:
-      //         '/monitoring/regions/:regionID/tenants/:tenantId/container/:containerId/podId/:podId/:type',
-      //       name: 'tenant',
-      //       component: './MonitoringCenter/Tenant/component',
-      //       authority: ['admin', 'user'],
-      //     },
-      //   ],
-      // },
     ],
   },
 ];
