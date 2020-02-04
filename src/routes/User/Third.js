@@ -4,6 +4,8 @@ import { routerRedux } from "dva/router";
 import rainbondUtil from "../../utils/rainbond";
 import cookie from "../../utils/cookie";
 import Result from "../../components/Result";
+import { message } from "antd";
+
 @connect(({ loading, global }) => ({
   rainbondInfo: global.rainbondInfo
 }))
@@ -20,7 +22,14 @@ export default class ThirdLogin extends Component {
     let code = rainbondUtil.OauthParameter("code");
     let service_id = rainbondUtil.OauthParameter("service_id");
     const { dispatch } = this.props;
-    if (code && service_id && code!="None" && service_id!="None" && code!="" && service_id!="") {
+    if (
+      code &&
+      service_id &&
+      code != "None" &&
+      service_id != "None" &&
+      code != "" &&
+      service_id != ""
+    ) {
       const token = cookie.get("token");
       const teamName = cookie.get("region_name");
       const regionName = cookie.get("team");
@@ -64,13 +73,20 @@ export default class ThirdLogin extends Component {
                 }
               );
             }
+          },
+          handleError: res => {
+            if (res && res.status === 500) {
+              message.warning("第三方认证失败，请重新认证", 1, () => {
+                this.props.dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
+              });
+            }
           }
         });
         return null;
       }
 
       //if not login
-      
+
       dispatch({
         type: "user/fetchThirdCertification",
         payload: {
@@ -86,7 +102,7 @@ export default class ThirdLogin extends Component {
                 desc: "未成功获取access_token,请重新认证。"
               },
               () => {
-                dispatch(routerRedux.push(`/user/login`));
+                dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
               }
             );
           } else if (res && res._code === 200) {
@@ -122,10 +138,19 @@ export default class ThirdLogin extends Component {
               }
             }
           }
+        },
+        handleError: res => {
+          if (res && res.status === 500) {
+            message.warning("第三方认证失败，请重新认证", 1, () => {
+              this.props.dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
+            });
+          }
         }
       });
-    }else{
-      this.props.dispatch(routerRedux.replace("/user/login?disable_auto_login=true"));
+    } else {
+      this.props.dispatch(
+        routerRedux.replace("/user/login?disable_auto_login=true")
+      );
     }
   }
 
