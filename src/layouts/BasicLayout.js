@@ -29,6 +29,8 @@ import OpenRegion from "../components/OpenRegion";
 import CreateTeam from "../components/CreateTeam";
 import JoinTeam from "../components/JoinTeam";
 import Loading from "../components/Loading";
+
+import GlobalRouter from "../components/GlobalRouter";
 import ChangePassword from "../components/ChangePassword";
 import AuthCompany from "../components/AuthCompany";
 
@@ -248,7 +250,7 @@ class BasicLayout extends React.PureComponent {
       urlParams.searchParams.delete("redirect");
       window.history.replaceState(null, "redirect", urlParams.href);
     } else {
-      return "/index";
+      return "/enterprise";
     }
     return redirect;
   };
@@ -313,7 +315,7 @@ class BasicLayout extends React.PureComponent {
       currRegionName = selectRegionName;
     }
     this.props.dispatch(
-      routerRedux.push(`/team/${key}/region/${currRegionName}/index`)
+      routerRedux.push(`/team/${key}/region/${currRegionName}/enterprise`)
     );
     // location.reload();
   };
@@ -325,7 +327,7 @@ class BasicLayout extends React.PureComponent {
     }
     this.props.dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
+        `/team/${globalUtil.getCurrTeamName()}/region/${key}/enterprise`
       )
     );
     // location.reload();
@@ -371,7 +373,7 @@ class BasicLayout extends React.PureComponent {
           callback: () => {
             this.props.dispatch(
               routerRedux.replace(
-                `/team/${team_name}/region/${regions[0]}/index`
+                `/team/${team_name}/region/${regions[0]}/enterprise`
               )
             );
           }
@@ -431,6 +433,7 @@ class BasicLayout extends React.PureComponent {
       />
     );
   };
+
   render() {
     const {
       currentUser,
@@ -599,7 +602,10 @@ class BasicLayout extends React.PureComponent {
               onCollapse={this.handleMenuCollapse}
             />
           )}
-
+          <GlobalRouter
+            collapsed={collapsed}
+            onCollapse={this.handleMenuCollapse}
+          />
           <Layout>
             <GlobalHeader
               logo={logo}

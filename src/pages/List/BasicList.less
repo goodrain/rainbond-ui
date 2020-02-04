@@ -1,74 +1,186 @@
 @import "~antd/lib/style/themes/default.less";
 @import "../../utils/utils.less";
 
+.enterpriseInfo {
+  display      : flex;
+  align-items  : center;
+  font-size    : 14px;
+  margin-bottom: 38px;
+}
+
+.enterpriseName {
+  font-family   : PingFangSC-Medium;
+  font-size     : 12px;
+  color         : #333333;
+  letter-spacing: 0;
+  margin-bottom : 12px;
+}
+
+.enterpriseBox {
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #79828F;
+  letter-spacing: 0;
+  margin-bottom : 34px;
+}
+
 .standardList {
   :global {
     .ant-card-head {
       border-bottom: none;
     }
+
     .ant-card-head-title {
       line-height: 32px;
-      padding: 24px 0;
+      padding    : 24px 0;
     }
+
     .ant-card-extra {
       padding: 24px 0;
     }
+
     .ant-list-pagination {
       text-align: right;
       margin-top: 24px;
     }
+
     .ant-avatar-lg {
-      width: 48px;
-      height: 48px;
+      width      : 48px;
+      height     : 48px;
       line-height: 48px;
     }
   }
+
   .headerInfo {
-    position: relative;
+    position  : relative;
     text-align: center;
-    & > span {
-      color: @text-color-secondary;
-      display: inline-block;
-      font-size: @font-size-base;
-      line-height: 22px;
+
+    &>span {
+      color        : @text-color-secondary;
+      display      : inline-block;
+      font-size    : @font-size-base;
+      line-height  : 22px;
       margin-bottom: 4px;
     }
-    & > p {
-      color: @heading-color;
-      font-size: 24px;
+
+    &>p {
+      color      : @heading-color;
+      font-size  : 24px;
       line-height: 32px;
-      margin: 0;
+      margin     : 0;
     }
-    & > em {
+
+    &>em {
       background-color: @border-color-split;
-      position: absolute;
-      height: 56px;
-      width: 1px;
-      top: 0;
-      right: 0;
+      position        : absolute;
+      height          : 56px;
+      width           : 1px;
+      top             : 0;
+      right           : 0;
     }
   }
+
   .listContent {
     font-size: 0;
+
     .listContentItem {
-      color: @text-color-secondary;
-      display: inline-block;
+      color         : @text-color-secondary;
+      display       : inline-block;
       vertical-align: middle;
-      font-size: @font-size-base;
-      margin-left: 40px;
-      > span {
+      font-size     : @font-size-base;
+      margin-left   : 40px;
+
+      >span {
         line-height: 20px;
       }
-      > p {
-        margin-top: 4px;
+
+      >p {
+        margin-top   : 4px;
         margin-bottom: 0;
-        line-height: 22px;
+        line-height  : 22px;
       }
     }
   }
+
   .extraContentSearch {
     margin-left: 16px;
-    width: 272px;
+    width      : 272px;
+  }
+}
+
+.buttonBjNot {
+  background: #7983AD;
+  color     : #ffffff;
+}
+
+.teamBox {
+  height     : 40px;
+  line-height: 1px;
+}
+
+.teamTit {
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #8D9BAD;
+  letter-spacing: 0;
+}
+
+.grays {
+  color: #444444;
+}
+
+.addTeam {
+  background   : #E3E8FF;
+  height       : 44px;
+  width        : 44px;
+  border-radius: 50%;
+  line-height  : 44px;
+  text-align   : center;
+}
+
+.Box {
+
+  list-style: none;
+  text-align: center;
+
+  li {
+    color         : #8D9BAD;
+    font-family   : PingFangSC-Medium;
+    letter-spacing: 0;
+  }
+
+  li:nth-of-type(1) {
+    display        : flex;
+    justify-content: center;
+    margin-top     : 14px;
+
+    div {
+      width          : 68px;
+      height         : 68px;
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      background     : #E3E8FF;
+      border-radius  : 50%;
+      box-shadow     : 0 2px 4px 0 rgba(216, 116, 146, 0.07);
+    }
+  }
+
+  li:nth-of-type(2) {
+    font-size: 26px;
+    color    : #333333;
+    margin   : 12px 0 4px 0;
+  }
+
+  li:nth-of-type(3) {
+    font-size    : 12px;
+    margin-bottom: 16px;
+  }
+}
+
+:global {
+  .ant-btn-primary {
+    background-color: #3D58DA;
   }
 }
 
@@ -77,19 +189,23 @@
     :global {
       .ant-list-item-content {
         display: block;
-        flex: none;
-        width: 100%;
+        flex   : none;
+        width  : 100%;
       }
+
       .ant-list-item-action {
         margin-left: 0;
       }
     }
+
     .listContent {
       margin-left: 0;
-      & > div {
+
+      &>div {
         margin-left: 0;
       }
     }
+
     .listCard {
       :global {
         .ant-card-head-title {
@@ -104,11 +220,13 @@
   .standardList {
     .extraContentSearch {
       margin-left: 0;
-      width: 100%;
+      width      : 100%;
     }
+
     .headerInfo {
       margin-bottom: 16px;
-      & > em {
+
+      &>em {
         display: none;
       }
     }
@@ -118,19 +236,21 @@
 @media screen and (max-width: @screen-md) {
   .standardList {
     .listContent {
-      & > div {
+      &>div {
         display: block;
       }
-      & > div:last-child {
-        top: 0;
+
+      &>div:last-child {
+        top  : 0;
         width: 100%;
       }
     }
   }
+
   .listCard {
     :global {
       .ant-radio-group {
-        display: block;
+        display      : block;
         margin-bottom: 8px;
       }
     }
@@ -140,11 +260,12 @@
 @media screen and (max-width: @screen-lg) and (min-width: @screen-md) {
   .standardList {
     .listContent {
-      & > div {
+      &>div {
         display: block;
       }
-      & > div:last-child {
-        top: 0;
+
+      &>div:last-child {
+        top  : 0;
         width: 100%;
       }
     }
@@ -154,10 +275,11 @@
 @media screen and (max-width: @screen-xl) {
   .standardList {
     .listContent {
-      & > div {
+      &>div {
         margin-left: 24px;
       }
-      & > div:last-child {
+
+      &>div:last-child {
         top: 0;
       }
     }
@@ -168,7 +290,8 @@
   .standardList {
     .listContent {
       text-align: right;
-      & > div:last-child {
+
+      &>div:last-child {
         top: 0;
       }
     }

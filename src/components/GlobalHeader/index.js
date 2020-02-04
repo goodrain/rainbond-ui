@@ -416,12 +416,6 @@ export default class GlobalHeader extends PureComponent {
           </Link>,
           <Divider type="vertical" key="line" />
         ]}
-        <Icon
-          className={styles.trigger}
-          type={collapsed ? "menu-unfold" : "menu-fold"}
-          onClick={this.toggle}
-        />
-
         <div className={styles.teamregion}>
           <span className={styles.tit}>团队:</span>
           <Dropdown overlay={this.renderTeams()}>

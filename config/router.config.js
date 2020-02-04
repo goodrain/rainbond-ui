@@ -66,6 +66,13 @@ export default [
         authority: ['admin', 'user'],
         // hideInMenu: true,
       },
+      {
+        path: '/team/:team/region/:region/enterprise',
+        component: './Enterprise',
+        name: 'Enterprise',
+        // icon: 'dashboard',
+        authority: ['admin', 'user'],
+      },
 
       {
         path: '/team/:team/region/:region/finance',

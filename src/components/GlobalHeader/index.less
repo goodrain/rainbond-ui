@@ -2,7 +2,7 @@
 
 .header {
   padding   : 0 12px 0 0;
-  background: #fff;
+  background: #374551;
   box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
   position  : relative;
 }
@@ -142,16 +142,15 @@ i.trigger {
   display       : inline-block;
   vertical-align: middle;
   overflow      : hidden;
-  border-left   : 1px solid #e6e6e6;
-  border-right  : 1px solid #e6e6e6;
   padding       : 0 35px 0 35px;
 
   .tit {
     margin-right: 10px;
-    color       : #929292;
+    color       : #ffffff;
   }
 
   .dropdown {
+    color: #fff;
     cursor: pointer;
   }
 }
@@ -231,6 +230,7 @@ i.trigger {
 
 @media only screen and (max-width: @screen-md) {
   .header {
+    background: #374551;
     :global(.ant-divider-vertical) {
       vertical-align: unset;
     }
