@@ -858,13 +858,64 @@ export async function getEnterpriseInfo(param) {
 /* 查询企业信息 */
 export async function fetchEnterpriseInfo(param) {
   return request(
-    // `${apiconfig.baseUrl}/enterprise/${param.enterprise_id}/info`,
-    `http://doc.goodrain.org/mock/18/enterprise/{enterprise_id}/info`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/info`,
+    // `http://doc.goodrain.org/mock/18/enterprise/{enterprise_id}/info`,
     {
     method: "get",
   });
 }
 
+
+/* 查询企业列表 */
+export async function fetchEnterpriseList() {
+  return request(
+    // `http://doc.goodrain.org/mock/18/enterprises`,
+    `${apiconfig.baseUrl}/console/enterprises`,
+    {
+    method: "get",
+  });
+}
+
+
+/* 查询企业下组件 应用下信息 */
+export async function fetchOverviewApp(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview/app`,
+    {
+    method: "get",
+  });
+}
+
+
+
+/* 查询企业下的组件 团队 用户数量 */
+export async function fetchOverview(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview`,
+    {
+    method: "get",
+  });
+}
+
+
+/* 查询企业下团队信息 */
+export async function fetchOverviewTeam(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview/team`,
+    {
+    method: "get",
+  });
+}
+
+
+/* 查询企业下监控 */
+export async function fetchOverviewMonitor(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/monitor`,
+    {
+    method: "get",
+  });
+}
 
 /* 查询企业信息 */
 export async function getEnterpriseTeams(

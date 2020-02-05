@@ -42,6 +42,13 @@ import {
   getRegist,
   getEnterpriseInfo,
   fetchEnterpriseInfo,
+
+  fetchOverviewApp,
+  fetchOverview,
+  fetchOverviewTeam,
+  fetchOverviewMonitor,
+
+  fetchEnterpriseList,
   getEnterpriseTeams,
   queryOauthInfo,
   deleteOauth,
@@ -479,6 +486,43 @@ export default {
         callback && callback(response);
       }
     },
+
+    *fetchEnterpriseList({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseList, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+
+    *fetchOverviewApp({ payload, callback }, { put, call }) {
+      const response = yield call(fetchOverviewApp, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *fetchOverview({ payload, callback }, { put, call }) {
+      const response = yield call(fetchOverview, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *fetchOverviewTeam({ payload, callback }, { put, call }) {
+      const response = yield call(fetchOverviewTeam, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *fetchOverviewMonitor({ payload, callback }, { put, call }) {
+      const response = yield call(fetchOverviewMonitor, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
 
     *getEnterpriseTeams({ payload, callback }, { put, call }) {
       const response = yield call(getEnterpriseTeams, payload);

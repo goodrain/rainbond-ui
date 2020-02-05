@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
 import {
   Layout,
   Menu,
@@ -9,31 +9,31 @@ import {
   Avatar,
   Divider,
   Tooltip,
-  Modal
-} from "antd";
-import { connect } from "dva";
-import Ellipsis from "../Ellipsis";
-import moment from "moment";
-import groupBy from "lodash/groupBy";
-import Debounce from "lodash-decorators/debounce";
-import { Link } from "dva/router";
-import NoticeIcon from "../NoticeIcon";
-import styles from "./index.less";
-import oauthUtil from "../../utils/oauth";
-import userIcon from "../../../public/images/user-icon-small.png";
-import teamUtil from "../../utils/team";
-import globalUtil from "../../utils/global";
-import rainbondUtil from "../../utils/rainbond";
-import Gitee from "../../../public/images/gitee.png";
-import Github from "../../../public/images/github.png";
-import Gitlab from "../../../public/images/gitlab.png";
+  Modal,
+} from 'antd';
+import { connect } from 'dva';
+import Ellipsis from '../Ellipsis';
+import moment from 'moment';
+import groupBy from 'lodash/groupBy';
+import Debounce from 'lodash-decorators/debounce';
+import { Link , routerRedux } from 'dva/router';
+import NoticeIcon from '../NoticeIcon';
+import styles from './index.less';
+import oauthUtil from '../../utils/oauth';
+import userIcon from '../../../public/images/user-icon-small.png';
+import teamUtil from '../../utils/team';
+import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
+import Gitee from '../../../public/images/gitee.png';
+import Github from '../../../public/images/github.png';
+import Gitlab from '../../../public/images/gitlab.png';
 
-import { routerRedux } from "dva/router";
+
 
 class DialogMessage extends PureComponent {
   constructor(props) {
     super(props);
-    this.modal = "";
+    this.modal = '';
   }
   componentDidMount() {
     this.loadin(this.props.data);
@@ -52,20 +52,20 @@ class DialogMessage extends PureComponent {
       const ids = data.map(item => item.ID);
 
       this.props.dispatch({
-        type: "global/putMsgAction",
+        type: 'global/putMsgAction',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
-          msg_ids: ids.join(","),
-          action: "mark_read"
+          msg_ids: ids.join(','),
+          action: 'mark_read',
         },
-        callback: data => {}
+        callback: data => {},
       });
 
       this.modal = Modal.info({
         title: data[0].title,
-        okText: "知道了",
+        okText: '知道了',
         width: 500,
-        style: { left: "-100px" },
+        style: { left: '-100px' },
         onOk: () => {
           this.gbdd();
           this.props.onCancel();
@@ -73,9 +73,9 @@ class DialogMessage extends PureComponent {
         content: (
           <div
             dangerouslySetInnerHTML={{ __html: data[0].content }}
-            style={{ whiteSpace: "pre-wrap" }}
+            style={{ whiteSpace: 'pre-wrap' }}
           />
-        )
+        ),
       });
     }
   };
@@ -87,13 +87,13 @@ class DialogMessage extends PureComponent {
 const { Header } = Layout;
 
 const noticeTit = {
-  公告: "announcement",
-  消息: "news",
-  提醒: "warn"
+  公告: 'announcement',
+  消息: 'news',
+  提醒: 'warn',
 };
 @connect(({ global, appControl }) => ({
   rainbondInfo: global.rainbondInfo,
-  appDetail: appControl.appDetail
+  appDetail: appControl.appDetail,
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -103,11 +103,11 @@ export default class GlobalHeader extends PureComponent {
       noticeList: [],
       total: 0,
       pageSize: 1000,
-      msg_type: "",
+      msg_type: '',
       popupVisible: false,
-      msg_ids: "",
+      msg_ids: '',
       newNoticeList: {},
-      showDialogMessage: null
+      showDialogMessage: null,
     };
   }
   componentDidMount() {
@@ -122,7 +122,7 @@ export default class GlobalHeader extends PureComponent {
     }
     const newNotices = notices.map(notice => {
       const newNotice = {
-        ...notice
+        ...notice,
       };
       if (newNotice.create_time) {
         newNotice.datetime = moment(notice.create_time).fromNow();
@@ -139,7 +139,7 @@ export default class GlobalHeader extends PureComponent {
       }
       return newNotice;
     });
-    return groupBy(newNotices, "msg_type");
+    return groupBy(newNotices, 'msg_type');
   }
   handleVisibleChange = flag => {
     this.setState({ popupVisible: flag, total: 0 }, () => {});
@@ -153,18 +153,18 @@ export default class GlobalHeader extends PureComponent {
   };
   getuserMessage = (page_num, page_size, msg_type, is_read) => {
     this.props.dispatch({
-      type: "global/getuserMessage",
+      type: 'global/getuserMessage',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num: 1,
         page_size: this.state.pageSize,
         msg_type: this.state.msg_type,
-        is_read: 0
+        is_read: 0,
       },
       callback: data => {
         if (data) {
           const datalist = data.list;
-          let ids = "";
+          let ids = '';
           datalist.map(order => {
             ids += `${order.ID},`;
           });
@@ -178,8 +178,8 @@ export default class GlobalHeader extends PureComponent {
               noticeList: data.list,
               msg_ids: ids,
               showDialogMessage: data.list.filter(
-                item => item.level === "high" && item.is_read === false
-              )
+                item => item.level === 'high' && item.is_read === false
+              ),
             },
             () => {
               const newNotices = this.getNoticeData(this.state.noticeList);
@@ -187,7 +187,7 @@ export default class GlobalHeader extends PureComponent {
             }
           );
         }
-      }
+      },
     });
   };
 
@@ -199,8 +199,8 @@ export default class GlobalHeader extends PureComponent {
   @Debounce(600)
   triggerResizeEvent() {
     // eslint-disable-line
-    const event = document.createEvent("HTMLEvents");
-    event.initEvent("resize", true, false);
+    const event = document.createEvent('HTMLEvents');
+    event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
   renderTeams = () => {
@@ -269,7 +269,7 @@ export default class GlobalHeader extends PureComponent {
     if (team) {
       return team.team_alias;
     }
-    return "";
+    return '';
   }
   getCurrRegionTit() {
     const { currRegion } = this.props;
@@ -284,7 +284,7 @@ export default class GlobalHeader extends PureComponent {
       }
     }
 
-    return "";
+    return '';
   }
   onhandleThird = (
     oauth_type,
@@ -297,9 +297,9 @@ export default class GlobalHeader extends PureComponent {
     const gitlabUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
     const giteeUrl = `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
     window.location.href =
-      oauth_type === "github"
+      oauth_type === 'github'
         ? githubUrl
-        : oauth_type === "gitlab"
+        : oauth_type === 'gitlab'
         ? gitlabUrl
         : giteeUrl;
   };
@@ -312,7 +312,7 @@ export default class GlobalHeader extends PureComponent {
       logo,
       onMenuClick,
       isPubCloud,
-      rainbondInfo
+      rainbondInfo,
     } = this.props;
     const noticesList = this.state.newNoticeList;
     if (!currentUser) {
@@ -334,34 +334,34 @@ export default class GlobalHeader extends PureComponent {
         <Menu selectedKeys={[]} onClick={onMenuClick}>
           {rainbondUtil.OauthbEnable(rainbondInfo) &&
             currentUser.oauth_services &&
-            currentUser.oauth_services.length > 0 &&(
-            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
-          )}
+            currentUser.oauth_services.length > 0 && (
+              <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+            )}
           {rainbondUtil.OauthbEnable(rainbondInfo) &&
             currentUser.oauth_services &&
             currentUser.oauth_services.length > 0 &&
             currentUser.oauth_services.map(item => {
-              const {
-                service_name,
-                is_authenticated,
-                is_expired,
-              } = item;
-              const authURL = oauthUtil.getAuthredictURL(item)
+              const { service_name, is_authenticated, is_expired } = item;
+              const authURL = oauthUtil.getAuthredictURL(item);
               return (
-                <Menu.Item
-                  key={service_name}
-                >
+                <Menu.Item key={service_name}>
                   <div className={styles.userInfoContent}>
                     <span className={styles.oneSpan} title={service_name}>
-                      {oauthUtil.getIcon(item,"16px")}
+                      {oauthUtil.getIcon(item, '16px')}
                       {service_name}
                     </span>
                     <span>
-                      {is_authenticated
-                        ? <span style={{"color":"green"}}>已认证</span>
-                        : is_expired
-                        ? <a href={authURL} target="_blank">已过期重新认证</a>
-                        : <a href={authURL} target="_blank">去认证</a>}
+                      {is_authenticated ? (
+                        <span style={{ color: 'green' }}>已认证</span>
+                      ) : is_expired ? (
+                        <a href={authURL} target="_blank">
+                          已过期重新认证
+                        </a>
+                      ) : (
+                        <a href={authURL} target="_blank">
+                          去认证
+                        </a>
+                      )}
                     </span>
                   </div>
                 </Menu.Item>
@@ -376,10 +376,10 @@ export default class GlobalHeader extends PureComponent {
                 <Icon
                   component={handleEditSvg}
                   style={{
-                    marginRight: 8
+                    marginRight: 8,
                   }}
-                />{" "}
-                修改密码{" "}
+                />{' '}
+                修改密码{' '}
               </div>
             </Menu.Item>
           )}
@@ -388,7 +388,7 @@ export default class GlobalHeader extends PureComponent {
               <Icon
                 component={handleLogoutSvg}
                 style={{
-                  marginRight: 8
+                  marginRight: 8,
                 }}
               />
               退出登录
@@ -407,18 +407,18 @@ export default class GlobalHeader extends PureComponent {
             key="logo"
             width="40"
             style={{
-              width: "65px",
-              display: "inline-block",
-              overflow: "hidden"
+              width: '65px',
+              display: 'inline-block',
+              overflow: 'hidden',
             }}
           >
             <img src={logo} alt="logo" />
           </Link>,
-          <Divider type="vertical" key="line" />
+          <Divider type="vertical" key="line" />,
         ]}
 
         <div className={styles.teamregion}>
-          <span  className={styles.tit}>w4zkqitv</span>
+          <span className={styles.tit}>{rainbondInfo.enterprise_name}</span>
         </div>
         {/* <div className={styles.teamregion}>
           <span className={styles.tit}>团队:</span>
@@ -479,7 +479,7 @@ export default class GlobalHeader extends PureComponent {
 
           <NoticeIcon
             count={this.state.total}
-            className="notice-icon"
+            className={styles.noticeIcon}
             popupVisible={this.state.popupVisible}
             onPopupVisibleChange={this.handleVisibleChange}
             onClear={this.onClear}
@@ -515,7 +515,7 @@ export default class GlobalHeader extends PureComponent {
             <Spin
               size="small"
               style={{
-                marginLeft: 8
+                marginLeft: 8,
               }}
             />
           )}

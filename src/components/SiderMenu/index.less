@@ -1,51 +1,87 @@
 @import "~antd/lib/style/themes/default.less";
 @ease-in-out-circ: cubic-bezier(.78, .14, .15, .86);
 
-.logo {
-  height: 64px;
-  position: relative;
-  line-height: 64px;
-  padding-left: (@menu-collapsed-width - 32px) / 2;
-  transition: all 0.3s;
-  background: #002140;
-  overflow: hidden;
-  img {
-    display: inline-block;
-    vertical-align: middle;
-    max-height: 50px;
+.viewContent {
+  padding-left: 42px;
+  padding-top : 27px;
+
+  .tit {
+    font-family   : PingFangSC-Medium;
+    font-size     : 16px;
+    color         : #BCC7D2;
+    letter-spacing: 0.5px;
+    margin-bottom : 16px;
   }
-  h1 {
-    color: white;
-    display: inline-block;
+
+  .con {
+    font-family   : PingFangSC-Regular;
+    font-size     : 14px;
+    color         : #FFFFFF;
+    letter-spacing: 0.88px;
+    margin-bottom : 15px;
+    cursor: pointer;
+  }
+}
+
+.logo {
+  height      : 64px;
+  position    : relative;
+  line-height : 64px;
+  padding-left: (@menu-collapsed-width + 4px) / 2;
+  transition  : all 0.3s;
+  background  : #2b3844;
+  overflow    : hidden;
+
+  .viewTit {
+    font-family   : PingFangSC-Regular;
+    font-size     : 18px;
+    color         : #FFFFFF;
+    letter-spacing: 0.56px;
+  }
+
+
+  img {
+    display       : inline-block;
     vertical-align: middle;
-    font-size: 20px;
-    margin: 0 0 0 12px;
-    font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    font-weight: 600;
+    max-height    : 50px;
+  }
+
+  h1 {
+    color         : white;
+    display       : inline-block;
+    vertical-align: middle;
+    font-size     : 20px;
+    margin        : 0 0 0 12px;
+    font-family   : 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight   : 600;
   }
 }
 
 .sider {
   min-height: 100vh;
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
-  position: relative;
-  z-index: 10;
+  position  : relative;
+  z-index   : 10;
 }
 
 .icon {
-  width: 14px;
+  width       : 14px;
   margin-right: 10px;
 }
 
 :global {
-  .drawer .drawer-content {
-    background: #001529;
+
+  .drawer .drawer-content,
+  .ant-layout-sider {
+    background: #2b3844 !important;
   }
+
   .ant-menu-sub {
-      max-height: 600px;
-      overflow-y: auto;
-      .ant-menu-sub {
-          max-height: none;
-      }
+    max-height: 600px;
+    overflow-y: auto;
+
+    .ant-menu-sub {
+      max-height: none;
+    }
   }
 }

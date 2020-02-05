@@ -18,6 +18,8 @@ import globalUtil from '../../utils/global';
 import Addimg from '../../../public/images/add.png';
 import TeamListTable from '../../components/tables/TeamListTable';
 import userUtil from '../../utils/user';
+import sourceUnit from '../../utils/source-unit';
+
 import ScrollerX from '../../components/ScrollerX';
 import CreateTeam from '../../components/CreateTeam';
 import DescriptionList from '../../components/DescriptionList';
@@ -82,6 +84,19 @@ export default class Enterprise extends PureComponent {
       showDeleteDomain: false,
       israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
       enterpriseInfo: false,
+      enterpriseInfoLoading:true,
+      enterpriseList: [],
+      overviewAppInfo: false,
+      overviewInfo: false,
+      overviewTeamInfo: false,
+
+
+
+      overviewAppInfoLoading :true,
+      overviewInfoLoading:true,
+      overviewTeamInfoLoading:true,
+      overviewMonitorInfoLoading:true,
+
     };
   }
   componentDidMount() {
@@ -99,18 +114,140 @@ export default class Enterprise extends PureComponent {
       callback: () => {},
     });
 
+    this.getEnterpriseList();
+
+    this.loadTeams();
+  }
+
+  getEnterpriseList = () => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'global/fetchEnterpriseList',
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              enterpriseList: res.list,
+            },
+            () => {
+              if (res.list.length > 0) {
+                this.getEnterpriseInfo();
+                this.getOverviewApp();
+                this.getOverview();
+                this.getOverviewTeam();
+                this.getOverviewMonitor();
+              }
+            }
+          );
+        }
+      },
+    });
+  };
+
+  getEnterpriseInfo = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+
     dispatch({
       type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: enterpriseList[0].enterprise_id,
+      },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
+            enterpriseInfoLoading:false,
           });
         }
       },
     });
-    this.loadTeams();
-  }
+  };
+
+  getOverviewApp = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'global/fetchOverviewApp',
+      payload: {
+        enterprise_id: enterpriseList[0].enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewAppInfo: res.bean,
+            overviewAppInfoLoading :false,
+
+
+          });
+        }
+      },
+    });
+  };
+
+  getOverview = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'global/fetchOverview',
+      payload: {
+        enterprise_id: enterpriseList[0].enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewInfo: res.bean,
+            overviewInfoLoading:false,
+
+          });
+        }
+      },
+    });
+  };
+
+  getOverviewTeam = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'global/fetchOverviewTeam',
+      payload: {
+        enterprise_id: enterpriseList[0].enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewTeamInfo: res.bean,
+            overviewTeamInfoLoading:false,
+          });
+        }
+      },
+    });
+  };
+
+  getOverviewMonitor = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'global/fetchOverviewMonitor',
+      payload: {
+        enterprise_id: enterpriseList[0].enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewMonitorInfo: res.bean,
+            overviewMonitorInfoLoading:false,
+          });
+        }
+      },
+    });
+  };
+
   onDelTeam = teamName => {
     this.props.dispatch({
       type: 'teamControl/delTeam',
@@ -388,6 +525,12 @@ export default class Enterprise extends PureComponent {
       );
     }
   };
+
+  handlUnit = num => {
+    num = num / 1024 / 1024;
+    return num.toFixed(2);
+  };
+
   manage = () => {
     const pagination = {
       current: this.state.teamsPage,
@@ -410,8 +553,18 @@ export default class Enterprise extends PureComponent {
 
     const teamBoxList = { ...teamBox, ...{ height: '40px', padding: '12px' } };
     const teamBoxs = { ...teamBox, ...{ height: '68px', padding: '24px' } };
-    const { enterpriseInfo } = this.state;
-    console.log('企业名称：',enterpriseInfo)
+    const {
+      enterpriseInfo,
+      overviewInfo,
+      overviewMonitorInfo,
+      overviewAppInfo,
+      overviewTeamInfo,
+      enterpriseInfoLoading,
+      overviewAppInfoLoading,
+      overviewInfoLoading,
+      overviewTeamInfoLoading,
+      overviewMonitorInfoLoading,
+    } = this.state;
     return (
       <div>
         <Card
@@ -421,6 +574,8 @@ export default class Enterprise extends PureComponent {
           bodyStyle={{
             paddingTop: 12,
           }}
+          style={{ height: '220px',marginBottom:'20px' }}
+          loading={enterpriseInfoLoading}
           bordered={false}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -433,12 +588,11 @@ export default class Enterprise extends PureComponent {
               <div className={styles.enterpriseName}>
                 {enterpriseInfo &&
                   `企业名称：
-                ${enterpriseInfo.enterprise_name}
+                ${enterpriseInfo.enterprise_alias}
                 `}
               </div>
               <div className={styles.enterpriseBox}>
                 联合云ID&nbsp;
-
                 {enterpriseInfo && enterpriseInfo.enterprise_id}
                 &nbsp;平台版本&nbsp;
                 {this.props.rainbondInfo.version || 'V3.7.1-release'}
@@ -484,7 +638,7 @@ export default class Enterprise extends PureComponent {
               }}
             >
               <Col span={12}>
-                <Card>
+                <Card loading={overviewAppInfoLoading} style={{ height: '243px' }}>
                   <Row style={{ marginBottom: '30px' }}>
                     <Col className={styles.grays} span={12}>
                       应用数量
@@ -496,13 +650,25 @@ export default class Enterprise extends PureComponent {
                   <Row>
                     <Col span={8}>
                       <Pie
-                        percent={28}
+                        percent={
+                          overviewAppInfo &&
+                          overviewAppInfo.service_groups.running
+                        }
                         lineWidth={10}
                         color="#C2C7D9"
                         subTitle={
                           <div className={styles.appContent}>
-                            <h6>30个</h6>
-                            <div>共30个应用数量</div>
+                            <h6>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个
+                            </h6>
+                            <div>
+                              共
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个应用数量
+                            </div>
                           </div>
                         }
                         height={144}
@@ -514,33 +680,57 @@ export default class Enterprise extends PureComponent {
                         <div>
                           <div className={styles.appnums}>运行中应用</div>
                           <div className={styles.nums}>
-                            <span>14个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.running}
+                              个
+                            </span>
                             <span>|</span>
-                            <span>30个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个
+                            </span>
                           </div>
                         </div>
                         <div>
                           <div className={styles.appnumno}>未运行应用</div>
                           <div className={styles.nums}>
-                            <span>14个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.closed}
+                              个
+                            </span>
                             <span>|</span>
-                            <span>30个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个
+                            </span>
                           </div>
                         </div>
                       </div>
                     </Col>
                     <Col span={8}>
                       <Pie
-                        percent={28}
+                        percent={
+                          overviewAppInfo && overviewAppInfo.components.running
+                        }
                         color="#A6B3E1"
                         subTitle={
                           <div className={styles.elements}>
                             <div>
-                              <div>40</div>
+                              <div>
+                                {overviewAppInfo &&
+                                  overviewAppInfo.components.closed}
+                              </div>
                               <div>未运行</div>
                             </div>
                             <div>
-                              <div>60</div>
+                              <div>
+                                {overviewAppInfo &&
+                                  overviewAppInfo.components.running}
+                              </div>
                               <div>运行中</div>
                             </div>
                           </div>
@@ -554,17 +744,33 @@ export default class Enterprise extends PureComponent {
                         <div>
                           <div className={styles.appnums}>运行中应用</div>
                           <div className={styles.nums}>
-                            <span>14个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.running}
+                              个
+                            </span>
                             <span>|</span>
-                            <span>30个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.total}
+                              个
+                            </span>
                           </div>
                         </div>
                         <div>
                           <div className={styles.appnumno}>未运行应用</div>
                           <div className={styles.nums}>
-                            <span>14个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.closed}
+                              个
+                            </span>
                             <span>|</span>
-                            <span>30个</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.total}
+                              个
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -574,7 +780,7 @@ export default class Enterprise extends PureComponent {
               </Col>
 
               <Col span={11} offset={1}>
-                <Card>
+                <Card loading={overviewInfoLoading} style={{ height: '243px' }}>
                   <Row>
                     <Col span={8}>
                       <ul className={styles.Box}>
@@ -583,7 +789,9 @@ export default class Enterprise extends PureComponent {
                             <img src={Element} alt="" />
                           </div>
                         </li>
-                        <li>26</li>
+                        <li>
+                          {overviewInfo && overviewInfo.shared_components}
+                        </li>
                         <li>共享组件数量</li>
                         <li>——</li>
                       </ul>
@@ -595,7 +803,8 @@ export default class Enterprise extends PureComponent {
                             <img src={Team} alt="" />
                           </div>
                         </li>
-                        <li>8</li>
+                        <li>{overviewInfo && overviewInfo.total_teams}</li>
+
                         <li>共享团队数量</li>
                         <li>——</li>
                       </ul>
@@ -607,7 +816,8 @@ export default class Enterprise extends PureComponent {
                             <img src={User} alt="" />
                           </div>
                         </li>
-                        <li>16</li>
+                        <li>{overviewInfo && overviewInfo.total_users}</li>
+
                         <li>共享用户数量</li>
                         <li>——</li>
                       </ul>
@@ -624,7 +834,7 @@ export default class Enterprise extends PureComponent {
               }}
             >
               <Col span={12}>
-                <Card>
+                <Card loading={overviewTeamInfoLoading} style={{ height: '243px' }}>
                   <Row style={{ marginBottom: '4px' }}>
                     <Col className={styles.grays} span={12}>
                       团队
@@ -641,7 +851,10 @@ export default class Enterprise extends PureComponent {
                         </div>
 
                         <div className={styles.grays}>新加入团队：</div>
-                        <div> Mark Davis </div>
+                        <div>
+                          {overviewTeamInfo &&
+                            overviewTeamInfo.new_join_team.team_name}
+                        </div>
                         <div>
                           <img src={Arrow} alt="" />
                         </div>
@@ -675,49 +888,38 @@ export default class Enterprise extends PureComponent {
                       </Card>
                     </Col>
                     <Col span={11} offset={1}>
-                      <Card
-                        bodyStyle={teamBoxList}
-                        bordered={false}
-                        style={{ height: '40px' }}
-                      >
-                        <div style={{ width: '95%' }}> Mark Davis </div>
-                        <div>
-                          <img src={Arrow} alt="" />
-                        </div>
-                      </Card>
-                      <Card
-                        bodyStyle={teamBoxList}
-                        bordered={false}
-                        style={{ height: '40px' }}
-                      >
-                        <div style={{ width: '95%' }}> Mark Davis </div>
-                        <div>
-                          <img src={Arrow} alt="" />
-                        </div>
-                      </Card>
-                      <Card
-                        bodyStyle={teamBoxList}
-                        bordered={false}
-                        style={{ height: '40px' }}
-                      >
-                        <div style={{ width: '95%' }}> Mark Davis </div>
-                        <div>
-                          <img src={Arrow} alt="" />
-                        </div>
-                      </Card>
+                      {overviewTeamInfo &&
+                        overviewTeamInfo.active_teams.map(item => {
+                          const { team_name } = item;
+                          return (
+                            <Card
+                              bodyStyle={teamBoxList}
+                              bordered={false}
+                              style={{ height: '40px' }}
+                            >
+                              <div style={{ width: '95%' }}>{team_name} </div>
+                              <div>
+                                <img src={Arrow} alt="" />
+                              </div>
+                            </Card>
+                          );
+                        })}
                     </Col>
                   </Row>
                 </Card>
               </Col>
               <Col span={11} offset={1}>
-                <Card style={{ height: '241px' }}>
+                <Card loading={overviewMonitorInfoLoading} style={{ height: '243px' }}>
                   <Row>
                     <Col span={8}>
                       <ul className={styles.Box}>
                         <li>
                           <img src={Memory} alt="" />
                         </li>
-                        <li>26</li>
+                        <li>
+                          {overviewMonitorInfo &&
+                            overviewMonitorInfo.total_regions}
+                        </li>
                         <li>数据中心数量</li>
                         <li>——</li>
                       </ul>
@@ -727,7 +929,18 @@ export default class Enterprise extends PureComponent {
                         <li>
                           <img src={Records} alt="" />
                         </li>
-                        <li>8</li>
+                        <li>
+                          {this.handlUnit(
+                            overviewMonitorInfo &&
+                              overviewMonitorInfo.memory.used
+                          )}
+                          <span className={styles.units}>GB</span>/
+                          {this.handlUnit(
+                            overviewMonitorInfo &&
+                              overviewMonitorInfo.memory.total
+                          )}
+                          <span className={styles.units}>GB</span>
+                        </li>
                         <li>内存使用量/总量</li>
                         <li>——</li>
                       </ul>
@@ -737,7 +950,12 @@ export default class Enterprise extends PureComponent {
                         <li>
                           <img src={Cpus} alt="" />
                         </li>
-                        <li>16</li>
+                        <li>
+                          {overviewMonitorInfo && overviewMonitorInfo.cpu.used}
+                          <span className={styles.units}>Core</span>/
+                          {overviewMonitorInfo && overviewMonitorInfo.cpu.total}
+                          <span className={styles.units}>Core</span>
+                        </li>
                         <li>CPU使用量/总量</li>
                         <li>——</li>
                       </ul>
