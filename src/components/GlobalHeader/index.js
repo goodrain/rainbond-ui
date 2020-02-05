@@ -416,7 +416,11 @@ export default class GlobalHeader extends PureComponent {
           </Link>,
           <Divider type="vertical" key="line" />
         ]}
+
         <div className={styles.teamregion}>
+          <span  className={styles.tit}>w4zkqitv</span>
+        </div>
+        {/* <div className={styles.teamregion}>
           <span className={styles.tit}>团队:</span>
           <Dropdown overlay={this.renderTeams()}>
             <a className={styles.dropdown}>
@@ -443,7 +447,7 @@ export default class GlobalHeader extends PureComponent {
               </span>
             </a>
           </Dropdown>
-        </div>
+        </div> */}
 
         <div className={styles.right}>
           {rainbondUtil.documentEnable(rainbondInfo) && (

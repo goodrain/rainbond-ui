@@ -149,7 +149,7 @@ export default class Pie extends Component {
         if (value === '占比') {
           return color || 'rgba(24, 144, 255, 0.85)';
         } else {
-          return '#F0F2F5';
+          return '#3D58DA';
         }
       };
 

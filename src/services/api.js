@@ -845,7 +845,7 @@ export async function buyPurchase(
   );
 }
 
-/* 查询企业信息 */
+/* 查询企业团队信息 */
 export async function getEnterpriseInfo(param) {
   return request(`${apiconfig.baseUrl}/console/enterprise/info`, {
     method: "get",
@@ -854,6 +854,17 @@ export async function getEnterpriseInfo(param) {
     }
   });
 }
+
+/* 查询企业信息 */
+export async function fetchEnterpriseInfo(param) {
+  return request(
+    // `${apiconfig.baseUrl}/enterprise/${param.enterprise_id}/info`,
+    `http://doc.goodrain.org/mock/18/enterprise/{enterprise_id}/info`,
+    {
+    method: "get",
+  });
+}
+
 
 /* 查询企业信息 */
 export async function getEnterpriseTeams(

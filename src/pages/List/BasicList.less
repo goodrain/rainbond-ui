@@ -125,6 +125,92 @@
   letter-spacing: 0;
 }
 
+.elements {
+  display: flex;
+  width: 88px;
+  height: 70px;
+
+  &>div:nth-of-type(1) {
+    font-family   : Silom;
+    color         : #5679E2;
+    letter-spacing: 0;
+    padding-right: 3px;
+    &>div:nth-of-type(1) {
+      font-size: 14px;
+    }
+    &>div:nth-of-type(2) {
+      font-size: 12px;
+    }
+  }
+
+  &>div:nth-of-type(2) {
+    border-left  : 1px solid #E5E5E5;
+    transform    : rotate(15deg);
+    border-radius: 1px;
+    font-family   : PingFangSC-Medium;
+    color         : #7983AD;
+    letter-spacing: 0;
+    padding-left: 3px;
+    padding-top: 12px;
+    &>div:nth-of-type(1) {
+      font-size: 14px;
+    }
+    &>div:nth-of-type(2) {
+      font-size: 12px;
+    }
+  }
+}
+
+.appContent {
+  h6 {
+    font-family   : PingFangSC-Semibold;
+    font-size     : 18px;
+    color         : #333333;
+    letter-spacing: 0;
+  }
+
+  div {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #8D9BAD;
+    letter-spacing: 0;
+  }
+}
+
+.appnums,
+.appnumno {
+  margin-top    : 26px;
+  font-family   : PingFangSC-Semibold;
+  font-size     : 12px;
+  color         : #333333;
+  letter-spacing: 0;
+  padding-left  : 8px;
+  border-left   : 3px solid #7983AD;
+  border-radius : 4px;
+  border-radius : 1.5px;
+}
+
+.appnumno {
+  border-color: #3D58DA;
+}
+
+.nums {
+  font-family    : PingFangSC-Medium;
+  font-size      : 12px;
+  color          : #333333;
+  letter-spacing : 0;
+  display        : flex;
+  justify-content: space-around;
+
+  span {
+    color: #8D9BAD;
+  }
+
+  span:nth-of-type(1) {
+    color: #333333;
+  }
+}
+
 .grays {
   color: #444444;
 }
@@ -152,8 +238,7 @@
   li:nth-of-type(1) {
     display        : flex;
     justify-content: center;
-    margin-top     : 14px;
-
+    margin-top     : 3px;
     div {
       width          : 68px;
       height         : 68px;

@@ -349,7 +349,7 @@ export default class SiderMenu extends PureComponent {
         collapsed={collapsed}
         breakpoint="md"
         onCollapse={onCollapse}
-        width={256}
+        width={0}
         className={styles.sider}
       >
         <div className={styles.logo} key="logo">

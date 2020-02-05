@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
-import moment from "moment";
-import { connect } from "dva";
-import { routerRedux, Link } from "dva/router";
+import React, { PureComponent } from 'react';
+import moment from 'moment';
+import { connect } from 'dva';
+import { routerRedux, Link } from 'dva/router';
 import {
   Card,
   Switch,
@@ -10,34 +10,35 @@ import {
   Radio,
   Col,
   Row,
-  Popconfirm
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import styles from "../List/BasicList.less";
-import globalUtil from "../../utils/global";
-import Addimg from "../../../public/images/add.png";
-import TeamListTable from "../../components/tables/TeamListTable";
-import userUtil from "../../utils/user";
-import ScrollerX from "../../components/ScrollerX";
-import CreateTeam from "../../components/CreateTeam";
-import DescriptionList from "../../components/DescriptionList";
-import CreatUser from "../../components/CreatUserForm";
-import rainbondUtil from "../../utils/rainbond";
-import ConfirmModal from "../../components/ConfirmModal";
+  Popconfirm,
+} from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import styles from '../List/BasicList.less';
+import globalUtil from '../../utils/global';
+import Addimg from '../../../public/images/add.png';
+import TeamListTable from '../../components/tables/TeamListTable';
+import userUtil from '../../utils/user';
+import ScrollerX from '../../components/ScrollerX';
+import CreateTeam from '../../components/CreateTeam';
+import DescriptionList from '../../components/DescriptionList';
+import CreatUser from '../../components/CreatUserForm';
+import rainbondUtil from '../../utils/rainbond';
+import ConfirmModal from '../../components/ConfirmModal';
+import { Pie } from '../../components/Charts';
+import AddTeam from '../../../public/images/addTeam.png';
+import Cpus from '../../../public/images/cpus.png';
+import CreationTeam from '../../../public/images/creationTeam.png';
+import Element from '../../../public/images/element.png';
+import EnterpriseBj from '../../../public/images/enterpriseBj.png';
+import EnterpriseInfo from '../../../public/images/enterpriseInfo.png';
+import Memory from '../../../public/images/memory.png';
+import Records from '../../../public/images/records.png';
+import Team from '../../../public/images/team.png';
+import TeamCrew from '../../../public/images/teamCrew.png';
+import User from '../../../public/images/user.png';
+import Arrow from '../../../public/images/arrow.png';
 
-import AddTeam from "../../../public/images/addTeam.png";
-import Cpus from "../../../public/images/cpus.png";
-import CreationTeam from "../../../public/images/creationTeam.png";
-import Element from "../../../public/images/element.png";
-import EnterpriseBj from "../../../public/images/enterpriseBj.png";
-import EnterpriseInfo from "../../../public/images/enterpriseInfo.png";
-import Memory from "../../../public/images/memory.png";
-import Records from "../../../public/images/records.png";
-import Team from "../../../public/images/team.png";
-import TeamCrew from "../../../public/images/teamCrew.png";
-import User from "../../../public/images/user.png";
-
-import OauthForm from "../../components/OauthForm";
+import OauthForm from '../../components/OauthForm';
 
 const { Description } = DescriptionList;
 const RadioGroup = Radio.Group;
@@ -49,8 +50,8 @@ const RadioGroup = Radio.Group;
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
-  oauthLongin: loading.effects["global/creatOauth"],
-  overviewInfo: index.overviewInfo
+  oauthLongin: loading.effects['global/creatOauth'],
+  overviewInfo: index.overviewInfo,
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -61,7 +62,7 @@ export default class Enterprise extends PureComponent {
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
-      date: moment(new Date().getTime()).format("YYYY-MM-DD"),
+      date: moment(new Date().getTime()).format('YYYY-MM-DD'),
       companyInfo: {},
       list: [],
       datalist: [],
@@ -79,7 +80,8 @@ export default class Enterprise extends PureComponent {
       isOpen: false,
       scope: params.type || this.getDefaultScope(),
       showDeleteDomain: false,
-      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo)
+      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
+      enterpriseInfo: false,
     };
   }
   componentDidMount() {
@@ -93,28 +95,31 @@ export default class Enterprise extends PureComponent {
     }
 
     dispatch({
-      type: "global/getIsRegist",
-      callback: () => {}
+      type: 'global/getIsRegist',
+      callback: () => {},
     });
 
     dispatch({
-      type: "global/getEnterpriseInfo",
-      payload: {
-        team_name: globalUtil.getCurrTeamName()
+      type: 'global/fetchEnterpriseInfo',
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            enterpriseInfo: res.bean,
+          });
+        }
       },
-      callback: () => {}
     });
     this.loadTeams();
   }
   onDelTeam = teamName => {
     this.props.dispatch({
-      type: "teamControl/delTeam",
+      type: 'teamControl/delTeam',
       payload: {
-        team_name: teamName
+        team_name: teamName,
       },
       callback: () => {
         this.loadTeams();
-      }
+      },
     });
   };
   onAddTeam = () => {
@@ -122,48 +127,48 @@ export default class Enterprise extends PureComponent {
   };
   onRegistChange = e => {
     this.props.dispatch({
-      type: "global/putIsRegist",
+      type: 'global/putIsRegist',
       payload: {
-        isRegist: e.target.value
+        isRegist: e.target.value,
       },
-      callback: () => {}
+      callback: () => {},
     });
   };
   getDefaultScope() {
     // if (this.props.rainbondInfo && this.props.rainbondInfo.is_public) {
     //   return "finance";
     // }
-    return "manage";
+    return 'manage';
   }
   getParam() {
     return this.props.match.params;
   }
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: "global/getCompanyInfo",
+      type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.user.enterprise_id
+        enterprise_id: this.props.user.enterprise_id,
       },
       callback: data => {
         if (data) {
           this.setState({ companyInfo: data.bean });
         }
-      }
+      },
     });
   };
 
   handleCreateTeam = values => {
     this.props.dispatch({
-      type: "teamControl/createTeam",
+      type: 'teamControl/createTeam',
       payload: values,
       callback: () => {
-        notification.success({ message: "添加成功" });
+        notification.success({ message: '添加成功' });
         this.cancelCreateTeam();
-        this.props.dispatch({ type: "user/fetchCurrent" });
-        //添加完查询企业团队列表
+        this.props.dispatch({ type: 'user/fetchCurrent' });
+        // 添加完查询企业团队列表
         this.loadTeams();
-      }
+      },
     });
   };
   cancelCreateTeam = () => {
@@ -185,7 +190,7 @@ export default class Enterprise extends PureComponent {
   hanldePageChange = page => {
     this.setState(
       {
-        teamsPage: page
+        teamsPage: page,
       },
       () => {
         this.loadTeams();
@@ -195,29 +200,29 @@ export default class Enterprise extends PureComponent {
   loadTeams = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/getEnterpriseTeams",
+      type: 'global/getEnterpriseTeams',
       payload: {
         enterprise_id: this.props.user.enterprise_id,
         page_size: this.state.teamsPageSize,
         page_num: this.state.teamsPage,
-        team_name: globalUtil.getCurrTeamName()
+        team_name: globalUtil.getCurrTeamName(),
       },
       callback: data => {
         if (data) {
           this.setState({
             teamList: data.list || [],
-            teamsTotal: data.total
+            teamsTotal: data.total,
           });
         }
-      }
+      },
     });
   };
 
   handelUnderstand = () => {
-    window.open("https://www.goodrain.com/industrycloud");
+    window.open('https://www.goodrain.com/industrycloud');
   };
   handelObtain = () => {
-    window.open("https://t.goodrain.com/");
+    window.open('https://t.goodrain.com/');
   };
 
   handlChooseeOpen = () => {
@@ -227,38 +232,38 @@ export default class Enterprise extends PureComponent {
 
   handleOpenDomain = () => {
     this.setState({
-      showDeleteDomain: true
+      showDeleteDomain: true,
     });
   };
 
   handleOpen = () => {
     this.setState({
-      openOauth: true
+      openOauth: true,
     });
   };
   handelClone = () => {
     this.setState({
       openOauth: false,
-      showDeleteDomain: false
+      showDeleteDomain: false,
     });
   };
 
   handelOauthInfo = info => {
     const { dispatch, rainbondInfo } = this.props;
     dispatch({
-      type: "global/getOauthInfo",
+      type: 'global/getOauthInfo',
       callback: res => {
         if (res && res._code == 200) {
-          let bean = res.bean;
-          let judge = rainbondUtil.OauthbEnable(info ? info : rainbondInfo);
+          const bean = res.bean;
+          const judge = rainbondUtil.OauthbEnable(info || rainbondInfo);
           this.setState({
             oauthInfo: bean && bean.oauth_services,
             isOpen: judge
               ? bean.oauth_services && bean.oauth_services.enable
-              : false
+              : false,
           });
         }
-      }
+      },
     });
   };
 
@@ -266,31 +271,31 @@ export default class Enterprise extends PureComponent {
     const { dispatch } = this.props;
     const { oauthInfo } = this.state;
     dispatch({
-      type: "global/deleteOauthInfo",
+      type: 'global/deleteOauthInfo',
       payload: {
-        service_id: oauthInfo.service_id
+        service_id: oauthInfo.service_id,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
+          notification.success({ message: '删除成功' });
           window.location.reload();
         }
-      }
+      },
     });
   };
 
   getSettingShow = () => {
     const { rainbondInfo, is_public } = this.props;
     const { oauthInfo, isOpen, israinbondTird } = this.state;
-    let ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
+    const ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
     if (!is_public) {
       return (
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           bodyStyle={{
-            paddingTop: 12
+            paddingTop: 12,
           }}
           bordered={false}
           title="平台设置"
@@ -300,7 +305,7 @@ export default class Enterprise extends PureComponent {
             size="large"
             style={{
               marginBottom: 32,
-              marginTop: 32
+              marginTop: 32,
             }}
           >
             <Description term="用户注册">
@@ -313,24 +318,24 @@ export default class Enterprise extends PureComponent {
               </RadioGroup>
               <div
                 style={{
-                  float: "right",
-                  color: "rgba(153,153,153,1)",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  cursor: "pointer"
+                  float: 'right',
+                  color: 'rgba(153,153,153,1)',
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  cursor: 'pointer',
                 }}
                 onClick={this.addUser}
               >
-                <img style={{ width: "30px", height: "30px" }} src={Addimg} />
+                <img style={{ width: '30px', height: '30px' }} src={Addimg} />
                 <div>添加用户</div>
               </div>
             </Description>
           </DescriptionList>
           <div
             style={{
-              height: "1px",
-              background: " #E8E8E8 ",
-              margin: "0 -32px"
+              height: '1px',
+              background: ' #E8E8E8 ',
+              margin: '0 -32px',
             }}
           />
           {ishow && (
@@ -343,7 +348,7 @@ export default class Enterprise extends PureComponent {
                 {oauthInfo && oauthInfo.enable && israinbondTird ? (
                   <span>
                     已开通{oauthInfo.oauth_type}类型的第三方OAuth互联服务&nbsp;
-                    {oauthInfo.is_auto_login && ", 且已开启自动登录"}
+                    {oauthInfo.is_auto_login && ', 且已开启自动登录'}
                   </span>
                 ) : (
                   <span ctyle="color:rgba(0, 0, 0, 0.45)">
@@ -352,7 +357,7 @@ export default class Enterprise extends PureComponent {
                 )}
 
                 <Switch
-                  style={{ float: "right" }}
+                  style={{ float: 'right' }}
                   onClick={this.handlChooseeOpen}
                   checked={israinbondTird && isOpen}
                 />
@@ -363,7 +368,7 @@ export default class Enterprise extends PureComponent {
                     okText="确认"
                     cancelText="我再想想"
                   >
-                    <a style={{ float: "right", marginRight: "10px" }} href="#">
+                    <a style={{ float: 'right', marginRight: '10px' }} href="#">
                       移除配置
                     </a>
                   </Popconfirm>
@@ -371,7 +376,7 @@ export default class Enterprise extends PureComponent {
                 {oauthInfo && oauthInfo.enable && israinbondTird && (
                   <a
                     onClick={this.handleOpen}
-                    style={{ float: "right", marginRight: "10px" }}
+                    style={{ float: 'right', marginRight: '10px' }}
                   >
                     编辑
                   </a>
@@ -390,32 +395,35 @@ export default class Enterprise extends PureComponent {
       total: this.state.teamsTotal,
       onChange: v => {
         this.hanldePageChange(v);
-      }
+      },
     };
     const teamBox = {
-      marginTop: "16px",
-      minHeight: "40px",
-      maxHeight: "73px",
-      lineHeight: "1px",
-      borderColor: "rgba(0, 0, 0, 0.09)",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.09)",
-      color: "#3D54C4",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center"
+      marginTop: '16px',
+      lineHeight: '1px',
+      borderColor: 'rgba(0, 0, 0, 0.09)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)',
+      color: '#3D54C4',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     };
+
+    const teamBoxList = { ...teamBox, ...{ height: '40px', padding: '12px' } };
+    const teamBoxs = { ...teamBox, ...{ height: '68px', padding: '24px' } };
+    const { enterpriseInfo } = this.state;
+    console.log('企业名称：',enterpriseInfo)
     return (
       <div>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           bodyStyle={{
-            paddingTop: 12
+            paddingTop: 12,
           }}
           bordered={false}
         >
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>
               <div className={styles.enterpriseInfo}>
                 <img src={EnterpriseInfo} alt="" />
@@ -423,17 +431,19 @@ export default class Enterprise extends PureComponent {
               </div>
 
               <div className={styles.enterpriseName}>
-                企业名称：
-                {this.props.enterprise &&
-                  this.props.enterprise.enterprise_alias}
+                {enterpriseInfo &&
+                  `企业名称：
+                ${enterpriseInfo.enterprise_name}
+                `}
               </div>
               <div className={styles.enterpriseBox}>
                 联合云ID&nbsp;
-                {this.props.enterprise && this.props.enterprise.enterprise_id}
-                平台版本&nbsp;
-                {this.props.rainbondInfo.version || "V3.7.1-release"}
-                创建时间&nbsp;
-                {this.props.enterprise && this.props.enterprise.create_time}
+
+                {enterpriseInfo && enterpriseInfo.enterprise_id}
+                &nbsp;平台版本&nbsp;
+                {this.props.rainbondInfo.version || 'V3.7.1-release'}
+                &nbsp;创建时间&nbsp;
+                {enterpriseInfo && enterpriseInfo.create_time}
               </div>
 
               <div>
@@ -470,17 +480,94 @@ export default class Enterprise extends PureComponent {
           <div>
             <Row
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             >
               <Col span={12}>
                 <Card>
-                <Row>
+                  <Row style={{ marginBottom: '30px' }}>
                     <Col className={styles.grays} span={12}>
                       应用数量
                     </Col>
                     <Col className={styles.grays} span={12}>
                       组件数量
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>
+                      <Pie
+                        percent={28}
+                        lineWidth={10}
+                        color="#C2C7D9"
+                        subTitle={
+                          <div className={styles.appContent}>
+                            <h6>30个</h6>
+                            <div>共30个应用数量</div>
+                          </div>
+                        }
+                        height={144}
+                      />
+                    </Col>
+
+                    <Col span={4}>
+                      <div>
+                        <div>
+                          <div className={styles.appnums}>运行中应用</div>
+                          <div className={styles.nums}>
+                            <span>14个</span>
+                            <span>|</span>
+                            <span>30个</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className={styles.appnumno}>未运行应用</div>
+                          <div className={styles.nums}>
+                            <span>14个</span>
+                            <span>|</span>
+                            <span>30个</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col span={8}>
+                      <Pie
+                        percent={28}
+                        color="#A6B3E1"
+                        subTitle={
+                          <div className={styles.elements}>
+                            <div>
+                              <div>40</div>
+                              <div>未运行</div>
+                            </div>
+                            <div>
+                              <div>60</div>
+                              <div>运行中</div>
+                            </div>
+                          </div>
+                        }
+                        height={144}
+                      />
+                    </Col>
+
+                    <Col span={4}>
+                      <div>
+                        <div>
+                          <div className={styles.appnums}>运行中应用</div>
+                          <div className={styles.nums}>
+                            <span>14个</span>
+                            <span>|</span>
+                            <span>30个</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className={styles.appnumno}>未运行应用</div>
+                          <div className={styles.nums}>
+                            <span>14个</span>
+                            <span>|</span>
+                            <span>30个</span>
+                          </div>
+                        </div>
+                      </div>
                     </Col>
                   </Row>
                 </Card>
@@ -533,12 +620,12 @@ export default class Enterprise extends PureComponent {
 
             <Row
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             >
               <Col span={12}>
                 <Card>
-                  <Row>
+                  <Row style={{ marginBottom: '4px' }}>
                     <Col className={styles.grays} span={12}>
                       团队
                     </Col>
@@ -548,20 +635,22 @@ export default class Enterprise extends PureComponent {
                   </Row>
                   <Row>
                     <Col span={12}>
-                      <Card bodyStyle={teamBox} bordered={false}>
+                      <Card bodyStyle={teamBoxs} bordered={false}>
                         <div className={styles.addTeam}>
                           <img src={TeamCrew} alt="" />
                         </div>
 
                         <div className={styles.grays}>新加入团队：</div>
                         <div> Mark Davis </div>
-                        <div>→</div>
+                        <div>
+                          <img src={Arrow} alt="" />
+                        </div>
                       </Card>
 
-                      <Card bodyStyle={teamBox} bordered={false}>
-                        <div style={{ textAlign: "center" }}>
+                      <Card bodyStyle={teamBoxs} bordered={false}>
+                        <div style={{ textAlign: 'center' }}>
                           <img src={AddTeam} alt="" />
-                          <div style={{ marginTop: "5px" }}>
+                          <div style={{ marginTop: '5px' }}>
                             <a
                               href="javascript:;"
                               onClick={this.onAddTeam}
@@ -571,9 +660,9 @@ export default class Enterprise extends PureComponent {
                             </a>
                           </div>
                         </div>
-                        <div style={{ textAlign: "center" }}>
+                        <div style={{ textAlign: 'center' }}>
                           <img src={CreationTeam} alt="" />
-                          <div style={{ marginTop: "5px" }}>
+                          <div style={{ marginTop: '5px' }}>
                             <a
                               href="javascript:;"
                               onClick={this.onAddTeam}
@@ -587,35 +676,41 @@ export default class Enterprise extends PureComponent {
                     </Col>
                     <Col span={11} offset={1}>
                       <Card
-                        bodyStyle={teamBox}
+                        bodyStyle={teamBoxList}
                         bordered={false}
-                        style={{height:"40px"}}
+                        style={{ height: '40px' }}
                       >
-                        <div style={{ width: "95%" }}> Mark Davis </div>
-                        <div>→</div>
+                        <div style={{ width: '95%' }}> Mark Davis </div>
+                        <div>
+                          <img src={Arrow} alt="" />
+                        </div>
                       </Card>
                       <Card
-                        bodyStyle={teamBox}
+                        bodyStyle={teamBoxList}
                         bordered={false}
-                        style={{height:"40px"}}
+                        style={{ height: '40px' }}
                       >
-                        <div style={{ width: "95%" }}> Mark Davis </div>
-                        <div>→</div>
+                        <div style={{ width: '95%' }}> Mark Davis </div>
+                        <div>
+                          <img src={Arrow} alt="" />
+                        </div>
                       </Card>
                       <Card
-                        bodyStyle={teamBox}
+                        bodyStyle={teamBoxList}
                         bordered={false}
-                        style={{height:"40px"}}
+                        style={{ height: '40px' }}
                       >
-                        <div style={{ width: "95%" }}> Mark Davis </div>
-                        <div>→</div>
+                        <div style={{ width: '95%' }}> Mark Davis </div>
+                        <div>
+                          <img src={Arrow} alt="" />
+                        </div>
                       </Card>
                     </Col>
                   </Row>
                 </Card>
               </Col>
               <Col span={11} offset={1}>
-                <Card>
+                <Card style={{ height: '241px' }}>
                   <Row>
                     <Col span={8}>
                       <ul className={styles.Box}>
@@ -652,12 +747,12 @@ export default class Enterprise extends PureComponent {
               </Col>
             </Row>
 
-            <Card
+            {/* <Card
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
               bodyStyle={{
-                paddingTop: 12
+                paddingTop: 12,
               }}
               bordered={false}
               title="企业团队列表"
@@ -675,7 +770,7 @@ export default class Enterprise extends PureComponent {
                   list={this.state.teamList}
                 />
               </ScrollerX>
-            </Card>
+            </Card> */}
           </div>
         )}
       </div>
@@ -684,7 +779,7 @@ export default class Enterprise extends PureComponent {
 
   renderContent = () => {
     const { user } = this.props;
-    if (this.state.scope === "manage") {
+    if (this.state.scope === 'manage') {
       return this.manage();
     }
     // 不是系统管理员
@@ -697,17 +792,17 @@ export default class Enterprise extends PureComponent {
       return null;
     }
   };
-  //管理员添加用户
+  // 管理员添加用户
   addUser = () => {
     this.setState({
-      userVisible: true
+      userVisible: true,
     });
   };
   handleCreatUser = values => {
     this.props.dispatch({
-      type: "global/creatUser",
+      type: 'global/creatUser',
       payload: {
-        ...values
+        ...values,
       },
       callback: data => {
         if (data && data._condition == 200) {
@@ -715,7 +810,7 @@ export default class Enterprise extends PureComponent {
         } else {
           notification.error({ message: data.msg_show });
         }
-      }
+      },
     });
     this.cancelCreatUser();
   };
@@ -728,13 +823,13 @@ export default class Enterprise extends PureComponent {
       oauth_type,
       home_url,
       is_auto_login,
-      redirect_domain
+      redirect_domain,
     } = values;
     oauth_type = oauth_type.toLowerCase();
-    if (oauth_type === "github") {
-      home_url = "https://github.com";
+    if (oauth_type === 'github') {
+      home_url = 'https://github.com';
     }
-    let obj = {
+    const obj = {
       name,
       client_id,
       client_secret,
@@ -742,7 +837,7 @@ export default class Enterprise extends PureComponent {
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
-      is_console: true
+      is_console: true,
     };
     this.handelRequest(obj);
   };
@@ -757,39 +852,39 @@ export default class Enterprise extends PureComponent {
     isclone ? (obj.enable = false) : (obj.enable = true);
 
     dispatch({
-      type: "global/editOauth",
+      type: 'global/editOauth',
       payload: {
-        arr: { enable: obj.enable, value: null }
-      }
+        arr: { enable: obj.enable, value: null },
+      },
     });
 
     dispatch({
-      type: "global/creatOauth",
+      type: 'global/creatOauth',
       payload: {
-        arr: [obj]
+        arr: [obj],
       },
       callback: data => {
         dispatch({
-          type: "global/fetchRainbondInfo",
+          type: 'global/fetchRainbondInfo',
           callback: info => {
             if (info) {
               this.setState({
-                israinbondTird: rainbondUtil.OauthbEnable(info)
+                israinbondTird: rainbondUtil.OauthbEnable(info),
               });
               this.handelOauthInfo(info);
             }
-          }
+          },
         });
-        this.props.dispatch({ type: "user/fetchCurrent" });
-        notification.success({ message: "成功" });
+        this.props.dispatch({ type: 'user/fetchCurrent' });
+        notification.success({ message: '成功' });
         this.handelClone();
-      }
+      },
     });
   };
 
   cancelCreatUser = () => {
     this.setState({
-      userVisible: false
+      userVisible: false,
     });
   };
   render() {
@@ -833,7 +928,7 @@ export default class Enterprise extends PureComponent {
             title="关闭"
             desc="确定要关闭Oauth2.0认证？"
             onOk={() => {
-              this.handelRequest(oauthInfo, "clone");
+              this.handelRequest(oauthInfo, 'clone');
             }}
             onCancel={this.handelClone}
           />

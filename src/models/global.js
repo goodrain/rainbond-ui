@@ -41,6 +41,7 @@ import {
   setRegist,
   getRegist,
   getEnterpriseInfo,
+  fetchEnterpriseInfo,
   getEnterpriseTeams,
   queryOauthInfo,
   deleteOauth,
@@ -65,13 +66,13 @@ import {
   postUpdatedTasks,
   getUpdateRecordsList,
   getUpdateRecordsInfo,
-  getUpdateRollback
-} from "../services/api";
-import { getTeamRegionGroups } from "../services/team";
-import cookie from "../utils/cookie";
+  getUpdateRollback,
+} from '../services/api';
+import { getTeamRegionGroups } from '../services/team';
+import cookie from '../utils/cookie';
 
 export default {
-  namespace: "global",
+  namespace: 'global',
 
   state: {
     collapsed: false,
@@ -80,8 +81,8 @@ export default {
     isPubCloud: null,
     // 当前团队和数据中心的群组
     groups: null,
-    currTeam: "",
-    currRegion: "",
+    currTeam: '',
+    currRegion: '',
     // 云帮平台信息
     rainbondInfo: null,
     apploadingnum: 0,
@@ -92,16 +93,16 @@ export default {
     // enterprise info
     enterprise: null,
     isRegist: false,
-    memoryTip: "",
+    memoryTip: '',
     is_enterprise_version: false,
-    nouse: false
+    nouse: false,
   },
 
   effects: {
     *setNouse({ payload }, { call, put }) {
       yield put({
-        type: "saveIsisNouse",
-        payload: payload.isNouse
+        type: 'saveIsisNouse',
+        payload: payload.isNouse,
       });
     },
 
@@ -324,20 +325,20 @@ export default {
       const data = yield call(getRainbondInfo);
       if (data) {
         cookie.set(
-          "newbie_guide",
+          'newbie_guide',
           data.bean && data.bean.newbie_guide !== undefined
             ? data.bean.newbie_guide.enable
             : false
         );
         cookie.set(
-          "platform_url",
+          'platform_url',
           data.bean &&
             data.bean.document !== undefined &&
             data.bean.document.platform_url !== undefined
             ? data.bean.document.platform_url
-            : "https://www.rainbond.com/"
+            : 'https://www.rainbond.com/'
         );
-        yield put({ type: "saveRainBondInfo", payload: data.bean });
+        yield put({ type: 'saveRainBondInfo', payload: data.bean });
         setTimeout(() => {
           callback && callback(data.bean);
         });
@@ -346,19 +347,19 @@ export default {
     *fetchIsPublic(_, { call, put }) {
       const data = yield call(isPubCloud);
       yield put({
-        type: "saveIsPubCloud",
-        payload: !!data.bean.is_public
+        type: 'saveIsPubCloud',
+        payload: !!data.bean.is_public,
       });
     },
     *fetchNotices(_, { call, put }) {
       const data = yield call(queryNotices);
-      yield put({ type: "saveNotices", payload: data });
-      yield put({ type: "user/changeNotifyCount", payload: data.length });
+      yield put({ type: 'saveNotices', payload: data });
+      yield put({ type: 'user/changeNotifyCount', payload: data.length });
     },
     *clearNotices({ payload }, { put, select }) {
-      yield put({ type: "saveClearedNotices", payload });
+      yield put({ type: 'saveClearedNotices', payload });
       const count = yield select(state => state.global.notices.length);
-      yield put({ type: "user/changeNotifyCount", payload: count });
+      yield put({ type: 'user/changeNotifyCount', payload: count });
     },
     *fetchGroups({ payload, callback }, { put, call }) {
       const response = yield call(getTeamRegionGroups, payload);
@@ -367,8 +368,8 @@ export default {
           callback && callback(response.list);
         });
         yield put({
-          type: "saveGroups",
-          payload: response.list || []
+          type: 'saveGroups',
+          payload: response.list || [],
         });
       }
     },
@@ -447,8 +448,8 @@ export default {
       if (response) {
         callback && callback();
         yield put({
-          type: "saveIsRegist",
-          payload: payload.isRegist
+          type: 'saveIsRegist',
+          payload: payload.isRegist,
         });
       }
     },
@@ -456,10 +457,9 @@ export default {
       const response = yield call(getRegist, payload);
       if (response) {
         callback && callback();
-        console.log('response',response)
         yield put({
-          type: "saveIsRegist",
-          payload: response.bean&&response.bean.is_regist
+          type: 'saveIsRegist',
+          payload: response.bean && response.bean.is_regist,
         });
       }
     },
@@ -468,11 +468,18 @@ export default {
       if (response) {
         callback && callback();
         yield put({
-          type: "saveEnterpriseInfo",
-          payload: response.bean
+          type: 'saveEnterpriseInfo',
+          payload: response.bean,
         });
       }
     },
+    *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseInfo, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *getEnterpriseTeams({ payload, callback }, { put, call }) {
       const response = yield call(getEnterpriseTeams, payload);
       if (response) {
@@ -576,141 +583,141 @@ export default {
       if (callback) {
         callback(response);
       }
-    }
+    },
   },
 
   reducers: {
     showPayTip(state) {
       return {
         ...state,
-        payTip: true
+        payTip: true,
       };
     },
     showMemoryTip(state, action) {
       return {
         ...state,
-        memoryTip: action.payload.message
+        memoryTip: action.payload.message,
       };
     },
     hideMemoryTip(state, action) {
       return {
         ...state,
-        memoryTip: ""
+        memoryTip: '',
       };
     },
     showNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: true
+        noMoneyTip: true,
       };
     },
     hideNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: false
+        noMoneyTip: false,
       };
     },
     hidePayTip(state) {
       return {
         ...state,
-        payTip: false
+        payTip: false,
       };
     },
     saveRainBondInfo(state, { payload }) {
       return {
         ...state,
         rainbondInfo: payload,
-        isRegist: payload.is_regist
+        isRegist: payload.is_regist,
       };
     },
     saveIsPubCloud(state, { payload }) {
       return {
         ...state,
-        isPubCloud: payload
+        isPubCloud: payload,
       };
     },
     changeLayoutCollapsed(state, { payload }) {
       return {
         ...state,
-        collapsed: payload
+        collapsed: payload,
       };
     },
     saveNotices(state, { payload }) {
       return {
         ...state,
-        notices: payload
+        notices: payload,
       };
     },
     saveClearedNotices(state, { payload }) {
       return {
         ...state,
-        notices: state.notices.filter(item => item.type !== payload)
+        notices: state.notices.filter(item => item.type !== payload),
       };
     },
     saveGroups(state, { payload }) {
       return {
         ...state,
-        groups: payload
+        groups: payload,
       };
     },
     saveCurrTeamAndRegion(state, { payload }) {
       return {
         ...state,
-        ...payload
+        ...payload,
       };
     },
     showLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum + 1
+        apploadingnum: state.apploadingnum + 1,
       };
     },
     hiddenLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum - 1
+        apploadingnum: state.apploadingnum - 1,
       };
     },
     showAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: true
+        showAuthCompany: true,
       };
     },
     hideAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: false
+        showAuthCompany: false,
       };
     },
     saveIsRegist(state, { payload }) {
       return {
         ...state,
-        isRegist: payload
+        isRegist: payload,
       };
     },
     saveIsisNouse(state, { payload }) {
       return {
         ...state,
-        nouse: payload
+        nouse: payload,
       };
     },
     saveEnterpriseInfo(state, { payload }) {
       return {
         ...state,
-        enterprise: payload
+        enterprise: payload,
       };
-    }
+    },
   },
 
   subscriptions: {
     setup({ history }) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({ pathname, search }) => {
-        if (typeof window.ga !== "undefined") {
-          window.ga("send", "pageview", pathname + search);
+        if (typeof window.ga !== 'undefined') {
+          window.ga('send', 'pageview', pathname + search);
         }
       });
-    }
-  }
+    },
+  },
 };
