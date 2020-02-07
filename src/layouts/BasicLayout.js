@@ -622,7 +622,19 @@ class BasicLayout extends React.PureComponent {
             />
           )}
           <GlobalRouter
+            enterpriseList={enterpriseList}
+            title={
+              rainbondInfo &&
+              rainbondInfo.title !== undefined &&
+              rainbondInfo.title
+            }
+            currentUser={currentUser}
+            Authorized={Authorized}
+            menuData={getMenuData(groups)}
+            completeMenuData={getMenuData(groups, true)}
             collapsed={collapsed}
+            location={location}
+            isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
           />
           <Layout>
@@ -723,7 +735,7 @@ class BasicLayout extends React.PureComponent {
               this.setState({ showAuthCompany: false });
               const jumpPath = this.props.location.pathname;
               const query = this.props.location.search.replace(
-                `market_info=${  this.state.market_info}`,
+                `market_info=${this.state.market_info}`,
                 ''
               );
               this.setState({ market_info: '' });

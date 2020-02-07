@@ -527,7 +527,7 @@ export default class Enterprise extends PureComponent {
   };
 
   handlUnit = num => {
-    num = num / 1024 / 1024;
+    num = num / 1024 ;
     return num.toFixed(2);
   };
 
@@ -742,7 +742,7 @@ export default class Enterprise extends PureComponent {
                     <Col span={4}>
                       <div>
                         <div>
-                          <div className={styles.appnums}>运行中应用</div>
+                          <div className={styles.appnums}>运行中组件</div>
                           <div className={styles.nums}>
                             <span>
                               {overviewAppInfo &&
@@ -758,7 +758,7 @@ export default class Enterprise extends PureComponent {
                           </div>
                         </div>
                         <div>
-                          <div className={styles.appnumno}>未运行应用</div>
+                          <div className={styles.appnumno}>未运行组件</div>
                           <div className={styles.nums}>
                             <span>
                               {overviewAppInfo &&
@@ -827,7 +827,6 @@ export default class Enterprise extends PureComponent {
               </Col>
             </Row>
             {/* {this.getSettingShow()} */}
-
             <Row
               style={{
                 marginBottom: 24,
@@ -934,12 +933,12 @@ export default class Enterprise extends PureComponent {
                             overviewMonitorInfo &&
                               overviewMonitorInfo.memory.used
                           )}
-                          <span className={styles.units}>GB</span>/
+                          <span className={styles.units}>MB</span>/
                           {this.handlUnit(
                             overviewMonitorInfo &&
                               overviewMonitorInfo.memory.total
                           )}
-                          <span className={styles.units}>GB</span>
+                          <span className={styles.units}>MB</span>
                         </li>
                         <li>内存使用量/总量</li>
                         <li>——</li>
@@ -951,9 +950,9 @@ export default class Enterprise extends PureComponent {
                           <img src={Cpus} alt="" />
                         </li>
                         <li>
-                          {overviewMonitorInfo && overviewMonitorInfo.cpu.used}
+                          {overviewMonitorInfo && overviewMonitorInfo.cpu.used.toFixed(2)}
                           <span className={styles.units}>Core</span>/
-                          {overviewMonitorInfo && overviewMonitorInfo.cpu.total}
+                          {overviewMonitorInfo && overviewMonitorInfo.cpu.total.toFixed(2)}
                           <span className={styles.units}>Core</span>
                         </li>
                         <li>CPU使用量/总量</li>

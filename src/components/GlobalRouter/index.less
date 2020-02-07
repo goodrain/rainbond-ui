@@ -24,3 +24,49 @@ i.trigger {
     }
   }
 }
+
+
+:global {
+
+  .ant-menu-dark,
+  .ant-menu-dark .ant-menu-sub {
+    background    : #ffffff !important;
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    letter-spacing: 0;
+  }
+
+  .ant-menu-item .anticon,
+  .ant-menu-submenu-title .anticon {
+    color: #9CA2A8 !important;
+  }
+
+  .ant-menu-item .anticon+span,
+  .ant-menu-submenu-title .anticon+span {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #9CA2A8 !important;
+    letter-spacing: 0;
+  }
+
+  .ant-menu-dark .ant-menu-item,
+  .ant-menu-dark .ant-menu-item-group-title,
+  .ant-menu-dark .ant-menu-item>a {
+    color: #9CA2A8 !important;
+  }
+
+  .ant-menu-inline-collapsed>.ant-menu-item,
+  .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item,
+  .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-submenu>.ant-menu-submenu-title,
+  .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
+    padding   : 0 0px !important;
+    text-align: center;
+  }
+
+  .ant-menu-item .anticon:hover,
+  .ant-menu-submenu-title .anticon:hover,
+  .ant-menu-item>a:hover {
+    font-family: PingFangSC-Regular;
+    color      : #384551 !important;
+  }
+}

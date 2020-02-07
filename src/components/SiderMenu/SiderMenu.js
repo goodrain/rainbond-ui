@@ -328,7 +328,6 @@ export default class SiderMenu extends PureComponent {
       enterpriseList,
       currentUser,
     } = this.props;
-    console.log('currentUser', currentUser);
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
@@ -350,7 +349,7 @@ export default class SiderMenu extends PureComponent {
         breakpoint="md"
         onCollapse={onCollapse}
         width={0}
-        collapsedWidth={200}
+        collapsedWidth={300}
         className={styles.sider}
       >
         <div className={styles.logo} key="logo">
