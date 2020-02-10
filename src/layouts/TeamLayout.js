@@ -117,7 +117,6 @@ class BasicLayout extends React.PureComponent {
       market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
-      enterpriseView: true,
     };
   }
 
@@ -339,10 +338,8 @@ class BasicLayout extends React.PureComponent {
     }
     const { enterpriseList } = this.state;
     this.props.dispatch(
-      routerRedux.push(
-        `/enterprise/${enterpriseList[0].enterprise_id}/index`
-        // `/team/${key}/region/${currRegionName}/enterprise`
-      )
+      `/enterprise/${enterpriseList[0].enterprise_id}/index`
+      // routerRedux.push(`/team/${key}/region/${currRegionName}/enterprise`)
     );
     // location.reload();
   };
@@ -464,6 +461,12 @@ class BasicLayout extends React.PureComponent {
     );
   };
 
+  goEnterprise = () => {
+    const { enterpriseList } = this.state;
+    const { dispatch } = this.props;
+    dispatch(`/enterprise/${enterpriseList[0].enterprise_id}/index`);
+  };
+
   render() {
     const {
       currentUser,
@@ -482,7 +485,7 @@ class BasicLayout extends React.PureComponent {
       nouse,
       rainbondInfo,
     } = this.props;
-    const { enterpriseList, enterpriseView } = this.state;
+    const { enterpriseList } = this.state;
 
     const currRouterData = this.matchParamsPath(pathname);
 
@@ -532,10 +535,8 @@ class BasicLayout extends React.PureComponent {
       }
 
       const renderContent = () => {
-        const { children } = this.props;
         // 当前团队没有数据中心
         // if (!hasRegion) {
-
         //   return (
         //     <OpenRegion
         //       mode="card"
@@ -591,8 +592,8 @@ class BasicLayout extends React.PureComponent {
               authority={['admin', 'user']}
               noMatch={<Redirect to="/user/login" />}
             >
-              {children}
-              {/* {this.goEnterprise} */}
+              {/* {children} */}
+              {this.goEnterprise()}
             </Authorized>
 
             {/* {redirectData.map(item => (
@@ -615,10 +616,10 @@ class BasicLayout extends React.PureComponent {
           </div>
         );
       };
-      console.log(123);
+
       return (
         <Layout>
-          {/* {!isRegionMaintain && hasRegion && ( */}
+          {!isRegionMaintain && hasRegion && (
             <SiderMenu
               enterpriseList={enterpriseList}
               title={
@@ -641,7 +642,7 @@ class BasicLayout extends React.PureComponent {
               isMobile={this.state.isMobile}
               onCollapse={this.handleMenuCollapse}
             />
-          {/* )} */}
+          )}
           <GlobalRouter
             enterpriseList={enterpriseList}
             title={
@@ -697,7 +698,6 @@ class BasicLayout extends React.PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <CheckUserInfo
-            enterpriseView={enterpriseView}
             rainbondInfo={rainbondInfo}
             onCurrTeamNoRegion={this.handleCurrTeamNoRegion}
             userInfo={currentUser}

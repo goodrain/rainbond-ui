@@ -112,7 +112,7 @@ export default function request(url, options) {
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
   showLoading &&
-  
+
   window.g_app._store.dispatch({
     type: 'global/showLoading',
   });
@@ -122,11 +122,11 @@ export default function request(url, options) {
     .then(checkStatus)
     .then(response => {
       showLoading &&
-      
+
       window.g_app._store.dispatch({
         type: 'global/hiddenLoading',
       });
-      
+
       const res = response.data.data || {};
       res._code = response.status;
       res._condition = response.data.code;

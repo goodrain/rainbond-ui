@@ -3,9 +3,9 @@ export default [
     path: '/oauth',
     component: '../layouts/OauthLayout',
     routes: [
-      //第三方认证
-      { path: '/oauth/callback', component: './User/Third'},
-    ]
+      // 第三方认证
+      { path: '/oauth/callback', component: './User/Third' },
+    ],
   },
   // user
   {
@@ -13,15 +13,15 @@ export default [
     component: '../layouts/UserLayout',
     routes: [
       { path: '/user', redirect: '/user/login' },
-      //登录
+      // 登录
       { path: '/user/login', component: './User/Login' },
-      //注册
+      // 注册
       { path: '/user/register', component: './User/Register' },
-      //注册
+      // 注册
       { path: '/user/register-result', component: './User/RegisterResult' },
-      //第三方登录
+      // 第三方登录
       { path: '/user/third/login', component: './User/ThirdLogin' },
-      //第三方注册
+      // 第三方注册
       { path: '/user/third/register', component: './User/ThirdRegister' },
     ],
   },
@@ -37,19 +37,29 @@ export default [
     authority: ['admin', 'user'],
     routes: [
       // dashboard
-      { path: '/', redirect: '/InitRainbondInfo', authority: ['admin', 'user'] },
-
+      // {
+      //   path: '/',
+      //   redirect: '/InitRainbondInfo',
+      //   authority: ['admin', 'user'],
+      // },
+      // 企业总览
       {
-        path: '/InitRainbondInfo',
-        component: '../layouts/BasicLayout',
-        name: 'InitRainbondInfo',
+        path: '/enterprise/:eid/index',
+        component: './Enterprise',
+        name: 'enterpriseOverview',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
-        hideInMenu: true,
       },
+      // 企业团队
 
-
-      //总览
+      {
+        path: '/enterprise/:eid/teams',
+        component: './EnterpriseTeams',
+        name: 'EnterpriseTeams',
+        // icon: 'dashboard',
+        authority: ['admin', 'user'],
+      },
+      // 总览
       {
         path: '/team/:team/region/:region/index',
         component: './Index/Index',
@@ -66,13 +76,8 @@ export default [
         authority: ['admin', 'user'],
         // hideInMenu: true,
       },
-      {
-        path: '/team/:team/region/:region/enterprise',
-        component: './Enterprise',
-        name: 'Enterprise',
-        // icon: 'dashboard',
-        authority: ['admin', 'user'],
-      },
+
+
 
       {
         path: '/team/:team/region/:region/finance',
@@ -82,7 +87,6 @@ export default [
         authority: ['admin', 'user'],
       },
 
-
       {
         path: '/team/:team/region/:region/resources/buy/:regionName',
         component: './Finance/resources',
@@ -90,7 +94,6 @@ export default [
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/message',
@@ -100,7 +103,6 @@ export default [
         authority: ['admin', 'user'],
       },
 
-
       {
         path: '/team/:team/region/:region/allbackup',
         component: './Group/AllBackup',
@@ -108,7 +110,6 @@ export default [
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/team',
@@ -124,7 +125,7 @@ export default [
         name: 'Upgrade',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
-        title: "云市应用升级"
+        title: '云市应用升级',
       },
 
       {
@@ -133,18 +134,17 @@ export default [
         name: 'Backup',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
-        title: "备份管理"
+        title: '备份管理',
       },
-
 
       {
         path: '/team/:team/region/:region/groups/:groupId',
+        // component: './Group/Index',
         component: './Group/Index',
-        name: 'Group',
+        name: 'Groups',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/groups/share/one/:groupId/:shareId',
@@ -154,7 +154,6 @@ export default [
         authority: ['admin', 'user'],
       },
 
-
       {
         path: '/team/:team/region/:region/groups/share/two/:groupId/:shareId',
         component: './Group/AppShareLoading',
@@ -162,7 +161,6 @@ export default [
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/groups/share/three/:groupId:ShareId',
@@ -213,7 +211,8 @@ export default [
       },
 
       {
-        path: '/team/:team/region/:region/shareplugin/step-one/:pluginId/:shareId',
+        path:
+          '/team/:team/region/:region/shareplugin/step-one/:pluginId/:shareId',
         component: './Plugin/share-stepone',
         name: 'stepone',
         // icon: 'dashboard',
@@ -221,7 +220,8 @@ export default [
       },
 
       {
-        path: '/team/:team/region/:region/shareplugin/step-two/:pluginId/:shareId',
+        path:
+          '/team/:team/region/:region/shareplugin/step-two/:pluginId/:shareId',
         component: './Plugin/share-steptwo',
         name: 'steptwo',
         // icon: 'dashboard',
@@ -245,13 +245,13 @@ export default [
       },
 
       {
-        path: '/team/:team/region/:region/create/create-compose-check/:groupId/:composeId',
+        path:
+          '/team/:team/region/:region/create/create-compose-check/:groupId/:composeId',
         component: './Create/create-compose-check',
         name: 'compose',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/create/image/:type?/:image?',
@@ -260,7 +260,6 @@ export default [
         // icon: 'dashboard',
         authority: ['admin', 'user'],
       },
-
 
       {
         path: '/team/:team/region/:region/create/create-setting/:appAlias',
@@ -271,7 +270,8 @@ export default [
       },
 
       {
-        path: '/team/:team/region/:region/create/create-moreService/:appAlias/:check_uuid',
+        path:
+          '/team/:team/region/:region/create/create-moreService/:appAlias/:check_uuid',
         component: './Create/create-moreService',
         name: 'moreService',
         // icon: 'dashboard',
@@ -287,7 +287,8 @@ export default [
       },
 
       {
-        path: '/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId',
+        path:
+          '/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId',
         component: './Create/create-compose-setting',
         name: 'compose',
         // icon: 'dashboard',

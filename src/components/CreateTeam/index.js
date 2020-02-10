@@ -64,7 +64,7 @@ class CreateTeam extends PureComponent{
 
       return (
           <Modal
-            title="新建团队"
+            title="创建团队"
             visible={true}
             onOk={this.handleSubmit}
             onCancel={onCancel}
@@ -84,7 +84,7 @@ class CreateTeam extends PureComponent{
                   })(
                     <Input placeholder="请输入团队名称" />
                 )}
-                
+
               </FormItem>
 
               <FormItem
@@ -108,11 +108,11 @@ class CreateTeam extends PureComponent{
                       })}
                     </Select>
                 )}
-                
+
               </FormItem>
               </Form>
 
-             
+
           </Modal>
       )
    }

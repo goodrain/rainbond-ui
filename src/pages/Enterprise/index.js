@@ -102,21 +102,20 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
 
-    if (
-      rainbondUtil.OauthbIsEnable(rainbondInfo) ||
-      rainbondUtil.OauthbEnable(rainbondInfo)
-    ) {
-      this.handelOauthInfo();
-    }
+    // if (
+    //   rainbondUtil.OauthbIsEnable(rainbondInfo) ||
+    //   rainbondUtil.OauthbEnable(rainbondInfo)
+    // ) {
+    //   this.handelOauthInfo();
+    // }
 
-    dispatch({
-      type: 'global/getIsRegist',
-      callback: () => {},
-    });
+    // dispatch({
+    //   type: 'global/getIsRegist',
+    //   callback: () => {},
+    // });
 
-    this.getEnterpriseList();
+    // this.getEnterpriseList();
 
-    this.loadTeams();
   }
 
   getEnterpriseList = () => {
@@ -248,17 +247,6 @@ export default class Enterprise extends PureComponent {
     });
   };
 
-  onDelTeam = teamName => {
-    this.props.dispatch({
-      type: 'teamControl/delTeam',
-      payload: {
-        team_name: teamName,
-      },
-      callback: () => {
-        this.loadTeams();
-      },
-    });
-  };
   onAddTeam = () => {
     this.setState({ showAddTeam: true });
   };
@@ -302,9 +290,8 @@ export default class Enterprise extends PureComponent {
       callback: () => {
         notification.success({ message: '添加成功' });
         this.cancelCreateTeam();
+        this.getOverviewTeam();
         this.props.dispatch({ type: 'user/fetchCurrent' });
-        // 添加完查询企业团队列表
-        this.loadTeams();
       },
     });
   };
@@ -324,36 +311,8 @@ export default class Enterprise extends PureComponent {
     this.setState({ showPayHistory: false });
   };
 
-  hanldePageChange = page => {
-    this.setState(
-      {
-        teamsPage: page,
-      },
-      () => {
-        this.loadTeams();
-      }
-    );
-  };
-  loadTeams = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/getEnterpriseTeams',
-      payload: {
-        enterprise_id: this.props.user.enterprise_id,
-        page_size: this.state.teamsPageSize,
-        page_num: this.state.teamsPage,
-        team_name: globalUtil.getCurrTeamName(),
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            teamList: data.list || [],
-            teamsTotal: data.total,
-          });
-        }
-      },
-    });
-  };
+
+
 
   handelUnderstand = () => {
     window.open('https://www.goodrain.com/industrycloud');
@@ -526,9 +485,20 @@ export default class Enterprise extends PureComponent {
     }
   };
 
-  handlUnit = num => {
-    num = num / 1024 ;
-    return num.toFixed(2);
+  handlUnit = (num,unit) => {
+    if(num){
+   let  nums = num
+   let units =unit
+   if(nums>=1024){
+    nums =num/1024
+    units ='GB'
+   }
+
+    return unit?units: nums.toFixed(2)
+  }
+  return null
+
+
   };
 
   manage = () => {
@@ -924,25 +894,30 @@ export default class Enterprise extends PureComponent {
                       </ul>
                     </Col>
                     <Col span={8}>
-                      <ul className={styles.Box}>
+                     {overviewMonitorInfo&& <ul className={styles.Box}>
                         <li>
                           <img src={Records} alt="" />
                         </li>
                         <li>
                           {this.handlUnit(
-                            overviewMonitorInfo &&
                               overviewMonitorInfo.memory.used
                           )}
-                          <span className={styles.units}>MB</span>/
+                          <span className={styles.units}>
                           {this.handlUnit(
-                            overviewMonitorInfo &&
+                              overviewMonitorInfo.memory.used,
+                              'MB'
+                          )}</span>/
+                          {this.handlUnit(
                               overviewMonitorInfo.memory.total
                           )}
-                          <span className={styles.units}>MB</span>
+                          <span className={styles.units}> {this.handlUnit(
+                              overviewMonitorInfo.memory.used,
+                              'MB'
+                          )}</span>
                         </li>
                         <li>内存使用量/总量</li>
                         <li>——</li>
-                      </ul>
+                      </ul>}
                     </Col>
                     <Col span={8}>
                       <ul className={styles.Box}>

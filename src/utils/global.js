@@ -21,6 +21,15 @@ const global = {
       axios(defaultOptions);
     } catch (e) {}
   },
+  getCurrEnterpriseId() {
+    const reg = /enterprise\/([^\/]+)/;
+    const hash = location.hash || "";
+    const match = hash.match(reg);
+    if (match) {
+      return match[1];
+    }
+    return "";
+  },
   getCurrTeamName() {
     const reg = /team\/([^\/]+)/;
     const hash = location.hash || "";

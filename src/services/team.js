@@ -147,7 +147,7 @@ export async function editMember(
 }
 
 /*
-   新建团队
+   创建团队
 */
 export async function createTeam(
   body = {

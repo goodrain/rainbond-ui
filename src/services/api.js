@@ -864,6 +864,16 @@ export async function fetchEnterpriseInfo(param) {
     method: "get",
   });
 }
+/* 查询企业下所有团队 */
+export async function fetchEnterpriseTeams(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams`,
+    {
+    method: "get",
+  });
+}
+
+
 
 
 /* 查询企业列表 */

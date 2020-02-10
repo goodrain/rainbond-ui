@@ -223,7 +223,7 @@ export default class GlobalHeader extends PureComponent {
         {currentUser.is_user_enter_amdin && (
           <Menu.Item key="createTeam">
             <Icon type="plus" />
-            新建团队
+            创建团队
           </Menu.Item>
         )}
         <Menu.Item key="joinTeam">

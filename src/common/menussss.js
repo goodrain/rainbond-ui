@@ -7,6 +7,16 @@ let newbie_guide = cookie.get("newbie_guide");
 const menuData = function() {
   let menuArr = [
     {
+      name: "总览",
+      icon: "dashboard",
+      path: `enterprise/${globalUtil.getCurrEnterpriseId()}/index`
+    },
+    {
+      name: "团队",
+      icon: "team",
+      path: `enterprise/${globalUtil.getCurrEnterpriseId()}/teams`
+    },
+    {
       name: "团队总览",
       icon: "dashboard",
       path: `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`

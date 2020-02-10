@@ -59,7 +59,6 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || "modal";
-    console.log("mode", mode);
     const { enterprise } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {

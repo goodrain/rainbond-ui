@@ -135,7 +135,8 @@
     color         : #5679E2;
     letter-spacing: 0;
     padding-right : 3px;
-    width: 45px;
+    width         : 45px;
+
     &>div:nth-of-type(1) {
       font-size: 14px;
     }
@@ -230,11 +231,11 @@
 
 
 .units {
-  font-family: PingFangSC-Medium;
-  font-size: 14px;
-  color: #8D9BAD !important;
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #8D9BAD !important;
   letter-spacing: 0;
-  line-height: 25px;
+  line-height   : 25px;
 }
 
 .Box {
@@ -278,8 +279,11 @@
 }
 
 :global {
-  .ant-btn-primary {
-    background-color: #3D58DA;
+  .ant-btn-primary,
+  .ant-btn-primary:hover,
+  .ant-btn-primary:focus {
+    background-color: #3D58DA !important;
+    border-color    : #3D58DA !important;
   }
 }
 

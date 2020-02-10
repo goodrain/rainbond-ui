@@ -42,12 +42,11 @@ import {
   getRegist,
   getEnterpriseInfo,
   fetchEnterpriseInfo,
-
+  fetchEnterpriseTeams,
   fetchOverviewApp,
   fetchOverview,
   fetchOverviewTeam,
   fetchOverviewMonitor,
-
   fetchEnterpriseList,
   getEnterpriseTeams,
   queryOauthInfo,
@@ -486,14 +485,18 @@ export default {
         callback && callback(response);
       }
     },
-
+    *fetchEnterpriseTeams({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseTeams, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     *fetchEnterpriseList({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseList, payload);
       if (response) {
         callback && callback(response);
       }
     },
-
 
     *fetchOverviewApp({ payload, callback }, { put, call }) {
       const response = yield call(fetchOverviewApp, payload);
@@ -522,7 +525,6 @@ export default {
         callback && callback(response);
       }
     },
-
 
     *getEnterpriseTeams({ payload, callback }, { put, call }) {
       const response = yield call(getEnterpriseTeams, payload);
