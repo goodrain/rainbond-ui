@@ -450,6 +450,8 @@ export default class Main extends PureComponent {
               },
               () => {
                 this.getShareInfo({
+                  scope: "goodrain",
+                  app_name: "wertyu",
                   create_type: "new"
                 });
               }
@@ -589,7 +591,9 @@ export default class Main extends PureComponent {
       if (!err) {
         this.share_group_info.describe = values.describe
           ? values.describe
-          : appinfo.describe;
+          : appinfo.describe
+          ? appinfo.describe
+          : "";
         this.share_group_info.group_name = values.group_name;
         this.share_group_info.market_id = values.market_id;
         this.share_group_info.scope =
@@ -950,7 +954,9 @@ export default class Main extends PureComponent {
 
     if (isAppList.length > 0 && !isAppList[0].group_key) {
       this.getShareInfo({
-        create_type: "new"
+        create_type: "new",
+        scope: "goodrain",
+        app_name: "wertyu"
       });
     } else if (isAppList.length === 0) {
       appList.unshift({ group_name: vals.group_name });
@@ -958,7 +964,9 @@ export default class Main extends PureComponent {
         appList
       });
       this.getShareInfo({
-        create_type: "new"
+        create_type: "new",
+        scope: "goodrain",
+        app_name: "wertyu"
       });
       setFieldsValue({ group_name: vals.group_name });
     } else {
@@ -989,6 +997,8 @@ export default class Main extends PureComponent {
                 group_key: arr[0].group_key
               }
             : {
+                scope: "goodrain",
+                app_name: "wertyu",
                 create_type: "new"
               }
         );
