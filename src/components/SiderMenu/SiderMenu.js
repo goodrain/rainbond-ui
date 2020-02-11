@@ -340,7 +340,6 @@ export default class SiderMenu extends PureComponent {
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
-console.log('1')
     return (
       <Sider
         trigger={null}
@@ -361,9 +360,7 @@ console.log('1')
           <div className={styles.tit}>企业</div>
           {enterpriseList.map(item => {
             return (
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/enterprise`}
-              >
+              <Link to={`/enterprise/${enterpriseList[0].enterprise_id}/index`}>
                 <div className={styles.con}>{item.enterprise_alias}</div>
               </Link>
             );

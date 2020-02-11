@@ -197,8 +197,8 @@ export default class EnterpriseTeams extends PureComponent {
             </Button>
           </Col>
         </Row>
-        <Row className={styles.teamMinTit}>
-          <Col span={7}>团队名称</Col>
+        <Row className={styles.teamMinTit} type="flex" align="middle">
+          <Col span={8}>团队名称</Col>
           <Col span={5}>拥有人</Col>
           <Col span={5}>角色</Col>
           <Col span={5}>数据中心</Col>

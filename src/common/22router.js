@@ -88,7 +88,7 @@ export const getRouterData = app => {
           "region",
           "market"
         ],
-        () => import("../layouts/BasicLayout")
+        () => import("../layouts/EnterpriseLayout")
       )
     },
     "/team/:team/region/:region/index": {

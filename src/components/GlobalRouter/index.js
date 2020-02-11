@@ -343,6 +343,7 @@ export default class GlobalRouter extends PureComponent {
       title,
       enterpriseList,
       currentUser,
+      menuData
     } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
@@ -378,30 +379,8 @@ export default class GlobalRouter extends PureComponent {
             width: '64px',
           }}
         >
-          {this.getNavMenuItems(this.props.menuData || [])}
+          {this.getNavMenuItems(menuData || [])}
         </Menu>
-        {/* <ul className={styles.triggerRouter}>
-          <li>
-            <Icon type="dashboard" />
-            <div>总览</div>
-          </li>
-          <li>
-            <Icon type="dashboard" />
-            <div>组件库</div>
-          </li>
-          <li>
-            <Icon type="dashboard" />
-            <div>服务库</div>
-          </li>
-          <li>
-            <Icon type="dashboard" />
-            <div>团队</div>
-          </li>
-          <li>
-            <Icon type="dashboard" />
-            <div>设置</div>
-          </li>
-        </ul> */}
       </div>
     );
   }

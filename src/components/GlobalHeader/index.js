@@ -111,7 +111,7 @@ export default class GlobalHeader extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getuserMessage();
+    // this.getuserMessage();
   }
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();

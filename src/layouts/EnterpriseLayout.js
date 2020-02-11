@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Layout, Icon, message, notification } from 'antd';
 import DocumentTitle from 'react-document-title';
@@ -23,7 +23,7 @@ import globalUtil from '../utils/global';
 import configureGlobal from '../utils/configureGlobal';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menussss';
+import { getMenuData } from '../common/enterpriseMenu';
 import logo from '../../public/logo.png';
 import OpenRegion from '../components/OpenRegion';
 import CreateTeam from '../components/CreateTeam';
@@ -51,6 +51,8 @@ const { Content } = Layout;
 const { check } = Authorized;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
+  console.log('meunDmeunmeunata', meun);
+
   const routerMap = {};
   const mergeMeunAndRouter = meunData => {
     meunData.forEach(meunItem => {
@@ -62,6 +64,7 @@ const getBreadcrumbNameMap = memoizeOne(meun => {
     });
   };
   mergeMeunAndRouter(meun);
+  console.log('routerMap', routerMap);
   return routerMap;
 }, deepEqual);
 
@@ -91,7 +94,7 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-class BasicLayout extends React.PureComponent {
+class EnterpriseLayout extends PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
@@ -138,18 +141,7 @@ class BasicLayout extends React.PureComponent {
     });
   };
 
-  load = () => {
-    enquireScreen(mobile => {
-      this.setState({ isMobile: mobile });
-    });
-    this.fetchUserInfo();
-    this.setState({ showAuthCompany: this.props.showAuthCompany });
-    const query = qs.parse(this.props.location.search);
-    if (query && query.market_info) {
-      this.setState({ market_info: query.market_info });
-      this.setState({ showAuthCompany: true });
-    }
-  };
+  // 获取企业列表
   getEnterpriseList = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -168,12 +160,25 @@ class BasicLayout extends React.PureComponent {
       },
     });
   };
+
+  load = () => {
+    enquireScreen(mobile => {
+      this.setState({ isMobile: mobile });
+    });
+    this.fetchUserInfo();
+    // 连接云应用市场
+    this.setState({ showAuthCompany: this.props.showAuthCompany });
+    const query = qs.parse(this.props.location.search);
+    if (query && query.market_info) {
+      this.setState({ market_info: query.market_info });
+      this.setState({ showAuthCompany: true });
+    }
+  };
+
   onOpenRegion = () => {
     this.setState({ openRegion: true });
   };
-  cancelOpenRegion = () => {
-    this.setState({ openRegion: false, canCancelOpenRegion: true });
-  };
+
   onCreateTeam = () => {
     this.setState({ createTeam: true });
   };
@@ -223,13 +228,13 @@ class BasicLayout extends React.PureComponent {
         }
       },
       handleError: res => {
-        if (res && (res.status === 403 || res.status === 404)) {
-          cookie.remove('token');
-          cookie.remove('token', { domain: '' });
-          cookie.remove('newbie_guide');
-          cookie.remove('platform_url');
-          location.reload();
-        }
+        // if (res && (res.status === 403 || res.status === 404)) {
+        //   cookie.remove('token');
+        //   cookie.remove('token', { domain: '' });
+        //   cookie.remove('newbie_guide');
+        //   cookie.remove('platform_url');
+        //   location.reload();
+        // }
       },
     });
   };
@@ -249,10 +254,13 @@ class BasicLayout extends React.PureComponent {
   };
 
   matchParamsPath = pathname => {
-    const pathKey = Object.keys(this.breadcrumbNameMap).find(key =>
-      pathToRegexp(key).test(pathname)
-    );
+    console.log('pathname', pathname);
 
+    const pathKey = Object.keys(this.breadcrumbNameMap).find(key => {
+      console.log('key', key);
+      return pathToRegexp(key).test(pathname);
+    });
+    console.log('pathKey', pathKey);
     return this.breadcrumbNameMap[pathKey];
   };
 
@@ -379,39 +387,6 @@ class BasicLayout extends React.PureComponent {
     });
   };
 
-  handleInitTeamOk = () => {
-    this.setState({ showWelcomeCreateTeam: false });
-    this.fetchUserInfo();
-  };
-  handleCurrTeamNoRegion = () => {
-    this.setState({ openRegion: true, canCancelOpenRegion: false });
-  };
-  handleOpenRegion = regions => {
-    const { enterpriseList } = this.state;
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: 'teamControl/openRegion',
-      payload: {
-        team_name,
-        region_names: regions.join(','),
-      },
-      callback: () => {
-        notification.success({ message: '开通成功' });
-        this.cancelOpenRegion();
-        this.props.dispatch({
-          type: 'user/fetchCurrent',
-          callback: () => {
-            this.props.dispatch(
-              routerRedux.replace(
-                `/enterprise/${enterpriseList[0].enterprise_id}/index`
-              )
-            );
-          },
-        });
-      },
-    });
-  };
-
   getContext() {
     const { location } = this.props;
     return {
@@ -419,50 +394,6 @@ class BasicLayout extends React.PureComponent {
       breadcrumbNameMap: this.breadcrumbNameMap,
     };
   }
-
-  getNoMatch = () => {
-    const {
-      logined,
-      render,
-      authority,
-      redirectPath,
-      rainbondInfo,
-      ...rest
-    } = this.props;
-    if (redirectPath === '/user/login') {
-      if (
-        rainbondInfo &&
-        rainbondInfo.is_public !== undefined &&
-        rainbondInfo.is_public
-      ) {
-        return <PublicLogin />;
-      }
-      return (
-        <Route
-          {...rest}
-          render={() => (
-            <Redirect
-              to={{
-                pathname: redirectPath,
-              }}
-            />
-          )}
-        />
-      );
-    }
-    return (
-      <Route
-        {...rest}
-        render={() => (
-          <Redirect
-            to={{
-              pathname: redirectPath,
-            }}
-          />
-        )}
-      />
-    );
-  };
 
   render() {
     const {
@@ -486,6 +417,7 @@ class BasicLayout extends React.PureComponent {
 
     const currRouterData = this.matchParamsPath(pathname);
 
+    console.log('currRouterData', currRouterData);
     const token = cookie.get('token');
 
     if (!rainbondInfo && !token) {
@@ -514,7 +446,6 @@ class BasicLayout extends React.PureComponent {
     };
     getMenuData().forEach(getRedirect);
 
-    // const baseRedirect = this.getBaseRedirect();
     const layout = () => {
       const team = userUtil.getTeamByTeamName(
         currentUser,
@@ -533,17 +464,6 @@ class BasicLayout extends React.PureComponent {
 
       const renderContent = () => {
         const { children } = this.props;
-        // 当前团队没有数据中心
-        // if (!hasRegion) {
-
-        //   return (
-        //     <OpenRegion
-        //       mode="card"
-        //       onSubmit={this.handleOpenRegion}
-        //       onCancel={this.cancelOpenRegion}
-        //     />
-        //   );
-        // }
 
         // 数据中心维护中
         if (isRegionMaintain || nouse) {
@@ -576,71 +496,41 @@ class BasicLayout extends React.PureComponent {
         }
 
         return (
-          <div>
-            {/* <Authorized
-              logined
-              noMatch={this.getNoMatch()}
-              // authority={currRouterData.authority}
-            >
-              {children}
-            </Authorized> */}
-
-            <Authorized
-              logined
-              // authority={children.props.route.authority}
-              authority={['admin', 'user']}
-              noMatch={<Redirect to="/user/login" />}
-            >
-              {children}
-              {/* {this.goEnterprise} */}
-            </Authorized>
-
-            {/* {redirectData.map(item => (
-            <Redirect key={item.from} exact from={item.from} to={item.to} />
-          ))}
-          {getRoutes(match.path, routerData).map(item => (
-            <AuthorizedRoute
-              key={item.key}
-              path={item.path}
-              component={item.component}
-              exact={item.exact}
-              authority={item.authority}
-              logined
-              redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
-            />
-          ))}
-
-          <Route render={NotFound} /> */}
-            {/* <Redirect exact from="/" to={baseRedirect} /> */}
-          </div>
+          <Authorized
+            logined
+            // authority={children.props.route.authority}
+            authority={['admin', 'user']}
+            noMatch={<Redirect to="/user/login" />}
+          >
+            {children}
+          </Authorized>
         );
       };
-      console.log(123);
       return (
         <Layout>
           {/* {!isRegionMaintain && hasRegion && ( */}
-            <SiderMenu
-              enterpriseList={enterpriseList}
-              title={
-                rainbondInfo &&
-                rainbondInfo.title !== undefined &&
-                rainbondInfo.title
-              }
-              currentUser={currentUser}
-              logo={
-                (rainbondInfo &&
-                  rainbondInfo.logo !== undefined &&
-                  rainbondInfo.logo) ||
-                logo
-              }
-              Authorized={Authorized}
-              menuData={getMenuData(groups)}
-              completeMenuData={getMenuData(groups, true)}
-              collapsed={collapsed}
-              location={location}
-              isMobile={this.state.isMobile}
-              onCollapse={this.handleMenuCollapse}
-            />
+          <SiderMenu
+            enterpriseList={enterpriseList}
+            title={
+              rainbondInfo &&
+              rainbondInfo.title !== undefined &&
+              rainbondInfo.title
+            }
+            currentUser={currentUser}
+            logo={
+              (rainbondInfo &&
+                rainbondInfo.logo !== undefined &&
+                rainbondInfo.logo) ||
+              logo
+            }
+            Authorized={Authorized}
+            menuData={getMenuData(groups)}
+            completeMenuData={getMenuData(groups, true)}
+            collapsed={collapsed}
+            location={location}
+            isMobile={this.state.isMobile}
+            onCollapse={this.handleMenuCollapse}
+          />
           {/* )} */}
           <GlobalRouter
             enterpriseList={enterpriseList}
@@ -693,36 +583,26 @@ class BasicLayout extends React.PureComponent {
         </Layout>
       );
     };
+
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <CheckUserInfo
             enterpriseView={enterpriseView}
             rainbondInfo={rainbondInfo}
-            onCurrTeamNoRegion={this.handleCurrTeamNoRegion}
             userInfo={currentUser}
-            onInitTeamOk={this.handleInitTeamOk}
             enterpriseList={enterpriseList}
           >
-            <InitTeamAndRegionData key={currTeam + currRegion}>
-              <ContainerQuery query={query}>
-                {params => (
-                  <Context.Provider value={this.getContext()}>
-                    <div className={classNames(params)}>{layout()}</div>
-                  </Context.Provider>
-                )}
-              </ContainerQuery>
-            </InitTeamAndRegionData>
+            <ContainerQuery query={query}>
+              {params => (
+                <Context.Provider value={this.getContext()}>
+                  <div className={classNames(params)}>{layout()}</div>
+                </Context.Provider>
+              )}
+            </ContainerQuery>
           </CheckUserInfo>
         </DocumentTitle>
 
-        {/* 开通数据中心 */}
-        {/* {this.state.openRegion && (
-          <OpenRegion
-            onSubmit={this.handleOpenRegion}
-            onCancel={this.cancelOpenRegion}
-          />
-        )} */}
         {/* 创建团队 */}
         {/* {this.state.createTeam && (
           <CreateTeam
@@ -748,20 +628,6 @@ class BasicLayout extends React.PureComponent {
         {rainbondInfo &&
           rainbondInfo.is_public !== undefined &&
           rainbondInfo.is_public && <Meiqia />}
-
-        {/* 提示充值或购买资源 */}
-        {this.props.payTip && <PayTip dispatch={this.props.dispatch} />}
-        {/* 提示充值或购买资源 */}
-        {this.props.memoryTip && (
-          <MemoryTip
-            dispatch={this.props.dispatch}
-            memoryTip={this.props.memoryTip}
-          />
-        )}
-        {/* 企业账户余额不足 */}
-        {this.props.noMoneyTip && (
-          <PayMoneyTip dispatch={this.props.dispatch} />
-        )}
         {/* 企业尚未认证 */}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
@@ -782,7 +648,6 @@ class BasicLayout extends React.PureComponent {
     );
   }
 }
-
 export default connect(({ user, global, index, loading }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
@@ -799,4 +664,4 @@ export default connect(({ user, global, index, loading }) => ({
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
-}))(BasicLayout);
+}))(EnterpriseLayout);

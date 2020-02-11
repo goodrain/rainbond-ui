@@ -23,7 +23,7 @@ import globalUtil from '../utils/global';
 import configureGlobal from '../utils/configureGlobal';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menussss';
+import { getMenuData } from '../common/teamMenu';
 import logo from '../../public/logo.png';
 import OpenRegion from '../components/OpenRegion';
 import CreateTeam from '../components/CreateTeam';
@@ -91,7 +91,7 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-class BasicLayout extends React.PureComponent {
+class TeamLayout extends React.PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
@@ -117,6 +117,7 @@ class BasicLayout extends React.PureComponent {
       market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
+      enterpriseView: false,
     };
   }
 
@@ -255,27 +256,6 @@ class BasicLayout extends React.PureComponent {
     return this.breadcrumbNameMap[pathKey];
   };
 
-  // getBaseRedirect = () => {
-  //   // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
-  //   const urlParams = new URL(window.location.href);
-
-  //   const redirect = urlParams.searchParams.get('redirect');
-  //   const oauth = urlParams.searchParams.get('oauth');
-  //   const { enterpriseList } = this.state;
-
-  //   // Remove the parameters in the url
-  //   if (oauth) {
-  //     window.history.replaceState(null, 'oauth', urlParams.href);
-  //   }
-  //   if (redirect) {
-  //     urlParams.searchParams.delete('redirect');
-  //     window.history.replaceState(null, 'redirect', urlParams.href);
-  //   } else {
-  //     return `/enterprise${enterpriseList[0].enterprise_id}/index`;
-  //   }
-  //   return redirect;
-  // };
-
   handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
@@ -338,8 +318,7 @@ class BasicLayout extends React.PureComponent {
     }
     const { enterpriseList } = this.state;
     this.props.dispatch(
-      `/enterprise/${enterpriseList[0].enterprise_id}/index`
-      // routerRedux.push(`/team/${key}/region/${currRegionName}/enterprise`)
+      routerRedux.push(`/team/${key}/region/${currRegionName}/index`)
     );
     // location.reload();
   };
@@ -352,8 +331,7 @@ class BasicLayout extends React.PureComponent {
     const { enterpriseList } = this.state;
     this.props.dispatch(
       routerRedux.push(
-        `/enterprise/${enterpriseList[0].enterprise_id}/index`
-        // `/team/${globalUtil.getCurrTeamName()}/region/${key}/enterprise`
+        `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
       )
     );
     // location.reload();
@@ -400,7 +378,7 @@ class BasicLayout extends React.PureComponent {
           callback: () => {
             this.props.dispatch(
               routerRedux.replace(
-                `/enterprise/${enterpriseList[0].enterprise_id}/index`
+                `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
               )
             );
           },
@@ -416,56 +394,6 @@ class BasicLayout extends React.PureComponent {
       breadcrumbNameMap: this.breadcrumbNameMap,
     };
   }
-
-  getNoMatch = () => {
-    const {
-      logined,
-      render,
-      authority,
-      redirectPath,
-      rainbondInfo,
-      ...rest
-    } = this.props;
-    if (redirectPath === '/user/login') {
-      if (
-        rainbondInfo &&
-        rainbondInfo.is_public !== undefined &&
-        rainbondInfo.is_public
-      ) {
-        return <PublicLogin />;
-      }
-      return (
-        <Route
-          {...rest}
-          render={() => (
-            <Redirect
-              to={{
-                pathname: redirectPath,
-              }}
-            />
-          )}
-        />
-      );
-    }
-    return (
-      <Route
-        {...rest}
-        render={() => (
-          <Redirect
-            to={{
-              pathname: redirectPath,
-            }}
-          />
-        )}
-      />
-    );
-  };
-
-  goEnterprise = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
-    dispatch(`/enterprise/${enterpriseList[0].enterprise_id}/index`);
-  };
 
   render() {
     const {
@@ -485,7 +413,7 @@ class BasicLayout extends React.PureComponent {
       nouse,
       rainbondInfo,
     } = this.props;
-    const { enterpriseList } = this.state;
+    const { enterpriseList, enterpriseView } = this.state;
 
     const currRouterData = this.matchParamsPath(pathname);
 
@@ -535,16 +463,7 @@ class BasicLayout extends React.PureComponent {
       }
 
       const renderContent = () => {
-        // 当前团队没有数据中心
-        // if (!hasRegion) {
-        //   return (
-        //     <OpenRegion
-        //       mode="card"
-        //       onSubmit={this.handleOpenRegion}
-        //       onCancel={this.cancelOpenRegion}
-        //     />
-        //   );
-        // }
+        const { children } = this.props;
 
         // 数据中心维护中
         if (isRegionMaintain || nouse) {
@@ -578,71 +497,43 @@ class BasicLayout extends React.PureComponent {
 
         return (
           <div>
-            {/* <Authorized
-              logined
-              noMatch={this.getNoMatch()}
-              // authority={currRouterData.authority}
-            >
-              {children}
-            </Authorized> */}
-
             <Authorized
               logined
               // authority={children.props.route.authority}
               authority={['admin', 'user']}
               noMatch={<Redirect to="/user/login" />}
             >
-              {/* {children} */}
-              {this.goEnterprise()}
+              {children}
             </Authorized>
-
-            {/* {redirectData.map(item => (
-            <Redirect key={item.from} exact from={item.from} to={item.to} />
-          ))}
-          {getRoutes(match.path, routerData).map(item => (
-            <AuthorizedRoute
-              key={item.key}
-              path={item.path}
-              component={item.component}
-              exact={item.exact}
-              authority={item.authority}
-              logined
-              redirectPath={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/403`}
-            />
-          ))}
-
-          <Route render={NotFound} /> */}
-            {/* <Redirect exact from="/" to={baseRedirect} /> */}
           </div>
         );
       };
-
       return (
         <Layout>
-          {!isRegionMaintain && hasRegion && (
-            <SiderMenu
-              enterpriseList={enterpriseList}
-              title={
-                rainbondInfo &&
-                rainbondInfo.title !== undefined &&
-                rainbondInfo.title
-              }
-              currentUser={currentUser}
-              logo={
-                (rainbondInfo &&
-                  rainbondInfo.logo !== undefined &&
-                  rainbondInfo.logo) ||
-                logo
-              }
-              Authorized={Authorized}
-              menuData={getMenuData(groups)}
-              completeMenuData={getMenuData(groups, true)}
-              collapsed={collapsed}
-              location={location}
-              isMobile={this.state.isMobile}
-              onCollapse={this.handleMenuCollapse}
-            />
-          )}
+          {/* {!isRegionMaintain && hasRegion && ( */}
+          <SiderMenu
+            enterpriseList={enterpriseList}
+            title={
+              rainbondInfo &&
+              rainbondInfo.title !== undefined &&
+              rainbondInfo.title
+            }
+            currentUser={currentUser}
+            logo={
+              (rainbondInfo &&
+                rainbondInfo.logo !== undefined &&
+                rainbondInfo.logo) ||
+              logo
+            }
+            Authorized={Authorized}
+            menuData={getMenuData(groups)}
+            completeMenuData={getMenuData(groups, true)}
+            collapsed={collapsed}
+            location={location}
+            isMobile={this.state.isMobile}
+            onCollapse={this.handleMenuCollapse}
+          />
+          {/* )} */}
           <GlobalRouter
             enterpriseList={enterpriseList}
             title={
@@ -698,6 +589,7 @@ class BasicLayout extends React.PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <CheckUserInfo
+            enterpriseView={enterpriseView}
             rainbondInfo={rainbondInfo}
             onCurrTeamNoRegion={this.handleCurrTeamNoRegion}
             userInfo={currentUser}
@@ -716,13 +608,6 @@ class BasicLayout extends React.PureComponent {
           </CheckUserInfo>
         </DocumentTitle>
 
-        {/* 开通数据中心 */}
-        {/* {this.state.openRegion && (
-          <OpenRegion
-            onSubmit={this.handleOpenRegion}
-            onCancel={this.cancelOpenRegion}
-          />
-        )} */}
         {/* 创建团队 */}
         {/* {this.state.createTeam && (
           <CreateTeam
@@ -749,19 +634,6 @@ class BasicLayout extends React.PureComponent {
           rainbondInfo.is_public !== undefined &&
           rainbondInfo.is_public && <Meiqia />}
 
-        {/* 提示充值或购买资源 */}
-        {this.props.payTip && <PayTip dispatch={this.props.dispatch} />}
-        {/* 提示充值或购买资源 */}
-        {this.props.memoryTip && (
-          <MemoryTip
-            dispatch={this.props.dispatch}
-            memoryTip={this.props.memoryTip}
-          />
-        )}
-        {/* 企业账户余额不足 */}
-        {this.props.noMoneyTip && (
-          <PayMoneyTip dispatch={this.props.dispatch} />
-        )}
         {/* 企业尚未认证 */}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
@@ -799,4 +671,4 @@ export default connect(({ user, global, index, loading }) => ({
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
-}))(BasicLayout);
+}))(TeamLayout);

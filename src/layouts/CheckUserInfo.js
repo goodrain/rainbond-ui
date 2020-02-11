@@ -14,7 +14,6 @@ export default class CheckUserInfo extends React.PureComponent {
     super(props);
     this.state = {};
   }
-  componentDidMount = () => {};
   // 默认团队
   toDefaultTeam = () => {
     const { userInfo, enterpriseList } = this.props;
@@ -24,31 +23,12 @@ export default class CheckUserInfo extends React.PureComponent {
     const currRegion = team.region[0]
       ? team.region[0].team_region_name
       : 'no-region';
-    console.log('333');
 
     this.props.dispatch(
-      routerRedux.replace(
-        `/enterprise/${enterpriseList[0].enterprise_id}/index`
-      )
-      // routerRedux.replace(`/team/${team.team_name}/region/${currRegion}/enterprise`)
+      routerRedux.replace(`/team/${team.team_name}/region/${currRegion}/index`)
     );
   };
-  // 判断当前用户有没有团队
-  hasTeam = () => {
-    // const { userInfo } = this.props;
 
-    // if (!userInfo.teams || !userInfo.teams.length) {
-    //   return false;
-    // }
-    return true;
-  };
-  // 判断当前用户有没有团队
-  canCreateTeam = () => {
-    const { userInfo } = this.props;
-    return (
-      userUtil.isSystemAdmin(userInfo) || userUtil.isCompanyAdmin(userInfo)
-    );
-  };
   // 验证当前团队里是否已经开通了数据中心
   currTeamHasRegion = () => {
     const { userInfo } = this.props;
@@ -60,6 +40,7 @@ export default class CheckUserInfo extends React.PureComponent {
     }
     return true;
   };
+
   // 验证url里的团队和数据中心是否有效
   checkUrlTeamRegion = () => {
     const { userInfo, enterpriseList } = this.props;
@@ -69,29 +50,31 @@ export default class CheckUserInfo extends React.PureComponent {
 
     // 没有数据中心放行，在后续页面做处理
     if (currRegion === 'no-region') {
+      console.log('111');
+
       return true;
     }
 
     // url里没有team
     if (!currTeam || !currRegion) {
+      console.log('22');
+
       currTeam = cookie.get('team');
       currRegion = cookie.get('region_name');
       if (currTeam && currRegion) {
-        console.log('1111');
         this.props.dispatch(
-          routerRedux.replace(
-            `/enterprise/${enterpriseList[0].enterprise_id}/index`
-          )
-          // routerRedux.replace(`/team/${currTeam}/region/${currRegion}/enterprise`)
+          routerRedux.replace(`/team/${currTeam}/region/${currRegion}/index`)
         );
       } else {
         this.toDefaultTeam();
       }
-      return false;
+      return true;
     }
 
     // 如果当前用户没有该团队, 并且是系统管理员
     if (!userUtil.getTeamByTeamName(userInfo, currTeam)) {
+      console.log('33');
+
       if (userUtil.isSystemAdmin(userInfo) || currTeam === 'grdemo') {
         this.props.dispatch({
           type: 'user/getTeamByName',
@@ -113,13 +96,10 @@ export default class CheckUserInfo extends React.PureComponent {
     // 判断当前团队是否有数据中心
     const team = userUtil.getTeamByTeamName(userInfo, currTeam);
     if (!team.region || !team.region.length) {
-      console.log('2222');
+      console.log('444');
 
       this.props.dispatch(
-        routerRedux.replace(
-          `/enterprise/${enterpriseList[0].enterprise_id}/index`
-        )
-        // routerRedux.replace(`/team/${currTeam}/region/no-region/enterprise`)
+        routerRedux.replace(`/team/${currTeam}/region/no-region/index`)
       );
       return false;
     }
@@ -129,23 +109,25 @@ export default class CheckUserInfo extends React.PureComponent {
       region => region.team_region_name === currRegion
     );
     if (!region.length) {
+      console.log('555');
+
       this.toDefaultTeam();
-      return false;
+      return true;
     }
     cookie.set('team', currTeam);
     cookie.set('region_name', currRegion);
     return true;
   };
-
+  // 判断是否是企业视图
   isEnterpriseView = () => {
-    const { enterpriseView, enterpriseList, dispatch } = this.props;
-    if (enterpriseView) {
+    const { enterpriseList, dispatch, enterpriseView } = this.props;
+    const eid = globalUtil.getCurrEnterpriseId();
+    if (enterpriseView && !eid) {
       dispatch(
         routerRedux.replace(
           `/enterprise/${enterpriseList[0].enterprise_id}/index`
         )
       );
-      return true;
     }
     return false;
   };
@@ -155,32 +137,15 @@ export default class CheckUserInfo extends React.PureComponent {
       children,
       userInfo,
       rainbondInfo,
-      enterpriseView,
       enterpriseList,
+      enterpriseView,
     } = this.props;
 
     if (!userInfo || !rainbondInfo || enterpriseList.length === 0) return null;
 
     if (this.isEnterpriseView()) {
-      return children;
-    }
-    if (!this.hasTeam() && this.canCreateTeam()) {
-      return (
-        <WelcomeAndCreateTeam
-          rainbondInfo={rainbondInfo}
-          onOk={this.props.onInitTeamOk}
-        />
-      );
-    }
-    if (!this.hasTeam() && !this.canCreateTeam()) {
-      return (
-        <WelcomeAndJoinTeam
-          rainbondInfo={rainbondInfo}
-          onOk={this.props.onInitTeamOk}
-        />
-      );
-    }
-    if (!this.checkUrlTeamRegion()) {
+      return null;
+    } else if (!enterpriseView && !this.checkUrlTeamRegion()) {
       return null;
     }
 

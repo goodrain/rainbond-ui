@@ -102,19 +102,19 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
 
-    // if (
-    //   rainbondUtil.OauthbIsEnable(rainbondInfo) ||
-    //   rainbondUtil.OauthbEnable(rainbondInfo)
-    // ) {
-    //   this.handelOauthInfo();
-    // }
+    if (
+      rainbondUtil.OauthbIsEnable(rainbondInfo) ||
+      rainbondUtil.OauthbEnable(rainbondInfo)
+    ) {
+      this.handelOauthInfo();
+    }
 
-    // dispatch({
-    //   type: 'global/getIsRegist',
-    //   callback: () => {},
-    // });
+    dispatch({
+      type: 'global/getIsRegist',
+      callback: () => {},
+    });
 
-    // this.getEnterpriseList();
+    this.getEnterpriseList();
 
   }
 
