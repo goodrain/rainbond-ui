@@ -417,12 +417,10 @@ export default class Main extends PureComponent {
 
   getShareList = () => {
     const { dispatch, form } = this.props;
-    const { ShareTypeShow, info, internalValue } = this.state;
+    const { ShareTypeShow, info } = this.state;
     const team_name = globalUtil.getCurrTeamName();
 
-    const { setFieldsValue, getFieldValue } = form;
-    let scopes = getFieldValue("scope");
-    let setscope = scopes == "goodrain" ? "goodrain" : internalValue;
+    const { setFieldsValue } = form;
 
     dispatch({
       type: "groupControl/getShareList",
@@ -452,8 +450,8 @@ export default class Main extends PureComponent {
               },
               () => {
                 this.getShareInfo({
-                  scope: setscope,
-                  app_name: "",
+                  scope: "goodrain",
+                  app_name: "wertyu",
                   create_type: "new"
                 });
               }
@@ -488,10 +486,9 @@ export default class Main extends PureComponent {
     const { ShareTypeShow } = this.state;
     const { getFieldValue } = this.props.form;
     const version = getFieldValue("version");
+
     if (ShareTypeShow) {
-      if (!param.scope) {
-        params.scope = "goodrain";
-      }
+      params.scope = "goodrain";
       params.version =
         typeof version === "object" ? version[version.length - 1] : version;
     }
@@ -528,16 +525,8 @@ export default class Main extends PureComponent {
               );
               this.getSaremarkets();
             } else {
-              let int =
-                share_group_info.scope &&
-                JSON.stringify(share_group_info.scope) !== "{}"
-                  ? share_group_info.scope === "goodrain:private"
-                    ? "team"
-                    : share_group_info.scope
-                  : "team";
-
               this.setState({
-                internalValue: int
+                internalValue: share_group_info.scope
               });
               isnext && this.getShareList();
             }
@@ -551,10 +540,6 @@ export default class Main extends PureComponent {
                     url: share_group_info.pic
                   }
                 ]
-              });
-            } else {
-              this.setState({
-                fileList: []
               });
             }
             this.share_group_info = share_group_info;
@@ -861,7 +846,6 @@ export default class Main extends PureComponent {
       },
       () => {
         this.getShareList();
-        this.getShareInfo();
       }
     );
     setFieldsValue({ scope: value });
@@ -962,20 +946,17 @@ export default class Main extends PureComponent {
     this.setState({ addGroup: false });
   };
   handleAddGroup = vals => {
-    const { appList, internalValue } = this.state;
+    const { appList } = this.state;
     let isAppList = appList.filter(item => {
       return item.group_name == vals.group_name;
     });
-    const { setFieldsValue, getFieldValue } = this.props.form;
-
-    let scopes = getFieldValue("scope");
-    let setscope = scopes == "goodrain" ? "goodrain" : internalValue;
+    const { setFieldsValue } = this.props.form;
 
     if (isAppList.length > 0 && !isAppList[0].group_key) {
       this.getShareInfo({
         create_type: "new",
-        scope: setscope,
-        app_name: vals.group_name
+        scope: "goodrain",
+        app_name: "wertyu"
       });
     } else if (isAppList.length === 0) {
       appList.unshift({ group_name: vals.group_name });
@@ -984,8 +965,8 @@ export default class Main extends PureComponent {
       });
       this.getShareInfo({
         create_type: "new",
-        scope: setscope,
-        app_name: vals.group_name
+        scope: "goodrain",
+        app_name: "wertyu"
       });
       setFieldsValue({ group_name: vals.group_name });
     } else {
@@ -1000,12 +981,8 @@ export default class Main extends PureComponent {
     });
   };
   handleOnchange = value => {
+    const { appList } = this.state;
     const _th = this;
-    const { appList, internalValue } = this.state;
-    const { getFieldValue } = this.props.form;
-    let scopes = getFieldValue("scope");
-    let setscope = scopes == "goodrain" ? "goodrain" : internalValue;
-
     let arr = appList.filter(item => item.group_name == value);
     this.getShareVersion(arr.length > 0 && arr[0].group_key, true);
     this.setState(
@@ -1020,8 +997,8 @@ export default class Main extends PureComponent {
                 group_key: arr[0].group_key
               }
             : {
-                scope: setscope,
-                app_name: value,
+                scope: "goodrain",
+                app_name: "wertyu",
                 create_type: "new"
               }
         );

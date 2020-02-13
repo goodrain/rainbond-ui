@@ -330,6 +330,7 @@ export async function getShare(
     {
       method: "get",
       params: {
+        scope: body.scope ? body.scope : undefined,
         app_name: body.app_name ? body.app_name : undefined,
         version: body.version ? body.version : undefined,
         scope: body.scope ? body.scope : undefined,
