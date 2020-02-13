@@ -158,7 +158,7 @@ class CreateOAuthForm extends PureComponent {
                     message: "最大长度255位"
                   }
                 ]
-              })(<Input disabled={edit} placeholder="请输入服务地址" maxLength={255}/>)}
+              })(<Input disabled={edit} placeholder="请输入服务地址" />)}
               <div className={styles.conformDesc}>第三方服务访问地址</div>
             </Form.Item>
           )}
@@ -229,7 +229,7 @@ class CreateOAuthForm extends PureComponent {
                   message: "最大长度255位"
                 }
               ]
-            })(<Input placeholder="请输入平台访问域名" maxLength={255}/>)}
+            })(<Input placeholder="请输入平台访问域名" />)}
             <div className={styles.conformDesc}>
               平台访问域名是用于OAuth认证完回跳时的访问地址
             </div>
