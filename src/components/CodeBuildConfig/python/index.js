@@ -17,7 +17,7 @@ class Index extends PureComponent {
           span: 24
         },
         sm: {
-          span: 3
+          span: 4
         }
       },
       wrapperCol: {
@@ -25,7 +25,7 @@ class Index extends PureComponent {
           span: 24
         },
         sm: {
-          span: 21
+          span: 20
         }
       }
     };

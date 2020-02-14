@@ -1,12 +1,12 @@
 import React, { PureComponent } from "react";
-import { 
+import {
     Button,
     Card,
     Modal,
     Radio,
     Input,
     Form,
-    Row, 
+    Row,
     Col,
 } from "antd";
 import { connect } from "dva";
@@ -177,7 +177,7 @@ class CodeBuildConfig extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 6
+          span: 24
         },
         sm: {
           span: 6
@@ -185,7 +185,7 @@ class CodeBuildConfig extends PureComponent {
       },
       wrapperCol: {
         xs: {
-          span: 18
+          span: 24
         },
         sm: {
           span: 18
