@@ -1,12 +1,15 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Col, Row, Menu, Dropdown, Icon,Spin } from 'antd';
+import { Card, Button, Col, Row, Menu, Dropdown, Icon, Spin, Tabs } from 'antd';
 import More from '../../../public/images/more.svg';
+import userUtil from '../../utils/user';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import CreateTeam from '../../components/CreateTeam';
-import ConfirmModal from "../../components/ConfirmModal";
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
+
+const { TabPane } = Tabs;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -14,13 +17,19 @@ import styles from './index.less';
 export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
     super(props);
+    const { user } = this.props;
+    const adminer =
+      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       teamList: [],
       overviewTeamInfo: false,
       showAddTeam: false,
       showExitTeam: false,
-      enterpriseTeamsLoading:true,
-      overviewTeamsLoading:true,
+      exitTeamName: '',
+      enterpriseTeamsLoading: true,
+      overviewTeamsLoading: true,
+      adminer,
+      showDelTeam: false,
     };
   }
   componentDidMount() {
@@ -57,8 +66,8 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            teamList: res.list,
-            enterpriseTeamsLoading:false,
+            teamList: res.bean.list,
+            enterpriseTeamsLoading: false,
           });
         }
       },
@@ -71,12 +80,12 @@ export default class EnterpriseTeams extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewTeam',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id:user.enterprise_id,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            overviewTeamsLoading:false,
+            overviewTeamsLoading: false,
             overviewTeamInfo: res.bean,
           });
         }
@@ -90,20 +99,20 @@ export default class EnterpriseTeams extends PureComponent {
   cancelCreateTeam = () => {
     this.setState({ showAddTeam: false });
   };
-  showExitTeam = () => {
-    this.setState({ showExitTeam: true });
+  showExitTeam = exitTeamName => {
+    this.setState({ showExitTeam: true, exitTeamName });
   };
 
   handleExitTeam = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    if (team_name == "jdgn6pk5") {
-        notification.warning({ message: "当前为演示团队，不能退出！" });
-        return
+    const { exitTeamName } = this.state;
+    if (exitTeamName == 'jdgn6pk5') {
+      notification.warning({ message: '当前为演示团队，不能退出！' });
+      return;
     }
     this.props.dispatch({
-      type: "teamControl/exitTeam",
+      type: 'teamControl/exitTeam',
       payload: {
-        team_name,
+        team_name: exitTeamName,
       },
       callback: () => {
         location.reload();
@@ -111,13 +120,39 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-
   hideExitTeam = () => {
-    this.setState({ showExitTeam: false });
+    this.setState({ showExitTeam: false, exitTeamName: '' });
+  };
+  handleActiveTabs = () => {};
+
+  showDelTeam = exitTeamName => {
+    this.setState({ showDelTeam: true, exitTeamName });
+  };
+  hideDelTeam = () => {
+    this.setState({ showExitTeam: false, showDelTeam: false });
+  };
+
+  handleDelTeam = () => {
+    const { exitTeamName } = this.state;
+    this.props.dispatch({
+      type: 'teamControl/delTeam',
+      payload: {
+        team_name: exitTeamName,
+      },
+      callback: () => {
+        location.reload();
+      },
+    });
   };
 
   render() {
-    const { teamList, overviewTeamInfo ,enterpriseTeamsLoading,overviewTeamsLoading} = this.state;
+    const {
+      teamList,
+      overviewTeamInfo,
+      enterpriseTeamsLoading,
+      overviewTeamsLoading,
+      adminer,
+    } = this.state;
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -146,14 +181,210 @@ export default class EnterpriseTeams extends PureComponent {
       </svg>
     );
 
-    const menu = (
-      <Menu>
-        <Menu.Item>
-          <a href="javascript:;" onClick={this.showExitTeam}>
-            退出团队
-          </a>
-        </Menu.Item>
-      </Menu>
+    const menu = exitTeamName => {
+      return (
+        <Menu>
+          <Menu.Item>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.showExitTeam(exitTeamName);
+              }}
+            >
+              退出团队
+            </a>
+          </Menu.Item>
+        </Menu>
+      );
+    };
+    const managementMenu = exitTeamName => {
+      return (
+        <Menu>
+          <Menu.Item>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.showExitTeam(exitTeamName);
+              }}
+            >
+              退出团队
+            </a>
+          </Menu.Item>
+          <Menu.Item>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.showDelTeam(exitTeamName);
+              }}
+            >
+              删除团队
+            </a>
+          </Menu.Item>
+        </Menu>
+      );
+    };
+    const operation = (
+      <Col span={4} style={{ textAlign: 'right' }}>
+        {adminer && (
+          <Button
+            type="primary"
+            onClick={this.onAddTeam}
+            style={{ marginRight: '5px' }}
+          >
+            创建团队
+          </Button>
+        )}
+        <Button type="primary" onClick={this.onAddTeam}>
+          加入团队
+        </Button>
+      </Col>
+    );
+    const managementTemas = (
+      <div>
+        <Row>
+          <Col span={20} className={styles.teamsTit}>
+            全部团队
+          </Col>
+          {operation}
+        </Row>
+        <Row className={styles.teamMinTit} type="flex" align="middle">
+          <Col span={8}>团队名称</Col>
+          <Col span={5}>拥有人</Col>
+          <Col span={5}>角色</Col>
+          <Col span={5}>数据中心</Col>
+        </Row>
+
+        {teamList.map(item => {
+          const {
+            team_id,
+            team_alias,
+            region,
+            owner_name,
+            role,
+            team_name,
+          } = item;
+          return (
+            <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
+              <Row type="flex" align="middle">
+                <Col span={8}>{team_alias}</Col>
+                <Col span={5}>{owner_name}</Col>
+                <Col span={5}>{role}</Col>
+                <Col span={5}>{region}</Col>
+                <Col span={1}>
+                  <Dropdown
+                    overlay={managementMenu(team_name)}
+                    placement="bottomLeft"
+                  >
+                    <Button style={{ border: 'none' }}>
+                      <Icon component={moreSvg} />
+                    </Button>
+                  </Dropdown>
+                </Col>
+              </Row>
+            </Card>
+          );
+        })}
+      </div>
+    );
+    const teamInfo = (
+      <div>
+        <Row>
+          <Col span={20} className={styles.teamsTit}>
+            最近常用的团队
+          </Col>
+          {operation}
+        </Row>
+        <Row className={styles.teamMinTit} type="flex" align="middle">
+          <Col span={8}>团队名称</Col>
+          <Col span={5}>拥有人</Col>
+          <Col span={5}>角色</Col>
+          <Col span={5}>数据中心</Col>
+        </Row>
+
+        {overviewTeamInfo &&
+          overviewTeamInfo.active_teams.map(item => {
+            const {
+              team_id,
+              team_alias,
+              region,
+              owner_name,
+              role,
+              team_name,
+            } = item;
+            return (
+              <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
+                <Row type="flex" align="middle">
+                  <Col span={8}>{team_alias}</Col>
+                  <Col span={5}>{owner_name}</Col>
+                  <Col span={5}>{role}</Col>
+                  <Col span={5}>{region}</Col>
+                  <Col span={1}>
+                    <Dropdown overlay={menu(team_name)} placement="bottomLeft">
+                      <Button style={{ border: 'none' }}>
+                        <Icon component={moreSvg} />
+                      </Button>
+                    </Dropdown>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })}
+
+        <Row>
+          <Col span={24} className={styles.teamsTit}>
+            最新加入团队
+          </Col>
+        </Row>
+
+        {overviewTeamInfo && (
+          <Card style={{ marginBottom: '10px' }} hoverable>
+            <Row
+              type="flex"
+              align="middle"
+              key={overviewTeamInfo.new_join_team.team_id}
+            >
+              <Col span={8}>{overviewTeamInfo.new_join_team.team_alias}</Col>
+              <Col span={5}>{overviewTeamInfo.new_join_team.owner_name}</Col>
+              <Col span={5}>{overviewTeamInfo.new_join_team.role}</Col>
+              <Col span={5}>{overviewTeamInfo.new_join_team.region}</Col>
+              <Col span={1}>
+                <Dropdown overlay={menu} placement="bottomLeft">
+                  <Button style={{ border: 'none' }}>
+                    <Icon component={moreSvg} />
+                  </Button>
+                </Dropdown>
+              </Col>
+            </Row>
+          </Card>
+        )}
+
+        <Row>
+          <Col span={24} className={styles.teamsTit}>
+            全部团队
+          </Col>
+        </Row>
+
+        {teamList.map(item => {
+          const { team_id, team_alias, region, owner_name, role } = item;
+          return (
+            <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
+              <Row type="flex" align="middle">
+                <Col span={8}>{team_alias}</Col>
+                <Col span={5}>{owner_name}</Col>
+                <Col span={5}>{role}</Col>
+                <Col span={5}>{region}</Col>
+                <Col span={1}>
+                  <Dropdown overlay={menu} placement="bottomLeft">
+                    <Button style={{ border: 'none' }}>
+                      <Icon component={moreSvg} />
+                    </Button>
+                  </Dropdown>
+                </Col>
+              </Row>
+            </Card>
+          );
+        })}
+      </div>
     );
     return (
       <PageHeaderLayout
@@ -175,112 +406,36 @@ export default class EnterpriseTeams extends PureComponent {
             onCancel={this.hideExitTeam}
           />
         )}
-        {enterpriseTeamsLoading||overviewTeamsLoading?
-           <div className={styles.example}>
-          <Spin />
-        </div>: 
-        <div>
-        <Row>
-          <Col span={20} className={styles.teamsTit}>
-            最近常用的团队
-          </Col>
-          <Col span={4} style={{ textAlign: 'right' }}>
-            <Button
-              type="primary"
-              onClick={this.onAddTeam}
-              style={{ marginRight: '5px' }}
-            >
-              创建团队
-            </Button>
-            <Button type="primary" onClick={this.onAddTeam}>
-              加入团队
-            </Button>
-          </Col>
-        </Row>
-        <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={8}>团队名称</Col>
-          <Col span={5}>拥有人</Col>
-          <Col span={5}>角色</Col>
-          <Col span={5}>数据中心</Col>
-        </Row>
+        {this.state.showDelTeam && (
+          <ConfirmModal
+            onOk={this.handleDelTeam}
+            title="删除团队"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此团队吗？"
+            onCancel={this.hideDelTeam}
+          />
+        )}
 
-        {overviewTeamInfo &&
-          overviewTeamInfo.active_teams.map(item => {
-            const { team_id, team_alias, region, owner_name, role } = item;
-            return (
-              <Card key={team_id} style={{ marginBottom: '10px' }}>
-                <Row type="flex" align="middle">
-                  <Col span={8}>{team_alias}</Col>
-                  <Col span={5}>{owner_name}</Col>
-                  <Col span={5}>{role}</Col>
-                  <Col span={5}>{region}</Col>
-                  <Col span={1}>
-                    <Dropdown overlay={menu} placement="bottomLeft">
-                      <Button style={{ border: 'none' }}>
-                        <Icon component={moreSvg} />
-                      </Button>
-                    </Dropdown>
-                  </Col>
-                </Row>
-              </Card>
-            );
-          })}
-
-        <Row>
-          <Col span={24} className={styles.teamsTit}>
-            最新加入团队
-          </Col>
-        </Row>
-
-        {overviewTeamInfo && ( <Card style={{ marginBottom: '10px' }}>
-            <Row
-              type="flex"
-              align="middle"
-              key={overviewTeamInfo.new_join_team.team_id}
-            >
-              <Col span={8}>{overviewTeamInfo.new_join_team.team_alias}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.owner_name}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.role}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.region}</Col>
-              <Col span={1}>
-                <Dropdown overlay={menu} placement="bottomLeft">
-                  <Button style={{ border: 'none' }}>
-                    <Icon component={moreSvg} />
-                  </Button>
-                </Dropdown>
-              </Col>
-            </Row>
-        </Card>
-          )}
-
-        <Row>
-          <Col span={24} className={styles.teamsTit}>
-            全部团队
-          </Col>
-        </Row>
-
-        {teamList.map(item => {
-          const { team_id, team_alias, region, owner_name, role } = item;
-          return (
-            <Card key={team_id} style={{ marginBottom: '10px' }}>
-              <Row type="flex" align="middle">
-                <Col span={8}>{team_alias}</Col>
-                <Col span={5}>{owner_name}</Col>
-                <Col span={5}>{role}</Col>
-                <Col span={5}>{region}</Col>
-                <Col span={1}>
-                  <Dropdown overlay={menu} placement="bottomLeft">
-                    <Button style={{ border: 'none' }}>
-                      <Icon component={moreSvg} />
-                    </Button>
-                  </Dropdown>
-                </Col>
-              </Row>
-            </Card>
-          );
-        })}
-        </div>
-    }
+        {enterpriseTeamsLoading || overviewTeamsLoading ? (
+          <div className={styles.example}>
+            <Spin />
+          </div>
+        ) : (
+          <div>
+            {adminer ? (
+              <Tabs defaultActiveKey="1" onChange={this.handleActiveTabs}>
+                <TabPane tab="团队" key="1">
+                  {teamInfo}
+                </TabPane>
+                <TabPane tab="管理团队" key="2">
+                  {managementTemas}
+                </TabPane>
+              </Tabs>
+            ) : (
+              teamInfo
+            )}
+          </div>
+        )}
       </PageHeaderLayout>
     );
   }

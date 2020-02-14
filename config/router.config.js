@@ -30,6 +30,7 @@ export default [
     component: './Exception/triggerException',
   },
   // app
+
   {
     path: '/',
     component: './Transit',
@@ -37,12 +38,16 @@ export default [
     // Routes: ['src/pages/Authorized'],
     authority: ['admin', 'user'],
     routes: [
-      // dashboard
-      // {
-      //   path: '/',
-      //   redirect: '/enterprise',
-      //   authority: ['admin', 'user'],
-      // },
+      {
+        path: '/',
+        redirect: '/enterprise',
+        authority: ['admin', 'user'],
+      },
+      {
+        path: '/Transit',
+        redirect: '/enterprise',
+        authority: ['admin', 'user'],
+      },
       // 企业总览
       {
         path: '/enterprise',

@@ -1,16 +1,15 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import EnterpriseLayout from '../../layouts/EnterpriseLayout';
-import TeamLayout from '../../layouts/TeamLayout';
 
 @connect()
-export default class Enterprise extends PureComponent {
+export default class Trs extends PureComponent {
   constructor(props) {
     super(props);
   }
   componentDidMount() {
     const { dispatch, location } = this.props;
+    console.log('Trs')
     // dispatch(
     //   routerRedux.replace(
     //     location.pathname.indexOf('team') > -1 ? '/team' : 'enterprise'
@@ -18,8 +17,7 @@ export default class Enterprise extends PureComponent {
     // );
   }
   render() {
-    const { children } = this.props;
-    return <div>{children}</div>;
+    return <div>Trs</div>;
     // return <EnterpriseLayout {...this.props}/>;
   }
 }

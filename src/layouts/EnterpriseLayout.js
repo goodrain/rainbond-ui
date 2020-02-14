@@ -36,7 +36,6 @@ import AuthCompany from '../components/AuthCompany';
 
 import PublicLogin from '../components/Authorized/PublicLogin';
 
-import CheckUserInfo from './CheckUserInfo';
 import InitTeamAndRegionData from './InitTeamAndRegionData';
 import PayTip from './PayTip';
 import MemoryTip from './MemoryTip';
@@ -51,8 +50,6 @@ const { Content } = Layout;
 const { check } = Authorized;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
-  console.log('meunDmeunmeunata', meun);
-
   const routerMap = {};
   const mergeMeunAndRouter = meunData => {
     meunData.forEach(meunItem => {
@@ -64,7 +61,6 @@ const getBreadcrumbNameMap = memoizeOne(meun => {
     });
   };
   mergeMeunAndRouter(meun);
-  console.log('routerMap', routerMap);
   return routerMap;
 }, deepEqual);
 
@@ -121,6 +117,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany: false,
       enterpriseList: [],
       enterpriseView: true,
+      enterTrue: true,
     };
   }
 
@@ -254,13 +251,9 @@ class EnterpriseLayout extends PureComponent {
   };
 
   matchParamsPath = pathname => {
-    console.log('pathname', pathname);
-
     const pathKey = Object.keys(this.breadcrumbNameMap).find(key => {
-      console.log('key', key);
       return pathToRegexp(key).test(pathname);
     });
-    console.log('pathKey', pathKey);
     return this.breadcrumbNameMap[pathKey];
   };
 
@@ -395,6 +388,29 @@ class EnterpriseLayout extends PureComponent {
     };
   }
 
+
+    // 判断是否是企业视图
+    isEnterpriseView = () => {
+      const {
+        dispatch,
+      } = this.props;
+      const {enterpriseList,enterTrue,enterpriseView} =this.state
+
+      const eid = globalUtil.getCurrEnterpriseId();
+      if (enterpriseView && enterTrue&& !eid) {
+        dispatch(
+          routerRedux.replace(
+            `/enterprise/${enterpriseList[0].enterprise_id}/index`
+          )
+        );
+        this.setState({
+          enterTrue:false
+        })
+        return false;
+      }
+      return false;
+    };
+
   render() {
     const {
       currentUser,
@@ -413,20 +429,24 @@ class EnterpriseLayout extends PureComponent {
       nouse,
       rainbondInfo,
     } = this.props;
-    const { enterpriseList, enterpriseView } = this.state;
+    const { enterpriseList, enterpriseView, enterTrue } = this.state;
 
     const currRouterData = this.matchParamsPath(pathname);
 
-    console.log('currRouterData', currRouterData);
     const token = cookie.get('token');
 
     if (!rainbondInfo && !token) {
       this.props.dispatch(routerRedux.push('/user/login'));
       return null;
     }
-    if (enterpriseList.length === 0) {
+
+
+    if (!currentUser || !rainbondInfo || enterpriseList.length === 0) return null;
+
+    if (this.isEnterpriseView()) {
       return null;
     }
+
     /**
      * 根据菜单取得重定向地址.
      */
@@ -587,12 +607,6 @@ class EnterpriseLayout extends PureComponent {
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
-          <CheckUserInfo
-            enterpriseView={enterpriseView}
-            rainbondInfo={rainbondInfo}
-            userInfo={currentUser}
-            enterpriseList={enterpriseList}
-          >
             <ContainerQuery query={query}>
               {params => (
                 <Context.Provider value={this.getContext()}>
@@ -600,7 +614,6 @@ class EnterpriseLayout extends PureComponent {
                 </Context.Provider>
               )}
             </ContainerQuery>
-          </CheckUserInfo>
         </DocumentTitle>
 
         {/* 创建团队 */}

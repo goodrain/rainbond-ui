@@ -1,7 +1,7 @@
 
-import "@babel/polyfill";
-import 'moment/locale/zh-cn';
-import './rollbar';
+// import "@babel/polyfill";
+// import 'moment/locale/zh-cn';
+// import './rollbar';
 
 // import createHistory from "history/createHashHistory";
 // // user BrowserHistory import createHistory from 'history/createBrowserHistory';

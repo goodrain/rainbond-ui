@@ -122,6 +122,8 @@ class TeamLayout extends React.PureComponent {
   }
 
   componentDidMount() {
+    console.log('TeamLaout')
+
     this.initRaindbondInfo();
   }
 
@@ -445,7 +447,6 @@ class TeamLayout extends React.PureComponent {
     };
     getMenuData().forEach(getRedirect);
 
-    // const baseRedirect = this.getBaseRedirect();
     const layout = () => {
       const team = userUtil.getTeamByTeamName(
         currentUser,
@@ -586,7 +587,7 @@ class TeamLayout extends React.PureComponent {
       );
     };
     return (
-      <Fragment>
+       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <CheckUserInfo
             enterpriseView={enterpriseView}
@@ -606,8 +607,7 @@ class TeamLayout extends React.PureComponent {
               </ContainerQuery>
             </InitTeamAndRegionData>
           </CheckUserInfo>
-        </DocumentTitle>
-
+         </DocumentTitle>
         {/* 创建团队 */}
         {/* {this.state.createTeam && (
           <CreateTeam
@@ -621,21 +621,21 @@ class TeamLayout extends React.PureComponent {
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
         )} */}
         {/* 修改密码 */}
-        {this.state.showChangePassword && (
+        {/* {this.state.showChangePassword && (
           <ChangePassword
             onOk={this.handleChangePass}
             onCancel={this.cancelChangePass}
           />
         )}
 
-        <Loading />
+        <Loading /> */}
 
-        {rainbondInfo &&
+        {/* {rainbondInfo &&
           rainbondInfo.is_public !== undefined &&
-          rainbondInfo.is_public && <Meiqia />}
+          rainbondInfo.is_public && <Meiqia />} */}
 
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+        {/* {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
             market_info={this.state.market_info}
             onOk={() => {
@@ -649,8 +649,8 @@ class TeamLayout extends React.PureComponent {
               this.props.dispatch(routerRedux.replace(jumpPath + query));
             }}
           />
-        )}
-      </Fragment>
+        )} */}
+     </Fragment>
     );
   }
 }

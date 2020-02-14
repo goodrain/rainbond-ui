@@ -84,19 +84,16 @@ export default class Enterprise extends PureComponent {
       showDeleteDomain: false,
       israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
       enterpriseInfo: false,
-      enterpriseInfoLoading:true,
+      enterpriseInfoLoading: true,
       enterpriseList: [],
       overviewAppInfo: false,
       overviewInfo: false,
       overviewTeamInfo: false,
 
-
-
-      overviewAppInfoLoading :true,
-      overviewInfoLoading:true,
-      overviewTeamInfoLoading:true,
-      overviewMonitorInfoLoading:true,
-
+      overviewAppInfoLoading: true,
+      overviewInfoLoading: true,
+      overviewTeamInfoLoading: true,
+      overviewMonitorInfoLoading: true,
     };
   }
   componentDidMount() {
@@ -115,7 +112,6 @@ export default class Enterprise extends PureComponent {
     });
 
     this.getEnterpriseList();
-
   }
 
   getEnterpriseList = () => {
@@ -157,7 +153,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
-            enterpriseInfoLoading:false,
+            enterpriseInfoLoading: false,
           });
         }
       },
@@ -177,9 +173,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewAppInfo: res.bean,
-            overviewAppInfoLoading :false,
-
-
+            overviewAppInfoLoading: false,
           });
         }
       },
@@ -199,8 +193,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewInfo: res.bean,
-            overviewInfoLoading:false,
-
+            overviewInfoLoading: false,
           });
         }
       },
@@ -220,7 +213,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading:false,
+            overviewTeamInfoLoading: false,
           });
         }
       },
@@ -240,7 +233,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading:false,
+            overviewMonitorInfoLoading: false,
           });
         }
       },
@@ -310,9 +303,6 @@ export default class Enterprise extends PureComponent {
   hidePayHistory = () => {
     this.setState({ showPayHistory: false });
   };
-
-
-
 
   handelUnderstand = () => {
     window.open('https://www.goodrain.com/industrycloud');
@@ -485,20 +475,18 @@ export default class Enterprise extends PureComponent {
     }
   };
 
-  handlUnit = (num,unit) => {
-    if(num){
-   let  nums = num
-   let units =unit
-   if(nums>=1024){
-    nums =num/1024
-    units ='GB'
-   }
+  handlUnit = (num, unit) => {
+    if (num) {
+      let nums = num;
+      let units = unit;
+      if (nums >= 1024) {
+        nums = num / 1024;
+        units = 'GB';
+      }
 
-    return unit?units: nums.toFixed(2)
-  }
-  return null
-
-
+      return unit ? units : nums.toFixed(2);
+    }
+    return null;
   };
 
   manage = () => {
@@ -544,7 +532,7 @@ export default class Enterprise extends PureComponent {
           bodyStyle={{
             paddingTop: 12,
           }}
-          style={{ height: '220px',marginBottom:'20px' }}
+          style={{ height: '220px', marginBottom: '20px' }}
           loading={enterpriseInfoLoading}
           bordered={false}
         >
@@ -608,9 +596,23 @@ export default class Enterprise extends PureComponent {
               }}
             >
               <Col span={12}>
-                <Card loading={overviewAppInfoLoading} style={{ height: '243px' }}>
+                <Card
+                  loading={overviewAppInfoLoading}
+                  style={{ height: '243px' }}
+                >
                   <Row style={{ marginBottom: '30px' }}>
-                    <Col className={styles.grays} span={12}>
+                    <Col
+                      className={styles.grays}
+                      span={12}
+                      onClick={() => {
+                        this.props.dispatch(
+                          routerRedux.replace(
+                            `/team`
+                            // `/team/bowozx961/region/rainbond/index`
+                          )
+                        );
+                      }}
+                    >
                       应用数量
                     </Col>
                     <Col className={styles.grays} span={12}>
@@ -803,7 +805,10 @@ export default class Enterprise extends PureComponent {
               }}
             >
               <Col span={12}>
-                <Card loading={overviewTeamInfoLoading} style={{ height: '243px' }}>
+                <Card
+                  loading={overviewTeamInfoLoading}
+                  style={{ height: '243px' }}
+                >
                   <Row style={{ marginBottom: '4px' }}>
                     <Col className={styles.grays} span={12}>
                       团队
@@ -878,7 +883,10 @@ export default class Enterprise extends PureComponent {
                 </Card>
               </Col>
               <Col span={11} offset={1}>
-                <Card loading={overviewMonitorInfoLoading} style={{ height: '243px' }}>
+                <Card
+                  loading={overviewMonitorInfoLoading}
+                  style={{ height: '243px' }}
+                >
                   <Row>
                     <Col span={8}>
                       <ul className={styles.Box}>
@@ -894,30 +902,32 @@ export default class Enterprise extends PureComponent {
                       </ul>
                     </Col>
                     <Col span={8}>
-                     {overviewMonitorInfo&& <ul className={styles.Box}>
-                        <li>
-                          <img src={Records} alt="" />
-                        </li>
-                        <li>
-                          {this.handlUnit(
-                              overviewMonitorInfo.memory.used
-                          )}
-                          <span className={styles.units}>
-                          {this.handlUnit(
-                              overviewMonitorInfo.memory.used,
-                              'MB'
-                          )}</span>/
-                          {this.handlUnit(
-                              overviewMonitorInfo.memory.total
-                          )}
-                          <span className={styles.units}> {this.handlUnit(
-                              overviewMonitorInfo.memory.used,
-                              'MB'
-                          )}</span>
-                        </li>
-                        <li>内存使用量/总量</li>
-                        <li>——</li>
-                      </ul>}
+                      {overviewMonitorInfo && (
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Records} alt="" />
+                          </li>
+                          <li>
+                            {this.handlUnit(overviewMonitorInfo.memory.used)}
+                            <span className={styles.units}>
+                              {this.handlUnit(
+                                overviewMonitorInfo.memory.used,
+                                'MB'
+                              )}
+                            </span>
+                            /{this.handlUnit(overviewMonitorInfo.memory.total)}
+                            <span className={styles.units}>
+                              {' '}
+                              {this.handlUnit(
+                                overviewMonitorInfo.memory.used,
+                                'MB'
+                              )}
+                            </span>
+                          </li>
+                          <li>内存使用量/总量</li>
+                          <li>——</li>
+                        </ul>
+                      )}
                     </Col>
                     <Col span={8}>
                       <ul className={styles.Box}>
@@ -925,9 +935,11 @@ export default class Enterprise extends PureComponent {
                           <img src={Cpus} alt="" />
                         </li>
                         <li>
-                          {overviewMonitorInfo && overviewMonitorInfo.cpu.used.toFixed(2)}
+                          {overviewMonitorInfo &&
+                            overviewMonitorInfo.cpu.used.toFixed(2)}
                           <span className={styles.units}>Core</span>/
-                          {overviewMonitorInfo && overviewMonitorInfo.cpu.total.toFixed(2)}
+                          {overviewMonitorInfo &&
+                            overviewMonitorInfo.cpu.total.toFixed(2)}
                           <span className={styles.units}>Core</span>
                         </li>
                         <li>CPU使用量/总量</li>

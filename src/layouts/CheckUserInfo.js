@@ -18,15 +18,19 @@ export default class CheckUserInfo extends React.PureComponent {
   toDefaultTeam = () => {
     const { userInfo, enterpriseList } = this.props;
 
-    const team = userUtil.getDefaultTeam(userInfo);
-    // 当前团队里没有数据中心
-    const currRegion = team.region[0]
-      ? team.region[0].team_region_name
-      : 'no-region';
+    routerRedux.replace(
+      `/enterprise/${enterpriseList[0].enterprise_id}/index`
+    )
 
-    this.props.dispatch(
-      routerRedux.replace(`/team/${team.team_name}/region/${currRegion}/index`)
-    );
+    // const team = userUtil.getDefaultTeam(userInfo);
+    // // 当前团队里没有数据中心
+    // const currRegion = team.region[0]
+    //   ? team.region[0].team_region_name
+    //   : 'no-region';
+
+    // this.props.dispatch(
+    //   routerRedux.replace(`/team/${team.team_name}/region/${currRegion}/index`)
+    // );
   };
 
   // 验证当前团队里是否已经开通了数据中心
@@ -50,8 +54,6 @@ export default class CheckUserInfo extends React.PureComponent {
 
     // 没有数据中心放行，在后续页面做处理
     if (currRegion === 'no-region') {
-      console.log('111');
-
       return true;
     }
 
@@ -62,6 +64,8 @@ export default class CheckUserInfo extends React.PureComponent {
       currTeam = cookie.get('team');
       currRegion = cookie.get('region_name');
       if (currTeam && currRegion) {
+      console.log('url里有team');
+
         this.props.dispatch(
           routerRedux.replace(`/team/${currTeam}/region/${currRegion}/index`)
         );
@@ -97,10 +101,10 @@ export default class CheckUserInfo extends React.PureComponent {
     const team = userUtil.getTeamByTeamName(userInfo, currTeam);
     if (!team.region || !team.region.length) {
       console.log('444');
-
-      this.props.dispatch(
-        routerRedux.replace(`/team/${currTeam}/region/no-region/index`)
-      );
+ this.toDefaultTeam();
+      // this.props.dispatch(
+      //   routerRedux.replace(`/team/${currTeam}/region/no-region/index`)
+      // );
       return false;
     }
 
@@ -120,14 +124,22 @@ export default class CheckUserInfo extends React.PureComponent {
   };
   // 判断是否是企业视图
   isEnterpriseView = () => {
-    const { enterpriseList, dispatch, enterpriseView } = this.props;
+    const {
+      enterpriseList,
+      dispatch,
+      enterTrue,
+      enterpriseView,
+      handleEnterTrue,
+    } = this.props;
     const eid = globalUtil.getCurrEnterpriseId();
-    if (enterpriseView && !eid) {
+    if (enterpriseView && enterTrue) {
       dispatch(
         routerRedux.replace(
           `/enterprise/${enterpriseList[0].enterprise_id}/index`
         )
       );
+      handleEnterTrue && handleEnterTrue();
+      return false;
     }
     return false;
   };
@@ -145,7 +157,9 @@ export default class CheckUserInfo extends React.PureComponent {
 
     if (this.isEnterpriseView()) {
       return null;
-    } else if (!enterpriseView && !this.checkUrlTeamRegion()) {
+    }
+
+    if (enterpriseView && !this.checkUrlTeamRegion()) {
       return null;
     }
 

@@ -767,7 +767,7 @@ export default class Index extends PureComponent {
       <div style={{ margin: "-24px -24px 0" }}>
         <div className={styles.pageHeaderContent}>
           <div className={styles.content}>
-            <div className={styles.contentTitle}>{team.team_alias}</div>
+            <div className={styles.contentTitle}>{team&&team.team_alias}</div>
           </div>
         </div>
         <Modal

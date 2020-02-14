@@ -867,6 +867,8 @@ export async function fetchEnterpriseInfo(param) {
 /* 查询企业下所有团队 */
 export async function fetchEnterpriseTeams(param) {
   return request(
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/teams`,
+
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams`,
     {
     method: "get",
@@ -912,6 +914,7 @@ export async function fetchOverview(param) {
 export async function fetchOverviewTeam(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview/team`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/overview/team`,
     {
     method: "get",
   });
