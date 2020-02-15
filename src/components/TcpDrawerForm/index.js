@@ -154,12 +154,11 @@ class DrawerForm extends PureComponent {
       tcpType == 0 &&
       (value.available_port == 80 ||
         value.available_port == 443 ||
-        value.available_port == 7070 ||
         value.available_port == 6060 ||
         value.available_port == 8443 ||
-        value.available_port == 8888)
+        value.available_port == 9999)
     ) {
-      callback('当前端口不可用!');
+      callback('当前端口属于系统占用!');
 
     } else {
       callback();
