@@ -65,8 +65,8 @@ class UpdateMemory extends PureComponent {
 class ConfigItems extends PureComponent {
   componentWillReceiveProps() { }
   onChange = (val, index) => {
-    const data = this.props.data;
-    data.map((item, i) => {
+    const {data} = this.props;
+    data&&data.map((item, i) => {
       if (index === i) {
         item.attr_value = val;
       }
@@ -94,10 +94,10 @@ class ConfigItems extends PureComponent {
         >
           <Input
             disabled={!item.is_change}
+            defaultValue={item.attr_value?item.attr_value:item.attr_default_value}
             onChange={(e) => {
               this.onChange(e.target.value, index);
             }}
-            value={item.attr_value || item.attr_default_value || ""}
           />
         </FormItem>
       );
