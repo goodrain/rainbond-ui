@@ -146,23 +146,10 @@ class DrawerForm extends PureComponent {
       callback('请输入完整的ip和端口');
       return;
     }
-    const ports = /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/;
-    if (value.available_port && !ports.test(value.available_port)) {
-      callback('请输入正确的端口');
-    } else if (
-      editInfo &&
-      tcpType == 0 &&
-      (value.available_port == 80 ||
-        value.available_port == 443 ||
-        value.available_port == 6060 ||
-        value.available_port == 8443 ||
-        value.available_port == 9999)
-    ) {
-      callback('当前端口属于系统占用!');
-
-    } else {
+    if (value.available_port &&value.available_port>=1&&value.available_port<=65534) {
       callback();
-
+    } else {
+      callback('请输入正确的端口:1-65534');
     }
   };
   render() {
