@@ -2,10 +2,46 @@
 @import "../../utils/utils.less";
 
 .enterpriseInfo {
-  display      : flex;
-  align-items  : center;
-  font-size    : 14px;
-  margin-bottom: 38px;
+  font-family   : PingFangSC-Medium;
+  color         : #444444;
+  letter-spacing: 0;
+  display       : flex;
+  align-items   : center;
+  font-size     : 14px;
+  margin-bottom : 38px;
+
+  span {
+    display    : inline-block;
+    height     : 20px;
+    line-height: 26px;
+    margin-left: 5px;
+  }
+}
+
+.btns {
+  button {
+    font-family   : PingFangSC-Medium;
+    font-size     : 12px;
+    height        : 34px;
+    line-height   : 34px;
+    letter-spacing: 0;
+    width         : 131px;
+    margin-right  : 15px;
+  }
+
+  button:nth-of-type(1) {
+    width: 108px;
+  }
+
+  :global {
+
+    .ant-btn-primary,
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      background-color: #3D58DA !important;
+      border-color    : #3D58DA !important;
+    }
+  }
 }
 
 .enterpriseName {
@@ -21,7 +57,13 @@
   font-size     : 12px;
   color         : #79828F;
   letter-spacing: 0;
-  margin-bottom : 34px;
+  margin-bottom : 32px;
+  display       : flex;
+  align-items   : center;
+
+  p {
+    margin-right: 16px;
+  }
 }
 
 .standardList {
@@ -108,9 +150,11 @@
   }
 }
 
-.buttonBjNot {
-  background: #7983AD;
-  color     : #ffffff;
+.buttonBjNot,
+.buttonBjNot:hover {
+  background  : #7983AD !important;
+  border-color: #7983AD !important;
+  color       : #ffffff !important;
 }
 
 .teamBox {
@@ -217,7 +261,28 @@
 }
 
 .grays {
-  color: #444444;
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #444444;
+  letter-spacing: 0;
+}
+
+.overText {
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #3D54C4;
+  line-height   : 14px;
+  letter-spacing: 0;
+  overflow      : hidden;
+  white-space   : nowrap;
+  text-overflow : ellipsis;
+}
+
+.teamtest {
+  margin-right: 17px;
+  width: 134px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .addTeam {
@@ -278,14 +343,7 @@
   }
 }
 
-:global {
-  .ant-btn-primary,
-  .ant-btn-primary:hover,
-  .ant-btn-primary:focus {
-    background-color: #3D58DA !important;
-    border-color    : #3D58DA !important;
-  }
-}
+
 
 @media screen and (max-width: @screen-xs) {
   .standardList {

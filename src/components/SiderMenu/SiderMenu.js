@@ -1,8 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, Modal } from 'antd';
+import { connect } from 'dva';
+
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
+import CollectionView from './CollectionView';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import teamUtil from '../../utils/team';
@@ -22,12 +25,17 @@ const getIcon = icon => {
   return icon;
 };
 
+@connect(({ loading, global }) => ({
+  rainbondInfo: global.rainbondInfo,
+}))
 export default class SiderMenu extends PureComponent {
   constructor(props) {
     super(props);
     this.menus = props.menuData;
     this.state = {
       openKeys: this.getDefaultCollapsedSubMenus(props),
+      collectionVisible: false,
+      collectionList: [],
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -36,6 +44,9 @@ export default class SiderMenu extends PureComponent {
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
     }
+  }
+  componentDidMount() {
+    this.fetchCollectionViewInfo();
   }
   /**
    * Convert pathname to openKeys
@@ -318,6 +329,74 @@ export default class SiderMenu extends PureComponent {
       openKeys: [...openKeys],
     });
   };
+
+  handleOpenCollectionVisible = () => {
+    this.setState({
+      collectionVisible: true,
+    });
+  };
+  handleCloseCollectionVisible = () => {
+    this.setState({
+      collectionVisible: false,
+    });
+  };
+
+  fetchCollectionViewInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/fetchCollectionViewInfo',
+      callback: res => {
+        console.log('res', res);
+        if (res) {
+          this.setState({
+            collectionList: res.list,
+          });
+        }
+      },
+    });
+  };
+
+  putCollectionViewInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/putCollectionViewInfo',
+      callback: res => {
+        console.log('res', res);
+        if (res) {
+        }
+      },
+    });
+  };
+
+  deleteCollectionViewInfo = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'user/deleteCollectionViewInfo',
+      callback: res => {
+        console.log('res', res);
+        if (res) {
+        }
+      },
+    });
+  };
+
+  handleCollectionView = values => {
+    const { dispatch, location } = this.props;
+    const index = location.hash.indexOf('#');
+    const result = location.hash.substr(index + 1, location.hash.length);
+    dispatch({
+      type: 'user/addCollectionView',
+      payload: {
+        name: values.name,
+        url: result,
+      },
+      callback: res => {
+        console.log('res', res);
+        if (res) {
+        }
+      },
+    });
+  };
   render() {
     const {
       logo,
@@ -328,7 +407,7 @@ export default class SiderMenu extends PureComponent {
       enterpriseList,
       currentUser,
     } = this.props;
-    const { openKeys } = this.state;
+    const { openKeys, collectionVisible, collectionList } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
       ? {}
@@ -351,11 +430,32 @@ export default class SiderMenu extends PureComponent {
         collapsedWidth={300}
         className={styles.sider}
       >
+        <CollectionView
+          title="新增收藏视图"
+          visible={collectionVisible}
+          onOk={this.handleCollectionView}
+          onCancel={this.handleCloseCollectionVisible}
+        />
+
         <div className={styles.logo} key="logo">
           <div className={styles.viewTit}>切换功能视图</div>
         </div>
         <div className={styles.viewContent}>
-          <div className={styles.tit}>收藏</div>
+          <div className={styles.tit}>
+            收藏
+            <Icon
+              className={styles.addCollection}
+              onClick={this.handleOpenCollectionVisible}
+              type="plus"
+            />
+          </div>
+          {collectionList.map(item => {
+            return (
+              <Link to={item.url}>
+                <div className={styles.con}>{item.name}</div>
+              </Link>
+            );
+          })}
 
           <div className={styles.tit}>企业</div>
           {enterpriseList.map(item => {

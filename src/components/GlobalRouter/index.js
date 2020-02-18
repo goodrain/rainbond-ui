@@ -365,6 +365,7 @@ export default class GlobalRouter extends PureComponent {
           onClick={this.toggle}
         />
         <Menu
+        className={styles.globalSider}
           key="Menu"
           theme="dark"
           mode="inline"

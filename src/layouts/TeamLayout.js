@@ -586,6 +586,7 @@ class TeamLayout extends React.PureComponent {
         </Layout>
       );
     };
+    console.log('teams进来了')
     return (
        <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>

@@ -25,8 +25,60 @@ i.trigger {
   }
 }
 
+.globalSider {
+  margin-top: 30px;
+
+  :global {
+
+
+
+    .ant-menu-item>a {
+
+      i {
+        display: block !important;
+      }
+
+      span {
+        line-height   : 20px;
+        height        : 20px;
+        width         : 64px;
+        text-align    : center;
+        opacity       : 1 !important;
+        display       : block !important;
+        max-width     : 64px !important;
+        font-family   : PingFangSC-Regular;
+        font-size     : 12px;
+        color         : #9CA2A8;
+        letter-spacing: 0;
+      }
+    }
+
+
+  }
+
+}
+
+
+
+
+
 
 :global {
+
+  .ant-menu-vertical .ant-menu-item:not(:last-child),
+  .ant-menu-vertical-left .ant-menu-item:not(:last-child),
+  .ant-menu-vertical-right .ant-menu-item:not(:last-child),
+  .ant-menu-inline .ant-menu-item:not(:last-child) {
+    margin-bottom: 28px;
+  }
+
+  .ant-menu-inline-collapsed>.ant-menu-item .anticon,
+  .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item .anticon,
+  .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-submenu>.ant-menu-submenu-title .anticon,
+  .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title .anticon {
+    line-height: 1 !important;
+    max-width  : 64px !important;
+  }
 
   .ant-menu-dark,
   .ant-menu-dark .ant-menu-sub {

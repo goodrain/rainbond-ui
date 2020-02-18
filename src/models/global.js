@@ -43,6 +43,8 @@ import {
   getEnterpriseInfo,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
+  fetchEnterpriseAdminTeams,
+  fetchUserTeams,
   fetchOverviewApp,
   fetchOverview,
   fetchOverviewTeam,
@@ -491,6 +493,20 @@ export default {
         callback && callback(response);
       }
     },
+    *fetchEnterpriseAdminTeams({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseAdminTeams, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *fetchUserTeams({ payload, callback }, { put, call }) {
+      const response = yield call(fetchUserTeams, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchEnterpriseList({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseList, payload);
       if (response) {

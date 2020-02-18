@@ -155,11 +155,11 @@ export default class CheckUserInfo extends React.PureComponent {
 
     if (!userInfo || !rainbondInfo || enterpriseList.length === 0) return null;
 
-    if (this.isEnterpriseView()) {
-      return null;
-    }
+    // if (this.isEnterpriseView()) {
+    //   return null;
+    // }
 
-    if (enterpriseView && !this.checkUrlTeamRegion()) {
+    if (!enterpriseView && !this.checkUrlTeamRegion()) {
       return null;
     }
 

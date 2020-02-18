@@ -17,6 +17,18 @@ const menuData = function() {
       path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/teams`,
       authority: ['admin', 'user'],
     },
+    {
+      name: '设置',
+      icon: 'setting',
+      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/setting`,
+      authority: ['admin', 'user'],
+    },
+    {
+      name: '设置1',
+      icon: 'setting',
+      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/setting1`,
+      authority: ['admin', 'user'],
+    },
   ];
   return menuArr;
 };

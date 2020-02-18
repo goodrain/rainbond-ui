@@ -16,6 +16,50 @@ export async function queryCurrent() {
   return request("/api/currentUser");
 }
 
+
+/* 新增收藏视图 */
+export async function addCollectionView(body = { name,url }) {
+  return request(`${apiconfig.baseUrl}/console/user/favorite`, {
+    method: "post",
+    data: {
+      name: body.name,
+      url: body.url
+    }
+  });
+}
+
+/* 收藏视图列表 */
+
+export async function queryCollectionViewInfo(body = {}) {
+  return request(`${apiconfig.baseUrl}/console/user/favorite`, {
+    method: "get",
+  });
+}
+
+
+/* 更新视图列表 */
+export async function putCollectionViewInfo(body = { favorite_id,}) {
+  return request(
+    `${apiconfig.baseUrl}/console/user/favorite/${body.favorite_id}`,
+    {
+      method: "put",
+    }
+  );
+}
+/*
+  删除收藏视图
+*/
+export async function deleteCollectionViewInfo(
+  body = {
+    favorite_id
+  }
+) {
+  return request(`${apiconfig.baseUrl}/console/user/favorite/${body.favorite_id}`, {
+    method: "delete"
+  });
+}
+
+
 /* 第三方认证 */
 export async function queryThirdCertification(body = {}, handleError) {
   return request(`${apiconfig.baseUrl}/console/oauth/authorize`, {
