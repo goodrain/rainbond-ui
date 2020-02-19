@@ -1,6 +1,6 @@
 import cookie from './cookie';
 
-const actionMap = {
+const actionMaps = {
   admin: '管理员',
   developer: '开发者',
   viewer: '观察者',
@@ -8,11 +8,12 @@ const actionMap = {
   owner: '拥有者',
 };
 
-const roleUtil = {
+export default {
   // 是否可以删除,
   canDel(role) {
     return !role.is_default;
   },
+  actionMap(name) {
+    return actionMaps[name] || '-';
+  },
 };
-
-export default roleUtil;

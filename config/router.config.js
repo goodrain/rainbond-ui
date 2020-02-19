@@ -77,6 +77,31 @@ export default [
             // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
+          // 企业设置
+          {
+            path: '/enterprise/:eid/setting',
+            component: './EnterpriseSetting',
+            name: 'EnterpriseSetting',
+            // icon: 'dashboard',
+            authority: ['admin', 'user'],
+          },
+          // 分享
+          {
+            path: '/enterprise/:eid/shareds',
+            component: './EnterpriseShared',
+            name: 'EnterpriseShared',
+            // icon: 'dashboard',
+            authority: ['admin', 'user'],
+          },
+
+          // 企业设置
+          {
+            path: '/enterprise/:eid/setting1',
+            component: './EnterpriseSetting/index1.js',
+            name: 'EnterpriseSetting1',
+            // icon: 'dashboard',
+            authority: ['admin', 'user'],
+          },
         ],
       },
       {

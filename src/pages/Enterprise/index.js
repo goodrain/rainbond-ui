@@ -539,8 +539,6 @@ export default class Enterprise extends PureComponent {
       ...{ height: '68px', padding: '24px', justifyContent: 'space-around' },
     };
 
-
-
     const {
       enterpriseInfo,
       overviewInfo,
@@ -631,7 +629,7 @@ export default class Enterprise extends PureComponent {
                 loading={overviewAppInfoLoading}
                 style={{ height: '243px' }}
               >
-                <Row style={{ marginBottom: '30px' }}>
+                <Row style={{ marginBottom: '6px' }}>
                   <Col className={styles.grays} span={12}>
                     应用数量
                   </Col>
@@ -646,7 +644,8 @@ export default class Enterprise extends PureComponent {
                         overviewAppInfo &&
                         overviewAppInfo.service_groups.running
                       }
-                      lineWidth={10}
+                      types="app"
+                      lineWidth={18}
                       color="#C2C7D9"
                       subTitle={
                         <div className={styles.appContent}>
@@ -663,7 +662,7 @@ export default class Enterprise extends PureComponent {
                           </div>
                         </div>
                       }
-                      height={144}
+                      height={168}
                     />
                   </Col>
 
@@ -686,7 +685,7 @@ export default class Enterprise extends PureComponent {
                         </div>
                       </div>
                       <div>
-                        <div className={styles.appnumno}>未运行应用</div>
+                        <div className={styles.appnumno} style={{marginTop:"26px"}}>未运行应用</div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -704,31 +703,35 @@ export default class Enterprise extends PureComponent {
                     </div>
                   </Col>
                   <Col span={8}>
-                    <Pie
-                      percent={
-                        overviewAppInfo && overviewAppInfo.components.running
-                      }
-                      color="#A6B3E1"
-                      subTitle={
-                        <div className={styles.elements}>
-                          <div>
+                    <div style={{ marginTop: '10px' }}>
+                      <Pie
+                        percent={
+                          overviewAppInfo && overviewAppInfo.components.running
+                        }
+                        types="component"
+                        color="#A6B3E1"
+                        subTitle={
+                          <div className={styles.elements}>
                             <div>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.closed}
+                              <div>
+                                {overviewAppInfo &&
+                                  overviewAppInfo.components.closed}
+                              </div>
+                              <div>未运行</div>
                             </div>
-                            <div>未运行</div>
-                          </div>
-                          <div>
+                            <div />
                             <div>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.running}
+                              <div>
+                                {overviewAppInfo &&
+                                  overviewAppInfo.components.running}
+                              </div>
+                              <div>运行中</div>
                             </div>
-                            <div>运行中</div>
                           </div>
-                        </div>
-                      }
-                      height={144}
-                    />
+                        }
+                        height={156}
+                      />
+                    </div>
                   </Col>
 
                   <Col span={4}>
@@ -750,7 +753,7 @@ export default class Enterprise extends PureComponent {
                         </div>
                       </div>
                       <div>
-                        <div className={styles.appnumno}>未运行组件</div>
+                        <div className={styles.appnumno} style={{marginTop:"26px"}}>未运行组件</div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -795,7 +798,7 @@ export default class Enterprise extends PureComponent {
                       </li>
                       <li>{overviewInfo && overviewInfo.total_teams}</li>
 
-                      <li>共享团队数量</li>
+                      <li>共有团队数量</li>
                       <li>——</li>
                     </ul>
                   </Col>
@@ -808,7 +811,7 @@ export default class Enterprise extends PureComponent {
                       </li>
                       <li>{overviewInfo && overviewInfo.total_users}</li>
 
-                      <li>共享用户数量</li>
+                      <li>共有用户数量</li>
                       <li>——</li>
                     </ul>
                   </Col>
@@ -850,7 +853,7 @@ export default class Enterprise extends PureComponent {
                       </div>
                       {overviewTeamInfo && (
                         <Tooltip
-                          title={overviewTeamInfo.new_join_team.team_name}
+                          title={overviewTeamInfo.new_join_team.team_alias}
                         >
                           <div
                             className={`${styles.overText} ${styles.teamtest}`}
@@ -862,7 +865,7 @@ export default class Enterprise extends PureComponent {
                               );
                             }}
                           >
-                            {overviewTeamInfo.new_join_team.team_name}
+                            {overviewTeamInfo.new_join_team.team_alias}
                           </div>
                         </Tooltip>
                       )}
@@ -901,7 +904,7 @@ export default class Enterprise extends PureComponent {
                   <Col span={11} offset={1}>
                     {overviewTeamInfo &&
                       overviewTeamInfo.active_teams.map(item => {
-                        const { team_name, region } = item;
+                        const { team_name, region ,team_alias} = item;
                         return (
                           <Card
                             bodyStyle={teamBoxList}
@@ -919,7 +922,7 @@ export default class Enterprise extends PureComponent {
                                 );
                               }}
                             >
-                              <Tooltip title={team_name}>{team_name}</Tooltip>
+                              <Tooltip title={team_alias}>{team_alias}</Tooltip>
                             </div>
                             <div>
                               <img src={Arrow} alt="" />

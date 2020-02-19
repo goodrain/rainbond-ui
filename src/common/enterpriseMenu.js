@@ -12,6 +12,12 @@ const menuData = function() {
       authority: ['admin', 'user'],
     },
     {
+      name: '共享库',
+      icon: 'team',
+      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/shareds`,
+      authority: ['admin', 'user'],
+    },
+    {
       name: '团队',
       icon: 'team',
       path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/teams`,

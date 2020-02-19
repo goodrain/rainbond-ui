@@ -122,14 +122,14 @@ export default {
     * addMember({ payload, callback }, { call, put }) {
       const response = yield call(addMember, payload);
       if (response && !response.status) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     // 创建团队
     * createTeam({ payload, callback }, { call, put }) {
       const response = yield call(createTeam, payload);
       if (response && !response.status) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     * fetchRegions({ payload, callback }, { call, put }) {

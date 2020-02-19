@@ -10,26 +10,33 @@ const Option = Select.Option;
 @connect(({ user }) => ({
   currUser: user.currentUser,
 }))
-export default class JoinTeam extends PureComponent {
+export default class AddAdmin extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      teams: [],
+      adminList: [],
     };
   }
   componentDidMount() {
     this.loadTeams();
   }
-  loadTeams = () => {
-    this.props.dispatch({
-      type: 'global/getAllTeams',
-      payload: { user_id: this.props.currUser.user_id, page_size: 100 },
-      callback: data => {
-        if (data) {
-          this.setState({ teams: data.list });
+  loadTeams = (name) => {
+    const { dispatch, currUser } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseUsers',
+      payload: { enterprise_id: currUser.enterprise_id },
+      name,
+      callback: res => {
+        if (res) {
+          this.setState({ adminList: res.list });
         }
       },
     });
+  };
+
+
+  onSearch = value => {
+    this.loadTeams(value);
   };
 
   handleSubmit = () => {
@@ -40,6 +47,7 @@ export default class JoinTeam extends PureComponent {
     });
   };
   render() {
+    const { adminList } = this.state;
     const { getFieldDecorator } = this.props.form;
     const { onOk, onCancel, actions } = this.props;
 
@@ -56,7 +64,7 @@ export default class JoinTeam extends PureComponent {
 
     return (
       <Modal
-        title="加入团队"
+        title="添加管理员"
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
@@ -68,28 +76,38 @@ export default class JoinTeam extends PureComponent {
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <FormItem {...formItemLayout} label="团队名称" hasFeedback>
-            {getFieldDecorator('team_name', {
+          <FormItem {...formItemLayout} label="用户名称" hasFeedback>
+            {getFieldDecorator('user_id', {
               rules: [
                 {
                   required: true,
-                  message: '请选择团队',
+                  message: '请输入用户名称',
                 },
               ],
             })(
               <Select
-                value={this.state.selectedTeam}
-                style={{ width: '100%' }}
-                onChange={this.handleTeamChange}
+                showSearch
+                style={{ width: 300 }}
+                placeholder="请输入用户名称"
+                optionFilterProp="children"
+                onSearch={this.onSearch}
+                filterOption={(input, option) =>
+                  option.props.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
               >
-                <Option value="">请选择一个团队</Option>
-                {this.state.teams.map(team => (
-                  <Option value={team.team_name}>{team.team_alias}</Option>
-                ))}
+                {adminList &&
+                  adminList.length > 0 &&
+                  adminList.map(item => {
+                    const { nick_name, user_id } = item;
+                    return (
+                      <Option key={user_id} value={user_id}>
+                        {nick_name}
+                      </Option>
+                    );
+                  })}
               </Select>
-            )}
-            {this.state.teams.length === 0 && (
-              <div>暂无团队可以添加，可以先创建团队。</div>
             )}
           </FormItem>
         </Form>

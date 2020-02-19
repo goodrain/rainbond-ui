@@ -469,11 +469,15 @@ export default class SiderMenu extends PureComponent {
           <div className={styles.tit}>团队</div>
           {currentUser &&
             currentUser.teams.map(item => {
+              const currRegion = 'no-region';
+              const { region, team_name, team_alias } = item;
               return (
                 <Link
-                  to={`/team/${item.team_name}/region/${item.region[0].team_region_name}/index`}
+                  to={`/team/${team_name}/region/${
+                    region.length > 0 ? region[0].team_region_name : currRegion
+                  }/index`}
                 >
-                  <div className={styles.con}>{item.team_alias}</div>
+                  <div className={styles.con}>{team_alias}</div>
                 </Link>
               );
             })}

@@ -118,6 +118,7 @@ export default class Pie extends Component {
       animate = true,
       colors,
       lineWidth = 1,
+      types ='app'
     } = this.props;
 
     const { legendData, legendBlock } = this.state;
@@ -173,7 +174,7 @@ export default class Pie extends Component {
       }),
     ];
 
-    const padding = [12, 0, 12, 0];
+    const padding = [0, 0, 0, 0];
 
     const dv = new DataView();
     dv.source(data).transform({
@@ -209,7 +210,7 @@ export default class Pie extends Component {
             </Chart>
 
             {(subTitle || total) && (
-              <div className={styles.total}>
+              <div className={types==='app'? styles.apptotal :styles.total}>
                 {subTitle && <h4 className="pie-sub-title">{subTitle}</h4>}
                 {/* eslint-disable-next-line */}
                 {total && <div className="pie-stat" dangerouslySetInnerHTML={{ __html: total }} />}

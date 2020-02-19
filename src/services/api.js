@@ -863,15 +863,61 @@ export async function fetchEnterpriseTeams(param) {
 
 
 /* 获取企业管理员列表 */
-export async function fetchEnterpriseAdminTeams(param) {
+export async function fetchEnterpriseAdmin(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/admin/user`,
-    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
+    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
       method: 'get',
     }
   );
 }
+
+
+
+/* 获取企业用户列表 */
+export async function fetchEnterpriseUsers(param) {
+  return request(
+    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/users`,
+    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/user`,
+    {
+      method: 'get',
+      params: {
+        name: param.name,
+      },
+    }
+  );
+}
+
+
+/** 添加企业管理员 */
+export async function addEnterpriseAdminTeams(params) {
+  return request(
+    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
+    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
+    {
+      method: 'post',
+      data: {
+        user_id: params.user_id,
+      },
+    }
+  );
+}
+
+
+/* 删除 企业管理员 */
+
+export async function deleteEnterpriseAdmin(param) {
+  return request(
+    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
+    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
+    {
+      method: 'delete',
+    }
+  );
+}
+
+
 /* 获取当前用户团队列表（搜索） */
 export async function fetchUserTeams(param) {
   return request(

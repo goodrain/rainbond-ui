@@ -18,7 +18,8 @@ import More from '../../../public/images/more.svg';
 import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CreateTeam from '../../components/CreateTeam';
+import AddAdmin from '../../components/AddAdmin';
+import CreatUser from '../../components/CreatUserForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
 import OauthForm from '../../components/OauthForm';
@@ -42,16 +43,12 @@ export default class EnterpriseTeams extends PureComponent {
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
-      teamList: [],
-      overviewTeamInfo: false,
-      showAddTeam: false,
-      showExitTeam: false,
-      exitTeamName: '',
-      enterpriseTeamsLoading: false,
-      overviewTeamsLoading: false,
+      adminList: [],
+      showAddAdmin: false,
+      exitAdminNameID: '',
+      enterpriseAdminLoading: false,
       adminer,
       showDelTeam: false,
-
       userVisible: false,
       openOauth: false,
       oauthInfo: false,
@@ -63,14 +60,13 @@ export default class EnterpriseTeams extends PureComponent {
 
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
-
+    this.getEnterpriseAdmins();
     if (
       rainbondUtil.OauthbIsEnable(rainbondInfo) ||
       rainbondUtil.OauthbEnable(rainbondInfo)
     ) {
       this.handelOauthInfo();
     }
-    this.getEnterpriseTeams();
 
     dispatch({
       type: 'global/getIsRegist',
@@ -113,85 +109,62 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-  handleCreateTeam = values => {
+  handleCreateAdmin = values => {
     this.props.dispatch({
-      type: 'teamControl/createTeam',
+      type: 'global/addEnterpriseAdminTeams',
       payload: values,
       callback: () => {
         notification.success({ message: '添加成功' });
-        // 添加完查询企业团队列表
-        this.load();
-        this.cancelCreateTeam();
+        this.getEnterpriseAdmins();
+        this.cancelCreateAdmin();
       },
     });
   };
 
-  getEnterpriseTeams = () => {
+  getEnterpriseAdmins = () => {
     const { dispatch, user } = this.props;
     dispatch({
-      type: 'global/fetchEnterpriseAdminTeams',
+      type: 'global/fetchEnterpriseAdmin',
       payload: {
         enterprise_id: user.enterprise_id,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            teamList: res.bean.list,
-            enterpriseTeamsLoading: false,
+            adminList: res.list,
+            enterpriseAdminLoading: false,
           });
         }
       },
     });
   };
 
-  onAddTeam = () => {
-    this.setState({ showAddTeam: true });
+  onAddAdmin = () => {
+    this.setState({ showAddAdmin: true });
   };
-  cancelCreateTeam = () => {
-    this.setState({ showAddTeam: false });
-  };
-  showExitTeam = exitTeamName => {
-    this.setState({ showExitTeam: true, exitTeamName });
+  cancelCreateAdmin = () => {
+    this.setState({ showAddAdmin: false });
   };
 
-  handleExitTeam = () => {
-    const { exitTeamName } = this.state;
-    if (exitTeamName == 'jdgn6pk5') {
-      notification.warning({ message: '当前为演示团队，不能退出！' });
-      return;
-    }
+  showDelTeam = exitAdminNameID => {
+    this.setState({ showDelTeam: true, exitAdminNameID });
+  };
+
+  hideDelAdmin = () => {
+    this.setState({ showDelTeam: false });
+  };
+
+  handleDelAdmin = () => {
+    const { exitAdminNameID } = this.state;
     this.props.dispatch({
-      type: 'teamControl/exitTeam',
+      type: 'global/deleteEnterpriseAdmin',
       payload: {
-        team_name: exitTeamName,
+        user_id: exitAdminNameID,
       },
       callback: () => {
-        location.reload();
-      },
-    });
-  };
-
-  hideExitTeam = () => {
-    this.setState({ showExitTeam: false, exitTeamName: '' });
-  };
-  handleActiveTabs = () => {};
-
-  showDelTeam = exitTeamName => {
-    this.setState({ showDelTeam: true, exitTeamName });
-  };
-  hideDelTeam = () => {
-    this.setState({ showExitTeam: false, showDelTeam: false });
-  };
-
-  handleDelTeam = () => {
-    const { exitTeamName } = this.state;
-    this.props.dispatch({
-      type: 'teamControl/delTeam',
-      payload: {
-        team_name: exitTeamName,
-      },
-      callback: () => {
-        location.reload();
+        notification.success({ message: '删除成功' });
+        this.getEnterpriseAdmins();
+        this.hideDelAdmin();
       },
     });
   };
@@ -295,12 +268,40 @@ export default class EnterpriseTeams extends PureComponent {
       showDeleteDomain: false,
     });
   };
+
+  // 管理员添加用户
+  addUser = () => {
+    this.setState({
+      userVisible: true,
+    });
+  };
+
+  handleCreatUser = values => {
+    this.props.dispatch({
+      type: 'global/creatUser',
+      payload: {
+        ...values,
+      },
+      callback: data => {
+        if (data && data._condition == 200) {
+          notification.success({ message: data.msg_show });
+        } else {
+          notification.error({ message: data.msg_show });
+        }
+      },
+    });
+    this.cancelCreatUser();
+  };
+  cancelCreatUser = () => {
+    this.setState({
+      userVisible: false,
+    });
+  };
+
   render() {
     const {
-      teamList,
-      overviewTeamInfo,
-      enterpriseTeamsLoading,
-      overviewTeamsLoading,
+      adminList,
+      enterpriseAdminLoading,
       adminer,
       oauthInfo,
       isOpen,
@@ -340,43 +341,17 @@ export default class EnterpriseTeams extends PureComponent {
       </svg>
     );
 
-    const menu = exitTeamName => {
+    const managementMenu = exitAdminNameID => {
       return (
         <Menu>
           <Menu.Item>
             <a
               href="javascript:;"
               onClick={() => {
-                this.showExitTeam(exitTeamName);
+                this.showDelTeam(exitAdminNameID);
               }}
             >
-              退出团队
-            </a>
-          </Menu.Item>
-        </Menu>
-      );
-    };
-    const managementMenu = exitTeamName => {
-      return (
-        <Menu>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.showExitTeam(exitTeamName);
-              }}
-            >
-              退出团队
-            </a>
-          </Menu.Item>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.showDelTeam(exitTeamName);
-              }}
-            >
-              删除团队
+              删除管理员
             </a>
           </Menu.Item>
         </Menu>
@@ -385,13 +360,17 @@ export default class EnterpriseTeams extends PureComponent {
     const operation = (
       <Col span={4} style={{ textAlign: 'right' }}>
         {adminer && (
-          <Button type="primary" onClick={this.onAddTeam}>
+          <Button
+            type="primary"
+            onClick={this.onAddAdmin}
+            className={styles.btns}
+          >
             添加管理员
           </Button>
         )}
       </Col>
     );
-    const managementTemas = (
+    const managementAdmin = (
       <div style={{ marginTop: '20px' }}>
         <Row>
           <Col span={20} className={styles.teamsTit}>
@@ -399,30 +378,32 @@ export default class EnterpriseTeams extends PureComponent {
           </Col>
           {operation}
         </Row>
-        <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={8}>名称</Col>
+        <Row
+          className={styles.teamMinTit}
+          type="flex"
+          align="middle"
+          style={{ paddingLeft: '24px' }}
+        >
+          <Col span={10}>名称</Col>
           <Col span={5}>时间</Col>
         </Row>
 
-        {teamList.map(item => {
-          const {
-            team_id,
-            team_alias,
-            region,
-            owner_name,
-            role,
-            team_name,
-          } = item;
+        {adminList.map(item => {
+          const { user_id, create_time, nick_name } = item;
           return (
-            <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
-              <Row type="flex" align="middle">
-                <Col span={8}>{team_alias}</Col>
-                <Col span={5}>{owner_name}</Col>
-                <Col span={5}>{role}</Col>
-                <Col span={5}>{region}</Col>
-                <Col span={1}>
+            <Card
+              key={user_id}
+              style={{ marginBottom: '10px' }}
+              bodyStyle={{ padding: 0 }}
+              hoverable
+            >
+              <Row type="flex" align="middle" style={{paddingLeft:"24px",height:"70px"}}>
+                <Col span={10}>{nick_name}</Col>
+                <Col span={5}>{create_time}</Col>
+                <Col span={8}></Col>
+                <Col span={1} className={styles.bor}>
                   <Dropdown
-                    overlay={managementMenu(team_name)}
+                    overlay={managementMenu(user_id)}
                     placement="bottomLeft"
                   >
                     <Button style={{ border: 'none' }}>
@@ -446,8 +427,13 @@ export default class EnterpriseTeams extends PureComponent {
         </Row>
         <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
           <Row type="flex" align="middle">
-            <Col span={23}>是否允许用户注册：</Col>
-            <Col span={1} style={{ textAlign: 'right' }}>
+            <Col span={12}>是否允许用户注册：</Col>
+            <Col span={12} style={{ textAlign: 'right' }}>
+              {adminer && !this.props.isRegist && (
+                <a onClick={this.addUser} style={{ marginRight: '10px' }}>
+                  添加用户
+                </a>
+              )}
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
@@ -514,28 +500,25 @@ export default class EnterpriseTeams extends PureComponent {
         title="——"
         content="企业管理员可以设置平台信息，管理企业下的团队"
       >
-        {this.state.showAddTeam && (
-          <CreateTeam
-            onOk={this.handleCreateTeam}
-            onCancel={this.cancelCreateTeam}
+        {this.state.userVisible && (
+          <CreatUser
+            onOk={this.handleCreatUser}
+            onCancel={this.cancelCreatUser}
           />
         )}
-        {this.state.showExitTeam && (
-          <ConfirmModal
-            onOk={this.handleExitTeam}
-            title="退出团队"
-            subDesc="此操作不可恢复"
-            desc="确定要退出此团队吗?"
-            onCancel={this.hideExitTeam}
+        {this.state.showAddAdmin && (
+          <AddAdmin
+            onOk={this.handleCreateAdmin}
+            onCancel={this.cancelCreateAdmin}
           />
         )}
         {this.state.showDelTeam && (
           <ConfirmModal
-            onOk={this.handleDelTeam}
-            title="删除团队"
+            onOk={this.handleDelAdmin}
+            title="删除管理员"
             subDesc="此操作不可恢复"
-            desc="确定要删除此团队吗？"
-            onCancel={this.hideDelTeam}
+            desc="确定要删除此管理员吗？"
+            onCancel={this.hideDelAdmin}
           />
         )}
 
@@ -560,7 +543,7 @@ export default class EnterpriseTeams extends PureComponent {
           />
         )}
 
-        {enterpriseTeamsLoading || overviewTeamsLoading ? (
+        {enterpriseAdminLoading ? (
           <div className={styles.example}>
             <Spin />
           </div>
@@ -568,7 +551,7 @@ export default class EnterpriseTeams extends PureComponent {
           <div>
             {userRegistered}
             {ishow && oauth}
-            {/* {adminer && managementTemas} */}
+            {adminer && managementAdmin}
           </div>
         )}
       </PageHeaderLayout>

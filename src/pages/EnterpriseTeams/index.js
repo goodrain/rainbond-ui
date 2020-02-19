@@ -11,11 +11,14 @@ import {
   Spin,
   Tabs,
   Input,
+  notification,
   Pagination,
 } from 'antd';
 import { routerRedux } from 'dva/router';
-import More from '../../../public/images/more.svg';
+import DataCenterImg from '../../../public/images/dataCenter.png';
+import WarningImg from '../../../public/images/warning.png';
 import userUtil from '../../utils/user';
+import roleUtil from '../../utils/role';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import CreateTeam from '../../components/CreateTeam';
@@ -307,6 +310,7 @@ export default class EnterpriseTeams extends PureComponent {
         />
       </svg>
     );
+    const pd24 = { height: '70px', paddingLeft: ' 24px ' };
 
     const menu = exitTeamName => {
       return (
@@ -324,19 +328,22 @@ export default class EnterpriseTeams extends PureComponent {
         </Menu>
       );
     };
-    const managementMenu = exitTeamName => {
+
+    const menucancel = () => {
       return (
         <Menu>
           <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.showExitTeam(exitTeamName);
-              }}
-            >
-              退出团队
+            <a href="javascript:;" onClick={() => {}}>
+              退回申请
             </a>
           </Menu.Item>
+        </Menu>
+      );
+    };
+
+    const managementMenu = exitTeamName => {
+      return (
+        <Menu>
           <Menu.Item>
             <a
               href="javascript:;"
@@ -366,6 +373,7 @@ export default class EnterpriseTeams extends PureComponent {
         </Button>
       </Col>
     );
+
     const managementTemas = (
       <div>
         <Row
@@ -392,10 +400,10 @@ export default class EnterpriseTeams extends PureComponent {
           {operation}
         </Row>
         <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={8}>团队名称</Col>
-          <Col span={5}>拥有人</Col>
-          <Col span={5}>角色</Col>
-          <Col span={5}>数据中心</Col>
+          <Col span={6}>团队名称</Col>
+          <Col span={3}>拥有人</Col>
+          <Col span={3}>角色</Col>
+          <Col span={11}>数据中心</Col>
         </Row>
 
         {teamList.map(item => {
@@ -408,10 +416,15 @@ export default class EnterpriseTeams extends PureComponent {
             team_name,
           } = item;
           return (
-            <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
-              <Row type="flex" align="middle">
+            <Card
+              key={team_id}
+              style={{ marginBottom: '10px' }}
+              hoverable
+              bodyStyle={{ padding: 0 }}
+            >
+              <Row type="flex" align="middle" className={styles.pl24}>
                 <Col
-                  span={8}
+                  span={6}
                   onClick={() => {
                     this.props.dispatch(
                       routerRedux.replace(
@@ -422,10 +435,14 @@ export default class EnterpriseTeams extends PureComponent {
                 >
                   {team_alias}
                 </Col>
-                <Col span={5}>{owner_name}</Col>
-                <Col span={5}>{role}</Col>
-                <Col span={5}>{region}</Col>
-                <Col span={1}>
+                <Col span={3}>{owner_name}</Col>
+                <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                <Col span={11}>
+                  <img src={DataCenterImg} alt="" />
+                  &nbsp;
+                  {region}
+                </Col>
+                <Col span={1} className={styles.bor}>
                   <Dropdown
                     overlay={managementMenu(team_name)}
                     placement="bottomLeft"
@@ -451,10 +468,10 @@ export default class EnterpriseTeams extends PureComponent {
           {operation}
         </Row>
         <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={8}>团队名称</Col>
-          <Col span={5}>拥有人</Col>
-          <Col span={5}>角色</Col>
-          <Col span={5}>数据中心</Col>
+          <Col span={6}>团队名称</Col>
+          <Col span={3}>拥有人</Col>
+          <Col span={3}>角色</Col>
+          <Col span={12}>数据中心</Col>
         </Row>
 
         {overviewTeamInfo &&
@@ -468,10 +485,20 @@ export default class EnterpriseTeams extends PureComponent {
               team_name,
             } = item;
             return (
-              <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
-                <Row type="flex" align="middle">
+              <Card
+                key={team_id}
+                style={{ marginBottom: '10px' }}
+                hoverable
+                bodyStyle={{ padding: 0 }}
+              >
+                <Row
+                  type="flex"
+                  align="middle"
+                  className={styles.teamContent}
+                  style={pd24}
+                >
                   <Col
-                    span={8}
+                    span={6}
                     onClick={() => {
                       this.props.dispatch(
                         routerRedux.replace(
@@ -482,10 +509,14 @@ export default class EnterpriseTeams extends PureComponent {
                   >
                     {team_alias}
                   </Col>
-                  <Col span={5}>{owner_name}</Col>
-                  <Col span={5}>{role}</Col>
-                  <Col span={5}>{region}</Col>
-                  <Col span={1}>
+                  <Col span={3}>{owner_name}</Col>
+                  <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                  <Col span={11}>
+                    <img src={DataCenterImg} alt="" />
+                    &nbsp;
+                    {region}
+                  </Col>
+                  <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
                       <Button style={{ border: 'none' }}>
                         <Icon component={moreSvg} />
@@ -505,27 +536,62 @@ export default class EnterpriseTeams extends PureComponent {
 
         {overviewTeamInfo && (
           <Card
-            style={{ marginBottom: '10px' }}
+            style={{
+              marginBottom: '10px',
+              borderLeft:
+                overviewTeamInfo.new_join_team.is_pass && '6px solid #4D73B1',
+            }}
+            bodyStyle={{ padding: 0 }}
             hoverable
-
           >
             <Row
               type="flex"
+              className={styles.pl24}
               align="middle"
               key={overviewTeamInfo.new_join_team.team_id}
             >
-              <Col span={8} onClick={() => {
-              this.props.dispatch(
-                routerRedux.replace(
-                  `/team/${overviewTeamInfo.new_join_team.team_name}/region/${overviewTeamInfo.new_join_team.region}/index`
-                )
-              );
-            }}>{overviewTeamInfo.new_join_team.team_alias}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.owner_name}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.role}</Col>
-              <Col span={5}>{overviewTeamInfo.new_join_team.region}</Col>
-              <Col span={1}>
-                <Dropdown overlay={menu} placement="bottomLeft">
+              <Col
+                span={6}
+                onClick={() => {
+                  this.props.dispatch(
+                    routerRedux.replace(
+                      `/team/${overviewTeamInfo.new_join_team.team_name}/region/${overviewTeamInfo.new_join_team.region}/index`
+                    )
+                  );
+                }}
+              >
+                {overviewTeamInfo.new_join_team.team_alias}
+              </Col>
+              <Col span={3}>{overviewTeamInfo.new_join_team.owner_name}</Col>
+              <Col span={3}>
+                {roleUtil.actionMap(overviewTeamInfo.new_join_team.role)}
+              </Col>
+              <Col
+                span={11}
+                style={{
+                  color: overviewTeamInfo.new_join_team.is_pass && '#999999',
+                }}
+              >
+                <img
+                  src={
+                    overviewTeamInfo.new_join_team.is_pass
+                      ? WarningImg
+                      : DataCenterImg
+                  }
+                  alt=""
+                />
+                &nbsp;
+                {overviewTeamInfo.new_join_team.is_pass
+                  ? '申请加入团队审批中'
+                  : overviewTeamInfo.new_join_team.region}
+              </Col>
+              <Col span={1} className={styles.bor}>
+                <Dropdown
+                  overlay={
+                    overviewTeamInfo.new_join_team.is_pass ? menucancel : menu
+                  }
+                  placement="bottomLeft"
+                >
                   <Button style={{ border: 'none' }}>
                     <Icon component={moreSvg} />
                   </Button>
@@ -569,10 +635,15 @@ export default class EnterpriseTeams extends PureComponent {
             role,
           } = item;
           return (
-            <Card key={team_id} style={{ marginBottom: '10px' }} hoverable>
-              <Row type="flex" align="middle">
+            <Card
+              key={team_id}
+              style={{ marginBottom: '10px' }}
+              hoverable
+              bodyStyle={{ padding: 0 }}
+            >
+              <Row type="flex" align="middle" className={styles.pl24}>
                 <Col
-                  span={8}
+                  span={6}
                   onClick={() => {
                     this.props.dispatch(
                       routerRedux.replace(
@@ -583,10 +654,14 @@ export default class EnterpriseTeams extends PureComponent {
                 >
                   {team_alias}
                 </Col>
-                <Col span={5}>{owner_name}</Col>
-                <Col span={5}>{role}</Col>
-                <Col span={5}>{region}</Col>
-                <Col span={1}>
+                <Col span={3}>{owner_name}</Col>
+                <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                <Col span={11}>
+                  <img src={DataCenterImg} alt="" />
+                  &nbsp;
+                  {region}
+                </Col>
+                <Col span={1} className={styles.bor}>
                   <Dropdown overlay={menu} placement="bottomLeft">
                     <Button style={{ border: 'none' }}>
                       <Icon component={moreSvg} />
@@ -648,7 +723,7 @@ export default class EnterpriseTeams extends PureComponent {
                 <TabPane tab="团队" key="1">
                   {teamInfo}
                 </TabPane>
-                <TabPane tab="管理团队" key="2">
+                <TabPane tab="管理" key="2">
                   {managementTemas}
                 </TabPane>
               </Tabs>

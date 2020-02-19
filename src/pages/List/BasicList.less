@@ -171,15 +171,16 @@
 
 .elements {
   display: flex;
-  width  : 88px;
-  height : 70px;
+  width  : 118px;
+  height: 90px;
+  padding-top: 25px;
 
   &>div:nth-of-type(1) {
     font-family   : Silom;
     color         : #5679E2;
     letter-spacing: 0;
     padding-right : 3px;
-    width         : 45px;
+    width         : 58px;
 
     &>div:nth-of-type(1) {
       font-size: 14px;
@@ -189,10 +190,15 @@
       font-size: 12px;
     }
   }
-
   &>div:nth-of-type(2) {
+    transform     : rotate(20deg);
+    width         : 1px;
     border-left   : 1px solid #E5E5E5;
-    transform     : rotate(10deg);
+    height: 82px;
+    margin-top: -8px;
+  }
+  &>div:nth-of-type(3) {
+    width         : 58px;
     border-radius : 1px;
     font-family   : PingFangSC-Medium;
     color         : #7983AD;
@@ -228,7 +234,7 @@
 
 .appnums,
 .appnumno {
-  margin-top    : 26px;
+  margin-top    : 30px;
   font-family   : PingFangSC-Semibold;
   font-size     : 12px;
   color         : #333333;

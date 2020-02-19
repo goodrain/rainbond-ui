@@ -43,7 +43,10 @@ import {
   getEnterpriseInfo,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
-  fetchEnterpriseAdminTeams,
+  fetchEnterpriseUsers,
+  fetchEnterpriseAdmin,
+  deleteEnterpriseAdmin,
+  addEnterpriseAdminTeams,
   fetchUserTeams,
   fetchOverviewApp,
   fetchOverview,
@@ -493,8 +496,27 @@ export default {
         callback && callback(response);
       }
     },
-    *fetchEnterpriseAdminTeams({ payload, callback }, { put, call }) {
-      const response = yield call(fetchEnterpriseAdminTeams, payload);
+    *fetchEnterpriseAdmin({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseAdmin, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *deleteEnterpriseAdmin({ payload, callback }, { put, call }) {
+      const response = yield call(deleteEnterpriseAdmin, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *fetchEnterpriseUsers({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseUsers, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *addEnterpriseAdminTeams({ payload, callback }, { put, call }) {
+      const response = yield call(addEnterpriseAdminTeams, payload);
       if (response) {
         callback && callback(response);
       }

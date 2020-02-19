@@ -68,6 +68,41 @@
     margin-bottom: 8px;
   }
 
+  .apptotal {
+    position     : absolute;
+    left         : 50%;
+    top          : 50%;
+    text-align   : center;
+    transform    : translate(-50%, -50%);
+    background   : #FFFFFF;
+    box-shadow   : 0 0 22px 0 rgba(63, 6, 23, 0.26);
+    border-radius: 50%;
+    width        : 118px;
+    height       : 118px;
+    padding-top  : 34px;
+
+    &>h4 {
+      color      : @text-color-secondary;
+      font-size  : 14px;
+      line-height: 22px;
+      height     : 22px;
+      font-weight: normal;
+
+      &>div h6 {
+        margin-bottom: 2px;
+      }
+    }
+
+    &>p {
+      color      : @heading-color;
+      display    : block;
+      font-size  : 1.2em;
+      height     : 32px;
+      line-height: 32px;
+      white-space: nowrap;
+    }
+  }
+
   .total {
     position     : absolute;
     left         : 50%;
@@ -77,9 +112,10 @@
     background   : #FFFFFF;
     box-shadow   : 0 0 22px 0 rgba(63, 6, 23, 0.26);
     border-radius: 50%;
-    width: 88px;
-    height: 88px;
-    padding-top: 12px;
+    width        : 118px;
+    height       : 118px;
+    padding-top  : 0;
+
     &>h4 {
       color        : @text-color-secondary;
       font-size    : 14px;
