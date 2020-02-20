@@ -4,7 +4,7 @@ import { Layout, Icon, message, notification } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { Route, Redirect, routerRedux } from "dva/router";
-
+import { stringify } from "querystring";
 import memoizeOne from "memoize-one";
 import deepEqual from "lodash.isequal";
 
@@ -14,18 +14,17 @@ import { enquireScreen } from "enquire-js";
 import GlobalHeader from "../components/GlobalHeader";
 import SiderMenu from "../components/SiderMenu";
 import pathToRegexp from "path-to-regexp";
-import userUtil from "../utils/user";
+import { PageLoading } from "@ant-design/pro-layout";
 import globalUtil from "../utils/global";
-import cookie from "../utils/cookie";
 import Authorized from "../utils/Authorized";
 import { getMenuData } from "../common/enterpriseMenu";
 import logo from "../../public/logo.png";
 import Loading from "../components/Loading";
 import GlobalRouter from "../components/GlobalRouter";
-import ChangePassword from "../components/ChangePassword";
 import AuthCompany from "../components/AuthCompany";
 import Meiqia from "./Meiqia";
 import Context from "./MenuContext";
+import headerStype from "../components/GlobalHeader/index.less"
 
 const qs = require("query-string");
 
@@ -89,15 +88,13 @@ class EnterpriseLayout extends PureComponent {
     this.state = {
       isMobile,
       isInit: false,
-      openRegion: false,
-      createTeam: false,
-      joinTeam: false,
-      showChangePassword: false,
       showWelcomeCreateTeam: false,
       canCancelOpenRegion: true,
       market_info: "",
       showAuthCompany: false,
-      enterpriseList: []
+      enterpriseList: [],
+      enterpriseInfo: {},
+      ready: false,
     };
   }
 
@@ -115,7 +112,8 @@ class EnterpriseLayout extends PureComponent {
         if (res && res._code === 200) {
           this.setState(
             {
-              enterpriseList: res.list
+              enterpriseList: res.list,
+              ready: true,
             },
             () => {
               this.redirectEnterpriseView();
@@ -140,71 +138,9 @@ class EnterpriseLayout extends PureComponent {
     }
   };
 
-  onOpenRegion = () => {
-    this.setState({ openRegion: true });
-  };
-
-  onCreateTeam = () => {
-    this.setState({ createTeam: true });
-  };
-  cancelCreateTeam = () => {
-    this.setState({ createTeam: false });
-  };
-  handleCreateTeam = values => {
-    this.props.dispatch({
-      type: "teamControl/createTeam",
-      payload: values,
-      callback: () => {
-        notification.success({ message: "添加成功" });
-        this.cancelCreateTeam();
-        this.props.dispatch({ type: "user/fetchCurrent" });
-      }
-    });
-  };
-  onJoinTeam = () => {
-    this.setState({ joinTeam: true });
-  };
-  cancelJoinTeam = () => {
-    this.setState({ joinTeam: false });
-  };
-  handleJoinTeam = values => {
-    this.props.dispatch({
-      type: "global/joinTeam",
-      payload: values,
-      callback: () => {
-        notification.success({ message: "申请成功，请等待审核" });
-        this.cancelJoinTeam();
-      }
-    });
-  };
   getChildContext = () => {
     const { location } = this.props;
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
-  };
-
-  fetchUserInfo = callback => {
-    // get login user info
-    this.props.dispatch({
-      type: "user/fetchCurrent",
-      callback: res => {
-        const load = document.querySelector("#load");
-        if (load) {
-          load.style.display = "none";
-        }
-        if (callback) {
-          callback();
-        }
-      },
-      handleError: res => {
-        if (res && (res.status === 403 || res.status === 404)) {
-          cookie.remove("token");
-          cookie.remove("token", { domain: "" });
-          cookie.remove("newbie_guide");
-          cookie.remove("platform_url");
-          location.reload();
-        }
-      }
-    });
   };
 
   getPageTitle = pathname => {
@@ -224,123 +160,11 @@ class EnterpriseLayout extends PureComponent {
     return this.breadcrumbNameMap[pathKey];
   };
 
-  // getBaseRedirect = () => {
-  //   // According to the url parameter to redirect 这里是重定向的,重定向到 url 的 redirect 参数所示地址
-  //   const urlParams = new URL(window.location.href);
-
-  //   const redirect = urlParams.searchParams.get('redirect');
-  //   const oauth = urlParams.searchParams.get('oauth');
-  //   const { enterpriseList } = this.state;
-
-  //   // Remove the parameters in the url
-  //   if (oauth) {
-  //     window.history.replaceState(null, 'oauth', urlParams.href);
-  //   }
-  //   if (redirect) {
-  //     urlParams.searchParams.delete('redirect');
-  //     window.history.replaceState(null, 'redirect', urlParams.href);
-  //   } else {
-  //     return `/enterprise${enterpriseList[0].enterprise_id}/index`;
-  //   }
-  //   return redirect;
-  // };
-
   handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
       type: "global/changeLayoutCollapsed",
       payload: collapsed
-    });
-  };
-  handleNoticeClear = type => {
-    message.success(`清空了${type}`);
-    const { dispatch } = this.props;
-    dispatch({ type: "global/clearNotices", payload: type });
-  };
-  handleMenuClick = ({ key }) => {
-    const { dispatch } = this.props;
-
-    if (key === "cpw") {
-      this.showChangePass();
-    }
-    if (key === "logout") {
-      cookie.remove("token", { domain: "" });
-      cookie.remove("team", { domain: "" });
-      cookie.remove("region_name", { domain: "" });
-      dispatch({ type: "user/logout" });
-    }
-  };
-  handleNoticeVisibleChange = visible => {
-    const { dispatch } = this.props;
-    if (visible) {
-      dispatch({ type: "global/fetchNotices" });
-    }
-  };
-  handleTeamClick = ({ key }) => {
-    if (key === "createTeam") {
-      this.onCreateTeam();
-      return;
-    }
-    if (key === "joinTeam") {
-      this.onJoinTeam();
-      return;
-    }
-
-    cookie.set("team", key);
-    const currentUser = this.props.currentUser;
-    let currRegionName = globalUtil.getCurrRegionName();
-    const currTeam = userUtil.getTeamByTeamName(currentUser, key);
-
-    if (currTeam) {
-      const regions = currTeam.region || [];
-      if (!regions.length) {
-        notification.warning({ message: "该团队下无可用数据中心!" });
-        return;
-      }
-      const selectRegion = regions.filter(
-        item => item.team_region_name === currRegionName
-      )[0];
-      const selectRegionName = selectRegion
-        ? selectRegion.team_region_name
-        : regions[0].team_region_name;
-      currRegionName = selectRegionName;
-    }
-    const { enterpriseList } = this.state;
-    this.props.dispatch(
-      routerRedux.push(`/enterprise/${enterpriseList[0].enterprise_id}/index`)
-    );
-    // location.reload();
-  };
-
-  handleRegionClick = ({ key }) => {
-    if (key === "openRegion") {
-      this.onOpenRegion();
-      return;
-    }
-    const { enterpriseList } = this.state;
-    this.props.dispatch(
-      routerRedux.push(
-        `/enterprise/${enterpriseList[0].enterprise_id}/index`
-        // `/team/${globalUtil.getCurrTeamName()}/region/${key}/enterprise`
-      )
-    );
-    // location.reload();
-  };
-  showChangePass = () => {
-    this.setState({ showChangePassword: true });
-  };
-  cancelChangePass = () => {
-    this.setState({ showChangePassword: false });
-  };
-  handleChangePass = vals => {
-    this.props.dispatch({
-      type: "user/changePass",
-      payload: {
-        ...vals
-      },
-      callback: () => {
-        notification.success({ message: "修改成功，请重新登录" });
-      }
     });
   };
 
@@ -355,8 +179,9 @@ class EnterpriseLayout extends PureComponent {
   redirectEnterpriseView = () => {
     const { dispatch, match: { params: { eid } } } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid) {
+    if (!eid || eid=="auto") {
       if (enterpriseList.length > 0) {
+        this.setState({enterpriseInfo: enterpriseList[0]})
         dispatch(
           routerRedux.replace(
             `/enterprise/${enterpriseList[0].enterprise_id}/index`
@@ -365,6 +190,13 @@ class EnterpriseLayout extends PureComponent {
       } else {
         dispatch(routerRedux.push("/user/login"));
       }
+    }else{
+      enterpriseList.map(item => {
+        if (item.enterprise_id == eid) {
+          this.setState({enterpriseInfo: item})
+          return
+        }
+      })
     }
   };
 
@@ -372,20 +204,28 @@ class EnterpriseLayout extends PureComponent {
     const {
       currentUser,
       collapsed,
-      fetchingNotices,
-      notices,
       location: { pathname },
       match: { params: { eid } },
-      notifyCount,
       groups,
       children,
       rainbondInfo
     } = this.props;
-    const { enterpriseList } = this.state;
-
-    if (!currentUser || !rainbondInfo || enterpriseList.length === 0)
-      return null;
-
+    const { enterpriseList, enterpriseInfo, ready } = this.state;
+    const queryString = stringify({
+      redirect: window.location.href
+    });
+    if (!ready) {
+      return <PageLoading />;
+    }
+    if (!currentUser || !rainbondInfo || enterpriseList.length === 0){
+      console.log(currentUser)
+      console.log(rainbondInfo)
+      console.log(enterpriseList)
+      return <Redirect to={`/user/login?${queryString}`} />;
+    }
+    const customHeader = () => {
+      return <div className={headerStype.enterprise}><a href="">{enterpriseInfo && enterpriseInfo.enterprise_alias}</a></div>
+    }
     const layout = () => {
       return (
         <Layout>
@@ -435,16 +275,10 @@ class EnterpriseLayout extends PureComponent {
                 rainbondInfo.is_public !== undefined &&
                 rainbondInfo.is_public
               }
-              notifyCount={notifyCount}
               currentUser={currentUser}
-              fetchingNotices={fetchingNotices}
-              notices={notices}
               collapsed={collapsed}
               isMobile={this.state.isMobile}
-              onNoticeClear={this.handleNoticeClear}
-              onCollapse={this.handleMenuCollapse}
-              onMenuClick={this.handleMenuClick}
-              onNoticeVisibleChange={this.handleNoticeVisibleChange}
+              customHeader={customHeader}
             />
             <Content
               key={eid}
@@ -479,12 +313,6 @@ class EnterpriseLayout extends PureComponent {
               </Context.Provider>}
           </ContainerQuery>
         </DocumentTitle>
-        {/* 修改密码 */}
-        {this.state.showChangePassword &&
-          <ChangePassword
-            onOk={this.handleChangePass}
-            onCancel={this.cancelChangePass}
-          />}
 
         <Loading />
 

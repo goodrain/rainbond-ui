@@ -4,10 +4,11 @@ import { Layout, Icon, message, notification } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Route, Redirect, routerRedux } from 'dva/router';
-
+import { PageLoading } from "@ant-design/pro-layout";
 import memoizeOne from 'memoize-one';
 import deepEqual from 'lodash.isequal';
-
+import SelectTeam from '../components/SelectTeam';
+import SelectRegion from '../components/SelectRegion';
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import { enquireScreen } from 'enquire-js';
@@ -22,6 +23,7 @@ import { getMenuData } from '../common/teamMenu';
 import logo from '../../public/logo.png';
 import GlobalRouter from '../components/GlobalRouter';
 import Context from './MenuContext';
+import headerStype from '../components/GlobalHeader/index.less';
 
 const qs = require('query-string');
 
@@ -94,7 +96,7 @@ class TeamLayout extends React.PureComponent {
       market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
-      enterpriseView: false,
+      ready: false,
     };
   }
 
@@ -111,7 +113,8 @@ class TeamLayout extends React.PureComponent {
         if (res && res._code === 200) {
           this.setState(
             {
-              enterpriseList: res.list
+              enterpriseList: res.list,
+              ready: true,
             },
             () => {
               this.load();
@@ -347,10 +350,13 @@ class TeamLayout extends React.PureComponent {
       nouse,
       rainbondInfo,
     } = this.props;
-    const { enterpriseList, enterpriseView } = this.state;
+    const { enterpriseList, ready } = this.state;
     const { teamName, regionName } = this.props.match.params
     if (!teamName || !regionName){
       return <Redirect to={`/`} />;
+    }
+    if (!ready) {
+      return <PageLoading />;
     }
     /**
      * 根据菜单取得重定向地址.
@@ -370,7 +376,12 @@ class TeamLayout extends React.PureComponent {
       }
     };
     getMenuData().forEach(getRedirect);
-
+    const customHeader = () => {
+      return <div className={headerStype.enterprise}>
+          <SelectTeam className={headerStype.select} teamName={teamName}></SelectTeam>
+          <SelectRegion className={headerStype.select} regionName={regionName}></SelectRegion>
+        </div>
+    }
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion = team && team.region && team.region.length;
@@ -473,20 +484,10 @@ class TeamLayout extends React.PureComponent {
                 rainbondInfo.is_public !== undefined &&
                 rainbondInfo.is_public
               }
-              notifyCount={notifyCount}
               currentUser={currentUser}
-              fetchingNotices={fetchingNotices}
-              notices={notices}
               collapsed={collapsed}
               isMobile={this.state.isMobile}
-              onNoticeClear={this.handleNoticeClear}
-              onCollapse={this.handleMenuCollapse}
-              onMenuClick={this.handleMenuClick}
-              onTeamClick={this.handleTeamClick}
-              onRegionClick={this.handleRegionClick}
-              onNoticeVisibleChange={this.handleNoticeVisibleChange}
-              currTeam={teamName}
-              currRegion={regionName}
+              customHeader={customHeader}
             />
             <Content
               style={{

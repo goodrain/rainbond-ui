@@ -38,7 +38,7 @@ export default [
       // enterprise view layout
       {
         path: '/',
-        redirect: '/enterprise/',
+        redirect: '/enterprise/auto',
       },
       {
         path: '/enterprise/:eid',
