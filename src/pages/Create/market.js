@@ -283,7 +283,7 @@ export default class Main extends PureComponent {
           this.state.handleType && this.props.refreshCurrent();
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 this.props.groupId ? this.props.groupId : 0
               }`
             )
@@ -315,7 +315,7 @@ export default class Main extends PureComponent {
           callback: () => {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                   vals.group_id
                 }`
               )
@@ -353,7 +353,7 @@ export default class Main extends PureComponent {
             this.setState({ is_deploy: true });
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                   vals.group_id
                 }`
               )

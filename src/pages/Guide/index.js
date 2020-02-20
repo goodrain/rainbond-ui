@@ -135,7 +135,7 @@ export default class Index extends PureComponent {
             callback: () => {
               this.props.dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                     res.ID
                   }`
                 )
@@ -186,9 +186,6 @@ export default class Index extends PureComponent {
         return;
       }
       this.handleShare(fieldsValue.group_id);
-      // GuideList&&GuideList[3].status&&this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${fieldsValue.group_id}`));
-      // GuideList&&GuideList[4].status&&this.handleShare(fieldsValue.group_id)
-
       this.setState({ ServiceVisible: false });
     });
   };

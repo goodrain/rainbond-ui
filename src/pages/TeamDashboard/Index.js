@@ -18,7 +18,7 @@ import {
   notification
 } from "antd";
 import cookie from "../../utils/cookie";
-
+import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import { MiniArea, ChartCard } from "../../components/Charts";
 
 import NumberInfo from "../../components/NumberInfo";
@@ -455,7 +455,7 @@ export default class Index extends PureComponent {
         Target
       } = item;
 
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
         item.service_alias
       }/overview`;
       return (
@@ -595,7 +595,7 @@ export default class Index extends PureComponent {
         width: "65%",
         render: (text, record) => (
           <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               record.metric.service_alias
             }`}
           >
@@ -655,7 +655,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="success" />
-            应用数量
+            <FormattedMessage id="team.appNum"/>
           </p>
           <div>
             <div style={{ color: "rgba(0,0,0,.85)" }}>
@@ -666,7 +666,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="processing" />
-            组件数量
+            <FormattedMessage id="team.componentNum"/>
           </p>
           <div style={{ color: "rgba(0,0,0,.85)" }}>
             {index.overviewInfo.team_service_num || 0}
@@ -675,7 +675,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="error" />
-            网关策略
+            <FormattedMessage id="team.gatewayRuleNum"/>
           </p>
           <div>
             <Link
@@ -694,7 +694,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="warning" />
-            使用内存
+            <FormattedMessage id="team.memoryUsage"/>
           </p>
           <div>
             <Tooltip
@@ -714,7 +714,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="warning" />
-            使用磁盘
+            <FormattedMessage id="team.diskUsage"/>
           </p>
           <div>
             <Tooltip
@@ -734,7 +734,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="default" />
-            分享应用
+            <FormattedMessage id="team.appmodeNum"/>
           </p>
           <div>
             <Link
@@ -765,11 +765,6 @@ export default class Index extends PureComponent {
     const steps = guideutil.getStep(GuideList);
     return (
       <div style={{ margin: "-24px -24px 0" }}>
-        <div className={styles.pageHeaderContent}>
-          <div className={styles.content}>
-            <div className={styles.contentTitle}>{team&&team.team_alias}</div>
-          </div>
-        </div>
         <Modal
           title={
             configureGlobal.rainbondTextShow && (
@@ -945,7 +940,7 @@ export default class Index extends PureComponent {
                       >
                         <div style={{ padding: "10px 20px" }}>
                           <Link
-                            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                               item.group_id
                             }`}
                             style={{
@@ -961,7 +956,7 @@ export default class Index extends PureComponent {
                             <div>
                               <span>组件：</span>
                               <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                                   item.group_id
                                 }`}
                                 style={{
@@ -979,9 +974,9 @@ export default class Index extends PureComponent {
                             <div>
                               <span>备份记录：</span>
                               <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${
+                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                                   item.group_id
-                                }`}
+                                }/backup`}
                                 style={{
                                   wordBreak: "break-all",
                                   wordWrap: "break-word",

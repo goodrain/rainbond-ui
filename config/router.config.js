@@ -82,7 +82,7 @@ export default [
           // 总览
           {
             path: '/team/:teamName/region/:regionName/index',
-            component: './Index/Index',
+            component: './TeamDashboard/Index',
             name: 'teamOverview',
             authority: ['admin', 'user'],
           },
@@ -190,9 +190,9 @@ export default [
           },
 
           {
-            path: '/team/:teamName/region/:regionName/app/:appAlias/:type?',
-            component: './App',
-            name: 'App',
+            path: '/team/:teamName/region/:regionName/components/:appAlias/:type?',
+            component: './Component',
+            name: 'Component',
             authority: ['admin', 'user'],
           },
 

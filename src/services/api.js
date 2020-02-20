@@ -284,9 +284,6 @@ export async function getDomainTime(
       showMessage: false,
       params: {
         query: `ceil(sum(increase(gateway_requests{namespace=”${body.tenant_id}”}[1h])))`,
-        // start: body.start,
-        // end: body.end || new Date().getTime() / 1000,
-        // step: body.step,
       },
     }
   );

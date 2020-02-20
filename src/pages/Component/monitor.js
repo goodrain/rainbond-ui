@@ -592,7 +592,7 @@ export default class Index extends PureComponent {
               }}
             >
               <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                   appDetail.service.service_alias
                 }/plugin`}
               >

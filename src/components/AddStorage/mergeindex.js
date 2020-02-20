@@ -337,7 +337,7 @@ export default class AddVolumes extends PureComponent {
                     return (
                       <Tooltip title={v}>
                         <Link
-                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                             data.dep_app_alias
                           }/overview`}
                         >
@@ -363,7 +363,7 @@ export default class AddVolumes extends PureComponent {
                     return (
                       <Tooltip title={v}>
                         <Link
-                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                             data.dep_group_id
                           }`}
                         >

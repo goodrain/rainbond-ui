@@ -423,7 +423,7 @@ export default class TcpTable extends PureComponent {
             </a>
           ) : (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 record.group_id
               }/`}
             >
@@ -446,7 +446,7 @@ export default class TcpTable extends PureComponent {
             </a>
           ) : (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                 record.service_alias
               }/port`}
             >

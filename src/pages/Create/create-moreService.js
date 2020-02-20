@@ -156,7 +156,7 @@ export default class Index extends PureComponent {
         });
         this.setState({ buildState: false })
 
-        this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${group_id}`))
+        this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`))
       },
     });
   }

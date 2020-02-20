@@ -8,14 +8,9 @@ import {
   Button,
   Input,
   Icon,
-  Menu,
-  Dropdown,
   Modal,
   notification,
-  Radio,
   Spin,
-  Badge,
-  Tooltip,
   Divider,
 } from 'antd';
 
@@ -32,7 +27,7 @@ import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
-
+import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
@@ -288,7 +283,7 @@ class Main extends PureComponent {
           } else {
             this.props.dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                   list[0].group_id
                 }`
               )

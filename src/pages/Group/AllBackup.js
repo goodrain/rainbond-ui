@@ -282,7 +282,7 @@ class Index extends React.Component {
         title: '备份应用',
         dataIndex: 'group_name',
         render: (text, record) => {
-          return (text.includes("已删除") ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${record.group_id}/`}>{text}</Link>)
+          return (text.includes("已删除") ? <a href="" disabled>{text}</a> : <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}/`}>{text}</Link>)
         }
       },
       {

@@ -368,7 +368,7 @@ export default class Index extends PureComponent {
     };
 
     return list.map(item => {
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
         item.service_alias
       }/overview`;
       return (

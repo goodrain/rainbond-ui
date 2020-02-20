@@ -304,7 +304,7 @@ export default class shareCheck extends PureComponent {
         if (data&&data.app_market_url) {
           openInNewTab(data.app_market_url)
         }
-        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
           params.groupId
           }`));
       },
@@ -320,7 +320,7 @@ export default class shareCheck extends PureComponent {
       },
       callback: (data) => {
         this.hideShowDelete();
-        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+        this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
           params.groupId
           }`));
       },

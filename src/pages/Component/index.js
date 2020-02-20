@@ -471,7 +471,7 @@ class Main extends PureComponent {
     const { appAlias } = this.props.match.params;
     dispatch(
       routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/${key}`
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/${key}`
       )
     );
   };
@@ -670,7 +670,7 @@ class Main extends PureComponent {
         });
         this.props.dispatch(
           routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
               this.props.appDetail.service.group_id
             }`
           )
@@ -808,16 +808,13 @@ class Main extends PureComponent {
               ) : null}
 
               {!appDetail.is_third ? (
+                appUtil.canMoveGroup(appDetail) &&
                 <a
                   onClick={() => {
-                    !(groups.length <= 1 || !appUtil.canMoveGroup(appDetail)) &&
                       this.handleDropClick("moveGroup");
                   }}
                   style={{
-                    cursor:
-                      groups.length <= 1 || !appUtil.canMoveGroup(appDetail)
-                        ? "no-drop"
-                        : "pointer"
+                    cursor: "pointer"
                   }}
                 >
                   修改所属应用
@@ -1154,26 +1151,6 @@ class Main extends PureComponent {
     const { BuildList } = this.state;
     return (
       <PageHeaderLayout
-        breadcrumbList={[
-          {
-            title: "首页",
-            href: `/`
-          },
-          {
-            title: "我的应用",
-            href: ``
-          },
-          {
-            title: this.props.appDetail.service.group_name,
-            href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
-              this.props.appDetail.service.group_id
-            }`
-          },
-          {
-            title: this.props.appDetail.service.service_cname,
-            href: ""
-          }
-        ]}
         action={action}
         title={this.renderTitle(appDetail.service.service_cname)}
         onTabChange={this.handleTabChange}

@@ -546,14 +546,14 @@ export default class Index extends PureComponent {
           </div>
         </Card>
 
-        <Card title="已安装当前插件的应用">
+        <Card title="已安装当前插件的组件">
           <Table
             columns={[
               {
-                title: '应用名称',
+                title: '组件名称',
                 dataIndex: 'service_cname',
                 render: (v, data) => {
-                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.service_alias}/overview`}>{v}</Link>
+                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.service_alias}/overview`}>{v}</Link>
                 }
               }, {
                 title: '安装版本',
@@ -562,7 +562,7 @@ export default class Index extends PureComponent {
                 title: '操作',
                 dataIndex: 'action',
                 render: (v, data) => {
-                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${data.service_alias}/plugin`}>查看已安装插件</Link>
+                  return <Link to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.service_alias}/plugin`}>查看已安装插件</Link>
                 }
               }
             ]}

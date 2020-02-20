@@ -25,7 +25,7 @@ import globalUtil from "../../utils/global";
 import appUtil from "../../utils/app";
 import NoPermTip from "../../components/NoPermTip";
 import InstanceList from "../../components/AppInstanceList";
-import AddScaling from "../App/component/AddScaling";
+import AddScaling from "./component/AddScaling";
 import Deleteimg from "../../../public/images/delete.png";
 import ConfirmModal from "../../components/ConfirmModal";
 import Cpuimg from "../../../public/images/automatic-telescoping-cpu.png";

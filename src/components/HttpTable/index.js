@@ -429,7 +429,7 @@ export default class HttpTable extends PureComponent {
           });
           that.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                 record.service_alias
               }`
             )
@@ -548,7 +548,7 @@ export default class HttpTable extends PureComponent {
             </a>
           ) : (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 record.group_id
               }/`}
             >
@@ -570,7 +570,7 @@ export default class HttpTable extends PureComponent {
             </a>
           ) : (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                 record.service_alias
               }/port`}
             >

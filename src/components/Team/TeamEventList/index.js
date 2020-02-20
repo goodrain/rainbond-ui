@@ -119,35 +119,6 @@ export default class EventList extends PureComponent {
       timeout: "超时"
     };
 
-    // return list.map((item) => {
-    //   const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
-    //     item.service_alias
-    //     }/overview`;
-    //   return (
-    //     <List.Item key={item.event_id}>
-    //       <List.Item.Meta
-    //         title={
-    //           <span>
-    //             <a className={styles.username}>{item.nick_name}</a>
-    //             <span>{item.type_cn}</span>
-    //             <Link to={linkTo}>
-    //               {item.service_cname}
-    //             </Link>应用<span>
-    //               {statusCNMap[item.final_status] ? `${statusCNMap[item.final_status]}` : ""}
-    //             </span>
-    //           </span>
-    //         }
-    //         description={
-    //           <span className={styles.datetime} title={item.updatedAt}>
-    //             {" "}
-    //             {moment(item.start_time).fromNow()}{" "}
-    //           </span>
-    //         }
-    //       />
-    //     </List.Item>
-    //   );
-    // });
-
     return list.map(item => {
       const {
         UserName,
@@ -158,7 +129,7 @@ export default class EventList extends PureComponent {
         Target
       } = item;
 
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
         item.service_alias
       }/overview`;
       return (

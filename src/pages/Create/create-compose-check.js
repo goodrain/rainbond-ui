@@ -310,7 +310,7 @@ export default class CreateCheck extends PureComponent {
         });
         this.props.dispatch(
           routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
               params.group_id
             }`
           )

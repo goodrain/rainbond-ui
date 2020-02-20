@@ -647,7 +647,7 @@ export default class Index extends PureComponent {
                   dataIndex: "service_cname",
                   render: (val, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                         data.service_alias
                       }/overview`}
                     >
@@ -660,7 +660,7 @@ export default class Index extends PureComponent {
                   dataIndex: "group_name",
                   render: (val, data) => (
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                         data.group_id
                       }`}
                     >

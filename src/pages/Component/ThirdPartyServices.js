@@ -69,7 +69,7 @@ export default class Index extends PureComponent {
       onOk() {
         _th.props.dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               _th.props.appAlias
             }/port`
           )

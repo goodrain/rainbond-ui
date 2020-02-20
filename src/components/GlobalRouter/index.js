@@ -272,13 +272,6 @@ export default class GlobalRouter extends PureComponent {
       return ItemDom;
     }
     return ItemDom;
-
-    if (this.props.Authorized && this.props.Authorized.check) {
-      const { check } = this.props.Authorized;
-      return check(authority, ItemDom);
-    }
-
-    return ItemDom;
   };
   handleOpenChange = openKeys => {
     // const lastOpenKey = openKeys[openKeys.length - 1]; const isMainMenu =
@@ -320,7 +313,7 @@ export default class GlobalRouter extends PureComponent {
       <div style={{ background: "#fff" }}>
         <Icon
           className={styles.trigger}
-          type={collapsed ? "menu-unfold" : "menu-fold"}
+          type={!collapsed ? "menu-unfold" : "menu-fold"}
           onClick={this.toggle}
         />
         <Menu

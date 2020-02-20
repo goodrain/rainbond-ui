@@ -94,7 +94,7 @@ export default class Index extends PureComponent {
           });
         this
           .props
-          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${app_alias}/overview`));
+          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${app_alias}/overview`));
       }
     })
   }

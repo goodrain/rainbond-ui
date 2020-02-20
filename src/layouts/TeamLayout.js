@@ -334,7 +334,8 @@ class TeamLayout extends React.PureComponent {
       return <PageLoading />;
     }
     const appID = globalUtil.getAppID()
-    const mode = this.getMode(appID)
+    const componentID = globalUtil.getComponentID()
+    const mode = this.getMode(appID||componentID)
     const customHeader = () => {
       return (
       mode == "team" ?

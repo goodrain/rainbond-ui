@@ -325,7 +325,7 @@ export default class AppList extends PureComponent {
         render: (val, data) => (
           <Link
             to={
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               data.service_alias
               }/overview`}
           >

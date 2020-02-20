@@ -144,7 +144,7 @@ export default class Index extends PureComponent {
               routerRedux.push(
                 `/team/${data.bean.migrate_team}/region/${
                   data.bean.migrate_region
-                }/groups/${data.bean.group_id}`
+                }/apps/${data.bean.group_id}`
               )
             );
             location.reload();
