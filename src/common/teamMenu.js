@@ -1,41 +1,42 @@
 import { isUrl } from "../utils/utils";
 import cookie from "../utils/cookie";
+import { formatMessage } from 'umi-plugin-react/locale';
 
 const newbie_guide = cookie.get("newbie_guide");
 const menuData = function(teamName, regionName) {
   const menuArr = [
     {
-      name: "总览",
+      name: formatMessage({id: "menu.team.dashboard"}),
       icon: "dashboard",
       path: `team/${teamName}/region/${regionName}/index`,
       authority: ["admin", "user"]
     },
     {
-      name: "创建",
+      name: formatMessage({id: "menu.team.create"}),
       icon: "plus",
       path: `team/${teamName}/region/${regionName}/create`,
       authority: ["admin", "user"],
       children: [
         {
-          name: "从源码创建组件",
+          name: formatMessage({id: "menu.team.create.code"}),
           path: "code",
           path: `/code`,
           authority: ["admin", "user"]
         },
         {
-          name: "从Docker镜像创建组件",
+          name: formatMessage({id: "menu.team.create.image"}),
           path: "image",
           path: `/image`,
           authority: ["admin", "user"]
         },
         {
-          name: "从应用市场安装组件",
+          name: formatMessage({id: "menu.team.create.market"}),
           path: "market",
           path: `/market`,
           authority: ["admin", "user"]
         },
         {
-          name: "添加第三方组件",
+          name: formatMessage({id: "menu.team.create.third"}),
           path: "outer",
           path: `/outer`,
           authority: ["admin", "user"]
@@ -43,37 +44,37 @@ const menuData = function(teamName, regionName) {
       ]
     },
     {
-      name: "应用",
+      name: formatMessage({id: "menu.team.app"}),
       icon: "appstore-o",
-      path: `team/${teamName}/region/${regionName}/groups`,
+      path: `team/${teamName}/region/${regionName}/apps`,
       authority: ["admin", "user"]
     },
     {
-      name: "网关",
+      name: formatMessage({id: "menu.team.gateway"}),
       icon: "gateway",
       path: `team/${teamName}/region/${regionName}/gateway`,
       authority: ["admin", "user"],
       children: [
         {
-          name: "访问控制",
+          name: formatMessage({id: "menu.team.gateway.control"}),
           path: "control",
           authority: ["admin", "user"]
         },
         {
-          name: "证书管理",
+          name: formatMessage({id: "menu.team.gateway.certificate"}),
           path: "license",
           authority: ["admin", "user"]
         }
       ]
     },
     {
-      name: "插件",
+      name: formatMessage({id: "menu.team.plugin"}),
       icon: "api",
       path: `team/${teamName}/region/${regionName}/myplugns`,
       authority: ["admin", "user"]
     },
     {
-      name: "设置",
+      name: formatMessage({id: "menu.team.setting"}),
       icon: "setting",
       path: `team/${teamName}/region/${regionName}/team`,
       authority: ["admin", "user"]

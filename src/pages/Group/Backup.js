@@ -249,7 +249,7 @@ export default class AppList extends PureComponent {
 	}
 	getGroupId = () => {
 		const params = this.props.match.params;
-		return params.groupId;
+		return params.appID;
 	}
 	getGroupName = () => {
 		const group_id = this.getGroupId();
@@ -414,22 +414,9 @@ export default class AppList extends PureComponent {
 		return (
 
 			<PageHeaderLayout
-				title={groupName}
-				breadcrumbList={[{
-					title: "首页",
-					href: `/`
-				}, {
-					title: "我的应用",
-					href: ``
-				}, {
-					title: groupName,
-					href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.getGroupId()}`
-				}, {
-					title: "备份",
-					href: ``
-				}]}
+				title=	"备份管理"
 				content={(
-					<p>备份历史管理</p>
+					<p>应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨数据中心应用迁移操作。</p>
 				)}
 				extraContent={(
 					<div>

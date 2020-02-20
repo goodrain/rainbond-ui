@@ -39,6 +39,15 @@ const global = {
     }
     return "";
   },
+  getAppID() {
+    const reg = /apps\/([^\/]+)/;
+    const hash = location.hash || "";
+    const match = hash.match(reg);
+    if (match) {
+      return match[1];
+    }
+    return "";
+  },
   getCurrRegionName() {
     const reg = /region\/([^\/]+)/;
     const hash = location.hash || "";

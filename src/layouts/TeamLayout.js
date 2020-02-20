@@ -6,20 +6,20 @@ import { connect } from 'dva';
 import { Route, Redirect, routerRedux } from 'dva/router';
 import { PageLoading } from "@ant-design/pro-layout";
 import memoizeOne from 'memoize-one';
-import deepEqual from 'lodash.isequal';
 import SelectTeam from '../components/SelectTeam';
 import SelectRegion from '../components/SelectRegion';
+import SelectApp from '../components/SelectApp';
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import { enquireScreen } from 'enquire-js';
 import GlobalHeader from '../components/GlobalHeader';
 import SiderMenu from '../components/SiderMenu';
-import pathToRegexp from 'path-to-regexp';
 import userUtil from '../utils/user';
 import globalUtil from '../utils/global';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
 import { getMenuData } from '../common/teamMenu';
+import { getAppMenuData } from '../common/appMenu';
 import logo from '../../public/logo.png';
 import GlobalRouter from '../components/GlobalRouter';
 import Context from './MenuContext';
@@ -28,21 +28,6 @@ import headerStype from '../components/GlobalHeader/index.less';
 const qs = require('query-string');
 
 const { Content } = Layout;
-
-const getBreadcrumbNameMap = memoizeOne(meun => {
-  const routerMap = {};
-  const mergeMeunAndRouter = meunData => {
-    meunData.forEach(meunItem => {
-      if (meunItem.children) {
-        mergeMeunAndRouter(meunItem.children);
-      }
-      // Reduce memory usage
-      routerMap[meunItem.path] = meunItem;
-    });
-  };
-  mergeMeunAndRouter(meun);
-  return routerMap;
-}, deepEqual);
 
 const query = {
   'screen-xs': {
@@ -259,7 +244,6 @@ class TeamLayout extends React.PureComponent {
       this.onOpenRegion();
       return;
     }
-    const { enterpriseList } = this.state;
     this.props.dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
@@ -325,17 +309,19 @@ class TeamLayout extends React.PureComponent {
       breadcrumbNameMap: this.breadcrumbNameMap,
     };
   }
+  getMode(appID) {
+    if (appID){
+      return "app"
+    }
+    return "team"
+  }
 
   render() {
     const {
       currentUser,
       collapsed,
-      fetchingNotices,
-      notices,
       children,
       location: { pathname },
-      notifyCount,
-      groups,
       nouse,
       rainbondInfo,
     } = this.props;
@@ -347,28 +333,22 @@ class TeamLayout extends React.PureComponent {
     if (!ready) {
       return <PageLoading />;
     }
-    /**
-     * 根据菜单取得重定向地址.
-     */
-    const redirectData = [];
-    const getRedirect = item => {
-      if (item && item.children) {
-        if (item.children[0] && item.children[0].path) {
-          redirectData.push({
-            from: `/${item.path}`,
-            to: `/${item.children[0].path}`,
-          });
-          item.children.forEach(children => {
-            getRedirect(children);
-          });
-        }
-      }
-    };
+    const appID = globalUtil.getAppID()
+    const mode = this.getMode(appID)
     const customHeader = () => {
-      return <div className={headerStype.enterprise}>
+      return (
+      mode == "team" ?
+        <div className={headerStype.enterprise}>
           <SelectTeam className={headerStype.select} teamName={teamName}></SelectTeam>
           <SelectRegion className={headerStype.select} regionName={regionName}></SelectRegion>
+        </div> : <div className={headerStype.enterprise}>
+          <SelectApp className={headerStype.select} teamName={teamName} appID={appID}></SelectApp>
         </div>
+      )
+    }
+    let menuData = getMenuData(teamName, regionName)
+    if (mode == "app") {
+      menuData = getAppMenuData(teamName, regionName, appID)
     }
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
@@ -454,8 +434,8 @@ class TeamLayout extends React.PureComponent {
             location={location}
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
-            menuData={getMenuData(teamName, regionName)}
-            completeMenuData={getMenuData(teamName, regionName)}
+            menuData={menuData}
+            completeMenuData={menuData}
           />
           <Layout>
             <GlobalHeader

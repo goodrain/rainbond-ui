@@ -1,9 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
-import { Card, Button, List, Table, Radio, Input, Tag, Avatar, Tabs } from 'antd';
-import pageHeaderLayoutStyle from '../../layouts/PageHeaderLayout.less';
+import { List, Table, Tag, Avatar, Tabs } from 'antd';
 import globalUtil from '../../utils/global';
 import infoUtil from './info-util';
 import styles from "./index.less";
@@ -243,21 +240,8 @@ export default class AppList extends PureComponent {
 
         return (
             <PageHeaderLayout
-                title=''
-                breadcrumbList={[{
-                    title: "首页",
-                    href: `/`
-                }, {
-                    title: "我的应用",
-                    href: ``
-                }, {
-                    title: groupName,
-                    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${this.getGroupId()}`
-                }, {
-                    title: "云市应用升级",
-                    href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`
-                }]}
-                content={null}
+                title='升级管理'
+                content='当前应用内具有从共享库或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作。'
                 extraContent={null}
             >
 

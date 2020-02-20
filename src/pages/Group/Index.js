@@ -117,10 +117,11 @@ class Main extends PureComponent {
       clearTime: false,
       size: 'large',
       applicationList: [],
+      currApp: {},
     };
   }
   getGroupId() {
-    return this.props.group_id;
+    return this.props.appID;
   }
   componentDidMount() {
     this.loading();
@@ -211,9 +212,12 @@ class Main extends PureComponent {
         if (res && res.status === 404) {
           this.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
           );
+        }
+        if (res && res.status === 200) {
+          this.setState({currApp: res.bean})
         }
       },
     });
@@ -468,14 +472,11 @@ class Main extends PureComponent {
   render() {
     const {
       currUser,
-      groupDetail,
-      group_id,
-      groups,
-      rainbondInfo,
+      groupDetail
     } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-    const { applicationList } = this.state;
+    const { applicationList, currApp } = this.state;
     let num = 0;
 
     if (applicationList.length > 0) {
@@ -485,15 +486,8 @@ class Main extends PureComponent {
         }
       }
     }
-
-    if (!groups.length) {
-      return null;
-    }
-    const currGroup = groups.filter(
-      group => group.group_id === Number(group_id)
-    )[0];
     let hasService = false;
-    if (currGroup && currGroup.service_list && currGroup.service_list.length) {
+    if (currApp && currApp.service_list && currApp.service_list.length) {
       hasService = true;
     }
 
@@ -504,7 +498,7 @@ class Main extends PureComponent {
       deploy: '构建',
     };
 
-    if (group_id == -1) {
+    if (this.getGroupId() == -1) {
       return (
         <PageHeaderLayout
           breadcrumbList={[
@@ -625,56 +619,6 @@ class Main extends PureComponent {
           onClick={this.handleTopology.bind(this, 'deploy')}
         >
           构建
-        </Button>
-        {teamUtil.canShareApp(team) && hasService && this.state.recordShare && (
-          <Button style={MR} onClick={this.handleShare} disabled={BtnDisabled}>
-            继续发布到市场
-          </Button>
-        )}
-        {teamUtil.canShareApp(team) && hasService && !this.state.recordShare && (
-          <Button style={MR} onClick={this.handleShare} disabled={BtnDisabled}>
-            发布到市场
-          </Button>
-        )}
-
-        {num > 0 ? (
-          <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}
-          >
-            <Tooltip title="有新版本">
-              <Button
-                style={{ top: '-1px', marginRight: '10px' }}
-                disabled={BtnDisabled}
-              >
-                <Badge
-                  className={styles.badge}
-                  status="success"
-                  text=""
-                  count="有更新版本"
-                  title="有更新版本"
-                />
-                云市应用升级
-              </Button>
-            </Tooltip>
-          </Link>
-        ) : (
-          this.state.applicationList &&
-          this.state.applicationList.length > 0 && (
-            <Button style={MR} disabled={BtnDisabled}>
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/upgrade/${this.getGroupId()}`}
-              >
-                云市应用升级
-              </Link>
-            </Button>
-          )
-        )}
-        <Button style={MR} disabled={BtnDisabled}>
-          <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/backup/${this.getGroupId()}`}
-          >
-            备份&迁移
-          </Link>
         </Button>
         {this.state.linkList.length > 0 && (
           <VisterBtn linkList={this.state.linkList} />
@@ -814,7 +758,7 @@ class Main extends PureComponent {
           <AppList groupId={this.getGroupId()} />
         )}
         {hasService && this.state.type === 'shape' && (
-          <AppShape group_id={group_id} />
+          <AppShape group_id={this.getGroupId()} />
         )}
         {hasService && this.state.type === 'spin' && <Spin />}
         {hasService && this.state.type === 'shapes' && (
@@ -822,7 +766,7 @@ class Main extends PureComponent {
             changeType={type => {
               this.changeType(type);
             }}
-            group_id={group_id}
+            group_id={this.getGroupId()}
           />
         )}
         {this.state.toDelete && (
@@ -870,41 +814,19 @@ class Main extends PureComponent {
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
-    this.id = '';
     this.state = {
       show: true,
     };
   }
   getGroupId() {
     const params = this.props.match.params;
-    return params.groupId;
+    return params.appID;
   }
-  flash = () => {
-    this.setState(
-      {
-        show: false,
-      },
-      () => {
-        this.setState({ show: true });
-      }
-    );
-  };
   render() {
     const { currUser } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, team_name);
+    const { teamName } = this.props.match.params
+    const team = userUtil.getTeamByTeamName(currUser, teamName);
     if (!teamUtil.canViewApp(team)) return <NoPermTip />;
-
-    if (this.id !== this.getGroupId()) {
-      this.id = this.getGroupId();
-      this.flash();
-      return null;
-    }
-
-    if (!this.state.show) {
-      return null;
-    }
-
-    return <Main group_id={this.getGroupId()} />;
+    return <Main appID={this.getGroupId()} />;
   }
 }
