@@ -1,9 +1,9 @@
 import routerConfig from "./router.config";
-import defaultSettings from '../src/defaultSettings';
+import defaultSettings from "../src/defaultSettings";
 
 export default {
-  history: 'hash',
-  publicPath: '/static/',
+  history: "hash",
+  publicPath: "/static/",
   hash: true,
   plugins: [
     [
@@ -12,37 +12,22 @@ export default {
         antd: true,
         dva: {
           hmr: true
-        }
-      }
+        },
+        locale: {
+          // default false
+          enable: true,
+          // default zh-CN
+          default: 'zh-CN',
+          // default true, when it is true, will use `navigator.language` overwrite default
+          baseNavigator: true,
+        },
+      },
     ]
   ],
-
-  // externals: {
-  //   "@antv/data-set": "DataSet",
-  //   rollbar: "rollbar"
-  // },
   ignoreMomentLocale: true,
   theme: {
-    "card-actions-background":  defaultSettings.primaryColor,
+    "card-actions-background": defaultSettings.primaryColor
   },
-  // env: {
-  //   development: {
-  //     extraBabelPlugins: ["dva-hmr"],
-  //     html: {
-  //       template: "./src/index.ejs"
-  //     },
-  //     publicPath: "/" ///
-  //   },
-  //   production: {
-  //     html: {
-  //       filename: "./index.html", //
-  //       template: "./src/index.ejs"
-  //     },
-  //     publicPath: "/static/dists/" //
-  //     // outputPath: path.resolve(__dirname, "../../pythonWork/rainbond-console/www/static/dists"),
-  //     // outputPath: path.resolve(__dirname, "/static/dists"),
-  //   }
-  // },
   lessLoaderOptions: {
     javascriptEnabled: true
   },

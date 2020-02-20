@@ -81,9 +81,6 @@ class TeamLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.getPageTitle = memoizeOne(this.getPageTitle);
-    this.breadcrumbNameMap = getBreadcrumbNameMap(
-      getMenuData(this.props.groups)
-    );
     this.state = {
       isMobile,
       isInit: false,
@@ -188,14 +185,6 @@ class TeamLayout extends React.PureComponent {
         rainbondInfo.title) ||
       'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
-  };
-
-  matchParamsPath = pathname => {
-    const pathKey = Object.keys(this.breadcrumbNameMap).find(key =>
-      pathToRegexp(key).test(pathname)
-    );
-
-    return this.breadcrumbNameMap[pathKey];
   };
 
   handleMenuCollapse = collapsed => {
@@ -375,7 +364,6 @@ class TeamLayout extends React.PureComponent {
         }
       }
     };
-    getMenuData().forEach(getRedirect);
     const customHeader = () => {
       return <div className={headerStype.enterprise}>
           <SelectTeam className={headerStype.select} teamName={teamName}></SelectTeam>
@@ -440,11 +428,6 @@ class TeamLayout extends React.PureComponent {
         <Layout>
           <SiderMenu
             enterpriseList={enterpriseList}
-            title={
-              rainbondInfo &&
-              rainbondInfo.title !== undefined &&
-              rainbondInfo.title
-            }
             currentUser={currentUser}
             logo={
               (rainbondInfo &&
@@ -453,8 +436,6 @@ class TeamLayout extends React.PureComponent {
               logo
             }
             Authorized={Authorized}
-            menuData={getMenuData(groups)}
-            completeMenuData={getMenuData(groups, true)}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}
@@ -469,12 +450,12 @@ class TeamLayout extends React.PureComponent {
             }
             currentUser={currentUser}
             Authorized={Authorized}
-            menuData={getMenuData(groups)}
-            completeMenuData={getMenuData(groups, true)}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
+            menuData={getMenuData(teamName, regionName)}
+            completeMenuData={getMenuData(teamName, regionName)}
           />
           <Layout>
             <GlobalHeader

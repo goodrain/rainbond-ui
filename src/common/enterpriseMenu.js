@@ -1,40 +1,32 @@
 import { isUrl } from '../utils/utils';
 import globalUtil from '../utils/global';
-import configureGlobal from '../utils/configureGlobal';
-import cookie from '../utils/cookie';
 
-const menuData = function() {
+const menuData = function(eid) {
   const menuArr = [
     {
       name: '总览',
       icon: 'dashboard',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/index`,
+      path: `/enterprise/${eid}/index`,
       authority: ['admin', 'user'],
     },
     {
       name: '共享库',
-      icon: 'team',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/shareds`,
+      icon: 'share-alt',
+      path: `/enterprise/${eid}/shareds`,
       authority: ['admin', 'user'],
     },
     {
       name: '团队',
       icon: 'team',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/teams`,
+      path: `/enterprise/${eid}/teams`,
       authority: ['admin', 'user'],
     },
     {
       name: '设置',
       icon: 'setting',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/setting`,
+      path: `/enterprise/${eid}/setting`,
       authority: ['admin', 'user'],
-    },
-    {
-      name: '设置1',
-      icon: 'setting',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/setting1`,
-      authority: ['admin', 'user'],
-    },
+    }
   ];
   return menuArr;
 };
@@ -61,9 +53,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-// 处理我的应用二级和三级菜单
-
-export const getMenuData = (groups, is_complete) => {
-  const menus = formatter(menuData());
+export const getMenuData = (eid) => {
+  const menus = formatter(menuData(eid));
   return menus;
 };

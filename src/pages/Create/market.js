@@ -943,6 +943,20 @@ export default class Main extends PureComponent {
         ) : (
           <div>
             <PageHeaderLayout
+              breadcrumbList={[
+                {
+                  title: "首页",
+                  href: "/",
+                },
+                {
+                  title: "创建组件",
+                  href: "",
+                },
+                {
+                  title: "从共享库创建组件",
+                  href: "",
+                },
+              ]}
               content={mainSearch}
               tabList={tabListMax}
               tabActiveKey={scopeMax}
@@ -1045,36 +1059,6 @@ export default class Main extends PureComponent {
                   )}
                 </div>
               )}
-
-              {/* {scopeMax == "localApplication" &&
-                <PageHeaderLayout
-                  content={""}
-                  tabList={tabList}
-                  tabActiveKey={this.state.scope}
-                  onTabChange={this.handleTabChange}
-                >
-                  <div className={PluginStyles.cardList}>{cardList}</div>
-                  {this.state.showCreate && (
-                    <CreateAppFromMarketForm
-                      disabled={loading.effects["createApp/installApp"]}
-                      onSubmit={this.handleCreate}
-                      onCancel={this.onCancelCreate}
-                      showCreate={this.state.showCreate}
-                    />
-                  )}
-                  {this.state.showMarketAppDetail && (
-                    <MarketAppDetailShow
-                      onOk={this.hideMarketAppDetail}
-                      onCancel={this.hideMarketAppDetail}
-                      app={this.state.showApp}
-                    />
-                  )}
-
-                </PageHeaderLayout>
-              } */}
-              {/* <GuideManager /> */}
-
-              {/* <GuideManager /> */}
             </PageHeaderLayout>
           </div>
         )}

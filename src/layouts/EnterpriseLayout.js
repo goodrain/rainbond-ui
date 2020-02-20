@@ -24,7 +24,7 @@ import GlobalRouter from "../components/GlobalRouter";
 import AuthCompany from "../components/AuthCompany";
 import Meiqia from "./Meiqia";
 import Context from "./MenuContext";
-import headerStype from "../components/GlobalHeader/index.less"
+import headerStype from "../components/GlobalHeader/index.less";
 
 const qs = require("query-string");
 
@@ -94,7 +94,7 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany: false,
       enterpriseList: [],
       enterpriseInfo: {},
-      ready: false,
+      ready: false
     };
   }
 
@@ -113,7 +113,7 @@ class EnterpriseLayout extends PureComponent {
           this.setState(
             {
               enterpriseList: res.list,
-              ready: true,
+              ready: true
             },
             () => {
               this.redirectEnterpriseView();
@@ -179,9 +179,9 @@ class EnterpriseLayout extends PureComponent {
   redirectEnterpriseView = () => {
     const { dispatch, match: { params: { eid } } } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid || eid=="auto") {
+    if (!eid || eid == "auto") {
       if (enterpriseList.length > 0) {
-        this.setState({enterpriseInfo: enterpriseList[0]})
+        this.setState({ enterpriseInfo: enterpriseList[0] });
         dispatch(
           routerRedux.replace(
             `/enterprise/${enterpriseList[0].enterprise_id}/index`
@@ -190,13 +190,13 @@ class EnterpriseLayout extends PureComponent {
       } else {
         dispatch(routerRedux.push("/user/login"));
       }
-    }else{
+    } else {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
-          this.setState({enterpriseInfo: item})
-          return
+          this.setState({ enterpriseInfo: item });
+          return;
         }
-      })
+      });
     }
   };
 
@@ -217,25 +217,21 @@ class EnterpriseLayout extends PureComponent {
     if (!ready) {
       return <PageLoading />;
     }
-    if (!currentUser || !rainbondInfo || enterpriseList.length === 0){
-      console.log(currentUser)
-      console.log(rainbondInfo)
-      console.log(enterpriseList)
+    if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     const customHeader = () => {
-      return <div className={headerStype.enterprise}><a href="">{enterpriseInfo && enterpriseInfo.enterprise_alias}</a></div>
-    }
+      return (
+        <div className={headerStype.enterprise}>
+          {enterpriseInfo && enterpriseInfo.enterprise_alias}
+        </div>
+      );
+    };
     const layout = () => {
       return (
         <Layout>
           <SiderMenu
             enterpriseList={enterpriseList}
-            title={
-              rainbondInfo &&
-              rainbondInfo.title !== undefined &&
-              rainbondInfo.title
-            }
             currentUser={currentUser}
             logo={
               (rainbondInfo &&
@@ -244,8 +240,6 @@ class EnterpriseLayout extends PureComponent {
               logo
             }
             Authorized={Authorized}
-            menuData={getMenuData(groups)}
-            completeMenuData={getMenuData(groups, true)}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}
@@ -260,8 +254,8 @@ class EnterpriseLayout extends PureComponent {
             }
             currentUser={currentUser}
             Authorized={Authorized}
-            menuData={getMenuData(groups)}
-            completeMenuData={getMenuData(groups, true)}
+            menuData={getMenuData(eid)}
+            completeMenuData={getMenuData(eid)}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}

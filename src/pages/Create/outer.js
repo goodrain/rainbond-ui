@@ -72,7 +72,7 @@ export default class Main extends PureComponent {
             href: "/"
           },
           {
-            title: "创建应用",
+            title: "创建组件",
             href: ""
           },
           {

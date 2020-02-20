@@ -82,11 +82,11 @@ export default class Main extends PureComponent {
             href: "/"
           },
           {
-            title: "创建应用",
+            title: "创建组件",
             href: ""
           },
           {
-            title: "从源码创建",
+            title: "从源码创建组件",
             href: ""
           }
         ]}

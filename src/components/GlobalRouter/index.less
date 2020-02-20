@@ -10,6 +10,45 @@ i.trigger {
   padding       : 0 22px;
   color         : #fff;
 }
+.item::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: transparent;
+  content: '';
+}
+.items {
+  margin-bottom: 28px;
+  i {
+    font-size: 20px !important;
+  }
+}
+.item {
+  text-align: center;
+  color: #9CA2A8;
+  span {
+    color: #9CA2A8;
+    line-height: 20px;
+    height: 20px;
+    width: 64px;
+    text-align: center;
+    opacity: 1 !important;
+    display: block !important;
+    max-width: 64px !important;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #9CA2A8;
+    letter-spacing: 0;
+  }
+  i {
+    font-size: 20px !important;
+    display: block !important;
+    line-height: 1 !important;
+    max-width: 64px !important;
+  }
+}
 
 .triggerRouter {
   li {
@@ -78,6 +117,7 @@ i.trigger {
   .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title .anticon {
     line-height: 1 !important;
     max-width  : 64px !important;
+    font-size: 20px !important;
   }
 
   .ant-menu-dark,

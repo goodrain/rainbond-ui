@@ -1,22 +1,21 @@
-import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon } from 'antd';
-import pathToRegexp from 'path-to-regexp';
-import { Link } from 'dva/router';
-import styles from './index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
+import React, { PureComponent } from "react";
+import { Layout, Menu, Icon } from "antd";
+import pathToRegexp from "path-to-regexp";
+import { Link } from "dva/router";
+import styles from "./index.less";
+import globalUtil from "../../utils/global";
+import userUtil from "../../utils/user";
+import teamUtil from "../../utils/team";
 
-const { Sider } = Layout;
 const { SubMenu } = Menu;
 
 // Allow menu.js config icon as string or ReactNode   icon: 'setting',   icon:
 // 'http://demo.com/icon.png',   icon: <Icon type="setting" />,
 const getIcon = icon => {
-  if (typeof icon === 'string' && icon.indexOf('http') === 0) {
+  if (typeof icon === "string" && icon.indexOf("http") === 0) {
     return <img src={icon} alt="icon" className={styles.icon} />;
   }
-  if (typeof icon === 'string') {
+  if (typeof icon === "string") {
     return <Icon type={icon} />;
   }
   return icon;
@@ -27,14 +26,14 @@ export default class GlobalRouter extends PureComponent {
     super(props);
     this.menus = props.menuData;
     this.state = {
-      openKeys: this.getDefaultCollapsedSubMenus(props),
+      openKeys: this.getDefaultCollapsedSubMenus(props)
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
       this.setState({
-        openKeys: this.getDefaultCollapsedSubMenus(nextProps),
+        openKeys: this.getDefaultCollapsedSubMenus(nextProps)
       });
     }
   }
@@ -45,11 +44,9 @@ export default class GlobalRouter extends PureComponent {
    * @param  props
    */
   getDefaultCollapsedSubMenus(props) {
-    const {
-      location: { pathname },
-    } = props || this.props;
+    const { location: { pathname } } = props || this.props;
     // eg. /list/search/articles = > ['','list','search','articles']
-    let snippets = pathname.split('/');
+    let snippets = pathname.split("/");
     // Delete the end eg.  delete 'articles' snippets.pop(); Delete the head eg.
     // delete ''
     snippets.shift();
@@ -59,22 +56,22 @@ export default class GlobalRouter extends PureComponent {
       // If the array length > 1
       if (index > 0) {
         // eg. search => ['list','search'].join('/')
-        return snippets.slice(0, index + 1).join('/');
+        return snippets.slice(0, index + 1).join("/");
       }
       // index 0 to not do anything
       return item;
     });
     let withapp = false;
     snippets = snippets.map(item => {
-      const itemArr = item.split('/');
-      if (itemArr[itemArr.length - 1] === 'index') {
+      const itemArr = item.split("/");
+      if (itemArr[itemArr.length - 1] === "index") {
         withapp = true;
       }
-      if (itemArr[itemArr.length - 1] === 'app') {
+      if (itemArr[itemArr.length - 1] === "app") {
         withapp = true;
         return `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`;
       }
-      if (itemArr[itemArr.length - 2] === 'app') {
+      if (itemArr[itemArr.length - 2] === "app") {
         withapp = true;
         return this.getOpenGroup(itemArr[itemArr.length - 1]);
       }
@@ -90,14 +87,13 @@ export default class GlobalRouter extends PureComponent {
   }
   getOpenGroup(appAlias) {
     const data = this.props.menuData;
-    const groups = data.filter(item => item.path.indexOf('groups') > -1)[0];
+    const groups = data.filter(item => item.path.indexOf("groups") > -1)[0];
 
     if (groups) {
       const childs = groups.children || [];
       const currGroup = childs.filter(child => {
-        const res = (child.children || []).filter(
-          item => item.path.indexOf(appAlias) > -1
-        )[0];
+        const res = (child.children || [])
+          .filter(item => item.path.indexOf(appAlias) > -1)[0];
         return res;
       })[0];
 
@@ -136,7 +132,7 @@ export default class GlobalRouter extends PureComponent {
       completeMenuData.map(item => {
         const { icon } = item;
         if (
-          icon === 'appstore-o' &&
+          icon === "appstore-o" &&
           item.children &&
           item.children.length > 0
         ) {
@@ -177,7 +173,9 @@ export default class GlobalRouter extends PureComponent {
       return (
         <a href={itemPath} target={target}>
           {icon}
-          <span>{name}</span>
+          <span>
+            {name}
+          </span>
         </a>
       );
     }
@@ -195,7 +193,9 @@ export default class GlobalRouter extends PureComponent {
         }
       >
         {icon}
-        <span>{name}</span>
+        <span>
+          {name}
+        </span>
       </Link>
     );
   };
@@ -204,50 +204,14 @@ export default class GlobalRouter extends PureComponent {
    */
   getSubMenuOrItem = item => {
     if (item.children && item.children.some(child => child.name)) {
-      if (item.link) {
-        return (
-          <SubMenu
-            title={
-              item.icon ? (
-                <span>
-                  {getIcon(item.icon)}
-                  <Link
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.65)',
-                    }}
-                    to={`/${item.path}`}
-                  >
-                    {item.name}
-                  </Link>
-                </span>
-              ) : (
-                <Link
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.65)',
-                  }}
-                  to={`/${item.path}`}
-                >
-                  {item.name}
-                </Link>
-              )
-            }
-            key={item.path}
-          >
-            {this.getNavMenuItems(item.children)}
-          </SubMenu>
-        );
-      }
       return (
         <SubMenu
+          className={styles.items}
           title={
-            item.icon ? (
-              <span>
-                {getIcon(item.icon)}
-                <span>{item.name}</span>
-              </span>
-            ) : (
-              item.name
-            )
+            <a className={styles.item}>
+              {item.icon && getIcon(item.icon)}
+              <span>{item.name}</span>
+            </a>
           }
           key={item.path}
         >
@@ -255,7 +219,11 @@ export default class GlobalRouter extends PureComponent {
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return (
+      <Menu.Item key={item.path}>
+        {this.getMenuItemPath(item)}
+      </Menu.Item>
+    );
   };
   /**
    * 获得菜单子节点
@@ -276,27 +244,27 @@ export default class GlobalRouter extends PureComponent {
   };
   // conversion Path 转化路径
   conversionPath = path => {
-    if (path && path.indexOf('http') === 0) {
+    if (path && path.indexOf("http") === 0) {
       return path;
     }
-    return `/${path || ''}`.replace(/\/+/g, '/');
+    return `/${path || ""}`.replace(/\/+/g, "/");
   };
   // permission to check
   checkPermissionItem = (authority, ItemDom) => {
     const user = this.props.currentUser;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(user, team_name);
-    if (ItemDom.key.indexOf('source') > -1) {
+    if (ItemDom.key.indexOf("source") > -1) {
       if (user.is_sys_admin || user.is_user_enter_amdin) {
         return ItemDom;
       }
       return null;
-    } else if (ItemDom.key.indexOf('finance') > -1) {
+    } else if (ItemDom.key.indexOf("finance") > -1) {
       const region_name = globalUtil.getCurrRegionName();
       const region = userUtil.hasTeamAndRegion(user, team_name, region_name);
       if (region) {
         // 当前是公有数据中心
-        if (region.region_scope === 'public' && teamUtil.canViewFinance(team)) {
+        if (region.region_scope === "public" && teamUtil.canViewFinance(team)) {
           return ItemDom;
         }
       }
@@ -317,7 +285,7 @@ export default class GlobalRouter extends PureComponent {
     // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
     // || item.path === lastOpenKey) );
     this.setState({
-      openKeys: [...openKeys],
+      openKeys: [...openKeys]
     });
   };
 
@@ -329,28 +297,19 @@ export default class GlobalRouter extends PureComponent {
 
   triggerResizeEvent = () => {
     // eslint-disable-line
-    const event = document.createEvent('HTMLEvents');
-    event.initEvent('resize', true, false);
+    const event = document.createEvent("HTMLEvents");
+    event.initEvent("resize", true, false);
     window.dispatchEvent(event);
   };
 
   render() {
-    const {
-      logo,
-      collapsed,
-      location: { pathname },
-      onCollapse,
-      title,
-      enterpriseList,
-      currentUser,
-      menuData
-    } = this.props;
+    const { collapsed, location: { pathname }, menuData } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
       ? {}
       : {
-          openKeys,
+          openKeys
         };
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
@@ -358,26 +317,26 @@ export default class GlobalRouter extends PureComponent {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
     return (
-      <div style={{ background: '#fff' }}>
+      <div style={{ background: "#fff" }}>
         <Icon
           className={styles.trigger}
-          type={collapsed ? 'menu-unfold' : 'menu-fold'}
+          type={collapsed ? "menu-unfold" : "menu-fold"}
           onClick={this.toggle}
         />
         <Menu
-        className={styles.globalSider}
+          className={styles.globalSider}
           key="Menu"
           theme="dark"
           mode="inline"
           {...menuProps}
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
-          inlineCollapsed='menu-fold'
+          inlineCollapsed="menu-fold"
           defaultOpenKeys={[
-            `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`,
+            `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
           ]}
           style={{
-            width: '64px',
+            width: "64px"
           }}
         >
           {this.getNavMenuItems(menuData || [])}
