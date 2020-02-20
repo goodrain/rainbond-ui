@@ -14,41 +14,18 @@ import { enquireScreen } from 'enquire-js';
 import GlobalHeader from '../components/GlobalHeader';
 import SiderMenu from '../components/SiderMenu';
 import pathToRegexp from 'path-to-regexp';
-
-// import NotFound from "../routes/Exception/404";
-// import { getRoutes } from "../utils/utils";
-
 import userUtil from '../utils/user';
 import globalUtil from '../utils/global';
-import configureGlobal from '../utils/configureGlobal';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
 import { getMenuData } from '../common/teamMenu';
 import logo from '../../public/logo.png';
-import OpenRegion from '../components/OpenRegion';
-import CreateTeam from '../components/CreateTeam';
-import JoinTeam from '../components/JoinTeam';
-import Loading from '../components/Loading';
-
 import GlobalRouter from '../components/GlobalRouter';
-import ChangePassword from '../components/ChangePassword';
-import AuthCompany from '../components/AuthCompany';
-
-import PublicLogin from '../components/Authorized/PublicLogin';
-
-import CheckUserInfo from './CheckUserInfo';
-import InitTeamAndRegionData from './InitTeamAndRegionData';
-import PayTip from './PayTip';
-import MemoryTip from './MemoryTip';
-import PayMoneyTip from './PayMoneyTip';
-import Meiqia from './Meiqia';
 import Context from './MenuContext';
 
 const qs = require('query-string');
 
 const { Content } = Layout;
-// const { AuthorizedRoute } = Authorized;
-const { check } = Authorized;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
   const routerMap = {};
@@ -122,21 +99,26 @@ class TeamLayout extends React.PureComponent {
   }
 
   componentDidMount() {
-    console.log('TeamLaout')
-
-    this.initRaindbondInfo();
+    this.getEnterpriseList()
   }
 
-  initRaindbondInfo = () => {
-    // 初始化 获取RainbondInfo信息
-    this.props.dispatch({
-      type: 'global/fetchRainbondInfo',
-      callback: info => {
-        if (info) {
-          globalUtil.putLog(info);
-          this.getEnterpriseList();
+  // get enterprise list
+  getEnterpriseList = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "global/fetchEnterpriseList",
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              enterpriseList: res.list
+            },
+            () => {
+              this.load();
+            }
+          );
         }
-      },
+      }
     });
   };
 
@@ -144,31 +126,12 @@ class TeamLayout extends React.PureComponent {
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
-    this.fetchUserInfo();
     this.setState({ showAuthCompany: this.props.showAuthCompany });
     const query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
       this.setState({ market_info: query.market_info });
       this.setState({ showAuthCompany: true });
     }
-  };
-  getEnterpriseList = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/fetchEnterpriseList',
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState(
-            {
-              enterpriseList: res.list,
-            },
-            () => {
-              this.load();
-            }
-          );
-        }
-      },
-    });
   };
   onOpenRegion = () => {
     this.setState({ openRegion: true });
@@ -214,28 +177,6 @@ class TeamLayout extends React.PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  fetchUserInfo = () => {
-    // 获取用户信息、保存团队和数据中心信息
-    this.props.dispatch({
-      type: 'user/fetchCurrent',
-      callback: res => {
-        const load = document.querySelector('#load');
-        if (load) {
-          load.style.display = 'none';
-        }
-      },
-      handleError: res => {
-        if (res && (res.status === 403 || res.status === 404)) {
-          cookie.remove('token');
-          cookie.remove('token', { domain: '' });
-          cookie.remove('newbie_guide');
-          cookie.remove('platform_url');
-          location.reload();
-        }
-      },
-    });
-  };
-
   getPageTitle = pathname => {
     const { rainbondInfo } = this.props;
     const title =
@@ -243,10 +184,6 @@ class TeamLayout extends React.PureComponent {
         rainbondInfo.title !== undefined &&
         rainbondInfo.title) ||
       'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
-    // const currRouterData = this.matchParamsPath(pathname);
-    // if (!currRouterData) {
-    //   return `${currRouterData} - ${title}`;
-    // }
     return title;
   };
 
@@ -403,30 +340,17 @@ class TeamLayout extends React.PureComponent {
       collapsed,
       fetchingNotices,
       notices,
-      // routerData,
-      // match,
-      // location,
       children,
       location: { pathname },
       notifyCount,
-      currTeam,
-      currRegion,
       groups,
       nouse,
       rainbondInfo,
     } = this.props;
     const { enterpriseList, enterpriseView } = this.state;
-
-    const currRouterData = this.matchParamsPath(pathname);
-
-    const token = cookie.get('token');
-
-    if (!rainbondInfo && !token) {
-      this.props.dispatch(routerRedux.push('/user/login'));
-      return null;
-    }
-    if (enterpriseList.length === 0) {
-      return null;
+    const { teamName, regionName } = this.props.match.params
+    if (!teamName || !regionName){
+      return <Redirect to={`/`} />;
     }
     /**
      * 根据菜单取得重定向地址.
@@ -448,24 +372,17 @@ class TeamLayout extends React.PureComponent {
     getMenuData().forEach(getRedirect);
 
     const layout = () => {
-      const team = userUtil.getTeamByTeamName(
-        currentUser,
-        globalUtil.getCurrTeamName()
-      );
-      const hasRegion = !!(team && team.region && team.region.length);
+      const team = userUtil.getTeamByTeamName(currentUser, teamName);
+      const hasRegion = team && team.region && team.region.length;
       let region = null;
       let isRegionMaintain = false;
       if (hasRegion) {
-        region =
-          userUtil.hasTeamAndRegion(currentUser, currTeam, currRegion) || {};
-
-        isRegionMaintain =
-          region.region_status === '3' && !userUtil.isSystemAdmin(currentUser);
+        region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName) || {};
+        isRegionMaintain = region.region_status === '3' && !userUtil.isSystemAdmin(currentUser);
+      }else{
+        return <Redirect to={`/`} />;
       }
-
       const renderContent = () => {
-        const { children } = this.props;
-
         // 数据中心维护中
         if (isRegionMaintain || nouse) {
           return (
@@ -500,7 +417,6 @@ class TeamLayout extends React.PureComponent {
           <div>
             <Authorized
               logined
-              // authority={children.props.route.authority}
               authority={['admin', 'user']}
               noMatch={<Redirect to="/user/login" />}
             >
@@ -511,7 +427,6 @@ class TeamLayout extends React.PureComponent {
       };
       return (
         <Layout>
-          {/* {!isRegionMaintain && hasRegion && ( */}
           <SiderMenu
             enterpriseList={enterpriseList}
             title={
@@ -534,7 +449,6 @@ class TeamLayout extends React.PureComponent {
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
           />
-          {/* )} */}
           <GlobalRouter
             enterpriseList={enterpriseList}
             title={
@@ -571,8 +485,8 @@ class TeamLayout extends React.PureComponent {
               onTeamClick={this.handleTeamClick}
               onRegionClick={this.handleRegionClick}
               onNoticeVisibleChange={this.handleNoticeVisibleChange}
-              currTeam={currTeam}
-              currRegion={currRegion}
+              currTeam={teamName}
+              currRegion={regionName}
             />
             <Content
               style={{
@@ -586,71 +500,18 @@ class TeamLayout extends React.PureComponent {
         </Layout>
       );
     };
-    console.log('teams进来了')
     return (
        <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
-          <CheckUserInfo
-            enterpriseView={enterpriseView}
-            rainbondInfo={rainbondInfo}
-            onCurrTeamNoRegion={this.handleCurrTeamNoRegion}
-            userInfo={currentUser}
-            onInitTeamOk={this.handleInitTeamOk}
-            enterpriseList={enterpriseList}
-          >
-            <InitTeamAndRegionData key={currTeam + currRegion}>
-              <ContainerQuery query={query}>
-                {params => (
+              <ContainerQuery key={teamName+regionName} query={query}>
+                {params =>
                   <Context.Provider value={this.getContext()}>
-                    <div className={classNames(params)}>{layout()}</div>
-                  </Context.Provider>
-                )}
+                    <div className={classNames(params)}>
+                      {layout()}
+                    </div>
+                  </Context.Provider>}
               </ContainerQuery>
-            </InitTeamAndRegionData>
-          </CheckUserInfo>
          </DocumentTitle>
-        {/* 创建团队 */}
-        {/* {this.state.createTeam && (
-          <CreateTeam
-            onOk={this.handleCreateTeam}
-            onCancel={this.cancelCreateTeam}
-          />
-        )} */}
-
-        {/* 加入团队 */}
-        {/* {this.state.joinTeam && (
-          <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
-        )} */}
-        {/* 修改密码 */}
-        {/* {this.state.showChangePassword && (
-          <ChangePassword
-            onOk={this.handleChangePass}
-            onCancel={this.cancelChangePass}
-          />
-        )}
-
-        <Loading /> */}
-
-        {/* {rainbondInfo &&
-          rainbondInfo.is_public !== undefined &&
-          rainbondInfo.is_public && <Meiqia />} */}
-
-        {/* 企业尚未认证 */}
-        {/* {(this.props.showAuthCompany || this.state.showAuthCompany) && (
-          <AuthCompany
-            market_info={this.state.market_info}
-            onOk={() => {
-              this.setState({ showAuthCompany: false });
-              const jumpPath = this.props.location.pathname;
-              const query = this.props.location.search.replace(
-                `market_info=${this.state.market_info}`,
-                ''
-              );
-              this.setState({ market_info: '' });
-              this.props.dispatch(routerRedux.replace(jumpPath + query));
-            }}
-          />
-        )} */}
      </Fragment>
     );
   }
@@ -663,8 +524,6 @@ export default connect(({ user, global, index, loading }) => ({
   groups: global.groups,
   fetchingNotices: loading.effects['global/fetchNotices'],
   notices: global.notices,
-  currTeam: globalUtil.getCurrTeamName(),
-  currRegion: globalUtil.getCurrRegionName(),
   rainbondInfo: global.rainbondInfo,
   payTip: global.payTip,
   memoryTip: global.memoryTip,

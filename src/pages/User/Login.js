@@ -12,11 +12,20 @@ import oauthUtil from "../../utils/oauth";
 }))
 export default class LoginPage extends Component {
   handleSubmit = values => {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
+    const query_params = new URLSearchParams(this.props.location.search);
+    const redirect = query_params.get('redirect');
     dispatch({
       type: "user/login",
       payload: {
         ...values
+      },
+      callback: ()=> {
+        let url = "/"
+        if (redirect) {
+          url = redirect
+        }
+        window.location.href = url; 
       }
     });
   };

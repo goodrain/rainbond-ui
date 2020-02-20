@@ -81,7 +81,6 @@ export default class Enterprise extends PureComponent {
       openOauth: false,
       oauthInfo: false,
       isOpen: false,
-      scope: params.type || this.getDefaultScope(),
       showDeleteDomain: false,
       israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
       enterpriseInfo: false,
@@ -90,7 +89,6 @@ export default class Enterprise extends PureComponent {
       overviewAppInfo: false,
       overviewInfo: false,
       overviewTeamInfo: false,
-
       overviewAppInfoLoading: true,
       overviewInfoLoading: true,
       overviewTeamInfoLoading: true,
@@ -143,13 +141,11 @@ export default class Enterprise extends PureComponent {
   };
 
   getEnterpriseInfo = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
-
+    const { dispatch, match: { params: { eid } } } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: enterpriseList[0].enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -163,13 +159,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewApp = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, match: { params: { eid } } } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewApp',
       payload: {
-        enterprise_id: enterpriseList[0].enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -183,13 +178,11 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverview = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
-
+    const { dispatch, match: { params: { eid } } } = this.props;
     dispatch({
       type: 'global/fetchOverview',
       payload: {
-        enterprise_id: enterpriseList[0].enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -203,13 +196,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewTeam = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, match: { params: { eid } } } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewTeam',
       payload: {
-        enterprise_id: enterpriseList[0].enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -224,13 +216,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewMonitor = () => {
-    const { enterpriseList } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, match: { params: { eid } } } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewMonitor',
       payload: {
-        enterprise_id: enterpriseList[0].enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -255,12 +246,6 @@ export default class Enterprise extends PureComponent {
       callback: () => {},
     });
   };
-  getDefaultScope() {
-    // if (this.props.rainbondInfo && this.props.rainbondInfo.is_public) {
-    //   return "finance";
-    // }
-    return 'manage';
-  }
   getParam() {
     return this.props.match.params;
   }
@@ -510,7 +495,7 @@ export default class Enterprise extends PureComponent {
     this.setState({ joinTeam: false });
   };
 
-  manage = () => {
+  renderContent = () => {
     const pagination = {
       current: this.state.teamsPage,
       pageSize: this.state.teamsPageSize,
@@ -925,6 +910,7 @@ export default class Enterprise extends PureComponent {
                         const { team_name, region, team_alias } = item;
                         return (
                           <Card
+                            key={team_name}
                             bodyStyle={teamBoxList}
                             bordered={false}
                             style={{ height: '40px' }}
@@ -1050,22 +1036,6 @@ export default class Enterprise extends PureComponent {
         {/* )} */}
       </div>
     );
-  };
-
-  renderContent = () => {
-    const { user } = this.props;
-    if (this.state.scope === 'manage') {
-      return this.manage();
-    }
-    // 不是系统管理员
-    if (!userUtil.isSystemAdmin(user) && !userUtil.isCompanyAdmin(user)) {
-      this.props.dispatch(
-        routerRedux.replace(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`
-        )
-      );
-      return null;
-    }
   };
   // 管理员添加用户
   addUser = () => {

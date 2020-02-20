@@ -116,7 +116,6 @@ export default function request(url, options) {
   window.g_app._store.dispatch({
     type: 'global/showLoading',
   });
-  // push("global/showLoading");
 
   return axios(newOptions)
     .then(checkStatus)
@@ -135,10 +134,9 @@ export default function request(url, options) {
     })
     .catch(error => {
       if (showLoading) {
-        console.log('error')
-        // window.g_app._store.dispatch({
-        //   type: 'global/hiddenLoading',
-        // });
+        window.g_app._store.dispatch({
+          type: 'global/hiddenLoading',
+        });
       }
 
       if (error.response) {

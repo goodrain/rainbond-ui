@@ -192,6 +192,7 @@ export default class SiderMenu extends PureComponent {
     }
     return (
       <Link
+        key={name}
         to={itemPath}
         target={target}
         replace={itemPath === this.props.location.pathname}
@@ -221,6 +222,7 @@ export default class SiderMenu extends PureComponent {
                 <span>
                   {getIcon(item.icon)}
                   <Link
+                    key={item.name}
                     style={{
                       color: 'rgba(255, 255, 255, 0.65)',
                     }}
@@ -231,6 +233,7 @@ export default class SiderMenu extends PureComponent {
                 </span>
               ) : (
                 <Link
+                  key={item.name}
                   style={{
                     color: 'rgba(255, 255, 255, 0.65)',
                   }}
@@ -451,7 +454,7 @@ export default class SiderMenu extends PureComponent {
           </div>
           {collectionList.map(item => {
             return (
-              <Link to={item.url}>
+              <Link key={item.url} to={item.url}>
                 <div className={styles.con}>{item.name}</div>
               </Link>
             );
@@ -460,7 +463,7 @@ export default class SiderMenu extends PureComponent {
           <div className={styles.tit}>企业</div>
           {enterpriseList.map(item => {
             return (
-              <Link to={`/enterprise/${enterpriseList[0].enterprise_id}/index`}>
+              <Link key={item.enterprise_id} to={`/enterprise/${item.enterprise_id}/index`}>
                 <div className={styles.con}>{item.enterprise_alias}</div>
               </Link>
             );
@@ -473,6 +476,7 @@ export default class SiderMenu extends PureComponent {
               const { region, team_name, team_alias } = item;
               return (
                 <Link
+                  key={item.name}
                   to={`/team/${team_name}/region/${
                     region.length > 0 ? region[0].team_region_name : currRegion
                   }/index`}
@@ -482,38 +486,6 @@ export default class SiderMenu extends PureComponent {
               );
             })}
         </div>
-        {/* <div className={styles.logo} key="logo">
-          <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`}
-          >
-            {!collapsed ? (
-              <img
-                style={{ maxHeight: 32, width: "90%" }}
-                src={logo}
-                alt={title || "logo"}
-              />
-            ) : (
-              ""
-            )}
-          </Link>
-        </div>
-        <Menu
-          key="Menu"
-          theme="dark"
-          mode="inline"
-          {...menuProps}
-          onOpenChange={this.handleOpenChange}
-          selectedKeys={selectedKeys}
-          defaultOpenKeys={[
-            `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
-          ]}
-          style={{
-            padding: "16px 0",
-            width: "100%"
-          }}
-        >
-          {this.getNavMenuItems(this.props.menuData || [])}
-        </Menu> */}
       </Sider>
     );
   }

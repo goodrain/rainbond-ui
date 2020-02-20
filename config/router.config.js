@@ -29,124 +29,90 @@ export default [
     path: '/exception/trigger',
     component: './Exception/triggerException',
   },
-  // app
-
+   // main route config
   {
     path: '/',
-    component: './Transit',
-    // component: './Transit',
-    // Routes: ['src/pages/Authorized'],
+    component: '../layouts/SecurityLayout',
     authority: ['admin', 'user'],
     routes: [
+      // enterprise view layout
       {
         path: '/',
-        redirect: '/enterprise',
-        authority: ['admin', 'user'],
+        redirect: '/enterprise/',
       },
       {
-        path: '/Transit',
-        redirect: '/enterprise',
-        authority: ['admin', 'user'],
-      },
-      // 企业总览
-      {
-        path: '/enterprise',
+        path: '/enterprise/:eid',
         component: '../layouts/EnterpriseLayout',
-        name: 'EnterpriseBasicLayout',
-        // icon: 'dashboard',
+        name: 'EnterprisePage',
         authority: ['admin', 'user'],
         routes: [
-          // {
-          //   path: '/enterprise',
-          //   redirect: '/enterprise/:eid/index',
-          //   authority: ['admin', 'user'],
-          // },
           {
             path: '/enterprise/:eid/index',
             component: './Enterprise',
             name: 'enterpriseOverview',
-            // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
-          // 企业团队
-
           {
             path: '/enterprise/:eid/teams',
             component: './EnterpriseTeams',
             name: 'EnterpriseTeams',
-            // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
-          // 企业设置
           {
             path: '/enterprise/:eid/setting',
             component: './EnterpriseSetting',
             name: 'EnterpriseSetting',
-            // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
-          // 分享
           {
-            path: '/enterprise/:eid/shareds',
+            path: '/enterprise/:eid/shared',
             component: './EnterpriseShared',
             name: 'EnterpriseShared',
-            // icon: 'dashboard',
-            authority: ['admin', 'user'],
-          },
-
-          // 企业设置
-          {
-            path: '/enterprise/:eid/setting1',
-            component: './EnterpriseSetting/index1.js',
-            name: 'EnterpriseSetting1',
-            // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
         ],
       },
+      //team view layout
       {
-        path: '/team',
+        path: '/team/:teamName/region/:regionName/',
         component: '../layouts/TeamLayout',
-        name: 'EnterpriseBasicLayout',
+        name: 'TeamBasicLayout',
         // icon: 'dashboard',
         authority: ['admin', 'user'],
         routes: [
           // 总览
           {
-            path: '/team/:team/region/:region/index',
+            path: '/team/:teamName/region/:regionName/index',
             component: './Index/Index',
             name: 'teamOverview',
             // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
-
           {
-            path: '/team/:team/region/:region/source/:type?/:name?',
+            path: '/team/:teamName/region/:regionName/source/:type?/:name?',
             component: './Source/Index',
             name: 'Source',
             // icon: 'dashboard',
             authority: ['admin', 'user'],
             // hideInMenu: true,
           },
-
           {
-            path: '/team/:team/region/:region/finance',
+            path: '/team/:teamName/region/:regionName/finance',
             component: './Finance',
             name: 'Finance',
             // icon: 'dashboard',
             authority: ['admin', 'user'],
           },
+          // {
+          //   path: '/team/:teamName/region/:regionName/resources/buy/:regionName',
+          //   component: './Finance/resources',
+          //   name: 'resources',
+          //   // icon: 'dashboard',
+          //   authority: ['admin', 'user'],
+          // },
 
           {
-            path: '/team/:team/region/:region/resources/buy/:regionName',
-            component: './Finance/resources',
-            name: 'resources',
-            // icon: 'dashboard',
-            authority: ['admin', 'user'],
-          },
-
-          {
-            path: '/team/:team/region/:region/message',
+            path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',
             // icon: 'dashboard',
@@ -154,7 +120,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/allbackup',
+            path: '/team/:teamName/region/:regionName/allbackup',
             component: './Group/AllBackup',
             name: 'AllBackup',
             // icon: 'dashboard',
@@ -162,7 +128,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/team',
+            path: '/team/:teamName/region/:regionName/team',
             component: './Team',
             name: 'Team',
             // icon: 'dashboard',
@@ -170,7 +136,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/groups/upgrade/:groupId/',
+            path: '/team/:teamName/region/:regionName/groups/upgrade/:groupId/',
             component: './Upgrade',
             name: 'Upgrade',
             // icon: 'dashboard',
@@ -179,7 +145,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/groups/backup/:groupId/',
+            path: '/team/:teamName/region/:regionName/groups/backup/:groupId/',
             component: './Group/Backup',
             name: 'Backup',
             // icon: 'dashboard',
@@ -188,7 +154,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/groups/:groupId',
+            path: '/team/:teamName/region/:regionName/groups/:groupId',
             // component: './Group/Index',
             component: './Group/Index',
             name: 'Groups',
@@ -198,7 +164,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/groups/share/one/:groupId/:shareId',
+              '/team/:teamName/region/:regionName/groups/share/one/:groupId/:shareId',
             component: './Group/AppShare',
             name: 'AppShares',
             // icon: 'dashboard',
@@ -207,7 +173,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/groups/share/two/:groupId/:shareId',
+              '/team/:teamName/region/:regionName/groups/share/two/:groupId/:shareId',
             component: './Group/AppShareLoading',
             name: 'AppShareLoading',
             // icon: 'dashboard',
@@ -216,7 +182,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/groups/share/three/:groupId:ShareId',
+              '/team/:teamName/region/:regionName/groups/share/three/:groupId:ShareId',
             component: './Group/AppShareFinish',
             name: 'AppShareFinish',
             // icon: 'dashboard',
@@ -224,7 +190,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/app/:appAlias/:type?',
+            path: '/team/:teamName/region/:regionName/app/:appAlias/:type?',
             component: './App',
             name: 'App',
             // icon: 'dashboard',
@@ -232,7 +198,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/code/:type?/:code?',
+            path: '/team/:teamName/region/:regionName/create/code/:type?/:code?',
             component: './Create/code',
             name: 'code',
             // icon: 'dashboard',
@@ -240,7 +206,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/outer/:type?/:outer?',
+            path: '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
             component: './Create/outer',
             name: 'outer',
             // icon: 'dashboard',
@@ -248,7 +214,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/market/:keyword?',
+            path: '/team/:teamName/region/:regionName/create/market/:keyword?',
             component: './Create/market',
             name: 'market',
             // icon: 'dashboard',
@@ -256,7 +222,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/myplugns/:pluginId?',
+            path: '/team/:teamName/region/:regionName/myplugns/:pluginId?',
             component: './Plugin',
             name: 'Plugin',
             // icon: 'dashboard',
@@ -265,7 +231,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/shareplugin/step-one/:pluginId/:shareId',
+              '/team/:teamName/region/:regionName/shareplugin/step-one/:pluginId/:shareId',
             component: './Plugin/share-stepone',
             name: 'stepone',
             // icon: 'dashboard',
@@ -274,7 +240,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/shareplugin/step-two/:pluginId/:shareId',
+              '/team/:teamName/region/:regionName/shareplugin/step-two/:pluginId/:shareId',
             component: './Plugin/share-steptwo',
             name: 'steptwo',
             // icon: 'dashboard',
@@ -282,7 +248,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create-plugin',
+            path: '/team/:teamName/region/:regionName/create-plugin',
             component: './Plugin/Create',
             name: 'plugin',
             // icon: 'dashboard',
@@ -290,7 +256,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/create-check/:appAlias',
+            path: '/team/:teamName/region/:regionName/create/create-check/:appAlias',
             component: './Create/create-check',
             name: 'check',
             // icon: 'dashboard',
@@ -299,7 +265,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/create/create-compose-check/:groupId/:composeId',
+              '/team/:teamName/region/:regionName/create/create-compose-check/:groupId/:composeId',
             component: './Create/create-compose-check',
             name: 'compose',
             // icon: 'dashboard',
@@ -307,7 +273,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/image/:type?/:image?',
+            path: '/team/:teamName/region/:regionName/create/image/:type?/:image?',
             component: './Create/image',
             name: 'imagesss',
             // icon: 'dashboard',
@@ -315,7 +281,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/create/create-setting/:appAlias',
+            path: '/team/:teamName/region/:regionName/create/create-setting/:appAlias',
             component: './Create/create-setting',
             name: 'setting',
             // icon: 'dashboard',
@@ -324,7 +290,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/create/create-moreService/:appAlias/:check_uuid',
+              '/team/:teamName/region/:regionName/create/create-moreService/:appAlias/:check_uuid',
             component: './Create/create-moreService',
             name: 'moreService',
             // icon: 'dashboard',
@@ -332,7 +298,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/guide',
+            path: '/team/:teamName/region/:regionName/guide',
             component: './Guide/index',
             name: 'setting',
             // icon: 'dashboard',
@@ -341,7 +307,7 @@ export default [
 
           {
             path:
-              '/team/:team/region/:region/create/create-compose-setting/:groupId/:composeId',
+              '/team/:teamName/region/:regionName/create/create-compose-setting/:groupId/:composeId',
             component: './Create/create-compose-setting',
             name: 'compose',
             // icon: 'dashboard',
@@ -349,7 +315,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/result/success',
+            path: '/team/:teamName/region/:regionName/result/success',
             component: './Result/Success',
             name: 'Success',
             // icon: 'dashboard',
@@ -364,7 +330,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/exception/403',
+            path: '/team/:teamName/region/:regionName/exception/403',
             component: './Exception/403',
             name: '403',
             // icon: 'dashboard',
@@ -372,7 +338,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/exception/404',
+            path: '/team/:teamName/region/:regionName/exception/404',
             component: './Exception/404',
             name: '404',
             // icon: 'dashboard',
@@ -380,7 +346,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/exception/500',
+            path: '/team/:teamName/region/:regionName/exception/500',
             component: './Exception/500',
             name: '500',
             // icon: 'dashboard',
@@ -388,7 +354,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/gateway/control/:types?/:isopen?',
+            path: '/team/:teamName/region/:regionName/gateway/control/:types?/:isopen?',
             component: './GateWay/control',
             name: 'control',
             // icon: 'dashboard',
@@ -396,7 +362,7 @@ export default [
           },
 
           {
-            path: '/team/:team/region/:region/gateway/license',
+            path: '/team/:teamName/region/:regionName/gateway/license',
             component: './GateWay/license',
             name: 'license',
             // icon: 'dashboard',
