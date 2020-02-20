@@ -109,6 +109,7 @@ export default {
     memoryTip: '',
     is_enterprise_version: false,
     nouse: false,
+    needLogin: false,
   },
 
   effects: {
@@ -786,6 +787,18 @@ export default {
       return {
         ...state,
         showAuthCompany: false,
+      };
+    },
+    showNeedLogin(state, {}) {
+      return {
+        ...state,
+        needLogin: true,
+      };
+    },
+    hideNeedLogin(state, {}) {
+      return {
+        ...state,
+        needLogin: false,
       };
     },
     saveIsRegist(state, { payload }) {

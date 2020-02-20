@@ -190,8 +190,6 @@ export default {
         // const redirect = urlParams.searchParams.get("redirect", pathname);
         yield put({ type: 'registerHandle', payload: response.bean, redirect });
         yield put(routerRedux.push('/'));
-
-        // yield put(routerRedux.push(redirect || '/index')); window.location.reload();
       }
 
       complete && complete();

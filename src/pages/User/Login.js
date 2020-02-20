@@ -30,6 +30,8 @@ export default class LoginPage extends Component {
     });
   };
   componentWillMount() {
+    const {dispatch} = this.props;
+    dispatch({type: "global/hideNeedLogin"})
     //check auto login
     const { rainbondInfo } = this.props;
     let disable_auto_login = rainbondUtil.OauthParameter("disable_auto_login");

@@ -179,12 +179,12 @@ export default function request(url, options) {
         }
 
         if (resData.code === 10405) {
-          cookie.remove("token");
-          cookie.remove("token", { domain: "" });
-          cookie.remove("newbie_guide");
-          cookie.remove("platform_url");
-          location.reload();
+          push({ type: "global/showNeedLogin" });
           return;
+          // cookie.remove("token");
+          // cookie.remove("token", { domain: "" });
+          // cookie.remove("newbie_guide");
+          // cookie.remove("platform_url");
         }
         if (resData.code === 10400) {
           push({
@@ -220,11 +220,7 @@ export default function request(url, options) {
         const msg = resData.msg_show || resData.msg || resData.detail;
         if (msg && newOptions.showMessage === true) {
           if (msg.indexOf("身份认证信息未提供") > -1) {
-            cookie.remove("token");
-            cookie.remove("token", { domain: "" });
-            cookie.remove("newbie_guide");
-            cookie.remove("platform_url");
-            location.reload();
+            push({ type: "global/showNeedLogin" });
             return;
           }
 
