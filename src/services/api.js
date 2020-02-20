@@ -537,16 +537,19 @@ export async function getVersion(
 }
 
 /* 卸载云市已下载的应用 */
-export async function offlineMarketApp(body = { app_id }) {
-  return request(`${apiconfig.baseUrl}/console/app_market/manage`, {
-    method: 'post',
-    data: {
-      group_key: body.group_key,
-      group_version_list: body.group_version_list,
-      app_id: body.app_id,
-      action: 'offline',
-    },
-  });
+export async function offlineMarketApp(body = { app_id, enterprise_id }) {
+  return request(
+    `http://doc.goodrain.org/mock/18/enterprise/${body.enterprise_id}/market/apps/manage`,
+    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/market/apps/manage`,
+    {
+      method: 'post',
+      data: {
+        app_id: body.app_id,
+        app_versions: body.app_versions,
+        action: 'offline',
+      },
+    }
+  );
 }
 
 /* 从云市同步应用的详细模板 */
@@ -857,8 +860,6 @@ export async function fetchEnterpriseTeams(param) {
   );
 }
 
-
-
 /* 获取企业管理员列表 */
 export async function fetchEnterpriseAdmin(param) {
   return request(
@@ -869,8 +870,6 @@ export async function fetchEnterpriseAdmin(param) {
     }
   );
 }
-
-
 
 /* 获取企业用户列表 */
 export async function fetchEnterpriseUsers(param) {
@@ -886,7 +885,6 @@ export async function fetchEnterpriseUsers(param) {
   );
 }
 
-
 /** 添加企业管理员 */
 export async function addEnterpriseAdminTeams(param) {
   return request(
@@ -901,7 +899,6 @@ export async function addEnterpriseAdminTeams(param) {
   );
 }
 
-
 /* 删除 企业管理员 */
 
 export async function deleteEnterpriseAdmin(param) {
@@ -913,7 +910,6 @@ export async function deleteEnterpriseAdmin(param) {
     }
   );
 }
-
 
 /* 获取当前用户团队列表（搜索） */
 export async function fetchUserTeams(param) {
@@ -943,20 +939,18 @@ export async function fetchComponent(param) {
         page_size: param.page_size,
         scope: param.scope,
         app_name: param.app_name,
-        tags	: param.tags	,
+        tags: param.tags,
       },
     }
   );
 }
 
-
-
 /* 获取本地标签s（搜索） */
 export async function fetchComponentTags(param) {
   return request(
     // `http://proxy.goodrain.com:23701/console/apps/tag`,
-    `http://doc.goodrain.org/mock/18/console/app/tag`,
-    `${apiconfig.baseUrl}/console/app/tag`,
+    `http://doc.goodrain.org/mock/18/console/apps/tag`,
+    // `${apiconfig.baseUrl}/console/apps/tag`,
     {
       method: 'get',
     }

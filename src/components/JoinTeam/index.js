@@ -62,7 +62,8 @@ export default class JoinTeam extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button typs="primary" onClick={this.handleSubmit}>
+          <Button onClick={onCancel}> 取消 </Button>,
+          <Button type="primary" onClick={this.handleSubmit}>
             确定
           </Button>,
         ]}

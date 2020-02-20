@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Button, Icon, Modal, Form, Checkbox, Select, Input } from 'antd';
 import { getAllRegion } from '../../services/api';
 import globalUtil from '../../utils/global';
-import styles from "./index.less";
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -70,13 +70,13 @@ class CreateTeam extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button typs="primary" onClick={this.handleSubmit}>
+          <Button onClick={onCancel}> 取消 </Button>,
+          <Button type="primary" onClick={this.handleSubmit}>
             确定
           </Button>,
         ]}
       >
-
-        <Form onSubmit={this.handleSubmit} layout="horizontal"  hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
             {getFieldDecorator('team_name', {
               rules: [
@@ -86,7 +86,9 @@ class CreateTeam extends PureComponent {
                 },
               ],
             })(<Input placeholder="请输入团队名称" />)}
-             <div className={styles.conformDesc}>请输入创建的团队名称，最多10字</div>
+            <div className={styles.conformDesc}>
+              请输入创建的团队名称，最多10字
+            </div>
           </FormItem>
 
           <FormItem {...formItemLayout} label="数据中心" hasFeedback>
@@ -110,7 +112,7 @@ class CreateTeam extends PureComponent {
                 })}
               </Select>
             )}
-             <div className={styles.conformDesc}>请选择使用的数据中心</div>
+            <div className={styles.conformDesc}>请选择使用的数据中心</div>
           </FormItem>
         </Form>
       </Modal>

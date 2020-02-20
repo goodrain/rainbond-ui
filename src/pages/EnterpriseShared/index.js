@@ -14,12 +14,16 @@ import {
   Input,
   Checkbox,
   Pagination,
+  notification,
 } from 'antd';
 import { routerRedux } from 'dva/router';
 import NoComponent from '../../../public/images/noComponent.png';
 import userUtil from '../../utils/user';
 import Lists from '../../components/Lists';
-
+import DeleteApp from '../../components/DeleteApp';
+import AppExporter from './AppExporter';
+import rainbondUtil from '../../utils/rainbond';
+import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from './index.less';
@@ -44,6 +48,14 @@ export default class EnterpriseShared extends PureComponent {
       tagList: [],
       tags: [],
       scope: 'enterprise',
+      showExporterApp: false,
+      appInfo: false,
+      visibles: null,
+      bouncedText: '',
+      bouncedType: '',
+      group_version: null,
+      chooseVersion: null,
+      deleteApp: false,
     };
   }
   componentDidMount() {
@@ -54,7 +66,7 @@ export default class EnterpriseShared extends PureComponent {
   }
 
   load = () => {
-    this.getComponent();
+    this.getApps();
     this.getTags();
   };
 
@@ -65,12 +77,12 @@ export default class EnterpriseShared extends PureComponent {
         name,
       },
       () => {
-        this.getComponent();
+        this.getApps();
       }
     );
   };
 
-  getComponent = () => {
+  getApps = () => {
     const { dispatch, user } = this.props;
     const { page, page_size, name, scope, tags } = this.state;
     dispatch({
@@ -110,33 +122,191 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   onChangeRadio = e => {
-    this.setState({
-      scope: e.target.value,
-    });
+    this.setState(
+      {
+        scope: e.target.value,
+      },
+      () => {
+        this.getApps();
+      }
+    );
   };
 
   onChangeCheckbox = checkedValues => {
+    this.setState(
+      {
+        tags: checkedValues,
+      },
+      () => {
+        this.getApps();
+      }
+    );
+  };
+
+  showAppExport = appInfo => {
+    this.setState({ appInfo, showExporterApp: true });
+  };
+
+  hideAppExport = () => {
+    this.setState({ showExporterApp: false, appInfo: false });
+  };
+  setIsExporting = status => {
+    this.setState({ is_exporting: status });
+  };
+
+  showOfflineApp = appInfo => {
+    if (appInfo.versions && appInfo.versions.length > 1) {
+      this.setState({
+        appInfo,
+        visibles: true,
+        group_version: appInfo.versions,
+        bouncedText: '删除应用',
+        bouncedType: 'delete',
+      });
+    } else {
+      this.setState({
+        appInfo,
+        chooseVersion: appInfo.versions,
+      });
+    }
+  };
+  onChangeBounced = checkedValues => {
     this.setState({
-      tags: checkedValues,
+      chooseVersion: checkedValues,
     });
   };
 
-  render() {
-    const { componentList, adminer, userTeamsLoading, tagList } = this.state;
+  handleOkBounced = values => {
+    const { bouncedType } = this.state;
+    this.setState(
+      {
+        chooseVersion: values.chooseVersion,
+      },
+      () => {
+        if (bouncedType == 'delete') {
+          this.setState({
+            deleteApp: true,
+          });
+        } else {
+          this.handleCloudsUpdate(values.chooseVersion);
+        }
+      }
+    );
+  };
+  handleDeleteApp = () => {
+    const { chooseVersion, appInfo } = this.state;
+    const { dispatch,user } = this.props;
+    console.log('appInfo',appInfo)
+    dispatch({
+      type: 'global/offlineMarketApp',
+      payload: {
+        enterprise_id: user.enterprise_id,
+        app_id: appInfo.app_id,
+        app_versions: chooseVersion,
+      },
+      callback: () => {
+        notification.success({
+          message: '删除成功',
+        });
+        this.handleCancelDelete();
+        this.getApps();
+      },
+    });
+  };
 
-    const managementMenu = exitTeamName => {
+  handleCancelDelete = () => {
+    this.setState({
+      deleteApp: null,
+      visibles: null,
+      group_version: null,
+      bouncedText: '',
+      bouncedType: '',
+    });
+  };
+  // 云更新
+  handleCloudsUpdate = chooseVersion => {
+    // const { group_version } = this.state;
+    // this.props.dispatch({
+    //   type: "global/syncMarketAppDetail",
+    //   payload: {
+    //     team_name: globalUtil.getCurrTeamName(),
+    //     body: {
+    //       group_key: group_version.group_key,
+    //       group_version: chooseVersion,
+    //       template_version: group_version.template_version
+    //     }
+    //   },
+    //   callback: data => {
+    //     this.setState({
+    //       visibles: null,
+    //       group_version: null,
+    //       bouncedText: "",
+    //       bouncedType: ""
+    //     });
+    //     notification.success({ message: "操作成功" });
+    //     this.getApps();
+    //   }
+    // });
+  };
+
+  render() {
+    const {
+      componentList,
+      adminer,
+      userTeamsLoading,
+      tagList,
+      appInfo,
+      visibles,
+      group_version,
+      bouncedText,
+      bouncedType,
+    } = this.state;
+    const { user } = this.props;
+
+    const managementMenu = appInfo => {
+      const delApp = (
+        <Menu.Item>
+          <a
+            href="javascript:;"
+            onClick={() => {
+              this.showOfflineApp(appInfo);
+            }}
+          >
+            删除应用
+          </a>
+        </Menu.Item>
+      );
       return (
         <Menu>
+          {appInfo.source === 'market' &&
+            rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+              <Menu.Item>
+                <a
+                  style={{ marginRight: 8 }}
+                  href="javascript:;"
+                  onClick={() => {
+                    // this.handleLoadAppDetail(item, '云端更新');
+                  }}
+                >
+                  云端更新
+                </a>
+              </Menu.Item>
+            )}
+
           <Menu.Item>
-            <a href="javascript:;" onClick={() => {}}>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.showAppExport(appInfo);
+              }}
+            >
               导出应用
             </a>
           </Menu.Item>
-          <Menu.Item>
-            <a href="javascript:;" onClick={() => {}}>
-              删除应用
-            </a>
-          </Menu.Item>
+
+          {appInfo.enterprise_id === 'public'
+            ? userUtil.isSystemAdmin(user) && delApp
+            : userUtil.isCompanyAdmin(user) && delApp}
         </Menu>
       );
     };
@@ -242,11 +412,11 @@ export default class EnterpriseShared extends PureComponent {
                     <div className={styles.lt}>
                       <p>
                         <Icon type="arrow-down" />
-                        {index+1}
+                        {index + 1}
                       </p>
                     </div>
                     <div className={styles.imgs}>
-                      <img src={NoComponent} alt="" />
+                      <img src={pic} alt="" />
                     </div>
                   </Col>
                   <Col span={8} className={styles.tits}>
@@ -257,7 +427,7 @@ export default class EnterpriseShared extends PureComponent {
                   </Col>
                   <Col span={4} className={styles.status}>
                     <div>
-                      <p>{dev_status?dev_status:"release"}</p>
+                      <p>{dev_status || 'release'}</p>
                       <p>{versions && versions.length > 0 && versions[0]}</p>
                     </div>
                   </Col>
@@ -270,7 +440,7 @@ export default class EnterpriseShared extends PureComponent {
                   </Col>
                 </div>
               }
-              overlay={managementMenu(app_name)}
+              overlay={managementMenu(item)}
             />
           );
         })}
@@ -282,6 +452,33 @@ export default class EnterpriseShared extends PureComponent {
         title="——"
         content="将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源应用下载完成后，方可在 从应用市场安装 直接安装"
       >
+        {this.state.deleteApp && (
+          <ConfirmModal
+            onOk={this.handleDeleteApp}
+            desc="确定要删除此应用吗?"
+            subDesc="删除后其他人将无法安装此应用"
+            title="删除应用"
+            onCancel={this.handleCancelDelete}
+          />
+        )}
+
+        {this.state.showExporterApp && (
+          <AppExporter
+            setIsExporting={this.setIsExporting}
+            app={appInfo}
+            onOk={this.hideAppExport}
+            onCancel={this.hideAppExport}
+          />
+        )}
+        {visibles && (
+          <DeleteApp
+            appInfo={appInfo}
+            bouncedText={bouncedText}
+            onOk={this.handleOkBounced}
+            onCancel={this.handleCancelDelete}
+            onCheckedValues={this.onChangeBounced}
+          />
+        )}
         {userTeamsLoading ? (
           <div className={styles.example}>
             <Spin />

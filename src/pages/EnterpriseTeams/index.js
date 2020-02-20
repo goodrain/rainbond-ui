@@ -212,10 +212,6 @@ export default class EnterpriseTeams extends PureComponent {
 
   handleExitTeam = () => {
     const { exitTeamName } = this.state;
-    if (exitTeamName == 'jdgn6pk5') {
-      notification.warning({ message: '当前为演示团队，不能退出！' });
-      return;
-    }
     this.props.dispatch({
       type: 'teamControl/exitTeam',
       payload: {
@@ -277,6 +273,7 @@ export default class EnterpriseTeams extends PureComponent {
         action: false,
       },
       callback: () => {
+        notification.success({ message: '退出申请成功' });
         this.getOverviewTeam();
         this.hideDelApply();
       },

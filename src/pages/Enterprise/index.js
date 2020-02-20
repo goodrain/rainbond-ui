@@ -628,7 +628,7 @@ export default class Enterprise extends PureComponent {
                     <Pie
                       percent={
                         overviewAppInfo &&
-                        overviewAppInfo.service_groups.running
+                        overviewAppInfo.service_groups.closed
                       }
                       types="app"
                       lineWidth={18}
@@ -637,7 +637,7 @@ export default class Enterprise extends PureComponent {
                         <div className={styles.appContent}>
                           <h6>
                             {overviewAppInfo &&
-                              overviewAppInfo.service_groups.total}
+                              overviewAppInfo.service_groups.running}
                             个
                           </h6>
                           <div>
@@ -655,7 +655,7 @@ export default class Enterprise extends PureComponent {
                   <Col span={4}>
                     <div>
                       <div>
-                        <div className={styles.appnums}>运行中应用</div>
+                        <div className={styles.appnumno}>运行中应用</div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -672,7 +672,7 @@ export default class Enterprise extends PureComponent {
                       </div>
                       <div>
                         <div
-                          className={styles.appnumno}
+                          className={styles.appnums}
                           style={{ marginTop: '26px' }}
                         >
                           未运行应用
@@ -697,7 +697,7 @@ export default class Enterprise extends PureComponent {
                     <div style={{ marginTop: '10px' }}>
                       <Pie
                         percent={
-                          overviewAppInfo && overviewAppInfo.components.running
+                          overviewAppInfo && overviewAppInfo.components.closed
                         }
                         types="component"
                         color="#A6B3E1"
@@ -728,7 +728,7 @@ export default class Enterprise extends PureComponent {
                   <Col span={4}>
                     <div>
                       <div>
-                        <div className={styles.appnums}>运行中组件</div>
+                        <div className={styles.appnumno}>运行中组件</div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -745,7 +745,7 @@ export default class Enterprise extends PureComponent {
                       </div>
                       <div>
                         <div
-                          className={styles.appnumno}
+                          className={styles.appnums}
                           style={{ marginTop: '26px' }}
                         >
                           未运行组件
