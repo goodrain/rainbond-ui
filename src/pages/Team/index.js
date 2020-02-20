@@ -55,10 +55,6 @@ export default class Index extends PureComponent {
   };
   handleExitTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
-    if (team_name == "jdgn6pk5") {
-        notification.warning({ message: "当前为演示团队，不能退出！" });
-        return
-    }
     this.props.dispatch({
       type: "teamControl/exitTeam",
       payload: {

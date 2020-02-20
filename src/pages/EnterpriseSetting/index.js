@@ -19,6 +19,7 @@ import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddAdmin from '../../components/AddAdmin';
+import OauthTable from './oauthTable';
 import CreatUser from '../../components/CreatUserForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
@@ -52,6 +53,7 @@ export default class EnterpriseTeams extends PureComponent {
       userVisible: false,
       openOauth: false,
       oauthInfo: false,
+      oauthTable: [],
       isOpen: false,
       showDeleteDomain: false,
       israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
@@ -83,6 +85,7 @@ export default class EnterpriseTeams extends PureComponent {
           const judge = rainbondUtil.OauthbEnable(info || rainbondInfo);
           this.setState({
             oauthInfo: bean && bean.oauth_services,
+            oauthTable: (bean && bean.total_oauth_services) || [],
             isOpen: judge
               ? bean.oauth_services && bean.oauth_services.enable
               : false,
@@ -312,6 +315,7 @@ export default class EnterpriseTeams extends PureComponent {
       openOauth,
       showDeleteDomain,
       israinbondTird,
+      oauthTable,
     } = this.state;
 
     const { rainbondInfo, is_public, oauthLongin } = this.props;
@@ -469,8 +473,18 @@ export default class EnterpriseTeams extends PureComponent {
                   {oauthInfo.is_auto_login && ', 且已开启自动登录'}
                 </span>
               ) : (
-                <span ctyle="color:rgba(0, 0, 0, 0.45)">
-                  支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目
+                <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                  支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
+                  {!ishow && (
+                    <span
+                      style={{
+                        color: 'rgba(0, 0, 0, 0.45)',
+                        marginLeft: '10px',
+                      }}
+                    >
+                      管理后台配置了当前只能查看配置。
+                    </span>
+                  )}
                 </span>
               )}
             </Col>
@@ -493,15 +507,22 @@ export default class EnterpriseTeams extends PureComponent {
                 </a>
               )}
               {!ishow && (
-                <a onClick={this.handleOpen} style={{ marginRight: '10px' }}>
+                <a
+                  onClick={() => {
+                    this.setState({ showOauthTable: true });
+                  }}
+                  style={{ marginRight: '10px' }}
+                >
                   查看配置
                 </a>
               )}
-              <Switch
-                onChange={ishow && this.handlChooseeOpen}
-                checked={!ishow || (israinbondTird && isOpen)}
-                className={styles.automaTictelescopingSwitch}
-              />
+              {ishow && (
+                <Switch
+                  onChange={this.handlChooseeOpen}
+                  checked={israinbondTird && isOpen}
+                  className={styles.automaTictelescopingSwitch}
+                />
+              )}
             </Col>
           </Row>
         </Card>
@@ -513,6 +534,17 @@ export default class EnterpriseTeams extends PureComponent {
         title="——"
         content="企业管理员可以设置平台信息，管理企业下的团队"
       >
+        {this.state.showOauthTable && (
+          <OauthTable
+            oauthTable={oauthTable}
+            onOk={() => {
+              this.setState({ showOauthTable: false });
+            }}
+            onCancel={() => {
+              this.setState({ showOauthTable: false });
+            }}
+          />
+        )}
         {this.state.userVisible && (
           <CreatUser
             onOk={this.handleCreatUser}

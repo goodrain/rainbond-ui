@@ -12,7 +12,9 @@ const menuData = function(eid) {
     {
       name: '共享库',
       icon: 'share-alt',
-      path: `/enterprise/${eid}/shareds`,
+      // path: `/enterprise/${eid}/shareds`,
+      // icon: 'team',
+      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/shared`,
       authority: ['admin', 'user'],
     },
     {
