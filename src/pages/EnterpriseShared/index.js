@@ -10,13 +10,15 @@ import {
   Icon,
   Spin,
   Tabs,
+  Radio,
   Input,
+  Checkbox,
   Pagination,
 } from 'antd';
 import { routerRedux } from 'dva/router';
-import DataCenterImg from '../../../public/images/dataCenter.png';
-import WarningImg from '../../../public/images/warning.png';
+import NoComponent from '../../../public/images/noComponent.png';
 import userUtil from '../../utils/user';
+import Lists from '../../components/Lists';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
@@ -27,7 +29,7 @@ const { Search } = Input;
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
 }))
-export default class EnterpriseTeams extends PureComponent {
+export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
@@ -35,10 +37,13 @@ export default class EnterpriseTeams extends PureComponent {
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       teamList: [],
-      userTeamList: [],
+      componentList: [],
       exitTeamName: '',
-      userTeamsLoading: true,
+      userTeamsLoading: false,
       adminer,
+      tagList: [],
+      tags: [],
+      scope: 'enterprise',
     };
   }
   componentDidMount() {
@@ -49,7 +54,8 @@ export default class EnterpriseTeams extends PureComponent {
   }
 
   load = () => {
-    this.getUserTeams();
+    this.getComponent();
+    this.getTags();
   };
 
   handleSearchTeam = name => {
@@ -59,28 +65,29 @@ export default class EnterpriseTeams extends PureComponent {
         name,
       },
       () => {
-        this.getUserTeams();
+        this.getComponent();
       }
     );
   };
 
-  getUserTeams = () => {
+  getComponent = () => {
     const { dispatch, user } = this.props;
-    const { page, page_size, name } = this.state;
+    const { page, page_size, name, scope, tags } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: 'global/fetchComponent',
       payload: {
         enterprise_id: user.enterprise_id,
         user_id: user.user_id,
-        name: '',
+        app_name: name,
+        scope,
         page,
         page_size,
-        name,
+        tags,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            userTeamList: res.list,
+            componentList: res.list,
             userTeamsLoading: false,
           });
         }
@@ -88,42 +95,46 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
+  getTags = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchComponentTags',
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            tagList: res.list,
+          });
+        }
+      },
+    });
+  };
+
+  onChangeRadio = e => {
+    this.setState({
+      scope: e.target.value,
+    });
+  };
+
+  onChangeCheckbox = checkedValues => {
+    this.setState({
+      tags: checkedValues,
+    });
+  };
+
   render() {
-    const { userTeamList, adminer, userTeamsLoading } = this.state;
-    const moreSvg = () => (
-      <svg
-        t="1581212425061"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="1314"
-        width="32"
-        height="32"
-      >
-        <path
-          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1315"
-          fill="#999999"
-        />
-        <path
-          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1316"
-          fill="#999999"
-        />
-        <path
-          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1317"
-          fill="#999999"
-        />
-      </svg>
-    );
+    const { componentList, adminer, userTeamsLoading, tagList } = this.state;
 
     const managementMenu = exitTeamName => {
       return (
         <Menu>
           <Menu.Item>
             <a href="javascript:;" onClick={() => {}}>
-              删除团队
+              导出应用
+            </a>
+          </Menu.Item>
+          <Menu.Item>
+            <a href="javascript:;" onClick={() => {}}>
+              删除应用
             </a>
           </Menu.Item>
         </Menu>
@@ -136,18 +147,35 @@ export default class EnterpriseTeams extends PureComponent {
           <Button
             type="primary"
             onClick={this.onAddTeam}
-            style={{ marginRight: '5px' }}
+            style={{ marginRight: '22px' }}
           >
             云端同步
           </Button>
         )}
         <Button type="primary" onClick={this.onJoinTeam}>
-          +
+          <Icon type="plus" />
         </Button>
       </Col>
     );
+    const noShared = (
+      <div className={styles.noShared}>
+        <img src={NoComponent} />
+        <p>当前无组件，请选择方式添加</p>
+        <div className={styles.btns}>
+          <Button type="primary" onClick={this.onJoinTeam}>
+            云端同步
+          </Button>
+          <Button type="primary" onClick={this.onJoinTeam}>
+            创建组件
+          </Button>
+          <Button type="primary" onClick={this.onJoinTeam}>
+            离线导入
+          </Button>
+        </div>
+      </div>
+    );
 
-    const managementTemas = (
+    const sharedList = (
       <div>
         <Row
           style={{
@@ -156,67 +184,94 @@ export default class EnterpriseTeams extends PureComponent {
             marginBottom: '20px',
           }}
         >
-          <Col span={18} style={{ textAlign: 'left' }}>
+          <Col span={20} style={{ textAlign: 'left', display: 'flex' }}>
             <Search
               style={{ width: '396px' }}
               placeholder="请输入名称进行搜索"
               onSearch={this.handleSearchTeam}
             />
+            <div className={styles.serBox}>
+              <div>
+                <Radio.Group
+                  onChange={this.onChangeRadio}
+                  defaultValue="enterprise"
+                >
+                  <Radio.Button value="enterprise">企业</Radio.Button>
+                  <Radio.Button value="team">团队</Radio.Button>
+                </Radio.Group>
+              </div>
+              <div />
+              <div>
+                <Checkbox.Group
+                  style={{ width: '100%' }}
+                  onChange={this.onChangeCheckbox}
+                >
+                  {tagList &&
+                    tagList.map(item => {
+                      const { name, tag_id } = item;
+                      return (
+                        <Checkbox key={tag_id} value={tag_id}>
+                          {name}
+                        </Checkbox>
+                      );
+                    })}
+                </Checkbox.Group>
+              </div>
+            </div>
           </Col>
           {operation}
         </Row>
 
-        {userTeamList.map((item, index) => {
+        {componentList.map((item, index) => {
           const {
-            team_id,
-            team_alias,
-            region,
-            owner_name,
-            role,
-            team_name,
+            app_id,
+            pic,
+            describe,
+            app_name,
+            tags,
+            versions,
+            dev_status,
           } = item;
           return (
-            <Card
-              key={team_id}
-              style={{ marginBottom: '10px' }}
-              hoverable
-              bodyStyle={{ padding: 0 }}
-            >
-              <Row type="flex" align="middle" className={styles.pl24}>
-                <Col span={3}>
-                  <div className={styles.lt}>
-                    <p>
-                      <Icon type="arrow-down" />{index}
-                    </p>
-                  </div>
-                </Col>
+            <Lists
+              key={app_id}
+              stylePro={{ marginBottom: '10px' }}
+              Cols={
+                <div className={styles.h70}>
+                  <Col span={4} style={{ display: 'flex' }}>
+                    <div className={styles.lt}>
+                      <p>
+                        <Icon type="arrow-down" />
+                        {index+1}
+                      </p>
+                    </div>
+                    <div className={styles.imgs}>
+                      <img src={NoComponent} alt="" />
+                    </div>
+                  </Col>
+                  <Col span={8} className={styles.tits}>
+                    <div>
+                      <p>{app_name}</p>
+                      <p>{describe}</p>
+                    </div>
+                  </Col>
+                  <Col span={4} className={styles.status}>
+                    <div>
+                      <p>{dev_status?dev_status:"release"}</p>
+                      <p>{versions && versions.length > 0 && versions[0]}</p>
+                    </div>
+                  </Col>
 
-                <Col
-                  span={12}
-                  onClick={() => {
-                    this.props.dispatch(
-                      routerRedux.replace(
-                        `/team/${team_name}/region/${region}/index`
-                      )
-                    );
-                  }}
-                >
-                  {team_alias}
-                </Col>
-                <Col span={5}>{owner_name}</Col>
-                <Col span={3}>{role}</Col>
-                <Col span={1} className={styles.bor}>
-                  <Dropdown
-                    overlay={managementMenu(team_name)}
-                    placement="bottomLeft"
-                  >
-                    <Button style={{ border: 'none' }}>
-                      <Icon component={moreSvg} />
-                    </Button>
-                  </Dropdown>
-                </Col>
-              </Row>
-            </Card>
+                  <Col span={8} className={styles.tags}>
+                    {tags.map(item => {
+                      const { tag_id, name } = item;
+                      return <div key={tag_id}>{name}</div>;
+                    })}
+                  </Col>
+                </div>
+              }
+              overlay={managementMenu(app_name)}
+            />
           );
         })}
       </div>
@@ -232,7 +287,10 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <div>{managementTemas}</div>
+          <div>
+            {sharedList}
+            {/* {noShared} */}
+          </div>
         )}
       </PageHeaderLayout>
     );

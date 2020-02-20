@@ -865,8 +865,8 @@ export async function fetchEnterpriseTeams(param) {
 /* 获取企业管理员列表 */
 export async function fetchEnterpriseAdmin(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
       method: 'get',
     }
@@ -878,8 +878,8 @@ export async function fetchEnterpriseAdmin(param) {
 /* 获取企业用户列表 */
 export async function fetchEnterpriseUsers(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/users`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/user`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/users`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/users`,
     {
       method: 'get',
       params: {
@@ -891,14 +891,14 @@ export async function fetchEnterpriseUsers(param) {
 
 
 /** 添加企业管理员 */
-export async function addEnterpriseAdminTeams(params) {
+export async function addEnterpriseAdminTeams(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
       method: 'post',
       data: {
-        user_id: params.user_id,
+        user_id: param.user_id,
       },
     }
   );
@@ -909,8 +909,8 @@ export async function addEnterpriseAdminTeams(params) {
 
 export async function deleteEnterpriseAdmin(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
     {
       method: 'delete',
     }
@@ -930,6 +930,38 @@ export async function fetchUserTeams(param) {
         page_size: param.page_size,
         name: param.name,
       },
+    }
+  );
+}
+/* 获取本地应用列表（搜索） */
+export async function fetchComponent(param) {
+  return request(
+    `http://doc.goodrain.org/mock/18/console/apps`,
+    // `http://proxy.goodrain.com:23701/console/apps`,
+    // `${apiconfig.baseUrl}/console/apps`,
+    {
+      method: 'get',
+      params: {
+        page: param.page,
+        page_size: param.page_size,
+        scope: param.scope,
+        app_name: param.app_name,
+        tags	: param.tags	,
+      },
+    }
+  );
+}
+
+
+
+/* 获取本地标签s（搜索） */
+export async function fetchComponentTags(param) {
+  return request(
+    // `http://proxy.goodrain.com:23701/console/apps/tag`,
+    `http://doc.goodrain.org/mock/18/console/app/tag`,
+    `${apiconfig.baseUrl}/console/app/tag`,
+    {
+      method: 'get',
     }
   );
 }

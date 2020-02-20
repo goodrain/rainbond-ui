@@ -624,10 +624,11 @@ export default class Enterprise extends PureComponent {
               marginBottom: 24,
             }}
           >
-            <Col span={12}>
+            <Col span={13}>
               <Card
+                bordered={false}
                 loading={overviewAppInfoLoading}
-                style={{ height: '243px' }}
+                style={{ height: '243px',marginRight:"25px" }}
               >
                 <Row style={{ marginBottom: '6px' }}>
                   <Col className={styles.grays} span={12}>
@@ -685,7 +686,12 @@ export default class Enterprise extends PureComponent {
                         </div>
                       </div>
                       <div>
-                        <div className={styles.appnumno} style={{marginTop:"26px"}}>未运行应用</div>
+                        <div
+                          className={styles.appnumno}
+                          style={{ marginTop: '26px' }}
+                        >
+                          未运行应用
+                        </div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -753,7 +759,12 @@ export default class Enterprise extends PureComponent {
                         </div>
                       </div>
                       <div>
-                        <div className={styles.appnumno} style={{marginTop:"26px"}}>未运行组件</div>
+                        <div
+                          className={styles.appnumno}
+                          style={{ marginTop: '26px' }}
+                        >
+                          未运行组件
+                        </div>
                         <div className={styles.nums}>
                           <span>
                             {overviewAppInfo &&
@@ -774,8 +785,10 @@ export default class Enterprise extends PureComponent {
               </Card>
             </Col>
 
-            <Col span={11} offset={1}>
-              <Card loading={overviewInfoLoading} style={{ height: '243px' }}>
+            <Col span={11}>
+              <Card loading={overviewInfoLoading}
+                bordered={false}
+                style={{ height: '243px' }}>
                 <Row>
                   <Col span={8}>
                     <ul className={styles.Box}>
@@ -784,8 +797,8 @@ export default class Enterprise extends PureComponent {
                           <img src={Element} alt="" />
                         </div>
                       </li>
-                      <li>{overviewInfo && overviewInfo.shared_components}</li>
-                      <li>共享组件数量</li>
+                      <li>{overviewInfo && overviewInfo.shared_apps}</li>
+                      <li>应用模板数量</li>
                       <li>——</li>
                     </ul>
                   </Col>
@@ -798,7 +811,7 @@ export default class Enterprise extends PureComponent {
                       </li>
                       <li>{overviewInfo && overviewInfo.total_teams}</li>
 
-                      <li>共有团队数量</li>
+                      <li>团队数量</li>
                       <li>——</li>
                     </ul>
                   </Col>
@@ -811,7 +824,7 @@ export default class Enterprise extends PureComponent {
                       </li>
                       <li>{overviewInfo && overviewInfo.total_users}</li>
 
-                      <li>共有用户数量</li>
+                      <li>用户数量</li>
                       <li>——</li>
                     </ul>
                   </Col>
@@ -825,10 +838,12 @@ export default class Enterprise extends PureComponent {
               marginBottom: 24,
             }}
           >
-            <Col span={12}>
+            <Col span={13}>
               <Card
+                bordered={false}
+
                 loading={overviewTeamInfoLoading}
-                style={{ height: '243px' }}
+                style={{ height: '243px' ,marginRight:"25px" }}
               >
                 <Row style={{ marginBottom: '4px' }}>
                   <Col className={styles.grays} span={12}>
@@ -851,30 +866,33 @@ export default class Enterprise extends PureComponent {
                       >
                         新加入团队：
                       </div>
-                      {overviewTeamInfo && (
-                        <Tooltip
-                          title={overviewTeamInfo.new_join_team.team_alias}
-                        >
-                          <div
-                            className={`${styles.overText} ${styles.teamtest}`}
-                            onClick={() => {
-                              this.props.dispatch(
-                                routerRedux.replace(
-                                  `/team/${overviewTeamInfo.new_join_team.team_name}/region/${overviewTeamInfo.new_join_team.region}/index`
-                                )
-                              );
-                            }}
+                      {overviewTeamInfo &&
+                        overviewTeamInfo.new_join_team &&
+                        overviewTeamInfo.new_join_team.length > 0 && (
+                          <Tooltip
+                            title={overviewTeamInfo.new_join_team[0].team_alias}
                           >
-                            {overviewTeamInfo.new_join_team.team_alias}
-                          </div>
-                        </Tooltip>
-                      )}
+                            <div
+                              className={`${styles.overText} ${styles.teamtest}`}
+                              onClick={() => {
+                                this.props.dispatch(
+                                  routerRedux.replace(
+                                    `/team/${overviewTeamInfo.new_join_team[0].team_name}/region/${overviewTeamInfo.new_join_team[0].region}/index`
+                                  )
+                                );
+                              }}
+                            >
+                              {overviewTeamInfo.new_join_team[0].team_alias}
+                            </div>
+                          </Tooltip>
+                        )}
                       <div>
                         <img src={Arrow} alt="" />
                       </div>
                     </Card>
 
-                    <Card bodyStyle={teamBoxsPs} bordered={false}>
+                    <Card bodyStyle={teamBoxsPs}
+                     bordered={false}>
                       <div
                         style={{ textAlign: 'center', cursor: 'pointer' }}
                         onClick={this.onJoinTeam}
@@ -904,7 +922,7 @@ export default class Enterprise extends PureComponent {
                   <Col span={11} offset={1}>
                     {overviewTeamInfo &&
                       overviewTeamInfo.active_teams.map(item => {
-                        const { team_name, region ,team_alias} = item;
+                        const { team_name, region, team_alias } = item;
                         return (
                           <Card
                             bodyStyle={teamBoxList}
@@ -934,8 +952,9 @@ export default class Enterprise extends PureComponent {
                 </Row>
               </Card>
             </Col>
-            <Col span={11} offset={1}>
+            <Col span={11} >
               <Card
+                bordered={false}
                 loading={overviewMonitorInfoLoading}
                 style={{ height: '243px' }}
               >

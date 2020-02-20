@@ -45,6 +45,8 @@ export default class EnterpriseTeams extends PureComponent {
       overviewTeamInfo: false,
       showAddTeam: false,
       showExitTeam: false,
+      showDelApply: false,
+      ApplyInfo: false,
       exitTeamName: '',
       enterpriseTeamsLoading: true,
       userTeamsLoading: true,
@@ -228,6 +230,15 @@ export default class EnterpriseTeams extends PureComponent {
   hideExitTeam = () => {
     this.setState({ showExitTeam: false, exitTeamName: '' });
   };
+
+  showApply = ApplyInfo => {
+    this.setState({ showDelApply: true, ApplyInfo });
+  };
+
+  hideDelApply = () => {
+    this.setState({ showDelApply: false, ApplyInfo: false });
+  };
+
   handleActiveTabs = () => {
     this.setState({
       name: '',
@@ -238,6 +249,7 @@ export default class EnterpriseTeams extends PureComponent {
   showDelTeam = exitTeamName => {
     this.setState({ showDelTeam: true, exitTeamName });
   };
+
   hideDelTeam = () => {
     this.setState({ showExitTeam: false, showDelTeam: false });
   };
@@ -251,6 +263,22 @@ export default class EnterpriseTeams extends PureComponent {
       },
       callback: () => {
         location.reload();
+      },
+    });
+  };
+
+  handleDelApply = () => {
+    const { ApplyInfo } = this.state;
+    this.props.dispatch({
+      type: 'teamControl/setJoinTeamUsers',
+      payload: {
+        team_name: ApplyInfo.team_name,
+        user_id: ApplyInfo.user_id,
+        action: false,
+      },
+      callback: () => {
+        this.getOverviewTeam();
+        this.hideDelApply();
       },
     });
   };
@@ -329,11 +357,16 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
 
-    const menucancel = () => {
+    const menucancel = item => {
       return (
         <Menu>
           <Menu.Item>
-            <a href="javascript:;" onClick={() => {}}>
+            <a
+              href="javascript:;"
+              onClick={() => {
+                this.showApply(item);
+              }}
+            >
               退回申请
             </a>
           </Menu.Item>
@@ -528,78 +561,96 @@ export default class EnterpriseTeams extends PureComponent {
             );
           })}
 
-        <Row>
-          <Col span={24} className={styles.teamsTit}>
-            最新加入团队
-          </Col>
-        </Row>
-
-        {overviewTeamInfo && (
-          <Card
-            style={{
-              marginBottom: '10px',
-              borderLeft:
-                overviewTeamInfo.new_join_team.is_pass && '6px solid #4D73B1',
-            }}
-            bodyStyle={{ padding: 0 }}
-            hoverable
-          >
-            <Row
-              type="flex"
-              className={styles.pl24}
-              align="middle"
-              key={overviewTeamInfo.new_join_team.team_id}
-            >
-              <Col
-                span={6}
-                onClick={() => {
-                  this.props.dispatch(
-                    routerRedux.replace(
-                      `/team/${overviewTeamInfo.new_join_team.team_name}/region/${overviewTeamInfo.new_join_team.region}/index`
-                    )
-                  );
-                }}
-              >
-                {overviewTeamInfo.new_join_team.team_alias}
-              </Col>
-              <Col span={3}>{overviewTeamInfo.new_join_team.owner_name}</Col>
-              <Col span={3}>
-                {roleUtil.actionMap(overviewTeamInfo.new_join_team.role)}
-              </Col>
-              <Col
-                span={11}
-                style={{
-                  color: overviewTeamInfo.new_join_team.is_pass && '#999999',
-                }}
-              >
-                <img
-                  src={
-                    overviewTeamInfo.new_join_team.is_pass
-                      ? WarningImg
-                      : DataCenterImg
-                  }
-                  alt=""
-                />
-                &nbsp;
-                {overviewTeamInfo.new_join_team.is_pass
-                  ? '申请加入团队审批中'
-                  : overviewTeamInfo.new_join_team.region}
-              </Col>
-              <Col span={1} className={styles.bor}>
-                <Dropdown
-                  overlay={
-                    overviewTeamInfo.new_join_team.is_pass ? menucancel : menu
-                  }
-                  placement="bottomLeft"
-                >
-                  <Button style={{ border: 'none' }}>
-                    <Icon component={moreSvg} />
-                  </Button>
-                </Dropdown>
+        {overviewTeamInfo &&
+          overviewTeamInfo.request_join_team &&
+          overviewTeamInfo.request_join_team.length > 0 && (
+            <Row>
+              <Col span={24} className={styles.teamsTit}>
+                最新加入团队
               </Col>
             </Row>
-          </Card>
-        )}
+          )}
+
+        {overviewTeamInfo &&
+          overviewTeamInfo.request_join_team &&
+          overviewTeamInfo.request_join_team.map(item => {
+            const {
+              is_pass,
+              team_id,
+              team_name,
+              region,
+              team_alias,
+              owner_name,
+              user_name,
+              role,
+            } = item;
+            return (
+              <Card
+                style={{
+                  marginBottom: '10px',
+                  borderLeft: is_pass === 0 && '6px solid #4D73B1',
+                }}
+                bodyStyle={{ padding: 0 }}
+                hoverable
+              >
+                <Row
+                  type="flex"
+                  className={styles.pl24}
+                  align="middle"
+                  key={team_id}
+                >
+                  <Col
+                    span={6}
+                    onClick={() => {
+                      is_pass === 0
+                        ? ''
+                        : this.props.dispatch(
+                            routerRedux.replace(
+                              `/team/${team_name}/region/${region}/index`
+                            )
+                          );
+                    }}
+                  >
+                    {team_alias}
+                  </Col>
+                  <Col span={3}>{owner_name}</Col>
+                  <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                  <Col
+                    span={11}
+                    style={{
+                      color: is_pass === 0 && '#999999',
+                    }}
+                  >
+                    <img
+                      src={is_pass === 0 ? WarningImg : DataCenterImg}
+                      alt=""
+                    />
+                    &nbsp;
+                    {is_pass === 0 ? (
+                      <span>
+                        <span style={{ color: '#333' }}>{user_name}</span>
+                        &nbsp;申请加入团队审批中
+                      </span>
+                    ) : (
+                      region
+                    )}
+                  </Col>
+                  <Col span={1} className={styles.bor}>
+                    <Dropdown
+                      overlay={
+                        is_pass === 0 ? menucancel(item) : menu(team_name)
+                      }
+                      placement="bottomLeft"
+                    >
+                      <Button style={{ border: 'none' }}>
+                        <Icon component={moreSvg} />
+                      </Button>
+                    </Dropdown>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })}
 
         <Row
           style={{
@@ -662,7 +713,7 @@ export default class EnterpriseTeams extends PureComponent {
                   {region}
                 </Col>
                 <Col span={1} className={styles.bor}>
-                  <Dropdown overlay={menu} placement="bottomLeft">
+                  <Dropdown overlay={menu(team_name)} placement="bottomLeft">
                     <Button style={{ border: 'none' }}>
                       <Icon component={moreSvg} />
                     </Button>
@@ -700,6 +751,15 @@ export default class EnterpriseTeams extends PureComponent {
             subDesc="此操作不可恢复"
             desc="确定要退出此团队吗?"
             onCancel={this.hideExitTeam}
+          />
+        )}
+        {this.state.showDelApply && (
+          <ConfirmModal
+            onOk={this.handleDelApply}
+            title="退出申请"
+            subDesc="此操作不可恢复"
+            desc="确定要退出此申请吗?"
+            onCancel={this.hideDelApply}
           />
         )}
         {this.state.showDelTeam && (

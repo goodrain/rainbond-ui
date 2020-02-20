@@ -110,9 +110,13 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   handleCreateAdmin = values => {
-    this.props.dispatch({
+    const { dispatch, user } = this.props;
+    dispatch({
       type: 'global/addEnterpriseAdminTeams',
-      payload: values,
+      payload: {
+        enterprise_id: user.enterprise_id,
+        user_id: values.user_id,
+      },
       callback: () => {
         notification.success({ message: '添加成功' });
         this.getEnterpriseAdmins();
@@ -382,7 +386,7 @@ export default class EnterpriseTeams extends PureComponent {
           className={styles.teamMinTit}
           type="flex"
           align="middle"
-          style={{ paddingLeft: '24px' }}
+          style={{ padding: ' 0 0 10px 24px' }}
         >
           <Col span={10}>名称</Col>
           <Col span={5}>时间</Col>
@@ -397,10 +401,14 @@ export default class EnterpriseTeams extends PureComponent {
               bodyStyle={{ padding: 0 }}
               hoverable
             >
-              <Row type="flex" align="middle" style={{paddingLeft:"24px",height:"70px"}}>
+              <Row
+                type="flex"
+                align="middle"
+                style={{ paddingLeft: '24px', height: '70px' }}
+              >
                 <Col span={10}>{nick_name}</Col>
                 <Col span={5}>{create_time}</Col>
-                <Col span={8}></Col>
+                <Col span={8} />
                 <Col span={1} className={styles.bor}>
                   <Dropdown
                     overlay={managementMenu(user_id)}
@@ -484,9 +492,14 @@ export default class EnterpriseTeams extends PureComponent {
                   编辑
                 </a>
               )}
+              {!ishow && (
+                <a onClick={this.handleOpen} style={{ marginRight: '10px' }}>
+                  查看配置
+                </a>
+              )}
               <Switch
-                onChange={this.handlChooseeOpen}
-                checked={israinbondTird && isOpen}
+                onChange={ishow && this.handlChooseeOpen}
+                checked={!ishow || (israinbondTird && isOpen)}
                 className={styles.automaTictelescopingSwitch}
               />
             </Col>
@@ -550,7 +563,7 @@ export default class EnterpriseTeams extends PureComponent {
         ) : (
           <div>
             {userRegistered}
-            {ishow && oauth}
+            {oauth}
             {adminer && managementAdmin}
           </div>
         )}
