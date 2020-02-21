@@ -515,6 +515,7 @@ export default class TcpTable extends PureComponent {
         }
       }
     ];
+    const { appID } = this.props
 
     return (
       <div className={styles.tdPadding}>
@@ -560,6 +561,7 @@ export default class TcpTable extends PureComponent {
             onOk={this.handleOk}
             ref={this.saveForm}
             tcpType={tcpType}
+            appID={appID}
           />
         )}
         {information_connect_visible && (

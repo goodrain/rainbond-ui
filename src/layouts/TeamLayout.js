@@ -144,6 +144,7 @@ class TeamLayout extends React.PureComponent {
         });
       }
     });
+    this.fetchTeamApps()
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -171,6 +172,17 @@ class TeamLayout extends React.PureComponent {
         }
       })
     }
+  }
+
+  fetchTeamApps = ()=> {
+    const { teamName, regionName } = this.props.match.params;
+    this.props.dispatch({
+      type: "global/fetchGroups",
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+      }
+    });
   }
 
   getChildContext = () => {

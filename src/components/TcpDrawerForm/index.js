@@ -163,7 +163,7 @@ class DrawerForm extends PureComponent {
     }
   };
   render() {
-    const { onClose, editInfo, addTcpLoading, editTcpLoading } = this.props;
+    const { onClose, editInfo, addTcpLoading, editTcpLoading, appID } = this.props;
     const { getFieldDecorator } = this.props.form;
     const { domain_port } = this.state;
     const formItemLayout = {
@@ -246,16 +246,17 @@ class DrawerForm extends PureComponent {
               >
                 {getFieldDecorator("group_id", {
                   rules: [{ required: true, message: "请选择应用" }],
-                  initialValue:
+                  initialValue: appID ? { key: appID }:(
                     editInfo && editInfo.g_id && editInfo.group_name
                       ? {
                           key: editInfo.g_id,
                           label: editInfo.group_name
                         }
-                      : undefined
+                      : undefined)
                 })(
                   <Select
                     labelInValue
+                    disabled={appID}
                     placeholder="请选择要所属应用"
                     onChange={this.handleServices}
                   >

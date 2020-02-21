@@ -238,8 +238,6 @@ export default class HttpTable extends PureComponent {
     this.setState({
       whether_open_form: true
     });
-    // const { values, group_name } = this.state
-    // this.handleOk(values, group_name, { whether_open: true })
   };
   resolveOk = () => {
     this.setState(
@@ -500,7 +498,7 @@ export default class HttpTable extends PureComponent {
       appStatusVisable,
       parameterList
     } = this.state;
-    const { addHttpLoading } = this.props;
+    const { addHttpLoading, appID } = this.props;
     const columns = [
       {
         title: "域名",
@@ -664,6 +662,7 @@ export default class HttpTable extends PureComponent {
             onClose={this.handleClose}
             onOk={this.handleOk}
             ref={this.saveForm}
+            appID={appID}
             editInfo={this.state.editInfo}
           />}
         {parameterVisible &&
