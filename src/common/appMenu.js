@@ -2,7 +2,7 @@ import { isUrl } from "../utils/utils";
 import { formatMessage } from 'umi-plugin-react/locale';
 
 const publishIcon = (
-  <i class="anticon">
+  <i className="anticon">
     <svg
       width="22px"
       height="22px"
@@ -13,15 +13,15 @@ const publishIcon = (
       <g
         id="应用视图-发布列表"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g
           id="发布"
           transform="translate(-21.000000, -170.000000)"
           fill="#979797"
-          fill-rule="nonzero"
+          fillRule="nonzero"
           stroke="#979797"
         >
           <g id="编组-4备份" transform="translate(20.000000, 89.000000)">
@@ -42,7 +42,7 @@ const publishIcon = (
   </i>
 );
 const backupIcon = (
-  <i class="anticon">
+  <i className="anticon">
     <svg
       width="22px"
       height="22px"
@@ -53,15 +53,15 @@ const backupIcon = (
       <g
         id="应用视图-发布列表"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g
           id="发布"
           transform="translate(-22.000000, -248.000000)"
           fill="#384551"
-          fill-rule="nonzero"
+          fillRule="nonzero"
           stroke="#979797"
         >
           <g id="编组-4备份" transform="translate(20.000000, 89.000000)">
@@ -83,7 +83,7 @@ const backupIcon = (
 );
 
 const upgradeIcon = (
-  <i class="anticon">
+  <i className="anticon">
     <svg
       width="22px"
       height="22px"
@@ -94,15 +94,15 @@ const upgradeIcon = (
       <g
         id="应用视图-发布列表"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g
           id="发布"
           transform="translate(-21.000000, -407.000000)"
           fill="#979797"
-          fill-rule="nonzero"
+          fillRule="nonzero"
           stroke="#979797"
         >
           <g id="编组-4备份" transform="translate(20.000000, 89.000000)">

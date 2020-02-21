@@ -171,7 +171,7 @@ export default class SiderMenu extends PureComponent {
               const { region, team_name, team_alias } = item;
               return (
                 <Link
-                  key={item.name}
+                  key={item.team_name}
                   to={`/team/${team_name}/region/${
                     region.length > 0 ? region[0].team_region_name : currRegion
                   }/index`}

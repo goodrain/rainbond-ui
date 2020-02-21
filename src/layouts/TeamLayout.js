@@ -1,53 +1,53 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification } from 'antd';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'dva';
-import { Route, Redirect, routerRedux } from 'dva/router';
+import React, { Fragment } from "react";
+import PropTypes from "prop-types";
+import { Layout, Icon, message, notification } from "antd";
+import DocumentTitle from "react-document-title";
+import { connect } from "dva";
+import { Route, Redirect, routerRedux } from "dva/router";
 import { PageLoading } from "@ant-design/pro-layout";
-import memoizeOne from 'memoize-one';
-import SelectTeam from '../components/SelectTeam';
-import SelectRegion from '../components/SelectRegion';
-import SelectApp from '../components/SelectApp';
-import { ContainerQuery } from 'react-container-query';
-import classNames from 'classnames';
-import { enquireScreen } from 'enquire-js';
-import GlobalHeader from '../components/GlobalHeader';
-import SiderMenu from '../components/SiderMenu';
-import userUtil from '../utils/user';
-import globalUtil from '../utils/global';
-import cookie from '../utils/cookie';
-import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/teamMenu';
-import { getAppMenuData } from '../common/appMenu';
-import logo from '../../public/logo.png';
-import GlobalRouter from '../components/GlobalRouter';
-import Context from './MenuContext';
-import headerStype from '../components/GlobalHeader/index.less';
+import memoizeOne from "memoize-one";
+import SelectTeam from "../components/SelectTeam";
+import SelectRegion from "../components/SelectRegion";
+import SelectApp from "../components/SelectApp";
+import { ContainerQuery } from "react-container-query";
+import classNames from "classnames";
+import { enquireScreen } from "enquire-js";
+import GlobalHeader from "../components/GlobalHeader";
+import SiderMenu from "../components/SiderMenu";
+import userUtil from "../utils/user";
+import globalUtil from "../utils/global";
+import cookie from "../utils/cookie";
+import Authorized from "../utils/Authorized";
+import { getMenuData } from "../common/teamMenu";
+import { getAppMenuData } from "../common/appMenu";
+import logo from "../../public/logo.png";
+import GlobalRouter from "../components/GlobalRouter";
+import Context from "./MenuContext";
+import headerStype from "../components/GlobalHeader/index.less";
 
-const qs = require('query-string');
+const qs = require("query-string");
 
 const { Content } = Layout;
 
 const query = {
-  'screen-xs': {
-    maxWidth: 575,
+  "screen-xs": {
+    maxWidth: 575
   },
-  'screen-sm': {
+  "screen-sm": {
     minWidth: 576,
-    maxWidth: 767,
+    maxWidth: 767
   },
-  'screen-md': {
+  "screen-md": {
     minWidth: 768,
-    maxWidth: 991,
+    maxWidth: 991
   },
-  'screen-lg': {
+  "screen-lg": {
     minWidth: 992,
-    maxWidth: 1199,
+    maxWidth: 1199
   },
-  'screen-xl': {
-    minWidth: 1200,
-  },
+  "screen-xl": {
+    minWidth: 1200
+  }
 };
 
 let isMobile;
@@ -60,7 +60,7 @@ class TeamLayout extends React.PureComponent {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
     currRegion: PropTypes.string,
-    currTeam: PropTypes.string,
+    currTeam: PropTypes.string
   };
 
   constructor(props) {
@@ -69,21 +69,20 @@ class TeamLayout extends React.PureComponent {
     this.state = {
       isMobile,
       isInit: false,
-      openRegion: false,
-      createTeam: false,
-      joinTeam: false,
-      showChangePassword: false,
       showWelcomeCreateTeam: false,
       canCancelOpenRegion: true,
-      market_info: '',
+      market_info: "",
       showAuthCompany: false,
       enterpriseList: [],
       ready: false,
+      currentTeam: {},
+      currentEnterprise: {},
+      currentComponent: null
     };
   }
 
   componentDidMount() {
-    this.getEnterpriseList()
+    this.getEnterpriseList();
   }
 
   // get enterprise list
@@ -95,8 +94,7 @@ class TeamLayout extends React.PureComponent {
         if (res && res._code === 200) {
           this.setState(
             {
-              enterpriseList: res.list,
-              ready: true,
+              enterpriseList: res.list
             },
             () => {
               this.load();
@@ -108,6 +106,21 @@ class TeamLayout extends React.PureComponent {
   };
 
   load = () => {
+    const { enterpriseList } = this.state;
+    const { currentUser } = this.props;
+    const { teamName, regionName } = this.props.match.params;
+    const team = userUtil.getTeamByTeamName(currentUser, teamName);
+    const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
+    enterpriseList.map(item => {
+      if (team.enterprise_id == team.enterprise_id) {
+        this.setState({
+          currentEnterprise: item,
+          currentTeam: team,
+          currentRegion: region,
+          ready: true
+        });
+      }
+    });
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -117,46 +130,26 @@ class TeamLayout extends React.PureComponent {
       this.setState({ market_info: query.market_info });
       this.setState({ showAuthCompany: true });
     }
+    this.queryComponentDeatil();
   };
-  onOpenRegion = () => {
-    this.setState({ openRegion: true });
-  };
-  cancelOpenRegion = () => {
-    this.setState({ openRegion: false, canCancelOpenRegion: true });
-  };
-  onCreateTeam = () => {
-    this.setState({ createTeam: true });
-  };
-  cancelCreateTeam = () => {
-    this.setState({ createTeam: false });
-  };
-  handleCreateTeam = values => {
-    this.props.dispatch({
-      type: 'teamControl/createTeam',
-      payload: values,
-      callback: () => {
-        notification.success({ message: '添加成功' });
-        this.cancelCreateTeam();
-        this.props.dispatch({ type: 'user/fetchCurrent' });
-      },
-    });
-  };
-  onJoinTeam = () => {
-    this.setState({ joinTeam: true });
-  };
-  cancelJoinTeam = () => {
-    this.setState({ joinTeam: false });
-  };
-  handleJoinTeam = values => {
-    this.props.dispatch({
-      type: 'global/joinTeam',
-      payload: values,
-      callback: () => {
-        notification.success({ message: '申请成功，请等待审核' });
-        this.cancelJoinTeam();
-      },
-    });
-  };
+
+  queryComponentDeatil = () => {
+    const { teamName } = this.props.match.params;
+    const componentID = globalUtil.getComponentID();
+    if (componentID) {
+      this.props.dispatch({
+        type: "appControl/fetchDetail",
+        payload: {
+          team_name: teamName,
+          app_alias: componentID,
+        },
+        callback: appDetail => {
+          this.setState({currentComponent: appDetail})
+        }
+      })
+    }
+  }
+
   getChildContext = () => {
     const { location } = this.props;
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
@@ -168,137 +161,15 @@ class TeamLayout extends React.PureComponent {
       (rainbondInfo &&
         rainbondInfo.title !== undefined &&
         rainbondInfo.title) ||
-      'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
+      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     return title;
   };
 
   handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'global/changeLayoutCollapsed',
-      payload: collapsed,
-    });
-  };
-  handleNoticeClear = type => {
-    message.success(`清空了${type}`);
-    const { dispatch } = this.props;
-    dispatch({ type: 'global/clearNotices', payload: type });
-  };
-  handleMenuClick = ({ key }) => {
-    const { dispatch } = this.props;
-
-    if (key === 'cpw') {
-      this.showChangePass();
-    }
-    if (key === 'logout') {
-      cookie.remove('token', { domain: '' });
-      cookie.remove('team', { domain: '' });
-      cookie.remove('region_name', { domain: '' });
-      dispatch({ type: 'user/logout' });
-    }
-  };
-  handleNoticeVisibleChange = visible => {
-    const { dispatch } = this.props;
-    if (visible) {
-      dispatch({ type: 'global/fetchNotices' });
-    }
-  };
-  handleTeamClick = ({ key }) => {
-    if (key === 'createTeam') {
-      this.onCreateTeam();
-      return;
-    }
-    if (key === 'joinTeam') {
-      this.onJoinTeam();
-      return;
-    }
-
-    cookie.set('team', key);
-    const currentUser = this.props.currentUser;
-    let currRegionName = globalUtil.getCurrRegionName();
-    const currTeam = userUtil.getTeamByTeamName(currentUser, key);
-
-    if (currTeam) {
-      const regions = currTeam.region || [];
-      if (!regions.length) {
-        notification.warning({ message: '该团队下无可用数据中心!' });
-        return;
-      }
-      const selectRegion = regions.filter(
-        item => item.team_region_name === currRegionName
-      )[0];
-      const selectRegionName = selectRegion
-        ? selectRegion.team_region_name
-        : regions[0].team_region_name;
-      currRegionName = selectRegionName;
-    }
-    const { enterpriseList } = this.state;
-    this.props.dispatch(
-      routerRedux.push(`/team/${key}/region/${currRegionName}/index`)
-    );
-    // location.reload();
-  };
-
-  handleRegionClick = ({ key }) => {
-    if (key === 'openRegion') {
-      this.onOpenRegion();
-      return;
-    }
-    this.props.dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
-      )
-    );
-    // location.reload();
-  };
-  showChangePass = () => {
-    this.setState({ showChangePassword: true });
-  };
-  cancelChangePass = () => {
-    this.setState({ showChangePassword: false });
-  };
-  handleChangePass = vals => {
-    this.props.dispatch({
-      type: 'user/changePass',
-      payload: {
-        ...vals,
-      },
-      callback: () => {
-        notification.success({ message: '修改成功，请重新登录' });
-      },
-    });
-  };
-
-  handleInitTeamOk = () => {
-    this.setState({ showWelcomeCreateTeam: false });
-    this.fetchUserInfo();
-  };
-  handleCurrTeamNoRegion = () => {
-    this.setState({ openRegion: true, canCancelOpenRegion: false });
-  };
-  handleOpenRegion = regions => {
-    const { enterpriseList } = this.state;
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: 'teamControl/openRegion',
-      payload: {
-        team_name,
-        region_names: regions.join(','),
-      },
-      callback: () => {
-        notification.success({ message: '开通成功' });
-        this.cancelOpenRegion();
-        this.props.dispatch({
-          type: 'user/fetchCurrent',
-          callback: () => {
-            this.props.dispatch(
-              routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${key}/index`
-              )
-            );
-          },
-        });
-      },
+      type: "global/changeLayoutCollapsed",
+      payload: collapsed
     });
   };
 
@@ -306,14 +177,14 @@ class TeamLayout extends React.PureComponent {
     const { location } = this.props;
     return {
       location,
-      breadcrumbNameMap: this.breadcrumbNameMap,
+      breadcrumbNameMap: this.breadcrumbNameMap
     };
   }
   getMode(appID) {
-    if (appID){
-      return "app"
+    if (appID) {
+      return "app";
     }
-    return "team"
+    return "team";
   }
 
   render() {
@@ -323,71 +194,106 @@ class TeamLayout extends React.PureComponent {
       children,
       location: { pathname },
       nouse,
-      rainbondInfo,
+      rainbondInfo
     } = this.props;
-    const { enterpriseList, ready } = this.state;
-    const { teamName, regionName } = this.props.match.params
-    if (!teamName || !regionName){
+    const {
+      enterpriseList,
+      ready,
+      currentEnterprise,
+      currentTeam,
+      currentRegion,
+      currentComponent
+    } = this.state;
+    const { teamName, regionName } = this.props.match.params;
+
+    // Parameters of the abnormal
+    if (!teamName || !regionName) {
       return <Redirect to={`/`} />;
     }
+
+    // The necessary data is loaded
     if (!ready) {
       return <PageLoading />;
     }
-    const appID = globalUtil.getAppID()
-    const componentID = globalUtil.getComponentID()
-    const mode = this.getMode(appID||componentID)
+
+    if (teamName != currentTeam.team_name) {
+      this.load();
+    }
+    let appID = globalUtil.getAppID();
+    if (currentComponent) {
+      appID = currentComponent.service.group_id;
+    }
+    const componentID = globalUtil.getComponentID();
+    const mode = this.getMode(appID || componentID);
     const customHeader = () => {
       return (
-      mode == "team" ?
-        <div className={headerStype.enterprise}>
-          <SelectTeam className={headerStype.select} teamName={teamName}></SelectTeam>
-          <SelectRegion className={headerStype.select} regionName={regionName}></SelectRegion>
-        </div> : <div className={headerStype.enterprise}>
-          <SelectApp className={headerStype.select} teamName={teamName} appID={appID}></SelectApp>
+        <div>
+          <SelectTeam
+            className={headerStype.select}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+          />
+          <SelectRegion
+            className={headerStype.select}
+            regionName={regionName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+          />
+          {mode == "app" &&
+            <SelectApp
+              className={headerStype.select}
+              teamName={teamName}
+              currentEnterprise={currentEnterprise}
+              currentTeam={currentTeam}
+              currentRegion={currentRegion}
+              currentAppID={appID}
+            />}
         </div>
-      )
-    }
-    let menuData = getMenuData(teamName, regionName)
+      );
+    };
+    let menuData = getMenuData(teamName, regionName);
     if (mode == "app") {
-      menuData = getAppMenuData(teamName, regionName, appID)
+      menuData = getAppMenuData(teamName, regionName, appID);
     }
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
-      const hasRegion = team && team.region && team.region.length;
-      let region = null;
+      const hasRegion =
+        team && team.region && team.region.length && currentRegion;
       let isRegionMaintain = false;
       if (hasRegion) {
-        region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName) || {};
-        isRegionMaintain = region.region_status === '3' && !userUtil.isSystemAdmin(currentUser);
-      }else{
+        isRegionMaintain =
+          currentRegion.region_status === "3" &&
+          !userUtil.isSystemAdmin(currentUser);
+      } else {
         return <Redirect to={`/`} />;
       }
       const renderContent = () => {
         // 数据中心维护中
         if (isRegionMaintain || nouse) {
           return (
-            <div style={{ textAlign: 'center', padding: '200px 0' }}>
+            <div style={{ textAlign: "center", padding: "200px 0" }}>
               <Icon
-                style={{ fontSize: 40, marginBottom: 32, color: 'red' }}
+                style={{ fontSize: 40, marginBottom: 32, color: "red" }}
                 type="warning"
               />
               <h1
                 style={{
                   fontSize: 40,
-                  color: 'rgba(0, 0, 0, 0.65)',
-                  marginBottom: 20,
+                  color: "rgba(0, 0, 0, 0.65)",
+                  marginBottom: 20
                 }}
               >
-                {nouse ? '当前授权已过期' : '数据中心维护中'}
+                {nouse ? "当前授权已过期" : "数据中心维护中"}
               </h1>
               <p
                 style={{
-                  fontSize: 20,
+                  fontSize: 20
                 }}
               >
-                {nouse
-                  ? '请联系 010-64666786 获取更多商业服务。'
-                  : '请稍后访问当前数据中心'}
+                {nouse ? "请联系 010-64666786 获取更多商业服务。" : "请稍后访问当前数据中心"}
               </p>
             </div>
           );
@@ -397,7 +303,7 @@ class TeamLayout extends React.PureComponent {
           <div>
             <Authorized
               logined
-              authority={['admin', 'user']}
+              authority={["admin", "user"]}
               noMatch={<Redirect to="/user/login" />}
             >
               {children}
@@ -440,6 +346,12 @@ class TeamLayout extends React.PureComponent {
           />
           <Layout>
             <GlobalHeader
+              key={
+                currentEnterprise.enterprise_id +
+                currentTeam.team_name +
+                currentRegion.team_region_name + 
+                appID
+              }
               logo={logo}
               isPubCloud={
                 rainbondInfo &&
@@ -453,8 +365,8 @@ class TeamLayout extends React.PureComponent {
             />
             <Content
               style={{
-                margin: '24px 24px 0',
-                height: '100%',
+                margin: "24px 24px 0",
+                height: "100%"
               }}
             >
               {renderContent()}
@@ -464,18 +376,18 @@ class TeamLayout extends React.PureComponent {
       );
     };
     return (
-       <Fragment>
+      <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
-              <ContainerQuery key={teamName+regionName} query={query}>
-                {params =>
-                  <Context.Provider value={this.getContext()}>
-                    <div className={classNames(params)}>
-                      {layout()}
-                    </div>
-                  </Context.Provider>}
-              </ContainerQuery>
-         </DocumentTitle>
-     </Fragment>
+          <ContainerQuery key={teamName + regionName} query={query}>
+            {params =>
+              <Context.Provider value={this.getContext()}>
+                <div className={classNames(params)}>
+                  {layout()}
+                </div>
+              </Context.Provider>}
+          </ContainerQuery>
+        </DocumentTitle>
+      </Fragment>
     );
   }
 }
@@ -485,7 +397,7 @@ export default connect(({ user, global, index, loading }) => ({
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
   groups: global.groups,
-  fetchingNotices: loading.effects['global/fetchNotices'],
+  fetchingNotices: loading.effects["global/fetchNotices"],
   notices: global.notices,
   rainbondInfo: global.rainbondInfo,
   payTip: global.payTip,
@@ -493,5 +405,5 @@ export default connect(({ user, global, index, loading }) => ({
   noMoneyTip: global.noMoneyTip,
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
-  nouse: global.nouse,
+  nouse: global.nouse
 }))(TeamLayout);

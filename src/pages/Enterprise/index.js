@@ -225,7 +225,6 @@ export default class Enterprise extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          console.log('res,', res);
           this.setState({
             overviewTeamInfo: res.bean,
             overviewTeamInfoLoading: false,

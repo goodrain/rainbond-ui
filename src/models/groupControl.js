@@ -35,9 +35,9 @@ import cookie from "../utils/cookie";
 export default {
   namespace: "groupControl",
   state: {
-    // 组详情
+    // app detail 
     groupDetail: {},
-    // 应用
+    // component list
     apps: [],
     // plugin
     plugins: [],

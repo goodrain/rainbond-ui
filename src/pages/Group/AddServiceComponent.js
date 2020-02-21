@@ -310,7 +310,7 @@ export default class AddServiceComponent extends PureComponent {
                           注:支持
                           {Object.keys(languageObj).map(key => {
                             return (
-                              <a href={languageObj[key]} target="_blank">
+                              <a key={key} href={languageObj[key]} target="_blank">
                                 {key}
                               </a>
                             );

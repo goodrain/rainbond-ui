@@ -113,6 +113,7 @@ class Main extends PureComponent {
       size: 'large',
       applicationList: [],
       currApp: {},
+      loadingDetail: true,
     };
   }
   getGroupId() {
@@ -191,11 +192,11 @@ class Main extends PureComponent {
       },
     });
   }
-  fetchGroupDetail() {
+  fetchGroupDetail = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
-
+    this.setState({loadingDetail: true})
     dispatch({
       type: 'groupControl/fetchGroupDetail',
       payload: {
@@ -212,7 +213,7 @@ class Main extends PureComponent {
           );
         }
         if (res && res.status === 200) {
-          this.setState({currApp: res.bean})
+          this.setState({currApp: res.bean, loadingDetail: false})
         }
       },
     });
@@ -467,13 +468,16 @@ class Main extends PureComponent {
   render() {
     const {
       currUser,
-      groupDetail
+      groupDetail,
+      appID
     } = this.props;
+
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-    const { applicationList, currApp } = this.state;
-    let num = 0;
-
+    const { applicationList, currApp, loadingDetail } = this.state;
+    if (groupDetail.group_id != appID && !loadingDetail) {
+        this.fetchGroupDetail()
+    }
     if (applicationList.length > 0) {
       for (let i = 0; i < applicationList.length; i++) {
         if (applicationList[i].can_upgrade) {
@@ -492,53 +496,6 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建',
     };
-
-    if (this.getGroupId() == -1) {
-      return (
-        <PageHeaderLayout
-          breadcrumbList={[
-            {
-              title: '首页',
-              href: '/',
-            },
-            {
-              title: '我的应用',
-              href: '',
-            },
-            {
-              title: this.props.groupDetail.group_name,
-              href: '',
-            },
-          ]}
-          content={
-            <div className={styles.pageHeaderContent}>
-              <div className={styles.content}>
-                <div className={styles.contentTitle}>
-                  {groupDetail.group_name || '-'}
-                </div>
-              </div>
-            </div>
-          }
-          extraContent={
-            <Button onClick={this.toAdd} href="javascript:;">
-              新增组
-            </Button>
-          }
-        >
-          <AppList
-            groupId={this.getGroupId()}
-            clearTime={this.state.clearTime}
-          />{' '}
-          {this.state.toAdd && (
-            <EditGroupName
-              title="添加新应用"
-              onCancel={this.cancelAdd}
-              onOk={this.handleAdd}
-            />
-          )}
-        </PageHeaderLayout>
-      );
-    }
 
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
@@ -622,20 +579,7 @@ class Main extends PureComponent {
     );
     return (
       <PageHeaderLayout
-        breadcrumbList={[
-          {
-            title: '首页',
-            href: '/',
-          },
-          {
-            title: '我的应用',
-            href: '',
-          },
-          {
-            title: this.props.groupDetail.group_name,
-            href: '',
-          },
-        ]}
+        loading={loadingDetail}
         content={pageHeaderContent}
         extraContent={
           <Row>
@@ -822,6 +766,6 @@ export default class Index extends PureComponent {
     const { teamName } = this.props.match.params
     const team = userUtil.getTeamByTeamName(currUser, teamName);
     if (!teamUtil.canViewApp(team)) return <NoPermTip />;
-    return <Main appID={this.getGroupId()} />;
+    return <Main key={this.getGroupId()} {...this.props} appID={this.getGroupId()} />;
   }
 }

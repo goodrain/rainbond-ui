@@ -224,7 +224,6 @@ export default class Index extends PureComponent {
     const HeartSvg = () =>
       <svg
         viewBox="64 64 896 896"
-        class=""
         data-icon="share-alt"
         width="1em"
         height="1em"

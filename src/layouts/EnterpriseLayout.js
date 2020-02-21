@@ -177,15 +177,22 @@ class EnterpriseLayout extends PureComponent {
   }
 
   redirectEnterpriseView = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const { dispatch, currentUser, match: { params: { eid } } } = this.props;
     const { enterpriseList } = this.state;
     if (!eid || eid == "auto") {
       if (enterpriseList.length > 0) {
-        this.setState({ enterpriseInfo: enterpriseList[0] });
+        let selectE = null;
+        enterpriseList.map(item => {
+          if (item.enterprise_id == currentUser.enterprise_id) {
+            selectE = item;
+          }
+        });
+        if (selectE == null) {
+          selectE = enterpriseList[0];
+        }
+        this.setState({ enterpriseInfo: selectE });
         dispatch(
-          routerRedux.replace(
-            `/enterprise/${enterpriseList[0].enterprise_id}/index`
-          )
+          routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
         );
       } else {
         dispatch(routerRedux.push("/user/login"));
