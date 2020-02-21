@@ -11,7 +11,9 @@ const Option = Select.Option;
 const { Description } = DescriptionList;
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
-@connect(({}) => ({}))
+@connect(({ user }) => ({
+  user: user.currentUser,
+}))
 export default class AppExporter extends PureComponent {
   constructor(props) {
     super(props);
@@ -28,17 +30,14 @@ export default class AppExporter extends PureComponent {
     this.props.onCancel && this.props.onCancel();
   };
   handleExporter = format => {
-    const app = this.props.app;
-    const app_id = app.ID;
+    const { app, user } = this.props;
     const { exportVersion } = this.state;
-
     this.props.dispatch({
       type: 'market/appExport',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_id,
-        group_key: app.group_key,
-        group_version: exportVersion,
+        app_id: app.app_id,
+        enterprise_id: user.enterprise_id,
+        app_versions: exportVersion,
         format,
       },
       callback: data => {
@@ -50,18 +49,17 @@ export default class AppExporter extends PureComponent {
     });
   };
   queryExport = () => {
-    const item = this.props.app || {};
+    const { app, user } = this.props;
+
     let group_version = this.state.exportVersion;
     group_version = group_version.join();
-
     this.props.dispatch({
       type: 'market/queryExport',
       payload: {
-        app_id: item.ID,
-        team_name: globalUtil.getCurrTeamName(),
         body: {
-          group_key: item.group_key,
-          group_version,
+          enterprise_id: user.enterprise_id,
+          app_id: app.app_id,
+          app_version: group_version,
         },
       },
       callback: data => {

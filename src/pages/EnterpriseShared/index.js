@@ -25,13 +25,15 @@ import AppExporter from './AppExporter';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import CloudApp from './CloudApp';
 
 import styles from './index.less';
 
 const { Search } = Input;
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ user, global }) => ({
   user: user.currentUser,
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -40,6 +42,9 @@ export default class EnterpriseShared extends PureComponent {
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
+      pageSize: 10,
+      total: 0,
+      page: 1,
       teamList: [],
       componentList: [],
       exitTeamName: '',
@@ -56,6 +61,7 @@ export default class EnterpriseShared extends PureComponent {
       group_version: null,
       chooseVersion: null,
       deleteApp: false,
+      showCloudApp: false,
     };
   }
   componentDidMount() {
@@ -195,8 +201,8 @@ export default class EnterpriseShared extends PureComponent {
   };
   handleDeleteApp = () => {
     const { chooseVersion, appInfo } = this.state;
-    const { dispatch,user } = this.props;
-    console.log('appInfo',appInfo)
+    const { dispatch, user } = this.props;
+    console.log('appInfo', appInfo);
     dispatch({
       type: 'global/offlineMarketApp',
       payload: {
@@ -223,6 +229,12 @@ export default class EnterpriseShared extends PureComponent {
       bouncedType: '',
     });
   };
+
+  handlePageChange = page => {
+    this.state.page = page;
+    this.getApps();
+  };
+
   // 云更新
   handleCloudsUpdate = chooseVersion => {
     // const { group_version } = this.state;
@@ -261,7 +273,7 @@ export default class EnterpriseShared extends PureComponent {
       bouncedText,
       bouncedType,
     } = this.state;
-    const { user } = this.props;
+    const { user, rainbondInfo } = this.props;
 
     const managementMenu = appInfo => {
       const delApp = (
@@ -313,11 +325,13 @@ export default class EnterpriseShared extends PureComponent {
 
     const operation = (
       <Col span={4} style={{ textAlign: 'right' }} className={styles.btns}>
-        {adminer && (
+        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
           <Button
             type="primary"
-            onClick={this.onAddTeam}
-            style={{ marginRight: '22px' }}
+            style={{marginRight:'22px' }}
+            onClick={() => {
+              this.setState({ showCloudApp: true});
+            }}
           >
             云端同步
           </Button>
@@ -332,9 +346,17 @@ export default class EnterpriseShared extends PureComponent {
         <img src={NoComponent} />
         <p>当前无组件，请选择方式添加</p>
         <div className={styles.btns}>
-          <Button type="primary" onClick={this.onJoinTeam}>
-            云端同步
-          </Button>
+          {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+            <Button
+              type="primary"
+              onClick={() => {
+                this.setState({ showCloudApp: true });
+              }}
+            >
+              云端同步
+            </Button>
+          )}
+
           <Button type="primary" onClick={this.onJoinTeam}>
             创建组件
           </Button>
@@ -452,6 +474,7 @@ export default class EnterpriseShared extends PureComponent {
         title="——"
         content="将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源应用下载完成后，方可在 从应用市场安装 直接安装"
       >
+      
         {this.state.deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
@@ -484,8 +507,36 @@ export default class EnterpriseShared extends PureComponent {
             <Spin />
           </div>
         ) : (
+          <div
+            style={{
+              display: this.state.showCloudApp ? 'flex' : 'block',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
           <div>
-            {sharedList}
+          <Icon type="exclamation-circle" />当前市场不支持跨数据中心互联功能
+          </div>
+            <div
+              style={{
+                transition: 'all .8s',
+                width: this.state.showCloudApp ? '50%' : '100%',
+                display: 'inline-block',
+              }}
+            >
+              {sharedList}
+            </div>
+            {this.state.showCloudApp && (
+              <CloudApp
+                onSyncSuccess={() => {
+                  this.handlePageChange(1);
+                }}
+                onClose={() => {
+                  this.setState({ showCloudApp: false });
+                }}
+                dispatch={this.props.dispatch}
+              />
+            )}
             {/* {noShared} */}
           </div>
         )}

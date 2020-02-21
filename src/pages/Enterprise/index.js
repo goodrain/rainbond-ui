@@ -141,7 +141,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getEnterpriseInfo = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -159,7 +164,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewApp = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewApp',
@@ -178,7 +188,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverview = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/fetchOverview',
       payload: {
@@ -196,7 +211,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewTeam = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewTeam',
@@ -216,7 +236,12 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewMonitor = () => {
-    const { dispatch, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewMonitor',
@@ -613,7 +638,7 @@ export default class Enterprise extends PureComponent {
               <Card
                 bordered={false}
                 loading={overviewAppInfoLoading}
-                style={{ height: '243px',marginRight:"25px" }}
+                style={{ height: '243px', marginRight: '25px' }}
               >
                 <Row style={{ marginBottom: '6px' }}>
                   <Col className={styles.grays} span={12}>
@@ -628,11 +653,15 @@ export default class Enterprise extends PureComponent {
                     <Pie
                       percent={
                         overviewAppInfo &&
-                        overviewAppInfo.service_groups.closed
+                        Math.round(
+                          (overviewAppInfo.service_groups.running /
+                            overviewAppInfo.service_groups.total) *
+                            10000
+                        ) / 100.0
                       }
                       types="app"
                       lineWidth={18}
-                      color="#C2C7D9"
+                      color="#3D58DA"
                       subTitle={
                         <div className={styles.appContent}>
                           <h6>
@@ -697,10 +726,15 @@ export default class Enterprise extends PureComponent {
                     <div style={{ marginTop: '10px' }}>
                       <Pie
                         percent={
-                          overviewAppInfo && overviewAppInfo.components.closed
+                          overviewAppInfo &&
+                          Math.round(
+                            (overviewAppInfo.components.running /
+                              overviewAppInfo.components.total) *
+                              10000
+                          ) / 100.0
                         }
                         types="component"
-                        color="#A6B3E1"
+                        color="#3D58DA"
                         subTitle={
                           <div className={styles.elements}>
                             <div>
@@ -771,9 +805,11 @@ export default class Enterprise extends PureComponent {
             </Col>
 
             <Col span={11}>
-              <Card loading={overviewInfoLoading}
+              <Card
+                loading={overviewInfoLoading}
                 bordered={false}
-                style={{ height: '243px' }}>
+                style={{ height: '243px' }}
+              >
                 <Row>
                   <Col span={8}>
                     <ul className={styles.Box}>
@@ -826,9 +862,8 @@ export default class Enterprise extends PureComponent {
             <Col span={13}>
               <Card
                 bordered={false}
-
                 loading={overviewTeamInfoLoading}
-                style={{ height: '243px' ,marginRight:"25px" }}
+                style={{ height: '243px', marginRight: '25px' }}
               >
                 <Row style={{ marginBottom: '4px' }}>
                   <Col className={styles.grays} span={12}>
@@ -876,8 +911,7 @@ export default class Enterprise extends PureComponent {
                       </div>
                     </Card>
 
-                    <Card bodyStyle={teamBoxsPs}
-                     bordered={false}>
+                    <Card bodyStyle={teamBoxsPs} bordered={false}>
                       <div
                         style={{ textAlign: 'center', cursor: 'pointer' }}
                         onClick={this.onJoinTeam}
@@ -938,7 +972,7 @@ export default class Enterprise extends PureComponent {
                 </Row>
               </Card>
             </Col>
-            <Col span={11} >
+            <Col span={11}>
               <Card
                 bordered={false}
                 loading={overviewMonitorInfoLoading}

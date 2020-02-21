@@ -27,7 +27,11 @@ export default class OauthTable extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
-          <Button typs="primary" onClick={this.handleSubmit}>
+          <Button
+            typs="primary"
+            className={styles.btns}
+            onClick={this.handleSubmit}
+          >
             确定
           </Button>,
         ]}
