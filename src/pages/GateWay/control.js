@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import { routerRedux, Link } from 'dva/router';
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import HttpTable from "../../components/HttpTable"
 import TcpTable from "../../components/TcpTable"
 import { connect } from 'dva';
-import userUtil from '../../utils/user';
-import globalUtil from '../../utils/global';
 
 @connect(({ user }) => ({ currUser: user.currentUser }))
 class Control extends Component {
@@ -20,12 +17,6 @@ class Control extends Component {
         this.setState({ tabKey: key ,open:false});
     }
     renderContent=()=>{
-        const { currUser } = this.props;
-        // 不是系统管理员
-    //     if (!userUtil.isSystemAdmin(currUser) && !userUtil.isCompanyAdmin(currUser)) {
-    //     this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
-    //     return null;
-    //   }
         const {tabKey} = this.state;
         if(tabKey=="http"){
             return <HttpTable open={this.state.open}/>

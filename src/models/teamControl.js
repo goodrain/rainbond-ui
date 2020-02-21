@@ -31,6 +31,8 @@ export default {
     actions: [],
     // 已开通的数据中心
     regions: [],
+    // current show teams
+    currentTeam: {},
   },
   effects: {
     * getJoinTeamUsers({ payload, callback }, { call, put }) {
@@ -139,6 +141,9 @@ export default {
         callback && callback();
       }
     },
+    * fetchCurrentTeam({ payload }, { call, put }) {
+      yield put({ type: "saveCurrentTeam", payload: payload });
+    },
     // 开通数据中心
     * openRegion({ payload, callback }, { call, put }) {
       const response = yield call(openRegion, payload);
@@ -162,6 +167,12 @@ export default {
     },
   },
   reducers: {
+    saveCurrentTeam(state, action) {
+      return {
+        ...state,
+        currentTeam: action.payload,
+      };
+    },
     saveMember(state, action) {
       return {
         ...state,

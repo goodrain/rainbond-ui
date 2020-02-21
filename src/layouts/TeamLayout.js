@@ -77,7 +77,8 @@ class TeamLayout extends React.PureComponent {
       ready: false,
       currentTeam: {},
       currentEnterprise: {},
-      currentComponent: null
+      currentComponent: null,
+      eid: "",
     };
   }
 
@@ -97,22 +98,44 @@ class TeamLayout extends React.PureComponent {
               enterpriseList: res.list
             },
             () => {
-              this.load();
+              this.getTeamOverview();
             }
           );
         }
       }
     });
   };
-
+  getTeamOverview = () => {
+    const { teamName, regionName } = this.props.match.params;
+    this.props.dispatch({
+      type: "global/getTeamOverview",
+      payload: {
+        team_name: teamName
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState(
+            {
+              eid: res.bean.eid
+            },
+            () => {
+              this.load();
+            }
+          );
+        }
+      }
+    });
+  }
   load = () => {
-    const { enterpriseList } = this.state;
-    const { currentUser } = this.props;
+    const { enterpriseList, eid } = this.state;
+    const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
+    dispatch({type: "teamControl/fetchCurrentTeam", payload: team});
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
-      if (team.enterprise_id == team.enterprise_id) {
+      if (eid == item.enterprise_id) {
+        dispatch({type: "enterprise/fetchCurrentEnterprise", payload: item});
         this.setState({
           currentEnterprise: item,
           currentTeam: team,

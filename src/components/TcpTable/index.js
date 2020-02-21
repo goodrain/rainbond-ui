@@ -19,9 +19,11 @@ import {
 import globalUtil from "../../utils/global";
 import styles from "./index.less";
 
-@connect(({ user, global, loading }) => ({
+@connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   groups: global.groups,
+  currentTeam: teamControl.currentTeam,
+  currentEnterprise: enterprise.currentEnterprise,
   addTcpLoading: loading.effects["gateWay/querydomain_port"]
 }))
 export default class TcpTable extends PureComponent {
@@ -50,14 +52,23 @@ export default class TcpTable extends PureComponent {
     this.load();
   }
   load = () => {
-    const { dispatch } = this.props;
-    const { page_num, page_size } = this.state;
+    const { dispatch,appID } = this.props;
+    if (appID) {
+      this.loadAPPTCPRule()
+    }else{
+      this.loadTeamTCPRule()
+    }
+  };
+  loadTeamTCPRule = () => {
+    const { dispatch, currentTeam } = this.props;
+    const { page_num, page_size, tcp_search } = this.state;
     dispatch({
       type: "gateWay/queryTcpData",
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: currentTeam.team_name,
         page_num,
-        page_size
+        page_size,
+        search_conditions: tcp_search,
       },
       callback: data => {
         if (data) {
@@ -70,7 +81,32 @@ export default class TcpTable extends PureComponent {
         }
       }
     });
-  };
+  }
+  loadAPPTCPRule = () => {
+    const { dispatch, currentTeam, currentEnterprise, appID } = this.props;
+    const { page_num, page_size, tcp_search } = this.state;
+    dispatch({
+      type: "gateWay/queryAppTcpData",
+      payload: {
+        team_name: currentTeam.team_name,
+        enterprise_id: currentEnterprise.enterprise_id,
+        page_num,
+        page_size,
+        app_id: appID,
+        search_conditions: tcp_search,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            dataList: data.list,
+            loading: false,
+            total: data.bean.total,
+            tcpLoading: false
+          });
+        }
+      }
+    });
+  }
   handleClick = () => {
     this.setState({ TcpDrawerVisible: true });
   };
@@ -80,39 +116,8 @@ export default class TcpTable extends PureComponent {
   rowKey = (record, index) => index;
 
   onPageChange = page_num => {
-    const { tcp_search } = this.state;
-    // this.setState({ tcpLoading: true })
-    if (tcp_search) {
-      this.setState({ page_num }, () => {
-        this.handleSearch(tcp_search, page_num);
-      });
-    } else {
-      this.setState({ page_num, tcpLoading: true }, () => {
-        this.load();
-      });
-    }
-  };
-  handleSearch = (search_conditions, page_num) => {
-    this.setState({ tcpLoading: true, page_num: page_num ? page_num : 1 });
-    const { dispatch } = this.props;
-    dispatch({
-      type: "gateWay/searchTcp",
-      payload: {
-        search_conditions,
-        team_name: globalUtil.getCurrTeamName(),
-        page_num,
-        page_size: this.state.page_size
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            total: data.bean.total,
-            dataList: data.list,
-            tcp_search: search_conditions,
-            tcpLoading: false
-          });
-        }
-      }
+    this.setState({ page_num }, () => {
+      this.load()
     });
   };
   /**获取连接信息 */
@@ -165,7 +170,11 @@ export default class TcpTable extends PureComponent {
       }
     );
   }
-
+  handleSearch = (value) => {
+    this.setState({tcp_search: value}, ()=>{
+      this.load()
+    })
+  }
   handleOk = (values, obj) => {
     const { dispatch } = this.props;
     const { editInfo, end_point, tcpType } = this.state;

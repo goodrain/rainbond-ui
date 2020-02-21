@@ -9,7 +9,23 @@ export async function queryHttpData(param) {
       method: "get",
       params: {
         page: param.page_num || 1,
-        page_size: param.page_size || 15
+        page_size: param.page_size || 15, 
+        search_conditions: param.search_conditions,
+      }
+    }
+  );
+}
+
+/**获取app http rules */
+export async function queryAppHttpData(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams/${param.team_name}/apps/${param.app_id}/domain`,
+    {
+      method: "get",
+      params: {
+        page: param.page_num || 1,
+        page_size: param.page_size || 15,
+        search_conditions: param.search_conditions,
       }
     }
   );
@@ -127,20 +143,6 @@ export async function queryDetail(params) {
     }
   );
 }
-/**搜索http */
-export async function searchHttp(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/domain/query`,
-    {
-      method: "get",
-      params: {
-        search_conditions: params.search_conditions,
-        page_size: params.page_size || 10,
-        page: params.page || 1
-      }
-    }
-  );
-}
 
 /**添加http策略 */
 export async function addHttpStrategy(params) {
@@ -239,21 +241,22 @@ export async function queryTcpData(param) {
       method: "get",
       params: {
         page: param.page_num || 1,
-        page_size: param.page_size || 15
+        page_size: param.page_size || 15,
+        search_conditions: param.search_conditions,
       }
     }
   );
 }
-/**搜索tcp */
-export async function searchTcp(params) {
+
+export async function queryAppTcpData(param) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/tcpdomain/query`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams/${param.team_name}/apps/${param.app_id}/tcpdomain`,
     {
       method: "get",
       params: {
-        search_conditions: params.search_conditions,
-        page_size: params.page_size || 10,
-        page: params.page_num || 1
+        page: param.page_num || 1,
+        page_size: param.page_size || 15,
+        search_conditions: param.search_conditions,
       }
     }
   );

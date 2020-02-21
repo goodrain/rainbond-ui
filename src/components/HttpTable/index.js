@@ -18,9 +18,11 @@ import {
 import globalUtil from "../../utils/global";
 import styles from "./index.less";
 
-@connect(({ user, global, loading }) => ({
+@connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   groups: global.groups,
+  currentTeam: teamControl.currentTeam,
+  currentEnterprise: enterprise.currentEnterprise,
   addHttpLoading: loading.effects["appControl/fetchCertificates"]
 }))
 export default class HttpTable extends PureComponent {
@@ -53,14 +55,47 @@ export default class HttpTable extends PureComponent {
   }
 
   load = () => {
-    const { dispatch } = this.props;
-    const { page_num, page_size } = this.state;
+    const { appID } = this.props;
+    if (appID) {
+      this.queryAppHTTPRule();
+    } else {
+      this.queryTeamHTTPRule();
+    }
+  };
+  queryAppHTTPRule = () => {
+    const { dispatch, currentTeam, currentEnterprise, appID } = this.props;
+    const { page_num, page_size, http_search } = this.state;
+    dispatch({
+      type: "gateWay/queryAppHttpData",
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_id: appID,
+        team_name: currentTeam.team_name,
+        page_num,
+        page_size,
+        search_conditions: http_search,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            dataList: data.list,
+            loading: false,
+            total: data.bean.total
+          });
+        }
+      }
+    });
+  };
+  queryTeamHTTPRule = () => {
+    const { dispatch, currentTeam } = this.props;
+    const { page_num, page_size, http_search } = this.state;
     dispatch({
       type: "gateWay/queryHttpData",
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: currentTeam.team_name,
         page_num,
-        page_size
+        page_size,
+        search_conditions: http_search,
       },
       callback: data => {
         if (data) {
@@ -84,17 +119,9 @@ export default class HttpTable extends PureComponent {
     );
   }
   onPageChange = page_num => {
-    const { http_search } = this.state;
-    // this.setState({ loading: true })
-    if (http_search) {
-      this.setState({ page_num }, () => {
-        this.handleSearch(http_search, page_num);
-      });
-    } else {
-      this.setState({ page_num, loading: true }, () => {
-        this.load();
-      });
-    }
+    this.setState({ page_num, loading: true }, () => {
+      this.load();
+    });
   };
   handleParameterVisibleClick = values => {
     const { dispatch } = this.props;
@@ -244,10 +271,8 @@ export default class HttpTable extends PureComponent {
             ? arr
             : values.set_headers.concat(arr)
           : values.set_headers
-          ? values.set_headers
-          : values.WebSocket
-          ? arr
-          : []
+            ? values.set_headers
+            : values.WebSocket ? arr : []
     };
     dispatch({
       type: "gateWay/editParameter",
@@ -338,27 +363,9 @@ export default class HttpTable extends PureComponent {
       }
     }
   };
-  handleSearch = (search_conditions, page) => {
-    this.setState({ loading: true });
-    const { dispatch } = this.props;
-    this.setState({ page_num: page ? page : 1 });
-    dispatch({
-      type: "gateWay/searchHttp",
-      payload: {
-        search_conditions,
-        team_name: globalUtil.getCurrTeamName(),
-        page
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            total: data.bean.total,
-            dataList: data.list,
-            http_search: search_conditions,
-            loading: false
-          });
-        }
-      }
+  handleSearch = (search_conditions) => {
+    this.setState({ http_search: search_conditions, loading: true }, ()=> {
+      this.load()
     });
   };
   seeHighRoute = values => {
@@ -366,19 +373,27 @@ export default class HttpTable extends PureComponent {
       <ul style={{ padding: "0", margin: "0" }}>
         <li style={{ whiteSpace: "nowrap" }}>
           <span>请求头：</span>
-          <span>{values.domain_heander}</span>
+          <span>
+            {values.domain_heander}
+          </span>
         </li>
         <li style={{ whiteSpace: "nowrap" }}>
           <span>Cookie：</span>
-          <span>{values.domain_cookie}</span>
+          <span>
+            {values.domain_cookie}
+          </span>
         </li>
         <li style={{ whiteSpace: "nowrap" }}>
           <span>Path：</span>
-          <span>{values.domain_path}</span>
+          <span>
+            {values.domain_path}
+          </span>
         </li>
         <li style={{ whiteSpace: "nowrap" }}>
           <span>权重：</span>
-          <span>{values.the_weight}</span>
+          <span>
+            {values.the_weight}
+          </span>
         </li>
       </ul>
     );
@@ -429,9 +444,7 @@ export default class HttpTable extends PureComponent {
           });
           that.props.dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                record.service_alias
-              }`
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${record.service_alias}`
             )
           );
         } else {
@@ -496,13 +509,13 @@ export default class HttpTable extends PureComponent {
         align: "left",
         width: "18%",
         render: (text, record) => {
-          return record.is_outer_service == 1 ? (
-            <a onClick={this.justify_appStatus.bind(this, record)}>{text}</a>
-          ) : (
-            <a href={text} disabled target="blank">
-              {text}
-            </a>
-          );
+          return record.is_outer_service == 1
+            ? <a onClick={this.justify_appStatus.bind(this, record)}>
+                {text}
+              </a>
+            : <a href={text} disabled target="blank">
+                {text}
+              </a>;
         }
       },
       {
@@ -532,7 +545,11 @@ export default class HttpTable extends PureComponent {
         align: "center",
         width: "8%",
         render: (text, record, index) => {
-          return text ? <span>{text}</span> : <span>无</span>;
+          return text
+            ? <span>
+                {text}
+              </span>
+            : <span>无</span>;
         }
       },
       {
@@ -542,19 +559,15 @@ export default class HttpTable extends PureComponent {
         align: "center",
         width: "10%",
         render: (text, record) => {
-          return record.is_outer_service == 0 ? (
-            <a href="" disabled>
-              {text}
-            </a>
-          ) : (
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                record.group_id
-              }/`}
-            >
-              {text}
-            </Link>
-          );
+          return record.is_outer_service == 0
+            ? <a href="" disabled>
+                {text}
+              </a>
+            : <Link
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${record.group_id}/`}
+              >
+                {text}
+              </Link>;
         }
       },
       {
@@ -564,19 +577,15 @@ export default class HttpTable extends PureComponent {
         align: "center",
         width: "15%",
         render: (text, record) => {
-          return record.is_outer_service == 0 ? (
-            <a href="" disabled>
-              {text}
-            </a>
-          ) : (
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                record.service_alias
-              }/port`}
-            >
-              {text}({record.container_port})
-            </Link>
-          );
+          return record.is_outer_service == 0
+            ? <a href="" disabled>
+                {text}
+              </a>
+            : <Link
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${record.service_alias}/port`}
+              >
+                {text}({record.container_port})
+              </Link>;
         }
       },
       {
@@ -586,27 +595,29 @@ export default class HttpTable extends PureComponent {
         align: "center",
         width: "26%",
         render: (data, record, index) => {
-          return record.is_outer_service == 1 ? (
-            <div style={{ display: "flex", justifyContent: "space-around" }}>
-              <a onClick={this.handleParameterVisibleClick.bind(this, record)}>
-                参数配置
-              </a>
-              {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
-              <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
-              <a onClick={this.handleDelete.bind(this, record)}>删除</a>
-            </div>
-          ) : (
-            <Tooltip
-              placement="topLeft"
-              title="请开启对外服务方可操作"
-              arrowPointAtCenter
-            >
-              <div style={{ display: "flex", justifyContent: "space-around" }}>
+          return record.is_outer_service == 1
+            ? <div style={{ display: "flex", justifyContent: "space-around" }}>
+                <a
+                  onClick={this.handleParameterVisibleClick.bind(this, record)}
+                >
+                  参数配置
+                </a>
+                {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
+                <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
                 <a onClick={this.handleDelete.bind(this, record)}>删除</a>
-                <a onClick={this.openService.bind(this, record)}>开启</a>
               </div>
-            </Tooltip>
-          );
+            : <Tooltip
+                placement="topLeft"
+                title="请开启对外服务方可操作"
+                arrowPointAtCenter
+              >
+                <div
+                  style={{ display: "flex", justifyContent: "space-around" }}
+                >
+                  <a onClick={this.handleDelete.bind(this, record)}>删除</a>
+                  <a onClick={this.openService.bind(this, record)}>开启</a>
+                </div>
+              </Tooltip>;
         }
       }
     ];
@@ -646,7 +657,7 @@ export default class HttpTable extends PureComponent {
             }}
           />
         </Card>
-        {drawerVisible && (
+        {drawerVisible &&
           <DrawerForm
             groups={this.props.groups}
             visible={drawerVisible}
@@ -654,24 +665,21 @@ export default class HttpTable extends PureComponent {
             onOk={this.handleOk}
             ref={this.saveForm}
             editInfo={this.state.editInfo}
-          />
-        )}
-        {parameterVisible && (
+          />}
+        {parameterVisible &&
           <ParameterForm
             onOk={this.handleOkParameter}
             onClose={this.handleCloseParameter}
             visible={parameterVisible}
             editInfo={parameterList}
-          />
-        )}
-        {information_connect && (
+          />}
+        {information_connect &&
           <InfoConnectModal
             visible={information_connect}
             dataSource={outerEnvs}
             onCancel={this.handleCancel}
-          />
-        )}
-        {whether_open_form && (
+          />}
+        {whether_open_form &&
           <Modal
             title="确认要添加吗？"
             visible={this.state.whether_open_form}
@@ -684,9 +692,8 @@ export default class HttpTable extends PureComponent {
             zIndex={9999}
           >
             <p>您选择的组件未开启外部访问，是否自动打开并添加此访问策略？</p>
-          </Modal>
-        )}
-        {appStatusVisable && (
+          </Modal>}
+        {appStatusVisable &&
           <Modal
             title="友情提示"
             visible={appStatusVisable}
@@ -694,8 +701,7 @@ export default class HttpTable extends PureComponent {
             onCancel={this.handleAppStatus_closed}
           >
             <p>当前组件处于关闭状态，启动后方可访问，是否启动组件？</p>
-          </Modal>
-        )}
+          </Modal>}
       </div>
     );
   }

@@ -1,24 +1,17 @@
 import React, { PureComponent } from "react";
-import { routerRedux } from 'dva/router';
+import { routerRedux } from "dva/router";
+import HttpTable from "../../components/HttpTable";
+import TcpTable from "../../components/TcpTable";
 import { connect } from "dva";
-import {
-  Card,
-  Button,
-  Col,
-  Row,
-  Menu,
-  Dropdown,
-  Icon,
-  Spin,
-} from 'antd';
 
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 
 /* eslint react/no-array-index-key: 0 */
 
-@connect(({ list, loading }) => ({
+@connect(({ list, loading, teamControl }) => ({
   list,
-  loading: loading.models.list
+  loading: loading.models.list,
+  currentTeam: teamControl.currentTeam,
 }))
 export default class AppGatewayList extends PureComponent {
   constructor(props) {
@@ -26,64 +19,65 @@ export default class AppGatewayList extends PureComponent {
     this.state = {
       apps: [],
       loading: true,
+      createOpen: false,
+      tabKey:
+        props.match &&
+        props.match.params &&
+        props.match.params.types &&
+        props.match.params.types
+          ? props.match.params.types
+          : "http",
+      open:
+        this.props.match &&
+        this.props.match.params &&
+        this.props.match.params.types &&
+        this.props.match.params.types
+          ? this.props.match.params.types
+          : false
     };
   }
-  componentDidMount() {
-  }
-
+  componentDidMount() {}
+  renderContent = () => {
+    const { tabKey } = this.state;
+    if (tabKey == "http") {
+      return <HttpTable open={this.state.open} />;
+    } else if (tabKey == "tcp") {
+      return <TcpTable />;
+    }
+  };
+  handleTabChange = key => {
+    this.setState({ tabKey: key, open: false });
+  };
 
   render() {
-    const { teamName, regionName } = this.props.match.params;
-    const { apps, loading } = this.state;
-    const moreSvg = () => (
-      <svg
-        t="1581212425061"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="1314"
-        width="32"
-        height="32"
-      >
-        <path
-          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1315"
-          fill="#999999"
-        />
-        <path
-          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1316"
-          fill="#999999"
-        />
-        <path
-          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1317"
-          fill="#999999"
-        />
-      </svg>
-    );
-    const menu = appID => {
-      return (
-        <Menu>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.deleteApp(appID);
-              }}
-            >
-              删除
-            </a>
-          </Menu.Item>
-        </Menu>
-      );
+    const { currentTeam } = this.props
+    const { appID } = this.props.match.params;
+    const { open } = this.state;
+    const renderContent = () => {
+      const { tabKey } = this.state;
+      if (tabKey == "http") {
+        return <HttpTable currentTeam={currentTeam} appID={appID} open={open} />;
+      } else if (tabKey == "tcp") {
+        return <TcpTable currentTeam={currentTeam} appID={appID} open={open} />;
+      }
     };
     return (
       <PageHeaderLayout
         title="网关访问策略管理"
         content="访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略。"
+        tabList={[
+          {
+            key: "http",
+            tab: "HTTP"
+          },
+          {
+            key: "tcp",
+            tab: "TCP/UDP"
+          }
+        ]}
+        onTabChange={this.handleTabChange}
       >
-        
+        {renderContent()}
       </PageHeaderLayout>
     );
   }

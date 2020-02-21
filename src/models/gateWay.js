@@ -1,5 +1,6 @@
 import {
     queryHttpData,
+    queryAppHttpData,
     fetchEnvs,
     editParameter,
     getParameter,
@@ -8,13 +9,12 @@ import {
     deleteLicense,
     queryDetail,
     editLicense,
-    searchHttp,
     addHttpStrategy,
     deleteHttp,
     queryDetail_http,
     editHttpStrategy,
     queryTcpData,
-    searchTcp,
+    queryAppTcpData,
     deleteTcp,
     querydomain_port,
     queryDetail_tcp,
@@ -34,6 +34,12 @@ export default {
     effects: {
         *queryHttpData({ callback, payload }, { call }) {
             const response = yield call(queryHttpData, payload);
+            if (response && callback) {
+                callback(response)
+            }
+        },
+        *queryAppHttpData({ callback, payload }, { call }) {
+            const response = yield call(queryAppHttpData, payload);
             if (response && callback) {
                 callback(response)
             }
@@ -83,12 +89,6 @@ export default {
         },
         *queryDetail({ callback, payload }, { call }) {
             const response = yield call(queryDetail, payload);
-            if (callback) {
-                callback(response)
-            }
-        },
-        *searchHttp({ callback, payload }, { call }) {
-            const response = yield call(searchHttp, payload);
             if (callback) {
                 callback(response)
             }
@@ -151,9 +151,9 @@ export default {
                 callback(response)
             }
         },
-        *searchTcp({ callback, payload }, { call }) {
-            const response = yield call(searchTcp, payload);
-            if (callback) {
+        *queryAppTcpData({ callback, payload }, { call }) {
+            const response = yield call(queryAppTcpData, payload);
+            if (response && callback) {
                 callback(response)
             }
         },

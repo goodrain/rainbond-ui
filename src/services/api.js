@@ -353,7 +353,7 @@ export async function authEnterprise(
 }
 
 /* 获取当前团队的企业ID */
-export async function getEnterpriseID(
+export async function getTeamOverview(
   body = {
     team_name,
   }
