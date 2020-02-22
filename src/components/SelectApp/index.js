@@ -106,7 +106,7 @@ export default class SelectTeam extends PureComponent {
               {teamApps.map(item => {
                 const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${item.group_id}`;
                 return (
-                  <li key={item.group_name}>
+                  <li key={item.group_id}>
                     <Link to={link} title={item.group_name}>
                       <span>
                         {item.group_name}

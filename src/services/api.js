@@ -295,9 +295,6 @@ export async function getApplication(body = { team_name, group_id }) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps`,
     {
       method: 'get',
-      // params: {
-      //   team_name: body.team_name,
-      // },
     }
   );
 }

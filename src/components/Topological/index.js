@@ -76,6 +76,8 @@ class Index extends React.Component {
           width: '100%',
           height: '500px'
         }}
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+        scrolling="auto"
         frameBorder="no"
         border="0"
         marginWidth="0"

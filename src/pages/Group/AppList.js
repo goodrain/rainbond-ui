@@ -2,7 +2,7 @@ import { Badge, Button, Card, notification, Table, Tag, Tooltip } from "antd";
 import { connect } from "dva";
 import { Link } from "dva/router";
 import moment from "moment";
-import React, { Fragment, PureComponent } from "react";
+import React, { Fragment, Component } from "react";
 import ScrollerX from "../../components/ScrollerX";
 import {
   batchReStart,
@@ -30,7 +30,7 @@ import BatchDelete from "../../components/BatchDelete";
     pure: false
   }
 )
-export default class AppList extends PureComponent {
+export default class AppList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -62,15 +62,15 @@ export default class AppList extends PureComponent {
   }
 
   updateApp = () => {
-    this.loadApps();
+    this.loadComponents();
     const { clearTime } = this.props
     this.timer = setInterval(() => {
       if (!clearTime) {
-        this.loadApps();
+        this.loadComponents();
       }
     }, 5000)
   }
-  loadApps = () => {
+  loadComponents = () => {
     const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();

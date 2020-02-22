@@ -85,10 +85,11 @@ export default {
         callback && callback(response);
       }
     },
-    * fetchGroupDetail({ payload, handleError }, { call, put }) {
+    * fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getGroupDetail, payload, handleError);
       if (response) {
         yield put({ type: "saveGroupDetail", payload: response.bean });
+        callback && callback(response)
       }
     },
     * fetchApps({ payload, callback }, { call, put }) {

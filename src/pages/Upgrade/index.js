@@ -59,12 +59,9 @@ export default class AppList extends PureComponent {
             }
         });
     }
-
-
-
     getGroupId = () => {
         const params = this.props.match.params;
-        return params.groupId;
+        return params.appID;
     }
     getGroupName = () => {
         const group_id = this.getGroupId();
