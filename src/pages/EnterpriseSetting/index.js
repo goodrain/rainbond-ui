@@ -113,11 +113,16 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   handleCreateAdmin = values => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/addEnterpriseAdminTeams',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
         user_id: values.user_id,
       },
       callback: () => {
@@ -129,11 +134,16 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   getEnterpriseAdmins = () => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseAdmin',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {

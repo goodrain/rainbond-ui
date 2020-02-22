@@ -923,36 +923,7 @@ export async function fetchUserTeams(param) {
     }
   );
 }
-/* 获取本地应用列表（搜索） */
-export async function fetchComponent(param) {
-  return request(
-    `http://doc.goodrain.org/mock/18/console/apps`,
-    // `http://proxy.goodrain.com:23701/console/apps`,
-    // `${apiconfig.baseUrl}/console/apps`,
-    {
-      method: 'get',
-      params: {
-        page: param.page,
-        page_size: param.page_size,
-        scope: param.scope,
-        app_name: param.app_name,
-        tags: param.tags,
-      },
-    }
-  );
-}
 
-/* 获取本地标签s（搜索） */
-export async function fetchComponentTags(param) {
-  return request(
-    // `http://proxy.goodrain.com:23701/console/apps/tag`,
-    `http://doc.goodrain.org/mock/18/console/apps/tag`,
-    // `${apiconfig.baseUrl}/console/apps/tag`,
-    {
-      method: 'get',
-    }
-  );
-}
 
 /* 查询企业列表 */
 export async function fetchEnterpriseList() {

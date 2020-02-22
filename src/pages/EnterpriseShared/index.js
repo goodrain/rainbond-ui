@@ -16,10 +16,11 @@ import {
   Pagination,
   notification,
 } from 'antd';
-import { routerRedux } from 'dva/router';
+import { Link, routerRedux } from 'dva/router';
 import NoComponent from '../../../public/images/noComponent.png';
 import userUtil from '../../utils/user';
 import Lists from '../../components/Lists';
+import CreateMarketApp from '../../components/CreateMarketApp';
 import DeleteApp from '../../components/DeleteApp';
 import AppExporter from './AppExporter';
 import rainbondUtil from '../../utils/rainbond';
@@ -62,6 +63,7 @@ export default class EnterpriseShared extends PureComponent {
       chooseVersion: null,
       deleteApp: false,
       showCloudApp: false,
+      createApp: false,
     };
   }
   componentDidMount() {
@@ -89,12 +91,18 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   getApps = () => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      user,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const { page, page_size, name, scope, tags } = this.state;
     dispatch({
-      type: 'global/fetchComponent',
+      type: 'market/fetchComponent',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
         user_id: user.user_id,
         app_name: name,
         scope,
@@ -116,7 +124,7 @@ export default class EnterpriseShared extends PureComponent {
   getTags = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'global/fetchComponentTags',
+      type: 'market/fetchComponentTags',
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
@@ -201,12 +209,16 @@ export default class EnterpriseShared extends PureComponent {
   };
   handleDeleteApp = () => {
     const { chooseVersion, appInfo } = this.state;
-    const { dispatch, user } = this.props;
-    console.log('appInfo', appInfo);
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/offlineMarketApp',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
         app_id: appInfo.app_id,
         app_versions: chooseVersion,
       },
@@ -261,6 +273,19 @@ export default class EnterpriseShared extends PureComponent {
     // });
   };
 
+  handleCancelMarketApp = () => {
+    this.setState({
+      createApp: false,
+    });
+  };
+  handleMarketApp = () => {
+    this.setState({
+      createApp: true,
+    });
+  };
+
+  handleOkMarketApp = () => {};
+
   render() {
     const {
       componentList,
@@ -273,7 +298,13 @@ export default class EnterpriseShared extends PureComponent {
       bouncedText,
       bouncedType,
     } = this.state;
-    const { user, rainbondInfo } = this.props;
+    const {
+      user,
+      rainbondInfo,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
 
     const managementMenu = appInfo => {
       const delApp = (
@@ -323,22 +354,36 @@ export default class EnterpriseShared extends PureComponent {
       );
     };
 
+    const addMenuApps = (
+      <Menu>
+        <Menu.Item>
+          <a onClick={this.handleMarketApp}>创建应用</a>
+        </Menu.Item>
+        <Menu.Item>
+          <a>离线导入</a>
+        </Menu.Item>
+      </Menu>
+    );
+
     const operation = (
       <Col span={4} style={{ textAlign: 'right' }} className={styles.btns}>
         {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
           <Button
             type="primary"
-            style={{marginRight:'22px' }}
+            style={{ marginRight: '22px' }}
             onClick={() => {
-              this.setState({ showCloudApp: true});
+              this.setState({ showCloudApp: true });
             }}
           >
-            云端同步
+            <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
           </Button>
         )}
-        <Button type="primary" onClick={this.onJoinTeam}>
-          <Icon type="plus" />
-        </Button>
+
+        <Dropdown overlay={addMenuApps} placement="topCenter">
+          <Button type="primary">
+            <Icon type="plus" />
+          </Button>
+        </Dropdown>
       </Col>
     );
     const noShared = (
@@ -399,6 +444,7 @@ export default class EnterpriseShared extends PureComponent {
                   onChange={this.onChangeCheckbox}
                 >
                   {tagList &&
+                    tagList.length > 0 &&
                     tagList.map(item => {
                       const { name, tag_id } = item;
                       return (
@@ -438,7 +484,12 @@ export default class EnterpriseShared extends PureComponent {
                       </p>
                     </div>
                     <div className={styles.imgs}>
-                      <img src={pic} alt="" />
+                      <img
+                        src={
+                          pic || require('../../../public/images/app_icon.jpg')
+                        }
+                        alt=""
+                      />
                     </div>
                   </Col>
                   <Col span={8} className={styles.tits}>
@@ -449,8 +500,9 @@ export default class EnterpriseShared extends PureComponent {
                   </Col>
                   <Col span={4} className={styles.status}>
                     <div>
-                      <p>{dev_status || 'release'}</p>
-                      <p>{versions && versions.length > 0 && versions[0]}</p>
+                      {dev_status && <p>{dev_status || ''}</p>}
+                      {/* <p>{dev_status || 'release'}</p> */}
+                      {versions && versions.length > 0 && <p>{versions[0]}</p>}
                     </div>
                   </Col>
 
@@ -474,7 +526,12 @@ export default class EnterpriseShared extends PureComponent {
         title="——"
         content="将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源应用下载完成后，方可在 从应用市场安装 直接安装"
       >
-      
+        {this.state.showCloudApp && (
+          <div className={styles.descText}>
+            <Icon type="exclamation-circle" />
+            当前市场不支持跨数据中心互联功能
+          </div>
+        )}
         {this.state.deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
@@ -482,6 +539,14 @@ export default class EnterpriseShared extends PureComponent {
             subDesc="删除后其他人将无法安装此应用"
             title="删除应用"
             onCancel={this.handleCancelDelete}
+          />
+        )}
+
+        {this.state.createApp && (
+          <CreateMarketApp
+            title="创建应用"
+            onOk={this.handleOkMarketApp}
+            onCancel={this.handleCancelMarketApp}
           />
         )}
 
@@ -514,9 +579,6 @@ export default class EnterpriseShared extends PureComponent {
               overflow: 'hidden',
             }}
           >
-          <div>
-          <Icon type="exclamation-circle" />当前市场不支持跨数据中心互联功能
-          </div>
             <div
               style={{
                 transition: 'all .8s',

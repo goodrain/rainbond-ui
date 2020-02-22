@@ -274,11 +274,18 @@ export default class Enterprise extends PureComponent {
     return this.props.match.params;
   }
   getCompanyInfo = () => {
-    this.props.dispatch({
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
+    dispatch({
       type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.user.enterprise_id,
+        enterprise_id: eid,
       },
       callback: data => {
         if (data) {
@@ -496,7 +503,7 @@ export default class Enterprise extends PureComponent {
         units = 'GB';
       }
 
-      return unit ? units : nums.toFixed(2);
+      return unit ? units : parseInt(nums);
     }
     return null;
   };
@@ -542,7 +549,10 @@ export default class Enterprise extends PureComponent {
       ...teamBox,
       ...{ height: '40px', padding: '12px' },
     };
-    const teamBoxs = { ...teamBox, ...{ height: '68px', padding: '24px' } };
+    const teamBoxs = {
+      ...teamBox,
+      ...{ height: '68px', padding: '24px', cursor: 'pointer' },
+    };
     const teamBoxsPs = {
       ...teamBox,
       ...{ height: '68px', padding: '24px', justifyContent: 'space-around' },
@@ -874,42 +884,44 @@ export default class Enterprise extends PureComponent {
                 </Row>
                 <Row>
                   <Col span={12}>
-                    <Card bodyStyle={teamBoxs} bordered={false}>
-                      <div className={styles.addTeam}>
-                        <img src={TeamCrew} alt="" />
-                      </div>
+                    {overviewTeamInfo &&
+                      overviewTeamInfo.new_join_team &&
+                      overviewTeamInfo.new_join_team.length > 0 && (
+                        <Card
+                          bodyStyle={teamBoxs}
+                          bordered={false}
+                          onClick={() => {
+                            this.props.dispatch(
+                              routerRedux.replace(
+                                `/team/${overviewTeamInfo.new_join_team[0].team_name}/region/${overviewTeamInfo.new_join_team[0].region}/index`
+                              )
+                            );
+                          }}
+                        >
+                          <div className={styles.addTeam}>
+                            <img src={TeamCrew} alt="" />
+                          </div>
 
-                      <div
-                        className={styles.grays}
-                        style={{ marginLeft: '18px' }}
-                      >
-                        新加入团队：
-                      </div>
-                      {overviewTeamInfo &&
-                        overviewTeamInfo.new_join_team &&
-                        overviewTeamInfo.new_join_team.length > 0 && (
+                          <div
+                            className={styles.grays}
+                            style={{ marginLeft: '18px', width: '128px' }}
+                          >
+                            新加入团队：
+                          </div>
                           <Tooltip
                             title={overviewTeamInfo.new_join_team[0].team_alias}
                           >
                             <div
                               className={`${styles.overText} ${styles.teamtest}`}
-                              onClick={() => {
-                                this.props.dispatch(
-                                  routerRedux.replace(
-                                    `/team/${overviewTeamInfo.new_join_team[0].team_name}/region/${overviewTeamInfo.new_join_team[0].region}/index`
-                                  )
-                                );
-                              }}
                             >
                               {overviewTeamInfo.new_join_team[0].team_alias}
                             </div>
                           </Tooltip>
-                        )}
-                      <div>
-                        <img src={Arrow} alt="" />
-                      </div>
-                    </Card>
-
+                          <div>
+                            <img src={Arrow} alt="" />
+                          </div>
+                        </Card>
+                      )}
                     <Card bodyStyle={teamBoxsPs} bordered={false}>
                       <div
                         style={{ textAlign: 'center', cursor: 'pointer' }}
@@ -1007,7 +1019,6 @@ export default class Enterprise extends PureComponent {
                           </span>
                           /{this.handlUnit(overviewMonitorInfo.memory.total)}
                           <span className={styles.units}>
-                            {' '}
                             {this.handlUnit(
                               overviewMonitorInfo.memory.used,
                               'MB'
@@ -1026,10 +1037,10 @@ export default class Enterprise extends PureComponent {
                       </li>
                       <li>
                         {overviewMonitorInfo &&
-                          overviewMonitorInfo.cpu.used.toFixed(2)}
+                          parseInt(overviewMonitorInfo.cpu.used)}
                         <span className={styles.units}>Core</span>/
                         {overviewMonitorInfo &&
-                          overviewMonitorInfo.cpu.total.toFixed(2)}
+                          parseInt(overviewMonitorInfo.cpu.total)}
                         <span className={styles.units}>Core</span>
                       </li>
                       <li>CPU使用量/总量</li>

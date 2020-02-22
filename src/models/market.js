@@ -1,4 +1,5 @@
 import {
+  fetchComponent,
   getMarketApp,
   queryExport,
   appExport,
@@ -19,6 +20,12 @@ export default {
   state: {
   },
   effects: {
+    *fetchComponent({ payload, callback }, { put, call }) {
+      const response = yield call(fetchComponent, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     *getMarketApp({ payload, callback }, { call, put }) {
       const data = yield call(getMarketApp, payload);
       if (data) {

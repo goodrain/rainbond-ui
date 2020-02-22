@@ -531,18 +531,6 @@ export default {
         callback && callback(response);
       }
     },
-    *fetchComponent({ payload, callback }, { put, call }) {
-      const response = yield call(fetchComponent, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-    *fetchComponentTags({ payload, callback }, { put, call }) {
-      const response = yield call(fetchComponentTags, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
 
     *fetchEnterpriseList({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseList, payload);

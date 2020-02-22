@@ -1,13 +1,13 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Icon, Dropdown, notification } from "antd";
-import style from "../SelectTeam/index.less";
-import OpenRegion from "../OpenRegion";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Icon, Dropdown, notification } from 'antd';
+import style from '../SelectTeam/index.less';
+import OpenRegion from '../OpenRegion';
+import { Link } from 'dva/router';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 
 @connect(({ user }) => ({
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
 }))
 export default class SelectTeam extends PureComponent {
   constructor(props) {
@@ -15,7 +15,8 @@ export default class SelectTeam extends PureComponent {
     this.state = {
       teamRegions: [],
       showOpenRegion: false,
-      loading: true
+      loading: true,
+      visible: false,
     };
   }
   componentDidMount() {
@@ -35,39 +36,49 @@ export default class SelectTeam extends PureComponent {
     }
     const { currentTeam } = this.props;
     this.props.dispatch({
-      type: "teamControl/openRegion",
+      type: 'teamControl/openRegion',
       payload: {
         team_name: currentTeam.team_name,
-        region_names: regions.join(",")
+        region_names: regions.join(','),
       },
       callback: () => {
-        notification.success({ message: formatMessage({id:'open.success'}) });
+        notification.success({
+          message: formatMessage({ id: 'open.success' }),
+        });
         this.cancelOpenRegion();
         this.props.dispatch({
-          type: "user/fetchCurrent",
+          type: 'user/fetchCurrent',
           callback: () => {
             this.props.dispatch(
               routerRedux.replace(
                 `/team/${currentTeam.team_name}/region/${regions[0]}/index`
               )
             );
-          }
+          },
         });
-      }
+      },
     });
   };
   cancelOpenRegion = () => {
     this.setState({ showOpenRegion: false });
   };
+
+  handleEnter = () => {
+    this.setState({ visible: true });
+  };
+  handleOut = () => {
+    this.setState({ visible: false });
+  };
+
   render() {
     const {
       className,
       currentTeam,
       currentEnterprise,
       currentRegion,
-      currentUser
+      currentUser,
     } = this.props;
-    const { teamRegions, loading, showOpenRegion } = this.state;
+    const { teamRegions, loading, showOpenRegion, visible } = this.state;
     const currentTeamRegionLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
     const dropdown = (
       <div className={style.dropBox}>
@@ -79,30 +90,33 @@ export default class SelectTeam extends PureComponent {
                 return (
                   <li key={item.team_region_alias}>
                     <Link to={link} title={item.team_region_alias}>
-                      <span>
-                        {item.team_region_alias}
-                      </span>
+                      <span>{item.team_region_alias}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
-            {currentUser.is_user_enter_amdin &&
+            {currentUser.is_user_enter_amdin && (
               <div
                 className={style.dropBoxListCreate}
                 onClick={this.showOpenRegion}
               >
                 <Icon type="plus" />
-                <FormattedMessage id="header.region.open"></FormattedMessage>
-              </div>}
+                <FormattedMessage id="header.region.open" />
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
 
     return (
-      <div className={className}>
-        <Dropdown overlay={dropdown}>
+      <div
+        className={className}
+        onMouseLeave={this.handleOut}
+        onMouseEnter={this.handleEnter}
+      >
+        <Dropdown overlay={dropdown} visible={visible}>
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamRegionLink}>
               <div className={style.selectButtonName}>
@@ -112,11 +126,12 @@ export default class SelectTeam extends PureComponent {
             </Link>
           </div>
         </Dropdown>
-        {showOpenRegion &&
+        {showOpenRegion && (
           <OpenRegion
             onSubmit={this.handleOpenRegion}
             onCancel={this.cancelOpenRegion}
-          />}
+          />
+        )}
       </div>
     );
   }
