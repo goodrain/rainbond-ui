@@ -1,14 +1,13 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Icon, Dropdown, notification, Input } from "antd";
-import style from "../SelectTeam/index.less";
-import EditGroupName from "../AddOrEditGroup";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Icon, Dropdown, notification, Input } from 'antd';
+import style from '../SelectTeam/index.less';
+import EditGroupName from '../AddOrEditGroup';
+import { Link } from 'dva/router';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 
-
 @connect(({ user }) => ({
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
 }))
 export default class SelectTeam extends PureComponent {
   constructor(props) {
@@ -18,35 +17,35 @@ export default class SelectTeam extends PureComponent {
       showOpenRegion: false,
       loading: true,
       currentApp: {},
-      queryName: "",
+      queryName: '',
+      visible: false,
     };
   }
   componentDidMount() {
     this.loadTeamApps();
   }
-  queryApps = (query) => {
-    this.setState({queryName: query},()=>{
-        this.loadTeamApps()
-    })
-  }
+  queryApps = query => {
+    this.setState({ queryName: query }, () => {
+      this.loadTeamApps();
+    });
+  };
   loadTeamApps = () => {
     const { currentTeam, currentAppID } = this.props;
-    const { queryName } = this.state
+    const { queryName } = this.state;
     this.props.dispatch({
-      type: "global/fetchGroups",
+      type: 'global/fetchGroups',
       payload: {
         team_name: currentTeam.team_name,
         query: queryName,
       },
       callback: re => {
-        this.setState({ teamApps: re, loading:false });
+        this.setState({ teamApps: re, loading: false });
         re.map(item => {
           if (item.group_id == currentAppID) {
-            this.setState({ teamApps: re, loading:false, currentApp: item});
-            return
+            this.setState({ teamApps: re, loading: false, currentApp: item });
           }
-        })
-      }
+        });
+      },
     });
   };
   showCreateApp = () => {
@@ -61,15 +60,23 @@ export default class SelectTeam extends PureComponent {
         group_name: vals.group_name,
       },
       callback: () => {
-        notification.success({ message: formatMessage({id:'add.success'}) });
+        notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateApp();
-        this.loadTeamApps()
+        this.loadTeamApps();
       },
     });
   };
   cancelCreateApp = () => {
     this.setState({ showCreateApp: false });
   };
+
+  handleEnter = () => {
+    this.setState({ visible: true });
+  };
+  handleOut = () => {
+    this.setState({ visible: false });
+  };
+
   render() {
     const {
       className,
@@ -77,10 +84,16 @@ export default class SelectTeam extends PureComponent {
       currentEnterprise,
       currentRegion,
       currentAppID,
-      currentUser
+      currentUser,
     } = this.props;
-    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`
-    const { teamApps, loading, showCreateApp, currentApp } = this.state;
+    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
+    const {
+      teamApps,
+      loading,
+      showCreateApp,
+      currentApp,
+      visible,
+    } = this.state;
     const currentTeamRegionLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
     const dropdown = (
       <div className={style.dropBox}>
@@ -95,7 +108,7 @@ export default class SelectTeam extends PureComponent {
               />
               <Input
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({id:"header.app.search"})}
+                placeholder={formatMessage({ id: 'header.app.search' })}
               />
             </div>
           </div>
@@ -108,24 +121,24 @@ export default class SelectTeam extends PureComponent {
                 return (
                   <li key={item.group_id}>
                     <Link to={link} title={item.group_name}>
-                      <span>
-                        {item.group_name}
-                      </span>
+                      <span>{item.group_name}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
             <div
-                className={style.dropBoxListCreate}
-                onClick={this.showCreateApp}
-              >
-                <Icon type="plus" />
-                <FormattedMessage id="header.app.create"></FormattedMessage>
-              </div>
+              className={style.dropBoxListCreate}
+              onClick={this.showCreateApp}
+            >
+              <Icon type="plus" />
+              <FormattedMessage id="header.app.create" />
+            </div>
           </div>
           <Link className={style.dropBoxAll} to={currentTeamAppsPageLink}>
-            <span><FormattedMessage id="header.app.getall"></FormattedMessage></span>
+            <span>
+              <FormattedMessage id="header.app.getall" />
+            </span>
             <Icon type="right" />
           </Link>
         </div>
@@ -133,8 +146,12 @@ export default class SelectTeam extends PureComponent {
     );
 
     return (
-      <div className={className}>
-        <Dropdown overlay={dropdown}>
+      <div
+        className={className}
+        onMouseLeave={this.handleOut}
+        onMouseEnter={this.handleEnter}
+      >
+        <Dropdown overlay={dropdown} visible={visible}>
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamRegionLink}>
               <div className={style.selectButtonName}>
@@ -144,11 +161,13 @@ export default class SelectTeam extends PureComponent {
             </Link>
           </div>
         </Dropdown>
-        {showCreateApp && <EditGroupName
-            title={formatMessage({id:"header.app.create"})}
+        {showCreateApp && (
+          <EditGroupName
+            title={formatMessage({ id: 'header.app.create' })}
             onCancel={this.cancelCreateApp}
             onOk={this.handleCreateApp}
-          />}
+          />
+        )}
       </div>
     );
   }

@@ -29,7 +29,7 @@ export default [
     path: '/exception/trigger',
     component: './Exception/triggerException',
   },
-   // main route config
+  // main route config
   {
     path: '/',
     component: '../layouts/SecurityLayout',
@@ -70,9 +70,15 @@ export default [
             name: 'EnterpriseShared',
             authority: ['admin', 'user'],
           },
+          {
+            path: '/enterprise/:eid/shared/cloudMarket',
+            component: './EnterpriseCloudMarket',
+            name: 'EnterpriseCloudMarket',
+            authority: ['admin', 'user'],
+          },
         ],
       },
-      //team view layout
+      // team view layout
       {
         path: '/team/:teamName/region/:regionName/',
         component: '../layouts/TeamLayout',
@@ -190,21 +196,24 @@ export default [
           },
 
           {
-            path: '/team/:teamName/region/:regionName/components/:appAlias/:type?',
+            path:
+              '/team/:teamName/region/:regionName/components/:appAlias/:type?',
             component: './Component',
             name: 'Component',
             authority: ['admin', 'user'],
           },
 
           {
-            path: '/team/:teamName/region/:regionName/create/code/:type?/:code?',
+            path:
+              '/team/:teamName/region/:regionName/create/code/:type?/:code?',
             component: './Create/code',
             name: 'code',
             authority: ['admin', 'user'],
           },
 
           {
-            path: '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
+            path:
+              '/team/:teamName/region/:regionName/create/outer/:type?/:outer?',
             component: './Create/outer',
             name: 'outer',
             authority: ['admin', 'user'],
@@ -248,7 +257,8 @@ export default [
           },
 
           {
-            path: '/team/:teamName/region/:regionName/create/create-check/:appAlias',
+            path:
+              '/team/:teamName/region/:regionName/create/create-check/:appAlias',
             component: './Create/create-check',
             name: 'check',
             authority: ['admin', 'user'],
@@ -263,14 +273,16 @@ export default [
           },
 
           {
-            path: '/team/:teamName/region/:regionName/create/image/:type?/:image?',
+            path:
+              '/team/:teamName/region/:regionName/create/image/:type?/:image?',
             component: './Create/image',
             name: 'imagesss',
             authority: ['admin', 'user'],
           },
 
           {
-            path: '/team/:teamName/region/:regionName/create/create-setting/:appAlias',
+            path:
+              '/team/:teamName/region/:regionName/create/create-setting/:appAlias',
             component: './Create/create-setting',
             name: 'setting',
             authority: ['admin', 'user'],
@@ -334,7 +346,8 @@ export default [
           },
 
           {
-            path: '/team/:teamName/region/:regionName/gateway/control/:types?/:isopen?',
+            path:
+              '/team/:teamName/region/:regionName/gateway/control/:types?/:isopen?',
             component: './GateWay/control',
             name: 'control',
             authority: ['admin', 'user'],

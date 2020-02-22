@@ -137,20 +137,25 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   getEnterpriseTeams = () => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseTeams',
       payload: {
-        enterprise_id: user.enterprise_id,
+        page,
+        page_size,
+        enterprise_id: eid,
+        name,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            page,
-            page_size,
-            teamList: res.bean.list,
-            name,
+            teamList: res.bean&&res.bean.list || [],
             enterpriseTeamsLoading: false,
           });
         }
@@ -158,12 +163,18 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
   getUserTeams = () => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      user,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
       type: 'global/fetchUserTeams',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
         user_id: user.user_id,
         name: '',
         page,
@@ -182,12 +193,17 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   getOverviewTeam = () => {
-    const { dispatch, user } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
 
     dispatch({
       type: 'global/fetchOverviewTeam',
       payload: {
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -570,6 +586,7 @@ export default class EnterpriseTeams extends PureComponent {
 
         {overviewTeamInfo &&
           overviewTeamInfo.request_join_team &&
+          overviewTeamInfo.request_join_team.length > 0 &&
           overviewTeamInfo.request_join_team.map(item => {
             const {
               is_pass,

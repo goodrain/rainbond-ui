@@ -1,33 +1,33 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Icon, Dropdown, Input, notification } from "antd";
-import style from "./index.less";
-import { Link } from "dva/router";
-import CreateTeam from "../CreateTeam";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Icon, Dropdown, Input, notification } from 'antd';
+import style from './index.less';
+import { Link } from 'dva/router';
+import CreateTeam from '../CreateTeam';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 
-
 @connect(({ user }) => ({
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
 }))
 export default class SelectTeam extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      queryName: "",
+      queryName: '',
       page: 1,
       page_size: 5,
       userTeamList: [],
       userTeamsLoading: true,
       showCreateTeam: false,
-      loading: true
+      loading: true,
+      visible: false,
     };
   }
   componentDidMount() {
-    this.loadUserTeams("");
+    this.loadUserTeams('');
   }
   queryTeams = queryName => {
-    this.setState({ queryName: queryName }, () => {
+    this.setState({ queryName }, () => {
       this.loadUserTeams();
     });
   };
@@ -36,23 +36,23 @@ export default class SelectTeam extends PureComponent {
     const { dispatch, currentUser, currentEnterprise } = this.props;
     const { page, page_size, queryName } = this.state;
     dispatch({
-      type: "global/fetchUserTeams",
+      type: 'global/fetchUserTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
         user_id: currentUser.user_id,
         name: queryName,
         page,
-        page_size
+        page_size,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             userTeamList: res.list,
             userTeamsLoading: false,
-            loading: false
+            loading: false,
           });
         }
-      }
+      },
     });
   };
   showCreateTeam = () => {
@@ -61,18 +61,25 @@ export default class SelectTeam extends PureComponent {
 
   handleCreateTeam = values => {
     this.props.dispatch({
-      type: "teamControl/createTeam",
+      type: 'teamControl/createTeam',
       payload: values,
       callback: () => {
-        notification.success({ message: formatMessage({id:'add.success'}) });
+        notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateTeam();
         this.loadUserTeams();
-      }
+      },
     });
   };
 
   cancelCreateTeam = () => {
     this.setState({ showCreateTeam: false });
+  };
+
+  handleEnter = () => {
+    this.setState({ visible: true });
+  };
+  handleOut = () => {
+    this.setState({ visible: false });
   };
 
   render() {
@@ -81,9 +88,9 @@ export default class SelectTeam extends PureComponent {
       currentTeam,
       currentEnterprise,
       currentRegion,
-      currentUser
+      currentUser,
     } = this.props;
-    const { userTeamList, loading, showCreateTeam } = this.state;
+    const { userTeamList, loading, showCreateTeam, visible } = this.state;
     const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
     const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
     const dropdown = (
@@ -99,7 +106,7 @@ export default class SelectTeam extends PureComponent {
               />
               <Input
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({id:'header.team.search'})}
+                placeholder={formatMessage({ id: 'header.team.search' })}
               />
             </div>
           </div>
@@ -112,25 +119,26 @@ export default class SelectTeam extends PureComponent {
                 return (
                   <li key={item.team_name}>
                     <Link to={link} title={item.team_alias}>
-                      <span>
-                        {item.team_alias}
-                      </span>
+                      <span>{item.team_alias}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
-            {currentUser.is_user_enter_amdin &&
+            {currentUser.is_user_enter_amdin && (
               <div
                 className={style.dropBoxListCreate}
                 onClick={this.showCreateTeam}
               >
                 <Icon type="plus" />
-                <FormattedMessage id="header.team.create"></FormattedMessage>
-              </div>}
+                <FormattedMessage id="header.team.create" />
+              </div>
+            )}
           </div>
           <Link className={style.dropBoxAll} to={currentEnterpriseTeamPageLink}>
-            <span><FormattedMessage id="header.team.getall"></FormattedMessage></span>
+            <span>
+              <FormattedMessage id="header.team.getall" />
+            </span>
             <Icon type="right" />
           </Link>
         </div>
@@ -138,8 +146,15 @@ export default class SelectTeam extends PureComponent {
     );
 
     return (
-      <div className={className}>
-        <Dropdown overlay={dropdown}>
+      <div
+        className={className}
+        onMouseLeave={this.handleOut}
+        onMouseEnter={this.handleEnter}
+      >
+        <Dropdown
+          overlay={dropdown}
+          visible={visible}
+        >
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamLink}>
               <div className={style.selectButtonName}>
@@ -149,11 +164,12 @@ export default class SelectTeam extends PureComponent {
             </Link>
           </div>
         </Dropdown>
-        {showCreateTeam &&
+        {showCreateTeam && (
           <CreateTeam
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-          />}
+          />
+        )}
       </div>
     );
   }
