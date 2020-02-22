@@ -322,13 +322,8 @@ class Index extends React.Component {
     const { tableLoading, pageNum, pageSize, total, list } = this.state;
     return (
       <PageHeaderLayout
-        breadcrumbList={[{
-          title: "首页",
-          icon: "home"
-        }, {
-          title: "全部备份",
-          icon: "folder-open"
-        }]}
+        title="应用备份记录"
+        content="应用备份记录是当前团队下的所有备份记录，包括已删除应用的备份记录，基于备份可以恢复或迁移已删除的应用"
       >
         <Card>
           <Table

@@ -14,7 +14,7 @@ export default {
     'menu.team.gateway.certificate': '证书管理',
     'menu.team.gateway.control': '访问策略管理',
     'menu.team.plugin': '插件',
-    'menu.team.setting': '插件',
+    'menu.team.setting': '设置',
     'menu.app.dashboard': '总览',
     'menu.app.publish': '发布',
     'menu.app.backup': '备份',

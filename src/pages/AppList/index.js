@@ -43,7 +43,10 @@ export default class AppList extends PureComponent {
       }
     });
   };
-
+  jumpToAllbackup = () => {
+    const { teamName, regionName } = this.props.match.params;
+		this.props.dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/allbackup`))
+	}
   deleteApp = appID => {};
 
   render() {
@@ -94,10 +97,12 @@ export default class AppList extends PureComponent {
     };
     return (
       <PageHeaderLayout
+        prevLink={`/team/${teamName}/region/${regionName}/index`}
         title="应用管理"
         content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成。"
       >
         <div>
+          <Row><Button onClick={this.jumpToAllbackup}>全部备份</Button></Row>
           <Row type="flex" align="middle">
             <Col span={6}>应用名称</Col>
             <Col span={3}>组件数量</Col>
