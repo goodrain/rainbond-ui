@@ -19,8 +19,8 @@ export default class AppExporter extends PureComponent {
     super(props);
     this.state = {
       app_exporte_status: null,
-      exportVersionList: (props.app && props.app.versions) || [],
-      exportVersion: (props.app && [props.app.versions[0]]) || '',
+      exportVersionList: (props.app && props.app.versions_info) || [],
+      exportVersion: (props.app && [props.app.versions_info[0].version]) || '',
     };
   }
   componentDidMount() {
@@ -308,8 +308,8 @@ export default class AppExporter extends PureComponent {
           >
             {this.state.exportVersionList.map((item, index) => {
               return (
-                <Option key={index} value={item}>
-                  {item}
+                <Option key={index} value={item.version}>
+                  {item.version}
                 </Option>
               );
             })}

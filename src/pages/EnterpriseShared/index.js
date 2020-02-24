@@ -20,13 +20,12 @@ import { Link, routerRedux } from 'dva/router';
 import NoComponent from '../../../public/images/noComponent.png';
 import userUtil from '../../utils/user';
 import Lists from '../../components/Lists';
-import CreateMarketApp from '../../components/CreateMarketApp';
+import CreateAppModels from '../../components/CreateAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import AppExporter from './AppExporter';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CloudApp from './CloudApp';
+import PageHeaderLayouts from '../../layouts/PageHeaderLayouts';
 
 import styles from './index.less';
 
@@ -63,7 +62,8 @@ export default class EnterpriseShared extends PureComponent {
       chooseVersion: null,
       deleteApp: false,
       showCloudApp: false,
-      createApp: false,
+      createAppModel: false,
+      upDataAppModel: false,
     };
   }
   componentDidMount() {
@@ -100,7 +100,7 @@ export default class EnterpriseShared extends PureComponent {
     } = this.props;
     const { page, page_size, name, scope, tags } = this.state;
     dispatch({
-      type: 'market/fetchComponent',
+      type: 'market/fetchAppModels',
       payload: {
         enterprise_id: eid,
         user_id: user.user_id,
@@ -122,9 +122,17 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   getTags = () => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
-      type: 'market/fetchComponentTags',
+      type: 'market/fetchAppModelsTags',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
@@ -169,18 +177,18 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   showOfflineApp = appInfo => {
-    if (appInfo.versions && appInfo.versions.length > 1) {
+    if (appInfo && appInfo.versions_info && appInfo.versions_info.length > 0) {
       this.setState({
         appInfo,
         visibles: true,
-        group_version: appInfo.versions,
+        group_version: appInfo.versions_info,
         bouncedText: '删除应用',
         bouncedType: 'delete',
       });
     } else {
       this.setState({
         appInfo,
-        chooseVersion: appInfo.versions,
+        chooseVersion: appInfo.versions_info[0].version,
       });
     }
   };
@@ -216,7 +224,7 @@ export default class EnterpriseShared extends PureComponent {
       },
     } = this.props;
     dispatch({
-      type: 'global/offlineMarketApp',
+      type: 'global/deleteAppModel',
       payload: {
         enterprise_id: eid,
         app_id: appInfo.app_id,
@@ -239,6 +247,7 @@ export default class EnterpriseShared extends PureComponent {
       group_version: null,
       bouncedText: '',
       bouncedType: '',
+      appInfo: false,
     });
   };
 
@@ -247,44 +256,86 @@ export default class EnterpriseShared extends PureComponent {
     this.getApps();
   };
 
+  handleLoadAppDetail = (item, text) => {
+    if (item.versions_info && item.versions_info.length > 0) {
+      this.setState({
+        visibles: true,
+        group_version: item.versions_info,
+        appInfo: item,
+        bouncedText: text,
+      });
+    } else {
+      this.setState(
+        { group_version: item.versions_info, appInfo: item },
+        () => {
+          this.handleCloudsUpdate(item.versions_info[0].version);
+        }
+      );
+    }
+  };
+
   // 云更新
   handleCloudsUpdate = chooseVersion => {
-    // const { group_version } = this.state;
-    // this.props.dispatch({
-    //   type: "global/syncMarketAppDetail",
-    //   payload: {
-    //     team_name: globalUtil.getCurrTeamName(),
-    //     body: {
-    //       group_key: group_version.group_key,
-    //       group_version: chooseVersion,
-    //       template_version: group_version.template_version
-    //     }
-    //   },
-    //   callback: data => {
-    //     this.setState({
-    //       visibles: null,
-    //       group_version: null,
-    //       bouncedText: "",
-    //       bouncedType: ""
-    //     });
-    //     notification.success({ message: "操作成功" });
-    //     this.getApps();
-    //   }
-    // });
-  };
-
-  handleCancelMarketApp = () => {
-    this.setState({
-      createApp: false,
-    });
-  };
-  handleMarketApp = () => {
-    this.setState({
-      createApp: true,
+    const { appInfo } = this.state;
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'global/syncMarketAppDetail',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        body: {
+          enterprise_id: eid,
+          app_id: appInfo.app_id,
+          app_versions: chooseVersion,
+        },
+      },
+      callback: data => {
+        this.handleCancelDelete();
+        notification.success({ message: '操作成功' });
+        this.getApps();
+      },
     });
   };
 
-  handleOkMarketApp = () => {};
+  handleCreateAppModel = () => {
+    notification.success({ message: '创建成功' });
+    this.getApps();
+    this.handleCancelAppModel();
+  };
+  handleCancelAppModel = () => {
+    this.setState({
+      createAppModel: false,
+      appInfo: null,
+    });
+  };
+  handleOpenCreateAppModel = () => {
+    this.setState({
+      createAppModel: true,
+    });
+  };
+
+  handleupDataAppModel = () => {
+    notification.success({ message: '编辑成功' });
+    this.handleCancelupDataAppModel();
+  };
+
+  handleOpenUpDataAppModel = appInfo => {
+    this.setState({
+      appInfo,
+      upDataAppModel: true,
+    });
+  };
+
+  handleCancelupDataAppModel = () => {
+    this.setState({
+      appInfo: null,
+      upDataAppModel: false,
+    });
+  };
 
   render() {
     const {
@@ -310,7 +361,6 @@ export default class EnterpriseShared extends PureComponent {
       const delApp = (
         <Menu.Item>
           <a
-            href="javascript:;"
             onClick={() => {
               this.showOfflineApp(appInfo);
             }}
@@ -326,19 +376,25 @@ export default class EnterpriseShared extends PureComponent {
               <Menu.Item>
                 <a
                   style={{ marginRight: 8 }}
-                  href="javascript:;"
                   onClick={() => {
-                    // this.handleLoadAppDetail(item, '云端更新');
+                    this.handleLoadAppDetail(item, '云端更新');
                   }}
                 >
                   云端更新
                 </a>
               </Menu.Item>
             )}
-
           <Menu.Item>
             <a
-              href="javascript:;"
+              onClick={() => {
+                this.handleOpenUpDataAppModel(appInfo);
+              }}
+            >
+              编辑应用
+            </a>
+          </Menu.Item>
+          <Menu.Item>
+            <a
               onClick={() => {
                 this.showAppExport(appInfo);
               }}
@@ -357,7 +413,7 @@ export default class EnterpriseShared extends PureComponent {
     const addMenuApps = (
       <Menu>
         <Menu.Item>
-          <a onClick={this.handleMarketApp}>创建应用</a>
+          <a onClick={this.handleOpenCreateAppModel}>创建应用</a>
         </Menu.Item>
         <Menu.Item>
           <a>离线导入</a>
@@ -368,13 +424,7 @@ export default class EnterpriseShared extends PureComponent {
     const operation = (
       <Col span={4} style={{ textAlign: 'right' }} className={styles.btns}>
         {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
-          <Button
-            type="primary"
-            style={{ marginRight: '22px' }}
-            onClick={() => {
-              this.setState({ showCloudApp: true });
-            }}
-          >
+          <Button type="primary" style={{ marginRight: '22px' }}>
             <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
           </Button>
         )}
@@ -467,7 +517,7 @@ export default class EnterpriseShared extends PureComponent {
             describe,
             app_name,
             tags,
-            versions,
+            versions_info,
             dev_status,
           } = item;
           return (
@@ -477,7 +527,12 @@ export default class EnterpriseShared extends PureComponent {
               Cols={
                 <div className={styles.h70}>
                   <Col span={4} style={{ display: 'flex' }}>
-                    <div className={styles.lt}>
+                    <div
+                      className={styles.lt}
+                      onClick={() => {
+                        this.handleLoadAppDetail(item);
+                      }}
+                    >
                       <p>
                         <Icon type="arrow-down" />
                         {index + 1}
@@ -502,7 +557,9 @@ export default class EnterpriseShared extends PureComponent {
                     <div>
                       {dev_status && <p>{dev_status || ''}</p>}
                       {/* <p>{dev_status || 'release'}</p> */}
-                      {versions && versions.length > 0 && <p>{versions[0]}</p>}
+                      {versions_info && versions_info.length > 0 && (
+                        <p>{versions_info[0].version}</p>
+                      )}
                     </div>
                   </Col>
 
@@ -522,9 +579,9 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     return (
-      <PageHeaderLayout
-        title="——"
-        content="将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源应用下载完成后，方可在 从应用市场安装 直接安装"
+      <PageHeaderLayouts
+        title="共享应用模型库"
+        content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台。"
       >
         {this.state.showCloudApp && (
           <div className={styles.descText}>
@@ -542,11 +599,21 @@ export default class EnterpriseShared extends PureComponent {
           />
         )}
 
-        {this.state.createApp && (
-          <CreateMarketApp
+        {this.state.createAppModel && (
+          <CreateAppModels
             title="创建应用"
-            onOk={this.handleOkMarketApp}
-            onCancel={this.handleCancelMarketApp}
+            eid={eid}
+            onOk={this.handleCreateAppModel}
+            onCancel={this.handleCancelAppModel}
+          />
+        )}
+        {this.state.upDataAppModel && (
+          <CreateAppModels
+            title="编辑应用"
+            eid={eid}
+            appInfo={appInfo}
+            onOk={this.handleupDataAppModel}
+            onCancel={this.handleCancelupDataAppModel}
           />
         )}
 
@@ -588,21 +655,10 @@ export default class EnterpriseShared extends PureComponent {
             >
               {sharedList}
             </div>
-            {this.state.showCloudApp && (
-              <CloudApp
-                onSyncSuccess={() => {
-                  this.handlePageChange(1);
-                }}
-                onClose={() => {
-                  this.setState({ showCloudApp: false });
-                }}
-                dispatch={this.props.dispatch}
-              />
-            )}
             {/* {noShared} */}
           </div>
         )}
-      </PageHeaderLayout>
+      </PageHeaderLayouts>
     );
   }
 }

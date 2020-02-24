@@ -29,14 +29,20 @@ export default class DeleteApp extends PureComponent {
   render() {
     const { onCancel, bouncedText, appInfo, form } = this.props;
     const { getFieldDecorator } = form;
+    let plainOptions = [];
+    if (appInfo && appInfo.versions_info && appInfo.versions_info.length > 0) {
+      appInfo.versions_info.map(item => {
+        plainOptions.push(item.version)
+      });
+    }
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 12 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
+        sm: { span: 12 },
       },
     };
 
@@ -49,7 +55,7 @@ export default class DeleteApp extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
-          <Button  type="primary" onClick={this.handleSubmit}>
+          <Button type="primary" onClick={this.handleSubmit}>
             确定
           </Button>,
         ]}
@@ -60,7 +66,7 @@ export default class DeleteApp extends PureComponent {
             label={appInfo && `${appInfo.app_name}版本`}
           >
             {getFieldDecorator('chooseVersion', {
-              initialValue: appInfo && [appInfo.versions[0]],
+              initialValue: appInfo && [appInfo.versions_info[0].version],
               rules: [
                 {
                   required: true,
@@ -69,7 +75,7 @@ export default class DeleteApp extends PureComponent {
               ],
             })(
               <CheckboxGroup
-                options={appInfo && appInfo.versions}
+                options={plainOptions}
                 onChange={this.onChangeBounced}
               />
             )}

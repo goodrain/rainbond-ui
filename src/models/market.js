@@ -1,6 +1,12 @@
 import {
-  fetchComponent,
+  fetchAppModels,
+  upAppModel,
+  createAppModel,
+  fetchAppModelsTags,
   getMarketApp,
+  createTag,
+  upDataTag,
+  deleteTag,
   queryExport,
   appExport,
   getExport,
@@ -20,10 +26,47 @@ export default {
   state: {
   },
   effects: {
-    *fetchComponent({ payload, callback }, { put, call }) {
-      const response = yield call(fetchComponent, payload);
+    *fetchAppModels({ payload, callback }, { put, call }) {
+      const response = yield call(fetchAppModels, payload);
       if (response) {
         callback && callback(response);
+      }
+    },
+    *upAppModel({ payload, callback }, { put, call }) {
+      const response = yield call(upAppModel, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *createAppModel({ payload, callback }, { put, call }) {
+      const response = yield call(createAppModel, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *fetchAppModelsTags({ payload, callback }, { put, call }) {
+      const response = yield call(fetchAppModelsTags, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *createTag({ payload, callback }, { call, put }) {
+      const data = yield call(createTag, payload);
+      if (data) {
+        callback && callback(data);
+      }
+    },
+    *upDataTag ({ payload, callback }, { call, put }) {
+      const data = yield call(upDataTag, payload);
+      if (data) {
+        callback && callback(data);
+      }
+    },
+    *deleteTag ({ payload, callback }, { call, put }) {
+      const data = yield call(deleteTag, payload);
+      if (data) {
+        callback && callback(data);
       }
     },
     *getMarketApp({ payload, callback }, { call, put }) {

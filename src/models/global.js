@@ -17,7 +17,7 @@ import {
   getDomainName,
   getDomainTime,
   getService,
-  offlineMarketApp,
+  deleteAppModel,
   getuserMessage,
   putMsgAction,
   deleteMsg,
@@ -48,8 +48,6 @@ import {
   deleteEnterpriseAdmin,
   addEnterpriseAdminTeams,
   fetchUserTeams,
-  fetchComponent,
-  fetchComponentTags,
   fetchOverviewApp,
   fetchOverview,
   fetchOverviewTeam,
@@ -216,12 +214,13 @@ export default {
         callback(data);
       }
     },
-    *offlineMarketApp({ payload, callback }, { call, put }) {
-      const data = yield call(offlineMarketApp, payload);
+    *deleteAppModel({ payload, callback }, { call, put }) {
+      const data = yield call(deleteAppModel, payload);
       if (data && callback) {
         callback(data);
       }
     },
+    
     *getRegionSource({ payload, callback }, { call, put }) {
       const data = yield call(getRegionSource, payload);
       if (data && callback) {

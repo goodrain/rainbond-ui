@@ -534,12 +534,12 @@ export async function getVersion(
 }
 
 /* 卸载云市已下载的应用 */
-export async function offlineMarketApp(body = { app_id, enterprise_id }) {
+export async function deleteAppModel(body = { app_id, enterprise_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/enterprise/${body.enterprise_id}/market/apps/manage`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/market/apps/manage`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
+    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-model${app_id}`,
     {
-      method: 'post',
+      method: "DELETE",
       data: {
         app_id: body.app_id,
         app_versions: body.app_versions,
@@ -552,12 +552,12 @@ export async function offlineMarketApp(body = { app_id, enterprise_id }) {
 /* 从云市同步应用的详细模板 */
 export async function syncMarketAppDetail(
   body = {
-    team_name,
+    enterprise_id,
     body,
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/template_details`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/download`,
     {
       method: 'post',
       data: body.body,
@@ -923,7 +923,6 @@ export async function fetchUserTeams(param) {
     }
   );
 }
-
 
 /* 查询企业列表 */
 export async function fetchEnterpriseList() {

@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
+
 import { connect } from 'dva';
 import {
   Card,
@@ -10,10 +11,10 @@ import {
   Icon,
   Spin,
   List,
-  Tabs,
+  Tag,
   Radio,
   Input,
-  Checkbox,
+  Tooltip,
   Pagination,
   notification,
   Avatar,
@@ -41,12 +42,11 @@ export default class EnterpriseShared extends PureComponent {
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       loading: true,
-      pageSize: 10,
+      page_size: 10,
       total: 0,
+      app_name: '',
       page: 1,
       scope: 'enterprise',
-      name: '',
-      tags: [],
       showCloudApp: true,
       componentList: [],
     };
@@ -57,10 +57,32 @@ export default class EnterpriseShared extends PureComponent {
       this.load();
     }
   }
-
+  handleSearch = app_name => {
+    this.setState(
+      {
+        app_name,
+        page: 1,
+      },
+      () => {
+        this.load();
+      }
+    );
+  };
   load = () => {
     this.getApps();
   };
+
+  handlePageChange = page => {
+    this.setState(
+      {
+        page,
+      },
+      () => {
+        this.getApps();
+      }
+    );
+  };
+
   getApps = () => {
     const {
       dispatch,
@@ -69,17 +91,16 @@ export default class EnterpriseShared extends PureComponent {
         params: { eid },
       },
     } = this.props;
-    const { page, page_size, name, scope, tags } = this.state;
+    const { page, page_size, app_name, scope } = this.state;
     dispatch({
-      type: 'market/fetchComponent',
+      type: 'market/fetchAppModels',
       payload: {
         enterprise_id: eid,
         user_id: user.user_id,
-        app_name: name,
+        app_name,
         scope,
         page,
         page_size,
-        tags,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -91,16 +112,46 @@ export default class EnterpriseShared extends PureComponent {
       },
     });
   };
-
+  getAction = item => {
+    if (item.versions_info && item.versions_info.length > 0) {
+      return (
+        <Fragment>
+          {item.versions_info.map((item, index) => {
+            return (
+              <Tag
+                style={{
+                  height: '17px',
+                  lineHeight: '16px',
+                  color: '#999999',
+                  border: 'none',
+                  background: 'none',
+                }}
+                size="small"
+                key={index}
+              >
+                {item.version}
+              </Tag>
+            );
+          })}
+        </Fragment>
+      );
+    }
+    return '-';
+  };
   render() {
     const { componentList } = this.state;
-    const { rainbondInfo } = this.props;
+    const {
+      rainbondInfo,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const paginationProps = {
-      pageSize: this.state.pageSize,
+      page_size: this.state.page_size,
       total: this.state.total,
       current: this.state.page,
-      onChange: pageSize => {
-        // this.handlePageChange(pageSize);
+      onChange: page_size => {
+        this.handlePageChange(page_size);
       },
     };
     return (
@@ -167,30 +218,7 @@ export default class EnterpriseShared extends PureComponent {
                 const itemID = item.app_id;
 
                 const renderItem = (
-                  <List.Item
-                    actions={
-                      <div  style={{ color: '#999999' }}>
-                        版本:&nbsp;
-                        {item.versions &&
-                          item.versions.map((item, index) => {
-                            return (
-                              <Tag
-                                style={{
-                                  height: '17px',
-                                  lineHeight: '16px',
-                                }}
-                                color="green"
-                                size="small"
-                                key={index}
-                              >
-                                {' '}
-                                {item}
-                              </Tag>
-                            );
-                          })}
-                      </div>
-                    }
-                  >
+                  <List.Item actions={[this.getAction(item)]}>
                     <List.Item.Meta
                       avatar={
                         <Avatar
@@ -206,21 +234,19 @@ export default class EnterpriseShared extends PureComponent {
                         />
                       }
                       title={
-                            <a
-                              style={{ color: '#384551' }}
-                              onClick={() => {
-                                // this.showMarketAppDetail(item);
-                              }}
-                            >
-                              {item.app_name}
-                            </a>
+                        <a
+                          style={{ color: '#384551' }}
+                          onClick={() => {
+                            // this.showMarketAppDetail(item);
+                          }}
+                        >
+                          {item.app_name}
+                        </a>
                       }
                       description={
-                        <div className={styles.conts}>
-                          <div>{item.describe}</div>
-
-                          {/* {item.describe || '-'} */}
-                        </div>
+                        <Tooltip title={item.describe}>
+                          <span className={styles.desc}>{item.describe}</span>
+                        </Tooltip>
                       }
                     />
                   </List.Item>
@@ -239,7 +265,12 @@ export default class EnterpriseShared extends PureComponent {
               width: '49%',
             }}
           >
-            <CloudApp />
+            <CloudApp
+              eid={eid}
+              onSyncSuccess={() => {
+                this.handlePageChange(1);
+              }}
+            />
           </div>
         </div>
       </PageHeaderLayout>

@@ -29,7 +29,7 @@ export default class CloudApp extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      pageSize: 10,
+      page_size: 10,
       total: 0,
       page: 1,
       sync: false,
@@ -45,15 +45,10 @@ export default class CloudApp extends PureComponent {
     this.handleSync();
   };
   handleClose = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch, eid } = this.props;
 
     dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
-    this.props.onClose && this.props.onClose();
+   
     this.setState({ versionList: null });
   };
   handleSync = () => {
@@ -71,18 +66,22 @@ export default class CloudApp extends PureComponent {
       }
     );
   };
+
   loadApps = () => {
+
+    const { dispatch, eid } = this.props;
     this.setState(
       {
         loading: true,
       },
       () => {
-        this.props.dispatch({
+        dispatch({
           type: 'market/getMarketApp',
           payload: {
+            enterprise_id: eid,
             app_name: this.state.app_name,
             page: this.state.page,
-            pageSize: this.state.pageSize,
+            page_size: this.state.page_size,
           },
           callback: data => {
             if (data) {
@@ -105,18 +104,22 @@ export default class CloudApp extends PureComponent {
       }
     );
   };
-  handleLoadAppDetail = data => {
+
+  handleLoadAppDetail = item => {
     this.props.dispatch({
       type: 'global/syncMarketAppDetail',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
         body: {
-          group_key: data.group_key,
-          // version: data.version,
-          group_version: this.state.version
-            ? [this.state.version]
-            : [data.version[0]],
-          template_version: data.template_version,
+          enterprise_id: eid,
+          app_id: item.app_id,
+          app_versions: item.versions_info[0].version,
+
+          // group_key: data.group_key,
+          // // version: data.version,
+          // group_version: this.state.version
+          //   ? [this.state.version]
+          //   : [data.version[0]],
+          // template_version: data.template_version,
         },
       },
       callback: data => {
@@ -216,11 +219,11 @@ export default class CloudApp extends PureComponent {
   render() {
     const { versionList, CloudApp } = this.state;
     const paginationProps = {
-      pageSize: this.state.pageSize,
+      page_size: this.state.page_size,
       total: this.state.total,
       current: this.state.page,
-      onChange: pageSize => {
-        this.handlePageChange(pageSize);
+      onChange: page_size => {
+        this.handlePageChange(page_size);
       },
     };
     return (
@@ -244,7 +247,12 @@ export default class CloudApp extends PureComponent {
         extra={
           <div className={BasicListStyles.extraContent}>
             <RadioGroup>
-              <RadioButton style={{background:"#4D73B1",color:"#fff"}} onClick={this.handleClose}>关闭</RadioButton>
+              <RadioButton
+                style={{ background: '#4D73B1', color: '#fff' }}
+                onClick={this.handleClose}
+              >
+                关闭
+              </RadioButton>
             </RadioGroup>
           </div>
         }
@@ -308,19 +316,10 @@ export default class CloudApp extends PureComponent {
                             })}
                         </Select>
                       )}
-                      {/* {item.is_official && '(官方推荐)'} */}
                     </a>
                   }
                   description={
                     <div className={Styles.conts}>
-                      {/* {item.enterprise && item.enterprise.name && (
-                        <p className={Styles.publisher}>
-                          <span>发布者：</span>
-                          <a href="javascript:;" title={item.enterprise.name}>
-                            {item.enterprise.name}
-                          </a>
-                        </p>
-                      )} */}
                       <div>{item.describe || '-'}</div>
                     </div>
                   }

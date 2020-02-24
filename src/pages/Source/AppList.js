@@ -345,7 +345,7 @@ export default class AppList extends PureComponent {
     let data = app ? app : group_version;
 
     this.props.dispatch({
-      type: "global/offlineMarketApp",
+      type: "global/deleteAppModel",
       payload: {
         app_id: app.ID,
         group_key: data.group_key,
