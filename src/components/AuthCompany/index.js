@@ -145,7 +145,7 @@ export default class Index extends PureComponent {
   //获取当前团队的企业ID
   handleEnterpriseID = () => {
     this.props.dispatch({
-      type: "global/getEnterpriseID",
+      type: "global/getTeamOverview",
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },

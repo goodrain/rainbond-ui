@@ -1,0 +1,466 @@
+@import "~antd/lib/style/themes/default.less";
+@import "../../utils/utils.less";
+
+.enterpriseInfo {
+  font-family   : PingFangSC-Medium;
+  color         : #444444;
+  letter-spacing: 0;
+  display       : flex;
+  align-items   : center;
+  font-size     : 14px;
+  margin-bottom : 38px;
+
+  span {
+    display    : inline-block;
+    height     : 20px;
+    line-height: 26px;
+    margin-left: 5px;
+  }
+}
+
+.btns {
+  button {
+    font-family   : PingFangSC-Medium;
+    font-size     : 12px;
+    height        : 34px;
+    line-height   : 34px;
+    letter-spacing: 0;
+    width         : 131px;
+    margin-right  : 15px;
+  }
+
+  button:nth-of-type(1) {
+    width: 108px;
+  }
+
+  :global {
+
+    .ant-btn-primary,
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      background-color: #3D58DA !important;
+      border-color    : #3D58DA !important;
+    }
+  }
+}
+
+.enterpriseName {
+  font-family   : PingFangSC-Medium;
+  font-size     : 12px;
+  color         : #333333;
+  letter-spacing: 0;
+  margin-bottom : 12px;
+}
+
+.enterpriseBox {
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #79828F;
+  letter-spacing: 0;
+  margin-bottom : 32px;
+  display       : flex;
+  align-items   : center;
+
+  p {
+    margin-right: 16px;
+  }
+}
+
+.standardList {
+  :global {
+    .ant-card-head {
+      border-bottom: none;
+    }
+
+    .ant-card-head-title {
+      line-height: 32px;
+      padding    : 24px 0;
+    }
+
+    .ant-card-extra {
+      padding: 24px 0;
+    }
+
+    .ant-list-pagination {
+      text-align: right;
+      margin-top: 24px;
+    }
+
+    .ant-avatar-lg {
+      width      : 48px;
+      height     : 48px;
+      line-height: 48px;
+    }
+  }
+
+  .headerInfo {
+    position  : relative;
+    text-align: center;
+
+    &>span {
+      color        : @text-color-secondary;
+      display      : inline-block;
+      font-size    : @font-size-base;
+      line-height  : 22px;
+      margin-bottom: 4px;
+    }
+
+    &>p {
+      color      : @heading-color;
+      font-size  : 24px;
+      line-height: 32px;
+      margin     : 0;
+    }
+
+    &>em {
+      background-color: @border-color-split;
+      position        : absolute;
+      height          : 56px;
+      width           : 1px;
+      top             : 0;
+      right           : 0;
+    }
+  }
+
+  .listContent {
+    font-size: 0;
+
+    .listContentItem {
+      color         : @text-color-secondary;
+      display       : inline-block;
+      vertical-align: middle;
+      font-size     : @font-size-base;
+      margin-left   : 40px;
+
+      >span {
+        line-height: 20px;
+      }
+
+      >p {
+        margin-top   : 4px;
+        margin-bottom: 0;
+        line-height  : 22px;
+      }
+    }
+  }
+
+  .extraContentSearch {
+    margin-left: 16px;
+    width      : 272px;
+  }
+}
+
+.buttonBjNot,
+.buttonBjNot:hover {
+  background  : #7983AD !important;
+  border-color: #7983AD !important;
+  color       : #ffffff !important;
+}
+
+.teamBox {
+  height     : 40px;
+  line-height: 1px;
+}
+
+.teamTit {
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #8D9BAD;
+  letter-spacing: 0;
+}
+
+.elements {
+  display: flex;
+  width  : 118px;
+  height: 90px;
+  padding-top: 25px;
+
+  &>div:nth-of-type(1) {
+    font-family   : Silom;
+    color         : #7983AD ;
+    letter-spacing: 0;
+    padding-right : 3px;
+    width         : 58px;
+
+    &>div:nth-of-type(1) {
+      font-size: 14px;
+    }
+
+    &>div:nth-of-type(2) {
+      font-size: 12px;
+    }
+  }
+  &>div:nth-of-type(2) {
+    transform     : rotate(20deg);
+    width         : 1px;
+    border-left   : 1px solid #7983AD;
+    height: 82px;
+    margin-top: -8px;
+  }
+  &>div:nth-of-type(3) {
+    width         : 58px;
+    border-radius : 1px;
+    font-family   : PingFangSC-Medium;
+    color         : #5679E2 ;
+    letter-spacing: 0;
+    padding-left  : 3px;
+    padding-top   : 12px;
+
+    &>div:nth-of-type(1) {
+      font-size: 14px;
+    }
+
+    &>div:nth-of-type(2) {
+      font-size: 12px;
+    }
+  }
+}
+
+.appContent {
+  h6 {
+    font-family   : PingFangSC-Semibold;
+    font-size     : 18px;
+    color         : #333333;
+    letter-spacing: 0;
+  }
+
+  div {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #8D9BAD;
+    letter-spacing: 0;
+  }
+}
+
+.appnums,
+.appnumno {
+  margin-top    : 30px;
+  font-family   : PingFangSC-Semibold;
+  font-size     : 12px;
+  color         : #333333;
+  letter-spacing: 0;
+  padding-left  : 8px;
+  border-left   : 3px solid #E5E5E5 ;
+  border-radius : 4px;
+  border-radius : 1.5px;
+}
+
+.appnumno {
+  border-color: #3D58DA;
+}
+
+.nums {
+  font-family    : PingFangSC-Medium;
+  font-size      : 12px;
+  color          : #333333;
+  letter-spacing : 0;
+  display        : flex;
+  justify-content: space-around;
+
+  span {
+    color: #8D9BAD;
+  }
+
+  span:nth-of-type(1) {
+    color: #333333;
+  }
+}
+
+.grays {
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #444444;
+  letter-spacing: 0;
+}
+
+.overText {
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #3D54C4;
+  line-height   : 14px;
+  letter-spacing: 0;
+  overflow      : hidden;
+  white-space   : nowrap;
+  text-overflow : ellipsis;
+}
+
+.teamtest {
+  margin-right: 17px;
+  width: 134px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.addTeam {
+  background   : #E3E8FF;
+  height       : 44px;
+  width        : 44px;
+  border-radius: 50%;
+  line-height  : 44px;
+  text-align   : center;
+}
+
+
+.units {
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #8D9BAD !important;
+  letter-spacing: 0;
+  line-height   : 25px;
+}
+
+.Box {
+
+  list-style: none;
+  text-align: center;
+
+  li {
+    color         : #8D9BAD;
+    font-family   : PingFangSC-Medium;
+    letter-spacing: 0;
+  }
+
+  li:nth-of-type(1) {
+    display        : flex;
+    justify-content: center;
+    margin-top     : 3px;
+
+    div {
+      width          : 68px;
+      height         : 68px;
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      background     : #E3E8FF;
+      border-radius  : 50%;
+      box-shadow     : 0 2px 4px 0 rgba(216, 116, 146, 0.07);
+    }
+  }
+
+  li:nth-of-type(2) {
+    font-size: 26px;
+    color    : #333333;
+    margin   : 12px 0 4px 0;
+  }
+
+  li:nth-of-type(3) {
+    font-size    : 12px;
+    margin-bottom: 16px;
+  }
+}
+
+
+
+@media screen and (max-width: @screen-xs) {
+  .standardList {
+    :global {
+      .ant-list-item-content {
+        display: block;
+        flex   : none;
+        width  : 100%;
+      }
+
+      .ant-list-item-action {
+        margin-left: 0;
+      }
+    }
+
+    .listContent {
+      margin-left: 0;
+
+      &>div {
+        margin-left: 0;
+      }
+    }
+
+    .listCard {
+      :global {
+        .ant-card-head-title {
+          overflow: visible;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: @screen-sm) {
+  .standardList {
+    .extraContentSearch {
+      margin-left: 0;
+      width      : 100%;
+    }
+
+    .headerInfo {
+      margin-bottom: 16px;
+
+      &>em {
+        display: none;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .standardList {
+    .listContent {
+      &>div {
+        display: block;
+      }
+
+      &>div:last-child {
+        top  : 0;
+        width: 100%;
+      }
+    }
+  }
+
+  .listCard {
+    :global {
+      .ant-radio-group {
+        display      : block;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) and (min-width: @screen-md) {
+  .standardList {
+    .listContent {
+      &>div {
+        display: block;
+      }
+
+      &>div:last-child {
+        top  : 0;
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: @screen-xl) {
+  .standardList {
+    .listContent {
+      &>div {
+        margin-left: 24px;
+      }
+
+      &>div:last-child {
+        top: 0;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .standardList {
+    .listContent {
+      text-align: right;
+
+      &>div:last-child {
+        top: 0;
+      }
+    }
+  }
+}

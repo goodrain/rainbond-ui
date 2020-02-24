@@ -31,13 +31,13 @@ class StandardTable extends PureComponent {
         render: (val, data) =>
           (val === null ? (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/-1`}
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/-1`}
             >
               未分组
             </Link>
           ) : (
             <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                 data.group_id
               }`}
             >
@@ -50,7 +50,7 @@ class StandardTable extends PureComponent {
         dataIndex: "service_cname",
         render: (val, data) => (
           <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
               data.service_alias
             }/overview`}
           >

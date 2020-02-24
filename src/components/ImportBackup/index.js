@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
-import { Link, Switch, Route, routerRedux } from "dva/router";
+import { Link, Route, routerRedux } from "dva/router";
 import {
   Row,
   Col,
@@ -14,7 +14,7 @@ import {
   message
 } from "antd";
 import globalUtil from "../../utils/global";
-import config from "../../config/config";
+import apiconfig from '../../../config/api.config';
 import cookie from "../../utils/cookie";
 
 const token = cookie.get("token");
@@ -90,7 +90,13 @@ export default class Index extends PureComponent {
   render() {
     const group_id = this.props.groupId;
     const team_name = globalUtil.getCurrTeamName();
-    const uploadUrl = config.baseUrl + "/console/teams/" + team_name + "/groupapp/" + group_id + "/backup/import";
+    const uploadUrl =
+      apiconfig.baseUrl +
+      "/console/teams/" +
+      team_name +
+      "/groupapp/" +
+      group_id +
+      "/backup/import";
     const fileList = this.state.fileList;
 
     return (

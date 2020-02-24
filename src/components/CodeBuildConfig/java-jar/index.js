@@ -1,15 +1,15 @@
 import React, { PureComponent } from "react";
-import { Form, Radio, Switch, Input } from "antd";
+import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
-import JavaJDK from "../java-jdk"
+import JavaJDK from "../java-jdk";
 const RadioGroup = Radio.Group;
 
 @connect(
-    null,
-    null,
-    null,
-    { withRef: true }
-  )
+  null,
+  null,
+  null,
+  // { withRef: true }
+)
 class Index extends PureComponent {
   constructor(props) {
     super(props);

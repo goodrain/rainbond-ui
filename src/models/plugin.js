@@ -18,9 +18,9 @@ import cookie from '../utils/cookie';
 export default {
   namespace: 'plugin',
   state: {
-    //组详情
+    //app detail info
     groupDetail:{},
-    //应用
+    //component list
     apps:[]
   },
   effects: {

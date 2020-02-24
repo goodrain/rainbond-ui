@@ -1,7 +1,11 @@
 import axios from "axios";
 import { notification } from "antd";
-import { routerRedux } from "dva/router";
-import store from "../index";
+// import { routerRedux } from "dva/router";
+// import store from "../index";
+// import store from '@/index'
+// const { dispatch } = store;
+
+import { push } from "umi/router";
 import cookie from "./cookie";
 import globalUtil from "../utils/global";
 
@@ -56,13 +60,13 @@ export default function request(url, options) {
     ...options
   };
   // if (newOptions.method === "POST" || newOptions.method === "PUT") {
-    newOptions.headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json; charset=utf-8",
+  newOptions.headers = {
+    Accept: "application/json",
+    "Content-Type": "application/json; charset=utf-8",
 
-      ...newOptions.headers
-    };
-    newOptions.body = JSON.stringify(newOptions.body);
+    ...newOptions.headers
+  };
+  newOptions.body = JSON.stringify(newOptions.body);
   // }
 
   if (newOptions.passAuthorization === void 0) {
@@ -107,16 +111,21 @@ export default function request(url, options) {
   const showLoading =
     newOptions.showLoading === void 0 ? true : newOptions.showLoading;
 
-  let dispatch;
-  if (store) {
-    dispatch = store.dispatch;
-    showLoading && dispatch && dispatch({ type: "global/showLoading" });
-  }
+  showLoading &&
+
+  window.g_app._store.dispatch({
+    type: 'global/showLoading',
+  });
 
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
-      showLoading && dispatch && dispatch({ type: "global/hiddenLoading" });
+      showLoading &&
+
+      window.g_app._store.dispatch({
+        type: 'global/hiddenLoading',
+      });
+
       const res = response.data.data || {};
       res._code = response.status;
       res._condition = response.data.code;
@@ -125,7 +134,9 @@ export default function request(url, options) {
     })
     .catch(error => {
       if (showLoading) {
-        dispatch && dispatch({ type: "global/hiddenLoading" });
+        window.g_app._store.dispatch({
+          type: 'global/hiddenLoading',
+        });
       }
 
       if (error.response) {
@@ -139,52 +150,49 @@ export default function request(url, options) {
           resData = error.response.data;
         } catch (e) {}
         if (resData.code === 10410) {
-          dispatch && dispatch({ type: "global/showPayTip" });
+          push("global/showPayTip");
           return;
         }
 
         if (resData.code === 10406) {
-          dispatch &&
-            dispatch({
-              type: "global/showMemoryTip",
-              payload: {
-                message: resData.msg_show
-              }
-            });
+          push({
+            type: "global/showMemoryTip",
+            payload: {
+              message: resData.msg_show
+            }
+          });
           return;
         }
         if (resData.code === 10408) {
-          dispatch &&
-            dispatch({
-              type: "global/showNoMoneyTip",
-              payload: {
-                message: resData.msg_show
-              }
-            });
+          push({
+            type: "global/showNoMoneyTip",
+            payload: {
+              message: resData.msg_show
+            }
+          });
           return;
         }
 
         if (resData.code === 10407) {
-          dispatch && dispatch({ type: "global/showAuthCompany" });
+          push({ type: "global/showAuthCompany" });
           return;
         }
 
         if (resData.code === 10405) {
-          cookie.remove("token");
-          cookie.remove("token", { domain: "" });
-          cookie.remove("newbie_guide");
-          cookie.remove("platform_url");
-          location.reload();
+          push({ type: "global/showNeedLogin" });
           return;
+          // cookie.remove("token");
+          // cookie.remove("token", { domain: "" });
+          // cookie.remove("newbie_guide");
+          // cookie.remove("platform_url");
         }
         if (resData.code === 10400) {
-          dispatch &&
-            dispatch({
-              type: "global/setNouse",
-              payload: {
-                isNouse: true
-              }
-            });
+          push({
+            type: "global/setNouse",
+            payload: {
+              isNouse: true
+            }
+          });
           return;
         }
 
@@ -212,11 +220,7 @@ export default function request(url, options) {
         const msg = resData.msg_show || resData.msg || resData.detail;
         if (msg && newOptions.showMessage === true) {
           if (msg.indexOf("身份认证信息未提供") > -1) {
-            cookie.remove("token");
-            cookie.remove("token", { domain: "" });
-            cookie.remove("newbie_guide");
-            cookie.remove("platform_url");
-            location.reload();
+            push({ type: "global/showNeedLogin" });
             return;
           }
 
@@ -224,8 +228,8 @@ export default function request(url, options) {
         }
         return;
         // if (status <= 504 && status >= 500) {
-        // dispatch(routerRedux.push('/exception/500'));   return; } if (status >= 404
-        // && status < 422) {   dispatch(routerRedux.push('/exception/404')); }
+        // push(routerRedux.push('/exception/500'));   return; } if (status >= 404
+        // && status < 422) {   push(routerRedux.push('/exception/404')); }
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error", error.message);

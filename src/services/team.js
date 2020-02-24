@@ -1,11 +1,11 @@
 import request from "../utils/request";
-import config from "../config/config";
+import apiconfig from '../../config/api.config';
 
 /*
 获取所有的权限
 */
 export async function getAllPerms(body = {}) {
-  return request(`${config.baseUrl}/console/teams/operate_options`, {
+  return request(`${apiconfig.baseUrl}/console/teams/operate_options`, {
     method: "get"
   });
 }
@@ -22,7 +22,7 @@ export async function editRole(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/update_role_perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/update_role_perms`,
     {
       method: "post",
       data: {
@@ -38,7 +38,7 @@ export async function editRole(
 删除角色
  */
 export async function removeRole(body = { team_name, role_id }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/del-role`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/del-role`, {
     method: "delete",
     data: {
       role_id: body.role_id
@@ -50,7 +50,7 @@ export async function removeRole(body = { team_name, role_id }) {
 创建角色
  */
 export async function createRole(body = { team_name, role_name, options_ids }) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/add-role`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/add-role`, {
     method: "post",
     data: {
       role_name: body.role_name,
@@ -64,7 +64,7 @@ export async function createRole(body = { team_name, role_name, options_ids }) {
  */
 export async function getRoles(body = { team_name, page, page_size }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/role-list`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/role-list`,
     {
       method: "get",
       params: {
@@ -85,7 +85,7 @@ export async function userDetail(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
       body.user_name
     }/details`,
     {
@@ -104,7 +104,7 @@ export async function moveTeam(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/pemtransfer`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/pemtransfer`,
     {
       method: "post",
       data: {
@@ -118,7 +118,7 @@ export async function moveTeam(
 	获取团队所有的可选的权限
 */
 export async function getTeamPermissions() {
-  return request(`${config.baseUrl}/console/teams/user/identity`, {
+  return request(`${apiconfig.baseUrl}/console/teams/user/identity`, {
     method: "get"
   });
 }
@@ -134,7 +134,7 @@ export async function editMember(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
       body.user_id
     }/mod-role`,
     {
@@ -147,7 +147,7 @@ export async function editMember(
 }
 
 /*
-   新建团队
+   创建团队
 */
 export async function createTeam(
   body = {
@@ -155,7 +155,7 @@ export async function createTeam(
     useable_regions: []
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/add-teams`, {
+  return request(`${apiconfig.baseUrl}/console/teams/add-teams`, {
     method: "post",
     data: {
       team_alias: body.team_name,
@@ -174,7 +174,7 @@ export async function getMembers(
     pageSize
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/users`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/users`, {
     method: "get",
     params: {
       page: body.page,
@@ -194,7 +194,7 @@ export async function addMember(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/add_team_user`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/add_team_user`,
     {
       method: "post",
       data: {
@@ -215,7 +215,7 @@ export async function removeMember(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/users/batch/delete`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/batch/delete`,
     {
       method: "delete",
       data: {
@@ -235,7 +235,7 @@ export async function editTeamName(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/modifyname`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/modifyname`,
     {
       method: "post",
       data: {
@@ -253,7 +253,7 @@ export async function deleteTeam(
     team_name
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/delete`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/delete`, {
     method: "delete"
   });
 }
@@ -267,7 +267,7 @@ export async function getRegions(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/region/query`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/region/query`
   );
 }
 
@@ -281,7 +281,7 @@ export async function getTeamRegionOverview(
   },
   handleError
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/overview`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`, {
     showLoading: false,
     handleError
   });
@@ -293,7 +293,7 @@ export async function getTeamAppOverview(
     region_name
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/size`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/size`, {
     showLoading: false
   });
 }
@@ -303,7 +303,7 @@ export async function getTeamAppOverview(
 */
 export async function getTeamRegionApps(body = {}) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/overview/service/over`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/service/over`,
     {
       method: "get",
       params: body,
@@ -323,7 +323,7 @@ export async function getTeamRegionAppsStatus(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
       body.region_name
     }/overview/services/status`,
     {
@@ -344,7 +344,7 @@ export async function getTeamRegionGroups(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/overview/groups`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`
   );
 }
 
@@ -357,7 +357,7 @@ export async function getCertificates(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/certificates`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/certificates`
   );
 }
 
@@ -373,7 +373,7 @@ export async function addCertificate(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/certificates`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/certificates`,
     {
       method: "post",
       data: {
@@ -396,7 +396,7 @@ export async function getNewestEvent(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/services/event`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/services/event`,
     {
       method: "get",
       params: {
@@ -417,7 +417,7 @@ export function unOpenRegion(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/region/unopen`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/region/unopen`,
     {
       method: "get"
     }
@@ -431,7 +431,7 @@ export function openRegion(
     region_names
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/region`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/region`, {
     method: "patch",
     data: {
       region_names: body.region_names
@@ -448,7 +448,7 @@ export function getGithubInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/code_repo/github`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/github`,
     {
       method: "get",
       data: {
@@ -467,7 +467,7 @@ export function getGitlabInfo(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/code_repo/gitlab`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/gitlab`,
     {
       method: "get",
       data: {
@@ -487,7 +487,7 @@ export async function getRegionKey(
   }
 ) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/regions/${
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${
       body.region_name
     }/publickey`,
     { method: "get" }
@@ -502,7 +502,7 @@ export async function exitTeam(
     team_name
   }
 ) {
-  return request(`${config.baseUrl}/console/teams/${body.team_name}/exit`, {
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/exit`, {
     method: "get"
   });
 }
@@ -512,7 +512,7 @@ export async function exitTeam(
  */
 export async function getJoinTeamUsers(body = { team_name }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/applicants`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/applicants`,
     {
       method: "get"
     }
@@ -524,7 +524,7 @@ export async function getJoinTeamUsers(body = { team_name }) {
  */
 export async function setJoinTeamUsers(body = { team_name, user_id, action }) {
   return request(
-    `${config.baseUrl}/console/teams/${body.team_name}/applicants`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/applicants`,
     {
       method: "put",
       data: {

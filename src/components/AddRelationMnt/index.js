@@ -5,7 +5,7 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
+import { Link, Route } from "dva/router";
 import { Input, Table, Modal, notification, Pagination, Tooltip } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
@@ -223,7 +223,7 @@ export default class Index extends PureComponent {
                 return (
                   <Tooltip title={v}>
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                         data.dep_app_alias
                       }/overview`}
                     >
@@ -249,7 +249,7 @@ export default class Index extends PureComponent {
                 return (
                   <Tooltip title={v}>
                     <Link
-                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                      to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                         data.dep_group_id
                       }`}
                     >

@@ -3,7 +3,7 @@ import debounce from 'lodash.debounce';
 import globalUtil from '../../utils/global';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import config from '../../config/config'
+import apiconfig from '../../../config/api.config';
 
 @connect()
 class Index extends React.Component {
@@ -20,7 +20,7 @@ class Index extends React.Component {
     try {
 
       window.iframeGetNodeUrl = function () {
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
+        return apiconfig.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetMonitor = function (fn) {
@@ -37,7 +37,7 @@ class Index extends React.Component {
           }
         })
 
-        return config.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
+        return apiconfig.baseUrl + '/console/teams/' + team_name + '/topological?group_id=' + groupId + '&region=' + globalUtil.getCurrRegionName();
       }
 
       window.iframeGetTenantName = function () {
@@ -56,14 +56,14 @@ class Index extends React.Component {
       window.handleClickService = function (nodeDetails) {
         self
           .props
-          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${nodeDetails.service_alias}/overview`))
+          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${nodeDetails.service_alias}/overview`))
       }
 
       //拓扑图点击依赖服务事件
       window.handleClickRelation = function (relation) {
         self
           .props
-          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${relation.service_alias}/overview`))
+          .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${relation.service_alias}/overview`))
       }
 
     } catch (e) { }
@@ -71,11 +71,13 @@ class Index extends React.Component {
   render() {
     return ((
       <iframe
-        src={config.baseUrl + '/static/www/weavescope/index.html'}
+        src={apiconfig.baseUrl + '/static/www/weavescope/index.html'}
         style={{
           width: '100%',
           height: '500px'
         }}
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+        scrolling="auto"
         frameBorder="no"
         border="0"
         marginWidth="0"

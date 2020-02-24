@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react";
 import { Button, Icon, Modal } from "antd";
 import styles from "./index.less";
+import styless from '../CreateTeam/index.less';
 
 class ConfirmModal extends PureComponent {
   render() {
@@ -11,6 +12,7 @@ class ConfirmModal extends PureComponent {
         visible={true}
         onOk={onOk}
         onCancel={onCancel}
+        className={styless.TelescopicModal}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
           <Button

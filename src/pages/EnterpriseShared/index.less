@@ -1,0 +1,227 @@
+.teamsTit {
+  margin-bottom : 10px;
+  font-family   : PingFangSC-Medium;
+  font-size     : 14px;
+  color         : #919191;
+  letter-spacing: 0;
+}
+
+.descText {
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #9CA2A8;
+  letter-spacing: 0;
+  line-height   : 23px;
+  margin: -8px 0 9px 0;
+}
+
+.noShared {
+  text-align: center;
+  margin-top: 140px;
+
+  &>p {
+    margin: 35px 0 18px 0;
+  }
+
+  &>div {
+    button {
+      width         : 76px;
+      height        : 32px;
+      margin-right  : 20px;
+      font-family   : PingFangSC-Regular;
+      font-size     : 12px;
+      color         : #FFFFFF;
+      letter-spacing: 0;
+      padding       : 0;
+    }
+  }
+
+}
+
+.lt {
+  width          : 18px;
+  background     : #4D73B1;
+  box-shadow     : 1px 0 2px 0 rgba(0, 0, 0, 0.30);
+  height         : 70px;
+  display        : flex;
+  flex-wrap      : wrap;
+  align-items    : center;
+  justify-content: center;
+  p {
+    text-align: center;
+    margin    : 0;
+    color     : #fff;
+  }
+}
+
+.h70 {
+  &>div {
+    height: 70px;
+  }
+}
+
+.imgs {
+  text-align : center;
+  line-height: 70px;
+  width      : 100%;
+
+  img {
+   min-width: 44px;
+   max-width: 60px;
+  }
+}
+
+.tits {
+  display    : flex;
+  align-items: center;
+
+  &>div {
+    height: 40px;
+    width: 100%;
+    padding: 0 5px;
+
+    p {
+      margin: 0
+    }
+
+    p:nth-of-type(1) {
+      font-family   : PingFangSC-Medium;
+      font-size     : 14px;
+      color         : #384551;
+      letter-spacing: 0;
+    }
+
+    p:nth-of-type(2) {
+      white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+      font-family   : PingFangSC-Regular;
+      font-size     : 12px;
+      color         : #999999;
+      letter-spacing: 0;
+    }
+
+  }
+}
+
+.serBox {
+  margin-left  : 28px;
+  background   : #FFFFFF;
+  box-shadow   : 0 2px 2px 0 rgba(56, 69, 81, 0.06);
+  border-radius: 1px;
+  display      : flex;
+  align-items  : center;
+  padding      : 0 5px;
+
+  &>div:nth-of-type(1) {
+    :global {
+      .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+        box-shadow: none !important;
+      }
+
+      .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within {
+        outline: none !important;
+      }
+
+      .ant-radio-button-wrapper {
+        border: none !important;
+      }
+    }
+  }
+
+  &>div:nth-of-type(2) {
+    width     : 1px;
+    height    : 14px;
+    background: #D8D8D8;
+    margin    : 0 14px 0 24px;
+  }
+}
+
+.status {
+  display    : flex;
+  align-items: center;
+  flex-wrap  : wrap;
+
+  p {
+    margin    : 0;
+    text-align: center;
+  }
+
+  p:nth-of-type(1) {
+    min-width     : 58px;
+    min-height    : 22px;
+    background    : #4D73B1;
+    font-family   : PingFangSC-Regular;
+    font-size     : 14px;
+    color         : #FFFFFF;
+    letter-spacing: 0;
+  }
+
+  p:nth-of-type(2) {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #999999;
+    letter-spacing: 0;
+    width         : 100%;
+  }
+}
+
+.tags {
+  display    : flex;
+  align-items: center;
+
+  div {
+    background    : #F0F2F5;
+    padding       : 2px 5px;
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #7C7C7C;
+    letter-spacing: 0;
+  }
+}
+
+.teamMinTit {
+  padding       : 0 24px;
+  margin-bottom : 5px;
+  font-family   : PingFangSC-Regular;
+  font-size     : 12px;
+  color         : #999999;
+  letter-spacing: 0;
+}
+
+.teamContent {
+  font-family   : PingFangSC-Regular;
+  font-size     : 14px;
+  color         : #333333;
+  letter-spacing: 0;
+}
+
+
+
+.bor {
+  border-left: 1px solid #F4F4F4;
+  height     : 70px;
+  display    : flex;
+  align-items: center;
+}
+
+.example {
+  text-align   : center;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding      : 30px 50px;
+  margin       : 20px 0;
+}
+
+.btns {
+  :global {
+
+    .ant-btn-primary,
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      box-shadow      : 0 3px 6px 0 rgba(33, 50, 79, 0.24);
+      background-color: #4D73B1 !important;
+      border-color    : #4D73B1 !important;
+    }
+  }
+}

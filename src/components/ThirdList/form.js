@@ -3,7 +3,6 @@ import debounce from "lodash.debounce";
 import globalUtil from "../../utils/global";
 import { connect } from "dva";
 import { routerRedux } from "dva/router";
-import config from "../../config/config";
 import App from "../../../public/images/app.svg";
 import Branches from "../../../public/images/branches.svg";
 import Application from "../../../public/images/application.svg";
@@ -63,7 +62,7 @@ const formItemLayoutOrder = {
   }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 class Index extends React.Component {

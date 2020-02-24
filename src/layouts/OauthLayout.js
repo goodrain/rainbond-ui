@@ -1,53 +1,34 @@
 import React from "react";
-import { Link, Redirect, Switch, Route } from "dva/router";
-import DocumentTitle from "react-document-title";
-import { Icon } from "antd";
 import { connect } from "dva";
-import GlobalFooter from "../components/GlobalFooter";
 import styles from "./UserLayout.less";
-import logo from "../../public/logo.png";
-import { getRoutes } from "../utils/utils";
-import configureGlobal from "../utils/configureGlobal";
-import cookie from "../utils/cookie";
+import globalUtil from "../utils/global";
 
 class OauthLayout extends React.PureComponent {
+  constructor(props) {
+    super(props);
+  }
   componentDidMount() {
-    const load = document.getElementById("load");
-    if (load) {
-      document.body.removeChild(load);
-    }
+    //初始化 获取RainbondInfo信息
+    const {dispatch} = this.props;
+    dispatch({
+      type: "global/fetchRainbondInfo",
+      callback: info => {
+        if (info) {
+          globalUtil.putLog(info)
+        }
+      }
+    });
   }
-  getPageTitle() {
-    const { routerData, location, rainbondInfo } = this.props;
-    const { pathname } = location;
-    let title =
-      (rainbondInfo &&
-        rainbondInfo.title !== undefined &&
-        rainbondInfo.title) ||
-      "Rainbond is Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
-    if (routerData[pathname] && routerData[pathname].name) {
-      title = `${routerData[pathname].name} - ${title} `;
-    }
-    return title;
-  }
+
   render() {
-    const { routerData, match, rainbondInfo, nouse } = this.props;
+    const { rainbondInfo, nouse,children } = this.props;
+    if (!rainbondInfo) {
+      return null;
+    }
     return (
-      <DocumentTitle title={this.getPageTitle()}>
         <div className={styles.container}>
-          <Switch>
-            {getRoutes('/oauth', routerData).map(item => (
-              <Route
-                key={item.key}
-                path={item.path}
-                component={item.component}
-                exact={item.exact}
-              />
-            ))}
-            <Redirect exact from="/oauth" to="/oauth/callback" />
-          </Switch>
+          {children}
         </div>
-      </DocumentTitle>
     );
   }
 }

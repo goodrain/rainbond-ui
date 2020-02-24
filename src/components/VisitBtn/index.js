@@ -127,7 +127,7 @@ export default class Index extends PureComponent {
               如需要提供访问服务, 请
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
               >
                 配置端口
               </Link>
@@ -216,7 +216,7 @@ export default class Index extends PureComponent {
                 http协议端口需打开外部访问服务, 去
                 <Link
                   onClick={this.hiddenModal}
-                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
+                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
                 >
                   打开
                 </Link>
@@ -277,7 +277,7 @@ export default class Index extends PureComponent {
               需要配置端口信息, 去
               <Link
                 onClick={this.hiddenModal}
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${appAlias}/port`}
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/port`}
               >
                 配置
               </Link>

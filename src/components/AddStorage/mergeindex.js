@@ -5,7 +5,7 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link, Switch, Route } from "dva/router";
+import { Link, Route } from "dva/router";
 import {
   Input,
   Table,
@@ -18,12 +18,12 @@ import {
   Button,
   Row,
   Col,
-  Upload,
+  Upload
 } from "antd";
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
 import { getVolumeTypeShowName } from "../../utils/utils";
-import apiconfig from "../../config/config";
+import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
 
 const FormItem = Form.Item;
@@ -337,7 +337,7 @@ export default class AddVolumes extends PureComponent {
                     return (
                       <Tooltip title={v}>
                         <Link
-                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/app/${
+                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
                             data.dep_app_alias
                           }/overview`}
                         >
@@ -363,7 +363,7 @@ export default class AddVolumes extends PureComponent {
                     return (
                       <Tooltip title={v}>
                         <Link
-                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/${
+                          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                             data.dep_group_id
                           }`}
                         >

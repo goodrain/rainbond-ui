@@ -31,7 +31,7 @@ const userUtil = {
     return "";
   },
   getTeamByTeamName(user, currTeamName) {
-    const currTeam = user.teams.filter(item => item.team_name === currTeamName)[0];
+    const currTeam = user&&user.teams.filter(item => item.team_name === currTeamName)[0];
     return currTeam;
   },
   // 用户是否在某个团队下，拥有某个数据中心

@@ -1,5 +1,5 @@
 import React, { PureComponent, Fragment } from "react";
-import { Row, Col, Card, Form, Button, Icon, Switch, Select, Modal, Input } from "antd";
+import { Row, Col, Card, Form, Button, Icon, Select, Modal, Input } from "antd";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -11,17 +11,17 @@ export default class SubDomain extends PureComponent {
     super(props);
     this.state = {};
   }
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields(
       {
-        force: true,
+        force: true
       },
       (err, values) => {
         if (!err) {
           this.props.onOk && this.props.onOk(values);
         }
-      },
+      }
     );
   };
   handleCancel = () => {
@@ -33,20 +33,20 @@ export default class SubDomain extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 6,
-        },
+          span: 6
+        }
       },
       wrapperCol: {
         xs: {
-          span: 24,
+          span: 24
         },
         sm: {
-          span: 18,
-        },
-      },
+          span: 18
+        }
+      }
     };
 
     return (
@@ -64,13 +64,13 @@ export default class SubDomain extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: "请添加域名",
+                      message: "请添加域名"
                     },
                     {
                       pattern: /^[0-9a-zA-Z.]*$/,
-                      message: "格式不正确，请输入数字或字母",
-                    },
-                  ],
+                      message: "格式不正确，请输入数字或字母"
+                    }
+                  ]
                 })(<Input placeholder="请填写域名" />)}
               </FormItem>
             </Form>

@@ -48,7 +48,7 @@ const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]
   }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {
@@ -122,25 +122,7 @@ export default class Index extends PureComponent {
         }
       }
       if (!err) {
-        let num = 0;
-
-        fieldsValue.static &&
-          fieldsValue.static.length > 0 &&
-          fieldsValue.static.map(item => {
-            if (
-              !rege.test(item || "") &&
-              (regs.test(item || "") || rega.test(item || "")) &&
-              this.state.endpointsType == "static"
-            ) {
-              num++;
-              if (num > 1) {
-                message.destroy();
-                return message.warning("服务地址目前只支持添加一个域名。");
-              }
-            }
-          });
-
-        num <= 1 && this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      this.props.onSubmit && this.props.onSubmit(fieldsValue);
       }
     });
   };

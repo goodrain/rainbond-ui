@@ -20,6 +20,7 @@ export default {
 
   // 判断平台是否配置了oautg 2.0
   OauthbEnable: (bean = {}) =>
+  bean&&
     (bean.oauth_services &&
       bean.oauth_services.enable &&
       bean.oauth_services.value &&

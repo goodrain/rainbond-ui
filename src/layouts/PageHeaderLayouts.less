@@ -1,0 +1,48 @@
+@import "~antd/lib/style/themes/default.less";
+
+.content {
+  margin: 24px 24px 0;
+}
+
+@media screen and (max-width: @screen-sm) {
+  .content {
+    margin: 24px 0 0;
+  }
+}
+
+.headerBox {
+  display    : flex;
+  align-items: center;
+  background : #ffffff;
+}
+.icons:hover{
+  background: #4D73B1;
+  i {
+    color: #ffffff;
+  }
+}
+.icons {
+
+  cursor     : pointer;
+  width      : 33px;
+  line-height: 98px;
+  text-align : center;
+}
+
+.titBox {
+  padding-left: 12px;
+  div:nth-of-type(1) {
+    font-family   : PingFangSC-Regular;
+    font-size     : 20px;
+    color         : #2B3844;
+    letter-spacing: 0;
+  }
+
+  div:nth-of-type(2) {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #9CA2A8;
+    letter-spacing: 0;
+    line-height   : 23px;
+  }
+}

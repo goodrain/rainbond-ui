@@ -1,15 +1,15 @@
 import React, { PureComponent } from "react";
-import { Form, Radio, Switch, Input } from "antd";
+import { Form, Radio, Input } from "antd";
 import { connect } from "dva";
-import JavaJDK from "../java-jdk"
+import JavaJDK from "../java-jdk";
 const RadioGroup = Radio.Group;
 
 @connect(
-    null,
-    null,
-    null,
-    { withRef: true }
-  )
+  null,
+  null,
+  null,
+  // { withRef: true }
+)
 class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -40,10 +40,13 @@ class Index extends PureComponent {
       <div>
         <JavaJDK form={this.props.form} envs={this.props.envs} />
 
-        <Form.Item {...formItemLayout} label="Web服务器版本" help="仅适用于打包为War包的项目">
+        <Form.Item
+          {...formItemLayout}
+          label="Web服务器版本"
+          help="仅适用于打包为War包的项目"
+        >
           {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue:
-              (envs && envs.BUILD_RUNTIMES_SERVER) || "tomcat85"
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || "tomcat85"
           })(
             <RadioGroup>
               <Radio value="tomcat85">tomcat85(默认)</Radio>

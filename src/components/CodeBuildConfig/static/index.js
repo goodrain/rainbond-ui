@@ -4,7 +4,9 @@ import { connect } from "dva";
 import JavaJDK from "../java-jdk";
 const RadioGroup = Radio.Group;
 
-@connect(null, null, null, { withRef: true })
+@connect(null, null, null, 
+  // { withRef: true }
+  )
 class Index extends PureComponent {
   constructor(props) {
     super(props);

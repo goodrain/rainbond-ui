@@ -1,6 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Form, Button, Select, Input, Switch, Checkbox, Row, Col } from "antd";
+import { Form, Button, Select, Input, Checkbox, Row, Col } from "antd";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import ShowRegionKey from "../../components/ShowRegionKey";
@@ -24,7 +24,7 @@ const formItemLayout = {
   }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

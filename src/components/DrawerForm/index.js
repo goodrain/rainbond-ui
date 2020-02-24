@@ -57,22 +57,6 @@ class DrawerForm extends PureComponent {
     this.heandleEditInfo(this.props);
   }
 
-  // static getDerivedStateFromProps(nextProps) {
-  //   if (
-  //     nextProps.editInfo &&
-  //     (nextProps.editInfo.domain_heander ||
-  //       nextProps.editInfo.domain_cookie ||
-  //       nextProps.editInfo.the_weight ||
-  //       nextProps.editInfo.certificate_id)
-  //   ) {
-  //     return {
-  //       routingConfiguration: true
-  //     };
-  //   }
-
-  //   return null;
-  // }
-
   heandleEditInfo = props => {
     const { dispatch, editInfo, form } = props;
     const team_name = globalUtil.getCurrTeamName();
@@ -88,15 +72,10 @@ class DrawerForm extends PureComponent {
       }
     });
     if (editInfo) {
-      this.handleServices(editInfo.g_id);
+      this.handleServices({key: editInfo.g_id});
       // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
     }
   };
-  // componentWillReceiveProps(nextPro) {
-  //     if (nextPro.editInfo !== this.props.editInfo) {
-  //         this.heandleEditInfo(nextPro);
-  //     }
-  // }
   handleOk = e => {
     e.preventDefault();
     const { onOk } = this.props;
@@ -108,21 +87,24 @@ class DrawerForm extends PureComponent {
     });
   };
   /**获取组件 */
-  handleServices = group_id => {
+  handleServices = groupObj => {
     const { isPerform } = this.state;
-    const { dispatch, editInfo } = this.props;
+    const { dispatch, editInfo, groups } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     /**获取对应的group_name */
-    const group_obj = this.props.groups.filter(item => {
-      return item.group_id == group_id;
-    });
+    let group_obj = null
+    if (groups){
+      group_obj = groups.filter(item => {
+        return item.group_id == groupObj.key;
+      });
+    }
     if (group_obj && group_obj.length > 0) {
       this.setState({ group_name: group_obj[0].group_name });
     }
     dispatch({
       type: "groupControl/fetchApps",
       payload: {
-        group_id: group_id,
+        group_id: groupObj.key,
         team_name
       },
       callback: data => {
@@ -242,7 +224,7 @@ class DrawerForm extends PureComponent {
     /**筛选当前的数据中心 */
 
     let currentRegion = "";
-    const { currUser } = this.props;
+    const { currUser, appID } = this.props;
     var currTeam = userUtil.getTeamByTeamName(
       currUser && currUser,
       globalUtil.getCurrTeamName()
@@ -430,9 +412,14 @@ class DrawerForm extends PureComponent {
             >
               {getFieldDecorator("group_id", {
                 rules: [{ required: true, message: "请选择" }],
-                initialValue: (editInfo && editInfo.g_id + "") || undefined
+                initialValue: appID ? {key: appID} : (editInfo && {
+                  key: editInfo.g_id,
+                  label: editInfo.group_name
+                }) || undefined
               })(
                 <Select
+                  labelInValue
+                  disabled={appID}
                   placeholder="请选择要所属应用"
                   onChange={this.handleServices}
                 >

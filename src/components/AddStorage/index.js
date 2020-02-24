@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Input, Modal, Radio, Tooltip, Drawer, Button, Row, Col, Tabs, Upload, message } from 'antd';
-import apiconfig from '../../config/config';
+import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;

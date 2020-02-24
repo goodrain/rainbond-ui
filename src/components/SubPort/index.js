@@ -6,7 +6,6 @@ import {
   Form,
   Button,
   Icon,
-  Switch,
   Select,
   Modal,
   Input,

@@ -35,9 +35,9 @@ import cookie from "../utils/cookie";
 export default {
   namespace: "groupControl",
   state: {
-    // 组详情
+    // app detail 
     groupDetail: {},
-    // 应用
+    // component list
     apps: [],
     // plugin
     plugins: [],
@@ -85,10 +85,11 @@ export default {
         callback && callback(response);
       }
     },
-    * fetchGroupDetail({ payload, handleError }, { call, put }) {
+    * fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getGroupDetail, payload, handleError);
       if (response) {
         yield put({ type: "saveGroupDetail", payload: response.bean });
+        callback && callback(response)
       }
     },
     * fetchApps({ payload, callback }, { call, put }) {

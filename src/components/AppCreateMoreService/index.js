@@ -33,7 +33,7 @@ const confirm = Modal.confirm;
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -314,7 +314,7 @@ class BaseInfo extends PureComponent {
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  { withRef: true }
+  // { withRef: true }
 )
 export default class Index extends PureComponent {
   constructor(props) {

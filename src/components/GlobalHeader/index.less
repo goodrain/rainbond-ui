@@ -2,9 +2,32 @@
 
 .header {
   padding   : 0 12px 0 0;
-  background: #fff;
+  background: #374551;
   box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
   position  : relative;
+}
+
+.enterprise {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  padding-left: 1.5em;
+  padding-right: .5em;
+  line-height: 64px;
+  max-width: 211px;
+  float: left;
+  a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+  }
+}
+
+.select {
+  float: left;
+}
+.select:first {
+  margin-right: 16px;
 }
 
 .uesrInfo {
@@ -82,14 +105,22 @@
       text-overflow: ellipsis;
       word-break   : break-all;
       white-space  : nowrap;
-      line-height: 16px;
+      line-height  : 16px;
+
       i {
-        font-size: 12px;
+        font-size  : 12px;
         margin-left: 5px;
       }
 
       margin-right: 8px;
     }
+  }
+}
+
+
+.noticeIcon {
+  i {
+    color: #fff
   }
 }
 
@@ -142,16 +173,15 @@ i.trigger {
   display       : inline-block;
   vertical-align: middle;
   overflow      : hidden;
-  border-left   : 1px solid #e6e6e6;
-  border-right  : 1px solid #e6e6e6;
   padding       : 0 35px 0 35px;
 
   .tit {
     margin-right: 10px;
-    color       : #929292;
+    color       : #ffffff;
   }
 
   .dropdown {
+    color : #fff;
     cursor: pointer;
   }
 }
@@ -185,17 +215,16 @@ i.trigger {
     padding   : 0 12px;
     display   : inline-block;
     transition: all .3s;
-    height    : 100%;
+    line-height: 64px;
 
     >i {
       font-size     : 16px;
-      vertical-align: middle;
-      color         : rgba(0, 0, 0, 0.65)
+      padding       : 4px;
+      color         : #fff;
     }
 
-    &:hover,
-    &:global(.ant-popover-open) {
-      background: @primary-1;
+    .name {
+      color: #fff;
     }
 
     :global {
@@ -231,6 +260,8 @@ i.trigger {
 
 @media only screen and (max-width: @screen-md) {
   .header {
+    background: #374551;
+
     :global(.ant-divider-vertical) {
       vertical-align: unset;
     }

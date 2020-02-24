@@ -1,9 +1,9 @@
 import request from '../utils/request';
-import config from '../config/config';
+import apiconfig from '../../config/api.config';
 
 /* 安装内部市场的插件 */
 export async function installMarketPlugin(body={plugin_id}){
-  return request(config.baseUrl + `/console/market/plugins/install`,{
+  return request(apiconfig.baseUrl + `/console/market/plugins/install`,{
     method: 'POST',
     data:body
   })
@@ -11,7 +11,7 @@ export async function installMarketPlugin(body={plugin_id}){
 
 /* 获取内部市场可安装的插件 */
 export async function getUnInstalledPlugin(body={plugin_name, page, limit}){
-  return request(config.baseUrl + `/console/plugins/installable`,{
+  return request(apiconfig.baseUrl + `/console/plugins/installable`,{
     method: 'get',
     params:body
   })
@@ -21,7 +21,7 @@ export async function getUnInstalledPlugin(body={plugin_name, page, limit}){
 查询分享单个任务的状态
  */
 export async function startShareOneEvent(body={}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`, {
     method: 'post'
   });
 }
@@ -30,7 +30,7 @@ export async function startShareOneEvent(body={}){
 查询分享单个任务的状态
  */
 export async function getShareOneEventInfo(body={}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events/${body.eventId}`, {
     method: 'get'
   });
 }
@@ -39,7 +39,7 @@ export async function getShareOneEventInfo(body={}){
   插件分享提交
 */
 export async function getShareEventInfo(body={}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}/events`, {
     method: 'get'
   });
 }
@@ -48,7 +48,7 @@ export async function getShareEventInfo(body={}){
   插件分享提交
 */
 export async function submitSharePlugin(body={}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}`, {
     method: 'post',
     data:{
       share_plugin_info: body.share_plugin_info
@@ -64,7 +64,7 @@ export async function getPluginShareInfo(body={
   pluginId,
   shareId
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.shareId}`, {
     method: 'get'
   });
 }
@@ -77,7 +77,7 @@ export async function giveupSharePlugin(body={
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.share_id}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugin-share/${body.share_id}`, {
     method: 'delete'
   });
 }
@@ -89,7 +89,7 @@ export async function sharePlugin(body={
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`, {
     method: 'post'
   });
 }
@@ -101,7 +101,7 @@ export async function getShareRecord(body = {
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/share/record`, {
     method: 'get'
   });
 }
@@ -113,7 +113,7 @@ export async function getShareRecord(body = {
 export async function getMyPlugins(body = {
   team_name
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/all`, {method: 'get'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/all`, {method: 'get'});
 }
 
 /*
@@ -130,7 +130,7 @@ export async function createPlugin(body = {
   code_version,
   desc
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins`, {
     method: 'post',
     data: body
   });
@@ -143,7 +143,7 @@ export async function deletePlugin(body = {
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}`, {method: 'delete'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}`, {method: 'delete'});
 }
 
 /*
@@ -153,7 +153,7 @@ export async function getPluginInfo(body = {
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}`, {method: 'get'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}`, {method: 'get'});
 }
 
 /*
@@ -164,7 +164,7 @@ export async function getPluginVersions(body = {
   team_name,
   plugin_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/build-history`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/build-history`, {
     method: 'get',
     params: {
       page: 1,
@@ -182,7 +182,7 @@ export async function getPluginVersionInfo(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {
     method: 'get',
     showLoading: false
   });
@@ -197,7 +197,7 @@ export async function getPluginVersionConfig(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {method: 'get'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {method: 'get'});
 }
 
 /*
@@ -208,7 +208,7 @@ export async function editPluginVersionInfo(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {
     method: 'put',
     data: {
       plugin_alias: body.plugin_alias,
@@ -230,7 +230,7 @@ export async function addPluginVersionConfig(body = {
   build_version,
   entry
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
     method: 'post',
     data: body.entry
   });
@@ -245,7 +245,7 @@ export async function removePluginVersionConfig(body = {
   build_version,
   config_group_id
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
     method: 'delete',
     data: {
       config_group_id: body.config_group_id
@@ -262,7 +262,7 @@ export async function editPluginVersionConfig(body = {
   build_version,
   entry
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/config`, {
     method: 'put',
     data: body.entry
   });
@@ -276,7 +276,7 @@ export async function removePluginVersion(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {method: 'delete'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {method: 'delete'});
 }
 
 /*
@@ -287,7 +287,7 @@ export async function createPluginVersion(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/new-version`, {method: 'post'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/new-version`, {method: 'post'});
 }
 /*
   创建新版本
@@ -297,7 +297,7 @@ export async function buildPluginVersion(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/build`, {method: 'post'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/build`, {method: 'post'});
 }
 
 /*
@@ -308,7 +308,7 @@ export async function getBuildPluginVersionStatus(body = {
   plugin_id,
   build_version
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/status`, {method: 'get'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/status`, {method: 'get'});
 }
 
 /*
@@ -320,7 +320,7 @@ export async function getBuildVersionLog(body = {
   build_version,
   level
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/event-log`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}/event-log`, {
     method: 'get',
     params: {
       level: body.level
@@ -338,7 +338,7 @@ export async function getUsedApp(body = {
   page_size
 
 }) {
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/used_services`, {
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/used_services`, {
     method: 'get',
     params: {
       page: body.page,
@@ -351,14 +351,14 @@ export async function getUsedApp(body = {
    临时接口，查询默认安装的插件
  */
 export async function getDefaultPlugin(body={team_name}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/default`, {method: 'get'});
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/default`, {method: 'get'});
 }
 
 /*
    安装默认插件
  */
 export async function installDefaultPlugin(body={team_name, plugin_type}){
-  return request(config.baseUrl + `/console/teams/${body.team_name}/plugins/default`, {method: 'post', data:{
+  return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/default`, {method: 'post', data:{
     plugin_type: body.plugin_type
   }});
 }

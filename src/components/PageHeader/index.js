@@ -38,7 +38,7 @@ export default class PageHeader extends PureComponent {
       routes: this.props.routes || this.context.routes,
       params: this.props.params || this.context.params,
       routerLocation: this.props.location || this.context.location,
-      breadcrumbNameMap: this.props.breadcrumbNameMap || this.context.breadcrumbNameMap
+      breadcrumbNameMap: this.props.breadcrumbNameMap || this.context.breadcrumbNameMap || {}
     };
   };
   // Generated according to props
@@ -95,16 +95,6 @@ export default class PageHeader extends PureComponent {
         )
         : null;
     });
-    // Add home breadcrumbs to your head
-    extraBreadcrumbItems.unshift(
-      <Breadcrumb.Item key="home">
-        {createElement(linkElement, {
-          [linkElement === 'a'
-              ? 'href'
-              : 'to']: '/'
-        }, '首页')}
-      </Breadcrumb.Item>
-    );
     return (
       <Breadcrumb className={styles.breadcrumb}>
         {extraBreadcrumbItems}
