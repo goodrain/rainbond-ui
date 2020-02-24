@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import apiconfig from "../../config/config";
+import apiconfig from "../../../config/api.config";
 import {
   Row,
   Col,

@@ -23,7 +23,7 @@ import {
 import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
 import { getVolumeTypeShowName } from "../../utils/utils";
-import apiconfig from "../../config/config";
+import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
 
 const FormItem = Form.Item;
