@@ -9,6 +9,7 @@ import memoizeOne from "memoize-one";
 import SelectTeam from "../components/SelectTeam";
 import SelectRegion from "../components/SelectRegion";
 import SelectApp from "../components/SelectApp";
+import SelectComponent from "../components/SelectComponent";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
@@ -78,7 +79,7 @@ class TeamLayout extends React.PureComponent {
       currentTeam: {},
       currentEnterprise: {},
       currentComponent: null,
-      eid: "",
+      eid: ""
     };
   }
 
@@ -125,17 +126,17 @@ class TeamLayout extends React.PureComponent {
         }
       }
     });
-  }
+  };
   load = () => {
     const { enterpriseList, eid } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
-    dispatch({type: "teamControl/fetchCurrentTeam", payload: team});
+    dispatch({ type: "teamControl/fetchCurrentTeam", payload: team });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
       if (eid == item.enterprise_id) {
-        dispatch({type: "enterprise/fetchCurrentEnterprise", payload: item});
+        dispatch({ type: "enterprise/fetchCurrentEnterprise", payload: item });
         this.setState({
           currentEnterprise: item,
           currentTeam: team,
@@ -144,7 +145,7 @@ class TeamLayout extends React.PureComponent {
         });
       }
     });
-    this.fetchTeamApps()
+    this.fetchTeamApps();
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -165,25 +166,25 @@ class TeamLayout extends React.PureComponent {
         type: "appControl/fetchDetail",
         payload: {
           team_name: teamName,
-          app_alias: componentID,
+          app_alias: componentID
         },
         callback: appDetail => {
-          this.setState({currentComponent: appDetail})
+          this.setState({ currentComponent: appDetail.service });
         }
-      })
+      });
     }
-  }
+  };
 
-  fetchTeamApps = ()=> {
+  fetchTeamApps = () => {
     const { teamName, regionName } = this.props.match.params;
     this.props.dispatch({
       type: "global/fetchGroups",
       payload: {
         team_name: teamName,
-        region_name: regionName,
+        region_name: regionName
       }
     });
-  }
+  };
 
   getChildContext = () => {
     const { location } = this.props;
@@ -256,36 +257,50 @@ class TeamLayout extends React.PureComponent {
     }
     let appID = globalUtil.getAppID();
     if (currentComponent) {
-      appID = currentComponent.service.group_id;
+      appID = currentComponent.group_id;
     }
     const componentID = globalUtil.getComponentID();
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
-      return (
-        <div>
-          <SelectTeam
-            className={headerStype.select}
-            teamName={teamName}
-            currentEnterprise={currentEnterprise}
-            currentTeam={currentTeam}
-            currentRegion={currentRegion}
-          />
-          <SelectRegion
-            className={headerStype.select}
-            regionName={regionName}
-            currentEnterprise={currentEnterprise}
-            currentTeam={currentTeam}
-            currentRegion={currentRegion}
-          />
-          {mode == "app" &&
-            <SelectApp
+      if (mode == "team") {
+        return (
+          <div>
+            <SelectTeam
               className={headerStype.select}
               teamName={teamName}
               currentEnterprise={currentEnterprise}
               currentTeam={currentTeam}
               currentRegion={currentRegion}
-              currentAppID={appID}
-            />}
+            />
+            <SelectRegion
+              className={headerStype.select}
+              regionName={regionName}
+              currentEnterprise={currentEnterprise}
+              currentTeam={currentTeam}
+              currentRegion={currentRegion}
+            />
+          </div>
+        );
+      }
+      return (
+        <div>
+          <SelectApp
+            className={headerStype.select}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+            currentAppID={appID}
+          />
+          {currentComponent && <SelectComponent
+            className={headerStype.select}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+            currentAppID={appID}
+            currentComponent={currentComponent}
+          />}
         </div>
       );
     };
@@ -363,28 +378,12 @@ class TeamLayout extends React.PureComponent {
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
           />
-          <GlobalRouter
-            enterpriseList={enterpriseList}
-            title={
-              rainbondInfo &&
-              rainbondInfo.title !== undefined &&
-              rainbondInfo.title
-            }
-            currentUser={currentUser}
-            Authorized={Authorized}
-            collapsed={collapsed}
-            location={location}
-            isMobile={this.state.isMobile}
-            onCollapse={this.handleMenuCollapse}
-            menuData={menuData}
-            completeMenuData={menuData}
-          />
           <Layout>
             <GlobalHeader
               key={
                 currentEnterprise.enterprise_id +
                 currentTeam.team_name +
-                currentRegion.team_region_name + 
+                currentRegion.team_region_name +
                 appID
               }
               logo={logo}
@@ -395,17 +394,37 @@ class TeamLayout extends React.PureComponent {
               }
               currentUser={currentUser}
               collapsed={collapsed}
+              onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={customHeader}
             />
-            <Content
-              style={{
-                margin: "24px 24px 0",
-                height: "100%"
-              }}
-            >
-              {renderContent()}
-            </Content>
+            <Layout style={{ flexDirection: "row" }}>
+              <GlobalRouter
+                enterpriseList={enterpriseList}
+                title={
+                  rainbondInfo &&
+                  rainbondInfo.title !== undefined &&
+                  rainbondInfo.title
+                }
+                currentUser={currentUser}
+                Authorized={Authorized}
+                collapsed={collapsed}
+                location={location}
+                isMobile={this.state.isMobile}
+                onCollapse={this.handleMenuCollapse}
+                menuData={menuData}
+                completeMenuData={menuData}
+                showMenu={!componentID}
+              />
+              <Content
+                style={{
+                  margin: "24px 24px 0",
+                  height: "100%"
+                }}
+              >
+                {renderContent()}
+              </Content>
+            </Layout>
           </Layout>
         </Layout>
       );

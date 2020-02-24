@@ -252,22 +252,6 @@ class EnterpriseLayout extends PureComponent {
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
           />
-          <GlobalRouter
-            enterpriseList={enterpriseList}
-            title={
-              rainbondInfo &&
-              rainbondInfo.title !== undefined &&
-              rainbondInfo.title
-            }
-            currentUser={currentUser}
-            Authorized={Authorized}
-            menuData={getMenuData(eid)}
-            completeMenuData={getMenuData(eid)}
-            collapsed={collapsed}
-            location={location}
-            isMobile={this.state.isMobile}
-            onCollapse={this.handleMenuCollapse}
-          />
           <Layout>
             <GlobalHeader
               logo={logo}
@@ -278,25 +262,44 @@ class EnterpriseLayout extends PureComponent {
               }
               currentUser={currentUser}
               collapsed={collapsed}
+              onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={customHeader}
             />
-            <Content
-              key={eid}
-              style={{
-                margin: "24px 24px 0",
-                height: "100%"
-              }}
-            >
-              <Authorized
-                logined
-                // authority={children.props.route.authority}
-                authority={["admin", "user"]}
-                noMatch={<Redirect to="/user/login" />}
+            <Layout style={{ flexDirection: "row" }}>
+              <GlobalRouter
+                enterpriseList={enterpriseList}
+                title={
+                  rainbondInfo &&
+                  rainbondInfo.title !== undefined &&
+                  rainbondInfo.title
+                }
+                currentUser={currentUser}
+                Authorized={Authorized}
+                menuData={getMenuData(eid)}
+                showMenu={true}
+                completeMenuData={getMenuData(eid)}
+                location={location}
+                isMobile={this.state.isMobile}
+              />
+              <Content
+                key={eid}
+                style={{
+                  margin: "24px 24px 0",
+                  height: "100%",
+                  flex: "0 0 0 64px;"
+                }}
               >
-                {children}
-              </Authorized>
-            </Content>
+                <Authorized
+                  logined
+                  // authority={children.props.route.authority}
+                  authority={["admin", "user"]}
+                  noMatch={<Redirect to="/user/login" />}
+                >
+                  {children}
+                </Authorized>
+              </Content>
+            </Layout>
           </Layout>
         </Layout>
       );

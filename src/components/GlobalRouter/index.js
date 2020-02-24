@@ -282,21 +282,8 @@ export default class GlobalRouter extends PureComponent {
     });
   };
 
-  toggle = () => {
-    const { collapsed, onCollapse } = this.props;
-    onCollapse(!collapsed);
-    this.triggerResizeEvent();
-  };
-
-  triggerResizeEvent = () => {
-    // eslint-disable-line
-    const event = document.createEvent("HTMLEvents");
-    event.initEvent("resize", true, false);
-    window.dispatchEvent(event);
-  };
-
   render() {
-    const { collapsed, location: { pathname }, menuData } = this.props;
+    const { showMenu, collapsed, location: { pathname }, menuData } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
@@ -310,12 +297,7 @@ export default class GlobalRouter extends PureComponent {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
     return (
-      <div style={{ background: "#fff" }}>
-        <Icon
-          className={styles.trigger}
-          type={!collapsed ? "menu-unfold" : "menu-fold"}
-          onClick={this.toggle}
-        />
+      <div style={{ background: "#fff", width: "68px", display: showMenu? "block": "none" }}>
         <Menu
           className={styles.globalSider}
           key="Menu"

@@ -8,7 +8,6 @@ import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 import rainbondUtil from "../../utils/rainbond";
 import AppList from "./AppList";
-import PluginList from "./PluginList";
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -83,10 +82,6 @@ export default class Index extends PureComponent {
     if (this.state.scope === "app") {
       return <AppList {...this.props} />;
     }
-
-    // if (this.state.scope === 'plugin') {
-    //   return <PluginList {...this.props} />;
-    // }
   };
   render() {
     const { currUser, rainbondInfo } = this.props;

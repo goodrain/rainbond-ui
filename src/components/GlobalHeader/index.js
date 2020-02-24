@@ -151,7 +151,8 @@ export default class GlobalHeader extends PureComponent {
       currentUser,
       customHeader,
       isPubCloud,
-      rainbondInfo
+      rainbondInfo,
+      collapsed
     } = this.props;
 
     if (!currentUser) {
@@ -232,6 +233,12 @@ export default class GlobalHeader extends PureComponent {
     );
     return (
       <Header className={styles.header}>
+        <Icon
+          className={styles.trigger}
+          type={!collapsed ? "menu-unfold" : "menu-fold"}
+          style={{color: "#ffffff", float: "left"}}
+          onClick={this.toggle}
+        />
         {customHeader && customHeader()}
         <div className={styles.right}>
           {rainbondUtil.documentEnable(rainbondInfo) &&

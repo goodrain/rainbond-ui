@@ -120,7 +120,7 @@ export default class SelectTeam extends PureComponent {
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamRegionLink}>
               <div className={style.selectButtonName}>
-                {currentRegion.team_region_alias}
+              <span><FormattedMessage id="header.region.name"></FormattedMessage></span>{currentRegion.team_region_alias}
               </div>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </Link>
