@@ -7,4 +7,6 @@ module.exports = {
   autoHideHeader: false, // auto hide header
   fixSiderbar: false, // sticky siderbar
   collapse: true,
+  pwa: false,
+  title: 'rainbond',
 };
