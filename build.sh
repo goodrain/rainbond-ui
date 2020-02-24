@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run -it --rm -v `pwd`:/app -w=/app node:8 npm install && npm run build
+docker run -it --rm -v "$(pwd)":/app -w=/app node:10 yarn install && yarn run build
