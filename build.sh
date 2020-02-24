@@ -1,5 +1,7 @@
 #!/bin/bash
-HOME=/home/travis/build/goodrain/rainbond-ui
+HOME=/build/goodrain/rainbond-ui
+mkdir ./node_modules
+chmod 777 ./node_modules
 docker run -it --rm -v "$(pwd)":${HOME} -w=${HOME} node:12 yarn install && yarn run build
 
 if [ ! -d "./dist" ];then
