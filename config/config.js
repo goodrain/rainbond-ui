@@ -3,7 +3,7 @@ import defaultSettings from "../src/defaultSettings";
 
 export default {
   history: "hash",
-  publicPath: "/static/",
+  publicPath: "/static/dists/",
   hash: true,
   plugins: [
     [
