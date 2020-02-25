@@ -5,6 +5,7 @@ if [ -z "$TRAVIS_TAG" ]; then
 else
 	VERSION=$TRAVIS_TAG
 fi
+mkdir ./.docker && chmod 777 ./.docker
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
 docker build -t "rainbond/rainbond-ui:$VERSION" .
 docker push "rainbond/rainbond-ui:$VERSION"
