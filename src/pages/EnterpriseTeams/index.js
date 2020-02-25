@@ -155,7 +155,7 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            teamList: res.bean&&res.bean.list || [],
+            teamList: (res.bean && res.bean.list) || [],
             enterpriseTeamsLoading: false,
           });
         }
@@ -743,10 +743,18 @@ export default class EnterpriseTeams extends PureComponent {
         </div>
       </div>
     );
+
+    const {
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     return (
       <PageHeaderLayout
-        title="——"
-        content="企业管理员可以设置平台信息，管理企业下的团队"
+        title="用户团队管理"
+        content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示。企业管理员可见企业团队管理入口"
+        returnUrl={`/enterprise/${eid}/index`}
       >
         {this.state.joinTeam && (
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />

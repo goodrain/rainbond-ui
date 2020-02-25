@@ -7,7 +7,9 @@ import {
   Upload,
   Select,
   Input,
+  Radio,
   Tag,
+  Checkbox,
   Tooltip,
 } from 'antd';
 import { connect } from 'dva';
@@ -34,12 +36,8 @@ class CreateAppModels extends PureComponent {
       regions: [],
       previewImage: '',
       previewVisible: false,
-      tagList: props.appInfo
-        ? props.appInfo.tags
-        : [
-            { name: 'Tag1', tag_id: 1 },
-            { name: 'Tag2', tag_id: 2 },
-          ],
+      scope: props.appInfo ? props.appInfo.scope : 'enterprise',
+      tagList: [],
       inputVisible: false,
       inputValue: '',
       imageUrl: props.appInfo ? props.appInfo.pic : '',
@@ -47,25 +45,35 @@ class CreateAppModels extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getUnRelationedApp();
+    this.getTags();
   }
 
-  getUnRelationedApp = () => {
-    getAllRegion().then(data => {
-      if (data) {
-        this.setState({ regions: data.list || [] });
-      }
+  getTags = () => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'market/fetchAppModelsTags',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            tagList: res.list,
+          });
+        }
+      },
     });
   };
-
   handleSubmit = () => {
     const { form, appInfo } = this.props;
     form.validateFields((err, values) => {
+      console.log('values', values);
+
       if (!err) {
         if (appInfo) {
           this.upAppModel(values);
         } else {
-          this.createAppModel(values)
+          this.createAppModel(values);
         }
       }
     });
@@ -171,37 +179,35 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  // createTag = name => {
-  //   const { dispatch, eid } = this.props;
-  //   dispatch({
-  //     type: 'market/createTag',
-  //     payload: {
-  //       enterprise_id: eid,
-  //       name,
-  //     },
-  //     callback: res => {
-  //       if (res && res._code === 200) {
-  //         console.log('res', res);
-  //         this.setState({
-  //           tagList: res.list,
-  //           inputVisible: false,
-  //           inputValue: '',
-  //         });
-  //       }
-  //     },
-  //   });
-  // };
+  createTag = name => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'market/createTag',
+      payload: {
+        enterprise_id: eid,
+        name,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          console.log('res', res);
+          this.setState({
+            tagList: res.list,
+          });
+        }
+      },
+    });
+  };
 
   saveInputRef = input => (this.input = input);
 
   upAppModel = values => {
     const { dispatch, eid, appInfo, onOk } = this.props;
-    const {imageUrl,tagList} =this.state
-    let arr =[]
-    if(tagList&&tagList.length>0){
-      tagList.map((item)=>{
-        arr.push(item.name)
-      })
+    const { imageUrl, tagList } = this.state;
+    const arr = [];
+    if (tagList && tagList.length > 0) {
+      tagList.map(item => {
+        arr.push(item.name);
+      });
     }
     dispatch({
       type: 'market/upAppModel',
@@ -209,7 +215,7 @@ class CreateAppModels extends PureComponent {
         enterprise_id: eid,
         app_id: appInfo.app_id,
         name: values.name,
-        pic:imageUrl,
+        pic: imageUrl,
         describe: values.describe,
         tags: arr,
       },
@@ -223,21 +229,18 @@ class CreateAppModels extends PureComponent {
 
   createAppModel = values => {
     const { dispatch, eid, onOk } = this.props;
-    const {imageUrl,tagList} =this.state
-    let arr =[]
-    if(tagList&&tagList.length>0){
-      tagList.map((item)=>{
-        arr.push(item.name)
-      })
-    }
+    const { imageUrl, tagList } = this.state;
+
     dispatch({
       type: 'market/createAppModel',
       payload: {
         enterprise_id: eid,
         name: values.name,
-        pic:imageUrl,
+        pic: imageUrl,
+        scope: values.scope,
+        dev_status: values.dev_status,
         describe: values.describe,
-        tags: arr,
+        tag_ids: values.tag_ids,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -246,7 +249,70 @@ class CreateAppModels extends PureComponent {
       },
     });
   };
+
+  onChangeRadio = e => {
+    this.setState({
+      scope: e.target.value,
+    });
+  };
+
+  handleOnSelect = value => {
   
+    const { tagList } = this.state;
+
+    if (value && tagList.length > 0) {
+    console.log('value', value);
+
+      let arr = tagList.filter(item => item.tag_id+''.indexOf(value) > -1);
+      // let arr = tagList.filter(item => console.log('item',item));
+      
+      console.log('arr', arr);
+      debugger
+
+      console.log('arr', arr);
+
+      // this.createTag(value)
+    } else if (tagList && tagList.length === 0) {
+      this.createTag(value);
+    }
+  };
+
+  handleOnDeselect = value => {
+    console.log(`dele`, value);
+  };
+  handleChangeSelect = value => {
+    const { tagList } = this.state;
+
+    const set = '';
+    if (value && tagList) {
+      value.map(item => {
+        tagList.map(items => {});
+      });
+    }
+
+    // {inputVisible && (
+    //   <Input
+    //     ref={this.saveInputRef}
+    //     type="text"
+    //     size="small"
+    //     style={{ width: 78 }}
+    //     value={inputValue}
+    //     onChange={this.handleInputChange}
+    //     onBlur={this.handleInputConfirm}
+    //     onPressEnter={this.handleInputConfirm}
+    //   />
+    // )}
+    // {!inputVisible && (
+    //   <Tag
+    //     onClick={this.showInput}
+    //     style={{ background: '#fff', borderStyle: 'dashed' }}
+    //   >
+    //     <Icon type="plus" /> New Tag
+    //   </Tag>
+    // )}
+
+    console.log(`selected`, value);
+  };
 
   render() {
     const { getFieldDecorator } = this.props.form;
@@ -276,6 +342,14 @@ class CreateAppModels extends PureComponent {
     };
 
     const options = actions || [];
+    const arr = [];
+
+    if (appInfo && appInfo.tags && appInfo.tags.length > 0) {
+      appInfo.tags.map(item => {
+        arr.push(item.tag_id);
+      });
+    }
+
     const token = cookie.get('token');
     const myheaders = {};
     if (token) {
@@ -294,7 +368,9 @@ class CreateAppModels extends PureComponent {
       tagList,
       inputVisible,
       inputValue,
+      scope,
     } = this.state;
+    console.log('111tagList', tagList);
     return (
       <div>
         <Modal
@@ -322,6 +398,32 @@ class CreateAppModels extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
+            <FormItem {...formItemLayout} label="应用分享">
+              {getFieldDecorator('scope', {
+                initialValue: scope,
+
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择应用分享范围',
+                  },
+                ],
+              })(
+                <Radio.Group onChange={this.onChangeRadio}>
+                  <Radio.Button value="enterprise">企业</Radio.Button>
+                  <Radio.Button value="team">团队</Radio.Button>
+                </Radio.Group>
+              )}
+              <div className={styles.conformDesc}>选择应用分享范围</div>
+            </FormItem>
+
+            <FormItem {...formItemLayout} label="应用状态">
+              {getFieldDecorator('dev_status', {
+                initialValue: appInfo && appInfo.dev_status ? true : '',
+              })(<Checkbox>release</Checkbox>)}
+              <div className={styles.conformDesc}>请选择当前应用的开发状态</div>
+            </FormItem>
+
             <FormItem {...formItemLayout} label="应用名称" hasFeedback>
               {getFieldDecorator('name', {
                 initialValue: appInfo ? appInfo.app_name : '',
@@ -353,7 +455,8 @@ class CreateAppModels extends PureComponent {
             </FormItem>
 
             <Form.Item {...formItemLayout} label="应用标签" hasFeedback>
-              {getFieldDecorator('tags', {
+              {getFieldDecorator('tag_ids', {
+                initialValue: arr,
                 rules: [
                   {
                     required: false,
@@ -361,42 +464,24 @@ class CreateAppModels extends PureComponent {
                   },
                 ],
               })(
-                <div>
+                <Select
+                  mode="tags"
+                  style={{ width: '100%' }}
+                  onChange={this.handleChangeSelect}
+                  onSelect={this.handleOnSelect}
+                  onDeselect={this.handleOnDeselect}
+                  tokenSeparators={[',']}
+                  // optionLabelProp="label"
+                >
                   {tagList.map(item => {
                     const { tag_id, name } = item;
                     return (
-                      <Tooltip title={name} key={tag_id}>
-                        <Tag
-                          key={tag_id}
-                          closable
-                          onClose={() => this.handleClose(tag_id)}
-                        >
-                          {name}
-                        </Tag>
-                      </Tooltip>
+                      <Option value={`${tag_id}`} label={name}>
+                        {name}
+                      </Option>
                     );
                   })}
-                  {inputVisible && (
-                    <Input
-                      ref={this.saveInputRef}
-                      type="text"
-                      size="small"
-                      style={{ width: 78 }}
-                      value={inputValue}
-                      onChange={this.handleInputChange}
-                      onBlur={this.handleInputConfirm}
-                      onPressEnter={this.handleInputConfirm}
-                    />
-                  )}
-                  {!inputVisible && (
-                    <Tag
-                      onClick={this.showInput}
-                      style={{ background: '#fff', borderStyle: 'dashed' }}
-                    >
-                      <Icon type="plus" /> New Tag
-                    </Tag>
-                  )}
-                </div>
+                </Select>
               )}
             </Form.Item>
 

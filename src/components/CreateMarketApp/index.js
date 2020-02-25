@@ -33,6 +33,7 @@ class CreateMarketApp extends PureComponent {
       tagList: ['Tag 2', 'Tag 3'],
       inputVisible: false,
       inputValue: '',
+      scope: 'enterprise',
     };
   }
   componentDidMount() {
@@ -111,6 +112,12 @@ class CreateMarketApp extends PureComponent {
 
   saveInputRef = input => (this.input = input);
 
+  onChangeRadio = e => {
+    this.setState({
+      scope: e.target.value,
+    });
+  };
+
   render() {
     const { getFieldDecorator } = this.props.form;
     const { onOk, onCancel, actions, title } = this.props;
@@ -185,6 +192,26 @@ class CreateMarketApp extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
+            <FormItem {...formItemLayout} label="应用分享范围" hasFeedback>
+              {getFieldDecorator('scope', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择应用分享范围',
+                  },
+                ],
+              })(
+                <Radio.Group
+                  onChange={this.onChangeRadio}
+                  defaultValue="enterprise"
+                >
+                  <Radio.Button value="enterprise">企业</Radio.Button>
+                  <Radio.Button value="team">团队</Radio.Button>
+                </Radio.Group>
+              )}
+              <div className={styles.conformDesc}>选择应用分享范围</div>
+            </FormItem>
+
             <FormItem {...formItemLayout} label="应用名称" hasFeedback>
               {getFieldDecorator('name', {
                 rules: [
@@ -209,9 +236,7 @@ class CreateMarketApp extends PureComponent {
                   },
                 ],
               })(<TextArea placeholder="请输入应用描述" />)}
-              <div className={styles.conformDesc}>
-                请输入创建的应用名称，最多10字
-              </div>
+              <div className={styles.conformDesc}>请输入应用描述.</div>
             </FormItem>
 
             <Form.Item {...formItemLayout} label="应用标签" hasFeedback>

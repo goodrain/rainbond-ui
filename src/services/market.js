@@ -4,8 +4,8 @@ import apiconfig from '../../config/api.config';
 /* 获取本地标签s（搜索） */
 export async function fetchAppModelsTags(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
 
     {
       method: 'get',
@@ -13,13 +13,11 @@ export async function fetchAppModelsTags(param) {
   );
 }
 
-
-
 /* 添加本地标签 */
 export async function createTag(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
 
     {
       method: 'post',
@@ -44,7 +42,7 @@ export async function upDataTag(param) {
   );
 }
 
-/* 删除本地标签*/
+/* 删除本地标签 */
 export async function deleteTag(param) {
   return request(
     `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{app_id}/tag`,
@@ -59,16 +57,11 @@ export async function deleteTag(param) {
   );
 }
 
-
-
-
-
 /* 获取本地应用列表（搜索） */
 export async function fetchAppModels(param) {
   return request(
-    
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models`,
     {
       method: 'get',
       params: {
@@ -82,7 +75,6 @@ export async function fetchAppModels(param) {
   );
 }
 
-
 /* 编辑本地应用 */
 export async function upAppModel(body) {
   return request(
@@ -92,7 +84,7 @@ export async function upAppModel(body) {
       method: 'PUT',
       data: {
         name: body.name,
-        pic	: body.pic,
+        pic: body.pic,
         describe: body.describe,
         tags: body.tags,
       },
@@ -103,22 +95,21 @@ export async function upAppModel(body) {
 /* 创建本地应用 */
 export async function createAppModel(body) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models`,
     {
       method: 'post',
       data: {
+        scope: body.scope,
+        dev_status: body.dev_status,
         name: body.name,
-        pic	: body.pic,
+        pic: body.pic,
         describe: body.describe,
-        tags: body.tags,
+        tag_ids: body.tag_ids,
       },
     }
   );
 }
-
-
-
 
 /* 获取云端应用列表（搜索） */
 export async function getMarketApp(param) {
@@ -203,22 +194,22 @@ export function uploadApp(body = { team_name }) {
 
 export function importApp(
   body = {
-    team_name,
+    tenant_name,
     event_id,
     scope,
     file_name,
   }
 ) {
-  const team_name = body.team_name;
-  const event_id = body.event_id;
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
+    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app_modes/import/${event_id}`,
     {
       method: 'post',
       data: {
         event_id: body.event_id,
         file_name: body.file_name,
         scope: body.scope,
+        tenant_name: body.tenant_name,
       },
     }
   );
@@ -229,10 +220,9 @@ export function importApp(
   */
 
 export function queryImportApp(body = { team_name, event_id }) {
-  const team_name = body.team_name;
-  const event_id = body.event_id;
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
+    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import/${body.event_id}`,
     {
       method: 'get',
     }
@@ -257,10 +247,10 @@ export function importDir(body = { team_name }) {
      查询本次导入的目录下的文件
   */
 
-export function queryImportDirApp(body = { team_name, event_id }) {
-  const team_name = body.team_name;
+export function queryImportDirApp(body = { enterprise_id, event_id }) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/dir`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/{event_id}/dir`,
+    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/${body.event_id}/dir`,
     {
       method: 'get',
       params: {
@@ -287,10 +277,10 @@ export function queryImportingApp(body = { team_name }) {
 /*
   查询或创建导入应用流程记录
 */
-export function queryImportRecord(body = { team_name }) {
-  const team_name = body.team_name;
+export function queryImportRecord(body = { enterprise_id }) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/record`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import`,
+    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import`,
     {
       method: 'post',
     }
@@ -300,11 +290,10 @@ export function queryImportRecord(body = { team_name }) {
 /*
   取消导入流程
 */
-export function cancelImportApp(body = { team_name, event_id }) {
-  const team_name = body.team_name;
-  const event_id = body.event_id;
+export function cancelImportApp(body = { enterprise_id, event_id }) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/${event_id}`,
+    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
+    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import/${body.event_id}`,
     {
       method: 'delete',
     }

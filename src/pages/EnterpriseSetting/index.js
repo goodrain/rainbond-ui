@@ -328,7 +328,14 @@ export default class EnterpriseTeams extends PureComponent {
       oauthTable,
     } = this.state;
 
-    const { rainbondInfo, is_public, oauthLongin } = this.props;
+    const {
+      rainbondInfo,
+      is_public,
+      oauthLongin,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
 
     const moreSvg = () => (
@@ -541,8 +548,9 @@ export default class EnterpriseTeams extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="——"
-        content="企业管理员可以设置平台信息，管理企业下的团队"
+        title="企业设置"
+        content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供。"
+        returnUrl={`/enterprise/${eid}/index`}
       >
         {this.state.showOauthTable && (
           <OauthTable
