@@ -1,15 +1,11 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
-import { Layout, Icon, message, notification } from "antd";
+import { Layout, Icon, message, notification, Button } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { Route, Redirect, routerRedux } from "dva/router";
 import { PageLoading } from "@ant-design/pro-layout";
 import memoizeOne from "memoize-one";
-import SelectTeam from "../components/SelectTeam";
-import SelectRegion from "../components/SelectRegion";
-import SelectApp from "../components/SelectApp";
-import SelectComponent from "../components/SelectComponent";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
@@ -24,7 +20,9 @@ import { getAppMenuData } from "../common/appMenu";
 import logo from "../../public/logo.png";
 import GlobalRouter from "../components/GlobalRouter";
 import Context from "./MenuContext";
-import headerStype from "../components/GlobalHeader/index.less";
+import { FormattedMessage } from "umi-plugin-react/locale";
+import TeamHeader from "./components/TeamHeader"
+import AppHeader from "./components/AppHeader"
 
 const qs = require("query-string");
 
@@ -255,53 +253,45 @@ class TeamLayout extends React.PureComponent {
     if (teamName != currentTeam.team_name) {
       this.load();
     }
-    let appID = globalUtil.getAppID();
-    if (currentComponent) {
-      appID = currentComponent.group_id;
-    }
     const componentID = globalUtil.getComponentID();
+    let appID = globalUtil.getAppID();
+    // currentComponent is exit and id is current componentID
+    if (currentComponent && currentComponent.service_alias == componentID) {
+      appID = currentComponent.group_id;
+    // Refresh the component information
+    } else if (componentID) {
+      this.queryComponentDeatil()
+      return <PageLoading />;
+    } else {
+      this.setState({currentComponent: null})
+    }
+    
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
       if (mode == "team") {
         return (
-          <div>
-            <SelectTeam
-              className={headerStype.select}
-              teamName={teamName}
-              currentEnterprise={currentEnterprise}
-              currentTeam={currentTeam}
-              currentRegion={currentRegion}
-            />
-            <SelectRegion
-              className={headerStype.select}
-              regionName={regionName}
-              currentEnterprise={currentEnterprise}
-              currentTeam={currentTeam}
-              currentRegion={currentRegion}
-            />
-          </div>
+          <TeamHeader 
+            teamName={teamName} 
+            currentEnterprise={currentEnterprise} 
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+            regionName={regionName}
+          >
+          </TeamHeader>
         );
       }
       return (
-        <div>
-          <SelectApp
-            className={headerStype.select}
-            teamName={teamName}
-            currentEnterprise={currentEnterprise}
+        <AppHeader 
+            teamName={teamName} 
+            currentEnterprise={currentEnterprise} 
             currentTeam={currentTeam}
             currentRegion={currentRegion}
-            currentAppID={appID}
-          />
-          {currentComponent && <SelectComponent
-            className={headerStype.select}
-            teamName={teamName}
-            currentEnterprise={currentEnterprise}
-            currentTeam={currentTeam}
-            currentRegion={currentRegion}
-            currentAppID={appID}
+            regionName={regionName}
+            appID={appID}
             currentComponent={currentComponent}
-          />}
-        </div>
+            componentID={componentID}
+          >
+        </AppHeader>
       );
     };
     let menuData = getMenuData(teamName, regionName);

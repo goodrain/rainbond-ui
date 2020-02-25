@@ -338,13 +338,15 @@ export async function getTeamRegionAppsStatus(
 /*
 	获取团队在某个数据中心下的所有应用组
 */
-export async function getTeamRegionGroups(
-  body = {
-    team_name
-  }
-) {
+export async function getTeamRegionGroups(body) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/groups`,
+    {
+      method: "get",
+      params: {
+        query: body.query,
+      }
+    }
   );
 }
 

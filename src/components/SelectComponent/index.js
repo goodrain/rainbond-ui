@@ -24,7 +24,7 @@ export default class SelectTeam extends PureComponent {
   componentDidMount() {
     this.loadComponents();
   }
-  queryApps = query => {
+  queryComponent = query => {
     this.setState({ queryName: query }, () => {
       this.loadComponents();
     });
@@ -79,13 +79,13 @@ export default class SelectTeam extends PureComponent {
             <div className={style.dropBoxSearchInput}>
               <Icon
                 className={style.dropBoxSearchInputIcon}
-                onChange={this.queryApps}
                 loading={loading}
                 type="search"
               />
-              <Input
+              <Input.Search
+                onSearch={this.queryComponent}
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: "header.app.search" })}
+                placeholder={formatMessage({ id: "header.component.search" })}
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export default class SelectTeam extends PureComponent {
                 <span>
                   <FormattedMessage id="header.component.name" />
                 </span>
-                {currentComponent && currentComponent.service_cname}
+                {currentComponent ? currentComponent.service_cname : <FormattedMessage id="header.component.noselect" />}
               </div>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </Link>
