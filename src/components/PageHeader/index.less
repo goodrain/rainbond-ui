@@ -1,9 +1,33 @@
 @import "~antd/lib/style/themes/default.less";
 
+.headerBox {
+  display    : flex;
+  align-items: center;
+  background : #ffffff;
+}
+
+.icons:hover {
+  background: #4D73B1;
+}
+
+.icons {
+  background: #D8D8D8;
+
+  i {
+    color    : #ffffff;
+    font-size: 28px;
+  }
+
+  cursor     : pointer;
+  width      : 33px;
+  line-height: 98px;
+  text-align : center;
+}
+
 .pageHeader {
-  background: @component-background;
-  padding: 16px 32px 0 32px;
-  border-bottom: @border-width-base @border-style-base @border-color-split;
+  background   : @component-background;
+  padding      : 17px 32px 0 12px;
+  // border-bottom: @border-width-base @border-style-base @border-color-split;
 
   .detail {
     display: flex;
@@ -28,58 +52,77 @@
   }
 
   .logo {
-    flex: 0 1 auto;
+    flex        : 0 1 auto;
     margin-right: 16px;
-    padding-top: 1px;
-    > img {
-      width: 28px;
-      height: 28px;
+    padding-top : 1px;
+
+    >img {
+      width        : 28px;
+      height       : 28px;
       border-radius: @border-radius-base;
-      display: block;
+      display      : block;
     }
   }
 
   .title {
-    font-size: 20px;
-    font-weight: 500;
-    color: @heading-color;
+    font-family   : PingFangSC-Regular;
+    font-size     : 20px;
+    color         : #2B3844;
+    letter-spacing: 0;
   }
 
   .action {
     margin-left: 56px;
-    min-width: 266px;
+    min-width  : 266px;
 
     :global {
+
       .ant-btn-group:not(:last-child),
       .ant-btn:not(:last-child) {
         margin-right: 8px;
       }
 
-      .ant-btn-group > .ant-btn {
+      .ant-btn-group>.ant-btn {
         margin-right: 0;
       }
     }
   }
 
-  .title, .action, .content, .extraContent, .main {
+  .content {
+    font-family   : PingFangSC-Regular;
+    font-size     : 12px;
+    color         : #9CA2A8 !important;
+    letter-spacing: 0;
+    line-height   : 23px;
+  }
+
+  .title,
+  .action,
+  .content,
+  .extraContent,
+  .main {
     flex: auto;
   }
 
-  .title, .action {
-    margin-bottom: 16px;
+  .title,
+  .action {
+    margin-bottom: 10px;
   }
 
-  .logo, .content, .extraContent {
-    margin-bottom: 16px;
+  .logo,
+  .content,
+  .extraContent {
+    margin-bottom: 10px;
   }
 
-  .action, .extraContent {
+  .action,
+  .extraContent {
     text-align: right;
   }
 
   .extraContent {
     margin-left: 88px;
-    min-width: 242px;
+    min-width  : 242px;
   }
 }
 
@@ -105,9 +148,10 @@
       display: block;
     }
 
-    .action, .extraContent {
+    .action,
+    .extraContent {
       margin-left: 0;
-      text-align: left;
+      text-align : left;
     }
   }
 }
@@ -124,12 +168,15 @@
   .pageHeader {
     .action {
       :global {
-        .ant-btn-group, .ant-btn {
-          display: block;
+
+        .ant-btn-group,
+        .ant-btn {
+          display      : block;
           margin-bottom: 8px;
         }
-        .ant-btn-group > .ant-btn {
-          display: inline-block;
+
+        .ant-btn-group>.ant-btn {
+          display      : inline-block;
           margin-bottom: 0;
         }
       }

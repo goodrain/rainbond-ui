@@ -15,6 +15,7 @@ import {
   Checkbox,
   Pagination,
   notification,
+  Tooltip,
 } from 'antd';
 import { Link, routerRedux } from 'dva/router';
 import NoComponent from '../../../public/images/noComponent.png';
@@ -25,7 +26,7 @@ import DeleteApp from '../../components/DeleteApp';
 import AppExporter from './AppExporter';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
-import PageHeaderLayouts from '../../layouts/PageHeaderLayouts';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from './index.less';
 
@@ -416,7 +417,7 @@ export default class EnterpriseShared extends PureComponent {
           <a onClick={this.handleOpenCreateAppModel}>创建应用</a>
         </Menu.Item>
         <Menu.Item>
-          <a>离线导入</a>
+          <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
         </Menu.Item>
       </Menu>
     );
@@ -519,6 +520,7 @@ export default class EnterpriseShared extends PureComponent {
             tags,
             versions_info,
             dev_status,
+            install_number,
           } = item;
           return (
             <Lists
@@ -535,7 +537,7 @@ export default class EnterpriseShared extends PureComponent {
                     >
                       <p>
                         <Icon type="arrow-down" />
-                        {index + 1}
+                        {install_number}
                       </p>
                     </div>
                     <div className={styles.imgs}>
@@ -547,10 +549,14 @@ export default class EnterpriseShared extends PureComponent {
                       />
                     </div>
                   </Col>
-                  <Col span={8} className={styles.tits}>
+                  <Col span={12} className={styles.tits}>
                     <div>
                       <p>{app_name}</p>
-                      <p>{describe}</p>
+                      <p>
+                        <Tooltip placement="topLeft" title={describe}>
+                          {describe}
+                        </Tooltip>
+                      </p>
                     </div>
                   </Col>
                   <Col span={4} className={styles.status}>
@@ -563,7 +569,7 @@ export default class EnterpriseShared extends PureComponent {
                     </div>
                   </Col>
 
-                  <Col span={8} className={styles.tags}>
+                  <Col span={4} className={styles.tags}>
                     {tags.map(item => {
                       const { tag_id, name } = item;
                       return <div key={tag_id}>{name}</div>;
@@ -579,9 +585,10 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     return (
-      <PageHeaderLayouts
-        title="共享应用模型库"
+      <PageHeaderLayout
+        title="共享库"
         content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台。"
+        returnUrl={`/enterprise/${eid}/index`}
       >
         {this.state.showCloudApp && (
           <div className={styles.descText}>
@@ -658,7 +665,7 @@ export default class EnterpriseShared extends PureComponent {
             {/* {noShared} */}
           </div>
         )}
-      </PageHeaderLayouts>
+      </PageHeaderLayout>
     );
   }
 }
