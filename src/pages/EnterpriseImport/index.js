@@ -21,6 +21,7 @@ import {
   Avatar,
   Checkbox,
   Select,
+  Progress,
   Upload,
 } from 'antd';
 import { routerRedux } from 'dva/router';
@@ -46,18 +47,16 @@ export default class EnterpriseShared extends PureComponent {
       event_id: '',
       file_list: [],
       import_file_status: [],
-      autoQuery: true,
+      autoQuery: false,
       value: 'enterprise',
+      percents: false,
     };
-    this.autoQuery = true;
-    this.autoQueryStatus = false;
   }
   componentDidMount() {
     this.queryImportRecord();
   }
   componentWillUnmount() {
-    this.autoQuery = false;
-    this.autoQueryStatus = false;
+    this.timer && clearTimeout(this.timer);
   }
   cancelImport = () => {
     this.props.dispatch({
@@ -78,7 +77,7 @@ export default class EnterpriseShared extends PureComponent {
     this.props.onOK && this.props.onOK();
   };
   closeAutoQuery = () => {
-    this.autoQuery = false;
+    this.timer && clearTimeout(this.timer);
     this.setState({ autoQuery: false });
   };
   handleOk = () => {
@@ -102,7 +101,6 @@ export default class EnterpriseShared extends PureComponent {
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
         scope: 'enterprise',
         event_id,
         file_name,
@@ -116,6 +114,9 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   onChangeUpload = info => {
+    console.log('info', info);
+
+    const { autoQuery } = this.state;
     let fileList = info.fileList;
     fileList = fileList.filter(file => {
       if (file.response) {
@@ -123,7 +124,24 @@ export default class EnterpriseShared extends PureComponent {
       }
       return true;
     });
-    this.openAutoQuery();
+
+    if (info && info.event && info.event.percent) {
+      this.setState({
+        percents: info.event.percent,
+      });
+    }
+
+    const status = info.file.status;
+    if (status === 'done') {
+      this.setState({
+        percents: false,
+      });
+      this.handleQueryImportDir(true);
+      this.closeAutoQuery();
+    } else {
+      !autoQuery && this.openAutoQuery();
+    }
+
     this.setState({ fileList });
   };
   onRemove = () => {
@@ -133,15 +151,19 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({ file_list: e });
   };
   openAutoQuery = () => {
-    this.autoQuery = true;
     this.setState({ autoQuery: true });
     this.handleQueryImportDir();
   };
   openQueryImportStatus = () => {
-    this.autoQueryStatus = true;
     this.queryImportStatus();
   };
   handleSubmit = () => {
+    const {
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     if (this.state.file_list.length == 0) {
       notification.warning({
         message: '请至少选择一个应用',
@@ -156,8 +178,8 @@ export default class EnterpriseShared extends PureComponent {
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
         scope: 'enterprise',
+        enterprise_id: eid,
         event_id: this.state.event_id,
         file_name: fileStr,
       },
@@ -193,7 +215,7 @@ export default class EnterpriseShared extends PureComponent {
             { record: res.bean, event_id: res.bean.event_id },
             () => {
               this.openQueryImportStatus();
-              this.handleQueryImportDir();
+              this.handleQueryImportDir(true);
             }
           );
         }
@@ -201,7 +223,6 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   queryImportStatus = () => {
-    if (!this.autoQueryStatus) return;
     const {
       dispatch,
       match: {
@@ -247,14 +268,16 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  handleQueryImportDir = () => {
+  handleQueryImportDir = isNext => {
     const {
       dispatch,
       match: {
         params: { eid },
       },
     } = this.props;
-    if (this.autoQuery) {
+    const { autoQuery } = this.state;
+
+    if (isNext || autoQuery) {
       dispatch({
         type: 'market/queryImportDirApp',
         payload: {
@@ -265,9 +288,10 @@ export default class EnterpriseShared extends PureComponent {
           if (data) {
             this.setState({ existFileList: data.list });
           }
-          if (this.autoQuery) {
-            setTimeout(() => {
-              this.handleQueryImportDir();
+          const _th = this;
+          if (autoQuery) {
+            this.timer = setTimeout(function() {
+              _th.handleQueryImportDir();
             }, 8000);
           }
         },
@@ -278,7 +302,6 @@ export default class EnterpriseShared extends PureComponent {
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
         scope: 'enterprise',
         event_id: this.state.event_id,
         file_name,
@@ -305,6 +328,27 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   render() {
+    const upSvg = () => (
+      <svg
+        t="1582646117495"
+        viewBox="0 0 1026 1024"
+        p-id="5405"
+        width="23"
+        height="23"
+      >
+        <path
+          d="M536.149154 400.348544c56.251093 47.113428 112.500379 94.243113 168.749666 141.372797 20.850997 17.471561 22.241786 33.339199 4.763001 54.179359-17.460724 20.858222-33.353649 22.249011-54.20284 4.779257-34.630646-29.020528-69.259485-58.042862-103.906387-87.045328v448.330764c0 27.203471-11.259972 38.458025-38.477893 38.458024-27.201665 0-38.477893-11.254553-38.477894-38.458024V513.634629a541926.23157 541926.23157 0 0 0-103.906387 87.045328c-20.850997 17.469755-36.72586 16.078966-54.206452-4.779257-17.478786-20.84016-16.086191-36.707798 4.763001-54.179359 56.252899-47.129684 112.502185-94.259369 168.751472-141.372797 16.660568-13.953045 29.490145-13.953045 46.150713 0z"
+          fill="#4D73B1"
+          p-id="5406"
+        />
+        <path
+          d="M923.532655 8.543418H102.61494C45.939386 8.543418 0 54.477385 0 111.113203v512.865179c0 56.632205 45.939386 102.569785 102.61494 102.569784h217.178022c27.216115 0 38.494149-11.272616 38.494149-38.476087 0-27.187215-11.276228-38.459831-38.494149-38.459831H102.61494c-18.148893 0-25.662766-7.506648-25.662766-25.63206V111.115009c0-18.125412 7.513873-25.633867 25.662766-25.633867h820.917715c18.148893 0 25.66096 7.508454 25.66096 25.633867v512.865179c0 18.125412-7.512067 25.63206-25.66096 25.63206H706.356439c-27.216115 0-38.494149 11.272616-38.494149 38.459831 0 27.205278 11.276228 38.476087 38.494149 38.476087h217.176216c56.675554 0 102.61494-45.93758 102.61494-102.569784V111.113203c0-56.635817-45.939386-102.569785-102.61494-102.569785z"
+          fill="#4D73B1"
+          p-id="5407"
+        />
+      </svg>
+    );
+
     const appstatus = {
       pending: '等待中',
       importing: '导入中',
@@ -312,7 +356,7 @@ export default class EnterpriseShared extends PureComponent {
       failed: '失败',
     };
     const myheaders = {};
-    const { componentList } = this.state;
+    const { componentList, percents } = this.state;
     const {
       rainbondInfo,
       match: {
@@ -349,6 +393,13 @@ export default class EnterpriseShared extends PureComponent {
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
                 上传RainbondAPP文件
+                {percents && (
+                  <Progress
+                    percent={parseInt(percents)}
+                    size="small"
+                    style={{ width: '98%' }}
+                  />
+                )}
                 {/* {this.state.import_file_status.length >= 0 ? (
                   <div>
                     {this.state.import_file_status.map(app => {
@@ -368,20 +419,18 @@ export default class EnterpriseShared extends PureComponent {
               </Col>
               <Col span={1} className={styles.rl}>
                 <Upload
+                  showUploadList={false}
                   name="appTarFile"
                   accept=".zip,.tar"
-                  // action={this.state.record.upload_url}
-                  action="https://wss-alish.goodrain.com:6060/app/upload/285fcf36ecd94f46a40ae9f6f4b551b7"
+                  action={this.state.record.upload_url}
                   fileList={this.state.fileList}
                   onChange={this.onChangeUpload}
                   onRemove={this.onRemove}
                   headers={myheaders}
                 >
-                  <Icon type="upload" />
+                  <Icon component={upSvg} />
+                  <div className={styles.upText}>上传</div>
                 </Upload>
-                <div>
-                  <span size="small">上传</span>
-                </div>
               </Col>
             </Row>
           </Card>

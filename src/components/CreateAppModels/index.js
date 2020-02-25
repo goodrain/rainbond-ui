@@ -241,6 +241,14 @@ class CreateAppModels extends PureComponent {
     const { dispatch, eid, onOk } = this.props;
     const { imageUrl, tagList } = this.state;
 
+    const arr = [];
+    if (values.tag_ids && values.tag_ids.length > 0) {
+      values.tag_ids.map(item => {
+        console.log('item',parseFloat(item))
+        arr.push(parseFloat(item));
+      });
+    }
+
     dispatch({
       type: 'market/createAppModel',
       payload: {
@@ -250,7 +258,7 @@ class CreateAppModels extends PureComponent {
         scope: 'enterprise',
         dev_status: values.dev_status,
         describe: values.describe,
-        tag_ids: values.tag_ids,
+        tag_ids: arr,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -429,7 +437,7 @@ class CreateAppModels extends PureComponent {
               </FormItem>
             )}
 
-            <FormItem {...formItemLayout} label="应用模型名称" >
+            <FormItem {...formItemLayout} label="应用模型名称">
               {getFieldDecorator('name', {
                 initialValue: appInfo ? appInfo.app_name : '',
                 rules: [
@@ -444,7 +452,7 @@ class CreateAppModels extends PureComponent {
               </div>
             </FormItem>
 
-            <FormItem {...formItemLayout} label="应用模型描述" >
+            <FormItem {...formItemLayout} label="应用模型描述">
               {getFieldDecorator('describe', {
                 initialValue: appInfo ? appInfo.describe : '',
                 rules: [
@@ -459,7 +467,7 @@ class CreateAppModels extends PureComponent {
               </div>
             </FormItem>
 
-            <Form.Item {...formItemLayout} label="应用模型标签" >
+            <Form.Item {...formItemLayout} label="应用模型标签">
               {getFieldDecorator('tag_ids', {
                 initialValue: arr,
                 rules: [
@@ -490,7 +498,7 @@ class CreateAppModels extends PureComponent {
               )}
             </Form.Item>
 
-            <Form.Item {...formItemLayout} label="应用模型图标" >
+            <Form.Item {...formItemLayout} label="应用模型图标">
               {getFieldDecorator('pic', {
                 initialValue: appInfo ? appInfo.pic : '',
                 rules: [

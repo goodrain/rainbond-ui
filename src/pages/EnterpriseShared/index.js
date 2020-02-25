@@ -698,15 +698,7 @@ export default class EnterpriseShared extends PureComponent {
               <Spin />
             </div>
           ) : (
-            <div
-              style={{
-                transition: 'all .8s',
-                width: '100%',
-                display: 'inline-block',
-              }}
-            >
-              {sharedList}
-            </div>
+            <div>{sharedList}</div>
           )}
         </div>
       </PageHeaderLayout>
