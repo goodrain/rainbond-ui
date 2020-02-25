@@ -17,7 +17,8 @@ docker push "rainbond/rbd-app-ui:$VERSION"
 
 if [ ${DOMESTIC_BASE_NAME} ];
 then
-	docker tag "rainbond/rbd-app-ui:$VERSION" "${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-app-ui:${VERSION}"
+	newTag="${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-app-ui:${VERSION}"
+	docker tag "rainbond/rbd-app-ui:$VERSION" "${newTag}"
 	docker login -u "$DOMESTIC_DOCKER_USERNAME" -p "$DOMESTIC_DOCKER_PASSWORD" ${DOMESTIC_BASE_NAME}
-	docker push "${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-$1:${VERSION}"
+	docker push "${newTag}"
 fi
