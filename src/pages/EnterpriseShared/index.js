@@ -40,17 +40,18 @@ export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+
+    const enterpriseAdmin = userUtil.isCompanyAdmin(user);
+
     this.state = {
-      pageSize: 10,
+      page_size: 10,
       total: 0,
       page: 1,
       teamList: [],
       componentList: [],
       exitTeamName: '',
-      userTeamsLoading: false,
-      adminer,
+      userTeamsLoading: true,
+      enterpriseAdmin,
       tagList: [],
       tags: [],
       scope: 'enterprise',
@@ -100,25 +101,28 @@ export default class EnterpriseShared extends PureComponent {
       },
     } = this.props;
     const { page, page_size, name, scope, tags } = this.state;
-    dispatch({
-      type: 'market/fetchAppModels',
-      payload: {
-        enterprise_id: eid,
-        user_id: user.user_id,
-        app_name: name,
-        scope,
-        page,
-        page_size,
-        tags,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            componentList: res.list,
-            userTeamsLoading: false,
-          });
-        }
-      },
+    this.setState({ userTeamsLoading: true }, () => {
+      dispatch({
+        type: 'market/fetchAppModels',
+        payload: {
+          enterprise_id: eid,
+          user_id: user.user_id,
+          app_name: name,
+          scope,
+          page,
+          page_size,
+          tags,
+        },
+        callback: res => {
+          if (res && res._code === 200) {
+            this.setState({
+              total: res.total,
+              componentList: res.list,
+              userTeamsLoading: false,
+            });
+          }
+        },
+      });
     });
   };
 
@@ -178,21 +182,14 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   showOfflineApp = appInfo => {
-    if (appInfo && appInfo.versions_info && appInfo.versions_info.length > 0) {
-      this.setState({
-        appInfo,
-        visibles: true,
-        group_version: appInfo.versions_info,
-        bouncedText: '删除应用',
-        bouncedType: 'delete',
-      });
-    } else {
-      this.setState({
-        appInfo,
-        chooseVersion: appInfo.versions_info[0].version,
-      });
-    }
+    this.setState({
+      appInfo,
+      deleteApp: true,
+      bouncedText: '删除应用模型',
+      bouncedType: 'delete',
+    });
   };
+
   onChangeBounced = checkedValues => {
     this.setState({
       chooseVersion: checkedValues,
@@ -229,7 +226,6 @@ export default class EnterpriseShared extends PureComponent {
       payload: {
         enterprise_id: eid,
         app_id: appInfo.app_id,
-        app_versions: chooseVersion,
       },
       callback: () => {
         notification.success({
@@ -321,6 +317,7 @@ export default class EnterpriseShared extends PureComponent {
 
   handleupDataAppModel = () => {
     notification.success({ message: '编辑成功' });
+    this.getApps();
     this.handleCancelupDataAppModel();
   };
 
@@ -337,8 +334,21 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false,
     });
   };
+  onPageChangeApp = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
+      this.getApps();
+    });
+  };
 
   render() {
+    const {
+      user,
+      rainbondInfo,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     const {
       componentList,
       adminer,
@@ -349,14 +359,8 @@ export default class EnterpriseShared extends PureComponent {
       group_version,
       bouncedText,
       bouncedType,
+      enterpriseAdmin,
     } = this.state;
-    const {
-      user,
-      rainbondInfo,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
 
     const managementMenu = appInfo => {
       const delApp = (
@@ -366,7 +370,7 @@ export default class EnterpriseShared extends PureComponent {
               this.showOfflineApp(appInfo);
             }}
           >
-            删除应用
+            删除应用模型
           </a>
         </Menu.Item>
       );
@@ -386,36 +390,41 @@ export default class EnterpriseShared extends PureComponent {
               </Menu.Item>
             )}
           <Menu.Item>
-            <a
-              onClick={() => {
-                this.handleOpenUpDataAppModel(appInfo);
-              }}
-            >
-              编辑应用
-            </a>
+            {enterpriseAdmin && (
+              <a
+                onClick={() => {
+                  this.handleOpenUpDataAppModel(appInfo);
+                }}
+              >
+                编辑应用模型
+              </a>
+            )}
           </Menu.Item>
-          <Menu.Item>
-            <a
-              onClick={() => {
-                this.showAppExport(appInfo);
-              }}
-            >
-              导出应用
-            </a>
-          </Menu.Item>
-
-          {appInfo.enterprise_id === 'public'
-            ? userUtil.isSystemAdmin(user) && delApp
-            : userUtil.isCompanyAdmin(user) && delApp}
+          {appInfo &&
+            appInfo.versions_info &&
+            appInfo.versions_info.length > 0 && (
+              <Menu.Item>
+                <a
+                  onClick={() => {
+                    this.showAppExport(appInfo);
+                  }}
+                >
+                  导出应用模型
+                </a>
+              </Menu.Item>
+            )}
+          {enterpriseAdmin && delApp}
         </Menu>
       );
     };
 
     const addMenuApps = (
       <Menu>
-        <Menu.Item>
-          <a onClick={this.handleOpenCreateAppModel}>创建应用</a>
-        </Menu.Item>
+        {enterpriseAdmin && (
+          <Menu.Item>
+            <a onClick={this.handleOpenCreateAppModel}>创建应用模型</a>
+          </Menu.Item>
+        )}
         <Menu.Item>
           <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
         </Menu.Item>
@@ -452,10 +461,11 @@ export default class EnterpriseShared extends PureComponent {
               云端同步
             </Button>
           )}
-
-          <Button type="primary" onClick={this.onJoinTeam}>
-            创建组件
-          </Button>
+          {enterpriseAdmin && (
+            <Button type="primary" onClick={this.onJoinTeam}>
+              创建组件
+            </Button>
+          )}
           <Button type="primary" onClick={this.onJoinTeam}>
             离线导入
           </Button>
@@ -499,7 +509,7 @@ export default class EnterpriseShared extends PureComponent {
                     tagList.map(item => {
                       const { name, tag_id } = item;
                       return (
-                        <Checkbox key={tag_id} value={tag_id}>
+                        <Checkbox key={tag_id} value={name}>
                           {name}
                         </Checkbox>
                       );
@@ -511,76 +521,111 @@ export default class EnterpriseShared extends PureComponent {
           {operation}
         </Row>
 
-        {componentList.map((item, index) => {
-          const {
-            app_id,
-            pic,
-            describe,
-            app_name,
-            tags,
-            versions_info,
-            dev_status,
-            install_number,
-          } = item;
-          return (
-            <Lists
-              key={app_id}
-              stylePro={{ marginBottom: '10px' }}
-              Cols={
-                <div className={styles.h70}>
-                  <Col span={4} style={{ display: 'flex' }}>
-                    <div
-                      className={styles.lt}
-                      onClick={() => {
-                        this.handleLoadAppDetail(item);
-                      }}
-                    >
-                      <p>
-                        <Icon type="arrow-down" />
-                        {install_number}
-                      </p>
-                    </div>
-                    <div className={styles.imgs}>
-                      <img
-                        src={
-                          pic || require('../../../public/images/app_icon.jpg')
-                        }
-                        alt=""
-                      />
-                    </div>
-                  </Col>
-                  <Col span={12} className={styles.tits}>
-                    <div>
-                      <p>{app_name}</p>
-                      <p>
-                        <Tooltip placement="topLeft" title={describe}>
-                          {describe}
-                        </Tooltip>
-                      </p>
-                    </div>
-                  </Col>
-                  <Col span={4} className={styles.status}>
-                    <div>
-                      {dev_status && <p>{dev_status || ''}</p>}
-                      {/* <p>{dev_status || 'release'}</p> */}
-                      {versions_info && versions_info.length > 0 && (
-                        <p>{versions_info[0].version}</p>
-                      )}
-                    </div>
-                  </Col>
+        {userTeamsLoading ? (
+          <div className={styles.example}>
+            <Spin />
+          </div>
+        ) : componentList && componentList.length > 0 ? (
+          componentList.map((item, index) => {
+            const {
+              app_id,
+              pic,
+              describe,
+              app_name,
+              tags,
+              versions_info,
+              dev_status,
+              install_number,
+            } = item;
+            return (
+              <Lists
+                key={app_id}
+                stylePro={{ marginBottom: '10px' }}
+                Cols={
+                  <div className={styles.h70}>
+                    <Col span={4} style={{ display: 'flex' }}>
+                      <div
+                        className={styles.lt}
+                        onClick={() => {
+                          this.handleLoadAppDetail(item);
+                        }}
+                      >
+                        <p>
+                          <Icon type="arrow-down" />
+                          {install_number}
+                        </p>
+                      </div>
+                      <div className={styles.imgs}>
+                        <img
+                          src={
+                            pic ||
+                            require('../../../public/images/app_icon.jpg')
+                          }
+                          alt=""
+                        />
+                      </div>
+                    </Col>
+                    <Col span={12} className={styles.tits}>
+                      <div>
+                        <p>{app_name}</p>
+                        <p>
+                          <Tooltip placement="topLeft" title={describe}>
+                            {describe}
+                          </Tooltip>
+                        </p>
+                      </div>
+                    </Col>
+                    <Col span={4} className={styles.status}>
+                      <div>
+                        {dev_status && (
+                          <p className={styles.dev_status}>
+                            {dev_status || ''}
+                          </p>
+                        )}
 
-                  <Col span={4} className={styles.tags}>
-                    {tags.map(item => {
-                      const { tag_id, name } = item;
-                      return <div key={tag_id}>{name}</div>;
-                    })}
-                  </Col>
-                </div>
-              }
-              overlay={managementMenu(item)}
-            />
-          );
-        })}
+                        {versions_info && versions_info.length > 0 && (
+                          <p>{versions_info[0].version}</p>
+                        )}
+                      </div>
+                    </Col>
+
+                    <Col span={4} className={styles.tags}>
+                      {tags &&
+                        tags.length > 0 &&
+                        tags.map((item, index) => {
+                          const { tag_id, name } = item;
+                          if (index > 2) {
+                            return null;
+                          }
+                          return (
+                            <div key={tag_id} style={{ marginRight: '5px' }}>
+                              {name}
+                            </div>
+                          );
+                        })}
+                      {tags && tags.length > 3 && (
+                        <a style={{ marginLeft: '5px' }}>更多</a>
+                      )}
+                    </Col>
+                  </div>
+                }
+                overlay={managementMenu(item)}
+              />
+            );
+          })
+        ) : (
+          noShared
+        )}
+
+        <div style={{ textAlign: 'right' }}>
+          <Pagination
+            size="small"
+            current={this.state.page}
+            pageSize={this.state.page_size}
+            total={Number(this.state.total)}
+            onChange={this.onPageChangeApp}
+          />
+        </div>
       </div>
     );
 
@@ -599,16 +644,16 @@ export default class EnterpriseShared extends PureComponent {
         {this.state.deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
-            desc="确定要删除此应用吗?"
-            subDesc="删除后其他人将无法安装此应用"
-            title="删除应用"
+            desc="确定要删除此应用模型吗?"
+            subDesc="删除后其他人将无法安装此应用模型"
+            title="删除应用模型"
             onCancel={this.handleCancelDelete}
           />
         )}
 
         {this.state.createAppModel && (
           <CreateAppModels
-            title="创建应用"
+            title="创建应用模型"
             eid={eid}
             onOk={this.handleCreateAppModel}
             onCancel={this.handleCancelAppModel}
@@ -616,7 +661,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {this.state.upDataAppModel && (
           <CreateAppModels
-            title="编辑应用"
+            title="编辑应用模型"
             eid={eid}
             appInfo={appInfo}
             onOk={this.handleupDataAppModel}
@@ -641,30 +686,29 @@ export default class EnterpriseShared extends PureComponent {
             onCheckedValues={this.onChangeBounced}
           />
         )}
-        {userTeamsLoading ? (
-          <div className={styles.example}>
-            <Spin />
-          </div>
-        ) : (
-          <div
-            style={{
-              display: this.state.showCloudApp ? 'flex' : 'block',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
+        <div
+          style={{
+            display: 'block',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {userTeamsLoading ? (
+            <div className={styles.example}>
+              <Spin />
+            </div>
+          ) : (
             <div
               style={{
                 transition: 'all .8s',
-                width: this.state.showCloudApp ? '50%' : '100%',
+                width: '100%',
                 display: 'inline-block',
               }}
             >
               {sharedList}
             </div>
-            {/* {noShared} */}
-          </div>
-        )}
+          )}
+        </div>
       </PageHeaderLayout>
     );
   }

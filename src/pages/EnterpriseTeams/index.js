@@ -521,6 +521,8 @@ export default class EnterpriseTeams extends PureComponent {
         </Row>
 
         {overviewTeamInfo &&
+          overviewTeamInfo.active_teams &&
+          overviewTeamInfo.active_teams.length > 0 &&
           overviewTeamInfo.active_teams.map(item => {
             const {
               team_id,

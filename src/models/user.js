@@ -18,7 +18,7 @@ import {
   addCollectionView,
   queryCollectionViewInfo,
   putCollectionViewInfo,
-  deleteCollectionViewInfo
+  deleteCollectionViewInfo,
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import cookie from '../utils/cookie';
@@ -84,15 +84,15 @@ export default {
         callback && callback(response);
       }
     },
-     // 更新视图列表
-     *putCollectionViewInfo({ payload, callback }, { call }) {
+    // 更新视图列表
+    *putCollectionViewInfo({ payload, callback }, { call }) {
       const response = yield call(putCollectionViewInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-     // 删除收藏视图
-     *deleteCollectionViewInfo({ payload, callback }, { call }) {
+    // 删除收藏视图
+    *deleteCollectionViewInfo({ payload, callback }, { call }) {
       const response = yield call(deleteCollectionViewInfo, payload);
       if (response) {
         callback && callback(response);
@@ -143,7 +143,7 @@ export default {
         yield put({ type: 'changeLoginStatus', payload: response });
         cookie.set('token', response.bean.token);
         if (callback) {
-          callback()
+          callback();
         }
       }
     },
@@ -185,9 +185,19 @@ export default {
         cookie.set('token', response.bean.token);
 
         const urlParams = new URL(window.location.href);
-        // const pathname = yield select(state => state.routing.location.pathname);
+
+        const pathname = yield select(state => {
+          return (
+            state &&
+            state.routing &&
+            state.routing.location &&
+            state.routing.location.pathname
+          );
+        });
         // add the parameters in the url
-        // const redirect = urlParams.searchParams.get("redirect", pathname);
+        const redirect = pathname
+          ? urlParams.searchParams.get('redirect', pathname)
+          : null;
         yield put({ type: 'registerHandle', payload: response.bean, redirect });
         yield put(routerRedux.push('/'));
       }

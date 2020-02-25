@@ -389,111 +389,6 @@ export default class Enterprise extends PureComponent {
     });
   };
 
-  getSettingShow = () => {
-    const { rainbondInfo, is_public } = this.props;
-    const { oauthInfo, isOpen, israinbondTird } = this.state;
-    const ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
-    if (!is_public) {
-      return (
-        <Card
-          style={{
-            marginBottom: 24,
-          }}
-          bodyStyle={{
-            paddingTop: 12,
-          }}
-          bordered={false}
-          title="平台设置"
-        >
-          <DescriptionList
-            col="1"
-            size="large"
-            style={{
-              marginBottom: 32,
-              marginTop: 32,
-            }}
-          >
-            <Description term="用户注册">
-              <RadioGroup
-                onChange={this.onRegistChange}
-                value={this.props.isRegist}
-              >
-                <Radio value>允许注册</Radio>
-                <Radio value={false}>禁止注册</Radio>
-              </RadioGroup>
-              <div
-                style={{
-                  float: 'right',
-                  color: 'rgba(153,153,153,1)',
-                  textAlign: 'center',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                }}
-                onClick={this.addUser}
-              >
-                <img style={{ width: '30px', height: '30px' }} src={Addimg} />
-                <div>添加用户</div>
-              </div>
-            </Description>
-          </DescriptionList>
-          <div
-            style={{
-              height: '1px',
-              background: ' #E8E8E8 ',
-              margin: '0 -32px',
-            }}
-          />
-          {ishow && (
-            <DescriptionList
-              col="1"
-              size="large"
-              style={{ marginBottom: 32, marginTop: 32 }}
-            >
-              <Description term="Oauth互联">
-                {oauthInfo && oauthInfo.enable && israinbondTird ? (
-                  <span>
-                    已开通{oauthInfo.oauth_type}类型的第三方OAuth互联服务&nbsp;
-                    {oauthInfo.is_auto_login && ', 且已开启自动登录'}
-                  </span>
-                ) : (
-                  <span ctyle="color:rgba(0, 0, 0, 0.45)">
-                    支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目
-                  </span>
-                )}
-
-                <Switch
-                  style={{ float: 'right' }}
-                  onClick={this.handlChooseeOpen}
-                  checked={israinbondTird && isOpen}
-                />
-                {oauthInfo && (
-                  <Popconfirm
-                    title="删除配置后已绑定的用户数据将清除，确认删除吗?"
-                    onConfirm={this.handleDeleteOauth}
-                    okText="确认"
-                    cancelText="我再想想"
-                  >
-                    <a style={{ float: 'right', marginRight: '10px' }} href="#">
-                      移除配置
-                    </a>
-                  </Popconfirm>
-                )}
-                {oauthInfo && oauthInfo.enable && israinbondTird && (
-                  <a
-                    onClick={this.handleOpen}
-                    style={{ float: 'right', marginRight: '10px' }}
-                  >
-                    编辑
-                  </a>
-                )}
-              </Description>
-            </DescriptionList>
-          )}
-        </Card>
-      );
-    }
-  };
-
   handlUnit = (num, unit) => {
     if (num) {
       let nums = num;
@@ -527,14 +422,6 @@ export default class Enterprise extends PureComponent {
   };
 
   renderContent = () => {
-    const pagination = {
-      current: this.state.teamsPage,
-      pageSize: this.state.teamsPageSize,
-      total: this.state.teamsTotal,
-      onChange: v => {
-        this.hanldePageChange(v);
-      },
-    };
     const teamBox = {
       marginTop: '16px',
       lineHeight: '1px',
@@ -555,7 +442,12 @@ export default class Enterprise extends PureComponent {
     };
     const teamBoxsPs = {
       ...teamBox,
-      ...{ height: '68px', padding: '24px', justifyContent: 'space-around' },
+      ...{
+        height: '68px',
+        padding: '24px',
+        justifyContent: 'space-around',
+        width: '100%',
+      },
     };
 
     const {
@@ -570,6 +462,43 @@ export default class Enterprise extends PureComponent {
       overviewTeamInfoLoading,
       overviewMonitorInfoLoading,
     } = this.state;
+
+    const new_join_team =
+      overviewTeamInfo &&
+      overviewTeamInfo.new_join_team &&
+      overviewTeamInfo.new_join_team.length > 0 &&
+      overviewTeamInfo.new_join_team;
+    const active_teams =
+      overviewTeamInfo &&
+      overviewTeamInfo.active_teams &&
+      overviewTeamInfo.active_teams.length > 0 &&
+      overviewTeamInfo.active_teams;
+
+    const teamOperation = (
+      <div style={teamBoxsPs}>
+        <div
+          style={{ textAlign: 'center', cursor: 'pointer' }}
+          onClick={this.onJoinTeam}
+        >
+          <img src={AddTeam} alt="" />
+          <div style={{ marginTop: '5px' }}>
+            <a className={styles.teamTit}>加入团队</a>
+          </div>
+        </div>
+
+        {this.state.adminer && (
+          <div
+            style={{ textAlign: 'center', cursor: 'pointer' }}
+            onClick={this.onAddTeam}
+          >
+            <img src={CreationTeam} alt="" />
+            <div style={{ marginTop: '5px' }}>
+              <a className={styles.teamTit}>创建团队</a>
+            </div>
+          </div>
+        )}
+      </div>
+    );
     return (
       <div>
         {this.state.joinTeam && (
@@ -636,7 +565,6 @@ export default class Enterprise extends PureComponent {
           </div>
         </Card>
 
-        {/* {this.state.adminer && ( */}
         <div>
           <Row
             style={{
@@ -862,7 +790,6 @@ export default class Enterprise extends PureComponent {
               </Card>
             </Col>
           </Row>
-          {/* {this.getSettingShow()} */}
           <Row
             style={{
               marginBottom: 24,
@@ -874,84 +801,61 @@ export default class Enterprise extends PureComponent {
                 loading={overviewTeamInfoLoading}
                 style={{ height: '243px', marginRight: '25px' }}
               >
-                <Row style={{ marginBottom: '4px' }}>
-                  <Col className={styles.grays} span={12}>
-                    团队
-                  </Col>
-                  <Col className={styles.grays} span={12}>
-                    活跃团队
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={12}>
-                    {overviewTeamInfo &&
-                      overviewTeamInfo.new_join_team &&
-                      overviewTeamInfo.new_join_team.length > 0 && (
-                        <Card
-                          bodyStyle={teamBoxs}
-                          bordered={false}
-                          onClick={() => {
-                            this.props.dispatch(
-                              routerRedux.replace(
-                                `/team/${overviewTeamInfo.new_join_team[0].team_name}/region/${overviewTeamInfo.new_join_team[0].region}/index`
-                              )
-                            );
-                          }}
-                        >
-                          <div className={styles.addTeam}>
-                            <img src={TeamCrew} alt="" />
-                          </div>
+                {active_teams && (
+                  <Row style={{ marginBottom: '4px' }}>
+                    <Col className={styles.grays} span={12}>
+                      团队
+                    </Col>
 
-                          <div
-                            className={styles.grays}
-                            style={{ marginLeft: '18px', width: '128px' }}
-                          >
-                            新加入团队：
-                          </div>
-                          <Tooltip
-                            title={overviewTeamInfo.new_join_team[0].team_alias}
-                          >
-                            <div
-                              className={`${styles.overText} ${styles.teamtest}`}
-                            >
-                              {overviewTeamInfo.new_join_team[0].team_alias}
-                            </div>
-                          </Tooltip>
-                          <div>
-                            <img src={Arrow} alt="" />
-                          </div>
-                        </Card>
-                      )}
-                    <Card bodyStyle={teamBoxsPs} bordered={false}>
-                      <div
-                        style={{ textAlign: 'center', cursor: 'pointer' }}
-                        onClick={this.onJoinTeam}
+                    <Col className={styles.grays} span={12}>
+                      活跃团队
+                    </Col>
+                  </Row>
+                )}
+
+                <Row>
+                  <Col span={active_teams?12:24}>
+                    {new_join_team && (
+                      <Card
+                        bodyStyle={teamBoxs}
+                        bordered={false}
+                        onClick={() => {
+                          this.props.dispatch(
+                            routerRedux.replace(
+                              `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                            )
+                          );
+                        }}
                       >
-                        <img src={AddTeam} alt="" />
-                        <div style={{ marginTop: '5px' }}>
-                          <a href="javascript:;" className={styles.teamTit}>
-                            加入团队
-                          </a>
+                        <div className={styles.addTeam}>
+                          <img src={TeamCrew} alt="" />
                         </div>
-                      </div>
-                      {this.state.adminer && (
+
                         <div
-                          style={{ textAlign: 'center', cursor: 'pointer' }}
-                          onClick={this.onAddTeam}
+                          className={styles.grays}
+                          style={{ marginLeft: '18px', width: '128px' }}
                         >
-                          <img src={CreationTeam} alt="" />
-                          <div style={{ marginTop: '5px' }}>
-                            <a href="javascript:;" className={styles.teamTit}>
-                              创建团队
-                            </a>
-                          </div>
+                          新加入团队：
                         </div>
-                      )}
+                        <Tooltip title={new_join_team[0].team_alias}>
+                          <div
+                            className={`${styles.overText} ${styles.teamtest}`}
+                          >
+                            {new_join_team[0].team_alias}
+                          </div>
+                        </Tooltip>
+                        <div>
+                          <img src={Arrow} alt="" />
+                        </div>
+                      </Card>
+                    )}
+                    <Card bodyStyle={{ padding: 0 }} bordered={false}>
+                      {teamOperation}
                     </Card>
                   </Col>
-                  <Col span={11} offset={1}>
-                    {overviewTeamInfo &&
-                      overviewTeamInfo.active_teams.map(item => {
+                  {active_teams && (
+                    <Col span={11} offset={1}>
+                      {active_teams.map(item => {
                         const { team_name, region, team_alias } = item;
                         return (
                           <Card
@@ -979,7 +883,8 @@ export default class Enterprise extends PureComponent {
                           </Card>
                         );
                       })}
-                  </Col>
+                    </Col>
+                  )}
                 </Row>
               </Card>
             </Col>
@@ -1051,33 +956,7 @@ export default class Enterprise extends PureComponent {
               </Card>
             </Col>
           </Row>
-
-          {/* <Card
-              style={{
-                marginBottom: 24,
-              }}
-              bodyStyle={{
-                paddingTop: 12,
-              }}
-              bordered={false}
-              title="企业团队列表"
-              extra={
-                <a href="javascript:;" onClick={this.onAddTeam}>
-                  添加团队
-                </a>
-              }
-            >
-              <ScrollerX sm={600}>
-                <TeamListTable
-                  pagination={pagination}
-                  onDelete={this.onDelTeam}
-                  onChange={this.onChange}
-                  list={this.state.teamList}
-                />
-              </ScrollerX>
-            </Card> */}
         </div>
-        {/* )} */}
       </div>
     );
   };

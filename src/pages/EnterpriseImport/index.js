@@ -47,7 +47,7 @@ export default class EnterpriseShared extends PureComponent {
       file_list: [],
       import_file_status: [],
       autoQuery: true,
-      value:"enterprise"
+      value: 'enterprise',
     };
     this.autoQuery = true;
     this.autoQueryStatus = false;
@@ -332,132 +332,122 @@ export default class EnterpriseShared extends PureComponent {
         content="离线应用导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他Rainbond平台导出或云应用商店导出"
         returnUrl={`/enterprise/${eid}/shared`}
       >
-        <div className={styles.tit}>离线导入</div>
-        <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
-          <Row className={styles.box}>
-            <Col span={12} className={styles.con}>
-              /grdata/app/import/8c9f09e9dd5f43d6b0b7b5ebfd1b64a8
-            </Col>
-            <Col span={11} className={styles.desc}>
-              你可以将RainbondAPP文件复制到数据中心管理节点目录
-            </Col>
-            <Col span={1} className={styles.rl}>
-              <Icon type="copy" />
-              <div>
-                <CopyToClipboard
-                  text="/grdata/app/import/8c9f09e9dd5f43d6b0b7b5ebfd1b64a8"
-                  onCopy={() => {
-                    notification.success({ message: '复制成功' });
-                  }}
-                >
-                  <span size="small">复制</span>
-                </CopyToClipboard>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-
-        <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
-          <Row className={styles.box}>
-            <Col span={23} className={styles.con}>
-              {this.state.import_file_status.length >= 0 ? (
-                <div>
-                  {this.state.import_file_status.map(app => {
-                    return (
-                      <p style={{ lineHeight: '30px', paddingBottom: '5px' }}>
-                        {app.file_name}
-                        <span style={{ padding: '0 5px' }}>
-                          {appstatus[app.status]}
-                        </span>
-                      </p>
-                    );
-                  })}
-                </div>
-              ) : (
-                '请上传文件'
-              )}
-            </Col>
-            <Col span={1} className={styles.rl}>
-              <Upload
-                name="appTarFile"
-                accept=".zip,.tar"
-                // action={this.state.record.upload_url}
-                action="https://wss-alish.goodrain.com:6060/app/upload/285fcf36ecd94f46a40ae9f6f4b551b7"
-                fileList={this.state.fileList}
-                onChange={this.onChangeUpload}
-                onRemove={this.onRemove}
-                headers={myheaders}
-              >
-                <Icon type="upload" />
-              </Upload>
-              <div>
-                <span size="small">上传</span>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-
-        <div className={styles.tit}>导入列表</div>
-        <Card className={styles.mb10}>
-          <Checkbox.Group
-            style={{ width: '100%' }}
-            onChange={this.onFileChange}
+        <div style={{ margin: '75px 21px 0 24px' }}>
+          <div className={styles.tit}>离线导入</div>
+          <Card
+            bodyStyle={{ padding: '25px 0 25px 29px' }}
+            className={styles.mb10}
           >
-            <Row>
-              {this.state.existFileList.map(order => {
-                return (
-                  <Col key={`col${order}`} span={24}>
-                    <Checkbox key={order} value={order}>
-                      {order}
-                    </Checkbox>
-                  </Col>
-                );
-              })}
+            <Row className={styles.box}>
+              <Col span={24} className={styles.desc}>
+                正在使用“阿里云上海”数据中心完成本次导入任务
+              </Col>
             </Row>
-          </Checkbox.Group>
-        </Card>
-        <div className={styles.tit}>导入范围</div>
+          </Card>
 
-        <Card className={styles.mb10}>
-          <Radio.Group onChange={this.onChangeRadio} value={this.state.value}>
-            <Radio style={radioStyle} value='enterprise'>
-              上传到企业
-            </Radio>
-            <Radio style={radioStyle} value={2}>
-              上传到团队
-              <Select
-                size="small"
-                defaultValue="goodrain"
-                style={{ width: 120, marginLeft: '15px' }}
-                // onChange={handleChange}
-              >
-                <Option value="jack">goodrain</Option>
-                <Option value="lucy">Lucy</Option>
-              </Select>
-            </Radio>
-          </Radio.Group>
-        </Card>
-        <Row style={{ marginTop: '25px' }}>
-          <Col span={24} className={styles.btn}>
-            <Button
-              onClick={() => {
-                this.cancelImport();
-              }}
+          <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
+            <Row className={styles.box}>
+              <Col span={23} className={styles.con}>
+                上传RainbondAPP文件
+                {/* {this.state.import_file_status.length >= 0 ? (
+                  <div>
+                    {this.state.import_file_status.map(app => {
+                      return (
+                        <p style={{ lineHeight: '30px', paddingBottom: '5px' }}>
+                          {app.file_name}
+                          <span style={{ padding: '0 5px' }}>
+                            {appstatus[app.status]}
+                          </span>
+                        </p>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  '上传RainbondAPP文件'
+                )} */}
+              </Col>
+              <Col span={1} className={styles.rl}>
+                <Upload
+                  name="appTarFile"
+                  accept=".zip,.tar"
+                  // action={this.state.record.upload_url}
+                  action="https://wss-alish.goodrain.com:6060/app/upload/285fcf36ecd94f46a40ae9f6f4b551b7"
+                  fileList={this.state.fileList}
+                  onChange={this.onChangeUpload}
+                  onRemove={this.onRemove}
+                  headers={myheaders}
+                >
+                  <Icon type="upload" />
+                </Upload>
+                <div>
+                  <span size="small">上传</span>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+
+          <div className={styles.tit}>已上传文件列表</div>
+          <Card className={styles.mb10}>
+            <Checkbox.Group
+              style={{ width: '100%' }}
+              onChange={this.onFileChange}
             >
-              放弃导入
-            </Button>
-            {this.state.import_file_status.length == 0 && (
+              <Row>
+                {this.state.existFileList.map(order => {
+                  return (
+                    <Col key={`col${order}`} span={24}>
+                      <Checkbox key={order} value={order}>
+                        {order}
+                      </Checkbox>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Checkbox.Group>
+          </Card>
+          <div className={styles.tit}>导入范围</div>
+
+          <Card className={styles.mb10}>
+            <Radio.Group onChange={this.onChangeRadio} value={this.state.value}>
+              <Radio style={radioStyle} value="enterprise">
+                上传到企业
+              </Radio>
+              <Radio style={radioStyle} value={2}>
+                上传到团队
+                <Select
+                  size="small"
+                  defaultValue="goodrain"
+                  style={{ width: 120, marginLeft: '15px' }}
+                  // onChange={handleChange}
+                >
+                  <Option value="jack">goodrain</Option>
+                  <Option value="lucy">Lucy</Option>
+                </Select>
+              </Radio>
+            </Radio.Group>
+          </Card>
+          <Row style={{ marginTop: '25px' }}>
+            <Col span={24} className={styles.btn}>
               <Button
-                type="primary"
                 onClick={() => {
-                  this.handleSubmit();
+                  this.cancelImport();
                 }}
               >
-                确认导入
+                放弃导入
               </Button>
-            )}
-          </Col>
-        </Row>
+              {this.state.import_file_status.length == 0 && (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    this.handleSubmit();
+                  }}
+                >
+                  确认导入
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </div>
       </PageHeaderLayout>
     );
   }
