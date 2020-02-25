@@ -15,7 +15,6 @@ mv dist build/dist
 docker build -t "rainbond/rbd-app-ui:$VERSION" ./build
 docker push "rainbond/rbd-app-ui:$VERSION"
 
-docker tag "rainbond/rbd-app-ui:$VERSION" 
 if [ ${DOMESTIC_BASE_NAME} ];
 then
 	docker tag "rainbond/rbd-app-ui:$VERSION" "${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-app-ui:${VERSION}"
