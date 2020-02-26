@@ -28,6 +28,12 @@ import userUtil from "../../utils/user";
 import AddServiceComponent from "./AddServiceComponent";
 import AddThirdParty from "./AddThirdParty";
 import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
+import {
+  createEnterprise,
+  createTeam,
+  createApp
+} from "../../utils/breadcrumb";
+
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
@@ -87,12 +93,15 @@ class EditGroupName extends PureComponent {
   }
 }
 
-@connect(({ user, groupControl, global }) => ({
+@connect(({ user, groupControl, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
   groups: global.groups || [],
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise
 }))
 class Main extends PureComponent {
   constructor(arg) {
@@ -123,7 +132,7 @@ class Main extends PureComponent {
   }
 
   loading = () => {
-    this.fetchGroupDetail();
+    this.fetchAppDetail();
     this.recordShare();
     this.loadTopology();
     this.timer = setInterval(() => {
@@ -189,20 +198,19 @@ class Main extends PureComponent {
       }
     });
   }
-  fetchGroupDetail = () => {
+  fetchAppDetail = () => {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
+    const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
       type: "groupControl/fetchGroupDetail",
       payload: {
-        team_name,
-        region_name,
-        group_id: this.getGroupId()
+        team_name: teamName,
+        region_name: regionName,
+        group_id: appID
       },
       callback: res => {
-        if (res && res.status === 200) {
+        if (res && res._code === 200) {
           this.setState({
             currApp: res.bean,
             loadingDetail: false
@@ -210,7 +218,7 @@ class Main extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.status === 404) {
+        if (res && res.code === 404) {
           this.props.dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
@@ -538,8 +546,21 @@ class Main extends PureComponent {
           <VisterBtn linkList={this.state.linkList} />}
       </div>
     );
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createApp(
+      createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      ),
+      currentTeam,
+      currentRegionName,
+      { appName: groupDetail.group_name, appID: groupDetail.group_id }
+    );
     return (
       <PageHeaderLayout
+        breadcrumbList={breadcrumbList}
         loading={loadingDetail}
         content={pageHeaderContent}
         extraContent={
@@ -560,7 +581,8 @@ class Main extends PureComponent {
           }}
         >
           <Col span={16} style={{ paddingleft: "12px" }}>
-            {<Link
+            {
+              <Link
                 onClick={() => {
                   this.changeType("shape");
                 }}
@@ -573,7 +595,8 @@ class Main extends PureComponent {
                 }}
               >
                 拓扑图
-              </Link>}
+              </Link>
+            }
             <Link
               onClick={() => {
                 this.changeType("list");
@@ -581,9 +604,7 @@ class Main extends PureComponent {
               style={{
                 marginLeft: "30px",
                 color:
-                  this.state.type === "list"
-                    ? "#1890ff"
-                    : "rgba(0, 0, 0, 0.65)"
+                  this.state.type === "list" ? "#1890ff" : "rgba(0, 0, 0, 0.65)"
               }}
             >
               列表
@@ -647,8 +668,10 @@ class Main extends PureComponent {
                 </a>}
           </Row>}
 
-        {this.state.type === "list"&&<ComponentList groupId={this.getGroupId()} />}
-        {this.state.type === "shape" &&<AppShape group_id={this.getGroupId()} />}
+        {this.state.type === "list" &&
+          <ComponentList groupId={this.getGroupId()} />}
+        {this.state.type === "shape" &&
+          <AppShape group_id={this.getGroupId()} />}
         {this.state.type === "spin" && <Spin />}
         {this.state.type === "shapes" &&
           <EditorTopology

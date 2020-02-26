@@ -71,7 +71,7 @@ export default class SelectTeam extends PureComponent {
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const { components, loading, currentApp, visible } = this.state;
-    const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;
+    const currentAPPLink = currentComponent && `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -116,7 +116,10 @@ export default class SelectTeam extends PureComponent {
         </div>
       </div>
     );
-
+    let showstyle = {}
+    if (currentComponent) {
+      showstyle = {background: "#1890ff", color: "#ffffff"}
+    }
     return (
       <div
         className={className}
@@ -125,17 +128,17 @@ export default class SelectTeam extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={visible}>
           <div className={style.selectButton}>
-            <Link className={style.selectButtonLink} to={currentAPPLink}>
-              <div className={style.selectButtonName}>
-                <span>
-                  <FormattedMessage id="header.component.name" />
-                </span>
-                {currentComponent ? currentComponent.service_cname : <FormattedMessage id="header.component.noselect" />}
-              </div>
-              <Icon className={style.selectButtonArray} type="caret-down" />
-            </Link>
+            <div className={style.selectButtonName} style={showstyle}>
+              <span>
+                <FormattedMessage id="header.component.name" />
+                <Icon className={style.selectButtonArray} type="caret-down" />
+              </span>
+            </div>
           </div>
         </Dropdown>
+        <Link className={style.selectButtonLink} to={currentAPPLink}>
+          {currentComponent && currentComponent.service_cname}
+        </Link>
       </div>
     );
   }

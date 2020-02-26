@@ -7,9 +7,17 @@ import globalUtil from "../../utils/global";
 import ImageName from "./image-name";
 import ImageCmd from "./image-cmd";
 import ImageCompose from "./image-compose";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
 @connect(
-  ({ user, groupControl }) => ({}),
+  ({ teamControl, enterprise }) => ({
+    currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
+  }),
   null,
   null,
   { pure: false },
@@ -55,23 +63,17 @@ export default class Main extends PureComponent {
       type = "custom";
     }
     const Com = map[type];
-
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "创建组件"})
     return (
       <PageHeaderLayout
-        breadcrumbList={[
-          {
-            title: "首页",
-            href: "/",
-          },
-          {
-            title: "创建组件",
-            href: "",
-          },
-          {
-            title: "从Docker镜像创建组件",
-            href: "",
-          },
-        ]}
+        breadcrumbList={breadcrumbList}
         title="从Docker镜像创建组件"
         onTabChange={this.handleTabChange}
         content="支持从单一镜像、Docker命令、Docker-Compose配置创建应用"

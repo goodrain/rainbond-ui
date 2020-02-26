@@ -13,6 +13,10 @@ import Manage from "./manage";
 import ConfirmModal from "../../components/ConfirmModal";
 import NoPermTip from "../../components/NoPermTip";
 import MarketPluginDetailShow from "../../components/MarketPluginDetailShow";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
 class MarketPlugin extends PureComponent {
   constructor(props) {
@@ -163,7 +167,11 @@ class MarketPlugin extends PureComponent {
   }
 }
 
-@connect(({ list, loading }) => ({}))
+@connect(({ teamControl, enterprise }) => ({
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise
+}))
 class PluginList extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -342,9 +350,17 @@ class PluginList extends PureComponent {
     );
 
     const extraContent = <div className={styles.extraImg} />;
-
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "插件列表"})
     return (
       <PageHeaderLayout
+        breadcrumbList={breadcrumbList}
         title="我的插件"
         content={content}
         extraContent={extraContent}
@@ -432,7 +448,12 @@ class PluginList extends PureComponent {
   }
 }
 
-@connect(({ user }) => ({ currUser: user.currentUser }))
+@connect(({ user, teamControl, enterprise }) => ({ 
+  currUser: user.currentUser,
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise
+}))
 class Index extends PureComponent {
   render() {
     const currUser = this.props.currUser;

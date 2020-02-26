@@ -24,15 +24,22 @@ import Ellipsis from "../../components/Ellipsis";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import PluginStyles from "../Plugin/Index.less";
 import GoodrainRZ from "../../components/GoodrainRenzheng";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
 const Option = Select.Option;
 const { TabPane } = Tabs;
 
 @connect(
-  ({ global, loading, appControl }) => ({
+  ({ global, loading, appControl, teamControl, enterprise }) => ({
     rainbondInfo: global.rainbondInfo,
     loading,
-    appDetail: appControl.appDetail
+    appDetail: appControl.appDetail,
+    currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
   }),
   null,
   null,
@@ -119,13 +126,16 @@ export default class Main extends PureComponent {
     }
   };
   getApps = v => {
+    const { currentEnterprise } = this.props
     this.props.dispatch({
-      type: "market/getMarketApp",
+      type: "market/fetchAppModels",
       payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
         app_name: v ? "" : this.state.app_name || "",
         scope: v ? "" : this.state.scope,
         page_size: v ? 9 : this.state.pageSize,
-        page: v ? 1 : this.state.page
+        page: v ? 1 : this.state.page,
+        is_complete: 1,
       },
       callback: data => {
         if (data) {
@@ -148,9 +158,11 @@ export default class Main extends PureComponent {
   };
 
   getCloudRecommendApps = v => {
+    const { currentEnterprise } = this.props
     this.props.dispatch({
       type: "market/getRecommendMarketAppList",
       payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
         app_name: v ? "" : this.state.cloudApp_name || "",
         page_size: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage
@@ -415,9 +427,9 @@ export default class Main extends PureComponent {
       </div>
     );
     return (
-      <Fragment>
-        {item.is_official && (
-          <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
+      <Fragment>        
+        {(item.is_official==true || item.is_official==1) && (
+          <GoodrainRZ  style={{ marginLeft: 6, marginTop: 6 }} />
         )}
         {handleType ? (
           <Card
@@ -436,7 +448,6 @@ export default class Main extends PureComponent {
                   title={item.version}
                   className={PluginStyles.cardVersionStyle}
                 >
-                  {" "}
                   <span>版本:</span>
                   <div className={PluginStyles.overScroll}>
                     <div>
@@ -813,6 +824,14 @@ export default class Main extends PureComponent {
     }
 
     const loading = this.props.loading;
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "创建组件"})
     return (
       <div>
         {handleType ? (
@@ -943,20 +962,7 @@ export default class Main extends PureComponent {
         ) : (
           <div>
             <PageHeaderLayout
-              breadcrumbList={[
-                {
-                  title: "首页",
-                  href: "/",
-                },
-                {
-                  title: "创建组件",
-                  href: "",
-                },
-                {
-                  title: "从共享库创建组件",
-                  href: "",
-                },
-              ]}
+              breadcrumbList={breadcrumbList}
               content={mainSearch}
               tabList={tabListMax}
               tabActiveKey={scopeMax}

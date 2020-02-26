@@ -15,13 +15,21 @@ import TeamDataCenterList from "../../components/Team/TeamDataCenterList";
 import TeamMemberList from "../../components/Team/TeamMemberList";
 import TeamRoleList from "../../components/Team/TeamRoleList";
 import TeamEventList from "../../components/Team/TeamEventList";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
-@connect(({ user, teamControl, loading }) => ({
+
+@connect(({ user, teamControl, loading, enterprise }) => ({
   currUser: user.currentUser,
   teamControl,
   projectLoading: loading.effects["project/fetchNotice"],
   activitiesLoading: loading.effects["activities/fetchList"],
   regions: teamControl.regions,
+  currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -163,9 +171,17 @@ export default class Index extends PureComponent {
         tab: "角色",
       },
     ];
-
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "团队设置"})
     return (
       <PageHeaderLayout
+        breadcrumbList={breadcrumbList}
         tabList={tabList}
         onTabChange={this.handleTabChange}
         content={pageHeaderContent}

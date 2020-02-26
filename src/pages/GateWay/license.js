@@ -4,12 +4,20 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import LicenseDrawer from "../../components/LicenseDrawer";
 import { Row, Col, Button, Table, Card, notification, Typography } from "antd";
 import { connect } from "dva";
-import userUtil from "../../utils/user";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 import globalUtil from "../../utils/global";
 
 const { Paragraph } = Typography;
 
-@connect(({ user }) => ({ currUser: user.currentUser }))
+@connect(({ user, teamControl, enterprise }) => ({
+  currUser: user.currentUser,
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise
+}))
 class Control extends Component {
   constructor(props) {
     super(props);
@@ -185,7 +193,9 @@ class Control extends Component {
                 issued_to.map(item => {
                   return (
                     <Row key={item}>
-                      <Paragraph copyable>{item}</Paragraph>
+                      <Paragraph copyable>
+                        {item}
+                      </Paragraph>
                     </Row>
                   );
                 })}
@@ -240,40 +250,34 @@ class Control extends Component {
               >
                 编辑
               </a>
-              {record.issued_by.includes("第三方签发") ? (
-                ""
-              ) : (
-                <a
-                  style={{ marginRight: "10px" }}
-                  onClick={this.handleUpdate.bind(this, record)}
-                >
-                  更新
-                </a>
-              )}
+              {record.issued_by.includes("第三方签发")
+                ? ""
+                : <a
+                    style={{ marginRight: "10px" }}
+                    onClick={this.handleUpdate.bind(this, record)}
+                  >
+                    更新
+                  </a>}
               <a onClick={this.handleDelete.bind(this, record)}>删除</a>
             </span>
           );
         }
       }
     ];
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+      createEnterprise(breadcrumbList, currentEnterprise),
+      currentTeam,
+      currentRegionName
+    );
+    breadcrumbList.push({ title: "网关管理" });
     const { page_num, page_size, total, licenseList } = this.state;
     return (
-      <PageHeaderLayout
-        title="证书管理"
-        breadcrumbList={[
-          {
-            title: "首页",
-            icon: "home"
-          },
-          {
-            title: "应用网关",
-            icon: "folder-open"
-          },
-          {
-            title: "证书管理",
-            icon: "laptop"
-          }
-        ]}
+      <PageHeaderLayout 
+       title="证书管理" 
+       breadcrumbList={breadcrumbList}
+       content="TLS证书管理，支持服务端证书，支持展示证书过期时间"
       >
         <Row>
           <Button
@@ -300,7 +304,7 @@ class Control extends Component {
             loading={this.state.licenseLoading}
           />
         </Card>
-        {this.state.visibleDrawer && (
+        {this.state.visibleDrawer &&
           <LicenseDrawer
             ref={this.saveForm}
             visible={this.state.visibleDrawer}
@@ -309,8 +313,7 @@ class Control extends Component {
               this.handleOk(values);
             }}
             editData={this.state.editData}
-          />
-        )}
+          />}
       </PageHeaderLayout>
     );
   }

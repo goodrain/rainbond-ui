@@ -131,6 +131,7 @@ class TeamLayout extends React.PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
     dispatch({ type: "teamControl/fetchCurrentTeam", payload: team });
+    dispatch({ type: "teamControl/fetchCurrentRegionName", payload: {currentRegionName: regionName}})
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
       if (eid == item.enterprise_id) {

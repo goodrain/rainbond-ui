@@ -3,8 +3,17 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import HttpTable from "../../components/HttpTable"
 import TcpTable from "../../components/TcpTable"
 import { connect } from 'dva';
+import {
+    createEnterprise,
+    createTeam
+  } from "../../utils/breadcrumb";
 
-@connect(({ user }) => ({ currUser: user.currentUser }))
+@connect(({ user, teamControl, enterprise }) => ({ 
+    currUser: user.currentUser,
+    currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
+}))
 class Control extends Component {
     constructor(props) {
         super(props)
@@ -24,21 +33,21 @@ class Control extends Component {
             return <TcpTable/>
         }
     }
+
     render() {
+        let breadcrumbList = [];
+        const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+        breadcrumbList = createTeam(
+            createEnterprise(breadcrumbList, currentEnterprise),
+            currentTeam,
+            currentRegionName
+        );
+        breadcrumbList.push({title:"网关管理"})
         return (
             <PageHeaderLayout
                 title="访问控制"
                 tabActiveKey={this.state.tabKey}
-                breadcrumbList={[{
-                    title: "首页",
-                    icon: "home"
-                }, {
-                    title: "应用网关",
-                    icon:"folder-open"
-                }, {
-                    title: "访问控制",
-                    icon:"laptop"
-                }]}
+                breadcrumbList={breadcrumbList}
                 tabList={[
                     {
                         key: 'http',

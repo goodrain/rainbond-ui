@@ -156,14 +156,15 @@ export default class SelectTeam extends PureComponent {
           visible={visible}
         >
           <div className={style.selectButton}>
-            <Link className={style.selectButtonLink} to={currentTeamLink}>
-              <div className={style.selectButtonName}>
-                <span><FormattedMessage id="header.team.name"></FormattedMessage></span>{currentTeam.team_alias}
-              </div>
+            <div className={style.selectButtonName} style={{background: "#1890ff", color: "#ffffff"}}>
+              <span><FormattedMessage id="header.team.name"></FormattedMessage></span>
               <Icon className={style.selectButtonArray} type="caret-down" />
-            </Link>
+            </div>
           </div>
         </Dropdown>
+        <Link className={style.selectButtonLink} to={currentTeamLink}>
+              {currentTeam.team_alias}
+        </Link>
         {showCreateTeam && (
           <CreateTeam
             onOk={this.handleCreateTeam}

@@ -15,12 +15,12 @@ import {
   Icon,
   Tooltip,
   Table,
-  notification
+  notification,
 } from "antd";
 import cookie from "../../utils/cookie";
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
 import { MiniArea, ChartCard } from "../../components/Charts";
-
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import NumberInfo from "../../components/NumberInfo";
 import numeral from "numeral";
 import EditGroupName from "../../components/AddOrEditGroup";
@@ -31,13 +31,21 @@ import userUtil from "../../utils/user";
 import sourceUtil from "../../utils/source-unit";
 import guideutil from "../../utils/guide";
 import rainbondUtil from "../../utils/rainbond";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
-@connect(({ user, index, loading, global }) => ({
+
+@connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   index,
   events: index.events,
   pagination: index.pagination,
   rainbondInfo: global.rainbondInfo,
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise,
   projectLoading: loading.effects["project/fetchNotice"],
   activitiesLoading: loading.effects["activities/fetchList"],
   loading
@@ -105,34 +113,30 @@ export default class Index extends PureComponent {
                 res.list && res.list.length > 0 && !res.list[0].status
                   ? 0
                   : !res.list[1].status
-                  ? 1
-                  : !res.list[2].status
-                  ? 2
-                  : !res.list[3].status
-                  ? 3
-                  : !res.list[4].status
-                  ? 4
-                  : !res.list[5].status
-                  ? 5
-                  : !res.list[6].status
-                  ? 6
-                  : 7
+                    ? 1
+                    : !res.list[2].status
+                      ? 2
+                      : !res.list[3].status
+                        ? 3
+                        : !res.list[4].status
+                          ? 4
+                          : !res.list[5].status
+                            ? 5
+                            : !res.list[6].status ? 6 : 7
             },
             () => {
               let isGuidevisible =
                 this.state.current == 7
                   ? false
-                  : cookie.get("guide")
-                  ? false
-                  : true;
+                  : cookie.get("guide") ? false : true;
               this.setState({
                 guidevisible: isGuidevisible
               });
               this.state.current == 7
                 ? false
                 : cookie.get("guide")
-                ? false
-                : cookie.setGuide("guide", "true");
+                  ? false
+                  : cookie.setGuide("guide", "true");
             }
           );
         }
@@ -455,9 +459,7 @@ export default class Index extends PureComponent {
         Target
       } = item;
 
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-        item.service_alias
-      }/overview`;
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${item.service_alias}/overview`;
       return (
         <List.Item key={item.ID}>
           <List.Item.Meta
@@ -465,15 +467,14 @@ export default class Index extends PureComponent {
               <span>
                 <a className={styles.username}>{UserName}</a>
                 <span className={styles.event}>
-                  {" "}
-                  {globalUtil.fetchStateOptTypeText(OptType)}
+                  {" "}{globalUtil.fetchStateOptTypeText(OptType)}
                 </span>
                 &nbsp;
-                {Target && Target === "service" && (
+                {Target &&
+                  Target === "service" &&
                   <Link to={linkTo} className={styles.event}>
                     {item.service_name}
-                  </Link>
-                )}
+                  </Link>}
                 <span
                   style={{
                     color: globalUtil.fetchAbnormalcolor(OptType)
@@ -544,7 +545,7 @@ export default class Index extends PureComponent {
         dataIndex: "metric",
         key: "metric",
         width: "70%",
-        render: (text, record) => (
+        render: (text, record) =>
           <Tooltip title={record.metric.host}>
             <div
               style={{
@@ -560,7 +561,6 @@ export default class Index extends PureComponent {
               </a>
             </div>
           </Tooltip>
-        )
       },
       {
         title: "请求量/时",
@@ -568,7 +568,7 @@ export default class Index extends PureComponent {
         key: "value",
         width: "30%",
         sorter: (a, b) => a.range - b.range,
-        render: (text, record) => (
+        render: (text, record) =>
           // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
@@ -580,9 +580,8 @@ export default class Index extends PureComponent {
             }}
           >
             {record.value[1]}
-          </span>
+          </span>,
           // </Trend>
-        ),
         align: "right"
       }
     ];
@@ -593,11 +592,10 @@ export default class Index extends PureComponent {
         dataIndex: "metric",
         key: "metric",
         width: "65%",
-        render: (text, record) => (
+        render: (text, record) =>
           <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-              record.metric.service_alias
-            }`}
+            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${record
+              .metric.service_alias}`}
           >
             <Tooltip title={record.metric.service_cname}>
               <a
@@ -614,7 +612,6 @@ export default class Index extends PureComponent {
               </a>
             </Tooltip>
           </Link>
-        )
       },
       {
         title: "请求量/时",
@@ -622,7 +619,7 @@ export default class Index extends PureComponent {
         key: "value",
         width: "35%",
         sorter: (a, b) => a.range - b.range,
-        render: (text, record) => (
+        render: (text, record) =>
           // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
@@ -634,9 +631,8 @@ export default class Index extends PureComponent {
             }}
           >
             {record.value[1]}
-          </span>
+          </span>,
           // </Trend>
-        ),
         align: "right"
       }
     ];
@@ -655,7 +651,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="success" />
-            <FormattedMessage id="team.appNum"/>
+            <FormattedMessage id="team.appNum" />
           </p>
           <div>
             <div style={{ color: "rgba(0,0,0,.85)" }}>
@@ -666,7 +662,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="processing" />
-            <FormattedMessage id="team.componentNum"/>
+            <FormattedMessage id="team.componentNum" />
           </p>
           <div style={{ color: "rgba(0,0,0,.85)" }}>
             {index.overviewInfo.team_service_num || 0}
@@ -675,7 +671,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="error" />
-            <FormattedMessage id="team.gatewayRuleNum"/>
+            <FormattedMessage id="team.gatewayRuleNum" />
           </p>
           <div>
             <Link
@@ -694,7 +690,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="warning" />
-            <FormattedMessage id="team.memoryUsage"/>
+            <FormattedMessage id="team.memoryUsage" />
           </p>
           <div>
             <Tooltip
@@ -714,7 +710,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="warning" />
-            <FormattedMessage id="team.diskUsage"/>
+            <FormattedMessage id="team.diskUsage" />
           </p>
           <div>
             <Tooltip
@@ -734,7 +730,7 @@ export default class Index extends PureComponent {
         <div className={styles.statItem}>
           <p>
             <Badge status="default" />
-            <FormattedMessage id="team.appmodeNum"/>
+            <FormattedMessage id="team.appmodeNum" />
           </p>
           <div>
             <Link
@@ -751,35 +747,34 @@ export default class Index extends PureComponent {
         </div>
       </div>
     );
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-
-    const formItemLayout = {
-      labelCol: {
-        span: 5
-      },
-      wrapperCol: {
-        span: 19
-      }
-    };
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
     const { teamList, GuideList, domainList, serviceList } = this.state;
     const steps = guideutil.getStep(GuideList);
     return (
-      <div style={{ margin: "-24px -24px 0" }}>
+      <PageHeaderLayout
+        breadcrumbList={breadcrumbList}
+      >
+      <div style={{ margin: "0px -24px 0" }}>
         <Modal
           title={
-            configureGlobal.rainbondTextShow && (
-              <h1
-                style={{
-                  color: "#1890FF",
-                  textAlign: "center",
-                  border: "none",
-                  marginBottom: "0px",
-                  marginTop: "10px"
-                }}
-              >
-                欢迎使用Rainbond云应用操作系统
-              </h1>
-            )
+            configureGlobal.rainbondTextShow &&
+            <h1
+              style={{
+                color: "#1890FF",
+                textAlign: "center",
+                border: "none",
+                marginBottom: "0px",
+                marginTop: "10px"
+              }}
+            >
+              欢迎使用Rainbond云应用操作系统
+            </h1>
           }
           visible={this.state.guidevisible}
           onOk={this.handleOkGuidevisible}
@@ -811,28 +806,24 @@ export default class Index extends PureComponent {
                           index == 0
                             ? "53px"
                             : index == 1
-                            ? "80px"
-                            : index == 2
-                            ? "100px"
-                            : index == 3
-                            ? "72px"
-                            : index == 4
-                            ? "82px"
-                            : index == 5
-                            ? "77px"
-                            : "53px",
+                              ? "80px"
+                              : index == 2
+                                ? "100px"
+                                : index == 3
+                                  ? "72px"
+                                  : index == 4
+                                    ? "82px"
+                                    : index == 5 ? "77px" : "53px",
                         width:
                           index == 1
                             ? "86%"
                             : index == 2
-                            ? "60%"
-                            : index == 3
-                            ? "86%"
-                            : index == 4
-                            ? "78%"
-                            : index == 5
-                            ? "77%"
-                            : "100%",
+                              ? "60%"
+                              : index == 3
+                                ? "86%"
+                                : index == 4
+                                  ? "78%"
+                                  : index == 5 ? "77%" : "100%",
                         display: index == 6 ? "none" : ""
                       }}
                     />
@@ -842,7 +833,7 @@ export default class Index extends PureComponent {
                       }
                     >
                       <span>
-                        {status && (
+                        {status &&
                           <svg
                             viewBox="64 64 896 896"
                             data-icon="check"
@@ -852,8 +843,7 @@ export default class Index extends PureComponent {
                             aria-hidden="true"
                           >
                             <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
-                          </svg>
-                        )}
+                          </svg>}
                       </span>
                     </div>
                     <div
@@ -863,7 +853,9 @@ export default class Index extends PureComponent {
                           : styles.stepsinfocontent
                       }
                     >
-                      <div>{item.title}</div>
+                      <div>
+                        {item.title}
+                      </div>
                     </div>
                     <div />
                   </div>
@@ -940,25 +932,23 @@ export default class Index extends PureComponent {
                       >
                         <div style={{ padding: "10px 20px" }}>
                           <Link
-                            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                              item.group_id
-                            }`}
+                            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`}
                             style={{
                               wordBreak: "break-all",
                               wordWrap: "break-word",
                               color: "rgba(0,0,0,.85)"
                             }}
                           >
-                            <a style={{ fontSize: "16px" }}>{group_name}</a>
+                            <a style={{ fontSize: "16px" }}>
+                              {group_name}
+                            </a>
                           </Link>
 
                           <div className={styles.teamListStyle}>
                             <div>
                               <span>组件：</span>
                               <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                  item.group_id
-                                }`}
+                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`}
                                 style={{
                                   wordBreak: "break-all",
                                   wordWrap: "break-word",
@@ -974,9 +964,7 @@ export default class Index extends PureComponent {
                             <div>
                               <span>备份记录：</span>
                               <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                  item.group_id
-                                }/backup`}
+                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/backup`}
                                 style={{
                                   wordBreak: "break-all",
                                   wordWrap: "break-word",
@@ -1000,19 +988,17 @@ export default class Index extends PureComponent {
                     );
                   })}
 
-                {teamList && teamList.length > 0 && this.state.total > 0 ? (
-                  <div style={{ textAlign: "right", margin: "15px" }}>
-                    <Pagination
-                      size="small"
-                      current={this.state.page}
-                      pageSize={this.state.page_size}
-                      total={Number(this.state.total)}
-                      onChange={this.onPageChange}
-                    />
-                  </div>
-                ) : (
-                  <List />
-                )}
+                {teamList && teamList.length > 0 && this.state.total > 0
+                  ? <div style={{ textAlign: "right", margin: "15px" }}>
+                      <Pagination
+                        size="small"
+                        current={this.state.page}
+                        pageSize={this.state.page_size}
+                        total={Number(this.state.total)}
+                        onChange={this.onPageChange}
+                      />
+                    </div>
+                  : <List />}
               </Card>
 
               <Card
@@ -1122,15 +1108,15 @@ export default class Index extends PureComponent {
               </Card>
             </Col>
           </Row>
-          {this.state.addApplication && (
+          {this.state.addApplication &&
             <EditGroupName
               title="添加应用"
               onCancel={this.handleCancelApplication}
               onOk={this.handleOkApplication}
-            />
-          )}
+            />}
         </div>
       </div>
+      </PageHeaderLayout>
     );
   }
 }

@@ -25,12 +25,18 @@ import AddOrEditConfig from '../../components/AddOrEditConfig';
 import ConfirmModal from '../../components/ConfirmModal';
 import BuildPluginVersion from '../../components/buildPluginVersion';
 import ScrollerX from '../../components/ScrollerX';
-const FormItem = Form.Item;
-const Option = Select.Option;
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 const ButtonGroup = Button.Group;
 
 @Form.create()
-@connect(({ list, loading }) => ({}))
+@connect(({ teamControl, enterprise }) => ({
+  currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
+}))
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -427,19 +433,18 @@ export default class Index extends PureComponent {
         </Col>
       </Row>
     );
-
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "插件列表", href:`/team/${currentTeam.team_name}/region/${currentRegionName}/myplugns`})
+    breadcrumbList.push({title: this.state.currInfo.plugin_alias})
     return (
       <PageHeaderLayout
-        breadcrumbList={[{
-          title: "首页",
-          href: `/`
-        }, {
-          title: "我的插件",
-          href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns`
-        }, {
-          title: this.state.currInfo.plugin_alias,
-          href: ``
-        }]}
+        breadcrumbList={breadcrumbList}
         title={this.state.currInfo.plugin_alias}
         content={this.state.currInfo.desc}
         extraContent={extra}

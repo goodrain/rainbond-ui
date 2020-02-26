@@ -2,21 +2,10 @@ import React, { PureComponent } from "react";
 import { connect } from "dva";
 import { Link, Route, routerRedux } from "dva/router";
 import {
-  Row,
-  Col,
   Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
   Select,
-  Input,
-  Modal
 } from "antd";
 import styles from "./Index.less";
-import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import OuterCustomForm from "../../components/OuterCustomForm";
 
@@ -33,7 +22,7 @@ const formItemLayout = {
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  groups: global.groups
+  groups: global.groups,
 }))
 export default class Index extends PureComponent {
   constructor(props) {

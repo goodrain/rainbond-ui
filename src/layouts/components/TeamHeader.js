@@ -21,10 +21,12 @@ export default function TeamHeader(props) {
           size="small"
           style={{
             float: "left",
-            margin: "20px 0 20px 24px",
-            background: "#1890ff",
-            color: "#ffffff",
-            border: "none"
+            margin: "17px 0px 20px 24px",
+            background: "#ffffff",
+            color: "#333333",
+            border: "none",
+            padding: "0 8px",
+            height: "30px"
           }}
         >
           <Icon type="left" />

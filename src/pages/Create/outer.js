@@ -15,16 +15,21 @@ import {
   notification
 } from "antd";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { getRoutes } from "../../utils/utils";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import OuterCustom from "./outer-custom";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
-const ButtonGroup = Button.Group;
 
 @connect(
-  ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
+  ({ enterprise, teamControl, global }) => ({ 
+    rainbondInfo: global.rainbondInfo,
+    currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
+  }),
   null,
   null,
   { pure: false }
@@ -51,13 +56,14 @@ export default class Main extends PureComponent {
       outer: OuterCustom
     };
 
-    // const tabList = [
-    //   {
-    //     key: "outer",
-    //     tab: "",
-    //   }
-    // ];
-    const { match, routerData, location } = this.props;
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "创建组件"})
     let type = this.props.match.params.type;
     if (!type) {
       type = "outer";
@@ -66,20 +72,7 @@ export default class Main extends PureComponent {
 
     return (
       <PageHeaderLayout
-        breadcrumbList={[
-          {
-            title: "首页",
-            href: "/"
-          },
-          {
-            title: "创建组件",
-            href: ""
-          },
-          {
-            title: "添加第三方组件",
-            href: ""
-          }
-        ]}
+        breadcrumbList={breadcrumbList}
         title="添加第三方组件"
         onTabChange={this.handleTabChange}
         content={

@@ -9,9 +9,8 @@
     padding: 10px;
     margin-left: 16px;
 }
-.selectButton:hover, .selectButtonLink:hover {
-    background: #1890ff;
-    color: #ffffff;
+.selectButtonLink:hover {
+    color: #1890ff;
 }
 
 .selectButtonLink {
@@ -19,11 +18,15 @@
     display: flex;
     -ms-flex-align: center;
     align-items: center;
+    font-size: 16px;
     color: #ffffff;
 }
-
 .selectButtonName {
     margin: 0 5px 1px 0;
+    padding: 0 7px;
+    background: #ffffff;
+    border-radius: 4px;
+    color: #333333;
     display: inline-block;
     overflow: hidden;
     -o-text-overflow: ellipsis;
@@ -33,7 +36,6 @@
     line-height: 30px;
     span {
         display: inline;
-        color: #cccccc;
         margin-right: 4px;
     }
 }
@@ -46,7 +48,6 @@
     -o-transition: transform .1s ease-in-out;
     transition: transform .1s ease-in-out;
     transition: transform .1s ease-in-out,-webkit-transform .1s ease-in-out;
-    color: #ffffff;
 }
 
 .dropBox {

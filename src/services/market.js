@@ -69,6 +69,7 @@ export async function fetchAppModels(param) {
         page_size: param.page_size,
         scope: param.scope,
         app_name: param.app_name,
+        is_complete: param.is_complete,
         tags:JSON.stringify(param.tags),
       },
     }
@@ -310,9 +311,10 @@ export async function getRecommendMarketAppList(
     page,
     page_size,
     is_complete,
+    enterprise_id
   }
 ) {
-  return request(`${apiconfig.baseUrl}/console/app_market/recommend/apps`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/recommend`, {
     method: 'get',
     params: {
       app_name: body.app_name,

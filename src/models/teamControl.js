@@ -33,6 +33,7 @@ export default {
     regions: [],
     // current show teams
     currentTeam: {},
+    currentRegionName: ""
   },
   effects: {
     * getJoinTeamUsers({ payload, callback }, { call, put }) {
@@ -144,6 +145,9 @@ export default {
     * fetchCurrentTeam({ payload }, { call, put }) {
       yield put({ type: "saveCurrentTeam", payload: payload });
     },
+    * fetchCurrentRegionName({ payload }, { call, put }) {
+      yield put({ type: "saveCurrentRegionName", payload: payload });
+    },
     // 开通数据中心
     * openRegion({ payload, callback }, { call, put }) {
       const response = yield call(openRegion, payload);
@@ -171,6 +175,12 @@ export default {
       return {
         ...state,
         currentTeam: action.payload,
+      };
+    },
+    saveCurrentRegionName(state, action) {
+      return {
+        ...state,
+        currentRegionName: action.payload.currentRegionName,
       };
     },
     saveMember(state, action) {

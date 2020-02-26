@@ -8,9 +8,18 @@ import CodeDemo from "./code-demo";
 import CodeGitRepostory from "../../components/GitRepostory";
 import rainbondUtil from "../../utils/rainbond";
 import oauthUtil from "../../utils/oauth";
+import {
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
 
 @connect(
-  ({ user, groupControl, global }) => ({ rainbondInfo: global.rainbondInfo }),
+  ({ teamControl, global, enterprise }) => ({ 
+    rainbondInfo: global.rainbondInfo,
+    currentTeam: teamControl.currentTeam,
+    currentRegionName: teamControl.currentRegionName,
+    currentEnterprise: enterprise.currentEnterprise
+  }),
   null,
   null,
   { pure: false }
@@ -35,7 +44,7 @@ export default class Main extends PureComponent {
     const { rainbondInfo } = this.props;
     const map = {
       custom: CodeCustom,
-      demo: CodeDemo,
+      demo: CodeDemo
     };
 
     const tabList = [
@@ -49,7 +58,7 @@ export default class Main extends PureComponent {
     }
 
     if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo)
+      const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo);
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
         map[service_id] = CodeGitRepostory;
@@ -60,10 +69,8 @@ export default class Main extends PureComponent {
             oauth_type === "github"
               ? "Github项目"
               : oauth_type === "gitlab"
-              ? "Gitlab项目"
-              : oauth_type === "gitee"
-              ? "Gitee项目"
-              : name + "项目"
+                ? "Gitlab项目"
+                : oauth_type === "gitee" ? "Gitee项目" : name + "项目"
         });
         return tabList;
       });
@@ -73,38 +80,30 @@ export default class Main extends PureComponent {
       type = "custom";
     }
     const Com = map[type];
-
+    let breadcrumbList = [];
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    breadcrumbList = createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      );
+    breadcrumbList.push({title: "创建组件"})
     return (
       <PageHeaderLayout
-        breadcrumbList={[
-          {
-            title: "首页",
-            href: "/"
-          },
-          {
-            title: "创建组件",
-            href: ""
-          },
-          {
-            title: "从源码创建组件",
-            href: ""
-          }
-        ]}
+        breadcrumbList={breadcrumbList}
         title="由源码创建组件"
         onTabChange={this.handleTabChange}
         content={<p> 从指定源码仓库中获取源码，基于源码信息创建新组件 </p>}
         tabActiveKey={type}
         tabList={tabList}
       >
-        {Com ? (
-          <Com
-            {...this.props}
-            type={this.props.match.params.type}
-            tabList={tabList}
-          />
-        ) : (
-          "参数错误"
-        )}
+        {Com
+          ? <Com
+              {...this.props}
+              type={this.props.match.params.type}
+              tabList={tabList}
+            />
+          : "参数错误"}
       </PageHeaderLayout>
     );
   }
