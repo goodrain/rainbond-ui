@@ -8,7 +8,6 @@ import CollectionView from './CollectionView';
 
 const { Sider } = Layout;
 
-
 @connect(({ loading, global }) => ({
   rainbondInfo: global.rainbondInfo,
 }))
@@ -54,9 +53,12 @@ export default class SiderMenu extends PureComponent {
   };
 
   fetchCollectionViewInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'user/fetchCollectionViewInfo',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: res => {
         console.log('res', res);
         if (res) {
@@ -69,9 +71,12 @@ export default class SiderMenu extends PureComponent {
   };
 
   putCollectionViewInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'user/putCollectionViewInfo',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: res => {
         console.log('res', res);
         if (res) {
@@ -81,23 +86,28 @@ export default class SiderMenu extends PureComponent {
   };
 
   deleteCollectionViewInfo = () => {
-    const { dispatch } = this.props;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'user/deleteCollectionViewInfo',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: res => {
         if (res) {
+          this.fetchCollectionViewInfo();
         }
       },
     });
   };
 
   handleCollectionView = values => {
-    const { dispatch, location } = this.props;
+    const { dispatch, location, eid } = this.props;
     const index = location.hash.indexOf('#');
     const result = location.hash.substr(index + 1, location.hash.length);
     dispatch({
       type: 'user/addCollectionView',
       payload: {
+        enterprise_id: eid,
         name: values.name,
         url: result,
       },
@@ -129,14 +139,16 @@ export default class SiderMenu extends PureComponent {
         className={styles.sider}
       >
         <CollectionView
-          title={formatMessage({id: "sidecar.collection.add"})}
+          title={formatMessage({ id: 'sidecar.collection.add' })}
           visible={collectionVisible}
           onOk={this.handleCollectionView}
           onCancel={this.handleCloseCollectionVisible}
         />
 
         <div className={styles.logo} key="logo">
-          <div className={styles.viewTit}><FormattedMessage id="sidecar.title" /></div>
+          <div className={styles.viewTit}>
+            <FormattedMessage id="sidecar.title" />
+          </div>
         </div>
         <div className={styles.viewContent}>
           <div className={styles.tit}>
@@ -158,7 +170,10 @@ export default class SiderMenu extends PureComponent {
           <div className={styles.tit}>企业</div>
           {enterpriseList.map(item => {
             return (
-              <Link key={item.enterprise_id} to={`/enterprise/${item.enterprise_id}/index`}>
+              <Link
+                key={item.enterprise_id}
+                to={`/enterprise/${item.enterprise_id}/index`}
+              >
                 <div className={styles.con}>{item.enterprise_alias}</div>
               </Link>
             );

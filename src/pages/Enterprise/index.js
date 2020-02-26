@@ -925,7 +925,7 @@ export default class Enterprise extends PureComponent {
                           /{this.handlUnit(overviewMonitorInfo.memory.total)}
                           <span className={styles.units}>
                             {this.handlUnit(
-                              overviewMonitorInfo.memory.used,
+                              overviewMonitorInfo.memory.total,
                               'MB'
                             )}
                           </span>

@@ -13,6 +13,7 @@ import {
   Input,
   notification,
   Pagination,
+  Empty,
 } from 'antd';
 import { routerRedux } from 'dva/router';
 import DataCenterImg from '../../../public/images/dataCenter.png';
@@ -48,7 +49,7 @@ export default class EnterpriseTeams extends PureComponent {
       showDelApply: false,
       ApplyInfo: false,
       exitTeamName: '',
-      enterpriseTeamsLoading: true,
+      enterpriseTeamsLoading: false,
       userTeamsLoading: true,
       overviewTeamsLoading: true,
       adminer,
@@ -81,7 +82,7 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   load = () => {
-    this.getEnterpriseTeams();
+    this.state.adminer&& this.getEnterpriseTeams();
     this.getOverviewTeam();
     this.getUserTeams();
   };
@@ -324,6 +325,20 @@ export default class EnterpriseTeams extends PureComponent {
       userTeamList,
       userTeamsLoading,
     } = this.state;
+
+    const active_teams =
+      overviewTeamInfo &&
+      overviewTeamInfo.active_teams &&
+      overviewTeamInfo.active_teams.length > 0 &&
+      overviewTeamInfo.active_teams;
+
+    const request_join_team =
+      overviewTeamInfo &&
+      overviewTeamInfo.request_join_team &&
+      overviewTeamInfo.request_join_team.length > 0 &&
+      overviewTeamInfo.request_join_team;
+
+    const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -464,7 +479,7 @@ export default class EnterpriseTeams extends PureComponent {
           return (
             <Card
               key={team_id}
-              style={{ marginBottom: '10px' }}
+              style={{ marginTop: '10px' }}
               hoverable
               bodyStyle={{ padding: 0 }}
             >
@@ -509,21 +524,21 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={20} className={styles.teamsTit}>
-            最近常用的团队
+            {active_teams && <span>我常用的团队</span>}
           </Col>
           {operation}
         </Row>
-        <Row className={styles.teamMinTit} type="flex" align="middle">
-          <Col span={6}>团队名称</Col>
-          <Col span={3}>拥有人</Col>
-          <Col span={3}>角色</Col>
-          <Col span={12}>数据中心</Col>
-        </Row>
+        {active_teams && (
+          <Row className={styles.teamMinTit} type="flex" align="middle">
+            <Col span={6}>团队名称</Col>
+            <Col span={3}>拥有人</Col>
+            <Col span={3}>角色</Col>
+            <Col span={12}>数据中心</Col>
+          </Row>
+        )}
 
-        {overviewTeamInfo &&
-          overviewTeamInfo.active_teams &&
-          overviewTeamInfo.active_teams.length > 0 &&
-          overviewTeamInfo.active_teams.map(item => {
+        {active_teams &&
+          active_teams.map(item => {
             const {
               team_id,
               team_alias,
@@ -535,7 +550,7 @@ export default class EnterpriseTeams extends PureComponent {
             return (
               <Card
                 key={team_id}
-                style={{ marginBottom: '10px' }}
+                style={{ marginTop: '10px' }}
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
@@ -576,20 +591,16 @@ export default class EnterpriseTeams extends PureComponent {
             );
           })}
 
-        {overviewTeamInfo &&
-          overviewTeamInfo.request_join_team &&
-          overviewTeamInfo.request_join_team.length > 0 && (
-            <Row>
-              <Col span={24} className={styles.teamsTit}>
-                最新加入团队
-              </Col>
-            </Row>
-          )}
+        {request_join_team && (
+          <Row>
+            <Col span={24} className={styles.teamsTit}>
+              最新加入团队
+            </Col>
+          </Row>
+        )}
 
-        {overviewTeamInfo &&
-          overviewTeamInfo.request_join_team &&
-          overviewTeamInfo.request_join_team.length > 0 &&
-          overviewTeamInfo.request_join_team.map(item => {
+        {request_join_team &&
+          request_join_team.map(item => {
             const {
               is_pass,
               team_id,
@@ -603,7 +614,7 @@ export default class EnterpriseTeams extends PureComponent {
             return (
               <Card
                 style={{
-                  marginBottom: '10px',
+                  marginTop: '10px',
                   borderLeft: is_pass === 0 && '6px solid #4D73B1',
                 }}
                 bodyStyle={{ padding: 0 }}
@@ -668,77 +679,80 @@ export default class EnterpriseTeams extends PureComponent {
             );
           })}
 
-        <Row
-          style={{
-            marginBottom: '10px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Col
-            span={4}
-            className={styles.teamsTit}
-            style={{ marginBottom: '0' }}
+        {userTeam && (
+          <Row
+            style={{
+              margin: '10px 0',
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
-            全部团队
-          </Col>
-
-          <Col span={20} style={{ textAlign: 'right' }}>
-            <Search
-              style={{ width: '500px' }}
-              placeholder="请输入团队名称进行搜索"
-              onSearch={this.handleSearchUserTeam}
-            />
-          </Col>
-        </Row>
-
-        {userTeamList.map(item => {
-          const {
-            team_id,
-            team_alias,
-            team_name,
-            region,
-            owner_name,
-            role,
-          } = item;
-          return (
-            <Card
-              key={team_id}
-              style={{ marginBottom: '10px' }}
-              hoverable
-              bodyStyle={{ padding: 0 }}
+            <Col
+              span={4}
+              className={styles.teamsTit}
+              style={{ marginBottom: '0' }}
             >
-              <Row type="flex" align="middle" className={styles.pl24}>
-                <Col
-                  span={6}
-                  onClick={() => {
-                    this.props.dispatch(
-                      routerRedux.replace(
-                        `/team/${team_name}/region/${region}/index`
-                      )
-                    );
-                  }}
-                >
-                  {team_alias}
-                </Col>
-                <Col span={3}>{owner_name}</Col>
-                <Col span={3}>{roleUtil.actionMap(role)}</Col>
-                <Col span={11}>
-                  <img src={DataCenterImg} alt="" />
-                  &nbsp;
-                  {region}
-                </Col>
-                <Col span={1} className={styles.bor}>
-                  <Dropdown overlay={menu(team_name)} placement="bottomLeft">
-                    <Button style={{ border: 'none' }}>
-                      <Icon component={moreSvg} />
-                    </Button>
-                  </Dropdown>
-                </Col>
-              </Row>
-            </Card>
-          );
-        })}
+              我的团队
+            </Col>
+
+            <Col span={20} style={{ textAlign: 'right' }}>
+              <Search
+                style={{ width: '500px' }}
+                placeholder="请输入团队名称进行搜索"
+                onSearch={this.handleSearchUserTeam}
+              />
+            </Col>
+          </Row>
+        )}
+        {!userTeam && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+        {userTeam &&
+          userTeam.map(item => {
+            const {
+              team_id,
+              team_alias,
+              team_name,
+              region,
+              owner_name,
+              role,
+            } = item;
+            return (
+              <Card
+                key={team_id}
+                style={{ marginBottom: '10px' }}
+                hoverable
+                bodyStyle={{ padding: 0 }}
+              >
+                <Row type="flex" align="middle" className={styles.pl24}>
+                  <Col
+                    span={6}
+                    onClick={() => {
+                      this.props.dispatch(
+                        routerRedux.replace(
+                          `/team/${team_name}/region/${region}/index`
+                        )
+                      );
+                    }}
+                  >
+                    {team_alias}
+                  </Col>
+                  <Col span={3}>{owner_name}</Col>
+                  <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                  <Col span={11}>
+                    <img src={DataCenterImg} alt="" />
+                    &nbsp;
+                    {region}
+                  </Col>
+                  <Col span={1} className={styles.bor}>
+                    <Dropdown overlay={menu(team_name)} placement="bottomLeft">
+                      <Button style={{ border: 'none' }}>
+                        <Icon component={moreSvg} />
+                      </Button>
+                    </Dropdown>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })}
 
         <div style={{ textAlign: 'right', margin: '15px' }}>
           {this.handlePaginations('userTeam')}

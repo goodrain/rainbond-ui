@@ -148,32 +148,34 @@ export default function request(url, options) {
           resData = error.response.data;
         } catch (e) {}
         if (resData.code === 10410) {
-          push('global/showPayTip');
+          window.g_app._store.dispatch({
+            type: 'global/showPayTip',
+          });
+
           return;
         }
 
         if (resData.code === 10406) {
-          push({
+          window.g_app._store.dispatch({
             type: 'global/showMemoryTip',
             payload: {
               message: resData.msg_show,
             },
           });
+
           return;
         }
         if (resData.code === 10408) {
-          push({
+          window.g_app._store.dispatch({
             type: 'global/showNoMoneyTip',
             payload: {
               message: resData.msg_show,
             },
           });
+
           return;
         }
         if (resData.code === 10407) {
-          // push({ type: 'global/showAuthCompany' });
-          console.log('resData', resData);
-
           window.g_app._store.dispatch({
             type: 'global/showAuthCompany',
           });
@@ -182,7 +184,9 @@ export default function request(url, options) {
         }
 
         if (resData.code === 10405) {
-          push({ type: 'global/showNeedLogin' });
+          window.g_app._store.dispatch({
+            type: 'global/showNeedLogin',
+          });
           return;
           // cookie.remove("token");
           // cookie.remove("token", { domain: "" });
@@ -190,7 +194,7 @@ export default function request(url, options) {
           // cookie.remove("platform_url");
         }
         if (resData.code === 10400) {
-          push({
+          window.g_app._store.dispatch({
             type: 'global/setNouse',
             payload: {
               isNouse: true,
