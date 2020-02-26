@@ -1,48 +1,53 @@
-import request from "../utils/request";
+import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
 export async function getTeamByName(body = { team_name }) {
-  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/detail`, {
-    method: "get",
-    showMessage: false
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/detail`,
+    {
+      method: 'get',
+      showMessage: false,
+    }
+  );
 }
 
 export async function query() {
-  return request("/api/users");
+  return request('/api/users');
 }
 
 export async function queryCurrent() {
-  return request("/api/currentUser");
+  return request('/api/currentUser');
 }
 
-
 /* 新增收藏视图 */
-export async function addCollectionView(body = { name,url }) {
-  return request(`${apiconfig.baseUrl}/console/user/favorite`, {
-    method: "post",
-    data: {
-      name: body.name,
-      url: body.url
+export async function addCollectionView(body = { name, url }) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`,
+    {
+      method: 'post',
+      data: {
+        name: body.name,
+        url: body.url,
+      },
     }
-  });
+  );
 }
 
 /* 收藏视图列表 */
 
 export async function queryCollectionViewInfo(body = {}) {
-  return request(`${apiconfig.baseUrl}/console/user/favorite`, {
-    method: "get",
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`, {
+    method: 'get',
   });
 }
 
-
 /* 更新视图列表 */
-export async function putCollectionViewInfo(body = { favorite_id,}) {
+export async function putCollectionViewInfo(body = { favorite_id }) {
+
   return request(
-    `${apiconfig.baseUrl}/console/user/favorite/${body.favorite_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite/${body.favorite_id}`,
     {
-      method: "put",
+      method: 'put',
     }
   );
 }
@@ -51,64 +56,69 @@ export async function putCollectionViewInfo(body = { favorite_id,}) {
 */
 export async function deleteCollectionViewInfo(
   body = {
-    favorite_id
+    favorite_id,
   }
 ) {
-  return request(`${apiconfig.baseUrl}/console/user/favorite/${body.favorite_id}`, {
-    method: "delete"
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite/${body.favorite_id}`,
+    {
+      method: 'delete',
+    }
+  );
 }
-
 
 /* 第三方认证 */
 export async function queryThirdCertification(body = {}, handleError) {
   return request(`${apiconfig.baseUrl}/console/oauth/authorize`, {
-    method: "get",
+    method: 'get',
     params: body,
     handleError,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   });
 }
 /* oauth认证 */
 export async function queryOauthType(body = {}) {
   return request(`${apiconfig.baseUrl}/console/oauth/type`, {
-    method: "get",
-    params: body
+    method: 'get',
+    params: body,
   });
 }
 
 /* 查询第三方信息 */
 export async function queryThirdInfo(body = {}) {
   return request(`${apiconfig.baseUrl}/console/oauth/user`, {
-    method: "get",
+    method: 'get',
     params: body,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   });
 }
 
 /* 重新认证第三方 */
 export async function queryCertificationThird(body = { service_id }) {
-  return request(`${apiconfig.baseUrl}/console/oauth/refresh/${body.service_id}`, {
-    method: "post",
-    data: {
-      service_id: body.service_id,
-      id: body.id
+  return request(
+    `${apiconfig.baseUrl}/console/oauth/refresh/${body.service_id}`,
+    {
+      method: 'post',
+      data: {
+        service_id: body.service_id,
+        id: body.id,
+      },
     }
-  });
+  );
 }
 
 /* 绑定第三方 */
 export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
   return request(`${apiconfig.baseUrl}/console/oauth/user/link`, {
-    method: "post",
+    method: 'post',
     data: {
       service_id: body.service_id,
-      oauth_user_id: body.oauth_user_id
-    }
+      oauth_user_id: body.oauth_user_id,
+    },
   });
 }
 
@@ -118,12 +128,12 @@ export async function queryThirdLoginBinding(
   handleError
 ) {
   return request(`${apiconfig.baseUrl}/console/oauth/user/authorize`, {
-    method: "post",
+    method: 'post',
     data: {
       service_id: body.service_id,
-      code: body.code
+      code: body.code,
     },
-    handleError
+    handleError,
   });
 }
 
@@ -131,30 +141,32 @@ export async function queryThirdLoginBinding(
 export async function login(
   body = {
     nick_name,
-    password
+    password,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/login`, {
-    method: "post",
+    method: 'post',
     data: body,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     transformRequest: [
       function(data) {
-        let ret = "";
+        let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
         }
         return ret;
-      }
-    ]
+      },
+    ],
   });
 }
 
 /* 退出登录 */
 export async function logout() {
-  return request(`${apiconfig.baseUrl}/console/users/logout`, { method: "get" });
+  return request(`${apiconfig.baseUrl}/console/users/logout`, {
+    method: 'get',
+  });
 }
 
 /* 注册 */
@@ -164,36 +176,36 @@ export async function register(
     email,
     password,
     password_repeat,
-    captcha_code
+    captcha_code,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/register`, {
-    method: "post",
+    method: 'post',
     data: body,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     transformRequest: [
       function(data) {
-        let ret = "";
+        let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
         }
         return ret;
-      }
-    ]
+      },
+    ],
   });
 }
 
 /* 发送找回密码邮件 */
 export async function send_backpassword_email(
   body = {
-    email
+    email,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/send_reset_email`, {
-    method: "post",
-    data: body
+    method: 'post',
+    data: body,
   });
 }
 
@@ -201,12 +213,12 @@ export async function send_backpassword_email(
 export async function reset_password(
   body = {
     password,
-    password_repeat
+    password_repeat,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/begin_password_reset`, {
-    method: "post",
-    data: body
+    method: 'post',
+    data: body,
   });
 }
 
@@ -215,12 +227,12 @@ export async function changePass(
   body = {
     password,
     new_password,
-    new_password2
+    new_password2,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/changepwd`, {
-    method: "post",
-    data: body
+    method: 'post',
+    data: body,
   });
 }
 
@@ -236,14 +248,14 @@ export async function getDetail(handleError) {
 */
 export async function search(
   body = {
-    key
+    key,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/query`, {
-    method: "get",
+    method: 'get',
     params: {
-      query_key: body.key
-    }
+      query_key: body.key,
+    },
   });
 }
 
@@ -252,7 +264,7 @@ export async function search(
 */
 export async function joinedTeams() {
   return request(`${apiconfig.baseUrl}/console/users/teams/query`, {
-    method: "get"
+    method: 'get',
   });
 }
 
@@ -264,15 +276,15 @@ export async function joinedTeams() {
 export async function gitlabRegister(
   body = {
     email,
-    password
+    password,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/gitlab/register`, {
-    method: "post",
+    method: 'post',
     data: {
       email: body.email,
-      password: body.password
-    }
+      password: body.password,
+    },
   });
 }
 
@@ -282,16 +294,16 @@ export async function gitlabRegister(
 export async function createGitlabProject(
   body = {
     team_name,
-    project_name
+    project_name,
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/gitlab`,
     {
-      method: "post",
+      method: 'post',
       data: {
-        project_name: body.project_name
-      }
+        project_name: body.project_name,
+      },
     }
   );
 }

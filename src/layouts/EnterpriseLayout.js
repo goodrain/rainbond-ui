@@ -1,32 +1,32 @@
-import React, { Fragment, PureComponent } from "react";
-import PropTypes from "prop-types";
-import { Layout, Icon, message, notification } from "antd";
-import DocumentTitle from "react-document-title";
-import { connect } from "dva";
-import { Route, Redirect, routerRedux } from "dva/router";
-import { stringify } from "querystring";
-import memoizeOne from "memoize-one";
-import deepEqual from "lodash.isequal";
+import React, { Fragment, PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { Layout, Icon, message, notification } from 'antd';
+import DocumentTitle from 'react-document-title';
+import { connect } from 'dva';
+import { Route, Redirect, routerRedux } from 'dva/router';
+import { stringify } from 'querystring';
+import memoizeOne from 'memoize-one';
+import deepEqual from 'lodash.isequal';
 
-import { ContainerQuery } from "react-container-query";
-import classNames from "classnames";
-import { enquireScreen } from "enquire-js";
-import GlobalHeader from "../components/GlobalHeader";
-import SiderMenu from "../components/SiderMenu";
-import pathToRegexp from "path-to-regexp";
-import { PageLoading } from "@ant-design/pro-layout";
-import globalUtil from "../utils/global";
-import Authorized from "../utils/Authorized";
-import { getMenuData } from "../common/enterpriseMenu";
-import logo from "../../public/logo.png";
-import Loading from "../components/Loading";
-import GlobalRouter from "../components/GlobalRouter";
-import AuthCompany from "../components/AuthCompany";
-import Meiqia from "./Meiqia";
-import Context from "./MenuContext";
-import headerStype from "../components/GlobalHeader/index.less";
+import { ContainerQuery } from 'react-container-query';
+import classNames from 'classnames';
+import { enquireScreen } from 'enquire-js';
+import GlobalHeader from '../components/GlobalHeader';
+import SiderMenu from '../components/SiderMenu';
+import pathToRegexp from 'path-to-regexp';
+import { PageLoading } from '@ant-design/pro-layout';
+import globalUtil from '../utils/global';
+import Authorized from '../utils/Authorized';
+import { getMenuData } from '../common/enterpriseMenu';
+import logo from '../../public/logo.png';
+import Loading from '../components/Loading';
+import GlobalRouter from '../components/GlobalRouter';
+import AuthCompany from '../components/AuthCompany';
+import Meiqia from './Meiqia';
+import Context from './MenuContext';
+import headerStype from '../components/GlobalHeader/index.less';
 
-const qs = require("query-string");
+const qs = require('query-string');
 
 const { Content } = Layout;
 
@@ -46,24 +46,24 @@ const getBreadcrumbNameMap = memoizeOne(meun => {
 }, deepEqual);
 
 const query = {
-  "screen-xs": {
-    maxWidth: 575
+  'screen-xs': {
+    maxWidth: 575,
   },
-  "screen-sm": {
+  'screen-sm': {
     minWidth: 576,
-    maxWidth: 767
+    maxWidth: 767,
   },
-  "screen-md": {
+  'screen-md': {
     minWidth: 768,
-    maxWidth: 991
+    maxWidth: 991,
   },
-  "screen-lg": {
+  'screen-lg': {
     minWidth: 992,
-    maxWidth: 1199
+    maxWidth: 1199,
   },
-  "screen-xl": {
-    minWidth: 1200
-  }
+  'screen-xl': {
+    minWidth: 1200,
+  },
 };
 
 let isMobile;
@@ -76,7 +76,7 @@ class EnterpriseLayout extends PureComponent {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
     currRegion: PropTypes.string,
-    currTeam: PropTypes.string
+    currTeam: PropTypes.string,
   };
 
   constructor(props) {
@@ -90,16 +90,16 @@ class EnterpriseLayout extends PureComponent {
       isInit: false,
       showWelcomeCreateTeam: false,
       canCancelOpenRegion: true,
-      market_info: "",
+      market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
       enterpriseInfo: {},
-      ready: false
+      ready: false,
     };
   }
 
   componentDidMount() {
-    //fetch enterprise info
+    // fetch enterprise info
     this.getEnterpriseList();
   }
 
@@ -107,13 +107,13 @@ class EnterpriseLayout extends PureComponent {
   getEnterpriseList = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/fetchEnterpriseList",
+      type: 'global/fetchEnterpriseList',
       callback: res => {
         if (res && res._code === 200) {
           this.setState(
             {
               enterpriseList: res.list,
-              ready: true
+              ready: true,
             },
             () => {
               this.redirectEnterpriseView();
@@ -121,7 +121,7 @@ class EnterpriseLayout extends PureComponent {
             }
           );
         }
-      }
+      },
     });
   };
 
@@ -133,8 +133,8 @@ class EnterpriseLayout extends PureComponent {
     this.setState({ showAuthCompany: this.props.showAuthCompany });
     const query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
-      this.setState({ market_info: query.market_info });
-      this.setState({ showAuthCompany: true });
+      console.log('query', query);
+      this.setState({ market_info: query.market_info, showAuthCompany: true });
     }
   };
 
@@ -149,7 +149,7 @@ class EnterpriseLayout extends PureComponent {
       (rainbondInfo &&
         rainbondInfo.title !== undefined &&
         rainbondInfo.title) ||
-      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
+      'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
   };
 
@@ -163,8 +163,8 @@ class EnterpriseLayout extends PureComponent {
   handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/changeLayoutCollapsed",
-      payload: collapsed
+      type: 'global/changeLayoutCollapsed',
+      payload: collapsed,
     });
   };
 
@@ -172,14 +172,20 @@ class EnterpriseLayout extends PureComponent {
     const { location } = this.props;
     return {
       location,
-      breadcrumbNameMap: this.breadcrumbNameMap
+      breadcrumbNameMap: this.breadcrumbNameMap,
     };
   }
 
   redirectEnterpriseView = () => {
-    const { dispatch, currentUser, match: { params: { eid } } } = this.props;
+    const {
+      dispatch,
+      currentUser,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const { enterpriseList } = this.state;
-    if (!eid || eid == "auto") {
+    if (!eid || eid == 'auto') {
       if (enterpriseList.length > 0) {
         let selectE = null;
         enterpriseList.map(item => {
@@ -195,13 +201,12 @@ class EnterpriseLayout extends PureComponent {
           routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
         );
       } else {
-        dispatch(routerRedux.push("/user/login"));
+        dispatch(routerRedux.push('/user/login'));
       }
     } else {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
           this.setState({ enterpriseInfo: item });
-          return;
         }
       });
     }
@@ -212,16 +217,18 @@ class EnterpriseLayout extends PureComponent {
       currentUser,
       collapsed,
       location: { pathname },
-      match: { params: { eid } },
+      match: {
+        params: { eid },
+      },
       groups,
       children,
-      rainbondInfo
+      rainbondInfo,
     } = this.props;
 
-    console.log('showAuthCompany',this.props.showAuthCompany)
+    console.log('showAuthCompany', this.props.showAuthCompany);
     const { enterpriseList, enterpriseInfo, ready } = this.state;
     const queryString = stringify({
-      redirect: window.location.href
+      redirect: window.location.href,
     });
     if (!ready) {
       return <PageLoading />;
@@ -240,6 +247,7 @@ class EnterpriseLayout extends PureComponent {
       return (
         <Layout>
           <SiderMenu
+            eid={eid}
             enterpriseList={enterpriseList}
             currentUser={currentUser}
             logo={
@@ -311,12 +319,11 @@ class EnterpriseLayout extends PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <ContainerQuery query={query}>
-            {params =>
+            {params => (
               <Context.Provider value={this.getContext()}>
-                <div className={classNames(params)}>
-                  {layout()}
-                </div>
-              </Context.Provider>}
+                <div className={classNames(params)}>{layout()}</div>
+              </Context.Provider>
+            )}
           </ContainerQuery>
         </DocumentTitle>
 
@@ -324,23 +331,23 @@ class EnterpriseLayout extends PureComponent {
 
         {rainbondInfo &&
           rainbondInfo.is_public !== undefined &&
-          rainbondInfo.is_public &&
-          <Meiqia />}
+          rainbondInfo.is_public && <Meiqia />}
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) &&
+        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
+            eid={eid}
             market_info={this.state.market_info}
             onOk={() => {
-              this.setState({ showAuthCompany: false });
               const jumpPath = this.props.location.pathname;
               const query = this.props.location.search.replace(
                 `market_info=${this.state.market_info}`,
-                ""
+                ''
               );
-              this.setState({ market_info: "" });
+              this.setState({ market_info: '', showAuthCompany: false });
               this.props.dispatch(routerRedux.replace(jumpPath + query));
             }}
-          />}
+          />
+        )}
       </Fragment>
     );
   }
@@ -350,7 +357,7 @@ export default connect(({ user, global, index, loading }) => ({
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
   groups: global.groups,
-  fetchingNotices: loading.effects["global/fetchNotices"],
+  fetchingNotices: loading.effects['global/fetchNotices'],
   notices: global.notices,
   currTeam: globalUtil.getCurrTeamName(),
   currRegion: globalUtil.getCurrRegionName(),
@@ -360,5 +367,5 @@ export default connect(({ user, global, index, loading }) => ({
   noMoneyTip: global.noMoneyTip,
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
-  nouse: global.nouse
+  nouse: global.nouse,
 }))(EnterpriseLayout);

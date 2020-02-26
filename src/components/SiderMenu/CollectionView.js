@@ -63,4 +63,4 @@ export default class CollectionView extends PureComponent {
   }
 }
 
- 
+
