@@ -85,7 +85,7 @@ export default class SelectTeam extends PureComponent {
         <div>
           <div className={style.dropBoxList}>
             <ul>
-              {teamRegions.map(item => {
+              {teamRegions && teamRegions.map(item => {
                 const link = `/team/${currentTeam.team_name}/region/${item.team_region_name}/index`;
                 return (
                   <li key={item.team_region_alias}>
@@ -120,7 +120,7 @@ export default class SelectTeam extends PureComponent {
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamRegionLink}>
               <div className={style.selectButtonName}>
-                {currentRegion.team_region_alias}
+              <span><FormattedMessage id="header.region.name"></FormattedMessage></span>{currentRegion.team_region_alias}
               </div>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </Link>

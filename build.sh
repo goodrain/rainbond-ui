@@ -1,3 +1,11 @@
 #!/bin/bash
 
-docker run -it --rm -v "$(pwd)":/app -w=/app node:10 yarn install && yarn run build
+mkdir ./node_modules
+chmod 777 ./node_modules
+docker run -it --rm -v "$(pwd)":/app -w=/app node:12 yarn install && yarn run build
+
+if [ ! -d "./dist" ];then
+    exit 1;
+fi
+
+if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./release.sh ;fi

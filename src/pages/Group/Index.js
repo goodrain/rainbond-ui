@@ -15,7 +15,7 @@ import {
 } from "antd";
 
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import AppList from "./AppList";
+import ComponentList from "./ComponentList";
 import AppShape from "./AppShape";
 import EditorTopology from "./EditorTopology";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -647,7 +647,7 @@ class Main extends PureComponent {
                 </a>}
           </Row>}
 
-        {this.state.type === "list"&&<AppList groupId={this.getGroupId()} />}
+        {this.state.type === "list"&&<ComponentList groupId={this.getGroupId()} />}
         {this.state.type === "shape" &&<AppShape group_id={this.getGroupId()} />}
         {this.state.type === "spin" && <Spin />}
         {this.state.type === "shapes" &&

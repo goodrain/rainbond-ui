@@ -1,14 +1,11 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
-import { Layout, Icon, message, notification } from "antd";
+import { Layout, Icon, message, notification, Button } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { Route, Redirect, routerRedux } from "dva/router";
 import { PageLoading } from "@ant-design/pro-layout";
 import memoizeOne from "memoize-one";
-import SelectTeam from "../components/SelectTeam";
-import SelectRegion from "../components/SelectRegion";
-import SelectApp from "../components/SelectApp";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
@@ -23,7 +20,9 @@ import { getAppMenuData } from "../common/appMenu";
 import logo from "../../public/logo.png";
 import GlobalRouter from "../components/GlobalRouter";
 import Context from "./MenuContext";
-import headerStype from "../components/GlobalHeader/index.less";
+import { FormattedMessage } from "umi-plugin-react/locale";
+import TeamHeader from "./components/TeamHeader"
+import AppHeader from "./components/AppHeader"
 
 const qs = require("query-string");
 
@@ -78,7 +77,7 @@ class TeamLayout extends React.PureComponent {
       currentTeam: {},
       currentEnterprise: {},
       currentComponent: null,
-      eid: "",
+      eid: ""
     };
   }
 
@@ -125,17 +124,17 @@ class TeamLayout extends React.PureComponent {
         }
       }
     });
-  }
+  };
   load = () => {
     const { enterpriseList, eid } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
-    dispatch({type: "teamControl/fetchCurrentTeam", payload: team});
+    dispatch({ type: "teamControl/fetchCurrentTeam", payload: team });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
       if (eid == item.enterprise_id) {
-        dispatch({type: "enterprise/fetchCurrentEnterprise", payload: item});
+        dispatch({ type: "enterprise/fetchCurrentEnterprise", payload: item });
         this.setState({
           currentEnterprise: item,
           currentTeam: team,
@@ -144,7 +143,7 @@ class TeamLayout extends React.PureComponent {
         });
       }
     });
-    this.fetchTeamApps()
+    this.fetchTeamApps();
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
@@ -165,25 +164,25 @@ class TeamLayout extends React.PureComponent {
         type: "appControl/fetchDetail",
         payload: {
           team_name: teamName,
-          app_alias: componentID,
+          app_alias: componentID
         },
         callback: appDetail => {
-          this.setState({currentComponent: appDetail})
+          this.setState({ currentComponent: appDetail.service });
         }
-      })
+      });
     }
-  }
+  };
 
-  fetchTeamApps = ()=> {
+  fetchTeamApps = () => {
     const { teamName, regionName } = this.props.match.params;
     this.props.dispatch({
       type: "global/fetchGroups",
       payload: {
         team_name: teamName,
-        region_name: regionName,
+        region_name: regionName
       }
     });
-  }
+  };
 
   getChildContext = () => {
     const { location } = this.props;
@@ -254,39 +253,45 @@ class TeamLayout extends React.PureComponent {
     if (teamName != currentTeam.team_name) {
       this.load();
     }
-    let appID = globalUtil.getAppID();
-    if (currentComponent) {
-      appID = currentComponent.service.group_id;
-    }
     const componentID = globalUtil.getComponentID();
+    let appID = globalUtil.getAppID();
+    // currentComponent is exit and id is current componentID
+    if (currentComponent && currentComponent.service_alias == componentID) {
+      appID = currentComponent.group_id;
+    // Refresh the component information
+    } else if (componentID) {
+      this.queryComponentDeatil()
+      return <PageLoading />;
+    } else {
+      this.setState({currentComponent: null})
+    }
+    
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
-      return (
-        <div>
-          <SelectTeam
-            className={headerStype.select}
-            teamName={teamName}
-            currentEnterprise={currentEnterprise}
+      if (mode == "team") {
+        return (
+          <TeamHeader 
+            teamName={teamName} 
+            currentEnterprise={currentEnterprise} 
             currentTeam={currentTeam}
             currentRegion={currentRegion}
-          />
-          <SelectRegion
-            className={headerStype.select}
             regionName={regionName}
-            currentEnterprise={currentEnterprise}
+          >
+          </TeamHeader>
+        );
+      }
+      return (
+        <AppHeader 
+            teamName={teamName} 
+            currentEnterprise={currentEnterprise} 
             currentTeam={currentTeam}
             currentRegion={currentRegion}
-          />
-          {mode == "app" &&
-            <SelectApp
-              className={headerStype.select}
-              teamName={teamName}
-              currentEnterprise={currentEnterprise}
-              currentTeam={currentTeam}
-              currentRegion={currentRegion}
-              currentAppID={appID}
-            />}
-        </div>
+            regionName={regionName}
+            appID={appID}
+            currentComponent={currentComponent}
+            componentID={componentID}
+          >
+        </AppHeader>
       );
     };
     let menuData = getMenuData(teamName, regionName);
@@ -363,28 +368,12 @@ class TeamLayout extends React.PureComponent {
             isMobile={this.state.isMobile}
             onCollapse={this.handleMenuCollapse}
           />
-          <GlobalRouter
-            enterpriseList={enterpriseList}
-            title={
-              rainbondInfo &&
-              rainbondInfo.title !== undefined &&
-              rainbondInfo.title
-            }
-            currentUser={currentUser}
-            Authorized={Authorized}
-            collapsed={collapsed}
-            location={location}
-            isMobile={this.state.isMobile}
-            onCollapse={this.handleMenuCollapse}
-            menuData={menuData}
-            completeMenuData={menuData}
-          />
           <Layout>
             <GlobalHeader
               key={
                 currentEnterprise.enterprise_id +
                 currentTeam.team_name +
-                currentRegion.team_region_name + 
+                currentRegion.team_region_name +
                 appID
               }
               logo={logo}
@@ -395,17 +384,37 @@ class TeamLayout extends React.PureComponent {
               }
               currentUser={currentUser}
               collapsed={collapsed}
+              onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
               customHeader={customHeader}
             />
-            <Content
-              style={{
-                margin: "24px 24px 0",
-                height: "100%"
-              }}
-            >
-              {renderContent()}
-            </Content>
+            <Layout style={{ flexDirection: "row" }}>
+              <GlobalRouter
+                enterpriseList={enterpriseList}
+                title={
+                  rainbondInfo &&
+                  rainbondInfo.title !== undefined &&
+                  rainbondInfo.title
+                }
+                currentUser={currentUser}
+                Authorized={Authorized}
+                collapsed={collapsed}
+                location={location}
+                isMobile={this.state.isMobile}
+                onCollapse={this.handleMenuCollapse}
+                menuData={menuData}
+                completeMenuData={menuData}
+                showMenu={!componentID}
+              />
+              <Content
+                style={{
+                  margin: "24px 24px 0",
+                  height: "100%"
+                }}
+              >
+                {renderContent()}
+              </Content>
+            </Layout>
           </Layout>
         </Layout>
       );

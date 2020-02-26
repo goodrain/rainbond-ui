@@ -16,7 +16,7 @@ import {
 import appUtil from "../../utils/app";
 import appStatusUtil from "../../utils/appStatus-util";
 import globalUtil from "../../utils/global";
-import styles from "./AppList.less";
+import styles from "./ComponentList.less";
 import MoveGroup from "../../components/AppMoveGroup";
 import BatchDelete from "../../components/BatchDelete";
 
@@ -30,7 +30,7 @@ import BatchDelete from "../../components/BatchDelete";
     pure: false
   }
 )
-export default class AppList extends Component {
+export default class ComponentList extends Component {
   constructor(props) {
     super(props);
     this.state = {

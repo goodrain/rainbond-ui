@@ -100,11 +100,11 @@ export default class SelectTeam extends PureComponent {
             <div className={style.dropBoxSearchInput}>
               <Icon
                 className={style.dropBoxSearchInputIcon}
-                onChange={this.queryTeams}
                 loading={loading+""}
                 type="search"
               />
-              <Input
+              <Input.Search
+                onSearch={this.queryTeams}
                 className={style.dropBoxSearchInputContrl}
                 placeholder={formatMessage({ id: 'header.team.search' })}
               />
@@ -158,7 +158,7 @@ export default class SelectTeam extends PureComponent {
           <div className={style.selectButton}>
             <Link className={style.selectButtonLink} to={currentTeamLink}>
               <div className={style.selectButtonName}>
-                {currentTeam.team_alias}
+                <span><FormattedMessage id="header.team.name"></FormattedMessage></span>{currentTeam.team_alias}
               </div>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </Link>

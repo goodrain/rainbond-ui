@@ -94,7 +94,7 @@ export default class SelectTeam extends PureComponent {
       currentApp,
       visible,
     } = this.state;
-    const currentTeamRegionLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
+    const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -102,11 +102,11 @@ export default class SelectTeam extends PureComponent {
             <div className={style.dropBoxSearchInput}>
               <Icon
                 className={style.dropBoxSearchInputIcon}
-                onChange={this.queryApps}
                 loading={loading}
                 type="search"
               />
-              <Input
+              <Input.Search
+                onSearch={this.queryApps}
                 className={style.dropBoxSearchInputContrl}
                 placeholder={formatMessage({ id: 'header.app.search' })}
               />
@@ -153,9 +153,9 @@ export default class SelectTeam extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={visible}>
           <div className={style.selectButton}>
-            <Link className={style.selectButtonLink} to={currentTeamRegionLink}>
+            <Link className={style.selectButtonLink} to={currentAPPLink}>
               <div className={style.selectButtonName}>
-                {currentApp.group_name}
+              <span><FormattedMessage id="header.app.name"></FormattedMessage></span>{currentApp.group_name}
               </div>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </Link>

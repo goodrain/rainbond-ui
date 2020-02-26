@@ -133,6 +133,7 @@ export async function getGroupApps(body = {
       group_id: body.group_id,
       page: body.page || 1,
       page_size: body.page_size || 100,
+      query: body.query
     },
     showLoading: false,
   });
