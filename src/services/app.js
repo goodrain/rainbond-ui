@@ -3278,11 +3278,11 @@ export async function putAppBuidSource(
 }
 
 /**更改应用状态 */
-export async function updateAppStatus(params) {
+export async function updateComponentDeployType(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${
       params.app_alias
-    }/change/service_type`,
+    }/deploytype`,
     {
       method: "put",
       data: {

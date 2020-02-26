@@ -47,7 +47,7 @@ const RadioGroup = Radio.Group;
     appControl
   }),
   null,
-  null,
+  null
   // { withRef: true }
 )
 @Form.create()
@@ -558,7 +558,7 @@ export default class Index extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         dispatch({
-          type: "appControl/updateAppStatus",
+          type: "appControl/updateComponentDeployType",
           payload: {
             team_name: globalUtil.getCurrTeamName(),
             app_alias: this.props.appAlias,
@@ -627,7 +627,7 @@ export default class Index extends React.Component {
 
   onChange1 = e => {
     const show =
-      e.target.value == (this.props.baseInfo.extend_method || "stateless")
+      e.target.value == (this.props.baseInfo.extend_method || "stateless_multiple")
         ? false
         : true;
     this.setState({
@@ -691,11 +691,8 @@ export default class Index extends React.Component {
       }
     };
     const appsetting_formItemLayout = {
-      labelCol: {
-        span: 5
-      },
       wrapperCol: {
-        span: 19
+        span: 24
       }
     };
     const radioStyle = {
@@ -742,9 +739,7 @@ export default class Index extends React.Component {
               {...formItemLayout}
               label="组件部署类型"
             >
-              {baseInfo.extend_method == "stateless"
-                ? "无状态组件"
-                : "有状态组件"}
+              {globalUtil.getComponentType(baseInfo.extend_method)}
               <Button
                 onClick={this.setupAttribute}
                 size="small"
@@ -760,8 +755,9 @@ export default class Index extends React.Component {
               {...formItemLayout}
               label="组件特性"
             >
-              {(tags || []).map(tag => (
+              {(tags || []).map((tag, i) =>
                 <Tag
+                  key={`tag${i}`}
                   closable
                   onClose={e => {
                     e.preventDefault();
@@ -770,7 +766,7 @@ export default class Index extends React.Component {
                 >
                   {tag.label_alias}
                 </Tag>
-              ))}
+              )}
               <Button onClick={this.onAddTag} size="small">
                 添加特性
               </Button>
@@ -789,20 +785,8 @@ export default class Index extends React.Component {
                 onChange={this.handleChange}
               />
             </FormItem>
-            {/* 5.1.6 TODO: */}
-            {/* {!(baseInfo.extend_method == "stateless") && <FormItem
-              style={{
-                marginBottom: 0,
-              }}
-              {...formItemLayout}
-              label="组件名称"
-            >
-              {this.state.isInput ? <Input style={{ width: "200px" }} defaultValue={baseInfo.service_name} onPressEnter={this.handlePressenter} ref="myInput" /> : baseInfo.service_name || '无'}
-              {this.state.isInput ? '' : <Button onClick={this.modifyText} size="small" style={{ marginLeft: "10px" }}>修改</Button>}
-            </FormItem>} */}
           </Form>
         </Card>
-        {/* <AutoDeploy app={appDetail} /> */}
         <Card
           style={{
             marginBottom: 24
@@ -810,7 +794,7 @@ export default class Index extends React.Component {
           title={
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               健康检测
-              {startProbe && (
+              {startProbe &&
                 <div>
                   <a
                     onClick={() => {
@@ -834,18 +818,17 @@ export default class Index extends React.Component {
                   >查看</a>} */}
 
                   {JSON.stringify(startProbe) != "{}" &&
-                  appProbeUtil.isStartProbeStart(startProbe) ? (
-                    <a
-                      onClick={() => {
-                        this.handleStartProbeStart(false);
-                      }}
-                      href="javascript:;"
-                      style={{ fontSize: "14px", fontWeight: 400 }}
-                    >
-                      禁用
-                    </a>
-                  ) : (
-                    JSON.stringify(startProbe) != "{}" && (
+                  appProbeUtil.isStartProbeStart(startProbe)
+                    ? <a
+                        onClick={() => {
+                          this.handleStartProbeStart(false);
+                        }}
+                        href="javascript:;"
+                        style={{ fontSize: "14px", fontWeight: 400 }}
+                      >
+                        禁用
+                      </a>
+                    : JSON.stringify(startProbe) != "{}" &&
                       <a
                         onClick={() => {
                           this.handleStartProbeStart(true);
@@ -854,11 +837,8 @@ export default class Index extends React.Component {
                         style={{ fontSize: "14px", fontWeight: 400 }}
                       >
                         启用
-                      </a>
-                    )
-                  )}
-                </div>
-              )}
+                      </a>}
+                </div>}
             </div>
           }
         >
@@ -1031,7 +1011,7 @@ export default class Index extends React.Component {
             dataSource={[startProbe, runningProbe]}
           /> */}
 
-          {startProbe && (
+          {startProbe &&
             <div style={{ display: "flex" }}>
               <div style={{ width: "33%", textAlign: "center" }}>
                 当前状态:{this.handleState(startProbe)}
@@ -1044,13 +1024,10 @@ export default class Index extends React.Component {
                 {startProbe.mode == "readiness"
                   ? "下线"
                   : startProbe.mode == "liveness"
-                  ? "重启"
-                  : startProbe.mode == "ignore"
-                  ? "忽略"
-                  : "未设置"}
+                    ? "重启"
+                    : startProbe.mode == "ignore" ? "忽略" : "未设置"}
               </div>
-            </div>
-          )}
+            </div>}
         </Card>
         <Card
           style={{
@@ -1058,11 +1035,9 @@ export default class Index extends React.Component {
           }}
           title={
             <Fragment>
-              {" "}
-              成员应用权限{" "}
+              {" "}成员应用权限{" "}
               <Tooltip title="示例：成员所属角色包含 `启动`权限, 成员应用权限包含`关闭`权限，则该成员对该应用的最终权限为 `启动`+`关闭`">
-                {" "}
-                <Icon type="info-circle-o" />{" "}
+                {" "}<Icon type="info-circle-o" />{" "}
               </Tooltip>
             </Fragment>
           }
@@ -1086,9 +1061,11 @@ export default class Index extends React.Component {
                     const arr = val || [];
                     return (
                       <span>
-                        {arr.map(item => (
-                          <Tag>{item.perm_info}</Tag>
-                        ))}
+                        {arr.map((item,i) =>
+                          <Tag key={`tagg${i}`}>
+                            {item.perm_info}
+                          </Tag>
+                        )}
                       </span>
                     );
                   }
@@ -1127,7 +1104,7 @@ export default class Index extends React.Component {
               dataSource={members}
             />
           </ScrollerX>
-          {appUtil.canManageAppMember(this.props.appDetail) && (
+          {appUtil.canManageAppMember(this.props.appDetail) &&
             <div
               style={{
                 marginTop: 10,
@@ -1138,27 +1115,24 @@ export default class Index extends React.Component {
                 <Icon type="plus" />
                 设置成员应用权限
               </Button>
-            </div>
-          )}
+            </div>}
         </Card>
 
-        {this.state.addTag && (
+        {this.state.addTag &&
           <AddTag
             tags={tabData ? tabData : []}
             onCancel={this.cancelAddTag}
             onOk={this.handleAddTag}
-          />
-        )}
-        {this.state.showAddVar && (
+          />}
+        {this.state.showAddVar &&
           <AddVarModal
             onCancel={this.handleCancelAddVar}
             onSubmit={this.handleSubmitAddVar}
             isShowRestartTips={onoffshow => {
               this.props.onshowRestartTips(onoffshow);
             }}
-          />
-        )}
-        {this.state.showEditVar && (
+          />}
+        {this.state.showEditVar &&
           <AddVarModal
             onCancel={this.cancelEditVar}
             onSubmit={this.handleEditVar}
@@ -1166,130 +1140,120 @@ export default class Index extends React.Component {
             isShowRestartTips={onoffshow => {
               this.props.onshowRestartTips(onoffshow);
             }}
-          />
-        )}
+          />}
 
-        {this.state.deleteVar && (
+        {this.state.deleteVar &&
           <ConfirmModal
             onOk={this.handleDeleteVar}
             onCancel={this.cancelDeleteVar}
             title="删除变量"
             desc="确定要删除此变量吗？"
             subDesc="此操作不可恢复"
-          />
-        )}
+          />}
 
-        {this.state.transfer && (
+        {this.state.transfer &&
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
             title="转移环境变量"
             desc="确定要转移此变量吗？"
             subDesc=""
-          />
-        )}
+          />}
 
-        {this.state.viewStartHealth && (
+        {this.state.viewStartHealth &&
           <ViewHealthCheck
             title="健康检查查看"
             data={this.state.viewStartHealth}
             onCancel={() => {
               this.setState({ viewStartHealth: null });
             }}
-          />
-        )}
-        {this.state.editStartHealth && (
+          />}
+        {this.state.editStartHealth &&
           <EditHealthCheck
             ports={ports}
             onOk={this.handleEditHealth}
             title="健康检测"
             data={this.state.editStartHealth}
             onCancel={this.onCancelEditStartProbe}
-          />
-        )}
-        {this.state.toEditAction && (
+          />}
+        {this.state.toEditAction &&
           <EditActions
             onSubmit={this.handleEditAction}
             onCancel={this.hideEditAction}
             actions={teamControl.actions}
             value={this.state.toEditAction.service_perms.map(item => item.id)}
-          />
-        )}
-        {this.state.viewRunHealth && (
+          />}
+        {this.state.viewRunHealth &&
           <ViewRunHealthCheck
             title="运行时检查查看"
             data={this.state.viewRunHealth}
             onCancel={() => {
               this.setState({ viewRunHealth: null });
             }}
-          />
-        )}
-        {this.state.editRunHealth && (
+          />}
+        {this.state.editRunHealth &&
           <EditRunHealthCheck
             ports={ports}
             onOk={this.handleEditRunHealth}
             title="设置运行时检查"
             data={this.state.editRunHealth}
             onCancel={this.onCancelEditRunProbe}
-          />
-        )}
-        {this.state.showAddMember && (
+          />}
+        {this.state.showAddMember &&
           <SetMemberAppAction
             members={this.state.memberslist}
             actions={teamControl.actions}
             onOk={this.handleAddMember}
             onCancel={this.hideAddMember}
-          />
-        )}
-        {this.state.toDeleteMember && (
+          />}
+        {this.state.toDeleteMember &&
           <ConfirmModal
             onOk={this.handleDelMember}
             title="删除成员权限"
             desc="确定要删除此成员的应用权限吗？"
             onCancel={this.hideDelMember}
-          />
-        )}
-        {this.state.showMarketAppDetail && (
+          />}
+        {this.state.showMarketAppDetail &&
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={this.state.showApp}
-          />
-        )}
-        {this.state.visibleAppSetting && (
+          />}
+        {this.state.visibleAppSetting &&
           <Modal
-            title="组件设置"
+            title="组件部署类型设置"
             visible={this.state.visibleAppSetting}
             // onOk={this.handleOk_AppSetting}
+            width={600}
             onCancel={this.handleCancel_AppSetting}
             footer={
-              isShow ? (
-                [
-                  <Popconfirm
-                    title="修改类型数据会丢失,你确定要修改吗？"
-                    onConfirm={this.handleOk_AppSetting}
-                    onCancel={this.handleCancel_AppSetting}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button type="primary">确定</Button>
-                  </Popconfirm>,
-                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
-                ]
-              ) : (
-                <div>
-                  {" "}
-                  <Button type="primary" onClick={this.handleCancel_AppSetting}>
-                    确定
-                  </Button>
-                  <Button onClick={this.handleCancel_AppSetting}>取消</Button>
-                </div>
-              )
+              isShow
+                ? [
+                    <Popconfirm
+                      title="修改部署类型，存储数据可能丢失或存储不可用,你确定要修改吗？"
+                      onConfirm={this.handleOk_AppSetting}
+                      onCancel={this.handleCancel_AppSetting}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary">确定</Button>
+                    </Popconfirm>,
+                    <Button onClick={this.handleCancel_AppSetting}>取消</Button>
+                  ]
+                : <div>
+                    {" "}<Button
+                      type="primary"
+                      onClick={this.handleCancel_AppSetting}
+                    >
+                      确定
+                    </Button>
+                    <Button onClick={this.handleCancel_AppSetting}>取消</Button>
+                  </div>
             }
           >
-            <Form.Item {...appsetting_formItemLayout} label="组件类型">
+            <Form.Item {...appsetting_formItemLayout}>
               {getFieldDecorator("extend_method", {
-                initialValue: baseInfo.extend_method || "stateless",
+                initialValue: baseInfo.extend_method || "stateless_multiple",
                 rules: [
                   {
                     required: true,
@@ -1298,17 +1262,20 @@ export default class Index extends React.Component {
                 ]
               })(
                 <RadioGroup onChange={this.onChange1}>
-                  <Radio style={radioStyle} value="stateless">
-                    无状态组件（包括Web类，API类）
-                  </Radio>
-                  <Radio style={radioStyle} value={"state"}>
-                    有状态组件（包括DB类，集群类，消息中间件类，数据类）
-                  </Radio>
+                  {globalUtil.getSupportComponentTyps().map(item => {
+                    return (
+                      <div key={item.type}>
+                        <Radio style={radioStyle} value={item.type}>
+                        {item.name}
+                        </Radio>
+                        <p style={{color:"#999999", paddingLeft:"26px"}}>{item.desc}</p>
+                      </div>
+                    )
+                  })}
                 </RadioGroup>
               )}
             </Form.Item>
-          </Modal>
-        )}
+          </Modal>}
       </Fragment>
     );
   }

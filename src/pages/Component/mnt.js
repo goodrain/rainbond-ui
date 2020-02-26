@@ -156,7 +156,7 @@ export default class Index extends PureComponent {
     if (
       appBaseInfo &&
       appBaseInfo.extend_method &&
-      appBaseInfo.extend_method != "stateless"
+      globalUtil.isStateComponent(appBaseInfo.extend_method)
     ) {
       notification.warning({
         message: (

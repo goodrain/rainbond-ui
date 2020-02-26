@@ -101,7 +101,7 @@ import {
   getLanguage,
   putLanguage,
   putAppBuidSource,
-  updateAppStatus,
+  updateComponentDeployType,
   getTagInformation,
   updateServiceName,
   // onlyOpenPortOuter,
@@ -942,8 +942,8 @@ export default {
         callback && callback(response);
       }
     },
-    *updateAppStatus({ payload, callback }, { call }) {
-      const response = yield call(updateAppStatus, payload);
+    *updateComponentDeployType({ payload, callback }, { call }) {
+      const response = yield call(updateComponentDeployType, payload);
       if (callback) {
         callback && callback(response);
       }

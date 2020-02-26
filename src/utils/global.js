@@ -786,6 +786,48 @@ const global = {
       string.replace(new RegExp(g1), team).replace(new RegExp(g2), region)
     );
     return href;
+  },
+  getSupportComponentTyps() {
+    return [
+      {
+        type: "state_singleton",
+        name: this.getComponentType("state_singleton"),
+        desc: "部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数"
+      },
+      {
+        type: "state_multiple",
+        name: this.getComponentType("state_multiple"),
+        desc: "可多实例运行的无状态组件"
+      },
+      {
+        type: "stateless_singleton",
+        name: this.getComponentType("stateless_singleton"),
+        desc: "部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件"
+      },
+      {
+        type: "stateless_multiple",
+        name: this.getComponentType("stateless_multiple"),
+        desc: "可多实例运行的有状态组件"
+      }
+    ]
+  },
+  getComponentType(componentType) {
+    switch (componentType) {
+      case "state_singleton":
+        return "有状态单实例"
+      case "state_multiple":
+        return "有状态多实例"
+      case "stateless_singleton":
+        return "无状态单实例"
+      case "stateless_multiple":
+        return "无状态多实例"      
+    }
+  },
+  isStateComponent(componentType) {
+    if (componentType=="state_singleton" || componentType=="state_multiple"){
+      return true
+    }
+    return false
   }
 };
 

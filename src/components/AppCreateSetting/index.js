@@ -47,7 +47,7 @@ const RadioGroup = Radio.Group;
 @connect(
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
-  null,
+  null
   // { withRef: true }
 )
 @Form.create()
@@ -139,7 +139,7 @@ class BaseInfo extends PureComponent {
       >
         <Form.Item {...formItemLayout} label="组件类型">
           {getFieldDecorator("extend_method", {
-            initialValue: extend_method || "stateless",
+            initialValue: extend_method || "stateless_multiple",
             rules: [
               {
                 required: true,
@@ -148,12 +148,13 @@ class BaseInfo extends PureComponent {
             ]
           })(
             <RadioGroup>
-              <Radio style={radioStyle} value="stateless">
-                无状态组件（包括Web类，API类）
-              </Radio>
-              <Radio style={radioStyle} value={"state"}>
-                有状态组件（包括DB类，集群类，消息中间件类，数据类）
-              </Radio>
+              {globalUtil.getSupportComponentTyps().map(item => {
+                return (
+                  <Radio key={item.type} style={radioStyle} value={item.type}>
+                    {item.name}({item.desc}）
+                  </Radio>
+                );
+              })}
             </RadioGroup>
           )}
         </Form.Item>
@@ -199,7 +200,7 @@ class BaseInfo extends PureComponent {
 @connect(
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
-  null,
+  null
   // { withRef: true }
 )
 class RenderDeploy extends PureComponent {
@@ -222,7 +223,7 @@ class RenderDeploy extends PureComponent {
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "修改成功." });
+          notification.success({ message: "修改成功" });
           this.getRuntimeInfo();
         }
       }
@@ -239,6 +240,7 @@ class RenderDeploy extends PureComponent {
       callback: data => {
         if (data) {
           this.props.updateDetail();
+          notification.success({message: "更新成功"})
         }
       }
     });
@@ -288,7 +290,7 @@ class RenderDeploy extends PureComponent {
 @connect(
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
-  null,
+  null
   // { withRef: true }
 )
 class Mnt extends PureComponent {
@@ -697,9 +699,12 @@ class Mnt extends PureComponent {
   }
 }
 
-@connect(({ user, appControl, teamControl }) => ({}), null, null,
-//  {withRef: true}
- )
+@connect(
+  ({ user, appControl, teamControl }) => ({}),
+  null,
+  null
+  //  {withRef: true}
+)
 class Relation extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -843,8 +848,11 @@ class Relation extends PureComponent {
 }
 
 //环境变量
-@connect(({ user, appControl, teamControl }) => ({}), null, null,
-//  {withRef: true}
+@connect(
+  ({ user, appControl, teamControl }) => ({}),
+  null,
+  null
+  //  {withRef: true}
 )
 class Env extends PureComponent {
   constructor(arg) {
@@ -1099,8 +1107,11 @@ class Env extends PureComponent {
 }
 
 //端口
-@connect(({ user, appControl, teamControl }) => ({}), null, null,
-//  {withRef: true}
+@connect(
+  ({ user, appControl, teamControl }) => ({}),
+  null,
+  null
+  //  {withRef: true}
 )
 class Ports extends PureComponent {
   constructor(props) {
@@ -1350,7 +1361,7 @@ class Ports extends PureComponent {
 class RenderProperty extends PureComponent {
   render() {
     const visible = this.props.visible;
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     return (
       <div
         style={{
@@ -1369,7 +1380,7 @@ class RenderProperty extends PureComponent {
 @connect(
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
-  null,
+  null
   // { withRef: true }
 )
 export default class Index extends PureComponent {
@@ -1389,7 +1400,7 @@ export default class Index extends PureComponent {
     }
   };
   render() {
-    const appDetail = this.props.appDetail || {};
+    const { appDetail } = this.props;
     const type = this.state.type;
 
     return (
