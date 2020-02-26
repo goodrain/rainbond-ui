@@ -521,6 +521,8 @@ export default class EnterpriseTeams extends PureComponent {
         </Row>
 
         {overviewTeamInfo &&
+          overviewTeamInfo.active_teams &&
+          overviewTeamInfo.active_teams.length > 0 &&
           overviewTeamInfo.active_teams.map(item => {
             const {
               team_id,
@@ -754,7 +756,6 @@ export default class EnterpriseTeams extends PureComponent {
       <PageHeaderLayout
         title="用户团队管理"
         content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示。企业管理员可见企业团队管理入口"
-        returnUrl={`/enterprise/${eid}/index`}
       >
         {this.state.joinTeam && (
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />

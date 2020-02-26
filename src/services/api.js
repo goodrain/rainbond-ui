@@ -536,15 +536,10 @@ export async function getVersion(
 /* 卸载云市已下载的应用 */
 export async function deleteAppModel(body = { app_id, enterprise_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-model${app_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
       method: "DELETE",
-      data: {
-        app_id: body.app_id,
-        app_versions: body.app_versions,
-        action: 'offline',
-      },
     }
   );
 }
@@ -557,6 +552,7 @@ export async function syncMarketAppDetail(
   }
 ) {
   return request(
+    
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/download`,
     {
       method: 'post',

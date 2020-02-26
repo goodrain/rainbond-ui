@@ -48,7 +48,7 @@ export default class CloudApp extends PureComponent {
     const { dispatch, eid } = this.props;
 
     dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
-   
+
     this.setState({ versionList: null });
   };
   handleSync = () => {
@@ -68,7 +68,6 @@ export default class CloudApp extends PureComponent {
   };
 
   loadApps = () => {
-
     const { dispatch, eid } = this.props;
     this.setState(
       {
@@ -106,20 +105,15 @@ export default class CloudApp extends PureComponent {
   };
 
   handleLoadAppDetail = item => {
-    this.props.dispatch({
+    const { dispatch, eid } = this.props;
+    console.log('item',item)
+    dispatch({
       type: 'global/syncMarketAppDetail',
       payload: {
+        enterprise_id: eid,
         body: {
-          enterprise_id: eid,
-          app_id: item.app_id,
-          app_versions: item.versions_info[0].version,
-
-          // group_key: data.group_key,
-          // // version: data.version,
-          // group_version: this.state.version
-          //   ? [this.state.version]
-          //   : [data.version[0]],
-          // template_version: data.template_version,
+          app_id: item.group_key,
+          app_versions: item.version,
         },
       },
       callback: data => {

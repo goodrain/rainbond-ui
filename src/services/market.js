@@ -45,8 +45,8 @@ export async function upDataTag(param) {
 /* 删除本地标签 */
 export async function deleteTag(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{app_id}/tag`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/${param.app_id}/tag`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{app_id}/tag`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/${param.app_id}/tag`,
 
     {
       method: 'DELETE',
@@ -69,7 +69,7 @@ export async function fetchAppModels(param) {
         page_size: param.page_size,
         scope: param.scope,
         app_name: param.app_name,
-        tags: param.tags,
+        tags:JSON.stringify(param.tags),
       },
     }
   );
@@ -78,15 +78,17 @@ export async function fetchAppModels(param) {
 /* 编辑本地应用 */
 export async function upAppModel(body) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
       method: 'PUT',
       data: {
         name: body.name,
         pic: body.pic,
         describe: body.describe,
-        tags: body.tags,
+        tag_ids: body.tag_ids,
+        dev_status: body.dev_status ? body.dev_status : '',
+        details: "This is a default description",
       },
     }
   );
@@ -101,9 +103,10 @@ export async function createAppModel(body) {
       method: 'post',
       data: {
         scope: body.scope,
-        dev_status: body.dev_status,
+        dev_status: body.dev_status ? body.dev_status : '',
         name: body.name,
         pic: body.pic,
+        details: "This is a default description",
         describe: body.describe,
         tag_ids: body.tag_ids,
       },
@@ -133,8 +136,8 @@ export async function getMarketApp(param) {
 */
 export function queryExport(body = {}) {
   return request(
-    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
 
     {
       method: 'get',
@@ -150,8 +153,8 @@ export function appExport(
   body = { enterprise_id, app_id, format, app_versions }
 ) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
-    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
     {
       method: 'post',
       data: {
@@ -201,8 +204,8 @@ export function importApp(
   }
 ) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app_modes/import/${event_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'post',
       data: {
@@ -221,8 +224,8 @@ export function importApp(
 
 export function queryImportApp(body = { team_name, event_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import/${body.event_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'get',
     }
@@ -249,8 +252,8 @@ export function importDir(body = { team_name }) {
 
 export function queryImportDirApp(body = { enterprise_id, event_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/{event_id}/dir`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/${body.event_id}/dir`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{event_id}/dir`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}/dir`,
     {
       method: 'get',
       params: {
@@ -279,8 +282,8 @@ export function queryImportingApp(body = { team_name }) {
 */
 export function queryImportRecord(body = { enterprise_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import`,
     {
       method: 'post',
     }
@@ -292,8 +295,8 @@ export function queryImportRecord(body = { enterprise_id }) {
 */
 export function cancelImportApp(body = { enterprise_id, event_id }) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app_modes/import/{event_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app_modes/import/${body.event_id}`,
+    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'delete',
     }

@@ -158,7 +158,6 @@ export default class EnterpriseShared extends PureComponent {
       <PageHeaderLayout
         title="云端应用商店应用同步"
         content="从指定的云端应用商店同步应用模版到本地，可同步应用一般是公开免费应用和已购买应用"
-        returnUrl={`/enterprise/${eid}/shared`}
       >
         <div className={styles.descText}>
           <Icon type="exclamation-circle" />

@@ -10,7 +10,6 @@ import {
   Radio,
   Tag,
   Checkbox,
-  Tooltip,
 } from 'antd';
 import { connect } from 'dva';
 import { getAllRegion } from '../../services/api';
@@ -42,6 +41,7 @@ class CreateAppModels extends PureComponent {
       inputValue: '',
       imageUrl: props.appInfo ? props.appInfo.pic : '',
       loading: false,
+      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
     };
   }
   componentDidMount() {
@@ -88,7 +88,7 @@ class CreateAppModels extends PureComponent {
         enterprise_id: eid,
         user_id: user.user_id,
         app_name: name,
-        scope,
+        scope: 'enterprise',
         page,
         page_size,
         tags,
@@ -189,26 +189,35 @@ class CreateAppModels extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          console.log('res', res);
-          this.setState({
-            tagList: res.list,
-          });
+          this.getTags();
         }
       },
     });
   };
 
+  // handleRemoveTag = tag_id => {
+  //   const { dispatch, eid, appInfo } = this.props;
+
+  //   dispatch({
+  //     type: 'market/deleteTag',
+  //     payload: {
+  //       enterprise_id: eid,
+  //       app_id: appInfo.app_id,
+  //       tag_id,
+  //     },
+  //     callback: () => {
+  //       notification.success({ message: '删除成功' });
+  //       this.fetchTags();
+  //     },
+  //   });
+  // };
+
   saveInputRef = input => (this.input = input);
 
   upAppModel = values => {
     const { dispatch, eid, appInfo, onOk } = this.props;
-    const { imageUrl, tagList } = this.state;
-    const arr = [];
-    if (tagList && tagList.length > 0) {
-      tagList.map(item => {
-        arr.push(item.name);
-      });
-    }
+    const { imageUrl, tagList, tags } = this.state;
+
     dispatch({
       type: 'market/upAppModel',
       payload: {
@@ -216,8 +225,9 @@ class CreateAppModels extends PureComponent {
         app_id: appInfo.app_id,
         name: values.name,
         pic: imageUrl,
+        dev_status: values.dev_status ? 'release' : '',
         describe: values.describe,
-        tags: arr,
+        tag_ids: values.tag_ids,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -231,16 +241,24 @@ class CreateAppModels extends PureComponent {
     const { dispatch, eid, onOk } = this.props;
     const { imageUrl, tagList } = this.state;
 
+    const arr = [];
+    if (values.tag_ids && values.tag_ids.length > 0) {
+      values.tag_ids.map(item => {
+        console.log('item',parseFloat(item))
+        arr.push(parseFloat(item));
+      });
+    }
+
     dispatch({
       type: 'market/createAppModel',
       payload: {
         enterprise_id: eid,
         name: values.name,
         pic: imageUrl,
-        scope: values.scope,
+        scope: 'enterprise',
         dev_status: values.dev_status,
         describe: values.describe,
-        tag_ids: values.tag_ids,
+        tag_ids: arr,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -257,21 +275,17 @@ class CreateAppModels extends PureComponent {
   };
 
   handleOnSelect = value => {
-  
     const { tagList } = this.state;
 
     if (value && tagList.length > 0) {
-    console.log('value', value);
-
-      let arr = tagList.filter(item => item.tag_id+''.indexOf(value) > -1);
-      // let arr = tagList.filter(item => console.log('item',item));
-      
-      console.log('arr', arr);
-      debugger
-
-      console.log('arr', arr);
-
-      // this.createTag(value)
+      console.log('value', value);
+      let judge = true;
+      tagList.map(item => {
+        if (item.name === value) {
+          judge = false;
+        }
+      });
+      judge && this.createTag(value);
     } else if (tagList && tagList.length === 0) {
       this.createTag(value);
     }
@@ -312,6 +326,11 @@ class CreateAppModels extends PureComponent {
     // )}
 
     console.log(`selected`, value);
+  };
+  onChangeCheckbox = value => {
+    this.setState({
+      Checkboxvalue: !this.state.Checkboxvalue,
+    });
   };
 
   render() {
@@ -361,6 +380,7 @@ class CreateAppModels extends PureComponent {
         <div className="ant-upload-text">上传图标</div>
       </div>
     );
+
     const {
       imageUrl,
       previewImage,
@@ -369,6 +389,7 @@ class CreateAppModels extends PureComponent {
       inputVisible,
       inputValue,
       scope,
+      Checkboxvalue,
     } = this.state;
     console.log('111tagList', tagList);
     return (
@@ -398,78 +419,70 @@ class CreateAppModels extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <FormItem {...formItemLayout} label="应用分享">
-              {getFieldDecorator('scope', {
-                initialValue: scope,
+            {appInfo && (
+              <FormItem {...formItemLayout} label="应用模型状态">
+                {getFieldDecorator('dev_status', {
+                  initialValue: appInfo && appInfo.dev_status ? true : '',
+                })(
+                  <Checkbox
+                    onChange={this.onChangeCheckbox}
+                    checked={Checkboxvalue}
+                  >
+                    release
+                  </Checkbox>
+                )}
+                <div className={styles.conformDesc}>
+                  请选择当前应用的开发状态
+                </div>
+              </FormItem>
+            )}
 
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择应用分享范围',
-                  },
-                ],
-              })(
-                <Radio.Group onChange={this.onChangeRadio}>
-                  <Radio.Button value="enterprise">企业</Radio.Button>
-                  <Radio.Button value="team">团队</Radio.Button>
-                </Radio.Group>
-              )}
-              <div className={styles.conformDesc}>选择应用分享范围</div>
-            </FormItem>
-
-            <FormItem {...formItemLayout} label="应用状态">
-              {getFieldDecorator('dev_status', {
-                initialValue: appInfo && appInfo.dev_status ? true : '',
-              })(<Checkbox>release</Checkbox>)}
-              <div className={styles.conformDesc}>请选择当前应用的开发状态</div>
-            </FormItem>
-
-            <FormItem {...formItemLayout} label="应用名称" hasFeedback>
+            <FormItem {...formItemLayout} label="应用模型名称">
               {getFieldDecorator('name', {
                 initialValue: appInfo ? appInfo.app_name : '',
                 rules: [
                   {
                     required: true,
-                    message: '请输入应用名称',
+                    message: '请输入应用模型名称',
                   },
                 ],
-              })(<Input placeholder="请输入应用名称" />)}
+              })(<Input placeholder="请输入应用模型名称" />)}
               <div className={styles.conformDesc}>
-                请输入创建的应用名称，最多64字.
+                请输入创建的应用模型名称，最多64字.
               </div>
             </FormItem>
 
-            <FormItem {...formItemLayout} label="应用描述" hasFeedback>
+            <FormItem {...formItemLayout} label="应用模型描述">
               {getFieldDecorator('describe', {
                 initialValue: appInfo ? appInfo.describe : '',
                 rules: [
                   {
                     required: true,
-                    message: '请输入应用描述',
+                    message: '请输入应用模型描述',
                   },
                 ],
-              })(<TextArea placeholder="请输入应用描述" />)}
+              })(<TextArea placeholder="请输入应用模型描述" />)}
               <div className={styles.conformDesc}>
-                请输入创建的应用名称，最多10字
+                请输入创建的应用模型名称，最多10字
               </div>
             </FormItem>
 
-            <Form.Item {...formItemLayout} label="应用标签" hasFeedback>
+            <Form.Item {...formItemLayout} label="应用模型标签">
               {getFieldDecorator('tag_ids', {
                 initialValue: arr,
                 rules: [
                   {
                     required: false,
-                    message: '请添加应用标签',
+                    message: '请添加应用模型标签',
                   },
                 ],
               })(
                 <Select
                   mode="tags"
                   style={{ width: '100%' }}
-                  onChange={this.handleChangeSelect}
+                  // onChange={this.handleChangeSelect}
                   onSelect={this.handleOnSelect}
-                  onDeselect={this.handleOnDeselect}
+                  // onDeselect={this.handleOnDeselect}
                   tokenSeparators={[',']}
                   // optionLabelProp="label"
                 >
@@ -485,7 +498,7 @@ class CreateAppModels extends PureComponent {
               )}
             </Form.Item>
 
-            <Form.Item {...formItemLayout} label="应用图标" hasFeedback>
+            <Form.Item {...formItemLayout} label="应用模型图标">
               {getFieldDecorator('pic', {
                 initialValue: appInfo ? appInfo.pic : '',
                 rules: [

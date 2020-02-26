@@ -76,6 +76,12 @@ export default [
             name: 'EnterpriseCloudMarket',
             authority: ['admin', 'user'],
           },
+          {
+            path: '/enterprise/:eid/shared/import',
+            component: './EnterpriseImport',
+            name: 'EnterpriseImport',
+            authority: ['admin', 'user'],
+          },
         ],
       },
       // team view layout

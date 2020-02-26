@@ -217,6 +217,8 @@ class EnterpriseLayout extends PureComponent {
       children,
       rainbondInfo
     } = this.props;
+
+    console.log('showAuthCompany',this.props.showAuthCompany)
     const { enterpriseList, enterpriseInfo, ready } = this.state;
     const queryString = stringify({
       redirect: window.location.href
