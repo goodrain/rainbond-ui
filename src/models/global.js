@@ -220,7 +220,7 @@ export default {
         callback(data);
       }
     },
-    
+
     *getRegionSource({ payload, callback }, { call, put }) {
       const data = yield call(getRegionSource, payload);
       if (data && callback) {
@@ -765,6 +765,7 @@ export default {
       };
     },
     showAuthCompany(state, {}) {
+      console.log('jinlai')
       return {
         ...state,
         showAuthCompany: true,

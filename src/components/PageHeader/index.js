@@ -158,7 +158,6 @@ export default class PageHeader extends PureComponent {
       tabList,
       className,
       tabActiveKey,
-      returnUrl,
       dispatch,
     } = this.props;
     const clsString = classNames(styles.pageHeader, className);
@@ -176,17 +175,8 @@ export default class PageHeader extends PureComponent {
     }
 
     return (
-      <div className={styles.headerBox}>
-        <div
-          className={styles.icons}
-          onClick={() => {
-            dispatch(routerRedux.push(returnUrl));
-          }}
-        >
-          <Icon type="left" />
-        </div>
         <div className={clsString}>
-          {/* {breadcrumb} */}
+          {breadcrumb}
           <div className={styles.detail}>
             {logo && <div className={styles.logo}>{logo}</div>}
             <div className={styles.main}>
@@ -214,7 +204,6 @@ export default class PageHeader extends PureComponent {
             </Tabs>
           )}
         </div>
-      </div>
     );
   }
 }

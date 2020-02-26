@@ -24,6 +24,7 @@ import Lists from '../../components/Lists';
 import CreateAppModels from '../../components/CreateAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import AppExporter from './AppExporter';
+import TagList from './TagList';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -66,6 +67,8 @@ export default class EnterpriseShared extends PureComponent {
       showCloudApp: false,
       createAppModel: false,
       upDataAppModel: false,
+      moreTags: false,
+      editorTags: false,
     };
   }
   componentDidMount() {
@@ -172,6 +175,16 @@ export default class EnterpriseShared extends PureComponent {
 
   showAppExport = appInfo => {
     this.setState({ appInfo, showExporterApp: true });
+  };
+
+  handleOpenEditorMoreTags = () => {
+    this.setState({ moreTags: true, editorTags: true });
+  };
+  handleOpenMoreTags = () => {
+    this.setState({ moreTags: true });
+  };
+  handleCloseMoreTags = () => {
+    this.setState({ moreTags: false, editorTags: false });
   };
 
   hideAppExport = () => {
@@ -362,6 +375,8 @@ export default class EnterpriseShared extends PureComponent {
       enterpriseAdmin,
     } = this.state;
 
+    const tagLists = tagList && tagList.length > 0 && tagList;
+
     const managementMenu = appInfo => {
       const delApp = (
         <Menu.Item>
@@ -479,7 +494,8 @@ export default class EnterpriseShared extends PureComponent {
           style={{
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '20px',
+            marginBottom: '28px',
+            marginTop: '63px',
           }}
         >
           <Col span={20} style={{ textAlign: 'left', display: 'flex' }}>
@@ -503,11 +519,19 @@ export default class EnterpriseShared extends PureComponent {
                 <Checkbox.Group
                   style={{ width: '100%' }}
                   onChange={this.onChangeCheckbox}
+                  value={this.state.tags}
                 >
-                  {tagList &&
-                    tagList.length > 0 &&
-                    tagList.map(item => {
+                  {tagLists &&
+                    tagLists.map((item, index) => {
                       const { name, tag_id } = item;
+                      if (index === 3) {
+                        return (
+                          <a onClick={this.handleOpenEditorMoreTags}>更多</a>
+                        );
+                      }
+                      if (index > 3) {
+                        return null;
+                      }
                       return (
                         <Checkbox key={tag_id} value={name}>
                           {name}
@@ -543,7 +567,7 @@ export default class EnterpriseShared extends PureComponent {
                 stylePro={{ marginBottom: '10px' }}
                 Cols={
                   <div className={styles.h70}>
-                    <Col span={4} style={{ display: 'flex' }}>
+                    <Col span={3} style={{ display: 'flex' }}>
                       <div
                         className={styles.lt}
                         onClick={() => {
@@ -565,7 +589,7 @@ export default class EnterpriseShared extends PureComponent {
                         />
                       </div>
                     </Col>
-                    <Col span={12} className={styles.tits}>
+                    <Col span={13} className={styles.tits}>
                       <div>
                         <p>{app_name}</p>
                         <p>
@@ -604,7 +628,12 @@ export default class EnterpriseShared extends PureComponent {
                           );
                         })}
                       {tags && tags.length > 3 && (
-                        <a style={{ marginLeft: '5px' }}>更多</a>
+                        <a
+                          style={{ marginLeft: '5px' }}
+                          onClick={this.handleOpenMoreTags}
+                        >
+                          更多
+                        </a>
                       )}
                     </Col>
                   </div>
@@ -633,8 +662,20 @@ export default class EnterpriseShared extends PureComponent {
       <PageHeaderLayout
         title="共享库"
         content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台。"
-        returnUrl={`/enterprise/${eid}/index`}
       >
+        {this.state.moreTags && (
+          <TagList
+            title="查看标签"
+            onOk={this.handleCloseMoreTags}
+            onChangeCheckbox={this.onChangeCheckbox}
+            onCancel={this.handleCloseMoreTags}
+            tagLists={tagLists}
+            checkedValues={this.state.tags}
+            componentList={this.state.componentList}
+            editorTags={this.state.editorTags}
+          />
+        )}
+
         {this.state.showCloudApp && (
           <div className={styles.descText}>
             <Icon type="exclamation-circle" />
