@@ -300,6 +300,7 @@ export default class EnterpriseTeams extends PureComponent {
       payload: values,
       callback: () => {
         notification.success({ message: '申请成功，请等待审核' });
+        this.getOverviewTeam();
         this.cancelJoinTeam();
       },
     });

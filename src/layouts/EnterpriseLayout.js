@@ -295,7 +295,6 @@ class EnterpriseLayout extends PureComponent {
                 style={{
                   margin: "24px 24px 0",
                   height: "100%",
-                  flex: "0 0 0 64px;"
                 }}
               >
                 <Authorized

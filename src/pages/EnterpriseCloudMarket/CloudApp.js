@@ -106,7 +106,6 @@ export default class CloudApp extends PureComponent {
 
   handleLoadAppDetail = item => {
     const { dispatch, eid } = this.props;
-    console.log('item',item)
     dispatch({
       type: 'global/syncMarketAppDetail',
       payload: {

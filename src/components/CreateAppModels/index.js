@@ -33,7 +33,6 @@ class CreateAppModels extends PureComponent {
   constructor(props) {
     super(props);
 
-
     this.state = {
       actions: [],
       regions: [],
@@ -46,7 +45,6 @@ class CreateAppModels extends PureComponent {
       imageBase64: '',
       imageUrl: props.appInfo ? props.appInfo.pic : '',
       loading: false,
-      Tagloading: false,
       Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
     };
   }
@@ -55,7 +53,8 @@ class CreateAppModels extends PureComponent {
   }
 
   getTags = () => {
-    const { dispatch, eid } = this.props;
+    const { dispatch, eid, form } = this.props;
+    const { getFieldValue, setFieldsValue } = form;
     dispatch({
       type: 'market/fetchAppModelsTags',
       payload: {
@@ -64,7 +63,6 @@ class CreateAppModels extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            Tagloading: false,
             tagList: res.list,
           });
         }
@@ -172,26 +170,18 @@ class CreateAppModels extends PureComponent {
 
   createTag = name => {
     const { dispatch, eid } = this.props;
-
-    this.setState(
-      {
-        Tagloading: true,
+    dispatch({
+      type: 'market/createTag',
+      payload: {
+        enterprise_id: eid,
+        name,
       },
-      () => {
-        dispatch({
-          type: 'market/createTag',
-          payload: {
-            enterprise_id: eid,
-            name,
-          },
-          callback: res => {
-            if (res && res._code === 200) {
-              this.getTags();
-            }
-          },
-        });
-      }
-    );
+      callback: res => {
+        if (res && res._code === 200) {
+          this.getTags();
+        }
+      },
+    });
   };
 
   // handleRemoveTag = tag_id => {
@@ -218,9 +208,18 @@ class CreateAppModels extends PureComponent {
     const { imageUrl, tagList, tags } = this.state;
 
     const arr = [];
-    if (values.tag_ids && values.tag_ids.length > 0) {
-      values.tag_ids.map(item => {
-        arr.push(parseFloat(item));
+    if (
+      values.tag_ids &&
+      values.tag_ids.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
+          if (items === item.name) {
+            arr.push(parseFloat(item.tag_id));
+          }
+        });
       });
     }
     dispatch({
@@ -246,10 +245,18 @@ class CreateAppModels extends PureComponent {
     const { dispatch, eid, onOk } = this.props;
     const { imageUrl, tagList } = this.state;
 
-    const arr = [];
-    if (values.tag_ids && values.tag_ids.length > 0) {
-      values.tag_ids.map(item => {
-        arr.push(parseFloat(item));
+    if (
+      values.tag_ids &&
+      values.tag_ids.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
+          if (items === item.name) {
+            arr.push(parseFloat(item.tag_id));
+          }
+        });
       });
     }
 
@@ -280,7 +287,8 @@ class CreateAppModels extends PureComponent {
 
   handleOnSelect = value => {
     const { tagList } = this.state;
-
+    const { dispatch, eid, form } = this.props;
+    const { getFieldValue, setFieldsValue } = form;
     if (value && tagList.length > 0) {
       let judge = true;
       tagList.map(item => {
@@ -288,7 +296,10 @@ class CreateAppModels extends PureComponent {
           judge = false;
         }
       });
-      judge && this.createTag(value);
+
+      if (judge) {
+        this.createTag(value);
+      }
     } else if (tagList && tagList.length === 0) {
       this.createTag(value);
     }
@@ -314,9 +325,17 @@ class CreateAppModels extends PureComponent {
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const { onCancel, actions, title, appInfo } = this.props;
-
+    const {
+      imageUrl,
+      previewImage,
+      previewVisible,
+      tagList,
+      imageBase64,
+      scope,
+      Checkboxvalue,
+    } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -343,9 +362,19 @@ class CreateAppModels extends PureComponent {
     const options = actions || [];
     const arr = [];
 
-    if (appInfo && appInfo.tags && appInfo.tags.length > 0) {
-      appInfo.tags.map(item => {
-        arr.push(item.tag_id);
+    if (
+      appInfo &&
+      appInfo.tags &&
+      appInfo.tags.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      appInfo.tags.map(items => {
+        tagList.map(item => {
+          if (items === item.tag_id) {
+            arr.push(parseFloat(item.name));
+          }
+        });
       });
     }
 
@@ -361,16 +390,6 @@ class CreateAppModels extends PureComponent {
       </div>
     );
 
-    const {
-      imageUrl,
-      previewImage,
-      previewVisible,
-      tagList,
-      Tagloading,
-      imageBase64,
-      scope,
-      Checkboxvalue,
-    } = this.state;
     return (
       <div>
         <Modal
@@ -398,121 +417,115 @@ class CreateAppModels extends PureComponent {
             layout="horizontal"
             hideRequiredMark
           >
-            <Spin spinning={this.state.Tagloading}>
-              {appInfo && (
-                <FormItem {...formItemLayout} label="状态">
-                  {getFieldDecorator('dev_status', {
-                    initialValue: appInfo && appInfo.dev_status ? true : '',
-                  })(
-                    <Checkbox
-                      onChange={this.onChangeCheckbox}
-                      checked={Checkboxvalue}
-                    >
-                      release
-                    </Checkbox>
-                  )}
-                  <div className={styles.conformDesc}>
-                    请选择当前应用的开发状态
-                  </div>
-                </FormItem>
+            {appInfo && (
+              <FormItem {...formItemLayout} label="状态">
+                {getFieldDecorator('dev_status', {
+                  initialValue: appInfo && appInfo.dev_status ? true : '',
+                })(
+                  <Checkbox
+                    onChange={this.onChangeCheckbox}
+                    checked={Checkboxvalue}
+                  >
+                    release
+                  </Checkbox>
+                )}
+                <div className={styles.conformDesc}>
+                  请选择当前应用的开发状态
+                </div>
+              </FormItem>
+            )}
+
+            <FormItem {...formItemLayout} label="名称">
+              {getFieldDecorator('name', {
+                initialValue: appInfo ? appInfo.app_name : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入名称',
+                  },
+                ],
+              })(<Input placeholder="请输入名称" />)}
+              <div className={styles.conformDesc}>
+                请输入创建的应用模板名称，最多64字.
+              </div>
+            </FormItem>
+
+            <FormItem {...formItemLayout} label="描述">
+              {getFieldDecorator('describe', {
+                initialValue: appInfo ? appInfo.describe : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入描述',
+                  },
+                ],
+              })(<TextArea placeholder="请输入描述" />)}
+              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
+            </FormItem>
+
+            <Form.Item {...formItemLayout} label="标签">
+              {getFieldDecorator('tag_ids', {
+                initialValue: arr,
+                rules: [
+                  {
+                    required: false,
+                    message: '请添加标签',
+                  },
+                ],
+              })(
+                <Select
+                  mode="tags"
+                  style={{ width: '100%' }}
+                  // onChange={this.handleChangeSelect}
+                  onSelect={this.handleOnSelect}
+                  // onDeselect={this.handleOnDeselect}
+                  tokenSeparators={[',']}
+                >
+                  {tagList.map(item => {
+                    const { tag_id, name } = item;
+                    return (
+                      <Option key={tag_id} value={name} label={name}>
+                        {name}
+                      </Option>
+                    );
+                  })}
+                </Select>
               )}
-
-              <FormItem {...formItemLayout} label="名称">
-                {getFieldDecorator('name', {
-                  initialValue: appInfo ? appInfo.app_name : '',
-                  rules: [
-                    {
-                      required: true,
-                      message: '请输入名称',
-                    },
-                  ],
-                })(<Input placeholder="请输入名称" />)}
-                <div className={styles.conformDesc}>
-                  请输入创建的应用模型名称，最多64字.
-                </div>
-              </FormItem>
-
-              <FormItem {...formItemLayout} label="描述">
-                {getFieldDecorator('describe', {
-                  initialValue: appInfo ? appInfo.describe : '',
-                  rules: [
-                    {
-                      required: true,
-                      message: '请输入描述',
-                    },
-                  ],
-                })(<TextArea placeholder="请输入描述" />)}
-                <div className={styles.conformDesc}>
-                  请输入创建的应用模型名称，最多10字
-                </div>
-              </FormItem>
-
-              <Form.Item {...formItemLayout} label="标签">
-                {getFieldDecorator('tag_ids', {
-                  initialValue: arr,
-                  rules: [
-                    {
-                      required: false,
-                      message: '请添加标签',
-                    },
-                  ],
-                })(
-                  <Select
-                    mode="tags"
-                    style={{ width: '100%' }}
-                    // onChange={this.handleChangeSelect}
-                    onSelect={this.handleOnSelect}
-                    // onDeselect={this.handleOnDeselect}
-                    tokenSeparators={[',']}
-                    // optionLabelProp="label"
-                  >
-                    {!Tagloading &&
-                      tagList.map(item => {
-                        const { tag_id, name } = item;
-                        return (
-                          <Option value={`${tag_id}`} label={name}>
-                            {name}
-                          </Option>
-                        );
-                      })}
-                  </Select>
-                )}
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="图标">
-                {getFieldDecorator('pic', {
-                  initialValue: appInfo ? appInfo.pic : '',
-                  rules: [
-                    {
-                      required: false,
-                      message: '请上传图标',
-                    },
-                  ],
-                })(
-                  <Upload
-                    className="logo-uploader"
-                    name="file"
-                    accept="image/jpg,image/jpeg,image/png"
-                    action={apiconfig.imageUploadUrl}
-                    listType="picture-card"
-                    headers={myheaders}
-                    showUploadList={false}
-                    onChange={this.handleLogoChange}
-                    onRemove={this.handleLogoRemove}
-                    onPreview={this.handlePreview}
-                  >
-                    {imageUrl ? (
-                      <img
-                        src={imageBase64 || imageUrl}
-                        alt="avatar"
-                        style={{ width: '100%' }}
-                      />
-                    ) : (
-                      uploadButton
-                    )}
-                  </Upload>
-                )}
-              </Form.Item>
-            </Spin>
+            </Form.Item>
+            <Form.Item {...formItemLayout} label="图标">
+              {getFieldDecorator('pic', {
+                initialValue: appInfo ? appInfo.pic : '',
+                rules: [
+                  {
+                    required: false,
+                    message: '请上传图标',
+                  },
+                ],
+              })(
+                <Upload
+                  className="logo-uploader"
+                  name="file"
+                  accept="image/jpg,image/jpeg,image/png"
+                  action={apiconfig.imageUploadUrl}
+                  listType="picture-card"
+                  headers={myheaders}
+                  showUploadList={false}
+                  onChange={this.handleLogoChange}
+                  onRemove={this.handleLogoRemove}
+                  onPreview={this.handlePreview}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageBase64 || imageUrl}
+                      alt="avatar"
+                      style={{ width: '100%' }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              )}
+            </Form.Item>
           </Form>
         </Modal>
       </div>
