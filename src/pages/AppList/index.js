@@ -22,17 +22,17 @@ export default class AppList extends PureComponent {
       apps: [],
       loading: true,
       page: 1,
-      page_size: 10,
+      page_size: 10
     };
   }
   componentDidMount() {
     this.getTeamAppList();
   }
-  onPageChange = (page ) => {
-    this.setState({page: page},()=>{
+  onPageChange = page => {
+    this.setState({ page: page }, () => {
       this.getTeamAppList();
-    })
-  }
+    });
+  };
   getTeamAppList = () => {
     const { teamName, regionName } = this.props.match.params;
     const { page, page_size } = this.state;
@@ -97,13 +97,12 @@ export default class AppList extends PureComponent {
                   dataIndex: "group_name",
                   render: (val, data) => {
                     return (
-                          <Link
-                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
-                          >
-                            {val}
-                          </Link>
-                        );
-                      
+                      <Link
+                        to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
+                      >
+                        {val}
+                      </Link>
+                    );
                   }
                 },
                 {
@@ -112,7 +111,7 @@ export default class AppList extends PureComponent {
                   align: "center",
                   render: (val, data) => {
                     return (
-                      <p style={{marginBottom: 0}}>
+                      <p style={{ marginBottom: 0 }}>
                         {data.run_service_num}/{data.services_num}
                       </p>
                     );
@@ -124,7 +123,7 @@ export default class AppList extends PureComponent {
                   align: "center",
                   render: (val, data) => {
                     return (
-                      <p style={{marginBottom: 0}}>
+                      <p style={{ marginBottom: 0 }}>
                         {data.used_mem}/{data.allocate_mem}
                       </p>
                     );
@@ -136,34 +135,39 @@ export default class AppList extends PureComponent {
                   align: "center",
                   render: (val, data) => {
                     return (
-                          <Link
-                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/backup`}
-                          >
-                            {val}
-                          </Link>
-                        );
-                      
+                      <Link
+                        to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/backup`}
+                      >
+                        {val}
+                      </Link>
+                    );
                   }
                 },
                 {
                   title: "发布记录",
-                  dataIndex: "publish_record_num",
+                  dataIndex: "share_record_num",
                   align: "center",
                   render: (val, data) => {
                     return (
-                          <Link
-                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/publish`}
-                          >
-                            {val}
-                          </Link>
-                        );
-                      
+                      <Link
+                        to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/publish`}
+                      >
+                        {val}
+                      </Link>
+                    );
                   }
                 },
                 {
                   title: "备注",
-                  dataIndex: "note"
-                },
+                  dataIndex: "note",
+                  render: (val, data) => {
+                    return (
+                      <p style={{ marginBottom: 0, color: "#999999" }}>
+                        {val}
+                      </p>
+                    );
+                  }
+                }
               ]}
             />
           </ScrollerX>

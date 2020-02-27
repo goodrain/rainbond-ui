@@ -323,3 +323,37 @@ export async function getRecommendMarketAppList(
     },
   });
 }
+
+
+/* 获取企业开通的商店列表 */
+export async function getStoreList(
+  body = {
+    enterprise_id
+  }
+) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`, {
+    method: 'get',
+  });
+}
+
+/* 获取商店应用模型列表 */
+export async function getStoreModelList(
+  body = {
+    enterprise_id
+  }
+) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/market/${body.market_id}/app-models`, {
+    method: 'get',
+  });
+}
+
+/* 获取共享库模型列表 */
+export async function getLocalModelList(
+  body = {
+    enterprise_id
+  }
+) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`, {
+    method: 'get',
+  });
+}

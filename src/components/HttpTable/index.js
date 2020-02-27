@@ -505,7 +505,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "domain_name",
         key: "domain_name",
         align: "left",
-        width: "18%",
+        width: "200px",
         render: (text, record) => {
           return record.is_outer_service == 1
             ? <a onClick={this.justify_appStatus.bind(this, record)}>
@@ -521,7 +521,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "type",
         key: "type",
         align: "center",
-        width: "8%",
+        width: "30px",
         render: (text, record, index) => {
           return text == "0" ? <span>默认</span> : <span>自定义</span>;
         }
@@ -531,7 +531,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "is_senior",
         key: "is_senior",
         align: "center",
-        width: "15%",
+        width: "100px",
         render: (text, record) => {
           return text == "0" ? <span>无</span> : this.seeHighRoute(record);
         }
@@ -541,7 +541,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "certificate_alias",
         key: "certificate_alias",
         align: "center",
-        width: "8%",
+        width: "40px",
         render: (text, record, index) => {
           return text
             ? <span>
@@ -555,7 +555,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "group_name",
         key: "group_name",
         align: "center",
-        width: "10%",
+        width: "100px",
         render: (text, record) => {
           return record.is_outer_service == 0
             ? <a href="" disabled>
@@ -573,7 +573,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "service_cname",
         key: "service_cname",
         align: "center",
-        width: "15%",
+        width: "100px",
         render: (text, record) => {
           return record.is_outer_service == 0
             ? <a href="" disabled>
@@ -591,7 +591,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: "action",
         key: "action",
         align: "center",
-        width: "26%",
+        width: "100px",
         render: (data, record, index) => {
           return record.is_outer_service == 1
             ? <div style={{ display: "flex", justifyContent: "space-around" }}>

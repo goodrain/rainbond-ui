@@ -256,6 +256,19 @@ export async function getShareRecords(body = {
   );
 }
 
+// 获取指定分享记录
+export async function getShareRecord(body = {
+  team_name,
+  app_id,
+}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/share/record/${body.record_id}`,
+    {
+      method: "get"
+    },
+  );
+}
+
 /*
 	放弃分享
 */

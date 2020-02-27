@@ -107,22 +107,7 @@ export default class AppPublishList extends PureComponent {
         target
       },
       callback: data => {
-        if (data && data.bean.step === 1) {
-          dispatch(
-            routerRedux.push(
-              `/team/${teamName}/region/${regionName}/apps/${appID}/share/${data
-                .bean.ID}/one`
-            )
-          );
-        }
-        if (data && data.bean.step === 2) {
-          dispatch(
-            routerRedux.push(
-              `/team/${teamName}/region/${regionName}/apps/${appID}/share/${data
-                .bean.ID}/two`
-            )
-          );
-        }
+        this.continuePublish(data.bean.ID, data.bean.step)
       }
     });
   };
@@ -169,8 +154,23 @@ export default class AppPublishList extends PureComponent {
     });
   }
 
-  continuePublish = (recordID) => {
-    return
+  continuePublish = (recordID, step) => {
+    const { dispatch } = this.props;
+    const { teamName, regionName, appID } = this.props.match.params;
+    if (step === 1) {
+      dispatch(
+        routerRedux.push(
+          `/team/${teamName}/region/${regionName}/apps/${appID}/share/${recordID}/one`
+        )
+      );
+    }
+    if (step === 2) {
+      dispatch(
+        routerRedux.push(
+          `/team/${teamName}/region/${regionName}/apps/${appID}/share/${recordID}/two`
+        )
+      );
+    }
   }
 
   render() {
@@ -185,7 +185,7 @@ export default class AppPublishList extends PureComponent {
       selectStoreShow,
       recoders
     } = this.state;
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const { currentEnterprise, currentTeam, currentRegionName, dispatch } = this.props;
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -220,7 +220,6 @@ export default class AppPublishList extends PureComponent {
         <Card loading={loading}>
           <ScrollerX sm={800}>
             <Table
-              size="middle"
               pagination={{
                 current: page,
                 pageSize: page_size,
@@ -231,24 +230,36 @@ export default class AppPublishList extends PureComponent {
               columns={[
                 {
                   title: "发布模版名称",
-                  dataIndex: "app_model_name"
+                  dataIndex: "app_model_name",
                 },
                 {
                   title: "版本号(别名)",
                   dataIndex: "version",
+                  align: "center",
                   render: (val, data) => {
-                    return (
-                      <p style={{marginBottom: 0}}>
-                        {val}({data.alias})
-                      </p>
-                    );
+                    if (val){
+                      return (
+                        <p style={{marginBottom: 0}}>
+                          {val}({data.alias})
+                        </p>
+                      );
+                    }
                   }
                 },
                 {
                   title: "发布范围",
                   dataIndex: "scope",
+                  align: "center",
                   render: (val, data) => {
                     switch (val) {
+                      case "":
+                        return (
+                          <Link
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
+                          >
+                            共享库
+                          </Link>
+                        );
                       case "team":
                         return (
                           <Link
@@ -279,10 +290,12 @@ export default class AppPublishList extends PureComponent {
                 },
                 {
                   title: "发布时间",
+                  align: "center",
                   dataIndex: "create_time",
                 },
                 {
                   title: "状态",
+                  align: "center",
                   dataIndex: "status",
                 },
                 {
@@ -294,19 +307,21 @@ export default class AppPublishList extends PureComponent {
                       <div>
                           <a
                             style={{ marginRight: "5px" }}
-                            onClick={this.continuePublish(data.record_id)}
+                            onClick={ ()=>{
+                              this.continuePublish(data.record_id, data.step)
+                            }}
                           >
                             继续发布
                           </a>
                           <a
                             style={{ marginRight: "5px" }}
-                            onClick={this.cancelPublish(data.record_id)}
+                            onClick={ () => {this.cancelPublish(data.record_id)}}
                           >
                             取消发布
                           </a>
                           <a
                             style={{ marginRight: "5px" }}
-                            onClick={this.deleteRecord(data.record_id)}
+                            onClick={ () => {this.deleteRecord(data.record_id)}}
                           >
                             删除
                           </a>
@@ -318,6 +333,8 @@ export default class AppPublishList extends PureComponent {
           </ScrollerX>
         </Card>
         <SelectStore
+          dispatch={dispatch}
+          enterprise_id={currentEnterprise.enterprise_id}
           visible={selectStoreShow}
           onCancel={this.hideSelectStoreShow}
           onOk={this.handleSelectStore}

@@ -6,6 +6,7 @@ import {
   addGroup,
   recordShare,
   getShareRecords,
+  getShareRecord,
   createShare,
   deleteCompose,
   buildCompose,
@@ -133,6 +134,12 @@ export default {
     },
     * fetchShareRecoders({ payload, callback }, { call, put }) {
       const response = yield call(getShareRecords, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * fetchShareRecoder({ payload, callback }, { call, put }) {
+      const response = yield call(getShareRecord, payload);
       if (response) {
         callback && callback(response);
       }

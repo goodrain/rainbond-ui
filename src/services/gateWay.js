@@ -19,7 +19,7 @@ export async function queryHttpData(param) {
 /**获取app http rules */
 export async function queryAppHttpData(param) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams/${param.team_name}/apps/${param.app_id}/domain`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/team/${param.team_name}/app/${param.app_id}/domain`,
     {
       method: "get",
       params: {
@@ -250,7 +250,7 @@ export async function queryTcpData(param) {
 
 export async function queryAppTcpData(param) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams/${param.team_name}/apps/${param.app_id}/tcpdomain`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/team/${param.team_name}/app/${param.app_id}/tcpdomain`,
     {
       method: "get",
       params: {

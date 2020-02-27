@@ -58,7 +58,7 @@ class DrawerForm extends PureComponent {
   }
 
   heandleEditInfo = props => {
-    const { dispatch, editInfo, form } = props;
+    const { dispatch, editInfo, appID } = props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "appControl/fetchCertificates",
@@ -73,7 +73,9 @@ class DrawerForm extends PureComponent {
     });
     if (editInfo) {
       this.handleServices({key: editInfo.g_id});
-      // this.state.serviceComponentList.length > 0 && this.handlePorts(editInfo.service_id)
+    }
+    if (appID) {
+      this.handleServices({key: appID});
     }
   };
   handleOk = e => {

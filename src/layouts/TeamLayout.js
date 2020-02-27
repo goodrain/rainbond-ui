@@ -356,6 +356,8 @@ class TeamLayout extends React.PureComponent {
         <Layout>
           <SiderMenu
             enterpriseList={enterpriseList}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
             currentUser={currentUser}
             logo={
               (rainbondInfo &&

@@ -245,7 +245,7 @@ class EnterpriseLayout extends PureComponent {
       return (
         <Layout>
           <SiderMenu
-            eid={eid}
+            currentEnterprise={enterpriseInfo}
             enterpriseList={enterpriseList}
             currentUser={currentUser}
             logo={

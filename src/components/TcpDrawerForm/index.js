@@ -47,6 +47,7 @@ class DrawerForm extends PureComponent {
     });
   };
   componentDidMount() {
+    const { appID } = this.props;
     this.props.dispatch({
       type: 'gateWay/querydomain_port',
       payload: {
@@ -63,6 +64,9 @@ class DrawerForm extends PureComponent {
     const { editInfo } = this.props;
     if (editInfo) {
       this.handleServices({ key: editInfo.g_id });
+    }
+    if (appID) {
+      this.handleServices({ key: appID });
     }
   }
   /** 获取服务组件 */

@@ -1,8 +1,8 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link } from "dva/router";
-import { Table } from "antd";
+import CreateAppModels from '../../components/CreateAppModels';
+import { Table, AutoComplete } from "antd";
 import {
   Row,
   Col,
@@ -36,8 +36,11 @@ import styles from "./Index.less";
 import mytabcss from "./mytab.less";
 import globalUtil from "../../utils/global";
 import pluginUtil from "../../utils/plugin";
-import PluginInfo from "./PluginInfo";
-
+import {
+  createEnterprise,
+  createTeam,
+  createApp
+} from "../../utils/breadcrumb";
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -374,9 +377,12 @@ class AppInfo extends PureComponent {
   }
 }
 
-@connect(({ user, groupControl, loading }) => ({
+@connect(({ user, groupControl, loading, enterprise, teamControl }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise,
   groupDetail: groupControl.groupDetail || {},
   loading
 }))
@@ -405,7 +411,13 @@ export default class Main extends PureComponent {
       dep_service_name: [],
       share_service_list: [],
       ShareTypeShow: false,
-      scopeValue: "goodrain:private"
+      scopeValue: "goodrain:private",
+      appDetail: {},
+      record: {},
+      model:{},
+      currentVersion: {},
+      loadingModels: true,
+      models: []
     };
     this.com = [];
     this.share_group_info = null;
@@ -418,8 +430,72 @@ export default class Main extends PureComponent {
     };
   }
   componentDidMount() {
+    this.fetchAppDetail()
+    this.fetchRecord()
     this.getShareInfo();
   }
+  fetchRecord = () => {
+    this.setState({loading: true})
+    const { teamName, appID, shareId } = this.props.match.params;
+    const { dispatch } = this.props;
+    dispatch({
+      type: "groupControl/fetchShareRecoder",
+      payload: {
+        team_name: teamName,
+        app_id: appID,
+        record_id: shareId
+      },
+      callback: data => {
+        if (data && data.bean) {
+          this.setState({record: data.bean, loading: false})
+          this.fetchModels(data.bean.scope, data.bean.scope_target)
+        }
+      }
+    });
+  }
+
+  fetchModels = (scope, target) => {
+    if (scope=="team" || scope=="enterprise" || scope=="") {
+      this.fetchLocalModels()
+      return
+    }
+    const { dispatch, currentEnterprise } = this.props;
+    this.setState({ loadingModels: true });
+    dispatch({
+      type: "enterprise/fetchStoreModels",
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        market_id: target.store_id
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            models: res.list,
+            loadingModels: false
+          });
+        }
+      }
+    });
+  }
+
+  fetchLocalModels = () => {
+    dispatch({
+      type: "enterprise/fetchLocalModels",
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        team_name: teamName,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            models: res.list,
+            loadingModels: false
+          });
+        }
+      }
+    });
+  }
+
   getShareInfo() {
     const { dispatch, form, index } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -437,34 +513,12 @@ export default class Main extends PureComponent {
           if (data.bean.share_service_list[0]) {
             selectedApp = data.bean.share_service_list[0].service_alias;
           }
-          if (
-            data.bean.share_group_info &&
-            data.bean.share_group_info.scope == "goodrain"
-          ) {
-            this.setState({
-              ShareTypeShow: true
-            });
-          }
           this.setState({
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
             share_service_list: data.bean.share_service_list
           });
-
-          if (data.bean.share_group_info.pic) {
-            this.setState({
-              fileList: [
-                {
-                  uid: -1,
-                  name: data.bean.share_group_info.pic,
-                  status: "done",
-                  url: data.bean.share_group_info.pic
-                }
-              ]
-            });
-          }
-          this.share_group_info = data.bean.share_group_info;
           this.share_service_list = data.bean.share_service_list;
 
           let arr = [];
@@ -495,6 +549,36 @@ export default class Main extends PureComponent {
     });
   }
 
+  fetchAppDetail = () => {
+    const { dispatch } = this.props;
+    const { teamName, regionName, appID } = this.props.match.params;
+    this.setState({ loadingDetail: true });
+    dispatch({
+      type: "groupControl/fetchGroupDetail",
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        group_id: appID
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            appDetail: res.bean,
+            loadingDetail: false
+          });
+        }
+      },
+      handleError: res => {
+        if (res && res.code === 404) {
+          this.props.dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+            )
+          );
+        }
+      }
+    });
+  };
   handleSubmit = e => {
     const { dispatch } = this.props;
     const { scopeValue } = this.state;
@@ -776,15 +860,40 @@ export default class Main extends PureComponent {
       previewVisible: true
     });
   };
+  showCreateAppModel = () => {
+    this.setState({showCreateAppModel: true})
+  }
+  hideCreateAppModel = () => {
+    this.setState({showCreateAppModel: false})
+  }
+  handleCreateAppModel = (model) => {
+    notification.success({ message: '创建成功' });
+    this.fetchLocalModels()
+    this.hideCreateAppModel();
+  }
 
   handleCancel = () => this.setState({ previewVisible: false });
-
+  changeCurrentVersion = (version) => {
+    const { model } = this.state
+    model && model.versions && model.versions.map(item=>{
+      if (version === item.version) {
+        this.setState({currentVersion: item})
+      }
+    })
+  }
+  changeCurrentModel = (model_id) => {
+    const { models } = this.state
+    models && models.map(item=>{
+      if (model_id === item.app_id) {
+        this.setState({model: item})
+      }
+    })
+  }
   render() {
     const info = this.state.info;
     if (!info) {
       return null;
     }
-    const appinfo = info.share_group_info || {};
     const apps = info.share_service_list || [];
     const plugins = info.share_plugin_list || [];
     const tabk = this.state.key;
@@ -797,26 +906,37 @@ export default class Main extends PureComponent {
       shareModal,
       sharearrs,
       share_service_list,
-      ShareTypeShow
+      currentVersion,
+      models,
+      appDetail,
+      showCreateAppModel,
+      model,
+      record
     } = this.state;
-    const pageHeaderContent = (
-      <div className={styles.pageHeaderContent}>
-        <div className={styles.content}>
-          <div className={styles.contentTitle}>
-            {info.share_group_info.group_name || "-"}
-          </div>
-        </div>
-      </div>
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    let breadcrumbList = [];
+    breadcrumbList = createApp(
+      createTeam(
+        createEnterprise(breadcrumbList, currentEnterprise),
+        currentTeam,
+        currentRegionName
+      ),
+      currentTeam,
+      currentRegionName,
+      { appName: appDetail.group_name, appID: appDetail.group_id }
     );
-
+    breadcrumbList.push({title:"发布记录列表", href:`/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`})
+    breadcrumbList.push({title:"发布应用模版"})
     return (
-      <PageHeaderLayout content={pageHeaderContent}>
+      <PageHeaderLayout
+        breadcrumbList={breadcrumbList}
+      >
         <div>
           <Card
             style={{
               marginBottom: 24
             }}
-            title="基本信息"
+            title="应用模版及发布版本设置"
             bordered={false}
             bodyStyle={{
               padding: 0
@@ -830,122 +950,88 @@ export default class Main extends PureComponent {
               <Form layout="horizontal" className={styles.stepForm}>
                 <Row gutter={24}>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label="应用名">
-                      {getFieldDecorator("group_name", {
-                        initialValue: appinfo.group_name,
+                    <Form.Item {...formItemLayout} label="应用模版">
+                      {getFieldDecorator("app_model_name", {
+                        initialValue: model.app_model_name,
                         rules: [
                           {
                             required: true,
-                            message: "应用名不能为空"
+                            message: "应用模版选择是必须的"
                           }
                         ]
-                      })(<Input placeholder="默认使用上次应用名或应用组名" />)}
+                      })(
+                        <Select placeholder="默认使用上次应用名或应用组名"
+                          style={{ width: 280 }}
+                          onChange={this.changeCurrentModel}
+                          placeholder="选择发布的应用模版"
+                          dropdownRender={menu => (
+                            <div>
+                              {menu}
+                              <Divider style={{ margin: '4px 0' }} />
+                              <div
+                                style={{ padding: '4px 8px', cursor: 'pointer', textAlign: 'center' }}
+                                onMouseDown={e => e.preventDefault()}
+                                onClick={this.showCreateAppModel}
+                              >
+                                <Icon type="plus" /> 新建应用模版
+                              </div>
+                            </div>
+                          )}
+                        >
+                          {models.map(item => (
+                            <Option key={item}>{item}</Option>
+                          ))}
+                        </Select>
+                      )}
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label="版本">
+                    <Form.Item {...formItemLayout} label="版本号">
                       {getFieldDecorator("version", {
-                        initialValue: appinfo.version,
+                        initialValue: currentVersion && currentVersion.version,
                         rules: [
                           {
                             required: true,
                             message: "版本不能为空"
                           }
                         ]
-                      })(<Input placeholder="默认使用上次的版本" />)}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12" style={{ height: "104px" }}>
-                    <Form.Item {...formItemLayout} label="分享范围">
-                      {getFieldDecorator("scope", {
-                        initialValue: appinfo.scope || "team",
-                        rules: [
-                          {
-                            required: true
-                          }
-                        ]
                       })(
-                        <RadioGroup onChange={this.hanldeShareTypeChange}>
-                          <Radio value="team">团队</Radio>
-                          <Radio value="enterprise">公司</Radio>
-                          <Radio value="goodrain">应用市场</Radio>
-                        </RadioGroup>
-                      )}
-
-                      {ShareTypeShow && (
-                        <div className={styles.connect}>
-                          <Icon
-                            className={styles.icon}
-                            type="caret-up"
-                            theme="filled"
-                          />
-
-                          <RadioGroup
-                            onChange={this.hanldeScopeValueChange}
-                            value={this.state.scopeValue}
-                          >
-                            <Radio value="goodrain:publish">公开应用</Radio>
-                            <Radio value="goodrain:private">私有应用</Radio>
-                          </RadioGroup>
-                        </div>
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12" style={{ height: "104px" }}>
-                    <Form.Item {...formItemLayout} label="应用说明">
-                      {getFieldDecorator("describe", {
-                        initialValue: appinfo.describe,
-                        rules: [
-                          {
-                            required: false,
-                            message: "请输入应用说明"
-                          }
-                        ]
-                      })(
-                        <TextArea
-                          placeholder="请输入应用说明"
-                          style={{ height: "70px" }}
-                        />
+                        <AutoComplete
+                          style={{ width: 280 }}
+                          onChange={this.changeCurrentVersion}
+                          placeholder="版本号默认为选择模版的上次分享版本"
+                        >
+                          {model.versions && model.versions.map((item, index)=>{
+                            return <AutoComplete.Option key={`version${index}`} value={item.version}>{item.version}</AutoComplete.Option>
+                          })}
+                        </AutoComplete>
                       )}
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label="图标">
-                      {getFieldDecorator("pic", {
+                    <Form.Item {...formItemLayout} label="版本别名">
+                      {getFieldDecorator("version_alias", {
+                        initialValue: currentVersion && currentVersion.version_alias,
+                      })(<Input style={{ width: 280 }} placeholder="设置版本别名，比如高级版" />)}
+                    </Form.Item>
+                  </Col>
+                  <Col span="12" style={{ height: "104px" }}>
+                    <Form.Item {...formItemLayout} label="版本说明">
+                      {getFieldDecorator("describe", {
+                        initialValue: currentVersion && currentVersion.describe,
                         rules: [
                           {
                             required: false,
-                            message: "请上传图标"
+                            message: "请输入版本说明"
                           }
                         ]
                       })(
-                        <Upload
-                          className="logo-uploader"
-                          name="file"
-                          accept="image/jpg,image/jpeg,image/png"
-                          action={apiconfig.imageUploadUrl}
-                          listType="picture-card"
-                          fileList={fileList}
-                          headers={myheaders}
-                          onChange={this.handleLogoChange}
-                          onRemove={this.handleLogoRemove}
-                          onPreview={this.handlePreview}
-                        >
-                          {fileList.length > 0 ? null : uploadButton}
-                        </Upload>
+                        <TextArea
+                          placeholder="请输入版本说明"
+                          style={{ height: "70px" }}
+                        />
                       )}
                     </Form.Item>
-                    <Modal
-                      visible={previewVisible}
-                      footer={null}
-                      onCancel={this.handleCancel}
-                    >
-                      <img
-                        alt="example"
-                        style={{ width: "100%" }}
-                        src={previewImage}
-                      />
-                    </Modal>
                   </Col>
                 </Row>
               </Form>
@@ -955,7 +1041,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 24
             }}
-            title="应用信息配置"
+            title="发布组件模型配置"
             bordered={false}
             bodyStyle={{
               padding: 0
@@ -967,35 +1053,6 @@ export default class Main extends PureComponent {
               }}
             >
               <div className={mytabcss.mytab}>
-                {/* <Form layout="horizontal" className={styles.stepForm}>
-                  <Form.Item {...sharingFormItemLayout} label="分享组件" required={true}> */}
-                {/* {getFieldDecorator("sharing", {
-                      initialValue: shareList,
-                      // setFieldsValue:shareList,
-                      rules: [
-                        {
-                          required: true,
-                          message: "请选择分享的组件",
-                        },
-                      ],
-                    })( */}
-                {/* <Checkbox.Group
-                      onChange={this.onFileChange}
-                      value={sharearrs}
-                      style={{ display: "block", marginTop: "9px" }}
-                    >
-                      {apps.map(order => {
-                        return (
-                          <Checkbox key={order.service_share_uuid} value={order.service_share_uuid} >
-                            {order.service_cname}
-                          </Checkbox>
-                        );
-                      })}
-                    </Checkbox.Group> */}
-                {/* )} */}
-                {/* </Form.Item>
-                </Form> */}
-
                 <h4
                   className={mytabcss.required}
                   style={{
@@ -1069,7 +1126,7 @@ export default class Main extends PureComponent {
             style={{
               marginBottom: 128
             }}
-            title="插件信息"
+            title="发布插件模型信息"
             bordered={false}
           >
             <Table
@@ -1123,6 +1180,14 @@ export default class Main extends PureComponent {
               </div>
             </Modal>
           )}
+          {showCreateAppModel && <CreateAppModels
+            title="创建应用模版"
+            eid={currentEnterprise.enterprise_id}
+            onOk={this.handleCreateAppModel}
+            defaultScope="team"
+            market_id={record.scope_target && record.scope_target.market_id}
+            onCancel={this.hideCreateAppModel}
+          />}
 
           <FooterToolbar>
             <Button

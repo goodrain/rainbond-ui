@@ -38,7 +38,6 @@ class CreateAppModels extends PureComponent {
       regions: [],
       previewImage: '',
       previewVisible: false,
-      scope: props.appInfo ? props.appInfo.scope : 'enterprise',
       tagList: [],
       inputVisible: false,
       inputValue: '',
@@ -79,31 +78,6 @@ class CreateAppModels extends PureComponent {
           this.createAppModel(values);
         }
       }
-    });
-  };
-
-  createAppModels = () => {
-    const { dispatch, user, eid } = this.props;
-    const { page, page_size, name, scope, tags } = this.state;
-    dispatch({
-      type: 'market/createAppModels',
-      payload: {
-        enterprise_id: eid,
-        user_id: user.user_id,
-        app_name: name,
-        scope: 'enterprise',
-        page,
-        page_size,
-        tags,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            componentList: res.list,
-            userTeamsLoading: false,
-          });
-        }
-      },
     });
   };
 
@@ -242,7 +216,7 @@ class CreateAppModels extends PureComponent {
   };
 
   createAppModel = values => {
-    const { dispatch, eid, onOk } = this.props;
+    const { dispatch, eid, onOk, currentTeam } = this.props;
     const { imageUrl, tagList } = this.state;
 
     if (
@@ -259,18 +233,23 @@ class CreateAppModels extends PureComponent {
         });
       });
     }
-
+    let body = {
+      enterprise_id: eid,
+      name: values.name,
+      pic: imageUrl,
+      scope: values.scope,
+      team_name: currentTeam && currentTeam.team_name,
+      dev_status: values.dev_status,
+      describe: values.describe,
+      tag_ids: arr,
+    }
+    if (market_id) {
+      body.scope_target={market_id: market_id}
+      body.scope = "goodrain"
+    }
     dispatch({
       type: 'market/createAppModel',
-      payload: {
-        enterprise_id: eid,
-        name: values.name,
-        pic: imageUrl,
-        scope: 'enterprise',
-        dev_status: values.dev_status,
-        describe: values.describe,
-        tag_ids: arr,
-      },
+      payload: body,
       callback: res => {
         if (res && res._code === 200) {
           onOk && onOk();
@@ -326,24 +305,23 @@ class CreateAppModels extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { onCancel, actions, title, appInfo } = this.props;
+    const { onCancel, actions, title, appInfo, defaultScope, market_id } = this.props;
     const {
       imageUrl,
       previewImage,
       previewVisible,
       tagList,
       imageBase64,
-      scope,
       Checkboxvalue,
     } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 4 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
+        sm: { span: 20 },
       },
     };
     const tailFormItemLayout = {
@@ -402,6 +380,7 @@ class CreateAppModels extends PureComponent {
         <Modal
           title={title}
           visible
+          width={500}
           className={styles.TelescopicModal}
           onOk={this.handleSubmit}
           onCancel={onCancel}
@@ -418,7 +397,7 @@ class CreateAppModels extends PureComponent {
             hideRequiredMark
           >
             {appInfo && (
-              <FormItem {...formItemLayout} label="状态">
+              <FormItem {...formItemLayout} label="是否Release">
                 {getFieldDecorator('dev_status', {
                   initialValue: appInfo && appInfo.dev_status ? true : '',
                 })(
@@ -449,6 +428,25 @@ class CreateAppModels extends PureComponent {
                 请输入创建的应用模板名称，最多64字.
               </div>
             </FormItem>
+            {!market_id && <FormItem {...formItemLayout} label="发布范围">
+              {getFieldDecorator('scope', {
+                initialValue: appInfo ? appInfo.scope : defaultScope?defaultScope: 'enterprise',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入名称',
+                  },
+                ],
+              })(
+                <Radio.Group name="scope">
+                  <Radio value="team">当前团队</Radio>
+                  <Radio value="enterprise">企业</Radio>
+                </Radio.Group>
+              )}
+              <div className={styles.conformDesc}>
+                发布模型的可视范围
+              </div>
+            </FormItem>}
 
             <FormItem {...formItemLayout} label="描述">
               {getFieldDecorator('describe', {
@@ -463,7 +461,7 @@ class CreateAppModels extends PureComponent {
               <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
             </FormItem>
 
-            <Form.Item {...formItemLayout} label="标签">
+            <Form.Item {...formItemLayout} label="分类标签">
               {getFieldDecorator('tag_ids', {
                 initialValue: arr,
                 rules: [
@@ -492,7 +490,7 @@ class CreateAppModels extends PureComponent {
                 </Select>
               )}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="图标">
+            <Form.Item {...formItemLayout} label="LOGO">
               {getFieldDecorator('pic', {
                 initialValue: appInfo ? appInfo.pic : '',
                 rules: [
