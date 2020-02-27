@@ -177,7 +177,6 @@ export default class EnterpriseTeams extends PureComponent {
       payload: {
         enterprise_id: eid,
         user_id: user.user_id,
-        name: '',
         page,
         page_size,
         name,
@@ -283,14 +282,12 @@ export default class EnterpriseTeams extends PureComponent {
   handleDelApply = () => {
     const { ApplyInfo } = this.state;
     this.props.dispatch({
-      type: 'teamControl/setJoinTeamUsers',
+      type: 'teamControl/undoTeamUsers',
       payload: {
         team_name: ApplyInfo.team_name,
-        user_id: ApplyInfo.user_id,
-        action: false,
       },
       callback: () => {
-        notification.success({ message: '退出申请成功' });
+        notification.success({ message: '撤销申请成功' });
         this.getOverviewTeam();
         this.hideDelApply();
       },
@@ -395,7 +392,7 @@ export default class EnterpriseTeams extends PureComponent {
                 this.showApply(item);
               }}
             >
-              退回申请
+              撤销申请
             </a>
           </Menu.Item>
         </Menu>
@@ -655,7 +652,6 @@ export default class EnterpriseTeams extends PureComponent {
                     &nbsp;
                     {is_pass === 0 ? (
                       <span>
-                        <span style={{ color: '#333' }}>{user_name}</span>
                         &nbsp;申请加入团队审批中
                       </span>
                     ) : (
@@ -679,7 +675,7 @@ export default class EnterpriseTeams extends PureComponent {
             );
           })}
 
-        {userTeam && (
+
           <Row
             style={{
               margin: '10px 0',
@@ -703,7 +699,6 @@ export default class EnterpriseTeams extends PureComponent {
               />
             </Col>
           </Row>
-        )}
         {!userTeam && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
         {userTeam &&
           userTeam.map(item => {
@@ -793,9 +788,9 @@ export default class EnterpriseTeams extends PureComponent {
         {this.state.showDelApply && (
           <ConfirmModal
             onOk={this.handleDelApply}
-            title="退出申请"
+            title="撤销申请"
             subDesc="此操作不可恢复"
-            desc="确定要退出此申请吗?"
+            desc="确定要撤销此申请吗?"
             onCancel={this.hideDelApply}
           />
         )}

@@ -133,7 +133,6 @@ class EnterpriseLayout extends PureComponent {
     this.setState({ showAuthCompany: this.props.showAuthCompany });
     const query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
-      console.log('query', query);
       this.setState({ market_info: query.market_info, showAuthCompany: true });
     }
   };
@@ -225,7 +224,6 @@ class EnterpriseLayout extends PureComponent {
       rainbondInfo,
     } = this.props;
 
-    console.log('showAuthCompany', this.props.showAuthCompany);
     const { enterpriseList, enterpriseInfo, ready } = this.state;
     const queryString = stringify({
       redirect: window.location.href,
@@ -345,6 +343,7 @@ class EnterpriseLayout extends PureComponent {
               );
               this.setState({ market_info: '', showAuthCompany: false });
               this.props.dispatch(routerRedux.replace(jumpPath + query));
+              window.location.reload();
             }}
           />
         )}

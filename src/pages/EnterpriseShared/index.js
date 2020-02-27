@@ -24,6 +24,7 @@ import Lists from '../../components/Lists';
 import CreateAppModels from '../../components/CreateAppModels';
 import DeleteApp from '../../components/DeleteApp';
 import AppExporter from './AppExporter';
+import ExportOperation from './ExportOperation';
 import TagList from './TagList';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -173,9 +174,7 @@ export default class EnterpriseShared extends PureComponent {
     );
   };
 
-  showAppExport = appInfo => {
-    this.setState({ appInfo, showExporterApp: true });
-  };
+
 
   handleOpenEditorMoreTags = () => {
     this.setState({ moreTags: true, editorTags: true });
@@ -187,12 +186,8 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({ moreTags: false, editorTags: false });
   };
 
-  hideAppExport = () => {
-    this.setState({ showExporterApp: false, appInfo: false });
-  };
-  setIsExporting = status => {
-    this.setState({ is_exporting: status });
-  };
+
+
 
   showOfflineApp = appInfo => {
     this.setState({
@@ -405,27 +400,21 @@ export default class EnterpriseShared extends PureComponent {
               </Menu.Item>
             )}
           <Menu.Item>
-            {enterpriseAdmin && (
+            {/* {enterpriseAdmin && ( */}
               <a
                 onClick={() => {
                   this.handleOpenUpDataAppModel(appInfo);
                 }}
               >
-                编辑应用模型
+                编辑应用模版
               </a>
-            )}
+            {/* )} */}
           </Menu.Item>
           {appInfo &&
             appInfo.versions_info &&
             appInfo.versions_info.length > 0 && (
               <Menu.Item>
-                <a
-                  onClick={() => {
-                    this.showAppExport(appInfo);
-                  }}
-                >
-                  导出应用模型
-                </a>
+                <ExportOperation app={appInfo} eid={eid}/>
               </Menu.Item>
             )}
           {enterpriseAdmin && delApp}
@@ -435,13 +424,11 @@ export default class EnterpriseShared extends PureComponent {
 
     const addMenuApps = (
       <Menu>
-        {enterpriseAdmin && (
           <Menu.Item>
-            <a onClick={this.handleOpenCreateAppModel}>创建应用模型</a>
+            <a onClick={this.handleOpenCreateAppModel}>创建应用模版</a>
           </Menu.Item>
-        )}
         <Menu.Item>
-          <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+          <Link to={`/enterprise/${eid}/shared/import`}>离线导入应用</Link>
         </Menu.Item>
       </Menu>
     );
@@ -482,7 +469,7 @@ export default class EnterpriseShared extends PureComponent {
             </Button>
           )}
           <Button type="primary" onClick={this.onJoinTeam}>
-            离线导入
+            离线导入应用
           </Button>
         </div>
       </div>
@@ -524,12 +511,12 @@ export default class EnterpriseShared extends PureComponent {
                   {tagLists &&
                     tagLists.map((item, index) => {
                       const { name, tag_id } = item;
-                      if (index === 3) {
+                      if (index === 5) {
                         return (
                           <a onClick={this.handleOpenEditorMoreTags}>更多</a>
                         );
                       }
-                      if (index > 3) {
+                      if (index > 5) {
                         return null;
                       }
                       return (
@@ -603,13 +590,13 @@ export default class EnterpriseShared extends PureComponent {
                       <div>
                         {dev_status && (
                           <p className={styles.dev_status}>
-                            {dev_status || ''}
+                            {dev_status}
                           </p>
                         )}
 
-                        {versions_info && versions_info.length > 0 && (
-                          <p>{versions_info[0].version}</p>
-                        )}
+                        {versions_info && versions_info.length > 0 ? (
+                          <p className={styles.dev_version}>{versions_info[0].version}</p>
+                        ):<p className={styles.dev_version}>无版本</p>}
                       </div>
                     </Col>
 
@@ -694,7 +681,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {this.state.createAppModel && (
           <CreateAppModels
-            title="创建应用模型"
+            title="创建应用模版"
             eid={eid}
             onOk={this.handleCreateAppModel}
             onCancel={this.handleCancelAppModel}
@@ -702,7 +689,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {this.state.upDataAppModel && (
           <CreateAppModels
-            title="编辑应用模型"
+            title="编辑应用模版"
             eid={eid}
             appInfo={appInfo}
             onOk={this.handleupDataAppModel}
@@ -710,14 +697,6 @@ export default class EnterpriseShared extends PureComponent {
           />
         )}
 
-        {this.state.showExporterApp && (
-          <AppExporter
-            setIsExporting={this.setIsExporting}
-            app={appInfo}
-            onOk={this.hideAppExport}
-            onCancel={this.hideAppExport}
-          />
-        )}
         {visibles && (
           <DeleteApp
             appInfo={appInfo}

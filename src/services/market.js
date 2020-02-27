@@ -136,7 +136,7 @@ export async function getMarketApp(param) {
 */
 export function queryExport(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/export`,
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
 
     {
@@ -154,7 +154,7 @@ export function appExport(
 ) {
   return request(
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
-    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/app-models/export`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/export`,
     {
       method: 'post',
       data: {

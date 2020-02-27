@@ -30,13 +30,13 @@ export default class AppExporter extends PureComponent {
     this.props.onCancel && this.props.onCancel();
   };
   handleExporter = format => {
-    const { app, user } = this.props;
+    const { app, eid } = this.props;
     const { exportVersion } = this.state;
     this.props.dispatch({
       type: 'market/appExport',
       payload: {
         app_id: app.app_id,
-        enterprise_id: user.enterprise_id,
+        enterprise_id: eid,
         app_versions: exportVersion,
         format,
       },
@@ -49,15 +49,15 @@ export default class AppExporter extends PureComponent {
     });
   };
   queryExport = () => {
-    const { app, user } = this.props;
+    const { app, eid } = this.props;
 
     let group_version = this.state.exportVersion;
     group_version = group_version.join();
     this.props.dispatch({
       type: 'market/queryExport',
       payload: {
+        enterprise_id: eid,
         body: {
-          enterprise_id: user.enterprise_id,
           app_id: app.app_id,
           app_version: group_version,
         },
@@ -285,11 +285,7 @@ export default class AppExporter extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
-          <Button
-            type="primary"
-            loading={loading || false}
-            onClick={onOk}
-          >
+          <Button type="primary" loading={loading || false} onClick={onOk}>
             确定
           </Button>,
         ]}

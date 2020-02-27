@@ -40,20 +40,26 @@ const { Search } = Input;
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
+    const { user } = this.props;
+    const enterpriseAdmin = userUtil.isCompanyAdmin(user);
     this.state = {
+      enterpriseAdmin,
       fileList: [],
       existFileList: [],
       record: {},
       event_id: '',
       file_list: [],
       import_file_status: [],
+      userTeamList: [],
       autoQuery: false,
-      value: 'enterprise',
+      scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
+      tenant_name: '',
       percents: false,
     };
   }
   componentDidMount() {
     this.queryImportRecord();
+    this.getUserTeams();
   }
   componentWillUnmount() {
     this.timer && clearTimeout(this.timer);
@@ -114,8 +120,6 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   onChangeUpload = info => {
-    console.log('info', info);
-
     const { autoQuery } = this.state;
     let fileList = info.fileList;
     fileList = fileList.filter(file => {
@@ -136,8 +140,8 @@ export default class EnterpriseShared extends PureComponent {
       this.setState({
         percents: false,
       });
-      this.handleQueryImportDir(true);
-      this.closeAutoQuery();
+      // this.handleQueryImportDir(true);
+      // this.closeAutoQuery();
     } else {
       !autoQuery && this.openAutoQuery();
     }
@@ -163,24 +167,25 @@ export default class EnterpriseShared extends PureComponent {
         params: { eid },
       },
     } = this.props;
-
-    if (this.state.file_list.length == 0) {
+    const { scopeValue, tenant_name, event_id, file_list } = this.state;
+    if (file_list.length == 0) {
       notification.warning({
         message: '请至少选择一个应用',
       });
       return;
     }
     let fileStr = '';
-    this.state.file_list.map(order => {
+    file_list.map(order => {
       fileStr += `${order},`;
     });
     fileStr = fileStr.slice(0, fileStr.length - 1);
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
-        scope: 'enterprise',
+        scope: scopeValue,
+        tenant_name,
         enterprise_id: eid,
-        event_id: this.state.event_id,
+        event_id,
         file_name: fileStr,
       },
       callback: data => {
@@ -208,8 +213,6 @@ export default class EnterpriseShared extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        console.log('res', res);
-
         if (res) {
           this.setState(
             { record: res.bean, event_id: res.bean.event_id },
@@ -251,7 +254,9 @@ export default class EnterpriseShared extends PureComponent {
             notification.success({
               message: '导入完成',
             });
-            this.props.onOK && this.props.onOK();
+
+            dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+
             return;
           }
           if (data.bean && data.bean.status == 'failed') {
@@ -298,32 +303,65 @@ export default class EnterpriseShared extends PureComponent {
       });
     }
   };
-  reImportApp = file_name => {
-    this.props.dispatch({
-      type: 'market/importApp',
-      payload: {
-        scope: 'enterprise',
-        event_id: this.state.event_id,
-        file_name,
-      },
-      callback: data => {
-        if (data) {
-          notification.success({
-            message: '开始重新导入',
-          });
-          this.openQueryImportStatus();
-        }
-      },
-    });
-  };
+  // reImportApp = file_name => {
+  //   this.props.dispatch({
+  //     type: 'market/importApp',
+  //     payload: {
+  //       tenant_name:this.state.tenant_name,
+  //       enterprise_id: eid,
+  //       scope: 'enterprise',
+  //       event_id: this.state.event_id,
+  //       file_name,
+  //     },
+  //     callback: data => {
+  //       if (data) {
+  //         notification.success({
+  //           message: '开始重新导入',
+  //         });
+  //         this.openQueryImportStatus();
+  //       }
+  //     },
+  //   });
+  // };
   onChange = checkedValues => {
     console.log('checked = ', checkedValues);
   };
 
   onChangeRadio = e => {
-    console.log('radio checked', e.target.value);
     this.setState({
-      value: e.target.value,
+      scopeValue: e.target.value,
+    });
+  };
+
+  getUserTeams = () => {
+    const {
+      dispatch,
+      user,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'global/fetchUserTeams',
+      payload: {
+        enterprise_id: eid,
+        user_id: user.user_id,
+        page: 1,
+        page_size: 999,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            userTeamList: res.list,
+          });
+        }
+      },
+    });
+  };
+
+  handleChangeTeam = tenant_name => {
+    this.setState({
+      tenant_name,
     });
   };
 
@@ -356,7 +394,12 @@ export default class EnterpriseShared extends PureComponent {
       failed: '失败',
     };
     const myheaders = {};
-    const { componentList, percents } = this.state;
+    const {
+      existFileList,
+      percents,
+      userTeamList,
+      enterpriseAdmin,
+    } = this.state;
     const {
       rainbondInfo,
       match: {
@@ -364,11 +407,15 @@ export default class EnterpriseShared extends PureComponent {
       },
     } = this.props;
 
+    const existFiles =
+      existFileList && existFileList.length > 0 && existFileList;
+
     const radioStyle = {
       display: 'block',
       height: '30px',
       lineHeight: '30px',
     };
+    const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
 
     return (
       <PageHeaderLayout
@@ -434,67 +481,86 @@ export default class EnterpriseShared extends PureComponent {
             </Row>
           </Card>
 
-          <div className={styles.tit}>已上传文件列表</div>
-          <Card className={styles.mb10}>
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              onChange={this.onFileChange}
-            >
-              <Row>
-                {this.state.existFileList.map(order => {
-                  return (
-                    <Col key={`col${order}`} span={24}>
-                      <Checkbox key={order} value={order}>
-                        {order}
-                      </Checkbox>
-                    </Col>
-                  );
-                })}
-              </Row>
-            </Checkbox.Group>
-          </Card>
-          <div className={styles.tit}>导入范围</div>
+          {existFiles && (
+            <div>
+              <div className={styles.tit}>已上传文件列表</div>
+              <Card className={styles.mb10}>
+                <Checkbox.Group
+                  style={{ width: '100%' }}
+                  onChange={this.onFileChange}
+                >
+                  <Row>
+                    {existFiles.map(order => {
+                      return (
+                        <Col key={`col${order}`} span={24}>
+                          <Checkbox key={order} value={order}>
+                            {order}
+                          </Checkbox>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </Checkbox.Group>
+              </Card>
 
-          <Card className={styles.mb10}>
-            <Radio.Group onChange={this.onChangeRadio} value={this.state.value}>
-              <Radio style={radioStyle} value="enterprise">
-                上传到企业
-              </Radio>
-              <Radio style={radioStyle} value={2}>
-                上传到团队
-                <Select
-                  size="small"
-                  defaultValue="goodrain"
-                  style={{ width: 120, marginLeft: '15px' }}
-                  // onChange={handleChange}
+              <div className={styles.tit}>导入范围</div>
+
+              <Card className={styles.mb10}>
+                <Radio.Group
+                  onChange={this.onChangeRadio}
+                  value={this.state.scopeValue}
                 >
-                  <Option value="jack">goodrain</Option>
-                  <Option value="lucy">Lucy</Option>
-                </Select>
-              </Radio>
-            </Radio.Group>
-          </Card>
-          <Row style={{ marginTop: '25px' }}>
-            <Col span={24} className={styles.btn}>
-              <Button
-                onClick={() => {
-                  this.cancelImport();
-                }}
-              >
-                放弃导入
-              </Button>
-              {this.state.import_file_status.length == 0 && (
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.handleSubmit();
-                  }}
-                >
-                  确认导入
-                </Button>
-              )}
-            </Col>
-          </Row>
+                  <Radio
+                    style={radioStyle}
+                    value="enterprise"
+                    disabled={!enterpriseAdmin}
+                  >
+                    上传到企业
+                  </Radio>
+                  <Radio style={radioStyle} value="team">
+                    上传到团队
+                    <Select
+                      size="small"
+                      defaultValue="请选择一个团队"
+                      style={{ width: 150, marginLeft: '15px' }}
+                      onChange={this.handleChangeTeam}
+                    >
+                      {userTeam &&
+                        userTeam.map(item => {
+                          const { team_id, team_alias, team_name } = item;
+                          return (
+                            <Option key={team_id} value={team_name}>
+                              {team_alias}
+                            </Option>
+                          );
+                        })}
+                    </Select>
+                  </Radio>
+                </Radio.Group>
+              </Card>
+              <Row style={{ marginTop: '25px' }}>
+                <Col span={24} className={styles.btn}>
+                  <Button
+                    onClick={() => {
+                      this.cancelImport();
+                    }}
+                  >
+                    放弃导入
+                  </Button>
+                  {this.state.import_file_status.length == 0 && (
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        this.handleSubmit();
+                      }}
+                    >
+                      确认导入
+                    </Button>
+                  )}
+                </Col>
+              </Row>
+            </div>
+          )}
         </div>
       </PageHeaderLayout>
     );
