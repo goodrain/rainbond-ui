@@ -214,7 +214,7 @@ export default class CreateCheck extends PureComponent {
   }
   getParams() {
     return {
-      group_id: this.props.match.params.groupId,
+      group_id: this.props.match.params.appID,
       compose_id: this.props.match.params.composeId
     };
   }

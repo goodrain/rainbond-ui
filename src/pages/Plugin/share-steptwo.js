@@ -219,7 +219,7 @@ export default class shareCheck extends PureComponent {
       })
   }
   getParams = () => {
-    return { shareId: this.props.match.params.shareId, groupId: this.props.match.params.groupId }
+    return { shareId: this.props.match.params.shareId, groupId: this.props.match.params.appID }
   }
   componentWillUnmount() {
     this.mount = false;

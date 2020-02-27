@@ -179,7 +179,7 @@ export default [
 
           {
             path:
-              '/team/:teamName/region/:regionName/groups/share/one/:groupId/:shareId',
+              '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/one',
             component: './Group/AppShare',
             name: 'AppShares',
             authority: ['admin', 'user'],
@@ -187,7 +187,7 @@ export default [
 
           {
             path:
-              '/team/:teamName/region/:regionName/groups/share/two/:groupId/:shareId',
+              '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/two',
             component: './Group/AppShareLoading',
             name: 'AppShareLoading',
             authority: ['admin', 'user'],
@@ -195,7 +195,7 @@ export default [
 
           {
             path:
-              '/team/:teamName/region/:regionName/groups/share/three/:groupId:ShareId',
+              '/team/:teamName/region/:regionName/apps/:appID/share/:shareId/three',
             component: './Group/AppShareFinish',
             name: 'AppShareFinish',
             authority: ['admin', 'user'],
@@ -272,7 +272,7 @@ export default [
 
           {
             path:
-              '/team/:teamName/region/:regionName/create/create-compose-check/:groupId/:composeId',
+              '/team/:teamName/region/:regionName/create/create-compose-check/:appID/:composeId',
             component: './Create/create-compose-check',
             name: 'compose',
             authority: ['admin', 'user'],
@@ -311,7 +311,7 @@ export default [
 
           {
             path:
-              '/team/:teamName/region/:regionName/create/create-compose-setting/:groupId/:composeId',
+              '/team/:teamName/region/:regionName/create/create-compose-setting/:appID/:composeId',
             component: './Create/create-compose-setting',
             name: 'compose',
             authority: ['admin', 'user'],

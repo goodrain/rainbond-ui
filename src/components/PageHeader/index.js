@@ -46,8 +46,8 @@ export default class PageHeader extends PureComponent {
     const { breadcrumbList, linkElement = 'a' } = this.props;
     return (
       <Breadcrumb className={styles.breadcrumb}>
-        {breadcrumbList.map(item => (
-          <Breadcrumb.Item key={item.title}>
+        {breadcrumbList.map((item, i) => (
+          <Breadcrumb.Item key={`bread${i}`}>
             {item.icon ? (
               <Icon style={{ marginRight: '5px' }} type={item.icon} />
             ) : (

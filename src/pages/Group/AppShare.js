@@ -413,7 +413,7 @@ export default class Main extends PureComponent {
   }
   getParams() {
     return {
-      groupId: this.props.match.params.groupId,
+      groupId: this.props.match.params.appID,
       shareId: this.props.match.params.shareId
     };
   }
@@ -580,7 +580,7 @@ export default class Main extends PureComponent {
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const team_name = globalUtil.getCurrTeamName();
         const shareId = this.props.match.params.shareId;
-        const groupId = this.props.match.params.groupId;
+        const groupId = this.props.match.params.appID;
 
         dispatch({
           type: "groupControl/subShareInfo",
@@ -615,7 +615,7 @@ export default class Main extends PureComponent {
   };
 
   handleGiveup = () => {
-    const groupId = this.props.match.params.groupId;
+    const groupId = this.props.match.params.appID;
 
     const { dispatch } = this.props;
     dispatch({

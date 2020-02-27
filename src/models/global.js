@@ -12,7 +12,7 @@ import {
   getApplication,
   getRegionOneDayMoney,
   getRegionSource,
-  getTeamList,
+  getTeamAppList,
   getGuideState,
   getDomainName,
   getDomainTime,
@@ -227,8 +227,8 @@ export default {
         callback(data);
       }
     },
-    *getTeamList({ payload, callback }, { call, put }) {
-      const data = yield call(getTeamList, payload);
+    *getTeamAppList({ payload, callback }, { call, put }) {
+      const data = yield call(getTeamAppList, payload);
       if (data && callback) {
         callback(data);
       }

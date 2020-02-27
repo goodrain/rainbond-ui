@@ -9,7 +9,7 @@ import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
 @connect(({ user }) => ({
   currentUser: user.currentUser
 }))
-export default class SelectTeam extends PureComponent {
+export default class SelectRegion extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

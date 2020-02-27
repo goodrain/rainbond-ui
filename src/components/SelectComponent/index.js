@@ -9,7 +9,7 @@ import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
 @connect(({ user }) => ({
   currentUser: user.currentUser
 }))
-export default class SelectTeam extends PureComponent {
+export default class SelectComponent extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -136,9 +136,9 @@ export default class SelectTeam extends PureComponent {
             </div>
           </div>
         </Dropdown>
-        <Link className={style.selectButtonLink} to={currentAPPLink}>
+        {currentAPPLink && <Link className={style.selectButtonLink} to={currentAPPLink}>
           {currentComponent && currentComponent.service_cname}
-        </Link>
+        </Link>}
       </div>
     );
   }

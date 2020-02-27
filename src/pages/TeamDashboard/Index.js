@@ -59,7 +59,7 @@ export default class Index extends PureComponent {
       memory: {},
       companyInfo: {},
       addApplication: false,
-      teamList: [],
+      teamAppList: [],
       page: 1,
       page_size: 5,
       total: 0,
@@ -79,7 +79,7 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getTeam();
+    this.getTeamAppList();
     this.getDomainName();
     this.getDomain();
     this.getService();
@@ -145,15 +145,15 @@ export default class Index extends PureComponent {
   };
 
   componentWillMount() {
-    this.getTeam();
+    this.getTeamAppList();
     const { rainbondInfo } = this.props;
     rainbondUtil.newbieGuideEnable(rainbondInfo) && this.getGuideState();
   }
 
-  getTeam = () => {
+  getTeamAppList = () => {
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "global/getTeamList",
+      type: "global/getTeamAppList",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: globalUtil.getCurrRegionName(),
@@ -163,7 +163,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            teamList: res.list,
+            teamAppList: res.list,
             total: res.bean && res.bean.total
           });
         }
@@ -173,7 +173,7 @@ export default class Index extends PureComponent {
 
   onPageChange = (page, pageSize) => {
     this.setState({ page, pageSize }, () => {
-      this.getTeam();
+      this.getTeamAppList();
     });
   };
 
@@ -507,14 +507,11 @@ export default class Index extends PureComponent {
       callback: () => {
         notification.success({ message: "添加成功" });
         this.handleCancelApplication();
-        this.getTeam();
+        this.getTeamAppList();
         dispatch({
           type: "global/fetchGroups",
           payload: {
             team_name: globalUtil.getCurrTeamName()
-          },
-          callback: () => {
-            this.getTeam();
           }
         });
       }
@@ -754,7 +751,7 @@ export default class Index extends PureComponent {
         currentTeam,
         currentRegionName
       );
-    const { teamList, GuideList, domainList, serviceList } = this.state;
+    const { teamAppList, GuideList, domainList, serviceList } = this.state;
     const steps = guideutil.getStep(GuideList);
     return (
       <PageHeaderLayout
@@ -914,9 +911,9 @@ export default class Index extends PureComponent {
                   height: "100%"
                 }}
               >
-                {teamList &&
-                  teamList.length > 0 &&
-                  teamList.map((item, index) => {
+                {teamAppList &&
+                  teamAppList.length > 0 &&
+                  teamAppList.map((item, index) => {
                     const {
                       backup_record_num,
                       group_name,
@@ -988,7 +985,7 @@ export default class Index extends PureComponent {
                     );
                   })}
 
-                {teamList && teamList.length > 0 && this.state.total > 0
+                {teamAppList && teamAppList.length > 0 && this.state.total > 0
                   ? <div style={{ textAlign: "right", margin: "15px" }}>
                       <Pagination
                         size="small"

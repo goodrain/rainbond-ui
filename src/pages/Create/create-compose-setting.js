@@ -42,7 +42,7 @@ export default class Index extends PureComponent {
     }
     componentWillUnmount() {}
     getParams() {
-        return {group_id: this.props.match.params.groupId, compose_id: this.props.match.params.composeId}
+        return {group_id: this.props.match.params.appID, compose_id: this.props.match.params.composeId}
     }
     loadDetail = () => {
         const params = this.getParams();

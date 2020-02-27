@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 import {
   Card,
   Button,
@@ -513,14 +513,12 @@ export default class AppList extends PureComponent {
               style={{ marginRight: 8 }}
               type="primary"
               onClick={this.onBackup}
-              href="javascript:;"
             >
               新增备份
             </Button>
             <Button
               style={{ marginRight: 8 }}
               onClick={this.toAdd}
-              href="javascript:;"
             >
               导入备份
             </Button>

@@ -1,9 +1,10 @@
 import React, { PureComponent } from "react";
-import { routerRedux } from "dva/router";
+import { routerRedux, Link } from "dva/router";
 import { connect } from "dva";
-import { Card, Button, Col, Row, Menu, Dropdown, Icon, Spin } from "antd";
+import { Card, Table } from "antd";
 import { createEnterprise, createTeam } from "../../utils/breadcrumb";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import ScrollerX from "../../components/ScrollerX";
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -19,21 +20,38 @@ export default class AppList extends PureComponent {
     super(props);
     this.state = {
       apps: [],
-      loading: true
+      loading: true,
+      page: 1,
+      page_size: 10,
     };
   }
   componentDidMount() {
-    this.fetchTeamApps();
+    this.getTeamAppList();
   }
-  fetchTeamApps = () => {
+  onPageChange = (page ) => {
+    this.setState({page: page},()=>{
+      this.getTeamAppList();
+    })
+  }
+  getTeamAppList = () => {
     const { teamName, regionName } = this.props.match.params;
+    const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "global/fetchGroups",
+      type: "global/getTeamAppList",
       payload: {
-        team_name: teamName
+        team_name: teamName,
+        region: regionName,
+        page,
+        page_size
       },
-      callback: re => {
-        this.setState({ apps: re, loading: false });
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState({
+            loading: false,
+            apps: res.list,
+            total: res.bean && res.bean.total
+          });
+        }
       }
     });
   };
@@ -47,49 +65,7 @@ export default class AppList extends PureComponent {
 
   render() {
     const { teamName, regionName } = this.props.match.params;
-    const { apps, loading } = this.state;
-    const moreSvg = () =>
-      <svg
-        t="1581212425061"
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        p-id="1314"
-        width="32"
-        height="32"
-      >
-        <path
-          d="M512 192m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1315"
-          fill="#999999"
-        />
-        <path
-          d="M512 512m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1316"
-          fill="#999999"
-        />
-        <path
-          d="M512 832m-64 0a64 64 0 1 0 128 0 64 64 0 1 0-128 0Z"
-          p-id="1317"
-          fill="#999999"
-        />
-      </svg>;
-    const menu = appID => {
-      return (
-        <Menu>
-          <Menu.Item>
-            <a
-              href="javascript:;"
-              onClick={() => {
-                this.deleteApp(appID);
-              }}
-            >
-              删除
-            </a>
-          </Menu.Item>
-        </Menu>
-      );
-    };
+    const { apps, loading, page, page_size, total } = this.state;
     let breadcrumbList = [];
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
@@ -104,60 +80,94 @@ export default class AppList extends PureComponent {
         title="应用管理"
         content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成。"
       >
-        <div>
-          <Row>
-            <Button onClick={this.jumpToAllbackup}>全部备份</Button>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={6}>应用名称</Col>
-            <Col span={3}>组件数量</Col>
-            <Col span={3}>备份记录</Col>
-            <Col span={3}>发布记录</Col>
-            <Col span={8}>备注</Col>
-          </Row>
-          {loading &&
-            <div>
-              <Spin />
-            </div>}
-          {apps &&
-            apps.map(item => {
-              const { group_name, group_id } = item;
-              return (
-                <Card
-                  key={group_id}
-                  style={{ marginBottom: "10px" }}
-                  hoverable
-                  bodyStyle={{ padding: 0 }}
-                >
-                  <Row type="flex" align="middle">
-                    <Col
-                      span={6}
-                      onClick={() => {
-                        this.props.dispatch(
-                          routerRedux.replace(
-                            `/team/${teamName}/region/${regionName}/apps/${group_id}`
-                          )
+        <Card loading={loading}>
+          <ScrollerX sm={800}>
+            <Table
+              size="middle"
+              pagination={{
+                current: page,
+                pageSize: page_size,
+                total: total,
+                onChange: this.onPageChange
+              }}
+              dataSource={apps || []}
+              columns={[
+                {
+                  title: "应用名称",
+                  dataIndex: "group_name",
+                  render: (val, data) => {
+                    return (
+                          <Link
+                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}`}
+                          >
+                            {val}
+                          </Link>
                         );
-                      }}
-                    >
-                      {group_name}
-                    </Col>
-                    <Col span={3} />
-                    <Col span={3} />
-                    <Col span={3} />
-                    <Col span={8} />
-                    <Col span={1}>
-                      <Dropdown overlay={menu(group_id)} placement="bottomLeft">
-                        <Button style={{ border: "none" }}>
-                          <Icon component={moreSvg} />
-                        </Button>
-                      </Dropdown>
-                    </Col>
-                  </Row>
-                </Card>
-              );
-            })}
-        </div>
+                      
+                  }
+                },
+                {
+                  title: "组件(运行/总数)",
+                  dataIndex: "services_num",
+                  align: "center",
+                  render: (val, data) => {
+                    return (
+                      <p style={{marginBottom: 0}}>
+                        {data.run_service_num}/{data.services_num}
+                      </p>
+                    );
+                  }
+                },
+                {
+                  title: "占用内存/分配内存(MB)",
+                  dataIndex: "used_mem",
+                  align: "center",
+                  render: (val, data) => {
+                    return (
+                      <p style={{marginBottom: 0}}>
+                        {data.used_mem}/{data.allocate_mem}
+                      </p>
+                    );
+                  }
+                },
+                {
+                  title: "备份记录",
+                  dataIndex: "backup_record_num",
+                  align: "center",
+                  render: (val, data) => {
+                    return (
+                          <Link
+                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/backup`}
+                          >
+                            {val}
+                          </Link>
+                        );
+                      
+                  }
+                },
+                {
+                  title: "发布记录",
+                  dataIndex: "publish_record_num",
+                  align: "center",
+                  render: (val, data) => {
+                    return (
+                          <Link
+                            to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/publish`}
+                          >
+                            {val}
+                          </Link>
+                        );
+                      
+                  }
+                },
+                {
+                  title: "备注",
+                  dataIndex: "note"
+                },
+              ]}
+            />
+          </ScrollerX>
+        </Card>
       </PageHeaderLayout>
     );
   }

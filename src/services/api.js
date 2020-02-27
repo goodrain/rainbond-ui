@@ -191,7 +191,7 @@ export async function getRegionSource(body = { team_name, region }) {
   });
 }
 /* 获取团队应用模块 */
-export async function getTeamList(
+export async function getTeamAppList(
   body = {
     team_name,
     region,
@@ -200,14 +200,12 @@ export async function getTeamList(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview/app/over`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`,
     {
       method: 'get',
       params: {
-        team_name: body.team_name,
         page: body.page,
         page_size: body.page_size,
-        team_name: '',
       },
     }
   );

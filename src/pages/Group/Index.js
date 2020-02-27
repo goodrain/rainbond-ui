@@ -133,7 +133,6 @@ class Main extends PureComponent {
 
   loading = () => {
     this.fetchAppDetail();
-    this.recordShare();
     this.loadTopology();
     this.timer = setInterval(() => {
       this.loadTopology();
@@ -182,6 +181,7 @@ class Main extends PureComponent {
       }
     });
   }
+  
   loadLinks(service_alias) {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -198,6 +198,7 @@ class Main extends PureComponent {
       }
     });
   }
+
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
@@ -365,56 +366,6 @@ class Main extends PureComponent {
     });
   };
 
-  recordShare = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "groupControl/recordShare",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
-      },
-      callback: data => {
-        if (data && data._code == 20021) {
-          this.setState({ recordShare: true });
-          notification.info({
-            message: "分享未完成",
-            description: "您有分享未完成，可以点击继续分享"
-          });
-        } else {
-          this.setState({ recordShare: false });
-        }
-      }
-    });
-  };
-
-  handleShare = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "groupControl/ShareGroup",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: this.getGroupId()
-      },
-      callback: data => {
-        if (data && data.bean.step === 1) {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/one/${data
-                .bean.group_id}/${data.bean.ID}`
-            )
-          );
-        }
-        if (data && data.bean.step === 2) {
-          dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${data
-                .bean.group_id}/${data.bean.ID}`
-            )
-          );
-        }
-      }
-    });
-  };
   /** 构建拓扑图 */
   handleTopology = code => {
     this.setState({

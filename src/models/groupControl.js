@@ -5,7 +5,8 @@ import {
   editGroup,
   addGroup,
   recordShare,
-  checkShare,
+  getShareRecords,
+  createShare,
   deleteCompose,
   buildCompose,
   getShare,
@@ -130,9 +131,15 @@ export default {
         callback && callback(response);
       }
     },
-    // 分享组
+    * fetchShareRecoders({ payload, callback }, { call, put }) {
+      const response = yield call(getShareRecords, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    // 创建分享记录
     * ShareGroup({ payload, callback }, { call, put }) {
-      const response = yield call(checkShare, payload);
+      const response = yield call(createShare, payload);
       if (response) {
         callback && callback(response);
       }

@@ -221,9 +221,9 @@ export async function recordShare(body = {
 }
 
 /*
-	验证是否可以分享
+	创建分享记录
 */
-export async function checkShare(body = {
+export async function createShare(body = {
   team_name,
   group_id,
 }) {
@@ -233,7 +233,25 @@ export async function checkShare(body = {
       method: "post",
       data: {
         group_id: body.group_id,
+        scope: body.scope,
+        target: body.target
       },
+    },
+  );
+}
+
+export async function getShareRecords(body = {
+  team_name,
+  app_id,
+}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/share/record`,
+    {
+      method: "get",
+      params: {
+        page: body.page,
+        page_size: body.page_size
+      }
     },
   );
 }

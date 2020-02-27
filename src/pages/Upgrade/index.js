@@ -166,10 +166,6 @@ export default class AppList extends PureComponent {
       }
     );
   };
-
-  shouldComponentUpdate = () => {
-    return true;
-  };
   render() {
     const {
       groupName,
