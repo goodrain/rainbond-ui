@@ -326,23 +326,17 @@ export async function getRegionOneDayMoney(body = { team_name, date, region }) {
 /* 认证企业 */
 export async function authEnterprise(
   body = {
-    team_name,
     enterprise_id,
     market_info,
-    market_client_id,
-    market_client_token,
   },
   handleError
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/enterprise/active/optimiz`,
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/active/optimiz`,
     {
       method: 'post',
       handleError,
       data: {
-        enterprise_id: body.enterprise_id,
-        // market_client_id: body.market_client_id,
-        // market_client_token: body.market_client_token,
         market_info: body.market_info.replace(/\s+/g, ''),
       },
     }
@@ -552,7 +546,7 @@ export async function syncMarketAppDetail(
   }
 ) {
   return request(
-    
+
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/download`,
     {
       method: 'post',

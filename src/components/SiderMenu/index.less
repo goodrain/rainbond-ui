@@ -2,7 +2,6 @@
 @ease-in-out-circ: cubic-bezier(.78, .14, .15, .86);
 
 .addCollection {
-  color: #FFFFFF;
   float: right;
 }
 
@@ -12,14 +11,18 @@
   padding-top : 27px;
 
   .tit {
-    font-family   : PingFangSC-Medium;
-    font-size     : 16px;
-    color         : #BCC7D2;
-    letter-spacing: 0.5px;
-    margin-bottom : 16px;
+    font-family    : PingFangSC-Medium;
+    font-size      : 16px;
+    color          : #BCC7D2;
+    letter-spacing : 0.5px;
+    margin-bottom  : 16px;
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
   }
 
   .con {
+    font-weight: 600;
     font-family   : PingFangSC-Regular;
     font-size     : 14px;
     color         : #FFFFFF;
@@ -40,6 +43,7 @@
 
   .viewTit {
     font-family   : PingFangSC-Regular;
+    font-weight: 600;
     font-size     : 18px;
     color         : #FFFFFF;
     letter-spacing: 0.56px;
@@ -75,6 +79,29 @@
 .icon {
   width       : 14px;
   margin-right: 10px;
+}
+
+.searchTeam {
+  margin-bottom: 11px;
+
+  :global {
+    .ant-input-search-icon {
+      display: none !important;
+    }
+    .ant-input-affix-wrapper .ant-input:not(:last-child) {
+      padding-right: 0 !important;
+    }
+
+    .ant-input {
+      opacity       : 0.55;
+      font-family   : PingFangSC-Regular;
+      font-size     : 12px;
+      letter-spacing: 0.75px;
+      background    : #2E3440 !important;
+      color         : #FFFFFF !important;
+    }
+  }
+
 }
 
 :global {

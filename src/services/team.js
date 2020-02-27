@@ -536,3 +536,19 @@ export async function setJoinTeamUsers(body = { team_name, user_id, action }) {
     }
   );
 }
+
+/*
+  撤销申请团队
+ */
+export async function undoTeamUsers(body = { team_name, user_id, action }) {
+  return request(
+
+    `${apiconfig.baseUrl}/console/user/applicants/join`,
+    {
+      method: "put",
+      data: {
+        team_name: body.team_name,
+      }
+    }
+  );
+}
