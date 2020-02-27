@@ -1455,7 +1455,7 @@ export default class Index extends PureComponent {
               appDetail={appDetail}
               visible={type === "deploy"}
             />
-            <RenderProperty appDetail={appDetail} visible={type !== "deploy"} />
+            <RenderProperty key={appDetail.service.extend_method} appDetail={appDetail} visible={type !== "deploy"} />
           </div>
         </div>
       </div>
