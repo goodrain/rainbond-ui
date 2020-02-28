@@ -1,7 +1,8 @@
 import React, { PureComponent, Fragment } from "react";
 import { routerRedux, Link } from "dva/router";
 import { connect } from "dva";
-import { Table, Card, Button, Modal, Select, Form, notification } from "antd";
+import moment from "moment";
+import { Table, Card, Button, Popconfirm, notification } from "antd";
 import ScrollerX from "../../components/ScrollerX";
 import SelectStore from "../../components/SelectStore";
 import {
@@ -29,7 +30,7 @@ export default class AppPublishList extends PureComponent {
       page: 1,
       page_size: 10,
       total: 0,
-      selectStoreShow: false,
+      selectStoreShow: false
     };
   }
   componentDidMount() {
@@ -68,28 +69,28 @@ export default class AppPublishList extends PureComponent {
     });
   };
 
-  onPageChange = (page ) => {
-    this.setState({page: page},()=>{
+  onPageChange = page => {
+    this.setState({ page: page }, () => {
       this.fetchPublishRecoder();
-    })
-  }
+    });
+  };
 
   fetchPublishRecoder = () => {
-    this.setState({loading: true})
+    this.setState({ loading: true });
     const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
-    const { page, page_size } = this.state
+    const { page, page_size } = this.state;
     dispatch({
-      type: "groupControl/fetchShareRecoders",
+      type: "groupControl/fetchShareRecords",
       payload: {
         team_name: teamName,
         app_id: appID,
         page,
-        page_size,
+        page_size
       },
       callback: data => {
         if (data) {
-          this.setState({recoders: data.list, loading: false})
+          this.setState({ recoders: data.list, loading: false });
         }
       }
     });
@@ -107,7 +108,7 @@ export default class AppPublishList extends PureComponent {
         target
       },
       callback: data => {
-        this.continuePublish(data.bean.ID, data.bean.step)
+        this.continuePublish(data.bean.ID, data.bean.step);
       }
     });
   };
@@ -124,21 +125,33 @@ export default class AppPublishList extends PureComponent {
     this.setState({ selectStoreShow: false });
   };
 
-  handleSelectStore = (values) => {
+  handleSelectStore = values => {
     const selectStore = values.store_id;
     if (!selectStore) {
-      notification.warning({message:"未选择正确的应用商店"})
+      notification.warning({ message: "未选择正确的应用商店" });
     }
-    this.handleShare("goodrain", {store_id: selectStore})
-  }
-  deleteRecord = (recordID) => {
-    return 
-  }
+    this.handleShare("goodrain", { store_id: selectStore });
+  };
+  deleteRecord = recordID => {
+    const { teamName, appID } = this.props.match.params;
+    const { dispatch } = this.props;
+    dispatch({
+      type: "groupControl/deleteShareRecord",
+      payload: {
+        team_name: teamName,
+        app_id: appID,
+        record_id: recordID
+      },
+      callback: data => {
+        this.fetchPublishRecoder();
+      }
+    });
+  };
 
-  cancelPublish = (recordID) => {
+  cancelPublish = recordID => {
     if (recordID == undefined || recordID == "") {
-      notification.warning({message:"参数异常"})
-      return 
+      notification.warning({ message: "参数异常" });
+      return;
     }
     const { teamName } = this.props.match.params;
     const { dispatch } = this.props;
@@ -149,10 +162,10 @@ export default class AppPublishList extends PureComponent {
         share_id: recordID
       },
       callback: data => {
-        this.fetchPublishRecoder()
+        this.fetchPublishRecoder();
       }
     });
-  }
+  };
 
   continuePublish = (recordID, step) => {
     const { dispatch } = this.props;
@@ -171,7 +184,7 @@ export default class AppPublishList extends PureComponent {
         )
       );
     }
-  }
+  };
 
   render() {
     let breadcrumbList = [];
@@ -185,7 +198,12 @@ export default class AppPublishList extends PureComponent {
       selectStoreShow,
       recoders
     } = this.state;
-    const { currentEnterprise, currentTeam, currentRegionName, dispatch } = this.props;
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      dispatch
+    } = this.props;
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -231,19 +249,26 @@ export default class AppPublishList extends PureComponent {
                 {
                   title: "发布模版名称",
                   dataIndex: "app_model_name",
+                  render: val => {
+                    if (val) {
+                      return val
+                    }
+                    return <span style={{color: "#999999"}}>未指定</span>
+                  }
                 },
                 {
                   title: "版本号(别名)",
                   dataIndex: "version",
                   align: "center",
                   render: (val, data) => {
-                    if (val){
+                    if (val) {
                       return (
-                        <p style={{marginBottom: 0}}>
+                        <p style={{ marginBottom: 0 }}>
                           {val}({data.alias})
                         </p>
                       );
                     }
+                    return <span style={{color: "#999999"}}>未指定</span>
                   }
                 },
                 {
@@ -279,12 +304,12 @@ export default class AppPublishList extends PureComponent {
                       default:
                         if (data.scope_target) {
                           return (
-                            <p style={{marginBottom: 0}}>
-                              应用商店({data.scope_target.store_name})
+                            <p style={{ marginBottom: 0 }}>
+                              应用商店{data.scope_target.store_name && (data.scope_target.store_name)}
                             </p>
                           );
                         }
-                        return <p style={{marginBottom: 0}}>应用商店</p>;
+                        return <p style={{ marginBottom: 0 }}>应用商店</p>;
                     }
                   }
                 },
@@ -292,11 +317,25 @@ export default class AppPublishList extends PureComponent {
                   title: "发布时间",
                   align: "center",
                   dataIndex: "create_time",
+                  render: val =>
+                    <span>
+                      {moment(val).format("YYYY-MM-DD HH:mm:ss")}
+                    </span>
                 },
                 {
                   title: "状态",
                   align: "center",
                   dataIndex: "status",
+                  render: (val, data) => {
+                    switch (val) {
+                      case 0:
+                        return "发布中";
+                      case 1:
+                        return <span style={{ color: "green" }}>发布完成</span>;
+                      case 2:
+                        return <span style={{ color: "#999999" }}>已取消</span>;
+                    }
+                  }
                 },
                 {
                   title: "操作",
@@ -305,28 +344,41 @@ export default class AppPublishList extends PureComponent {
                   render: (val, data) => {
                     return (
                       <div>
-                          <a
-                            style={{ marginRight: "5px" }}
-                            onClick={ ()=>{
-                              this.continuePublish(data.record_id, data.step)
-                            }}
-                          >
-                            继续发布
-                          </a>
-                          <a
-                            style={{ marginRight: "5px" }}
-                            onClick={ () => {this.cancelPublish(data.record_id)}}
-                          >
-                            取消发布
-                          </a>
-                          <a
-                            style={{ marginRight: "5px" }}
-                            onClick={ () => {this.deleteRecord(data.record_id)}}
-                          >
-                            删除
-                          </a>
-                      </div>)
-                    }        
+                        {data.status == 0
+                          ? <div>
+                              <a
+                                style={{ marginRight: "5px" }}
+                                onClick={() => {
+                                  this.continuePublish(
+                                    data.record_id,
+                                    data.step
+                                  );
+                                }}
+                              >
+                                继续发布
+                              </a>
+                              <a
+                                style={{ marginRight: "5px" }}
+                                onClick={() => {
+                                  this.cancelPublish(data.record_id);
+                                }}
+                              >
+                                取消发布
+                              </a>
+                            </div>
+                          : <Popconfirm
+                              title="确认要删除当前记录吗?"
+                              onConfirm={() => {
+                                this.deleteRecord(data.record_id);
+                              }}
+                              okText="确认"
+                              cancelText="取消"
+                            >
+                              <a href="#">删除</a>
+                            </Popconfirm>}
+                      </div>
+                    );
+                  }
                 }
               ]}
             />

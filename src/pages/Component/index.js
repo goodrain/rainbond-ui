@@ -139,7 +139,7 @@ class MoveGroup extends PureComponent {
   }
 }
 
-/*修改应用名称*/
+/*修改组件名称*/
 @Form.create()
 @connect(
   _,
@@ -166,7 +166,7 @@ class EditName extends PureComponent {
     const initValue = this.props.name;
     return (
       <Modal
-        title={title || "修改应用名称"}
+        title={title || "修改组件名称"}
         visible={true}
         onOk={this.handleSubmit}
         onCancel={this.onCancel}

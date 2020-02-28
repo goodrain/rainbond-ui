@@ -53,7 +53,7 @@ class EditGroupName extends PureComponent {
     );
   };
   render() {
-    const { title, onCancel, group_name } = this.props;
+    const { title, onCancel, group_name, group_note } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
@@ -86,6 +86,18 @@ class EditGroupName extends PureComponent {
                 }
               ]
             })(<Input placeholder="请填写应用名称" />)}
+          </FormItem>
+          <FormItem
+              {...formItemLayout}
+              label="应用备注"
+              >
+              {
+                getFieldDecorator('group_note', {
+                  initialValue: group_note || '',
+                })(
+                  <Input.TextArea placeholder="请填写应用备注信息" />
+                )
+              }
           </FormItem>
         </Form>
       </Modal>
@@ -324,7 +336,8 @@ class Main extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
-        group_name: vals.group_name
+        group_name: vals.group_name,
+        group_note: vals.group_note
       },
       callback: () => {
         this.cancelEdit();
@@ -351,7 +364,8 @@ class Main extends PureComponent {
       type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name
+        group_name: vals.group_name,
+        group_note: vals.group_note
       },
       callback: () => {
         notification.success({ message: "添加成功" });
@@ -642,6 +656,7 @@ class Main extends PureComponent {
         {this.state.toEdit &&
           <EditGroupName
             group_name={groupDetail.group_name}
+            group_note={groupDetail.group_note}
             title="修改应用名称"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}

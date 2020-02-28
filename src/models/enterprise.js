@@ -1,7 +1,6 @@
 import {
   getStoreList,
-  getStoreModelList,
-  getLocalShareAppList
+  getShareModelList,
 } from '../services/market'
 export default {
   namespace: 'enterprise',
@@ -20,14 +19,8 @@ export default {
         callback && callback(response);
       }
     },
-    *fetchStoreModels({ payload, callback }, { call, put }) {
-      const response = yield call(getStoreModelList, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-    *fetchLocalModels({ payload, callback }, { call, put }) {
-      const response = yield call(getLocalModelList, payload);
+    *fetchShareModels({ payload, callback }, { call, put }) {
+      const response = yield call(getShareModelList, payload);
       if (response) {
         callback && callback(response);
       }

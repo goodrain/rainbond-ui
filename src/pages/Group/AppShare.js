@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import CreateAppModels from '../../components/CreateAppModels';
+import CreateAppModels from "../../components/CreateAppModels";
 import { Table, AutoComplete } from "antd";
 import {
   Row,
@@ -29,7 +29,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import ConfirmModal from "../../components/ConfirmModal";
 import Ellipsis from "../../components/Ellipsis";
 import FooterToolbar from "../../components/FooterToolbar";
-import apiconfig from '../../../config/api.config';
+import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
 
 import styles from "./Index.less";
@@ -152,8 +152,8 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            {app.service_connect_info_map_list.map(item => (
-              <Col span={8}>
+            {app.service_connect_info_map_list.map((item,index) =>
+              <Col key={`connection_${index}`} span={8}>
                 <FormItem label={item.attr_name} style={{ padding: 16 }}>
                   {getFieldDecorator(`connect||${item.attr_name}||attr_value`, {
                     initialValue: item.attr_value,
@@ -172,7 +172,7 @@ class AppInfo extends PureComponent {
                         message: ""
                       }
                     ],
-                    initialValue: false
+                    initialValue: item.attr_value=="**None**"
                   })(
                     <Checkbox
                       onChange={this.handleCheckChange.bind(
@@ -196,7 +196,7 @@ class AppInfo extends PureComponent {
                   })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
               </Col>
-            ))}
+            )}
           </Row>
         </div>
       );
@@ -226,7 +226,7 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            {app.service_env_map_list.map(item => (
+            {app.service_env_map_list.map(item =>
               <Col span={8}>
                 <FormItem label={item.attr_name} style={{ padding: 16 }}>
                   {getFieldDecorator(`env||${item.attr_name}||attr_value`, {
@@ -250,7 +250,7 @@ class AppInfo extends PureComponent {
                   })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
               </Col>
-            ))}
+            )}
           </Row>
         </div>
       );
@@ -366,7 +366,6 @@ class AppInfo extends PureComponent {
   };
 
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <Fragment>
         {this.renderConnectInfo()}
@@ -414,7 +413,7 @@ export default class Main extends PureComponent {
       scopeValue: "goodrain:private",
       appDetail: {},
       record: {},
-      model:{},
+      model: {},
       currentVersion: {},
       loadingModels: true,
       models: []
@@ -430,16 +429,16 @@ export default class Main extends PureComponent {
     };
   }
   componentDidMount() {
-    this.fetchAppDetail()
-    this.fetchRecord()
+    this.fetchAppDetail();
+    this.fetchRecord();
     this.getShareInfo();
   }
   fetchRecord = () => {
-    this.setState({loading: true})
+    this.setState({ loading: true });
     const { teamName, appID, shareId } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/fetchShareRecoder",
+      type: "groupControl/fetchShareRecord",
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -447,54 +446,49 @@ export default class Main extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
-          this.setState({record: data.bean, loading: false})
-          this.fetchModels(data.bean.scope, data.bean.scope_target)
+          this.setState({ record: data.bean, loading: false }, () => {
+            this.fetchModels();
+          });
         }
       }
     });
-  }
+  };
 
-  fetchModels = (scope, target) => {
-    if (scope=="team" || scope=="enterprise" || scope=="") {
-      this.fetchLocalModels()
-      return
+  fetchModels = () => {
+    const scope = this.state.record && this.state.record.scope;
+    const target = this.state.record && this.state.record.target;
+    const { teamName, appID } = this.props.match.params;
+    const { dispatch } = this.props;
+    let body = {
+      team_name: teamName,
+      app_id: appID
+    };
+    if (scope == "goodrain" && target) {
+      body.scope = "goodrain";
+      body.market_id = target.market_id;
     }
-    const { dispatch, currentEnterprise } = this.props;
     this.setState({ loadingModels: true });
     dispatch({
-      type: "enterprise/fetchStoreModels",
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        market_id: target.store_id
-      },
+      type: "enterprise/fetchShareModels",
+      payload: body,
       callback: res => {
         if (res && res._code === 200) {
-          this.setState({
-            models: res.list,
-            loadingModels: false
-          });
+          this.setState(
+            {
+              models: res.list,
+              model: res.bean,
+              loadingModels: false
+            },
+            () => {
+              if (!res.bean && res.list.length > 0) {
+                this.changeCurrentModel(res.list[0].app_id);
+              }
+            }
+          );
         }
       }
     });
-  }
-
-  fetchLocalModels = () => {
-    dispatch({
-      type: "enterprise/fetchLocalModels",
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        team_name: teamName,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            models: res.list,
-            loadingModels: false
-          });
-        }
-      }
-    });
-  }
+  };
 
   getShareInfo() {
     const { dispatch, form, index } = this.props;
@@ -580,25 +574,21 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
-    const { dispatch } = this.props;
-    const { scopeValue } = this.state;
+    const { dispatch, market_id } = this.props;
+    const { record } = this.state;
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.share_group_info.describe = values.describe;
-        this.share_group_info.group_name = values.group_name;
-        this.share_group_info.scope =
-          values.scope == "goodrain" ? scopeValue : values.scope;
-        this.share_group_info.version = values.version;
-        if (this.state.fileList[0] != undefined) {
-          this.state.fileList[0].response
-            ? (this.share_group_info.pic = this.state.fileList[0].response.data.bean.file_url)
-            : this.state.fileList[0].url;
-          // this.share_group_info['pic'] = this.state.fileList[0].response.data.bean.file_url || this.state.fileList[0].url;
-        } else {
-          this.share_group_info.pic = "";
+        let version_info = {
+          share_id: record.record_id,
+          app_model_id: values.app_id,
+          describe: values.describe,
+          version: values.version,
+          version_alias: values.version_alias
+        };
+        if (record.scope == "goodrain") {
+          version_info.target = record.target;
         }
-
         const share_service_data = this.share_service_list;
         let arr = [];
         let dep_service_key = [];
@@ -652,14 +642,7 @@ export default class Main extends PureComponent {
           });
         });
 
-        //  if(this.state.isShare){
-        //   newinfo.use_force="true"
-        //  }else{
-        //   newinfo.use_force="false"
-        //  }
-
-        newinfo.share_group_info = this.share_group_info;
-        // newinfo.share_service_list = share_service_data;
+        newinfo.version_info = this.version_info;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const team_name = globalUtil.getCurrTeamName();
@@ -682,8 +665,6 @@ export default class Main extends PureComponent {
               )
             );
           }
-          // handleError: (res) => {     if(res && res.status === 404){
-          // this.props.dispatch(routerRedux.push('/exception/404'));     } }
         });
       }
     });
@@ -861,34 +842,37 @@ export default class Main extends PureComponent {
     });
   };
   showCreateAppModel = () => {
-    this.setState({showCreateAppModel: true})
-  }
+    this.setState({ showCreateAppModel: true });
+  };
   hideCreateAppModel = () => {
-    this.setState({showCreateAppModel: false})
-  }
-  handleCreateAppModel = (model) => {
-    notification.success({ message: '创建成功' });
-    this.fetchLocalModels()
+    this.setState({ showCreateAppModel: false });
+  };
+  handleCreateAppModel = model => {
+    notification.success({ message: "创建成功" });
+    this.fetchModels();
     this.hideCreateAppModel();
-  }
+  };
 
   handleCancel = () => this.setState({ previewVisible: false });
-  changeCurrentVersion = (version) => {
-    const { model } = this.state
-    model && model.versions && model.versions.map(item=>{
-      if (version === item.version) {
-        this.setState({currentVersion: item})
-      }
-    })
-  }
-  changeCurrentModel = (model_id) => {
-    const { models } = this.state
-    models && models.map(item=>{
-      if (model_id === item.app_id) {
-        this.setState({model: item})
-      }
-    })
-  }
+  changeCurrentVersion = version => {
+    const { model } = this.state;
+    model &&
+      model.versions &&
+      model.versions.map(item => {
+        if (version === item.version) {
+          this.setState({ currentVersion: item });
+        }
+      });
+  };
+  changeCurrentModel = model_id => {
+    const { models } = this.state;
+    models &&
+      models.map(item => {
+        if (model_id === item.app_id) {
+          this.setState({ model: item });
+        }
+      });
+  };
   render() {
     const info = this.state.info;
     if (!info) {
@@ -925,12 +909,18 @@ export default class Main extends PureComponent {
       currentRegionName,
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
-    breadcrumbList.push({title:"发布记录列表", href:`/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`})
-    breadcrumbList.push({title:"发布应用模版"})
+    breadcrumbList.push({
+      title: "发布记录列表",
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
+    });
+    if (record && record.scope == "goodrain") {
+      breadcrumbList.push({ title: "发布到云应用商店" });
+    } else {
+      breadcrumbList.push({ title: "发布到共享库" });
+    }
+
     return (
-      <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-      >
+      <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
           <Card
             style={{
@@ -951,8 +941,8 @@ export default class Main extends PureComponent {
                 <Row gutter={24}>
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="应用模版">
-                      {getFieldDecorator("app_model_name", {
-                        initialValue: model.app_model_name,
+                      {getFieldDecorator("app_id", {
+                        initialValue: model.app_id,
                         rules: [
                           {
                             required: true,
@@ -960,27 +950,33 @@ export default class Main extends PureComponent {
                           }
                         ]
                       })(
-                        <Select placeholder="默认使用上次应用名或应用组名"
+                        <Select
+                          placeholder="默认使用上次应用名或应用组名"
                           style={{ width: 280 }}
                           onChange={this.changeCurrentModel}
                           placeholder="选择发布的应用模版"
-                          dropdownRender={menu => (
+                          dropdownRender={menu =>
                             <div>
                               {menu}
-                              <Divider style={{ margin: '4px 0' }} />
+                              <Divider style={{ margin: "4px 0" }} />
                               <div
-                                style={{ padding: '4px 8px', cursor: 'pointer', textAlign: 'center' }}
+                                style={{
+                                  padding: "4px 8px",
+                                  cursor: "pointer",
+                                  textAlign: "center"
+                                }}
                                 onMouseDown={e => e.preventDefault()}
                                 onClick={this.showCreateAppModel}
                               >
                                 <Icon type="plus" /> 新建应用模版
                               </div>
-                            </div>
-                          )}
+                            </div>}
                         >
-                          {models.map(item => (
-                            <Option key={item}>{item}</Option>
-                          ))}
+                          {models.map(item =>
+                            <Option key={item.app_id}>
+                              {item.app_name}
+                            </Option>
+                          )}
                         </Select>
                       )}
                     </Form.Item>
@@ -992,7 +988,7 @@ export default class Main extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: "版本不能为空"
+                            message: "版本不能为空, 请选择或添加版本"
                           }
                         ]
                       })(
@@ -1001,9 +997,17 @@ export default class Main extends PureComponent {
                           onChange={this.changeCurrentVersion}
                           placeholder="版本号默认为选择模版的上次分享版本"
                         >
-                          {model.versions && model.versions.map((item, index)=>{
-                            return <AutoComplete.Option key={`version${index}`} value={item.version}>{item.version}</AutoComplete.Option>
-                          })}
+                          {model.versions &&
+                            model.versions.map((item, index) => {
+                              return (
+                                <AutoComplete.Option
+                                  key={`version${index}`}
+                                  value={item.version}
+                                >
+                                  {item.version}
+                                </AutoComplete.Option>
+                              );
+                            })}
                         </AutoComplete>
                       )}
                     </Form.Item>
@@ -1011,8 +1015,14 @@ export default class Main extends PureComponent {
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本别名">
                       {getFieldDecorator("version_alias", {
-                        initialValue: currentVersion && currentVersion.version_alias,
-                      })(<Input style={{ width: 280 }} placeholder="设置版本别名，比如高级版" />)}
+                        initialValue:
+                          currentVersion && currentVersion.version_alias
+                      })(
+                        <Input
+                          style={{ width: 280 }}
+                          placeholder="设置版本别名，比如高级版"
+                        />
+                      )}
                     </Form.Item>
                   </Col>
                   <Col span="12" style={{ height: "104px" }}>
@@ -1068,7 +1078,7 @@ export default class Main extends PureComponent {
                     style={{ display: "block", marginTop: "9px" }}
                   >
                     <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map(apptit => (
+                      {apps.map(apptit =>
                         <TabPane
                           key={apptit.service_alias}
                           tab={
@@ -1080,7 +1090,6 @@ export default class Main extends PureComponent {
                               />
                               <a
                                 tab={apptit.service_cname}
-                                href="javacsript:;"
                                 onClick={this.tabClick.bind(
                                   this,
                                   apptit.service_alias
@@ -1091,33 +1100,32 @@ export default class Main extends PureComponent {
                             </span>
                           }
                         />
-                      ))}
+                      )}
                     </Tabs>
                   </Checkbox.Group>
                 </div>
-                {share_service_list.map(app =>
-                  tabk == app.service_alias ? (
-                    <div key={app.service_alias}>
-                      <AppInfo
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: "none"
-                      }}
-                      key={app.service_alias}
-                    >
-                      <AppInfo
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  )
+                {share_service_list.map(
+                  app =>
+                    tabk == app.service_alias
+                      ? <div key={app.service_alias}>
+                          <AppInfo
+                            app={app}
+                            getref={this.save}
+                            tab={app.service_alias}
+                          />
+                        </div>
+                      : <div
+                          style={{
+                            display: "none"
+                          }}
+                          key={app.service_alias}
+                        >
+                          <AppInfo
+                            app={app}
+                            getref={this.save}
+                            tab={app.service_alias}
+                          />
+                        </div>
                 )}
               </div>
             </div>
@@ -1152,7 +1160,7 @@ export default class Main extends PureComponent {
             />
           </Card>
 
-          {shareModal && (
+          {shareModal &&
             <Modal
               title="依赖检测"
               visible={shareModal}
@@ -1178,16 +1186,16 @@ export default class Main extends PureComponent {
                 </p>
                 .
               </div>
-            </Modal>
-          )}
-          {showCreateAppModel && <CreateAppModels
-            title="创建应用模版"
-            eid={currentEnterprise.enterprise_id}
-            onOk={this.handleCreateAppModel}
-            defaultScope="team"
-            market_id={record.scope_target && record.scope_target.market_id}
-            onCancel={this.hideCreateAppModel}
-          />}
+            </Modal>}
+          {showCreateAppModel &&
+            <CreateAppModels
+              title="创建应用模版"
+              eid={currentEnterprise.enterprise_id}
+              onOk={this.handleCreateAppModel}
+              defaultScope="team"
+              market_id={record.scope_target && record.scope_target.market_id}
+              onCancel={this.hideCreateAppModel}
+            />}
 
           <FooterToolbar>
             <Button
