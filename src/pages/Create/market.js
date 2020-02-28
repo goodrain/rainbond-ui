@@ -452,18 +452,17 @@ export default class Main extends PureComponent {
                   <span>版本:</span>
                   <div className={PluginStyles.overScroll}>
                     <div>
-                      {item.group_version_list &&
-                        item.group_version_list.map((item, index) => {
+                      {item.versions_info &&
+                        item.versions_info.map((items, index) => {
                           return (
                             <Tag
-                              title={item}
+                              title={items.version}
                               className={PluginStyles.cardVersionTagStyle}
                               color="green"
                               size="small"
                               key={index}
                             >
-                              {" "}
-                              {item}
+                              {items.version}
                             </Tag>
                           );
                         })}
@@ -913,8 +912,8 @@ export default class Main extends PureComponent {
                     {getFieldDecorator("group_version", {
                       initialValue:
                         installBounced &&
-                        installBounced.group_version_list &&
-                        installBounced.group_version_list[0],
+                        installBounced.versions_info &&
+                        installBounced.versions_info[0].version,
                       rules: [
                         {
                           required: true,
@@ -927,12 +926,12 @@ export default class Main extends PureComponent {
                         style={{ width: "220px" }}
                       >
                         {this.state.installBounced &&
-                          this.state.installBounced.group_version_list &&
-                          this.state.installBounced.group_version_list.map(
+                          this.state.installBounced.versions_info &&
+                          this.state.installBounced.versions_info.map(
                             (item, index) => {
                               return (
-                                <Option key={index} value={item}>
-                                  {item}
+                                <Option key={index} value={item.version}>
+                                  {item.version}
                                 </Option>
                               );
                             }
