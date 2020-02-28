@@ -57,7 +57,8 @@ export default class SelectApp extends PureComponent {
       type: "groupControl/addGroup",
       payload: {
         team_name: currentTeam.team_name,
-        group_name: vals.group_name
+        group_name: vals.group_name,
+        group_note: vals.group_note
       },
       callback: () => {
         notification.success({ message: formatMessage({ id: "add.success" }) });

@@ -159,7 +159,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: "备注",
-                  dataIndex: "note",
+                  dataIndex: "group_note",
                   render: (val, data) => {
                     return (
                       <p style={{ marginBottom: 0, color: "#999999" }}>

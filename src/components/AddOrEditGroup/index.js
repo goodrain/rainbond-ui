@@ -13,7 +13,7 @@ export default class EditGroupName extends PureComponent {
     })
    }
    render() {
-     const {title, onCancel, onOk, group_name} = this.props;
+     const {title, onCancel, onOk, group_name, group_note} = this.props;
      const { getFieldDecorator, getFieldValue } = this.props.form;
      const formItemLayout = {
       labelCol: {
@@ -43,6 +43,18 @@ export default class EditGroupName extends PureComponent {
                   rules:[{required: true, message: '请填写应用名称'}]
                 })(
                   <Input placeholder="请填写应用名称" />
+                )
+              }
+              </FormItem>
+              <FormItem
+              {...formItemLayout}
+              label="应用备注"
+              >
+              {
+                getFieldDecorator('group_note', {
+                  initialValue: group_note || '',
+                })(
+                  <Input.TextArea placeholder="请填写应用备注信息" />
                 )
               }
               </FormItem>

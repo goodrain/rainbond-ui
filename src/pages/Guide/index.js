@@ -121,7 +121,8 @@ export default class Index extends PureComponent {
       type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name
+        group_name: vals.group_name,
+        group_note: vals.group_note
       },
       callback: res => {
         if (res) {
