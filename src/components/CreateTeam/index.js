@@ -76,7 +76,7 @@ class CreateTeam extends PureComponent {
           </Button>,
         ]}
       >
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="horizontal" >
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
             {getFieldDecorator('team_name', {
               rules: [

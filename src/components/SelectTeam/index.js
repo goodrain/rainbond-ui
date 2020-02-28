@@ -56,6 +56,7 @@ export default class SelectTeam extends PureComponent {
     });
   };
   showCreateTeam = () => {
+    this.handleOut();
     this.setState({ showCreateTeam: true });
   };
 
@@ -72,6 +73,7 @@ export default class SelectTeam extends PureComponent {
   };
 
   cancelCreateTeam = () => {
+    this.handleOut()
     this.setState({ showCreateTeam: false });
   };
 
@@ -100,7 +102,7 @@ export default class SelectTeam extends PureComponent {
             <div className={style.dropBoxSearchInput}>
               <Icon
                 className={style.dropBoxSearchInputIcon}
-                loading={loading+""}
+                loading={`${loading  }`}
                 type="search"
               />
               <Input.Search
@@ -151,19 +153,21 @@ export default class SelectTeam extends PureComponent {
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown
-          overlay={dropdown}
-          visible={visible}
-        >
+        <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible} >
           <div className={style.selectButton}>
-            <div className={style.selectButtonName} style={{background: "#1890ff", color: "#ffffff"}}>
-              <span><FormattedMessage id="header.team.name"></FormattedMessage></span>
+            <div
+              className={style.selectButtonName}
+              style={{ background: '#1890ff', color: '#ffffff' }}
+            >
+              <span>
+                <FormattedMessage id="header.team.name" />
+              </span>
               <Icon className={style.selectButtonArray} type="caret-down" />
             </div>
           </div>
         </Dropdown>
         <Link className={style.selectButtonLink} to={currentTeamLink}>
-              {currentTeam.team_alias}
+          {currentTeam.team_alias}
         </Link>
         {showCreateTeam && (
           <CreateTeam

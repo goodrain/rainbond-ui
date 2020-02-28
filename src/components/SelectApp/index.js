@@ -49,6 +49,7 @@ export default class SelectApp extends PureComponent {
     });
   };
   showCreateApp = () => {
+    this.handleOut();
     this.setState({ showCreateApp: true });
   };
   handleCreateApp = vals => {
@@ -68,6 +69,7 @@ export default class SelectApp extends PureComponent {
     });
   };
   cancelCreateApp = () => {
+    this.handleOut();
     this.setState({ showCreateApp: false });
   };
 
@@ -157,7 +159,7 @@ export default class SelectApp extends PureComponent {
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown overlay={dropdown} visible={visible}>
+        <Dropdown overlay={dropdown} visible={showCreateApp ? false : visible}>
           <div className={style.selectButton}>
             <div className={style.selectButtonName} style={showstyle}>
               <span>
