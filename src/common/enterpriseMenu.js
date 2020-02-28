@@ -1,5 +1,4 @@
 import { isUrl } from '../utils/utils';
-import globalUtil from '../utils/global';
 
 const menuData = function(eid) {
   const menuArr = [
@@ -12,15 +11,19 @@ const menuData = function(eid) {
     {
       name: '共享库',
       icon: 'share-alt',
-      // path: `/enterprise/${eid}/shareds`,
-      // icon: 'team',
-      path: `/enterprise/${globalUtil.getCurrEnterpriseId()}/shared`,
+      path: `/enterprise/${eid}/shared`,
       authority: ['admin', 'user'],
     },
     {
       name: '团队',
       icon: 'team',
       path: `/enterprise/${eid}/teams`,
+      authority: ['admin', 'user'],
+    },
+    {
+      name: '用户',
+      icon: 'user',
+      path: `/enterprise/${eid}/users`,
       authority: ['admin', 'user'],
     },
     {

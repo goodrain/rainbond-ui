@@ -70,6 +70,7 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false,
       moreTags: false,
       editorTags: false,
+      seeTag: false,
     };
   }
   componentDidMount() {
@@ -177,11 +178,11 @@ export default class EnterpriseShared extends PureComponent {
   handleOpenEditorMoreTags = () => {
     this.setState({ moreTags: true, editorTags: true });
   };
-  handleOpenMoreTags = () => {
-    this.setState({ moreTags: true });
+  handleOpenMoreTags = seeTag => {
+    this.setState({ moreTags: true, seeTag });
   };
   handleCloseMoreTags = () => {
-    this.setState({ moreTags: false, editorTags: false });
+    this.setState({ moreTags: false, editorTags: false, seeTag: false });
   };
 
   showOfflineApp = appInfo => {
@@ -435,7 +436,7 @@ export default class EnterpriseShared extends PureComponent {
           </g>
         </g>
       </svg>
-    )
+    );
 
     const managementMenu = appInfo => {
       const delApp = (
@@ -465,19 +466,20 @@ export default class EnterpriseShared extends PureComponent {
               </Menu.Item>
             )}
           <Menu.Item>
-            {/* {enterpriseAdmin && ( */}
-            <a
-              onClick={() => {
-                this.handleOpenUpDataAppModel(appInfo);
-              }}
-            >
-              编辑应用模版
-            </a>
-            {/* )} */}
+            {enterpriseAdmin && (
+              <a
+                onClick={() => {
+                  this.handleOpenUpDataAppModel(appInfo);
+                }}
+              >
+                编辑应用模版
+              </a>
+            )}
           </Menu.Item>
           {appInfo &&
             appInfo.versions_info &&
-            appInfo.versions_info.length > 0 && (
+            appInfo.versions_info.length > 0 &&
+            rainbondUtil.exportAppEnable(rainbondInfo) && (
               <Menu.Item>
                 <ExportOperation app={appInfo} eid={eid} />
               </Menu.Item>
@@ -489,9 +491,11 @@ export default class EnterpriseShared extends PureComponent {
 
     const addMenuApps = (
       <Menu>
-        <Menu.Item>
-          <a onClick={this.handleOpenCreateAppModel}>创建应用模版</a>
-        </Menu.Item>
+        {enterpriseAdmin && (
+          <Menu.Item>
+            <a onClick={this.handleOpenCreateAppModel}>创建应用模版</a>
+          </Menu.Item>
+        )}
         <Menu.Item>
           <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
         </Menu.Item>
@@ -547,7 +551,7 @@ export default class EnterpriseShared extends PureComponent {
             display: 'flex',
             alignItems: 'center',
             marginBottom: '28px',
-            marginTop: '63px',
+            marginTop: '20px',
           }}
         >
           <Col span={20} style={{ textAlign: 'left', display: 'flex' }}>
@@ -559,22 +563,22 @@ export default class EnterpriseShared extends PureComponent {
             <div className={styles.serBox}>
               <div>
                 <Radio.Group
+                  value={this.state.scope}
                   onChange={this.onChangeRadio}
-                  defaultValue="enterprise"
                 >
                   <Radio.Button value="enterprise">企业</Radio.Button>
                   <Radio.Button value="team">团队</Radio.Button>
                 </Radio.Group>
               </div>
-              <div />
-              <div>
-                <Checkbox.Group
-                  style={{ width: '100%' }}
-                  onChange={this.onChangeCheckbox}
-                  value={this.state.tags}
-                >
-                  {tagLists &&
-                    tagLists.map((item, index) => {
+              {tagLists && tagLists && <div />}
+              {tagLists && tagLists && (
+                <div>
+                  <Checkbox.Group
+                    style={{ width: '100%' }}
+                    onChange={this.onChangeCheckbox}
+                    value={this.state.tags}
+                  >
+                    {tagLists.map((item, index) => {
                       const { name, tag_id } = item;
                       if (index === 5) {
                         return (
@@ -590,8 +594,9 @@ export default class EnterpriseShared extends PureComponent {
                         </Checkbox>
                       );
                     })}
-                </Checkbox.Group>
-              </div>
+                  </Checkbox.Group>
+                </div>
+              )}
             </div>
           </Col>
           {operation}
@@ -633,12 +638,7 @@ export default class EnterpriseShared extends PureComponent {
                       </div>
                       <div className={styles.imgs}>
                         {pic ? (
-                          <img
-                            src={
-                              pic
-                            }
-                            alt=""
-                          />
+                          <img src={pic} alt="" />
                         ) : (
                           <Icon component={defaultSvg} />
                         )}
@@ -687,7 +687,9 @@ export default class EnterpriseShared extends PureComponent {
                       {tags && tags.length > 3 && (
                         <a
                           style={{ marginLeft: '5px' }}
-                          onClick={this.handleOpenMoreTags}
+                          onClick={() => {
+                            this.handleOpenMoreTags(tags);
+                          }}
                         >
                           更多
                         </a>
@@ -727,6 +729,7 @@ export default class EnterpriseShared extends PureComponent {
             onChangeCheckbox={this.onChangeCheckbox}
             onCancel={this.handleCloseMoreTags}
             tagLists={tagLists}
+            seeTag={this.state.seeTag}
             checkedValues={this.state.tags}
             componentList={this.state.componentList}
             editorTags={this.state.editorTags}

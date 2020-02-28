@@ -17,7 +17,6 @@ export default class TagList extends PureComponent {
       tags: [],
     };
   }
-  componentDidMount() {}
 
   onChangeCheckbox = checkedValues => {
     this.setState({
@@ -26,8 +25,8 @@ export default class TagList extends PureComponent {
   };
 
   handleSubmit = () => {
-    const { onChangeCheckbox, onOk, form } = this.props;
-
+    const { onChangeCheckbox, onOk, form, seeTag } = this.props;
+    seeTag && onOk && onOk();
     form.validateFields((err, values) => {
       if (!err) {
         onOk && onOk(values);
@@ -37,7 +36,7 @@ export default class TagList extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { onOk, onCancel, title, tagLists, checkedValues } = this.props;
+    const { seeTag, onCancel, title, tagLists, checkedValues } = this.props;
 
     const formItemLayout = {
       labelCol: {
@@ -50,6 +49,7 @@ export default class TagList extends PureComponent {
       },
     };
 
+    console.log('seeTag', seeTag);
     return (
       <Modal
         title={title}
@@ -64,36 +64,53 @@ export default class TagList extends PureComponent {
           </Button>,
         ]}
       >
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <FormItem {...formItemLayout} label="">
-            {getFieldDecorator('tag', {
-              initialValue: checkedValues || [],
-              rules: [
-                {
-                  required: false,
-                  message: '请选择标签',
-                },
-              ],
-            })(
-              <Checkbox.Group
-                style={{ width: '100%' }}
-                onChange={this.onChangeCheckbox}
-              >
-                <Row>
-                  {tagLists &&
-                    tagLists.map((item, index) => {
-                      const { name, tag_id } = item;
-                      return (
-                        <Col key={tag_id} span={8}>
-                          <Checkbox value={name}>{name}</Checkbox>
-                        </Col>
-                      );
-                    })}
-                </Row>
-              </Checkbox.Group>
-            )}
-          </FormItem>
-        </Form>
+        {seeTag ? (
+          <Row>
+            {seeTag.map(item => {
+              const { name, tag_id } = item;
+              return (
+                <Col key={tag_id} span={8}>
+                  {name}
+                </Col>
+              );
+            })}
+          </Row>
+        ) : (
+          <Form
+            onSubmit={this.handleSubmit}
+            layout="horizontal"
+            hideRequiredMark
+          >
+            <FormItem {...formItemLayout} label="">
+              {getFieldDecorator('tag', {
+                initialValue: checkedValues || [],
+                rules: [
+                  {
+                    required: false,
+                    message: '请选择标签',
+                  },
+                ],
+              })(
+                <Checkbox.Group
+                  style={{ width: '100%' }}
+                  onChange={this.onChangeCheckbox}
+                >
+                  <Row>
+                    {tagLists &&
+                      tagLists.map(item => {
+                        const { name, tag_id } = item;
+                        return (
+                          <Col key={tag_id} span={8}>
+                            <Checkbox value={name}>{name}</Checkbox>
+                          </Col>
+                        );
+                      })}
+                  </Row>
+                </Checkbox.Group>
+              )}
+            </FormItem>
+          </Form>
+        )}
       </Modal>
     );
   }

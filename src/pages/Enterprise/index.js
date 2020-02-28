@@ -2,28 +2,13 @@ import React, { PureComponent } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
-import {
-  Card,
-  Switch,
-  notification,
-  Button,
-  Radio,
-  Col,
-  Row,
-  Popconfirm,
-  Tooltip,
-} from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { Card, notification, Button, Icon, Col, Row, Tooltip } from 'antd';
 import styles from '../List/BasicList.less';
 import globalUtil from '../../utils/global';
-import Addimg from '../../../public/images/add.png';
-import TeamListTable from '../../components/tables/TeamListTable';
 import userUtil from '../../utils/user';
-import sourceUnit from '../../utils/source-unit';
+import Convenient from '../../components/Convenient';
 import JoinTeam from '../../components/JoinTeam';
-import ScrollerX from '../../components/ScrollerX';
 import CreateTeam from '../../components/CreateTeam';
-import DescriptionList from '../../components/DescriptionList';
 import CreatUser from '../../components/CreatUserForm';
 import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -40,11 +25,7 @@ import Team from '../../../public/images/team.png';
 import TeamCrew from '../../../public/images/teamCrew.png';
 import User from '../../../public/images/user.png';
 import Arrow from '../../../public/images/arrow.png';
-
 import OauthForm from '../../components/OauthForm';
-
-const { Description } = DescriptionList;
-const RadioGroup = Radio.Group;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -94,6 +75,11 @@ export default class Enterprise extends PureComponent {
       overviewTeamInfoLoading: true,
       overviewMonitorInfoLoading: true,
       joinTeam: false,
+      collectionList: [],
+      convenientVisible: false,
+      editorConvenient: false,
+      delcollectionVisible: false,
+      collectionInfo: false,
     };
   }
   componentDidMount() {
@@ -112,7 +98,31 @@ export default class Enterprise extends PureComponent {
     });
 
     this.getEnterpriseList();
+    const { adminer } = this.state;
+    !adminer && this.fetchCollectionViewInfo();
   }
+
+  fetchCollectionViewInfo = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'user/fetchCollectionViewInfo',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState({
+            collectionList: res.list,
+          });
+        }
+      },
+    });
+  };
 
   getEnterpriseList = () => {
     const { dispatch } = this.props;
@@ -414,11 +424,64 @@ export default class Enterprise extends PureComponent {
     });
   };
 
+  handleConvenientEntrance = () => {
+    notification.success({ message: '添加成功' });
+    this.fetchCollectionViewInfo();
+    this.cancelConvenientEntrance();
+  };
+  cancelConvenientEntrance = () => {
+    this.setState({ convenientVisible: false });
+  };
+  onConvenientEntrance = () => {
+    this.setState({ convenientVisible: true });
+  };
   onJoinTeam = () => {
     this.setState({ joinTeam: true });
   };
   cancelJoinTeam = () => {
     this.setState({ joinTeam: false });
+  };
+
+  handleIsConvenientEntrance = () => {
+    this.setState({ editorConvenient: true });
+  };
+
+  deleteConvenient = collectionInfo => {
+    this.setState({
+      delcollectionVisible: true,
+      collectionInfo,
+    });
+  };
+
+  deleteCollectionViewInfo = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    const { collectionInfo } = this.state;
+    dispatch({
+      type: 'user/deleteCollectionViewInfo',
+      payload: {
+        favorite_id: collectionInfo && collectionInfo.favorite_id,
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: '删除成功' });
+          this.fetchCollectionViewInfo();
+          this.handleCloseDelCollectionVisible();
+        }
+      },
+    });
+  };
+  handleCloseDelCollectionVisible = () => {
+    this.setState({
+      delcollectionVisible: false,
+      collectionInfo: false,
+      editorConvenient: false,
+    });
   };
 
   renderContent = () => {
@@ -461,6 +524,10 @@ export default class Enterprise extends PureComponent {
       overviewInfoLoading,
       overviewTeamInfoLoading,
       overviewMonitorInfoLoading,
+      collectionList,
+      convenientVisible,
+      editorConvenient,
+      delcollectionVisible,
     } = this.state;
 
     const new_join_team =
@@ -503,6 +570,24 @@ export default class Enterprise extends PureComponent {
       <div>
         {this.state.joinTeam && (
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
+        )}
+        {convenientVisible && (
+          <Convenient
+            {...this.props}
+            title="添加快捷入口"
+            onOk={this.handleConvenientEntrance}
+            onCancel={this.cancelConvenientEntrance}
+          />
+        )}
+
+        {delcollectionVisible && (
+          <ConfirmModal
+            title="删除快捷入口"
+            subDesc="此操作不可恢复"
+            desc="确定要删除此快捷入口吗？"
+            onOk={this.deleteCollectionViewInfo}
+            onCancel={this.handleCloseDelCollectionVisible}
+          />
         )}
 
         <Card
@@ -566,230 +651,233 @@ export default class Enterprise extends PureComponent {
         </Card>
 
         <div>
-          <Row
-            style={{
-              marginBottom: 24,
-            }}
-          >
-            <Col span={13}>
-              <Card
-                bordered={false}
-                loading={overviewAppInfoLoading}
-                style={{ height: '243px', marginRight: '25px' }}
-              >
-                <Row style={{ marginBottom: '6px' }}>
-                  <Col className={styles.grays} span={12}>
-                    应用数量
-                  </Col>
-                  <Col className={styles.grays} span={12}>
-                    组件数量
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={8}>
-                    <Pie
-                      percent={
-                        overviewAppInfo &&
-                        Math.round(
-                          (overviewAppInfo.service_groups.running /
-                            overviewAppInfo.service_groups.total) *
-                            10000
-                        ) / 100.0
-                      }
-                      types="app"
-                      lineWidth={18}
-                      color="#3D58DA"
-                      subTitle={
-                        <div className={styles.appContent}>
-                          <h6>
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.running}
-                            个
-                          </h6>
-                          <div>
-                            共
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.total}
-                            个应用数量
-                          </div>
-                        </div>
-                      }
-                      height={168}
-                    />
-                  </Col>
-
-                  <Col span={4}>
-                    <div>
-                      <div>
-                        <div className={styles.appnumno}>运行中应用</div>
-                        <div className={styles.nums}>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.running}
-                            个
-                          </span>
-                          <span>|</span>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.total}
-                            个
-                          </span>
-                        </div>
-                      </div>
-                      <div>
-                        <div
-                          className={styles.appnums}
-                          style={{ marginTop: '26px' }}
-                        >
-                          未运行应用
-                        </div>
-                        <div className={styles.nums}>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.closed}
-                            个
-                          </span>
-                          <span>|</span>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.service_groups.total}
-                            个
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={8}>
-                    <div style={{ marginTop: '10px' }}>
+          {this.state.adminer && (
+            <Row
+              style={{
+                marginBottom: 24,
+              }}
+            >
+              <Col span={13}>
+                <Card
+                  bordered={false}
+                  loading={overviewAppInfoLoading}
+                  style={{ height: '243px', marginRight: '25px' }}
+                >
+                  <Row style={{ marginBottom: '6px' }}>
+                    <Col className={styles.grays} span={12}>
+                      应用数量
+                    </Col>
+                    <Col className={styles.grays} span={12}>
+                      组件数量
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>
                       <Pie
                         percent={
                           overviewAppInfo &&
                           Math.round(
-                            (overviewAppInfo.components.running /
-                              overviewAppInfo.components.total) *
+                            (overviewAppInfo.service_groups.running /
+                              overviewAppInfo.service_groups.total) *
                               10000
                           ) / 100.0
                         }
-                        types="component"
+                        types="app"
+                        lineWidth={18}
                         color="#3D58DA"
                         subTitle={
-                          <div className={styles.elements}>
+                          <div className={styles.appContent}>
+                            <h6>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.running}
+                              个
+                            </h6>
                             <div>
-                              <div>
-                                {overviewAppInfo &&
-                                  overviewAppInfo.components.closed}
-                              </div>
-                              <div>未运行</div>
-                            </div>
-                            <div />
-                            <div>
-                              <div>
-                                {overviewAppInfo &&
-                                  overviewAppInfo.components.running}
-                              </div>
-                              <div>运行中</div>
+                              共
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个应用数量
                             </div>
                           </div>
                         }
-                        height={156}
+                        height={168}
                       />
-                    </div>
-                  </Col>
+                    </Col>
 
-                  <Col span={4}>
-                    <div>
+                    <Col span={4}>
                       <div>
-                        <div className={styles.appnumno}>运行中组件</div>
-                        <div className={styles.nums}>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.components.running}
-                            个
-                          </span>
-                          <span>|</span>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.components.total}
-                            个
-                          </span>
+                        <div>
+                          <div className={styles.appnumno}>运行中应用</div>
+                          <div className={styles.nums}>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.running}
+                              个
+                            </span>
+                            <span>|</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <div
+                            className={styles.appnums}
+                            style={{ marginTop: '26px' }}
+                          >
+                            未运行应用
+                          </div>
+                          <div className={styles.nums}>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.closed}
+                              个
+                            </span>
+                            <span>|</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.service_groups.total}
+                              个
+                            </span>
+                          </div>
                         </div>
                       </div>
+                    </Col>
+                    <Col span={8}>
+                      <div style={{ marginTop: '10px' }}>
+                        <Pie
+                          percent={
+                            overviewAppInfo &&
+                            Math.round(
+                              (overviewAppInfo.components.running /
+                                overviewAppInfo.components.total) *
+                                10000
+                            ) / 100.0
+                          }
+                          types="component"
+                          color="#3D58DA"
+                          subTitle={
+                            <div className={styles.elements}>
+                              <div>
+                                <div>
+                                  {overviewAppInfo &&
+                                    overviewAppInfo.components.closed}
+                                </div>
+                                <div>未运行</div>
+                              </div>
+                              <div />
+                              <div>
+                                <div>
+                                  {overviewAppInfo &&
+                                    overviewAppInfo.components.running}
+                                </div>
+                                <div>运行中</div>
+                              </div>
+                            </div>
+                          }
+                          height={156}
+                        />
+                      </div>
+                    </Col>
+
+                    <Col span={4}>
                       <div>
-                        <div
-                          className={styles.appnums}
-                          style={{ marginTop: '26px' }}
-                        >
-                          未运行组件
+                        <div>
+                          <div className={styles.appnumno}>运行中组件</div>
+                          <div className={styles.nums}>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.running}
+                              个
+                            </span>
+                            <span>|</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.total}
+                              个
+                            </span>
+                          </div>
                         </div>
-                        <div className={styles.nums}>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.components.closed}
-                            个
-                          </span>
-                          <span>|</span>
-                          <span>
-                            {overviewAppInfo &&
-                              overviewAppInfo.components.total}
-                            个
-                          </span>
+                        <div>
+                          <div
+                            className={styles.appnums}
+                            style={{ marginTop: '26px' }}
+                          >
+                            未运行组件
+                          </div>
+                          <div className={styles.nums}>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.closed}
+                              个
+                            </span>
+                            <span>|</span>
+                            <span>
+                              {overviewAppInfo &&
+                                overviewAppInfo.components.total}
+                              个
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
 
-            <Col span={11}>
-              <Card
-                loading={overviewInfoLoading}
-                bordered={false}
-                style={{ height: '243px' }}
-              >
-                <Row>
-                  <Col span={8}>
-                    <ul className={styles.Box}>
-                      <li>
-                        <div>
-                          <img src={Element} alt="" />
-                        </div>
-                      </li>
-                      <li>{overviewInfo && overviewInfo.shared_apps}</li>
-                      <li>应用模板数量</li>
-                      <li>——</li>
-                    </ul>
-                  </Col>
-                  <Col span={8}>
-                    <ul className={styles.Box}>
-                      <li>
-                        <div>
-                          <img src={Team} alt="" />
-                        </div>
-                      </li>
-                      <li>{overviewInfo && overviewInfo.total_teams}</li>
+              <Col span={11}>
+                <Card
+                  loading={overviewInfoLoading}
+                  bordered={false}
+                  style={{ height: '243px' }}
+                >
+                  <Row>
+                    <Col span={8}>
+                      <ul className={styles.Box}>
+                        <li>
+                          <div>
+                            <img src={Element} alt="" />
+                          </div>
+                        </li>
+                        <li>{overviewInfo && overviewInfo.shared_apps}</li>
+                        <li>应用模板数量</li>
+                        <li>——</li>
+                      </ul>
+                    </Col>
+                    <Col span={8}>
+                      <ul className={styles.Box}>
+                        <li>
+                          <div>
+                            <img src={Team} alt="" />
+                          </div>
+                        </li>
+                        <li>{overviewInfo && overviewInfo.total_teams}</li>
 
-                      <li>团队数量</li>
-                      <li>——</li>
-                    </ul>
-                  </Col>
-                  <Col span={8}>
-                    <ul className={styles.Box}>
-                      <li>
-                        <div>
-                          <img src={User} alt="" />
-                        </div>
-                      </li>
-                      <li>{overviewInfo && overviewInfo.total_users}</li>
+                        <li>团队数量</li>
+                        <li>——</li>
+                      </ul>
+                    </Col>
+                    <Col span={8}>
+                      <ul className={styles.Box}>
+                        <li>
+                          <div>
+                            <img src={User} alt="" />
+                          </div>
+                        </li>
+                        <li>{overviewInfo && overviewInfo.total_users}</li>
 
-                      <li>用户数量</li>
-                      <li>——</li>
-                    </ul>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          </Row>
+                        <li>用户数量</li>
+                        <li>——</li>
+                      </ul>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+          )}
+
           <Row
             style={{
               marginBottom: 24,
@@ -814,7 +902,7 @@ export default class Enterprise extends PureComponent {
                 )}
 
                 <Row>
-                  <Col span={active_teams?12:24}>
+                  <Col span={active_teams ? 12 : 24}>
                     {new_join_team && (
                       <Card
                         bodyStyle={teamBoxs}
@@ -888,73 +976,154 @@ export default class Enterprise extends PureComponent {
                 </Row>
               </Card>
             </Col>
-            <Col span={11}>
-              <Card
-                bordered={false}
-                loading={overviewMonitorInfoLoading}
-                style={{ height: '243px' }}
-              >
-                <Row>
-                  <Col span={8}>
-                    <ul className={styles.Box}>
-                      <li>
-                        <img src={Memory} alt="" />
-                      </li>
-                      <li>
-                        {overviewMonitorInfo &&
-                          overviewMonitorInfo.total_regions}
-                      </li>
-                      <li>数据中心数量</li>
-                      <li>——</li>
-                    </ul>
-                  </Col>
-                  <Col span={8}>
-                    {overviewMonitorInfo && (
+
+            {this.state.adminer ? (
+              <Col span={11}>
+                <Card
+                  bordered={false}
+                  loading={overviewMonitorInfoLoading}
+                  style={{ height: '243px' }}
+                >
+                  <Row>
+                    <Col span={8}>
                       <ul className={styles.Box}>
                         <li>
-                          <img src={Records} alt="" />
+                          <img src={Memory} alt="" />
                         </li>
                         <li>
-                          {this.handlUnit(overviewMonitorInfo.memory.used)}
-                          <span className={styles.units}>
-                            {this.handlUnit(
-                              overviewMonitorInfo.memory.used,
-                              'MB'
-                            )}
-                          </span>
-                          /{this.handlUnit(overviewMonitorInfo.memory.total)}
-                          <span className={styles.units}>
-                            {this.handlUnit(
-                              overviewMonitorInfo.memory.total,
-                              'MB'
-                            )}
-                          </span>
+                          {overviewMonitorInfo &&
+                            overviewMonitorInfo.total_regions}
                         </li>
-                        <li>内存使用量/总量</li>
+                        <li>数据中心数量</li>
                         <li>——</li>
                       </ul>
-                    )}
+                    </Col>
+                    <Col span={8}>
+                      {overviewMonitorInfo && (
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Records} alt="" />
+                          </li>
+                          <li>
+                            {this.handlUnit(overviewMonitorInfo.memory.used)}
+                            <span className={styles.units}>
+                              {this.handlUnit(
+                                overviewMonitorInfo.memory.used,
+                                'MB'
+                              )}
+                            </span>
+                            /{this.handlUnit(overviewMonitorInfo.memory.total)}
+                            <span className={styles.units}>
+                              {this.handlUnit(
+                                overviewMonitorInfo.memory.total,
+                                'MB'
+                              )}
+                            </span>
+                          </li>
+                          <li>内存使用量/总量</li>
+                          <li>——</li>
+                        </ul>
+                      )}
+                    </Col>
+                    <Col span={8}>
+                      <ul className={styles.Box}>
+                        <li>
+                          <img src={Cpus} alt="" />
+                        </li>
+                        <li>
+                          {overviewMonitorInfo &&
+                            parseInt(overviewMonitorInfo.cpu.used)}
+                          <span className={styles.units}>Core</span>/
+                          {overviewMonitorInfo &&
+                            parseInt(overviewMonitorInfo.cpu.total)}
+                          <span className={styles.units}>Core</span>
+                        </li>
+                        <li>CPU使用量/总量</li>
+                        <li>——</li>
+                      </ul>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            ) : (
+              <Col span={11}>
+                <Card
+                  bordered={false}
+                  loading={overviewMonitorInfoLoading}
+                  style={{ height: '243px' }}
+                >
+                  <Row style={{ marginBottom: '4px' }}>
+                    <Col className={styles.grays} span={12}>
+                      便捷入口
+                    </Col>
+                    <Col
+                      className={styles.grays}
+                      style={{ textAlign: 'right' }}
+                      span={12}
+                    >
+                      <a
+                        style={{ marginRight: '10px' }}
+                        onClick={() => {
+                          this.onConvenientEntrance();
+                        }}
+                      >
+                        新增
+                      </a>
+                      <a
+                        onClick={() => {
+                          this.handleIsConvenientEntrance();
+                        }}
+                      >
+                        编辑
+                      </a>
+                    </Col>
+                  </Row>
+
+                  <Col span={24}>
+                    <Row>
+                      {collectionList &&
+                        collectionList.length > 0 &&
+                        collectionList.map(item => {
+                          const { url, name } = item;
+                          return (
+                            <Col
+                              span={12}
+                              key={name}
+                              onClick={() => {
+                                editorConvenient
+                                  ? this.deleteConvenient(item)
+                                  : this.props.dispatch(
+                                      routerRedux.replace(url)
+                                    );
+                              }}
+                            >
+                              <Card
+                                bodyStyle={teamBoxList}
+                                bordered={false}
+                                style={{ height: '40px', paddingRight: '10px' }}
+                              >
+                                <div
+                                  className={styles.overText}
+                                  style={{ width: '93%', cursor: 'pointer' }}
+                                >
+                                  <Tooltip title={name}>{name}</Tooltip>
+                                </div>
+                                <div>
+                                  {editorConvenient ? (
+                                    <Icon type="close" />
+                                  ) : (
+                                    <img src={Arrow} alt="" />
+                                  )}
+                                </div>
+                              </Card>
+                            </Col>
+                          );
+                        })}
+                    </Row>
                   </Col>
-                  <Col span={8}>
-                    <ul className={styles.Box}>
-                      <li>
-                        <img src={Cpus} alt="" />
-                      </li>
-                      <li>
-                        {overviewMonitorInfo &&
-                          parseInt(overviewMonitorInfo.cpu.used)}
-                        <span className={styles.units}>Core</span>/
-                        {overviewMonitorInfo &&
-                          parseInt(overviewMonitorInfo.cpu.total)}
-                        <span className={styles.units}>Core</span>
-                      </li>
-                      <li>CPU使用量/总量</li>
-                      <li>——</li>
-                    </ul>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
+                </Card>
+              </Col>
+            )}
           </Row>
         </div>
       </div>

@@ -153,15 +153,13 @@ export default class ExportOperation extends PureComponent {
     const { rainbondInfo } = this.props;
     return (
       <Fragment>
-        {/* {rainbondUtil.exportAppEnable(rainbondInfo) && */}
-          <a
-            onClick={this.showAppExport}
-            style={{ marginRight: 8 }}
-            href="javascript:;"
-          >
-            导出应用模版{this.state.is_exporting ? '(导出中)' : ''}
-          </a>
-        {/* } */}
+        <a
+          onClick={this.showAppExport}
+          style={{ marginRight: 8 }}
+          href="javascript:;"
+        >
+          导出应用模版{this.state.is_exporting ? '(导出中)' : ''}
+        </a>
         {this.state.showExporterApp && (
           <AppExporter
             eid={eid}

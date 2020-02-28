@@ -20,7 +20,6 @@ import rainbondUtil from '../../utils/rainbond';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddAdmin from '../../components/AddAdmin';
 import OauthTable from './oauthTable';
-import CreatUser from '../../components/CreatUserForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
 import OauthForm from '../../components/OauthForm';
@@ -50,7 +49,6 @@ export default class EnterpriseTeams extends PureComponent {
       enterpriseAdminLoading: false,
       adminer,
       showDelTeam: false,
-      userVisible: false,
       openOauth: false,
       oauthInfo: false,
       oauthTable: [],
@@ -286,35 +284,6 @@ export default class EnterpriseTeams extends PureComponent {
     });
   };
 
-  // 管理员添加用户
-  addUser = () => {
-    this.setState({
-      userVisible: true,
-    });
-  };
-
-  handleCreatUser = values => {
-    this.props.dispatch({
-      type: 'global/creatUser',
-      payload: {
-        ...values,
-      },
-      callback: data => {
-        if (data && data._condition == 200) {
-          notification.success({ message: data.msg_show });
-        } else {
-          notification.error({ message: data.msg_show });
-        }
-      },
-    });
-    this.cancelCreatUser();
-  };
-  cancelCreatUser = () => {
-    this.setState({
-      userVisible: false,
-    });
-  };
-
   render() {
     const {
       adminList,
@@ -458,11 +427,6 @@ export default class EnterpriseTeams extends PureComponent {
           <Row type="flex" align="middle">
             <Col span={12}>是否允许用户注册：</Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              {adminer && !this.props.isRegist && (
-                <a onClick={this.addUser} style={{ marginRight: '10px' }}>
-                  添加用户
-                </a>
-              )}
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
@@ -560,12 +524,6 @@ export default class EnterpriseTeams extends PureComponent {
             onCancel={() => {
               this.setState({ showOauthTable: false });
             }}
-          />
-        )}
-        {this.state.userVisible && (
-          <CreatUser
-            onOk={this.handleCreatUser}
-            onCancel={this.cancelCreatUser}
           />
         )}
         {this.state.showAddAdmin && (
