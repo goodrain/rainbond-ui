@@ -28,6 +28,7 @@ export default class SelectRegion extends PureComponent {
     this.setState({ loading: false, teamRegions: currentTeam.region });
   };
   showOpenRegion = () => {
+    this.handleOut();
     this.setState({ showOpenRegion: true });
   };
   handleOpenRegion = regions => {
@@ -60,6 +61,7 @@ export default class SelectRegion extends PureComponent {
     });
   };
   cancelOpenRegion = () => {
+    this.handleOut();
     this.setState({ showOpenRegion: false });
   };
 
@@ -118,7 +120,7 @@ export default class SelectRegion extends PureComponent {
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown overlay={dropdown} visible={visible}>
+        <Dropdown overlay={dropdown} visible={showOpenRegion ? false : visible}>
           <div className={style.selectButton}>
             <div className={style.selectButtonName}>
               <span>
