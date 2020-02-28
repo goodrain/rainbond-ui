@@ -8,7 +8,7 @@ const RadioGroup = Radio.Group;
     null,
     null,
     null,
-    // { withRef: true }
+    { withRef: true }
   )
 class Index extends PureComponent {
   constructor(props) {

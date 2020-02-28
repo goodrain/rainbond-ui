@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { connect } from "dva";
-import { routerRedux } from "dva/router";
+import { routerRedux, Link } from "dva/router";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import moment from "moment";
 import {
@@ -15,7 +15,7 @@ import {
   Divider,
   Input,
   Table,
-  Empty,
+  Alert,
   Icon,
   Switch
 } from "antd";
@@ -28,10 +28,6 @@ import InstanceList from "../../components/AppInstanceList";
 import AddScaling from "./component/AddScaling";
 import Deleteimg from "../../../public/images/delete.png";
 import ConfirmModal from "../../components/ConfirmModal";
-import Cpuimg from "../../../public/images/automatic-telescoping-cpu.png";
-import Ramimg from "../../../public/images/automatic-telescoping-ram.png";
-import Maximg from "../../../public/images/automatic-telescoping-max.png";
-import Minimg from "../../../public/images/automatic-telescoping-min.png";
 import styles from "./Index.less";
 
 const { Option } = Select;
@@ -46,7 +42,7 @@ const { Option } = Select;
   }),
   null,
   null,
-  // { pure: false, withRef: true }
+  { pure: false, withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {
@@ -85,7 +81,7 @@ export default class Index extends PureComponent {
       errorMinNum: "",
       errorMaxNum: "",
       errorCpuValue: "",
-      errorMemoryValue: ""
+      errorMemoryValue: "",
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -96,9 +92,8 @@ export default class Index extends PureComponent {
       this.setState({
         new_pods: nextProps.instances.new_pods || [],
         old_pods: nextProps.instances.old_pods || [],
-        instances: (nextProps.instances.new_pods || []).concat(
-          nextProps.instances.old_pods || []
-        ),
+        instances: (nextProps.instances.new_pods || [])
+          .concat(nextProps.instances.old_pods || []),
         loading: false
       });
     } else {
@@ -109,7 +104,6 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     if (!this.canView()) return;
-
     this.getScalingRules();
     this.getScalingRecord();
     this.fetchInstanceInfo();
@@ -245,9 +239,8 @@ export default class Index extends PureComponent {
         if (res && res._code == 200) {
           this.setState({
             //接口变化
-            instances: (res.list.new_pods || []).concat(
-              res.list.old_pods || []
-            ),
+            instances: (res.list.new_pods || [])
+              .concat(res.list.old_pods || []),
             loading: false
           });
         } else {
@@ -410,10 +403,8 @@ export default class Index extends PureComponent {
               message: toDeleteMnt
                 ? "删除成功"
                 : !automaticTelescopic
-                ? "开启成功"
-                : addindicators
-                ? "添加成功"
-                : "编辑成功"
+                  ? "开启成功"
+                  : addindicators ? "添加成功" : "编辑成功"
             });
 
             _th.setState(
@@ -644,10 +635,8 @@ export default class Index extends PureComponent {
       type === "maxNum"
         ? "errorMaxNum"
         : type === "minNum"
-        ? "errorMinNum"
-        : type === "cpuValue"
-        ? "errorCpuValue"
-        : "errorMemoryValue";
+          ? "errorMinNum"
+          : type === "cpuValue" ? "errorCpuValue" : "errorMemoryValue";
 
     if (num == "" || num == null) {
       this.setState({
@@ -726,7 +715,15 @@ export default class Index extends PureComponent {
 
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { extendInfo, appAlias, form } = this.props;
+    const { extendInfo, appAlias, form, appDetail } = this.props;
+    let notAllowScaling = false
+    if (appDetail) {
+      console.log(appDetail.service.extend_method)
+      if (globalUtil.isSingletonComponent(appDetail.service.extend_method)){
+        notAllowScaling = true
+      }
+    }
+    const { teamName, regionName } = this.props.match.params;
     const { getFieldDecorator, getFieldValue } = form;
     const {
       page_num,
@@ -741,8 +738,6 @@ export default class Index extends PureComponent {
       automaticTelescopic,
       showEditAutoScaling,
       addindicators,
-      errorDesc,
-      errorType,
       errorMinNum,
       errorMaxNum,
       errorCpuValue,
@@ -802,47 +797,61 @@ export default class Index extends PureComponent {
             </a>
           }
         >
-          {loading ? (
-            <Spin tip="Loading...">
-              <div style={{ minHeight: "190px" }} />
-            </Spin>
-          ) : (
-            <div>
-              <InstanceList
-                handlePodClick={this.handlePodClick}
-                list={this.state.instances}
-              />
-              <Divider />
-              <div>
-                <Row>
-                  <Col span={24} style={{ display: "flex" }}>
-                    <span className={styles.commandText}>查询命令：</span>
-                    <div className={styles.commandWidth}>
-                      <Input
-                        value={grctlCmd}
-                        style={{ background: "#F9FAFC", textAlign: "center" }}
-                      />
-                      <div className={styles.remindDesc}>
-                        查询详细的组件实例信息，请复制查询命令到Rainbond管理节点查询
+          {loading
+            ? <Spin tip="Loading...">
+                <div style={{ minHeight: "190px" }} />
+              </Spin>
+            : <div>
+                <InstanceList
+                  handlePodClick={this.handlePodClick}
+                  list={this.state.instances}
+                />
+                <Divider />
+                <div>
+                  <Row>
+                    <Col span={24} style={{ display: "flex" }}>
+                      <span className={styles.commandText}>查询命令：</span>
+                      <div className={styles.commandWidth}>
+                        <Input
+                          value={grctlCmd}
+                          style={{ background: "#F9FAFC", textAlign: "center" }}
+                        />
+                        <div className={styles.remindDesc}>
+                          查询详细的组件实例信息，请复制查询命令到Rainbond管理节点查询
+                        </div>
                       </div>
-                    </div>
 
-                    <CopyToClipboard
-                      text={grctlCmd}
-                      onCopy={() => {
-                        notification.success({ message: "复制成功" });
-                      }}
-                    >
-                      <Button type="primary" style={{ marginLeft: 19 }}>
-                        复制
-                      </Button>
-                    </CopyToClipboard>
-                  </Col>
-                </Row>
-              </div>
-            </div>
-          )}
+                      <CopyToClipboard
+                        text={grctlCmd}
+                        onCopy={() => {
+                          notification.success({ message: "复制成功" });
+                        }}
+                      >
+                        <Button type="primary" style={{ marginLeft: 19 }}>
+                          复制
+                        </Button>
+                      </CopyToClipboard>
+                    </Col>
+                  </Row>
+                </div>
+              </div>}
         </Card>
+
+        {notAllowScaling &&
+          <Alert
+            style={{ marginTop: "16px" }}
+            message={
+              <p style={{ marginBottom: 0 }}>
+                单实例类型组件不能进行水平伸缩，若需要请修改为相应的多实例组件类型。{" "}
+                <Link
+                  to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
+                >
+                  去设置
+                </Link>
+              </p>
+            }
+            type="warning"
+          />}
         <Card className={styles.clerBorder} border={false} title="手动伸缩">
           <Row gutter={16}>
             <Col lg={12} md={12} sm={24}>
@@ -861,11 +870,11 @@ export default class Index extends PureComponent {
                     initialValue: `${extendInfo.current_memory}`
                   })(
                     <Select className={styles.memorySelect}>
-                      {(extendInfo.memory_list || []).map(item => (
+                      {(extendInfo.memory_list || []).map(item =>
                         <Option key={item} value={item}>
                           {sourceUtil.getMemoryAndUnit(item)}
                         </Option>
-                      ))}
+                      )}
                     </Select>
                   )}{" "}
                   <Button
@@ -905,14 +914,15 @@ export default class Index extends PureComponent {
                     initialValue: extendInfo.current_node
                   })(
                     <Select className={styles.nodeSelect}>
-                      {(extendInfo.node_list || []).map(item => (
+                      {(extendInfo.node_list || []).map(item =>
                         <Option key={item} value={item}>
                           {item}
                         </Option>
-                      ))}
+                      )}
                     </Select>
                   )}{" "}
                   <Button
+                    disabled={notAllowScaling}
                     onClick={this.handleHorizontal}
                     size="default"
                     type="primary"
@@ -943,7 +953,7 @@ export default class Index extends PureComponent {
               <div>最大实例数</div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
-              {cpuUse && (
+              {cpuUse &&
                 <div>
                   CPU使用
                   {this.setMetric_target_value(
@@ -953,18 +963,16 @@ export default class Index extends PureComponent {
                   ) === "utilization"
                     ? "率"
                     : "量(m)"}
-                  {memoryUse && (
+                  {memoryUse &&
                     <img
                       src={Deleteimg}
                       alt=""
                       onClick={() => {
                         this.handleDeleteMnt("cpu");
                       }}
-                    />
-                  )}
-                </div>
-              )}
-              {memoryUse && (
+                    />}
+                </div>}
+              {memoryUse &&
                 <div>
                   内存使用
                   {this.setMetric_target_value(
@@ -974,17 +982,15 @@ export default class Index extends PureComponent {
                   ) === "utilization"
                     ? "率"
                     : "量(Mi)"}
-                  {cpuUse && (
+                  {cpuUse &&
                     <img
                       src={Deleteimg}
                       alt=""
                       onClick={() => {
                         this.handleDeleteMnt("memory");
                       }}
-                    />
-                  )}
-                </div>
-              )}
+                    />}
+                </div>}
             </Col>
           </Row>
           {
@@ -999,6 +1005,7 @@ export default class Index extends PureComponent {
                   <Col span={12}>
                     <div className={styles.automaTictelescopingContent}>
                       <Switch
+                        disabled={notAllowScaling}
                         className={styles.automaTictelescopingSwitch}
                         checked={automaticTelescopic}
                         onClick={() => {
@@ -1051,7 +1058,7 @@ export default class Index extends PureComponent {
                     </div>
                   </Col>
                   <Col span={12}>
-                    {cpuUse && (
+                    {cpuUse &&
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator("cpuValue", {
                           initialValue:
@@ -1075,10 +1082,9 @@ export default class Index extends PureComponent {
                             }}
                           />
                         )}
-                      </div>
-                    )}
+                      </div>}
 
-                    {memoryUse && (
+                    {memoryUse &&
                       <div className={styles.automaTictelescopingContent}>
                         {getFieldDecorator("memoryValue", {
                           initialValue:
@@ -1102,8 +1108,7 @@ export default class Index extends PureComponent {
                             }}
                           />
                         )}
-                      </div>
-                    )}
+                      </div>}
                     {!cpuUse && <div style={{ height: "56px" }} />}
                     {!memoryUse && <div style={{ height: "56px" }} />}
 
@@ -1128,27 +1133,33 @@ export default class Index extends PureComponent {
             <Col span={12} className={styles.automaTictelescopingTitle}>
               <div />
               <div>
-                <span className={styles.errorDesc}>{errorMinNum}</span>
+                <span className={styles.errorDesc}>
+                  {errorMinNum}
+                </span>
               </div>
               <div>
-                <span className={styles.errorDesc}> {errorMaxNum}</span>
+                <span className={styles.errorDesc}>
+                  {" "}{errorMaxNum}
+                </span>
               </div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
-              {cpuUse && (
+              {cpuUse &&
                 <div>
-                  <span className={styles.errorDesc}>{errorCpuValue}</span>
-                </div>
-              )}
-              {memoryUse && (
+                  <span className={styles.errorDesc}>
+                    {errorCpuValue}
+                  </span>
+                </div>}
+              {memoryUse &&
                 <div>
-                  <span className={styles.errorDesc}>{errorMemoryValue}</span>
-                </div>
-              )}
+                  <span className={styles.errorDesc}>
+                    {errorMemoryValue}
+                  </span>
+                </div>}
             </Col>
           </Row>
         </Card>
-        {this.state.toDeleteMnt && (
+        {this.state.toDeleteMnt &&
           <ConfirmModal
             title="删除指标"
             desc="是否删除该指标?"
@@ -1156,9 +1167,8 @@ export default class Index extends PureComponent {
             onOk={() => {
               this.handleAddIndicators("delete");
             }}
-          />
-        )}
-        {showEditAutoScaling && (
+          />}
+        {showEditAutoScaling &&
           <AddScaling
             data={rulesInfo}
             ref={this.saveForm}
@@ -1172,8 +1182,7 @@ export default class Index extends PureComponent {
                 : this.openAutoScaling(values);
             }}
             editRules={editRules}
-          />
-        )}
+          />}
 
         <Card
           className={styles.clearCard}
@@ -1196,13 +1205,12 @@ export default class Index extends PureComponent {
                 key: "last_time",
                 align: "center",
                 width: "18%",
-                render: val => (
+                render: val =>
                   <div
                     style={{ wordWrap: "break-word", wordBreak: "break-word" }}
                   >
                     {moment(val).format("YYYY-MM-DD HH:mm:ss")}
                   </div>
-                )
               },
               {
                 title: "伸缩详情",
@@ -1210,7 +1218,7 @@ export default class Index extends PureComponent {
                 key: "description",
                 align: "center",
                 width: "43%",
-                render: description => (
+                render: description =>
                   <div
                     style={{
                       textAlign: "left",
@@ -1220,7 +1228,6 @@ export default class Index extends PureComponent {
                   >
                     {description}
                   </div>
-                )
               },
               {
                 title: "类型",
@@ -1228,15 +1235,12 @@ export default class Index extends PureComponent {
                 key: "record_type",
                 align: "center",
                 width: "13%",
-                render: record_type => (
+                render: record_type =>
                   <div>
                     {record_type === "hpa"
                       ? "水平自动伸缩"
-                      : record_type === "manual"
-                      ? "手动伸缩"
-                      : "垂直自动伸缩"}
+                      : record_type === "manual" ? "手动伸缩" : "垂直自动伸缩"}
                   </div>
-                )
               },
               {
                 title: "操作人",
@@ -1245,7 +1249,11 @@ export default class Index extends PureComponent {
                 align: "center",
                 width: "13%",
                 render: operator => {
-                  return <span> {operator || "-"} </span>;
+                  return (
+                    <span>
+                      {" "}{operator || "-"}{" "}
+                    </span>
+                  );
                 }
               },
               {

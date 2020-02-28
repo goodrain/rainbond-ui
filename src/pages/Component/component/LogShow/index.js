@@ -10,7 +10,7 @@ import Ansi from "../../../../components/Ansi";
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 class Index extends PureComponent {
   constructor(props) {

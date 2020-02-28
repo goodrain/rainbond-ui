@@ -47,8 +47,8 @@ const RadioGroup = Radio.Group;
     appControl
   }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends React.Component {
@@ -543,6 +543,20 @@ export default class Index extends React.Component {
       }
     });
   };
+  updateComponentDetail = () => {
+    const { teamName } = this.props.match.params;
+    const { appAlias } = this.props
+    this.props.dispatch({
+      type: "appControl/fetchDetail",
+      payload: {
+        team_name: teamName,
+        app_alias: appAlias
+      },
+      callback: appDetail => {
+        this.setState({ currentComponent: appDetail.service });
+      }
+    });
+  }
   setupAttribute = () => {
     if (appStatusUtil.canVisit(this.props.status)) {
       notification.warning({ message: "请先关闭组件后再更改状态" });
@@ -574,6 +588,7 @@ export default class Index extends React.Component {
                 },
                 () => {
                   this.fetchBaseInfo();
+                  this.updateComponentDetail()
                 }
               );
             }
@@ -780,8 +795,6 @@ export default class Index extends React.Component {
             >
               <Switch
                 defaultChecked={baseInfo.build_upgrade}
-                checkedChildren="是"
-                unCheckedChildren="否"
                 onChange={this.handleChange}
               />
             </FormItem>

@@ -828,6 +828,12 @@ const global = {
       return true
     }
     return false
+  },
+  isSingletonComponent(componentType) {
+    if (componentType=="state_singleton" || componentType=="stateless_singleton"){
+      return true
+    }
+    return false
   }
 };
 

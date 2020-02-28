@@ -62,7 +62,7 @@ const formItemLayoutOrder = {
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 class Index extends React.Component {

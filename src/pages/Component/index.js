@@ -133,7 +133,7 @@ class MoveGroup extends PureComponent {
   }
 }
 
-/*修改应用名称*/
+/*修改组件名称*/
 @Form.create()
 class EditName extends PureComponent {
   handleSubmit = e => {
@@ -153,7 +153,7 @@ class EditName extends PureComponent {
     const initValue = this.props.name;
     return (
       <Modal
-        title={title || "修改应用名称"}
+        title={title || "修改组件名称"}
         visible={true}
         onOk={this.handleSubmit}
         onCancel={this.onCancel}
@@ -181,8 +181,8 @@ class EditName extends PureComponent {
 @connect(
   ({ user, appControl, global }) => ({ pods: appControl.pods }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class ManageContainer extends PureComponent {
   componentDidMount() {}
@@ -284,8 +284,8 @@ class ManageContainer extends PureComponent {
     currentEnterprise: enterprise.currentEnterprise
   }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class Main extends PureComponent {
   constructor(arg) {
@@ -1323,11 +1323,11 @@ class Main extends PureComponent {
 @connect(
   ({ user, groupControl }) => ({}),
   null,
-  null
-  // {
-  //   pure: false,
-  //   withRef: true
-  // }
+  null,
+  {
+    pure: false,
+    withRef: true
+  }
 )
 export default class Index extends PureComponent {
   constructor(arg) {

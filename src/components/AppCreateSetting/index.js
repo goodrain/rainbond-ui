@@ -47,8 +47,8 @@ const RadioGroup = Radio.Group;
 @connect(
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 @Form.create()
 class BaseInfo extends PureComponent {
@@ -200,8 +200,8 @@ class BaseInfo extends PureComponent {
 @connect(
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class RenderDeploy extends PureComponent {
   constructor(arg) {
@@ -290,8 +290,8 @@ class RenderDeploy extends PureComponent {
 @connect(
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class Mnt extends PureComponent {
   constructor(arg) {
@@ -702,8 +702,8 @@ class Mnt extends PureComponent {
 @connect(
   ({ user, appControl, teamControl }) => ({}),
   null,
-  null
-  //  {withRef: true}
+  null,
+  {withRef: true}
 )
 class Relation extends PureComponent {
   constructor(arg) {
@@ -851,8 +851,8 @@ class Relation extends PureComponent {
 @connect(
   ({ user, appControl, teamControl }) => ({}),
   null,
-  null
-  //  {withRef: true}
+  null,
+   {withRef: true}
 )
 class Env extends PureComponent {
   constructor(arg) {
@@ -1110,8 +1110,8 @@ class Env extends PureComponent {
 @connect(
   ({ user, appControl, teamControl }) => ({}),
   null,
-  null
-  //  {withRef: true}
+  null,
+   {withRef: true}
 )
 class Ports extends PureComponent {
   constructor(props) {
@@ -1380,8 +1380,8 @@ class RenderProperty extends PureComponent {
 @connect(
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 export default class Index extends PureComponent {
   constructor(props) {

@@ -28,7 +28,7 @@ const { Search } = Input;
   }),
   null,
   null,
-  // { pure: false, withRef: true }
+  { pure: false, withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

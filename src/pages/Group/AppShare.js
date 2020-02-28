@@ -152,8 +152,8 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            {app.service_connect_info_map_list.map(item =>
-              <Col span={8}>
+            {app.service_connect_info_map_list.map((item,index) =>
+              <Col key={`connection_${index}`} span={8}>
                 <FormItem label={item.attr_name} style={{ padding: 16 }}>
                   {getFieldDecorator(`connect||${item.attr_name}||attr_value`, {
                     initialValue: item.attr_value,
@@ -172,7 +172,7 @@ class AppInfo extends PureComponent {
                         message: ""
                       }
                     ],
-                    initialValue: false
+                    initialValue: item.attr_value=="**None**"
                   })(
                     <Checkbox
                       onChange={this.handleCheckChange.bind(
@@ -366,7 +366,6 @@ class AppInfo extends PureComponent {
   };
 
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
     return (
       <Fragment>
         {this.renderConnectInfo()}
@@ -439,7 +438,7 @@ export default class Main extends PureComponent {
     const { teamName, appID, shareId } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/fetchShareRecoder",
+      type: "groupControl/fetchShareRecord",
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -447,7 +446,7 @@ export default class Main extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
-          this.setState({ record: data.bean, loading: false }, ()=>{
+          this.setState({ record: data.bean, loading: false }, () => {
             this.fetchModels();
           });
         }
@@ -456,8 +455,8 @@ export default class Main extends PureComponent {
   };
 
   fetchModels = () => {
-    const scope = this.state.record && this.state.record.scope
-    const target = this.state.record && this.state.record.target
+    const scope = this.state.record && this.state.record.scope;
+    const target = this.state.record && this.state.record.target;
     const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
     let body = {
@@ -575,25 +574,21 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
-    const { dispatch } = this.props;
-    const { scopeValue } = this.state;
+    const { dispatch, market_id } = this.props;
+    const { record } = this.state;
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.share_group_info.describe = values.describe;
-        this.share_group_info.group_name = values.group_name;
-        this.share_group_info.scope =
-          values.scope == "goodrain" ? scopeValue : values.scope;
-        this.share_group_info.version = values.version;
-        if (this.state.fileList[0] != undefined) {
-          this.state.fileList[0].response
-            ? (this.share_group_info.pic = this.state.fileList[0].response.data.bean.file_url)
-            : this.state.fileList[0].url;
-          // this.share_group_info['pic'] = this.state.fileList[0].response.data.bean.file_url || this.state.fileList[0].url;
-        } else {
-          this.share_group_info.pic = "";
+        let version_info = {
+          share_id: record.record_id,
+          app_model_id: values.app_id,
+          describe: values.describe,
+          version: values.version,
+          version_alias: values.version_alias
+        };
+        if (record.scope == "goodrain") {
+          version_info.target = record.target;
         }
-
         const share_service_data = this.share_service_list;
         let arr = [];
         let dep_service_key = [];
@@ -647,14 +642,7 @@ export default class Main extends PureComponent {
           });
         });
 
-        //  if(this.state.isShare){
-        //   newinfo.use_force="true"
-        //  }else{
-        //   newinfo.use_force="false"
-        //  }
-
-        newinfo.share_group_info = this.share_group_info;
-        // newinfo.share_service_list = share_service_data;
+        newinfo.version_info = this.version_info;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const team_name = globalUtil.getCurrTeamName();
@@ -677,8 +665,6 @@ export default class Main extends PureComponent {
               )
             );
           }
-          // handleError: (res) => {     if(res && res.status === 404){
-          // this.props.dispatch(routerRedux.push('/exception/404'));     } }
         });
       }
     });
@@ -927,12 +913,12 @@ export default class Main extends PureComponent {
       title: "发布记录列表",
       href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
-    if (record && record.scope=="goodrain") {
+    if (record && record.scope == "goodrain") {
       breadcrumbList.push({ title: "发布到云应用商店" });
-    }else{
+    } else {
       breadcrumbList.push({ title: "发布到共享库" });
     }
-    
+
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1002,7 +988,7 @@ export default class Main extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: "版本不能为空"
+                            message: "版本不能为空, 请选择或添加版本"
                           }
                         ]
                       })(
@@ -1104,7 +1090,6 @@ export default class Main extends PureComponent {
                               />
                               <a
                                 tab={apptit.service_cname}
-                                href="javacsript:;"
                                 onClick={this.tabClick.bind(
                                   this,
                                   apptit.service_alias

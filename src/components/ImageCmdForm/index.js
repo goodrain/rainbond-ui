@@ -37,7 +37,7 @@ const formItemLayout = {
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

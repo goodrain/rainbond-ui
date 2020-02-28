@@ -33,7 +33,7 @@ import AutoDeploy from "./setting/auto-deploy";
     createWay: appControl.createWay,
     rainbondInfo: global.rainbondInfo
   }),
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

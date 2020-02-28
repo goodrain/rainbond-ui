@@ -19,7 +19,7 @@ const Option = Select.Option;
   }),
   null,
   null,
-  // { withRef: true },
+  { withRef: true },
 )
 // 添加、编辑变量
 @Form.create()

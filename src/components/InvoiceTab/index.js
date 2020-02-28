@@ -23,7 +23,7 @@ import globalUtil from "../../utils/global";
   ({ user, global }) => ({ groups: global.groups }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

@@ -7,6 +7,7 @@ import {
   recordShare,
   getShareRecords,
   getShareRecord,
+  deleteShareRecord,
   createShare,
   deleteCompose,
   buildCompose,
@@ -132,14 +133,20 @@ export default {
         callback && callback(response);
       }
     },
-    * fetchShareRecoders({ payload, callback }, { call, put }) {
+    * fetchShareRecords({ payload, callback }, { call, put }) {
       const response = yield call(getShareRecords, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchShareRecoder({ payload, callback }, { call, put }) {
+    * fetchShareRecord({ payload, callback }, { call, put }) {
       const response = yield call(getShareRecord, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    * deleteShareRecord({ payload, callback }, { call, put }) {
+      const response = yield call(deleteShareRecord, payload);
       if (response) {
         callback && callback(response);
       }
