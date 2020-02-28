@@ -271,7 +271,7 @@ export default class GlobalRouter extends PureComponent {
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
-    console.log(selectedKeys);
+    // console.log(selectedKeys);
     return (
       <div
         style={{

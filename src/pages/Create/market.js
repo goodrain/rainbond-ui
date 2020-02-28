@@ -269,16 +269,18 @@ export default class Main extends PureComponent {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+
       const { installBounced, is_deploy, scopeMax } = this.state;
+
       this.props.dispatch({
         type: "createApp/installApp",
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           group_id: this.props.groupId ? this.props.groupId : 0,
-          app_id: installBounced.ID,
+          app_id: installBounced.app_id,
           is_deploy,
           group_key: installBounced.group_key,
-          group_version: fieldsValue.group_version,
+          app_version: fieldsValue.group_version,
           install_from_cloud: scopeMax == "cloudApplication" ? true : false
         },
         callback: () => {
@@ -312,10 +314,10 @@ export default class Main extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
-        app_id: app.ID,
+        app_id: app.app_id,
         is_deploy,
         group_key: app.group_key,
-        group_version: vals.group_version
+        app_version: vals.group_version
       },
       callback: () => {
         // 刷新左侧按钮
@@ -344,13 +346,13 @@ export default class Main extends PureComponent {
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
-        app_id: app.ID,
+        app_id: app.app_id,
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
         is_deploy,
         app_versions: app.app_versions,
         group_key: app.app_key_id,
-        group_version: vals.group_version,
+        app_version: vals.group_version,
         install_from_cloud: scopeMax == "cloudApplication" ? true : false
       },
       callback: () => {
