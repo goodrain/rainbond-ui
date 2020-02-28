@@ -125,38 +125,11 @@ export default class GlobalRouter extends PureComponent {
    */
   getSelectedMenuKeys = path => {
     const flatMenuKeys = this.getFlatMenuKeys(this.props.menuData);
-    const { completeMenuData } = this.props;
-    let arr = [];
-    const flatMenuKeysList = [];
-    completeMenuData &&
-      completeMenuData.map(item => {
-        const { icon } = item;
-        if (
-          icon === "appstore-o" &&
-          item.children &&
-          item.children.length > 0
-        ) {
-          arr = item.children;
-        }
-      });
-    arr.length > 0 &&
-      arr.map(item => {
-        if (item.children && item.children.length > 0) {
-          item.children.map(items => {
-            if (path.indexOf(items.path) > -1) {
-              flatMenuKeysList.push(item.path);
-            }
-          });
-        }
-      });
-
-    if (flatMenuKeysList.length > 0) {
-      return flatMenuKeysList;
-    }
     return flatMenuKeys.filter(item => {
-      // 选择当前菜单的数组
-      // return path.indexOf(item) > -1;
-      return pathToRegexp(`/${item}`).test(path);
+      if (item == path) {
+        return true;
+      }
+      return `/${item}` == path;
     });
   };
   /**
@@ -210,7 +183,9 @@ export default class GlobalRouter extends PureComponent {
           title={
             <a className={styles.item}>
               {item.icon && getIcon(item.icon)}
-              <span>{item.name}</span>
+              <span>
+                {item.name}
+              </span>
             </a>
           }
           key={item.path}
@@ -283,7 +258,7 @@ export default class GlobalRouter extends PureComponent {
   };
 
   render() {
-    const { showMenu, collapsed, location: { pathname }, menuData } = this.props;
+    const { showMenu, collapsed, pathname, menuData } = this.props;
     const { openKeys } = this.state;
     // Don't show popup menu when it is been collapsed
     const menuProps = collapsed
@@ -296,8 +271,15 @@ export default class GlobalRouter extends PureComponent {
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
+    console.log(selectedKeys);
     return (
-      <div style={{ background: "#fff", width: "68px", display: showMenu? "block": "none" }}>
+      <div
+        style={{
+          background: "#fff",
+          width: "68px",
+          display: showMenu ? "block" : "none"
+        }}
+      >
         <Menu
           className={styles.globalSider}
           key="Menu"
@@ -311,7 +293,7 @@ export default class GlobalRouter extends PureComponent {
             `team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups`
           ]}
           style={{
-            width: "64px"
+            width: "68px"
           }}
         >
           {this.getNavMenuItems(menuData || [])}

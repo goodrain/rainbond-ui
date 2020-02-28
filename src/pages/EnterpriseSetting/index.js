@@ -36,7 +36,7 @@ const { TabPane } = Tabs;
   oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
 }))
-export default class EnterpriseTeams extends PureComponent {
+export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
     super(props);
     const { user, rainbondInfo } = this.props;

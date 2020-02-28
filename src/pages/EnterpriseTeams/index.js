@@ -611,6 +611,7 @@ export default class EnterpriseTeams extends PureComponent {
             } = item;
             return (
               <Card
+                key={team_id}
                 style={{
                   marginTop: '10px',
                   borderLeft: is_pass === 0 && '6px solid #4D73B1',

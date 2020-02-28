@@ -240,7 +240,6 @@ class TeamLayout extends React.PureComponent {
       currentComponent
     } = this.state;
     const { teamName, regionName } = this.props.match.params;
-
     // Parameters of the abnormal
     if (!teamName || !regionName) {
       return <Redirect to={`/`} />;
@@ -406,7 +405,7 @@ class TeamLayout extends React.PureComponent {
                 isMobile={this.state.isMobile}
                 onCollapse={this.handleMenuCollapse}
                 menuData={menuData}
-                completeMenuData={menuData}
+                pathname={pathname}
                 showMenu={!componentID}
               />
               <Content

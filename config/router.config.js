@@ -156,6 +156,7 @@ export default [
             path: '/team/:teamName/region/:regionName/apps/:appID/backup',
             component: './Group/Backup',
             name: 'Backup',
+            menu: 'app.backup',
             authority: ['admin', 'user'],
             title: '备份管理',
           },
