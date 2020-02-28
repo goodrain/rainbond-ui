@@ -7,9 +7,14 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 @Form.create()
-@connect(({ user }) => ({
-  currUser: user.currentUser,
-}))
+@connect(
+  ({ user }) => ({
+    currUser: user.currentUser,
+  }),
+  null,
+  null,
+  { withRef: true }
+)
 export default class AddAdmin extends PureComponent {
   constructor(arg) {
     super(arg);

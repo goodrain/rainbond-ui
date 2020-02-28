@@ -703,7 +703,7 @@ class Mnt extends PureComponent {
   ({ user, appControl, teamControl }) => ({}),
   null,
   null,
-  {withRef: true}
+   {withRef: true}
 )
 class Relation extends PureComponent {
   constructor(arg) {
