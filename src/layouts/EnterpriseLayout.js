@@ -7,7 +7,6 @@ import { Route, Redirect, routerRedux } from 'dva/router';
 import { stringify } from 'querystring';
 import memoizeOne from 'memoize-one';
 import deepEqual from 'lodash.isequal';
-
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import { enquireScreen } from 'enquire-js';
@@ -308,6 +307,7 @@ class EnterpriseLayout extends PureComponent {
               </Content>
             </Layout>
           </Layout>
+          
         </Layout>
       );
     };

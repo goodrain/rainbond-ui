@@ -2231,7 +2231,7 @@ export async function addTags(
 }
 
 /*
-	修改应用名称
+	修改组件名称信息
 */
 export async function editName(
   body = {
@@ -2247,7 +2247,7 @@ export async function editName(
     {
       method: "put",
       data: {
-        service_cname: body.service_cname
+        service_cname: body.service_cname,
       }
     }
   );

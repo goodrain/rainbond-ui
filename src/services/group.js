@@ -177,11 +177,13 @@ export async function editGroup(body = {
   team_name,
   group_id,
   group_name,
+  group_note
 }) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`, {
     method: "put",
     data: {
       group_name: body.group_name,
+      group_note: body.group_note
     },
   });
 }
@@ -192,11 +194,13 @@ export async function editGroup(body = {
 export async function addGroup(body = {
   team_name,
   group_name,
+  group_note
 }) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`, {
     method: "post",
     data: {
       group_name: body.group_name,
+      group_note: body.group_note
     },
   });
 }

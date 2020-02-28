@@ -95,6 +95,7 @@ export default class AppList extends PureComponent {
                 {
                   title: "应用名称",
                   dataIndex: "group_name",
+                  width: "300px",
                   render: (val, data) => {
                     return (
                       <Link
@@ -109,6 +110,7 @@ export default class AppList extends PureComponent {
                   title: "组件(运行/总数)",
                   dataIndex: "services_num",
                   align: "center",
+                  width: "150px",
                   render: (val, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
@@ -121,6 +123,7 @@ export default class AppList extends PureComponent {
                   title: "占用内存/分配内存(MB)",
                   dataIndex: "used_mem",
                   align: "center",
+                  width: "200px",
                   render: (val, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
@@ -131,6 +134,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: "备份记录",
+                  width: "200px",
                   dataIndex: "backup_record_num",
                   align: "center",
                   render: (val, data) => {
@@ -145,6 +149,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: "发布记录",
+                  width: "200px",
                   dataIndex: "share_record_num",
                   align: "center",
                   render: (val, data) => {

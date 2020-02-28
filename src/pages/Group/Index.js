@@ -341,7 +341,7 @@ class Main extends PureComponent {
       },
       callback: () => {
         this.cancelEdit();
-        this.fetchGroupDetail();
+        this.fetchAppDetail();
         dispatch({
           type: "global/fetchGroups",
           payload: {
@@ -423,9 +423,9 @@ class Main extends PureComponent {
 
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-    const { loadingDetail } = this.state;
+    const { loadingDetail, currApp } = this.state;
     if (groupDetail.group_id != appID && !loadingDetail) {
-      this.fetchGroupDetail();
+      this.fetchAppDetail();
     }
 
     const codeObj = {
@@ -443,7 +443,7 @@ class Main extends PureComponent {
           </div>
           <div className={styles.content}>
             <div className={styles.contentTitle}>
-              {groupDetail.group_name || "-"}
+              {currApp.group_name || "-"}
               {teamUtil.canManageGroup(team) &&
                 <Icon
                   style={{
@@ -657,7 +657,7 @@ class Main extends PureComponent {
           <EditGroupName
             group_name={groupDetail.group_name}
             group_note={groupDetail.group_note}
-            title="修改应用名称"
+            title="修改应用信息"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
           />}

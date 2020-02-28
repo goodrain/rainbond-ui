@@ -192,7 +192,8 @@ export default class SiderMenu extends PureComponent {
       onCollapse,
       enterpriseList,
       currentEnterprise,
-      currentTeam
+      currentTeam,
+      logo
     } = this.props;
     const {
       collectionVisible,
@@ -298,8 +299,10 @@ export default class SiderMenu extends PureComponent {
             onOk={this.deleteCollectionViewInfo}
             onCancel={this.handleCloseDelCollectionVisible}
           />}
-
-        <div className={styles.logo} key="logo">
+        <div className={styles.logo}>
+          <img src={logo}/>
+        </div>
+        <div className={styles.gtitle} key="gtitle">
           <div className={styles.viewTit}>
             <FormattedMessage id="sidecar.title" />
           </div>
@@ -386,6 +389,7 @@ export default class SiderMenu extends PureComponent {
               );
             })}
         </div>
+        
       </Sider>
     );
   }
