@@ -376,7 +376,10 @@ class PluginConfigs extends PureComponent {
 @connect(({ user, loading }) => ({
   currUser: user.currentUser,
   loading: loading.appControl,
-}))
+}),
+null,
+null,
+{ withRef: true })
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);

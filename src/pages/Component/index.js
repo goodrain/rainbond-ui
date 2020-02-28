@@ -72,6 +72,12 @@ const RadioGroup = Radio.Group;
 
 /*转移到其他应用组*/
 @Form.create()
+@connect(
+  _,
+  null,
+  null,
+  { withRef: true }
+)
 class MoveGroup extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -135,6 +141,13 @@ class MoveGroup extends PureComponent {
 
 /*修改应用名称*/
 @Form.create()
+@connect(
+  _,
+  null,
+  null,
+  { withRef: true }
+)
+
 class EditName extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -181,8 +194,8 @@ class EditName extends PureComponent {
 @connect(
   ({ user, appControl, global }) => ({ pods: appControl.pods }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class ManageContainer extends PureComponent {
   componentDidMount() {}
@@ -284,8 +297,8 @@ class ManageContainer extends PureComponent {
     currentEnterprise: enterprise.currentEnterprise
   }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 class Main extends PureComponent {
   constructor(arg) {
@@ -1323,11 +1336,11 @@ class Main extends PureComponent {
 @connect(
   ({ user, groupControl }) => ({}),
   null,
-  null
-  // {
-  //   pure: false,
-  //   withRef: true
-  // }
+  null,
+  {
+    pure: false,
+    withRef: true
+  }
 )
 export default class Index extends PureComponent {
   constructor(arg) {

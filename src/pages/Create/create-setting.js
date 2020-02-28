@@ -24,7 +24,7 @@ import {buildApp} from '../../services/createApp';
 import AppCreateSetting from '../../components/AppCreateSetting';
 
 @connect(({user, appControl, teamControl, createApp}) => ({}), null, null, 
-// {withRef: true}
+{withRef: true}
 )
 export default class Index extends PureComponent {
   constructor(props) {

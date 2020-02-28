@@ -47,8 +47,8 @@ const RadioGroup = Radio.Group;
     appControl
   }),
   null,
-  null
-  // { withRef: true }
+  null,
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends React.Component {

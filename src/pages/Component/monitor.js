@@ -528,7 +528,7 @@ class MonitorNow extends PureComponent {
   ({ user, appControl }) => ({ currUser: user.currentUser }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 export default class Index extends PureComponent {
   constructor(arg) {

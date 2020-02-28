@@ -48,7 +48,7 @@ const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends PureComponent {

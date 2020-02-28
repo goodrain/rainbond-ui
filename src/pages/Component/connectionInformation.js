@@ -41,7 +41,7 @@ const RadioGroup = Radio.Group;
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 @Form.create()
 export default class Index extends React.Component {

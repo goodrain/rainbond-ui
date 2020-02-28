@@ -189,7 +189,7 @@ class AddKey extends PureComponent {
   }),
   null,
   null,
-  // { withRef: true }
+  { withRef: true }
 )
 export default class Index extends PureComponent {
   constructor(arg) {
