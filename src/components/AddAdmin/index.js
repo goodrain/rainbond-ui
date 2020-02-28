@@ -20,11 +20,16 @@ export default class AddAdmin extends PureComponent {
   componentDidMount() {
     this.loadTeams();
   }
-  loadTeams = (name) => {
-    const { dispatch, currUser } = this.props;
+  loadTeams = name => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
-      payload: { enterprise_id: currUser.enterprise_id },
+      payload: { enterprise_id: eid },
       name,
       callback: res => {
         if (res) {
@@ -33,7 +38,6 @@ export default class AddAdmin extends PureComponent {
       },
     });
   };
-
 
   onSearch = value => {
     this.loadTeams(value);

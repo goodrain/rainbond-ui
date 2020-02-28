@@ -59,6 +59,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/users',
+            component: './EnterpriseUsers',
+            name: 'EnterpriseUsers',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/setting',
             component: './EnterpriseSetting',
             name: 'EnterpriseSetting',

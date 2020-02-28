@@ -1115,7 +1115,7 @@ export async function toCeateSourceCode(params) {
 
 /** 创建用户 */
 export async function toCreatUser(params) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/admin/add-user`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/users`, {
     method: 'post',
     data: {
       tenant_name: params.tenant_name,
@@ -1124,10 +1124,40 @@ export async function toCreatUser(params) {
       email: params.email,
       password: params.password,
       re_password: params.password,
-      role_ids: params.identity.join(','),
+      role_ids: params.role_ids? params.role_ids.join(','):[],
     },
   });
 }
+
+/** 编辑用户 */
+export async function upEnterpriseUsers(params) {
+
+
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`, {
+    method: 'PUT',
+    data: {
+      tenant_name: params.tenant_name,
+      user_name: params.user_name,
+      phone: params.phone,
+      email: params.email,
+      password: params.password,
+      re_password: params.password,
+      role_ids: params.role_ids? params.role_ids.join(','):[],
+    },
+  });
+}
+
+/** 删除用户 */
+export async function deleteEnterpriseUsers(params) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`, {
+    method: 'DELETE',
+  });
+}
+
+
+
+
+
 /** 创建Oauth 2.0 */
 export async function toCreatOauth(params) {
   return request(`${apiconfig.baseUrl}/console/oauth/oauth-services`, {

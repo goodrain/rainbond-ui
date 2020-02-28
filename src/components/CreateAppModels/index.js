@@ -53,7 +53,6 @@ class CreateAppModels extends PureComponent {
 
   getTags = () => {
     const { dispatch, eid, form } = this.props;
-    const { getFieldValue, setFieldsValue } = form;
     dispatch({
       type: 'market/fetchAppModelsTags',
       payload: {
@@ -218,7 +217,7 @@ class CreateAppModels extends PureComponent {
   createAppModel = values => {
     const { dispatch, eid, onOk, currentTeam } = this.props;
     const { imageUrl, tagList } = this.state;
-
+    const arr = [];
     if (
       values.tag_ids &&
       values.tag_ids.length > 0 &&
@@ -267,7 +266,6 @@ class CreateAppModels extends PureComponent {
   handleOnSelect = value => {
     const { tagList } = this.state;
     const { dispatch, eid, form } = this.props;
-    const { getFieldValue, setFieldsValue } = form;
     if (value && tagList.length > 0) {
       let judge = true;
       tagList.map(item => {
@@ -284,9 +282,9 @@ class CreateAppModels extends PureComponent {
     }
   };
 
-  handleOnDeselect = value => {
-    console.log(`dele`, value);
-  };
+  // handleOnDeselect = value => {
+  //   console.log(`dele`, value);
+  // };
   handleChangeSelect = value => {
     const { tagList } = this.state;
 
@@ -348,11 +346,7 @@ class CreateAppModels extends PureComponent {
       tagList.length > 0
     ) {
       appInfo.tags.map(items => {
-        tagList.map(item => {
-          if (items === item.tag_id) {
-            arr.push(parseFloat(item.name));
-          }
-        });
+        arr.push(items.name);
       });
     }
 

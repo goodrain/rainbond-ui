@@ -1,5 +1,4 @@
 import React, { PureComponent, Fragment } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { connect } from 'dva';
 import {
   Card,
@@ -55,6 +54,7 @@ export default class EnterpriseShared extends PureComponent {
       scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
       tenant_name: '',
       percents: false,
+      region_name: '',
     };
   }
   componentDidMount() {
@@ -65,16 +65,23 @@ export default class EnterpriseShared extends PureComponent {
     this.timer && clearTimeout(this.timer);
   }
   cancelImport = () => {
-    this.props.dispatch({
+    const {
+      dispatch,
+      user,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
       type: 'market/cancelImportApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        enterprise_id: eid,
         event_id: this.state.event_id,
       },
       callback: data => {
         if (data) {
           notification.success({ message: `取消成功` });
-          this.props.cancelImport && this.props.cancelImport();
+          dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
         }
       },
     });
@@ -213,7 +220,7 @@ export default class EnterpriseShared extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res) {
+        if (res && res._code === 200) {
           this.setState(
             { record: res.bean, event_id: res.bean.event_id },
             () => {
@@ -239,8 +246,11 @@ export default class EnterpriseShared extends PureComponent {
         event_id: this.state.event_id,
       },
       callback: data => {
-        if (data) {
-          this.setState({ import_file_status: data.list });
+        if (data && data._code === 200) {
+          this.setState({
+            region_name: data.bean && data.bean.region,
+            import_file_status: data.list,
+          });
           if (data.bean && data.bean.status == 'uploading') {
             return;
           }
@@ -398,6 +408,8 @@ export default class EnterpriseShared extends PureComponent {
       existFileList,
       percents,
       userTeamList,
+      record,
+      region_name,
       enterpriseAdmin,
     } = this.state;
     const {
@@ -430,7 +442,7 @@ export default class EnterpriseShared extends PureComponent {
           >
             <Row className={styles.box}>
               <Col span={24} className={styles.desc}>
-                正在使用“阿里云上海”数据中心完成本次导入任务
+                正在使用“<span>{region_name}</span>"数据中心完成本次导入任务
               </Col>
             </Row>
           </Card>
@@ -446,29 +458,13 @@ export default class EnterpriseShared extends PureComponent {
                     style={{ width: '98%' }}
                   />
                 )}
-                {/* {this.state.import_file_status.length >= 0 ? (
-                  <div>
-                    {this.state.import_file_status.map(app => {
-                      return (
-                        <p style={{ lineHeight: '30px', paddingBottom: '5px' }}>
-                          {app.file_name}
-                          <span style={{ padding: '0 5px' }}>
-                            {appstatus[app.status]}
-                          </span>
-                        </p>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  '上传RainbondAPP文件'
-                )} */}
               </Col>
               <Col span={1} className={styles.rl}>
                 <Upload
                   showUploadList={false}
                   name="appTarFile"
                   accept=".zip,.tar"
-                  action={this.state.record.upload_url}
+                  action={record.upload_url}
                   fileList={this.state.fileList}
                   onChange={this.onChangeUpload}
                   onRemove={this.onRemove}

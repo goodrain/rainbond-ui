@@ -44,6 +44,8 @@ import {
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
+  deleteEnterpriseUsers,
+  upEnterpriseUsers,
   fetchEnterpriseAdmin,
   deleteEnterpriseAdmin,
   addEnterpriseAdminTeams,
@@ -512,6 +514,19 @@ export default {
     },
     *fetchEnterpriseUsers({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseUsers, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *deleteEnterpriseUsers({ payload, callback }, { put, call }) {
+      const response = yield call(deleteEnterpriseUsers, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+    *upEnterpriseUsers({ payload, callback }, { put, call }) {
+      const response = yield call(upEnterpriseUsers, payload);
       if (response) {
         callback && callback(response);
       }
