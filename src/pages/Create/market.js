@@ -344,6 +344,7 @@ export default class Main extends PureComponent {
     this.props.dispatch({
       type: "createApp/installApp",
       payload: {
+        app_id: app.ID,
         team_name: globalUtil.getCurrTeamName(),
         ...vals,
         is_deploy,
@@ -546,18 +547,18 @@ export default class Main extends PureComponent {
                       <span>版本:</span>
                       <div className={PluginStyles.overScroll}>
                         <div>
-                          {item.group_version_list &&
-                            item.group_version_list.map((item, index) => {
+                          {item.versions_info &&
+                            item.versions_info.map((item, index) => {
                               return (
                                 <Tag
-                                  title={item}
+                                  title={item.version}
                                   className={PluginStyles.cardVersionTagStyle}
                                   color="green"
                                   size="small"
-                                  title={item.app_version}
+                                  title={item.version}
                                   key={index}
                                 >
-                                  {item}
+                                  {item.version}
                                 </Tag>
                               );
                             })}

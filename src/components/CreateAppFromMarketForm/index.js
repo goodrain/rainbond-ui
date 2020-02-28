@@ -1,25 +1,22 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Form, Button, Select, Modal, Tooltip, Radio } from "antd";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Form, Button, Select, Modal, Tooltip, Radio } from 'antd';
+import AddGroup from '../../components/AddOrEditGroup';
+import globalUtil from '../../utils/global';
 
 const { Option } = Select;
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 5,
   },
   wrapperCol: {
-    span: 19
-  }
+    span: 19,
+  },
 };
 
-@connect(
-  ({ user, global }) => ({ groups: global.groups }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(({ user, global }) => ({ groups: global.groups }), null, null, {
+  withRef: true,
+})
 @Form.create()
 export default class Index extends PureComponent {
   constructor(props) {
@@ -27,7 +24,7 @@ export default class Index extends PureComponent {
     this.state = {
       addGroup: false,
       is_deploy: true,
-      group_version: ""
+      group_version: '',
     };
   }
   onAddGroup = () => {
@@ -39,27 +36,27 @@ export default class Index extends PureComponent {
   handleAddGroup = vals => {
     const { setFieldsValue } = this.props.form;
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals
+        ...vals,
       },
       callback: group => {
         if (group) {
           // 获取群组
           this.props.dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
+              region_name: globalUtil.getCurrRegionName(),
             },
             callback: () => {
               setFieldsValue({ group_id: group.ID });
               this.cancelAddGroup();
-            }
+            },
           });
         }
-      }
+      },
     });
   };
 
@@ -67,10 +64,10 @@ export default class Index extends PureComponent {
 
   fetchGroup = () => {
     this.props.dispatch({
-      type: "global/fetchGroups",
+      type: 'global/fetchGroups',
       payload: {
-        team_name: globalUtil.getCurrTeamName()
-      }
+        team_name: globalUtil.getCurrTeamName(),
+      },
     });
   };
   handleSubmit = e => {
@@ -86,7 +83,7 @@ export default class Index extends PureComponent {
 
   renderSuccessOnChange = () => {
     this.setState({
-      is_deploy: !this.state.is_deploy
+      is_deploy: !this.state.is_deploy,
     });
   };
 
@@ -94,6 +91,18 @@ export default class Index extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { groups, onCancel, showCreate } = this.props;
     const data = this.props.data || {};
+
+    const versions_info =
+      showCreate &&
+      showCreate.versions_info &&
+      showCreate.versions_info.length > 0 &&
+      showCreate.versions_info;
+
+    const app_versions =
+      showCreate &&
+      showCreate.app_versions &&
+      showCreate.app_versions.length > 0 &&
+      showCreate.app_versions;
 
     return (
       <Modal
@@ -117,40 +126,39 @@ export default class Index extends PureComponent {
             checked={this.state.is_deploy}
           >
             并构建启动
-          </Radio>
+          </Radio>,
           // </Tooltip>
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="安装版本">
-            {getFieldDecorator("group_version", {
-              initialValue:
-                showCreate && showCreate.group_version_list
-                  ? showCreate.group_version_list[0]
-                  : showCreate.app_versions &&
-                    showCreate.app_versions[0].app_version,
-
+            {getFieldDecorator('group_version', {
+              initialValue: versions_info
+                ? versions_info[0].version
+                : app_versions
+                ? app_versions[0].app_version
+                : '',
               rules: [
                 {
                   required: true,
-                  message: "请选择版本"
-                }
-              ]
+                  message: '请选择版本',
+                },
+              ],
             })(
               <Select
                 onChange={this.handleChangeVersion}
-                style={{ width: "220px" }}
+                style={{ width: '220px' }}
               >
-                {showCreate && showCreate.group_version_list
-                  ? showCreate.group_version_list.map((item, index) => {
+                {versions_info
+                  ? versions_info.map((item, index) => {
                       return (
-                        <Option key={index} value={item}>
-                          {item}
+                        <Option key={index} value={item.version}>
+                          {item.version}
                         </Option>
                       );
                     })
-                  : showCreate.app_versions &&
-                    showCreate.app_versions.map((item, index) => {
+                  : app_versions &&
+                    app_versions.map((item, index) => {
                       return (
                         <Option key={index} value={item.app_version}>
                           {item.app_version}
@@ -162,20 +170,20 @@ export default class Index extends PureComponent {
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="选择应用">
-            {getFieldDecorator("group_id", {
+            {getFieldDecorator('group_id', {
               initialValue: data.groupd_id,
               rules: [
                 {
                   required: true,
-                  message: "请选择"
-                }
-              ]
+                  message: '请选择',
+                },
+              ],
             })(
               <Select
                 style={{
-                  display: "inline-block",
+                  display: 'inline-block',
                   width: 220,
-                  marginRight: 15
+                  marginRight: 15,
                 }}
               >
                 {(groups || []).map(group => (
