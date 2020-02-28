@@ -72,6 +72,12 @@ const RadioGroup = Radio.Group;
 
 /*转移到其他应用组*/
 @Form.create()
+@connect(
+  _,
+  null,
+  null,
+  { withRef: true }
+)
 class MoveGroup extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -135,6 +141,13 @@ class MoveGroup extends PureComponent {
 
 /*修改组件名称*/
 @Form.create()
+@connect(
+  _,
+  null,
+  null,
+  { withRef: true }
+)
+
 class EditName extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();

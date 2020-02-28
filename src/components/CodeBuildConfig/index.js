@@ -31,7 +31,7 @@ const confirm = Modal.confirm;
     null,
     null,
     { withRef: true }
-)
+  )
 @Form.create()
 class CodeBuildConfig extends PureComponent {
   constructor(props) {

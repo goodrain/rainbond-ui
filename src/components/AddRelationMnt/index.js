@@ -11,7 +11,12 @@ import { getMnt } from "../../services/app";
 import globalUtil from "../../utils/global";
 import { getVolumeTypeShowName } from "../../utils/utils";
 const { Search } = Input;
-
+@connect(
+  _,
+  null,
+  null,
+  { withRef: true }
+)
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);

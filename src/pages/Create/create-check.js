@@ -28,7 +28,11 @@ const RadioButton = Radio.Button;
   currUser: user.currentUser,
   appDetail: appControl.appDetail,
   rainbondInfo: global.rainbondInfo
-}))
+}),
+  null,
+  null,
+  { withRef: true }
+)
 export default class CreateCheck extends PureComponent {
   constructor(props) {
     super(props);

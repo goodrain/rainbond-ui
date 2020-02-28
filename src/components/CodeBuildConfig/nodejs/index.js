@@ -5,7 +5,7 @@ const RadioGroup = Radio.Group;
 
 @connect(null, null, null,
    { withRef: true }
-)
+   )
 class Index extends PureComponent {
   constructor(props) {
     super(props);
