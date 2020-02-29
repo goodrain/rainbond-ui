@@ -528,6 +528,7 @@ export default class EnterpriseSetting extends PureComponent {
         )}
         {this.state.showAddAdmin && (
           <AddAdmin
+            eid={eid}
             onOk={this.handleCreateAdmin}
             onCancel={this.cancelCreateAdmin}
           />

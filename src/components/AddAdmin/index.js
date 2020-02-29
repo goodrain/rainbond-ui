@@ -26,12 +26,7 @@ export default class AddAdmin extends PureComponent {
     this.loadTeams();
   }
   loadTeams = name => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: { enterprise_id: eid },
@@ -78,13 +73,9 @@ export default class AddAdmin extends PureComponent {
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
-        footer={[
-          <Button typs="primary" onClick={this.handleSubmit}>
-            确定
-          </Button>,
-        ]}
+   
       >
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Form onSubmit={this.handleSubmit} layout="horizontal" >
           <FormItem {...formItemLayout} label="用户名称" hasFeedback>
             {getFieldDecorator('user_id', {
               rules: [
