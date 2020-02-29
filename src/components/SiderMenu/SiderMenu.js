@@ -1,17 +1,17 @@
-import React, { PureComponent } from "react";
-import { Layout, Menu, Icon, Modal, Input } from "antd";
-import { connect } from "dva";
-import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
-import { Link } from "dva/router";
-import styles from "./index.less";
-import CollectionView from "./CollectionView";
-import ConfirmModal from "../ConfirmModal";
+import React, { PureComponent } from 'react';
+import { Layout, Menu, Icon, Modal, Input } from 'antd';
+import { connect } from 'dva';
+import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import { Link } from 'dva/router';
+import styles from './index.less';
+import CollectionView from './CollectionView';
+import ConfirmModal from '../ConfirmModal';
 
 const { Sider } = Layout;
 const { Search } = Input;
 
 @connect(({ loading, global }) => ({
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class SiderMenu extends PureComponent {
   constructor(props) {
@@ -23,10 +23,10 @@ export default class SiderMenu extends PureComponent {
       collectionList: [],
       page: 1,
       page_size: 10,
-      name: "",
+      name: '',
       userTeamList: [],
       isSearch: false,
-      eid: ""
+      eid: '',
     };
   }
 
@@ -37,10 +37,10 @@ export default class SiderMenu extends PureComponent {
 
   // conversion Path 转化路径
   conversionPath = path => {
-    if (path && path.indexOf("http") === 0) {
+    if (path && path.indexOf('http') === 0) {
       return path;
     }
-    return `/${path || ""}`.replace(/\/+/g, "/");
+    return `/${path || ''}`.replace(/\/+/g, '/');
   };
 
   handleOpenChange = openKeys => {
@@ -48,63 +48,62 @@ export default class SiderMenu extends PureComponent {
     // this.props.menuData.some(   item => lastOpenKey && (item.key === lastOpenKey
     // || item.path === lastOpenKey) );
     this.setState({
-      openKeys: [...openKeys]
+      openKeys: [...openKeys],
     });
   };
 
   handleOpenCollectionVisible = () => {
     this.setState({
-      collectionVisible: true
+      collectionVisible: true,
     });
   };
   handleCloseCollectionVisible = () => {
     this.setState({
-      collectionVisible: false
+      collectionVisible: false,
     });
   };
 
   handleOpenDelCollectionVisible = collectionInfo => {
     this.setState({
       delcollectionVisible: true,
-      collectionInfo
+      collectionInfo,
     });
   };
   handleCloseDelCollectionVisible = () => {
     this.setState({
       delcollectionVisible: false,
-      collectionInfo: false
+      collectionInfo: false,
     });
   };
 
   fetchCollectionViewInfo = () => {
     const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: "user/fetchCollectionViewInfo",
+      type: 'user/fetchCollectionViewInfo',
       payload: {
-        enterprise_id: currentEnterprise.enterprise_id
+        enterprise_id: currentEnterprise.enterprise_id,
       },
       callback: res => {
         if (res) {
           this.setState({
-            collectionList: res.list
+            collectionList: res.list,
           });
         }
-      }
+      },
     });
   };
 
   putCollectionViewInfo = () => {
     const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: "user/putCollectionViewInfo",
+      type: 'user/putCollectionViewInfo',
       payload: {
-        enterprise_id: currentEnterprise.enterprise_id
+        enterprise_id: currentEnterprise.enterprise_id,
       },
       callback: res => {
-        console.log("res", res);
         if (res) {
         }
-      }
+      },
     });
   };
 
@@ -112,44 +111,44 @@ export default class SiderMenu extends PureComponent {
     const { dispatch, currentEnterprise } = this.props;
     const { collectionInfo } = this.state;
     dispatch({
-      type: "user/deleteCollectionViewInfo",
+      type: 'user/deleteCollectionViewInfo',
       payload: {
         favorite_id: collectionInfo && collectionInfo.favorite_id,
-        enterprise_id: currentEnterprise.enterprise_id
+        enterprise_id: currentEnterprise.enterprise_id,
       },
       callback: res => {
         if (res) {
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
         }
-      }
+      },
     });
   };
 
   handleCollectionView = values => {
     const { dispatch, location, currentEnterprise } = this.props;
-    const index = location.hash.indexOf("#");
+    const index = location.hash.indexOf('#');
     const result = location.hash.substr(index + 1, location.hash.length);
     dispatch({
-      type: "user/addCollectionView",
+      type: 'user/addCollectionView',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
         name: values.name,
-        url: result
+        url: result,
       },
       callback: res => {
         if (res) {
           this.fetchCollectionViewInfo();
           this.handleCloseCollectionVisible();
         }
-      }
+      },
     });
   };
 
   handleOnSearchTeam = name => {
     this.setState(
       {
-        name
+        name,
       },
       () => {
         this.getUserTeams();
@@ -162,13 +161,13 @@ export default class SiderMenu extends PureComponent {
     const { page, page_size, name } = this.state;
     this.setState({ eid: currentEnterprise.enterprise_id });
     dispatch({
-      type: "global/fetchUserTeams",
+      type: 'global/fetchUserTeams',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
         user_id: currentUser.user_id,
         page,
         page_size,
-        name
+        name,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -176,12 +175,12 @@ export default class SiderMenu extends PureComponent {
             userTeamList: res.list,
           });
         }
-      }
+      },
     });
   };
   handleIsShowSearch = () => {
     this.setState({
-      isSearch: !this.state.isSearch
+      isSearch: !this.state.isSearch,
     });
   };
 
@@ -192,7 +191,7 @@ export default class SiderMenu extends PureComponent {
       enterpriseList,
       currentEnterprise,
       currentTeam,
-      logo
+      logo,
     } = this.props;
     const {
       collectionVisible,
@@ -200,15 +199,15 @@ export default class SiderMenu extends PureComponent {
       delcollectionVisible,
       userTeamList,
       isSearch,
-      eid
+      eid,
     } = this.state;
-    if (currentEnterprise.enterprise_id != eid) {
+    if (eid !== '' && currentEnterprise.enterprise_id != eid) {
       this.getUserTeams();
     }
 
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
 
-    const addSvg = () =>
+    const addSvg = () => (
       <svg
         t="1582773482475"
         viewBox="0 0 1024 1024"
@@ -231,8 +230,9 @@ export default class SiderMenu extends PureComponent {
           fill="#8C92A4"
           p-id="7260"
         />
-      </svg>;
-    const delSvg = () =>
+      </svg>
+    );
+    const delSvg = () => (
       <svg
         t="1582773213217"
         viewBox="0 0 1024 1024"
@@ -250,9 +250,10 @@ export default class SiderMenu extends PureComponent {
           fill="#8C92A4"
           p-id="6236"
         />
-      </svg>;
+      </svg>
+    );
 
-    const checkSvg = () => 
+    const checkSvg = () => (
       <svg
         t="1582797211494"
         viewBox="0 0 1024 1024"
@@ -271,6 +272,7 @@ export default class SiderMenu extends PureComponent {
           p-id="7632"
         />
       </svg>
+    );
 
     return (
       <Sider
@@ -284,22 +286,23 @@ export default class SiderMenu extends PureComponent {
         className={styles.sider}
       >
         <CollectionView
-          title={formatMessage({ id: "sidecar.collection.add" })}
+          title={formatMessage({ id: 'sidecar.collection.add' })}
           visible={collectionVisible}
           onOk={this.handleCollectionView}
           onCancel={this.handleCloseCollectionVisible}
         />
 
-        {delcollectionVisible &&
+        {delcollectionVisible && (
           <ConfirmModal
             title="删除收藏视图"
             subDesc="此操作不可恢复"
             desc="确定要删除此视图吗？"
             onOk={this.deleteCollectionViewInfo}
             onCancel={this.handleCloseDelCollectionVisible}
-          />}
+          />
+        )}
         <div className={styles.logo}>
-          <img src={logo}/>
+          <img src={logo} />
         </div>
         <div className={styles.gtitle} key="gtitle">
           <div className={styles.viewTit}>
@@ -343,12 +346,13 @@ export default class SiderMenu extends PureComponent {
               >
                 <div className={styles.con}>
                   {item.enterprise_alias}
-                  {item.enterprise_id == currentEnterprise.enterprise_id &&
-                  <Icon
-                    title={formatMessage({id:"sidecar.currentEnterprise"})}
-                    className={styles.checkIcon}
-                    component={checkSvg}
-                  />}
+                  {item.enterprise_id == currentEnterprise.enterprise_id && (
+                    <Icon
+                      title={formatMessage({ id: 'sidecar.currentEnterprise' })}
+                      className={styles.checkIcon}
+                      component={checkSvg}
+                    />
+                  )}
                 </div>
               </Link>
             );
@@ -358,37 +362,39 @@ export default class SiderMenu extends PureComponent {
             <FormattedMessage id="sidecar.team" />
             <Icon type="search" onClick={this.handleIsShowSearch} />
           </div>
-          {isSearch &&
+          {isSearch && (
             <Search
-              placeholder={formatMessage({id:"sidecar.searchTeam"})}
+              placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
               onSearch={this.handleOnSearchTeam}
               className={styles.searchTeam}
-            />}
+            />
+          )}
           {userTeam &&
             userTeam.map(item => {
-              const currRegion = "no-region";
+              const currRegion = 'no-region';
               const { region, team_name, team_alias } = item;
               return (
                 <Link
                   key={item.team_name}
-                  to={`/team/${team_name}/region/${region
-                  // region.length > 0 ? region[0].team_region_name : currRegion
+                  to={`/team/${team_name}/region/${
+                    region
+                    // region.length > 0 ? region[0].team_region_name : currRegion
                   }/index`}
                 >
                   <div className={styles.con}>
                     {team_alias}
-                    {currentTeam && item.team_name == currentTeam.team_name &&
-                    <Icon
-                      title={formatMessage({id:"sidecar.currentTeam"})}
-                      className={styles.checkIcon}
-                      component={checkSvg}
-                    />}
+                    {currentTeam && item.team_name == currentTeam.team_name && (
+                      <Icon
+                        title={formatMessage({ id: 'sidecar.currentTeam' })}
+                        className={styles.checkIcon}
+                        component={checkSvg}
+                      />
+                    )}
                   </div>
                 </Link>
               );
             })}
         </div>
-        
       </Sider>
     );
   }

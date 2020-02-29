@@ -92,7 +92,7 @@ class EnterpriseLayout extends PureComponent {
       market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
-      enterpriseInfo: {},
+      enterpriseInfo: false,
       ready: false,
     };
   }
@@ -227,7 +227,7 @@ class EnterpriseLayout extends PureComponent {
     const queryString = stringify({
       redirect: window.location.href,
     });
-    if (!ready) {
+    if (!ready && !enterpriseInfo) {
       return <PageLoading />;
     }
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
@@ -273,7 +273,7 @@ class EnterpriseLayout extends PureComponent {
               isMobile={this.state.isMobile}
               customHeader={customHeader}
             />
-            <Layout style={{ flexDirection: "row" }}>
+            <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
                 enterpriseList={enterpriseList}
                 title={
@@ -283,8 +283,8 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid,currentUser)}
-                showMenu={true}
+                menuData={getMenuData(eid, currentUser)}
+                showMenu
                 pathname={pathname}
                 location={location}
                 isMobile={this.state.isMobile}
@@ -292,14 +292,14 @@ class EnterpriseLayout extends PureComponent {
               <Content
                 key={eid}
                 style={{
-                  margin: "24px 24px 0",
-                  height: "100%",
+                  margin: '24px 24px 0',
+                  height: '100%',
                 }}
               >
                 <Authorized
                   logined
                   // authority={children.props.route.authority}
-                  authority={["admin", "user"]}
+                  authority={['admin', 'user']}
                   noMatch={<Redirect to="/user/login" />}
                 >
                   {children}
@@ -307,7 +307,6 @@ class EnterpriseLayout extends PureComponent {
               </Content>
             </Layout>
           </Layout>
-          
         </Layout>
       );
     };
