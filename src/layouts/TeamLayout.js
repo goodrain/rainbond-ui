@@ -4,7 +4,7 @@ import { Layout, Icon, message, notification, Button } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { Route, Redirect, routerRedux } from "dva/router";
-import { PageLoading } from "@ant-design/pro-layout";
+import PageLoading from '../components/PageLoading';
 import memoizeOne from "memoize-one";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
@@ -265,14 +265,14 @@ class TeamLayout extends React.PureComponent {
     } else {
       this.setState({currentComponent: null})
     }
-    
+
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
       if (mode == "team") {
         return (
-          <TeamHeader 
-            teamName={teamName} 
-            currentEnterprise={currentEnterprise} 
+          <TeamHeader
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentRegion={currentRegion}
             regionName={regionName}
@@ -281,9 +281,9 @@ class TeamLayout extends React.PureComponent {
         );
       }
       return (
-        <AppHeader 
-            teamName={teamName} 
-            currentEnterprise={currentEnterprise} 
+        <AppHeader
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentRegion={currentRegion}
             regionName={regionName}

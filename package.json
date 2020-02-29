@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@ant-design/compatible": "^0.0.1-rc.1",
-        "@ant-design/pro-layout": "4.4.2",
+        "@ant-design/pro-layout": "^4.4.2",
         "@antv/data-set": "^0.10.2",
         "anser": "^1.4.1",
         "antd": "3.19.1",

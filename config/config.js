@@ -13,6 +13,11 @@ export default {
         dva: {
           hmr: true
         },
+        dynamicImport: {
+          loadingComponent: './components/PageLoading/index',
+          webpackChunkName: true,
+          level: 3,
+        },
         locale: {
           // default false
           enable: true,
