@@ -6,6 +6,7 @@ import userUtil from '../../utils/user';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
+import moment from 'moment';
 
 const { TabPane } = Tabs;
 
@@ -51,6 +52,7 @@ export default class EnterpriseUsers extends PureComponent {
     const { userInfo } = this.state;
     if (userInfo) {
       this.upUser(values);
+      return null;
     }
     dispatch({
       type: 'global/creatUser',
@@ -122,6 +124,18 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
+  onPageChange = (page, page_size) => {
+    this.setState(
+      {
+        page,
+        page_size,
+      },
+      () => {
+        this.loadUser();
+      }
+    );
+  };
+
   loadUser = name => {
     const {
       dispatch,
@@ -129,12 +143,15 @@ export default class EnterpriseUsers extends PureComponent {
         params: { eid },
       },
     } = this.props;
+    const { page, page_size } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
         enterprise_id: eid,
+        page,
+        page_size,
+        name,
       },
-      name,
       callback: res => {
         if (res) {
           this.setState({ adminList: res.list, total: res.total });
@@ -142,8 +159,6 @@ export default class EnterpriseUsers extends PureComponent {
       },
     });
   };
-
-  onPageChange = () => {};
 
   // 管理员添加用户
   addUser = () => {
@@ -162,7 +177,6 @@ export default class EnterpriseUsers extends PureComponent {
   };
 
   handleEdit = item => {
-    this.addUser();
     this.setState({
       userInfo: item,
       userVisible: true,
@@ -207,9 +221,12 @@ export default class EnterpriseUsers extends PureComponent {
       },
       {
         title: '创建时间',
-        dataIndex: 'user_id',
-        rowKey: 'user_id',
+        dataIndex: 'create_time',
+        rowKey: 'create_time',
         align: 'center',
+        render: val => {
+          return <span> {moment(val).format('YYYY-MM-DD hh:mm:ss')}</span>;
+        },
       },
       {
         title: '操作',

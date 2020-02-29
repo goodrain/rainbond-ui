@@ -29,8 +29,8 @@ export default class AddAdmin extends PureComponent {
     const { dispatch, eid } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
-      payload: { enterprise_id: eid },
-      name,
+      payload: { enterprise_id: eid, page: 1, page_size: 999, name },
+
       callback: res => {
         if (res) {
           this.setState({ adminList: res.list });
@@ -73,9 +73,8 @@ export default class AddAdmin extends PureComponent {
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
-   
       >
-        <Form onSubmit={this.handleSubmit} layout="horizontal" >
+        <Form onSubmit={this.handleSubmit} layout="horizontal">
           <FormItem {...formItemLayout} label="用户名称" hasFeedback>
             {getFieldDecorator('user_id', {
               rules: [

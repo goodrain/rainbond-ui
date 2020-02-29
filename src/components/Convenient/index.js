@@ -154,7 +154,7 @@ export default class Convenient extends PureComponent {
     if (region_list && region_list.length > 0) {
       this.setState({ region_list }, () => {
         setFieldsValue({ region: region_list[0] });
-        // this.fetchTeamApps(region_list[0]);
+        this.fetchTeamApps(region_list[0]);
       });
     }
   };
