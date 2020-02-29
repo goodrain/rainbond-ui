@@ -55,7 +55,7 @@ const userUtil = {
   },
   // 是否是企业管理员
   isCompanyAdmin(userBean) {
-    return userBean.is_user_enter_amdin;
+    return userBean&&userBean.is_user_enter_amdin;
   },
   // 获取当前的soketUrl
   getCurrRegionSoketUrl(currUser) {

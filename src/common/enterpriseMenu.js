@@ -1,6 +1,9 @@
 import { isUrl } from '../utils/utils';
+import userUtil from '../utils/user';
 
-const menuData = function(eid) {
+const menuData = function(eid, currentUser) {
+  const adminer = userUtil.isCompanyAdmin(currentUser);
+
   const menuArr = [
     {
       name: '总览',
@@ -20,19 +23,24 @@ const menuData = function(eid) {
       path: `/enterprise/${eid}/teams`,
       authority: ['admin', 'user'],
     },
-    {
-      name: '用户',
-      icon: 'user',
-      path: `/enterprise/${eid}/users`,
-      authority: ['admin', 'user'],
-    },
-    {
-      name: '设置',
-      icon: 'setting',
-      path: `/enterprise/${eid}/setting`,
-      authority: ['admin', 'user'],
-    }
   ];
+  if (adminer) {
+    menuArr.push(
+      {
+        name: '用户',
+        icon: 'user',
+        path: `/enterprise/${eid}/users`,
+        authority: ['admin', 'user'],
+      },
+      {
+        name: '设置',
+        icon: 'setting',
+        path: `/enterprise/${eid}/setting`,
+        authority: ['admin', 'user'],
+      }
+    );
+  }
+
   return menuArr;
 };
 
@@ -58,7 +66,7 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getMenuData = (eid) => {
-  const menus = formatter(menuData(eid));
+export const getMenuData = (eid, currentUser) => {
+  const menus = formatter(menuData(eid, currentUser));
   return menus;
 };

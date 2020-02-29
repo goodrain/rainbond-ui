@@ -283,7 +283,7 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid)}
+                menuData={getMenuData(eid,currentUser)}
                 showMenu={true}
                 pathname={pathname}
                 location={location}

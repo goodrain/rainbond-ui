@@ -174,7 +174,6 @@ export default class SiderMenu extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             userTeamList: res.list,
-            userTeamsLoading: false
           });
         }
       }
