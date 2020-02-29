@@ -46,12 +46,6 @@ export default class Enterprise extends PureComponent {
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
-      date: moment(new Date().getTime()).format('YYYY-MM-DD'),
-      companyInfo: {},
-      list: [],
-      datalist: [],
-      showPayHistory: false,
-      showConsumeDetail: false,
       // isPublic,
       teamList: [],
       teamsPage: 1,
@@ -59,11 +53,6 @@ export default class Enterprise extends PureComponent {
       showAddTeam: false,
       adminer,
       userVisible: false,
-      openOauth: false,
-      oauthInfo: false,
-      isOpen: false,
-      showDeleteDomain: false,
-      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
       enterpriseInfo: false,
       enterpriseInfoLoading: true,
       enterpriseList: [],
@@ -84,19 +73,6 @@ export default class Enterprise extends PureComponent {
   }
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
-
-    if (
-      rainbondUtil.OauthbIsEnable(rainbondInfo) ||
-      rainbondUtil.OauthbEnable(rainbondInfo)
-    ) {
-      this.handelOauthInfo();
-    }
-
-    dispatch({
-      type: 'global/getIsRegist',
-      callback: () => {},
-    });
-
     this.getEnterpriseList();
     const { adminer } = this.state;
     !adminer && this.fetchCollectionViewInfo();
@@ -283,27 +259,6 @@ export default class Enterprise extends PureComponent {
   getParam() {
     return this.props.match.params;
   }
-  getCompanyInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
-
-    dispatch({
-      type: 'global/getCompanyInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: eid,
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ companyInfo: data.bean });
-        }
-      },
-    });
-  };
 
   handleCreateTeam = values => {
     this.props.dispatch({
@@ -320,18 +275,6 @@ export default class Enterprise extends PureComponent {
   cancelCreateTeam = () => {
     this.setState({ showAddTeam: false });
   };
-  showConsumeDetail = () => {
-    this.setState({ showConsumeDetail: true });
-  };
-  hideConsumeDetail = () => {
-    this.setState({ showConsumeDetail: false });
-  };
-  showPayHistory = () => {
-    this.setState({ showPayHistory: true });
-  };
-  hidePayHistory = () => {
-    this.setState({ showPayHistory: false });
-  };
 
   handelUnderstand = () => {
     window.open('https://www.goodrain.com/industrycloud');
@@ -340,64 +283,6 @@ export default class Enterprise extends PureComponent {
     window.open('https://t.goodrain.com/');
   };
 
-  handlChooseeOpen = () => {
-    const { isOpen, israinbondTird } = this.state;
-    israinbondTird && isOpen ? this.handleOpenDomain() : this.handleOpen();
-  };
-
-  handleOpenDomain = () => {
-    this.setState({
-      showDeleteDomain: true,
-    });
-  };
-
-  handleOpen = () => {
-    this.setState({
-      openOauth: true,
-    });
-  };
-  handelClone = () => {
-    this.setState({
-      openOauth: false,
-      showDeleteDomain: false,
-    });
-  };
-
-  handelOauthInfo = info => {
-    const { dispatch, rainbondInfo } = this.props;
-    dispatch({
-      type: 'global/getOauthInfo',
-      callback: res => {
-        if (res && res._code == 200) {
-          const bean = res.bean;
-          const judge = rainbondUtil.OauthbEnable(info || rainbondInfo);
-          this.setState({
-            oauthInfo: bean && bean.oauth_services,
-            isOpen: judge
-              ? bean.oauth_services && bean.oauth_services.enable
-              : false,
-          });
-        }
-      },
-    });
-  };
-
-  handleDeleteOauth = () => {
-    const { dispatch } = this.props;
-    const { oauthInfo } = this.state;
-    dispatch({
-      type: 'global/deleteOauthInfo',
-      payload: {
-        service_id: oauthInfo.service_id,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          notification.success({ message: '删除成功' });
-          window.location.reload();
-        }
-      },
-    });
-  };
 
   handlUnit = (num, unit) => {
     if (num) {
@@ -407,8 +292,8 @@ export default class Enterprise extends PureComponent {
         nums = num / 1024;
         units = 'GB';
       }
-     
-      return unit ? units :  nums.toFixed(2) ;
+
+      return unit ? units : nums.toFixed(2);
       // parseInt(nums)
     }
     return null;
@@ -1180,45 +1065,7 @@ export default class Enterprise extends PureComponent {
     this.handelRequest(obj);
   };
 
-  handelRequest = (obj = {}, isclone) => {
-    const { dispatch, rainbondInfo } = this.props;
-    const { oauthInfo } = this.state;
-    obj.eid = rainbondInfo.eid;
-    oauthInfo
-      ? (obj.service_id = oauthInfo.service_id)
-      : (obj.service_id = null);
-    isclone ? (obj.enable = false) : (obj.enable = true);
-
-    dispatch({
-      type: 'global/editOauth',
-      payload: {
-        arr: { enable: obj.enable, value: null },
-      },
-    });
-
-    dispatch({
-      type: 'global/creatOauth',
-      payload: {
-        arr: [obj],
-      },
-      callback: data => {
-        dispatch({
-          type: 'global/fetchRainbondInfo',
-          callback: info => {
-            if (info) {
-              this.setState({
-                israinbondTird: rainbondUtil.OauthbEnable(info),
-              });
-              this.handelOauthInfo(info);
-            }
-          },
-        });
-        this.props.dispatch({ type: 'user/fetchCurrent' });
-        notification.success({ message: '成功' });
-        this.handelClone();
-      },
-    });
-  };
+ 
 
   cancelCreatUser = () => {
     this.setState({
@@ -1226,7 +1073,7 @@ export default class Enterprise extends PureComponent {
     });
   };
   render() {
-    const { userVisible, openOauth, showDeleteDomain, oauthInfo } = this.state;
+    const { userVisible, } = this.state;
     const { oauthLongin } = this.props;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
@@ -1249,26 +1096,6 @@ export default class Enterprise extends PureComponent {
           <CreatUser
             onOk={this.handleCreatUser}
             onCancel={this.cancelCreatUser}
-          />
-        )}
-        {openOauth && (
-          <OauthForm
-            loading={oauthLongin}
-            oauthInfo={oauthInfo}
-            onOk={this.handleCreatOauth}
-            onCancel={this.handelClone}
-          />
-        )}
-
-        {showDeleteDomain && (
-          <ConfirmModal
-            loading={oauthLongin}
-            title="关闭"
-            desc="确定要关闭Oauth2.0认证？"
-            onOk={() => {
-              this.handelRequest(oauthInfo, 'clone');
-            }}
-            onCancel={this.handelClone}
           />
         )}
       </div>

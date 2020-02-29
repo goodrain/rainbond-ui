@@ -992,9 +992,35 @@ export async function getRegist(body = {}) {
 }
 
 /** 获取oath信息  */
-export async function queryOauthInfo() {
-  return request(`${apiconfig.baseUrl}/console/oauth/oauth-services`, {
-    method: 'get',
+export async function queryOauthInfo(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/oauth/oauth-services`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/** 创建Oauth 2.0 */
+export async function toCreatOauth(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/oauth/oauth-services`,
+    {
+      method: 'post',
+      data: {
+        oauth_services: params.arr,
+      },
+    }
+  );
+}
+
+/** 修改Oauth 2.0 */
+export async function toEditOauth(params) {
+  return request(`${apiconfig.baseUrl}/console/oauth/oauth-config`, {
+    method: 'put',
+    data: {
+      oauth_services: params.arr,
+    },
   });
 }
 
@@ -1157,26 +1183,6 @@ export async function deleteEnterpriseUsers(params) {
       method: 'DELETE',
     }
   );
-}
-
-/** 创建Oauth 2.0 */
-export async function toCreatOauth(params) {
-  return request(`${apiconfig.baseUrl}/console/oauth/oauth-services`, {
-    method: 'post',
-    data: {
-      oauth_services: params.arr,
-    },
-  });
-}
-
-/** 修改Oauth 2.0 */
-export async function toEditOauth(params) {
-  return request(`${apiconfig.baseUrl}/console/oauth/oauth-config`, {
-    method: 'put',
-    data: {
-      oauth_services: params.arr,
-    },
-  });
 }
 
 /** 构建拓扑图 */

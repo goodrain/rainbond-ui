@@ -74,9 +74,19 @@ export default class EnterpriseSetting extends PureComponent {
   }
 
   handelOauthInfo = info => {
-    const { dispatch, rainbondInfo } = this.props;
+    const {
+      dispatch,
+      rainbondInfo,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     dispatch({
       type: 'global/getOauthInfo',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: res => {
         if (res && res._code == 200) {
           const bean = res.bean;
@@ -238,7 +248,14 @@ export default class EnterpriseSetting extends PureComponent {
   };
 
   handelRequest = (obj = {}, isclone) => {
-    const { dispatch, rainbondInfo } = this.props;
+    const {
+      dispatch,
+      rainbondInfo,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     const { oauthInfo } = this.state;
     obj.eid = rainbondInfo.eid;
     oauthInfo
@@ -256,23 +273,26 @@ export default class EnterpriseSetting extends PureComponent {
     dispatch({
       type: 'global/creatOauth',
       payload: {
+        enterprise_id: eid,
         arr: [obj],
       },
       callback: data => {
-        dispatch({
-          type: 'global/fetchRainbondInfo',
-          callback: info => {
-            if (info) {
-              this.setState({
-                israinbondTird: rainbondUtil.OauthbEnable(info),
-              });
-              this.handelOauthInfo(info);
-            }
-          },
-        });
-        this.props.dispatch({ type: 'user/fetchCurrent' });
-        notification.success({ message: '成功' });
-        this.handelClone();
+        if (data) {
+          dispatch({
+            type: 'global/fetchRainbondInfo',
+            callback: info => {
+              if (info) {
+                this.setState({
+                  israinbondTird: rainbondUtil.OauthbEnable(info),
+                });
+                this.handelOauthInfo(info);
+              }
+            },
+          });
+          this.props.dispatch({ type: 'user/fetchCurrent' });
+          notification.success({ message: '成功' });
+          this.handelClone();
+        }
       },
     });
   };
