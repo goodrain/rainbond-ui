@@ -215,7 +215,7 @@ class CreateAppModels extends PureComponent {
   };
 
   createAppModel = values => {
-    const { dispatch, eid, onOk, currentTeam } = this.props;
+    const { dispatch, eid, onOk, currentTeam, market_id } = this.props;
     const { imageUrl, tagList } = this.state;
     const arr = [];
     if (
@@ -232,7 +232,7 @@ class CreateAppModels extends PureComponent {
         });
       });
     }
-    let body = {
+    const body = {
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
@@ -241,10 +241,10 @@ class CreateAppModels extends PureComponent {
       dev_status: values.dev_status,
       describe: values.describe,
       tag_ids: arr,
-    }
+    };
     if (market_id) {
-      body.scope_target={market_id: market_id}
-      body.scope = "goodrain"
+      body.scope_target = { market_id };
+      body.scope = 'goodrain';
     }
     dispatch({
       type: 'market/createAppModel',
@@ -303,7 +303,14 @@ class CreateAppModels extends PureComponent {
 
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { onCancel, actions, title, appInfo, defaultScope, market_id } = this.props;
+    const {
+      onCancel,
+      actions,
+      title,
+      appInfo,
+      defaultScope,
+      market_id,
+    } = this.props;
     const {
       imageUrl,
       previewImage,
@@ -315,27 +322,13 @@ class CreateAppModels extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 5 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 20 },
+        sm: { span: 19 },
       },
     };
-    const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 14,
-          offset: 6,
-        },
-      },
-    };
-
-    const options = actions || [];
     const arr = [];
 
     if (
@@ -388,8 +381,58 @@ class CreateAppModels extends PureComponent {
           <Form
             onSubmit={this.handleSubmit}
             layout="horizontal"
-            hideRequiredMark
           >
+           
+
+            <FormItem {...formItemLayout} label="名称">
+              {getFieldDecorator('name', {
+                initialValue: appInfo ? appInfo.app_name : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入名称',
+                  },
+                ],
+              })(<Input placeholder="请输入名称" />)}
+              <div className={styles.conformDesc}>
+                请输入创建的应用模板名称，最多64字.
+              </div>
+            </FormItem>
+            {!market_id && (
+              <FormItem {...formItemLayout} label="发布范围">
+                {getFieldDecorator('scope', {
+                  initialValue: appInfo
+                    ? appInfo.scope
+                    : defaultScope || 'enterprise',
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入名称',
+                    },
+                  ],
+                })(
+                  <Radio.Group name="scope">
+                    <Radio value="team">当前团队</Radio>
+                    <Radio value="enterprise">企业</Radio>
+                  </Radio.Group>
+                )}
+                <div className={styles.conformDesc}>发布模型的可视范围</div>
+              </FormItem>
+            )}
+
+            <FormItem {...formItemLayout} label="描述">
+              {getFieldDecorator('describe', {
+                initialValue: appInfo ? appInfo.describe : '',
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入描述',
+                  },
+                ],
+              })(<TextArea placeholder="请输入描述" />)}
+              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
+            </FormItem>
+
             {appInfo && (
               <FormItem {...formItemLayout} label="是否Release">
                 {getFieldDecorator('dev_status', {
@@ -408,53 +451,6 @@ class CreateAppModels extends PureComponent {
               </FormItem>
             )}
 
-            <FormItem {...formItemLayout} label="名称">
-              {getFieldDecorator('name', {
-                initialValue: appInfo ? appInfo.app_name : '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入名称',
-                  },
-                ],
-              })(<Input placeholder="请输入名称" />)}
-              <div className={styles.conformDesc}>
-                请输入创建的应用模板名称，最多64字.
-              </div>
-            </FormItem>
-            {!market_id && <FormItem {...formItemLayout} label="发布范围">
-              {getFieldDecorator('scope', {
-                initialValue: appInfo ? appInfo.scope : defaultScope?defaultScope: 'enterprise',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入名称',
-                  },
-                ],
-              })(
-                <Radio.Group name="scope">
-                  <Radio value="team">当前团队</Radio>
-                  <Radio value="enterprise">企业</Radio>
-                </Radio.Group>
-              )}
-              <div className={styles.conformDesc}>
-                发布模型的可视范围
-              </div>
-            </FormItem>}
-
-            <FormItem {...formItemLayout} label="描述">
-              {getFieldDecorator('describe', {
-                initialValue: appInfo ? appInfo.describe : '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入描述',
-                  },
-                ],
-              })(<TextArea placeholder="请输入描述" />)}
-              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
-            </FormItem>
-
             <Form.Item {...formItemLayout} label="分类标签">
               {getFieldDecorator('tag_ids', {
                 initialValue: arr,
@@ -468,10 +464,9 @@ class CreateAppModels extends PureComponent {
                 <Select
                   mode="tags"
                   style={{ width: '100%' }}
-                  // onChange={this.handleChangeSelect}
                   onSelect={this.handleOnSelect}
-                  // onDeselect={this.handleOnDeselect}
                   tokenSeparators={[',']}
+                  placeholder="请选择分类标签"
                 >
                   {tagList.map(item => {
                     const { tag_id, name } = item;
