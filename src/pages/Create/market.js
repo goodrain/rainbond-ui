@@ -412,7 +412,7 @@ export default class Main extends PureComponent {
     let cloud = scopeMax == "localApplication" ? false : true;
     const title = item => (
       <div
-        title={cloud ? item.name : item.group_name || ""}
+        title={cloud ? item.name : item.app_name || ""}
         style={{
           maxWidth: "200px",
           overflow: "hidden",
@@ -425,7 +425,7 @@ export default class Main extends PureComponent {
             this.showMarketAppDetail(item);
           }}
         >
-          {cloud ? item.name : item.group_name || ""}
+          {cloud ? item.name : item.app_name || ""}
         </a>
       </div>
     );
@@ -444,7 +444,7 @@ export default class Main extends PureComponent {
                 }}
               >
                 <div className={PluginStyles.cardTitle}>
-                  <span title={item.group_name}>{item.group_name}</span>
+                  <span title={item.app_name}>{item.app_name}</span>
                   <span>安装</span>
                 </div>
                 <div
