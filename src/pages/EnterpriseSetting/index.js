@@ -13,6 +13,7 @@ import {
   notification,
   Tabs,
   Switch,
+  Empty,
 } from 'antd';
 import More from '../../../public/images/more.svg';
 import userUtil from '../../utils/user';
@@ -319,7 +320,6 @@ export default class EnterpriseSetting extends PureComponent {
 
     const {
       rainbondInfo,
-      is_public,
       oauthLongin,
       match: {
         params: { eid },
@@ -327,6 +327,7 @@ export default class EnterpriseSetting extends PureComponent {
     } = this.props;
     const ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
 
+    const adminLists = adminList && adminList.length > 0 && adminList;
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -392,47 +393,53 @@ export default class EnterpriseSetting extends PureComponent {
           </Col>
           {operation}
         </Row>
-        <Row
-          className={styles.teamMinTit}
-          type="flex"
-          align="middle"
-          style={{ padding: ' 0 0 10px 24px' }}
-        >
-          <Col span={10}>名称</Col>
-          <Col span={5}>时间</Col>
-        </Row>
+        {adminLists && (
+          <Row
+            className={styles.teamMinTit}
+            type="flex"
+            align="middle"
+            style={{ padding: ' 0 0 10px 24px' }}
+          >
+            <Col span={10}>名称</Col>
+            <Col span={5}>时间</Col>
+          </Row>
+        )}
 
-        {adminList.map(item => {
-          const { user_id, create_time, nick_name } = item;
-          return (
-            <Card
-              key={user_id}
-              style={{ marginBottom: '10px' }}
-              bodyStyle={{ padding: 0 }}
-              hoverable
-            >
-              <Row
-                type="flex"
-                align="middle"
-                style={{ paddingLeft: '24px', height: '70px' }}
+        {adminLists ? (
+          adminLists.map(item => {
+            const { user_id, create_time, nick_name } = item;
+            return (
+              <Card
+                key={user_id}
+                style={{ marginBottom: '10px' }}
+                bodyStyle={{ padding: 0 }}
+                hoverable
               >
-                <Col span={10}>{nick_name}</Col>
-                <Col span={5}>{create_time}</Col>
-                <Col span={8} />
-                <Col span={1} className={styles.bor}>
-                  <Dropdown
-                    overlay={managementMenu(user_id)}
-                    placement="bottomLeft"
-                  >
-                    <Button style={{ border: 'none' }}>
-                      <Icon component={moreSvg} />
-                    </Button>
-                  </Dropdown>
-                </Col>
-              </Row>
-            </Card>
-          );
-        })}
+                <Row
+                  type="flex"
+                  align="middle"
+                  style={{ paddingLeft: '24px', height: '70px' }}
+                >
+                  <Col span={10}>{nick_name}</Col>
+                  <Col span={5}>{create_time}</Col>
+                  <Col span={8} />
+                  <Col span={1} className={styles.bor}>
+                    <Dropdown
+                      overlay={managementMenu(user_id)}
+                      placement="bottomLeft"
+                    >
+                      <Button style={{ border: 'none' }}>
+                        <Icon component={moreSvg} />
+                      </Button>
+                    </Dropdown>
+                  </Col>
+                </Row>
+              </Card>
+            );
+          })
+        ) : (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        )}
       </div>
     );
 
