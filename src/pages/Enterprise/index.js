@@ -407,8 +407,9 @@ export default class Enterprise extends PureComponent {
         nums = num / 1024;
         units = 'GB';
       }
-
-      return unit ? units : parseInt(nums);
+     
+      return unit ? units :  nums.toFixed(2) ;
+      // parseInt(nums)
     }
     return null;
   };
