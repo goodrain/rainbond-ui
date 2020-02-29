@@ -2,7 +2,7 @@ import React, { PureComponent, createElement } from "react";
 import PropTypes from "prop-types";
 import { Icon } from "antd";
 import styles from "./index.less";
-import { Link } from "../../../node_modules/dva/router";
+import { Link } from "dva/router";
 
 // TODO: 添加逻辑
 
