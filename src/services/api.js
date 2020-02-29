@@ -199,16 +199,13 @@ export async function getTeamAppList(
     page_size,
   }
 ) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`,
-    {
-      method: 'get',
-      params: {
-        page: body.page,
-        page_size: body.page_size,
-      },
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`, {
+    method: 'get',
+    params: {
+      page: body.page,
+      page_size: body.page_size,
+    },
+  });
 }
 
 /* 获取团队应用模块 */
@@ -531,7 +528,7 @@ export async function deleteAppModel(body = { app_id, enterprise_id }) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
-      method: "DELETE",
+      method: 'DELETE',
     }
   );
 }
@@ -544,7 +541,6 @@ export async function syncMarketAppDetail(
   }
 ) {
   return request(
-
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/download`,
     {
       method: 'post',
@@ -864,7 +860,9 @@ export async function fetchEnterpriseUsers(param) {
     {
       method: 'get',
       params: {
-        name: param.name,
+        page: param.page,
+        page_size: param.page_size,
+        query: param.name,
       },
     }
   );
@@ -1115,48 +1113,51 @@ export async function toCeateSourceCode(params) {
 
 /** 创建用户 */
 export async function toCreatUser(params) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/users`, {
-    method: 'post',
-    data: {
-      tenant_name: params.tenant_name,
-      user_name: params.user_name,
-      phone: params.phone,
-      email: params.email,
-      password: params.password,
-      re_password: params.password,
-      role_ids: params.role_ids? params.role_ids.join(','):[],
-    },
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/users`,
+    {
+      method: 'post',
+      data: {
+        tenant_name: params.tenant_name,
+        user_name: params.user_name,
+        phone: params.phone,
+        email: params.email,
+        password: params.password,
+        re_password: params.password,
+        role_ids: params.role_ids ? params.role_ids.join(',') : [],
+      },
+    }
+  );
 }
 
 /** 编辑用户 */
 export async function upEnterpriseUsers(params) {
-
-
-  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`, {
-    method: 'PUT',
-    data: {
-      tenant_name: params.tenant_name,
-      user_name: params.user_name,
-      phone: params.phone,
-      email: params.email,
-      password: params.password,
-      re_password: params.password,
-      role_ids: params.role_ids? params.role_ids.join(','):[],
-    },
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
+    {
+      method: 'PUT',
+      data: {
+        tenant_name: params.tenant_name,
+        user_name: params.user_name,
+        phone: params.phone,
+        email: params.email,
+        password: params.password,
+        re_password: params.password,
+        role_ids: params.role_ids ? params.role_ids.join(',') : [],
+      },
+    }
+  );
 }
 
 /** 删除用户 */
 export async function deleteEnterpriseUsers(params) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`, {
-    method: 'DELETE',
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
+    {
+      method: 'DELETE',
+    }
+  );
 }
-
-
-
-
 
 /** 创建Oauth 2.0 */
 export async function toCreatOauth(params) {
