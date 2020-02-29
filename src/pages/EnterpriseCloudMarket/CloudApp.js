@@ -111,7 +111,7 @@ export default class CloudApp extends PureComponent {
       payload: {
         enterprise_id: eid,
         body: {
-          app_id: item.group_key,
+          app_id: item.app_id,
           app_versions: item.version,
         },
       },

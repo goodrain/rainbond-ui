@@ -65,7 +65,6 @@ export default class EnterpriseShared extends PureComponent {
       group_version: null,
       chooseVersion: null,
       deleteApp: false,
-      showCloudApp: false,
       createAppModel: false,
       upDataAppModel: false,
       moreTags: false,
@@ -523,22 +522,17 @@ export default class EnterpriseShared extends PureComponent {
         <p>当前无组件，请选择方式添加</p>
         <div className={styles.btns}>
           {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
-            <Button
-              type="primary"
-              onClick={() => {
-                this.setState({ showCloudApp: true });
-              }}
-            >
-              云端同步
+            <Button type="primary">
+              <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
             </Button>
           )}
           {enterpriseAdmin && (
-            <Button type="primary" onClick={this.onJoinTeam}>
-              创建组件
+            <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+              创建应用模版
             </Button>
           )}
-          <Button type="primary" onClick={this.onJoinTeam}>
-            离线导入应用
+          <Button type="primary">
+            <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
           </Button>
         </div>
       </div>
@@ -736,12 +730,6 @@ export default class EnterpriseShared extends PureComponent {
           />
         )}
 
-        {this.state.showCloudApp && (
-          <div className={styles.descText}>
-            <Icon type="exclamation-circle" />
-            当前市场不支持跨数据中心互联功能
-          </div>
-        )}
         {this.state.deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
