@@ -324,9 +324,9 @@ export default class EnterpriseSetting extends PureComponent {
       match: {
         params: { eid },
       },
+      isRegist
     } = this.props;
     const ishow = rainbondUtil.OauthbIsEnable(rainbondInfo);
-
     const adminLists = adminList && adminList.length > 0 && adminList;
     const moreSvg = () => (
       <svg
@@ -457,7 +457,7 @@ export default class EnterpriseSetting extends PureComponent {
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
-                value={this.props.isRegist}
+                checked={isRegist}
               />
             </Col>
           </Row>
