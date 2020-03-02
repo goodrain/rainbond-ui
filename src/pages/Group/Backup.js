@@ -7,13 +7,14 @@ import {
   Button,
   Table,
   notification,
-  Badge,
+  List,
   Modal,
   Radio,
   Input,
   Form,
   Tooltip,
-  Icon
+  Icon,
+  Alert
 } from "antd";
 import globalUtil from "../../utils/global";
 import sourceUtil from "../../utils/source-unit";
@@ -22,6 +23,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import userUtil from "../../utils/user";
 import logSocket from "../../utils/logSocket";
 import ConfirmModal from "../../components/ConfirmModal";
+import styles from "../../components/CreateTeam/index.less";
 import MigrationBackup from "../../components/MigrationBackup";
 import RestoreBackup from "../../components/RestoreBackup";
 import ImportBackup from "../../components/ImportBackup";
@@ -56,12 +58,13 @@ class BackupStatus extends PureComponent {
       this.startLoopStatus();
     }
   }
+
   createSocket() {
     this.logSocket = new logSocket({
       url: this.getSocketUrl(),
       eventId: this.props.data.event_id,
       onMessage: msg => {
-        console.log(msg);
+        // console.log(msg);
       }
     });
   }
@@ -103,8 +106,9 @@ class BackupStatus extends PureComponent {
     return (
       <span>
         {this.state.map[data.status]}{" "}
-        {data.status === "starting" &&
-          <Icon style={{ marginLeft: 8 }} type="loading" spin />}
+        {data.status === "starting" && (
+          <Icon style={{ marginLeft: 8 }} type="loading" spin />
+        )}
       </span>
     );
   }
@@ -117,15 +121,21 @@ class Backup extends PureComponent {
   onOk = e => {
     e.preventDefault();
     const form = this.props.form;
+    const { onOk, warningText } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      this.props.onOk && this.props.onOk(fieldsValue);
+      let obj = fieldsValue;
+      if (warningText) {
+        obj.force = true;
+      }
+      onOk && onOk(obj);
     });
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const data = this.props.data || {};
     const is_configed = this.props.is_configed;
+    const { componentList, warningText, onCancel } = this.props;
     const formItemLayout = {
       labelCol: {
         span: 5
@@ -141,10 +151,17 @@ class Backup extends PureComponent {
       <Modal
         title={"新增备份"}
         visible={true}
+        className={styles.TelescopicModal}
         onOk={this.onOk}
-        onCancel={this.props.onCancel}
+        onCancel={onCancel}
+        footer={[
+          <Button onClick={onCancel}> 取消 </Button>,
+          <Button type="primary" onClick={this.onOk}>
+            {warningText ? "强制备份" : "确定"}
+          </Button>
+        ]}
       >
-        <Form layout="horizontal" hideRequiredMark>
+        <Form layout="horizontal">
           <Form.Item {...formItemLayout} label={<span>备份方式</span>}>
             {getFieldDecorator("mode", {
               initialValue: is_configed
@@ -166,9 +183,29 @@ class Backup extends PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="备份说明">
             {getFieldDecorator("note", {
-              initialValue: data.note || ""
+              initialValue: data.note || "",
+              rules: [{ required: true, message: "请写入备份说明" }]
             })(<TextArea placeholder="请写入备份说明" />)}
           </Form.Item>
+
+          {warningText && (
+            <div>
+              <Alert message={warningText} type="warning" />
+              <List
+                size="small"
+                style={{ margin: "10px 0" }}
+                header={
+                  <h6 style={{ marginBottom: "0", fontSize: "15px" }}>
+                    组件名称
+                  </h6>
+                }
+                // footer={<div>Footer</div>}
+                bordered
+                dataSource={componentList}
+                renderItem={item => <List.Item>{item}</List.Item>}
+              />
+            </div>
+          )}
         </Form>
       </Modal>
     );
@@ -202,13 +239,16 @@ export default class AppList extends PureComponent {
       appDetail: {},
       is_configed: null,
       group_uuid: "",
-      event_id: ""
+      event_id: "",
+      warningText: "",
+      componentList: []
     };
   }
   componentDidMount() {
     this.fetchAppDetail();
     this.fetchBackup();
   }
+
   componentWillUnmount() {}
   fetchBackup = () => {
     const { teamName, appID } = this.props.match.params;
@@ -235,7 +275,7 @@ export default class AppList extends PureComponent {
     this.setState({ showBackup: true });
   };
   cancelBackup = () => {
-    this.setState({ showBackup: false });
+    this.setState({ showBackup: false, warningText: "", componentList: [] });
   };
   handleBackup = data => {
     const team_name = globalUtil.getCurrTeamName();
@@ -249,6 +289,24 @@ export default class AppList extends PureComponent {
       callback: () => {
         this.cancelBackup();
         this.fetchBackup();
+      },
+      handleError: res => {
+        if (res) {
+          if (res.data && res.data.code) {
+            if (res.data.code === 4122) {
+              this.setState({
+                warningText: "备份有异常 ：组件使用了自定义存储，是否强制备份",
+                componentList: res.data.data.list || []
+              });
+            }
+            if (res.data.code === 4121) {
+              this.setState({
+                warningText: "备份有异常 ：有状态组件未停止，是否强制备份",
+                componentList: res.data.data.list || []
+              });
+            }
+          }
+        }
       }
     });
   };
@@ -384,6 +442,11 @@ export default class AppList extends PureComponent {
       )
     );
   };
+
+  getGroupId = () => {
+    const params = this.props.match.params;
+    return params.appID;
+  };
   render() {
     const columns = [
       {
@@ -435,48 +498,53 @@ export default class AppList extends PureComponent {
         render: (val, data) => {
           return (
             <div>
-              {data.status == "success"
-                ? <Fragment>
+              {data.status == "success" ? (
+                <Fragment>
+                  <a
+                    href="javascript:;"
+                    style={{ marginRight: "5px" }}
+                    onClick={this.handleRecovery.bind(this, data)}
+                  >
+                    恢复
+                  </a>
+                  <a
+                    href="javascript:;"
+                    style={{ marginRight: "5px" }}
+                    onClick={this.handleMove.bind(this, data)}
+                  >
+                    迁移
+                  </a>
+                  {data.mode == "full-online" && (
                     <a
                       href="javascript:;"
                       style={{ marginRight: "5px" }}
-                      onClick={this.handleRecovery.bind(this, data)}
+                      onClick={this.handleExport.bind(this, data)}
                     >
-                      恢复
+                      导出
                     </a>
-                    <a
-                      href="javascript:;"
-                      style={{ marginRight: "5px" }}
-                      onClick={this.handleMove.bind(this, data)}
-                    >
-                      迁移
-                    </a>
-                    {data.mode == "full-online" &&
-                      <a
-                        href="javascript:;"
-                        style={{ marginRight: "5px" }}
-                        onClick={this.handleExport.bind(this, data)}
-                      >
-                        导出
-                      </a>}
-                    <a
-                      href="javascript:;"
-                      onClick={this.handleDel.bind(this, data)}
-                    >
-                      删除
-                    </a>
-                  </Fragment>
-                : ""}
-              {data.status == "failed"
-                ? <Fragment>
-                    <a
-                      href="javascript:;"
-                      onClick={this.handleDel.bind(this, data)}
-                    >
-                      删除
-                    </a>
-                  </Fragment>
-                : ""}
+                  )}
+                  <a
+                    href="javascript:;"
+                    onClick={this.handleDel.bind(this, data)}
+                  >
+                    删除
+                  </a>
+                </Fragment>
+              ) : (
+                ""
+              )}
+              {data.status == "failed" ? (
+                <Fragment>
+                  <a
+                    href="javascript:;"
+                    onClick={this.handleDel.bind(this, data)}
+                  >
+                    删除
+                  </a>
+                </Fragment>
+              ) : (
+                ""
+              )}
             </div>
           );
         }
@@ -516,10 +584,7 @@ export default class AppList extends PureComponent {
             >
               新增备份
             </Button>
-            <Button
-              style={{ marginRight: 8 }}
-              onClick={this.toAdd}
-            >
+            <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
               导入备份
             </Button>
             <Button onClick={this.jumpToAllbackup} href="javascript:;">
@@ -550,21 +615,25 @@ export default class AppList extends PureComponent {
           </ScrollerX>
         </Card>
 
-        {this.state.showBackup &&
+        {this.state.showBackup && (
           <Backup
+            warningText={this.state.warningText}
+            componentList={this.state.componentList}
             is_configed={this.state.is_configed}
             onOk={this.handleBackup}
             onCancel={this.cancelBackup}
-          />}
-        {this.state.showMove &&
+          />
+        )}
+        {this.state.showMove && (
           <MigrationBackup
             onOk={this.handleMoveBackup}
             onCancel={this.cancelMoveBackup}
             backupId={this.state.backup_id}
             groupId={this.getGroupId()}
             group_uuid={this.state.group_uuid}
-          />}
-        {this.state.showRecovery &&
+          />
+        )}
+        {this.state.showRecovery && (
           <RestoreBackup
             onOk={this.handleRecoveryBackup}
             onCancel={this.cancelRecoveryBackup}
@@ -572,15 +641,17 @@ export default class AppList extends PureComponent {
             backupId={this.state.backup_id}
             group_uuid={this.state.group_uuid}
             groupId={this.getGroupId()}
-          />}
-        {this.state.showImport &&
+          />
+        )}
+        {this.state.showImport && (
           <ImportBackup
             onReLoad={this.handleImportBackup}
             onCancel={this.cancelImportBackup}
             backupId={this.state.backup_id}
             groupId={this.getGroupId()}
-          />}
-        {this.state.showDel &&
+          />
+        )}
+        {this.state.showDel && (
           <ConfirmModal
             backupId={this.state.backup_id}
             onOk={this.handleDelete}
@@ -588,7 +659,8 @@ export default class AppList extends PureComponent {
             title="删除备份"
             desc="确定要删除此备份吗？"
             subDesc="此操作不可恢复"
-          />}
+          />
+        )}
       </PageHeaderLayout>
     );
   }
