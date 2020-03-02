@@ -12,26 +12,26 @@ import oauthUtil from "../../utils/oauth";
 }))
 export default class LoginPage extends Component {
   handleSubmit = values => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     const query_params = new URLSearchParams(this.props.location.search);
-    const redirect = query_params.get('redirect');
+    const redirect = query_params.get("redirect");
     dispatch({
       type: "user/login",
       payload: {
         ...values
       },
-      callback: ()=> {
-        let url = "/"
+      callback: () => {
+        let url = "/";
         if (redirect) {
-          url = redirect
+          url = redirect;
         }
-        window.location.href = url; 
+        window.location.href = url;
       }
     });
   };
   componentWillMount() {
-    const {dispatch} = this.props;
-    dispatch({type: "global/hideNeedLogin"})
+    const { dispatch } = this.props;
+    dispatch({ type: "global/hideNeedLogin" });
     //check auto login
     const { rainbondInfo } = this.props;
     let disable_auto_login = rainbondUtil.OauthParameter("disable_auto_login");
@@ -48,35 +48,37 @@ export default class LoginPage extends Component {
   render() {
     const { rainbondInfo } = this.props;
 
+    const oauth_servicesList =
+      rainbondInfo &&
+      rainbondInfo.oauth_services &&
+      rainbondInfo.oauth_services.value &&
+      rainbondInfo.oauth_services.value.length > 0 &&
+      rainbondInfo.oauth_services.value;
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
-        {rainbondUtil.OauthbEnable(rainbondInfo) &&
-          rainbondInfo &&
-          rainbondInfo.oauth_services.value.length > 0 && (
-            <div className={styles.thirdBox}>
-              <Divider>
-                <div className={styles.thirdLoadingTitle}>第三方登录</div>
-              </Divider>
-              <Row className={styles.third}>
-                {rainbondInfo &&
-                  rainbondInfo.oauth_services.value.length > 0 &&
-                  rainbondInfo.oauth_services.value.map(item => {
-                    const { name, client_id } = item;
-                    let url = oauthUtil.getAuthredictURL(item);
-                    let icon = oauthUtil.getIcon(item);
-                    return (
-                      <Col span={8} className={styles.thirdCol} key={client_id}>
-                        <a href={url}>
-                          {icon}
-                          <p>{name}</p>
-                        </a>
-                      </Col>
-                    );
-                  })}
-              </Row>
-            </div>
-          )}
+        {rainbondUtil.OauthbEnable(rainbondInfo) && oauth_servicesList && (
+          <div className={styles.thirdBox}>
+            <Divider>
+              <div className={styles.thirdLoadingTitle}>第三方登录</div>
+            </Divider>
+            <Row className={styles.third}>
+              {oauth_servicesList.map(item => {
+                const { name, client_id } = item;
+                let url = oauthUtil.getAuthredictURL(item);
+                let icon = oauthUtil.getIcon(item);
+                return (
+                  <Col span={8} className={styles.thirdCol} key={client_id}>
+                    <a href={url}>
+                      {icon}
+                      <p>{name}</p>
+                    </a>
+                  </Col>
+                );
+              })}
+            </Row>
+          </div>
+        )}
       </div>
     );
   }
