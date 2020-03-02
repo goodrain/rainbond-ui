@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "dva";
 import { Redirect } from "umi";
-import { PageLoading } from "@ant-design/pro-layout";
+import PageLoading from '../components/PageLoading';
 import { stringify } from "querystring";
 import cookie from "../utils/cookie";
 import globalUtil from "../utils/global";
