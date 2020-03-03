@@ -4,10 +4,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import LicenseDrawer from "../../components/LicenseDrawer";
 import { Row, Col, Button, Table, Card, notification, Typography } from "antd";
 import { connect } from "dva";
-import {
-  createEnterprise,
-  createTeam
-} from "../../utils/breadcrumb";
+import { createEnterprise, createTeam } from "../../utils/breadcrumb";
 import globalUtil from "../../utils/global";
 
 const { Paragraph } = Typography;
@@ -53,7 +50,7 @@ class Control extends Component {
         page_size
       },
       callback: data => {
-        if (data) {
+        if (data && data._code == 200) {
           this.setState({
             licenseList: data.list,
             total: data.bean.nums,
@@ -123,10 +120,12 @@ class Control extends Component {
         certifiate_id: record.id
       },
       callback: data => {
-        notification.success({
-          message: (data && data.msg_show) || "删除成功"
-        });
-        this.load();
+        if (data && data._code == 200) {
+          notification.success({
+            message: (data && data.msg_show) || "删除成功"
+          });
+          this.load();
+        }
       }
     });
   };
@@ -139,7 +138,7 @@ class Control extends Component {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: data => {
-        if (data) {
+        if (data && data._code == 200) {
           this.setState({
             visibleDrawer: true,
             editData: data.bean,
@@ -193,9 +192,7 @@ class Control extends Component {
                 issued_to.map(item => {
                   return (
                     <Row key={item}>
-                      <Paragraph copyable>
-                        {item}
-                      </Paragraph>
+                      <Paragraph copyable>{item}</Paragraph>
                     </Row>
                   );
                 })}
@@ -250,14 +247,16 @@ class Control extends Component {
               >
                 编辑
               </a>
-              {record.issued_by.includes("第三方签发")
-                ? ""
-                : <a
-                    style={{ marginRight: "10px" }}
-                    onClick={this.handleUpdate.bind(this, record)}
-                  >
-                    更新
-                  </a>}
+              {record.issued_by.includes("第三方签发") ? (
+                ""
+              ) : (
+                <a
+                  style={{ marginRight: "10px" }}
+                  onClick={this.handleUpdate.bind(this, record)}
+                >
+                  更新
+                </a>
+              )}
               <a onClick={this.handleDelete.bind(this, record)}>删除</a>
             </span>
           );
@@ -274,10 +273,10 @@ class Control extends Component {
     breadcrumbList.push({ title: "网关管理" });
     const { page_num, page_size, total, licenseList } = this.state;
     return (
-      <PageHeaderLayout 
-       title="证书管理" 
-       breadcrumbList={breadcrumbList}
-       content="TLS证书管理，支持服务端证书，支持展示证书过期时间"
+      <PageHeaderLayout
+        title="证书管理"
+        breadcrumbList={breadcrumbList}
+        content="TLS证书管理，支持服务端证书，支持展示证书过期时间"
       >
         <Row>
           <Button
@@ -304,7 +303,7 @@ class Control extends Component {
             loading={this.state.licenseLoading}
           />
         </Card>
-        {this.state.visibleDrawer &&
+        {this.state.visibleDrawer && (
           <LicenseDrawer
             ref={this.saveForm}
             visible={this.state.visibleDrawer}
@@ -313,7 +312,8 @@ class Control extends Component {
               this.handleOk(values);
             }}
             editData={this.state.editData}
-          />}
+          />
+        )}
       </PageHeaderLayout>
     );
   }

@@ -497,43 +497,43 @@ export default {
     *closePortOuter({ payload, callback }, { call, put }) {
       const response = yield call(closePortOuter, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *openPortInner({ payload, callback }, { call, put }) {
       const response = yield call(openPortInner, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *closePortInner({ payload, callback }, { call, put }) {
       const response = yield call(closePortInner, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *bindDomain({ payload, callback }, { call, put }) {
       const response = yield call(bindDomain, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *unbindDomain({ payload, callback }, { call, put }) {
       const response = yield call(unbindDomain, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *editPortAlias({ payload, callback }, { call, put }) {
       const response = yield call(editPortAlias, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *addPort({ payload, callback }, { call, put }) {
       const response = yield call(addPort, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *moveGroup({ payload, callback }, { call, put }) {
@@ -663,12 +663,13 @@ export default {
     *fetchStartProve({ payload, callback }, { call, put }) {
       const response = yield call(editEvns, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchRunningProbe({ payload, callback }, { call, put }) {
       const response = yield call(getRunningProbe, payload);
       if (response) {
+        callback && callback(response);
         yield put({ type: "saveRunningProbe", payload: response.bean });
       }
     },
@@ -681,13 +682,13 @@ export default {
     *addStartProbe({ payload, callback }, { call, put }) {
       const response = yield call(addStartProbe, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *addRunProbe({ payload, callback }, { call, put }) {
       const response = yield call(addRunningProbe, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *editStartProbe({ payload, callback }, { call, put }) {
@@ -699,7 +700,7 @@ export default {
     *editRunProbe({ payload, callback }, { call, put }) {
       const response = yield call(editRunningProbe, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchBaseInfo({ payload, callback }, { call, put }) {
@@ -711,7 +712,7 @@ export default {
     *deleteMnt({ payload, callback }, { call, put }) {
       const response = yield call(deleteMnt, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchVolumes({ payload, callback }, { call, put }) {
@@ -733,19 +734,19 @@ export default {
     *addVolume({ payload, callback }, { call, put }) {
       const response = yield call(addVolume, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *editorVolume({ payload, callback }, { call, put }) {
       const response = yield call(editorVolume, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *deleteVolume({ payload, callback }, { call, put }) {
       const response = yield call(deleteVolume, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     // 响应时间
@@ -753,7 +754,7 @@ export default {
       const response = yield call(getAppRequestTime, payload);
       if (response) {
         yield put({ type: "saveRequestTime", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -762,7 +763,7 @@ export default {
       const response = yield call(getAppRequestTimeRange, payload);
       if (response) {
         yield put({ type: "saveRequestTimeRange", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -771,7 +772,7 @@ export default {
       const response = yield call(getAppRequest, payload);
       if (response) {
         yield put({ type: "saveRequest", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -790,7 +791,7 @@ export default {
       const response = yield call(getAppDisk, payload);
       if (response) {
         yield put({ type: "saveAppDisk", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -799,7 +800,7 @@ export default {
       const response = yield call(getAppMemory, payload);
       if (response) {
         yield put({ type: "saveAppMemory", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -808,7 +809,7 @@ export default {
       const response = yield call(getAppOnlineNumber, payload);
       if (response) {
         yield put({ type: "saveOnlineNumber", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -817,7 +818,7 @@ export default {
       const response = yield call(getAppOnlineNumberRange, payload);
       if (response) {
         yield put({ type: "saveOnlineNumberRange", payload: response.bean });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -826,7 +827,7 @@ export default {
       const response = yield call(getCodeBranch, payload);
       if (response) {
         yield put({ type: "saveBranch", payload: response.list });
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -834,7 +835,7 @@ export default {
     *setBranch({ payload, callback, complete }, { call, put }) {
       const response = yield call(setCodeBranch, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
       complete && complete();
     },
@@ -842,7 +843,7 @@ export default {
     *setMemberAction({ payload, callback }, { call, put }) {
       const response = yield call(setMemberAction, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchMember({ payload }, { call, put }) {
@@ -867,7 +868,7 @@ export default {
       const response = yield call(deleteMember, payload);
 
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *getVariableList({ payload, callback }, { call, put }) {
