@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
+import React, { PureComponent } from "react";
+import { connect } from "dva";
 import {
   Card,
   Button,
@@ -15,28 +15,28 @@ import {
   Checkbox,
   Pagination,
   notification,
-  Tooltip,
-} from 'antd';
-import { Link, routerRedux } from 'dva/router';
-import NoComponent from '../../../public/images/noComponent.png';
-import userUtil from '../../utils/user';
-import Lists from '../../components/Lists';
-import CreateAppModels from '../../components/CreateAppModels';
-import DeleteApp from '../../components/DeleteApp';
-import AppExporter from './AppExporter';
-import ExportOperation from './ExportOperation';
-import TagList from './TagList';
-import rainbondUtil from '../../utils/rainbond';
-import ConfirmModal from '../../components/ConfirmModal';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+  Tooltip
+} from "antd";
+import { Link, routerRedux } from "dva/router";
+import NoComponent from "../../../public/images/noComponent.png";
+import userUtil from "../../utils/user";
+import Lists from "../../components/Lists";
+import CreateAppModels from "../../components/CreateAppModels";
+import DeleteApp from "../../components/DeleteApp";
+import AppExporter from "./AppExporter";
+import ExportOperation from "./ExportOperation";
+import TagList from "./TagList";
+import rainbondUtil from "../../utils/rainbond";
+import ConfirmModal from "../../components/ConfirmModal";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 
-import styles from './index.less';
+import styles from "./index.less";
 
 const { Search } = Input;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -51,17 +51,17 @@ export default class EnterpriseShared extends PureComponent {
       page: 1,
       teamList: [],
       componentList: [],
-      exitTeamName: '',
+      exitTeamName: "",
       userTeamsLoading: true,
       enterpriseAdmin,
       tagList: [],
       tags: [],
-      scope: 'enterprise',
+      scope: "enterprise",
       showExporterApp: false,
       appInfo: false,
       visibles: null,
-      bouncedText: '',
-      bouncedType: '',
+      bouncedText: "",
+      bouncedType: "",
       group_version: null,
       chooseVersion: null,
       deleteApp: false,
@@ -69,7 +69,7 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false,
       moreTags: false,
       editorTags: false,
-      seeTag: false,
+      seeTag: false
     };
   }
   componentDidMount() {
@@ -88,7 +88,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState(
       {
         page: 1,
-        name,
+        name
       },
       () => {
         this.getApps();
@@ -101,13 +101,13 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { page, page_size, name, scope, tags } = this.state;
     this.setState({ userTeamsLoading: true }, () => {
       dispatch({
-        type: 'market/fetchAppModels',
+        type: "market/fetchAppModels",
         payload: {
           enterprise_id: eid,
           user_id: user.user_id,
@@ -115,17 +115,17 @@ export default class EnterpriseShared extends PureComponent {
           scope,
           page,
           page_size,
-          tags,
+          tags
         },
         callback: res => {
           if (res && res._code === 200) {
             this.setState({
               total: res.total,
               componentList: res.list,
-              userTeamsLoading: false,
+              userTeamsLoading: false
             });
           }
-        },
+        }
       });
     });
   };
@@ -134,28 +134,28 @@ export default class EnterpriseShared extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'market/fetchAppModelsTags',
+      type: "market/fetchAppModelsTags",
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tagList: res.list,
+            tagList: res.list
           });
         }
-      },
+      }
     });
   };
 
   onChangeRadio = e => {
     this.setState(
       {
-        scope: e.target.value,
+        scope: e.target.value
       },
       () => {
         this.getApps();
@@ -166,7 +166,7 @@ export default class EnterpriseShared extends PureComponent {
   onChangeCheckbox = checkedValues => {
     this.setState(
       {
-        tags: checkedValues,
+        tags: checkedValues
       },
       () => {
         this.getApps();
@@ -188,14 +188,14 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo,
       deleteApp: true,
-      bouncedText: '删除应用模型',
-      bouncedType: 'delete',
+      bouncedText: "删除应用模型",
+      bouncedType: "delete"
     });
   };
 
   onChangeBounced = checkedValues => {
     this.setState({
-      chooseVersion: checkedValues,
+      chooseVersion: checkedValues
     });
   };
 
@@ -203,12 +203,12 @@ export default class EnterpriseShared extends PureComponent {
     const { bouncedType } = this.state;
     this.setState(
       {
-        chooseVersion: values.chooseVersion,
+        chooseVersion: values.chooseVersion
       },
       () => {
-        if (bouncedType == 'delete') {
+        if (bouncedType == "delete") {
           this.setState({
-            deleteApp: true,
+            deleteApp: true
           });
         } else {
           this.handleCloudsUpdate(values.chooseVersion);
@@ -217,26 +217,28 @@ export default class EnterpriseShared extends PureComponent {
     );
   };
   handleDeleteApp = () => {
-    const { chooseVersion, appInfo } = this.state;
+    const { appInfo } = this.state;
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'global/deleteAppModel',
+      type: "global/deleteAppModel",
       payload: {
         enterprise_id: eid,
-        app_id: appInfo.app_id,
+        app_id: appInfo.app_id
       },
-      callback: () => {
-        notification.success({
-          message: '删除成功',
-        });
-        this.handleCancelDelete();
-        this.getApps();
-      },
+      callback: res => {
+        if (res && res._code === 200) {
+          notification.success({
+            message: "删除成功"
+          });
+          this.handleCancelDelete();
+          this.getApps();
+        }
+      }
     });
   };
 
@@ -245,9 +247,9 @@ export default class EnterpriseShared extends PureComponent {
       deleteApp: null,
       visibles: null,
       group_version: null,
-      bouncedText: '',
-      bouncedType: '',
-      appInfo: false,
+      bouncedText: "",
+      bouncedType: "",
+      appInfo: false
     });
   };
 
@@ -257,20 +259,21 @@ export default class EnterpriseShared extends PureComponent {
   };
 
   handleLoadAppDetail = (item, text) => {
-    if (item.versions_info && item.versions_info.length > 0) {
+    const versions_info =
+      item.versions_info && item.versions_info.length > 0 && item.versions_info;
+    if (versions_info) {
       this.setState({
         visibles: true,
-        group_version: item.versions_info,
+        group_version: versions_info,
         appInfo: item,
-        bouncedText: text,
+        bouncedText: text
       });
     } else {
-      this.setState(
-        { group_version: item.versions_info, appInfo: item },
-        () => {
-          this.handleCloudsUpdate(item.versions_info[0].version);
+      this.setState({ group_version: versions_info, appInfo: item }, () => {
+        if (versions_info) {
+          this.handleCloudsUpdate(versions_info[0].version);
         }
-      );
+      });
     }
   };
 
@@ -280,45 +283,47 @@ export default class EnterpriseShared extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'global/syncMarketAppDetail',
+      type: "global/syncMarketAppDetail",
       payload: {
         enterprise_id: eid,
         body: {
           app_id: appInfo.app_id,
-          app_versions: chooseVersion,
-        },
+          app_versions: chooseVersion
+        }
       },
-      callback: data => {
-        this.handleCancelDelete();
-        notification.success({ message: '操作成功' });
-        this.getApps();
-      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.handleCancelDelete();
+          notification.success({ message: "更新成功" });
+          this.getApps();
+        }
+      }
     });
   };
 
   handleCreateAppModel = () => {
-    notification.success({ message: '创建成功' });
+    notification.success({ message: "创建成功" });
     this.getApps();
     this.handleCancelAppModel();
   };
   handleCancelAppModel = () => {
     this.setState({
       createAppModel: false,
-      appInfo: null,
+      appInfo: null
     });
   };
   handleOpenCreateAppModel = () => {
     this.setState({
-      createAppModel: true,
+      createAppModel: true
     });
   };
 
   handleupDataAppModel = () => {
-    notification.success({ message: '编辑成功' });
+    notification.success({ message: "编辑成功" });
     this.getApps();
     this.handleCancelupDataAppModel();
   };
@@ -326,14 +331,14 @@ export default class EnterpriseShared extends PureComponent {
   handleOpenUpDataAppModel = appInfo => {
     this.setState({
       appInfo,
-      upDataAppModel: true,
+      upDataAppModel: true
     });
   };
 
   handleCancelupDataAppModel = () => {
     this.setState({
       appInfo: null,
-      upDataAppModel: false,
+      upDataAppModel: false
     });
   };
   onPageChangeApp = (page, pageSize) => {
@@ -344,24 +349,20 @@ export default class EnterpriseShared extends PureComponent {
 
   render() {
     const {
-      user,
       rainbondInfo,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     const {
       componentList,
-      adminer,
       userTeamsLoading,
       tagList,
       appInfo,
       visibles,
-      group_version,
       bouncedText,
-      bouncedType,
-      enterpriseAdmin,
+      enterpriseAdmin
     } = this.state;
 
     const tagLists = tagList && tagList.length > 0 && tagList;
@@ -451,13 +452,13 @@ export default class EnterpriseShared extends PureComponent {
       );
       return (
         <Menu>
-          {appInfo.source === 'market' &&
+          {appInfo.source === "market" &&
             rainbondUtil.cloudMarketEnable(rainbondInfo) && (
               <Menu.Item>
                 <a
                   style={{ marginRight: 8 }}
                   onClick={() => {
-                    this.handleLoadAppDetail(appInfo, '云端更新');
+                    this.handleLoadAppDetail(appInfo, "云端更新");
                   }}
                 >
                   云端更新
@@ -502,9 +503,9 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const operation = (
-      <Col span={4} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={4} style={{ textAlign: "right" }} className={styles.btns}>
         {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
-          <Button type="primary" style={{ marginRight: '22px' }}>
+          <Button type="primary" style={{ marginRight: "22px" }}>
             <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
           </Button>
         )}
@@ -542,15 +543,15 @@ export default class EnterpriseShared extends PureComponent {
       <div>
         <Row
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '28px',
-            marginTop: '20px',
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "28px",
+            marginTop: "20px"
           }}
         >
-          <Col span={20} style={{ textAlign: 'left', display: 'flex' }}>
+          <Col span={20} style={{ textAlign: "left", display: "flex" }}>
             <Search
-              style={{ width: '396px' }}
+              style={{ width: "396px" }}
               placeholder="请输入名称进行搜索"
               onSearch={this.handleSearchTeam}
             />
@@ -568,7 +569,7 @@ export default class EnterpriseShared extends PureComponent {
               {tagLists && tagLists && (
                 <div>
                   <Checkbox.Group
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                     onChange={this.onChangeCheckbox}
                     value={this.state.tags}
                   >
@@ -610,21 +611,16 @@ export default class EnterpriseShared extends PureComponent {
               tags,
               versions_info,
               dev_status,
-              install_number,
+              install_number
             } = item;
             return (
               <Lists
                 key={app_id}
-                stylePro={{ marginBottom: '10px' }}
+                stylePro={{ marginBottom: "10px" }}
                 Cols={
                   <div className={styles.h70}>
-                    <Col span={3} style={{ display: 'flex' }}>
-                      <div
-                        className={styles.lt}
-                        onClick={() => {
-                          this.handleLoadAppDetail(item);
-                        }}
-                      >
+                    <Col span={3} style={{ display: "flex" }}>
+                      <div className={styles.lt}>
                         <p>
                           <Icon type="arrow-down" />
                           {install_number}
@@ -673,14 +669,14 @@ export default class EnterpriseShared extends PureComponent {
                             return null;
                           }
                           return (
-                            <div key={tag_id} style={{ marginRight: '5px' }}>
+                            <div key={tag_id} style={{ marginRight: "5px" }}>
                               {name}
                             </div>
                           );
                         })}
                       {tags && tags.length > 3 && (
                         <a
-                          style={{ marginLeft: '5px' }}
+                          style={{ marginLeft: "5px" }}
                           onClick={() => {
                             this.handleOpenMoreTags(tags);
                           }}
@@ -699,7 +695,7 @@ export default class EnterpriseShared extends PureComponent {
           noShared
         )}
 
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: "right" }}>
           <Pagination
             size="small"
             current={this.state.page}
@@ -769,9 +765,9 @@ export default class EnterpriseShared extends PureComponent {
         )}
         <div
           style={{
-            display: 'block',
-            position: 'relative',
-            overflow: 'hidden',
+            display: "block",
+            position: "relative",
+            overflow: "hidden"
           }}
         >
           {userTeamsLoading ? (

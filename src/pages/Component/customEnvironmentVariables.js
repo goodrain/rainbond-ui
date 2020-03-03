@@ -177,8 +177,11 @@ export default class Index extends React.Component {
         name: vals.name
       },
       callback: res => {
-        this.fetchInnerEnvs();
-        this.handleCancelAddVar();
+        if (res && res._code === 200) {
+          notification.success({ message: "添加成功" });
+          this.fetchInnerEnvs();
+          this.handleCancelAddVar();
+        }
       }
     });
   };
@@ -199,7 +202,7 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: "删除成功" });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVar();
@@ -220,10 +223,10 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: "转移成功" });
           this.fetchInnerEnvs();
+          this.cancelTransfer();
         }
-        this.cancelTransfer();
       }
     });
   };
@@ -245,9 +248,12 @@ export default class Index extends React.Component {
         attr_value: vals.attr_value,
         name: vals.name
       },
-      callback: () => {
-        this.cancelEditVar();
-        this.fetchInnerEnvs();
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: "编辑成功" });
+          this.cancelEditVar();
+          this.fetchInnerEnvs();
+        }
       }
     });
   };
@@ -272,10 +278,13 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         user_id: this.state.toDeleteMember.user_id
       },
-      callback: () => {
-        this.loadMembers();
-        this.loadpermsMembers();
-        this.hideDelMember();
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: "删除成功" });
+          this.loadMembers();
+          this.loadpermsMembers();
+          this.hideDelMember();
+        }
       }
     });
   };
@@ -364,11 +373,13 @@ export default class Index extends React.Component {
           new_file_content: vals.file_content,
           ID: editor.ID
         },
-        callback: () => {
-          this.fetchVolumes();
-          this.handleCancelAddVars();
-          notification.success({ message: "操作成功" });
-          this.props.onshowRestartTips(true);
+        callback: res => {
+          if (res && res._code == 200) {
+            this.fetchVolumes();
+            this.handleCancelAddVars();
+            notification.success({ message: "编辑成功" });
+            this.props.onshowRestartTips(true);
+          }
         }
       });
     } else {
@@ -379,11 +390,14 @@ export default class Index extends React.Component {
           app_alias: this.props.appAlias,
           ...vals
         },
-        callback: () => {
-          this.fetchVolumes();
-          this.handleCancelAddVars();
-          notification.success({ message: "操作成功" });
-          this.props.onshowRestartTips(true);
+        callback: res => {
+          console.log('res',res)
+          if (res && res._code == 200) {
+            this.fetchVolumes();
+            this.handleCancelAddVars();
+            notification.success({ message: "添加成功" });
+            this.props.onshowRestartTips(true);
+          }
         }
       });
     }
@@ -428,11 +442,13 @@ export default class Index extends React.Component {
         app_alias: this.props.appAlias,
         volume_id: this.state.toDeleteVolume.ID
       },
-      callback: () => {
-        this.onCancelDeleteVolume();
-        this.fetchVolumes();
-        notification.success({ message: "操作成功" });
-        this.props.onshowRestartTips(true);
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: "删除成功" });
+          this.onCancelDeleteVolume();
+          this.fetchVolumes();
+          this.props.onshowRestartTips(true);
+        }
       }
     });
   };
