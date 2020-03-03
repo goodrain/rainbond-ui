@@ -22,7 +22,7 @@ function LogSocket(option) {
   this.timerQueue = new TimerQueue({
     onExecute: this.onMessage,
     autoStart: true,
-    interval: option.interval || 10,
+    interval: option.interval || 10
   });
 }
 
@@ -60,10 +60,10 @@ LogSocket.prototype = {
     }
   },
   _onClose(evt) {
-    this.onClose();
+    this.onClose && this.onClose();
   },
   _onError() {
-    this.onError();
+    this.onError && this.onError();
   },
 
   destroy() {
@@ -76,7 +76,7 @@ LogSocket.prototype = {
     this.onFail = null;
     this.destroyed = true;
     this.close();
-  },
+  }
 };
 
 export default LogSocket;

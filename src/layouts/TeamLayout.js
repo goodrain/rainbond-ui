@@ -4,7 +4,7 @@ import { Layout, Icon, message, notification, Button } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { Route, Redirect, routerRedux } from "dva/router";
-import PageLoading from '../components/PageLoading';
+import PageLoading from "../components/PageLoading";
 import memoizeOne from "memoize-one";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
@@ -21,8 +21,8 @@ import logo from "../../public/logo.png";
 import GlobalRouter from "../components/GlobalRouter";
 import Context from "./MenuContext";
 import { FormattedMessage } from "umi-plugin-react/locale";
-import TeamHeader from "./components/TeamHeader"
-import AppHeader from "./components/AppHeader"
+import TeamHeader from "./components/TeamHeader";
+import AppHeader from "./components/AppHeader";
 
 const qs = require("query-string");
 
@@ -131,7 +131,14 @@ class TeamLayout extends React.PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
     dispatch({ type: "teamControl/fetchCurrentTeam", payload: team });
-    dispatch({ type: "teamControl/fetchCurrentRegionName", payload: {currentRegionName: regionName}})
+    dispatch({
+      type: "teamControl/fetchCurrentRegionName",
+      payload: { currentRegionName: regionName }
+    });
+    dispatch({
+      type: "region/fetchProtocols",
+      payload: { team_name: teamName, region_name: regionName }
+    });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
       if (eid == item.enterprise_id) {
@@ -258,12 +265,12 @@ class TeamLayout extends React.PureComponent {
     // currentComponent is exit and id is current componentID
     if (currentComponent && currentComponent.service_alias == componentID) {
       appID = currentComponent.group_id;
-    // Refresh the component information
+      // Refresh the component information
     } else if (componentID) {
-      this.queryComponentDeatil()
+      this.queryComponentDeatil();
       return <PageLoading />;
     } else {
-      this.setState({currentComponent: null})
+      this.setState({ currentComponent: null });
     }
 
     const mode = this.getMode(appID || componentID);
@@ -276,22 +283,20 @@ class TeamLayout extends React.PureComponent {
             currentTeam={currentTeam}
             currentRegion={currentRegion}
             regionName={regionName}
-          >
-          </TeamHeader>
+          />
         );
       }
       return (
         <AppHeader
-            teamName={teamName}
-            currentEnterprise={currentEnterprise}
-            currentTeam={currentTeam}
-            currentRegion={currentRegion}
-            regionName={regionName}
-            appID={appID}
-            currentComponent={currentComponent}
-            componentID={componentID}
-          >
-        </AppHeader>
+          teamName={teamName}
+          currentEnterprise={currentEnterprise}
+          currentTeam={currentTeam}
+          currentRegion={currentRegion}
+          regionName={regionName}
+          appID={appID}
+          currentComponent={currentComponent}
+          componentID={componentID}
+        />
       );
     };
     let menuData = getMenuData(teamName, regionName);
@@ -333,7 +338,9 @@ class TeamLayout extends React.PureComponent {
                   fontSize: 20
                 }}
               >
-                {nouse ? "请联系 010-64666786 获取更多商业服务。" : "请稍后访问当前数据中心"}
+                {nouse
+                  ? "请联系 010-64666786 获取更多商业服务。"
+                  : "请稍后访问当前数据中心"}
               </p>
             </div>
           );
@@ -425,12 +432,11 @@ class TeamLayout extends React.PureComponent {
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <ContainerQuery key={teamName + regionName} query={query}>
-            {params =>
+            {params => (
               <Context.Provider value={this.getContext()}>
-                <div className={classNames(params)}>
-                  {layout()}
-                </div>
-              </Context.Provider>}
+                <div className={classNames(params)}>{layout()}</div>
+              </Context.Provider>
+            )}
           </ContainerQuery>
         </DocumentTitle>
       </Fragment>

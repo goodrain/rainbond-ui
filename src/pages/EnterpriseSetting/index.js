@@ -472,7 +472,7 @@ export default class EnterpriseSetting extends PureComponent {
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
-                value={this.props.isRegist}
+                checked={isRegist}
               />
             </Col>
           </Row>

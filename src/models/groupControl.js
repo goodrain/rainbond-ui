@@ -38,7 +38,7 @@ import cookie from "../utils/cookie";
 export default {
   namespace: "groupControl",
   state: {
-    // app detail 
+    // app detail
     groupDetail: {},
     // component list
     apps: [],
@@ -70,8 +70,8 @@ export default {
         callback && callback(response);
       }
     },
-    * backup({ payload, callback }, { call, put }) {
-      const response = yield call(backup, payload);
+    * backup({ payload, callback,handleError }, { call, put }) {
+      const response = yield call(backup, payload,handleError);
       if (response) {
         callback && callback(response);
       }
