@@ -227,7 +227,7 @@ class EnterpriseLayout extends PureComponent {
     const queryString = stringify({
       redirect: window.location.href,
     });
-    if (!ready && !enterpriseInfo) {
+    if (!ready || !enterpriseInfo) {
       return <PageLoading />;
     }
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
