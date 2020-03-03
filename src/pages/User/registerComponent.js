@@ -35,20 +35,6 @@ export default class RegisterComponent extends Component {
       this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register
   };
 
-  componentWillReceiveProps(nextProps) {
-    const account = this.props.form.getFieldValue("user_name");
-    if (nextProps.register) {
-      this.props.dispatch(
-        routerRedux.push({
-          pathname: "/user/register-result",
-          state: {
-            account
-          }
-        })
-      );
-    }
-  }
-
   componentWillUnmount() {
     clearInterval(this.interval);
   }
