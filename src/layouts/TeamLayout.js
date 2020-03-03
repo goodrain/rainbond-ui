@@ -75,7 +75,7 @@ class TeamLayout extends React.PureComponent {
       enterpriseList: [],
       ready: false,
       currentTeam: {},
-      currentEnterprise: {},
+      currentEnterprise: false,
       currentComponent: null,
       eid: ""
     };
@@ -253,7 +253,7 @@ class TeamLayout extends React.PureComponent {
     }
 
     // The necessary data is loaded
-    if (!ready) {
+    if (!ready || !currentEnterprise) {
       return <PageLoading />;
     }
 
