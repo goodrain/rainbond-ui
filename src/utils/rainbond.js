@@ -20,16 +20,21 @@ export default {
 
   // 判断平台是否配置了oautg 2.0
   OauthbEnable: (bean = {}) =>
-  bean&&
-    (bean.oauth_services &&
-      bean.oauth_services.enable &&
-      bean.oauth_services.value &&
-      bean.oauth_services.value.length > 0) ||
+    (bean &&
+      (bean.oauth_services &&
+        bean.oauth_services.enable &&
+        bean.oauth_services.value &&
+        bean.oauth_services.value.length > 0)) ||
     false,
 
   // 判断管理后台是否配置了oautg 2.0 oauth_services_is_sonsole
   OauthbIsEnable: (bean = {}) =>
     (bean.oauth_services_is_sonsole && bean.oauth_services_is_sonsole.enable) ||
+    false,
+
+  // 判断平台配置了oautg 2.0 开启还是关闭状态
+  OauthbIsEnableState: (bean = {}) =>
+    (bean.oauth_services && bean.oauth_services.enable) ||
     false,
 
   // 判断 有 oautgType 类型
