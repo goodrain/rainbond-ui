@@ -579,7 +579,7 @@ export default class Main extends PureComponent {
     const newinfo = {};
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        let version_info = {
+        let app_version_info = {
           share_id: record.record_id,
           app_model_id: values.app_id,
           describe: values.describe,
@@ -587,7 +587,7 @@ export default class Main extends PureComponent {
           version_alias: values.version_alias
         };
         if (record.scope == "goodrain") {
-          version_info.target = record.target;
+          app_version_info.target = record.target;
         }
         const share_service_data = this.share_service_list;
         let arr = [];
@@ -642,12 +642,12 @@ export default class Main extends PureComponent {
           });
         });
 
-        newinfo.version_info = this.version_info;
+        newinfo.app_version_info = app_version_info;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const team_name = globalUtil.getCurrTeamName();
         const shareId = this.props.match.params.shareId;
-        const groupId = this.props.match.params.appID;
+        const appID = this.props.match.params.appID;
 
         dispatch({
           type: "groupControl/subShareInfo",
@@ -661,7 +661,7 @@ export default class Main extends PureComponent {
             this.onCancels("false");
             dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/groups/share/two/${groupId}/${shareId}`
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two`
               )
             );
           }
