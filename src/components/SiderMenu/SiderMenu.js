@@ -160,6 +160,9 @@ export default class SiderMenu extends PureComponent {
     const { dispatch, currentUser, currentEnterprise } = this.props;
     const { page, page_size, name } = this.state;
     this.setState({ eid: currentEnterprise.enterprise_id });
+    if (!currentEnterprise) {
+      return null;
+    }
     dispatch({
       type: 'global/fetchUserTeams',
       payload: {
