@@ -84,6 +84,7 @@ export async function upAppModel(body) {
     {
       method: 'PUT',
       data: {
+        team_name: body.team_name,
         name: body.name,
         pic: body.pic,
         describe: body.describe,
@@ -103,6 +104,7 @@ export async function createAppModel(body) {
     {
       method: 'post',
       data: {
+        team_name: body.team_name,
         scope: body.scope,
         dev_status: body.dev_status ? body.dev_status : '',
         name: body.name,
