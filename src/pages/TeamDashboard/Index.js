@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
-import moment from "moment";
-import { connect } from "dva";
-import { Link } from "dva/router";
+import React, { PureComponent } from 'react';
+import moment from 'moment';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -16,26 +16,22 @@ import {
   Tooltip,
   Table,
   notification,
-} from "antd";
-import cookie from "../../utils/cookie";
-import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
-import { MiniArea, ChartCard } from "../../components/Charts";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import NumberInfo from "../../components/NumberInfo";
-import numeral from "numeral";
-import EditGroupName from "../../components/AddOrEditGroup";
-import styles from "./Index.less";
-import globalUtil from "../../utils/global";
-import configureGlobal from "../../utils/configureGlobal";
-import userUtil from "../../utils/user";
-import sourceUtil from "../../utils/source-unit";
-import guideutil from "../../utils/guide";
-import rainbondUtil from "../../utils/rainbond";
-import {
-  createEnterprise,
-  createTeam
-} from "../../utils/breadcrumb";
-
+} from 'antd';
+import cookie from '../../utils/cookie';
+import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import { MiniArea, ChartCard } from '../../components/Charts';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import NumberInfo from '../../components/NumberInfo';
+import numeral from 'numeral';
+import EditGroupName from '../../components/AddOrEditGroup';
+import styles from './Index.less';
+import globalUtil from '../../utils/global';
+import configureGlobal from '../../utils/configureGlobal';
+import userUtil from '../../utils/user';
+import sourceUtil from '../../utils/source-unit';
+import guideutil from '../../utils/guide';
+import rainbondUtil from '../../utils/rainbond';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -46,9 +42,9 @@ import {
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  projectLoading: loading.effects["project/fetchNotice"],
-  activitiesLoading: loading.effects["activities/fetchList"],
-  loading
+  projectLoading: loading.effects['project/fetchNotice'],
+  activitiesLoading: loading.effects['activities/fetchList'],
+  loading,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -71,11 +67,11 @@ export default class Index extends PureComponent {
       servicePage: 1,
       servicePage_size: 5,
       serviceTotal: 0,
-      num: "",
+      num: '',
       visitData: [],
       current: null,
       guidevisible: false,
-      GuideList: []
+      GuideList: [],
     };
   }
   componentDidMount() {
@@ -100,9 +96,9 @@ export default class Index extends PureComponent {
 
   getGuideState = () => {
     this.props.dispatch({
-      type: "global/getGuideState",
+      type: 'global/getGuideState',
       payload: {
-        enterprise_id: this.props.currUser.enterprise_id
+        enterprise_id: this.props.currUser.enterprise_id,
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -113,34 +109,36 @@ export default class Index extends PureComponent {
                 res.list && res.list.length > 0 && !res.list[0].status
                   ? 0
                   : !res.list[1].status
-                    ? 1
-                    : !res.list[2].status
-                      ? 2
-                      : !res.list[3].status
-                        ? 3
-                        : !res.list[4].status
-                          ? 4
-                          : !res.list[5].status
-                            ? 5
-                            : !res.list[6].status ? 6 : 7
+                  ? 1
+                  : !res.list[2].status
+                  ? 2
+                  : !res.list[3].status
+                  ? 3
+                  : !res.list[4].status
+                  ? 4
+                  : !res.list[5].status
+                  ? 5
+                  : !res.list[6].status
+                  ? 6
+                  : 7,
             },
             () => {
-              let isGuidevisible =
+              const isGuidevisible =
                 this.state.current == 7
                   ? false
-                  : cookie.get("guide") ? false : true;
+                  : !cookie.get('guide');
               this.setState({
-                guidevisible: isGuidevisible
+                guidevisible: isGuidevisible,
               });
               this.state.current == 7
                 ? false
-                : cookie.get("guide")
-                  ? false
-                  : cookie.setGuide("guide", "true");
+                : cookie.get('guide')
+                ? false
+                : cookie.setGuide('guide', 'true');
             }
           );
         }
-      }
+      },
     });
   };
 
@@ -153,21 +151,21 @@ export default class Index extends PureComponent {
   getTeamAppList = () => {
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "global/getTeamAppList",
+      type: 'global/getTeamAppList',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: globalUtil.getCurrRegionName(),
         page,
-        page_size
+        page_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             teamAppList: res.list,
-            total: res.bean && res.bean.total
+            total: res.bean && res.bean.total,
           });
         }
-      }
+      },
     });
   };
 
@@ -177,27 +175,27 @@ export default class Index extends PureComponent {
     });
   };
 
-  //热门访问域名
+  // 热门访问域名
   getDomainName = () => {
     const { domainPage, domainPage_size } = this.state;
     this.props.dispatch({
-      type: "global/getDomainName",
+      type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
         page: domainPage,
         page_size: domainPage_size,
-        id: 1
+        id: 1,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             domainTotal: res.bean && res.bean.total,
             domainList: res.list,
-            num: res.bean && res.bean.total_traffic
+            num: res.bean && res.bean.total_traffic,
           });
         }
-      }
+      },
     });
   };
 
@@ -211,7 +209,7 @@ export default class Index extends PureComponent {
   getDomain = () => {
     const { domainPage, domainPage_size } = this.state;
     this.props.dispatch({
-      type: "global/getDomainName",
+      type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -220,7 +218,7 @@ export default class Index extends PureComponent {
         id: 0,
         start: this.getStartTime(),
         step: this.getStep(),
-        end: new Date().getTime() / 1000
+        end: new Date().getTime() / 1000,
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -231,22 +229,22 @@ export default class Index extends PureComponent {
             res.bean.data.result.length > 0 &&
             res.bean.data.result[0].values &&
             res.bean.data.result[0].values;
-          let arr = [];
+          const arr = [];
           if (visitDatas && visitDatas.length > 0) {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
                 x: moment(new Date(visitDatas[i][0] * 1000)).format(
-                  "YYYY-MM-DD hh:mm"
+                  'YYYY-MM-DD hh:mm'
                 ),
-                y: Math.floor(visitDatas[i][1])
+                y: Math.floor(visitDatas[i][1]),
               });
             }
           }
           this.setState({
-            visitData: arr
+            visitData: arr,
           });
         }
-      }
+      },
     });
   };
 
@@ -260,21 +258,21 @@ export default class Index extends PureComponent {
   getService = () => {
     const { servicePage, servicePage_size } = this.state;
     this.props.dispatch({
-      type: "global/getService",
+      type: 'global/getService',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
         page: servicePage,
-        page_size: servicePage_size
+        page_size: servicePage_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             serviceTotal: res.bean && res.bean.total,
-            serviceList: res.list
+            serviceList: res.list,
           });
         }
-      }
+      },
     });
   };
 
@@ -292,40 +290,40 @@ export default class Index extends PureComponent {
       region_name
     );
     if (region) {
-      return region.region_scope === "public";
+      return region.region_scope === 'public';
     }
     return false;
   }
   getRegionResource() {
     this.props.dispatch({
-      type: "global/getRegionSource",
+      type: 'global/getRegionSource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
-        region: globalUtil.getCurrRegionName()
+        region: globalUtil.getCurrRegionName(),
       },
       callback: data => {
         if (data) {
           this.setState({
             memory: data.bean.memory || {},
-            disk: data.bean.disk
+            disk: data.bean.disk,
           });
         }
-      }
+      },
     });
   }
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: "global/getCompanyInfo",
+      type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.currUser.enterprise_id
+        enterprise_id: this.props.currUser.enterprise_id,
       },
       callback: data => {
         if (data) {
           this.setState({ companyInfo: data.bean });
         }
-      }
+      },
     });
   };
   loadOverview = () => {
@@ -333,42 +331,42 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     dispatch({
-      type: "index/fetchOverview",
+      type: 'index/fetchOverview',
       payload: {
         team_name,
-        region_name
+        region_name,
       },
       callback: res => {
         if (res) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
-              isNouse: false
-            }
+              isNouse: false,
+            },
           });
         }
       },
       handleError: res => {
         if (res && res.code === 10400) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
-              isNouse: true
-            }
+              isNouse: true,
+            },
           });
         }
-      }
+      },
     });
   };
   loadEvents = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "index/fetchEvents",
+      type: 'index/fetchEvents',
       payload: {
         team_name,
         page: 1,
-        page_size: 5
-      }
+        page_size: 5,
+      },
     });
   };
   loadApps = () => {
@@ -378,8 +376,8 @@ export default class Index extends PureComponent {
 
     const pagination = index.pagination;
     let searchKey = {
-      searchKey: "",
-      service_status: ""
+      searchKey: '',
+      service_status: '',
     };
     // 获取搜索信息
     form.validateFields((err, fieldsValue) => {
@@ -391,12 +389,12 @@ export default class Index extends PureComponent {
       region_name,
       page: index.pagination.currentPage,
       page_size: index.pagination.pageSize,
-      order: (index.pagination.order || "").replace("end", ""),
+      order: (index.pagination.order || '').replace('end', ''),
       fields: index.pagination.fields,
-      ...searchKey
+      ...searchKey,
     };
 
-    dispatch({ type: "index/fetchApps", payload });
+    dispatch({ type: 'index/fetchApps', payload });
   };
   componentWillUnmount() {
     clearInterval(this.timer);
@@ -407,10 +405,10 @@ export default class Index extends PureComponent {
     this.loadApps();
     const { dispatch } = this.props;
     dispatch({
-      type: "index/savePage",
+      type: 'index/savePage',
       payload: {
-        currentPage: 1
-      }
+        currentPage: 1,
+      },
     });
     setTimeout(() => {
       this.loadApps();
@@ -419,13 +417,13 @@ export default class Index extends PureComponent {
   handleListChange = (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "index/savePage",
+      type: 'index/savePage',
       payload: {
         currentPage: pagination.current,
         pageSize: pagination.pageSize,
-        order: sorter.field ? sorter.order : "",
-        fields: sorter.field ? sorter.field : ""
-      }
+        order: sorter.field ? sorter.order : '',
+        fields: sorter.field ? sorter.field : '',
+      },
     });
     setTimeout(() => {
       this.loadApps();
@@ -439,9 +437,9 @@ export default class Index extends PureComponent {
       return (
         <p
           style={{
-            textAlign: "center",
-            color: "ccc",
-            paddingTop: 20
+            textAlign: 'center',
+            color: 'ccc',
+            paddingTop: 20,
           }}
         >
           暂无动态
@@ -456,10 +454,12 @@ export default class Index extends PureComponent {
         FinalStatus,
         Status,
         create_time,
-        Target
+        Target,
       } = item;
 
-      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${item.service_alias}/overview`;
+      const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+        item.service_alias
+      }/overview`;
       return (
         <List.Item key={item.ID}>
           <List.Item.Meta
@@ -467,17 +467,18 @@ export default class Index extends PureComponent {
               <span>
                 <a className={styles.username}>{UserName}</a>
                 <span className={styles.event}>
-                  {" "}{globalUtil.fetchStateOptTypeText(OptType)}
+                  {' '}
+                  {globalUtil.fetchStateOptTypeText(OptType)}
                 </span>
                 &nbsp;
-                {Target &&
-                  Target === "service" &&
+                {Target && Target === 'service' && (
                   <Link to={linkTo} className={styles.event}>
                     {item.service_name}
-                  </Link>}
+                  </Link>
+                )}
                 <span
                   style={{
-                    color: globalUtil.fetchAbnormalcolor(OptType)
+                    color: globalUtil.fetchAbnormalcolor(OptType),
                   }}
                 >
                   {globalUtil.fetchOperation(FinalStatus, Status)}
@@ -499,59 +500,61 @@ export default class Index extends PureComponent {
   handleOkApplication = vals => {
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
-        group_note: vals.group_note
+        group_note: vals.group_note,
       },
-      callback: () => {
-        notification.success({ message: "添加成功" });
-        this.handleCancelApplication();
-        this.getTeamAppList();
-        dispatch({
-          type: "global/fetchGroups",
-          payload: {
-            team_name: globalUtil.getCurrTeamName()
-          }
-        });
-      }
+      callback: res => {
+        if (res) {
+          notification.success({ message: '添加成功' });
+          this.handleCancelApplication();
+          this.getTeamAppList();
+          dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name: globalUtil.getCurrTeamName(),
+            },
+          });
+        }
+      },
     });
   };
 
   handleCancelApplication = () => [
     this.setState({
-      addApplication: false
-    })
+      addApplication: false,
+    }),
   ];
 
   handleOkGuidevisible = () => {
     this.setState({
-      guidevisible: false
+      guidevisible: false,
     });
   };
   handleCancelGuidevisible = () => {
     this.setState({
-      guidevisible: false
+      guidevisible: false,
     });
   };
   render() {
     const handleHost = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`;
     const columns = [
       {
-        title: "域名",
-        dataIndex: "metric",
-        key: "metric",
-        width: "70%",
-        render: (text, record) =>
+        title: '域名',
+        dataIndex: 'metric',
+        key: 'metric',
+        width: '70%',
+        render: (text, record) => (
           <Tooltip title={record.metric.host}>
             <div
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                height: "38px",
-                lineHeight: "17px",
-                overflow: "auto"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                height: '38px',
+                lineHeight: '17px',
+                overflow: 'auto',
               }}
             >
               <a href={`http://${record.metric.host}`} target="_blank">
@@ -559,80 +562,85 @@ export default class Index extends PureComponent {
               </a>
             </div>
           </Tooltip>
+        ),
       },
       {
-        title: "请求量/时",
-        dataIndex: "value",
-        key: "value",
-        width: "30%",
+        title: '请求量/时',
+        dataIndex: 'value',
+        key: 'value',
+        width: '30%',
         sorter: (a, b) => a.range - b.range,
-        render: (text, record) =>
+        render: (text, record) => (
           // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
-              wordBreak: "break-all",
-              wordWrap: "break-word",
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
               marginRight: 4,
-              display: "inline-block"
+              display: 'inline-block',
               // minHeight: "35px"
             }}
           >
             {record.value[1]}
-          </span>,
-          // </Trend>
-        align: "right"
-      }
+          </span>
+        ),
+        // </Trend>
+        align: 'right',
+      },
     ];
 
     const columnTwo = [
       {
-        title: "组件名称",
-        dataIndex: "metric",
-        key: "metric",
-        width: "65%",
-        render: (text, record) =>
+        title: '组件名称',
+        dataIndex: 'metric',
+        key: 'metric',
+        width: '65%',
+        render: (text, record) => (
           <Link
-            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${record
-              .metric.service_alias}`}
+            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+              record.metric.service_alias
+            }`}
           >
             <Tooltip title={record.metric.service_cname}>
               <a
                 style={{
-                  display: "inline-block",
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                  height: "38px",
-                  lineHeight: "17px",
-                  overflow: "auto"
+                  display: 'inline-block',
+                  wordBreak: 'break-all',
+                  wordWrap: 'break-word',
+                  height: '38px',
+                  lineHeight: '17px',
+                  overflow: 'auto',
                 }}
               >
-                {record.metric.service_cname}{" "}
+                {record.metric.service_cname}{' '}
               </a>
             </Tooltip>
           </Link>
+        ),
       },
       {
-        title: "请求量/时",
-        dataIndex: "value",
-        key: "value",
-        width: "35%",
+        title: '请求量/时',
+        dataIndex: 'value',
+        key: 'value',
+        width: '35%',
         sorter: (a, b) => a.range - b.range,
-        render: (text, record) =>
+        render: (text, record) => (
           // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
-              display: "inline-block",
+              display: 'inline-block',
               marginRight: 4,
-              wordBreak: "break-all",
-              wordWrap: "break-word",
-              minHeight: "35px"
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
+              minHeight: '35px',
             }}
           >
             {record.value[1]}
-          </span>,
-          // </Trend>
-        align: "right"
-      }
+          </span>
+        ),
+        // </Trend>
+        align: 'right',
+      },
     ];
 
     const {
@@ -640,7 +648,7 @@ export default class Index extends PureComponent {
       projectLoading,
       activitiesLoading,
       currUser,
-      pagination
+      pagination,
     } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
@@ -652,7 +660,7 @@ export default class Index extends PureComponent {
             <FormattedMessage id="team.appNum" />
           </p>
           <div>
-            <div style={{ color: "rgba(0,0,0,.85)" }}>
+            <div style={{ color: 'rgba(0,0,0,.85)' }}>
               {index.overviewInfo.team_app_num || 0}
             </div>
           </div>
@@ -662,7 +670,7 @@ export default class Index extends PureComponent {
             <Badge status="processing" />
             <FormattedMessage id="team.componentNum" />
           </p>
-          <div style={{ color: "rgba(0,0,0,.85)" }}>
+          <div style={{ color: 'rgba(0,0,0,.85)' }}>
             {index.overviewInfo.team_service_num || 0}
           </div>
         </div>
@@ -675,9 +683,9 @@ export default class Index extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`}
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                color: '#1890ff',
               }}
             >
               {index.overviewInfo.total_http_domain +
@@ -692,15 +700,15 @@ export default class Index extends PureComponent {
           </p>
           <div>
             <Tooltip
-              style={{ color: "rgba(0,0,0,.85)" }}
+              style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
                 index.overviewInfo.team_service_memory_count || 0,
-                "MB"
+                'MB'
               )}`}
             >
               {`${sourceUtil.unit(
                 index.overviewInfo.team_service_memory_count || 0,
-                "MB"
+                'MB'
               )}`}
             </Tooltip>
           </div>
@@ -712,15 +720,15 @@ export default class Index extends PureComponent {
           </p>
           <div>
             <Tooltip
-              style={{ color: "rgba(0,0,0,.85)" }}
+              style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
                 index.overviewInfo.team_service_total_disk || 0,
-                "MB"
+                'MB'
               )}`}
             >
               {`${sourceUtil.unit(
                 index.overviewInfo.team_service_total_disk || 0,
-                "MB"
+                'MB'
               )}`}
             </Tooltip>
           </div>
@@ -734,9 +742,9 @@ export default class Index extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                color: '#1890ff',
               }}
             >
               {index.overviewInfo.share_app_num || 0}
@@ -748,246 +756,261 @@ export default class Index extends PureComponent {
     let breadcrumbList = [];
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
-        createEnterprise(breadcrumbList, currentEnterprise),
-        currentTeam,
-        currentRegionName
-      );
+      createEnterprise(breadcrumbList, currentEnterprise),
+      currentTeam,
+      currentRegionName
+    );
     const { teamAppList, GuideList, domainList, serviceList } = this.state;
     const steps = guideutil.getStep(GuideList);
     return (
-      <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-      >
-      <div style={{ margin: "0px -24px 0" }}>
-        <Modal
-          title={
-            configureGlobal.rainbondTextShow &&
-            <h1
-              style={{
-                color: "#1890FF",
-                textAlign: "center",
-                border: "none",
-                marginBottom: "0px",
-                marginTop: "10px"
-              }}
-            >
-              欢迎使用Rainbond云应用操作系统
-            </h1>
-          }
-          visible={this.state.guidevisible}
-          onOk={this.handleOkGuidevisible}
-          onCancel={this.handleCancelGuidevisible}
-          width={1000}
-          footer={null}
-          className={styles.modals}
-          maskClosable={false}
-        >
-          <p style={{ fontSize: "17px" }}>
-            Rainbond是开源的面向企业的基础性管理平台，组件于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。
-          </p>
-          {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
-          <p>
-            <div className={styles.stepsbox}>
-              {steps.map((item, index) => {
-                const { status } = item;
-                return (
-                  <div
-                    className={status ? styles.stepssuccess : styles.stepsinfo}
-                    key={index}
-                  >
+      <PageHeaderLayout breadcrumbList={breadcrumbList}>
+        <div style={{ margin: '0px -24px 0' }}>
+          <Modal
+            title={
+              configureGlobal.rainbondTextShow && (
+                <h1
+                  style={{
+                    color: '#1890FF',
+                    textAlign: 'center',
+                    border: 'none',
+                    marginBottom: '0px',
+                    marginTop: '10px',
+                  }}
+                >
+                  欢迎使用Rainbond云应用操作系统
+                </h1>
+              )
+            }
+            visible={this.state.guidevisible}
+            onOk={this.handleOkGuidevisible}
+            onCancel={this.handleCancelGuidevisible}
+            width={1000}
+            footer={null}
+            className={styles.modals}
+            maskClosable={false}
+          >
+            <p style={{ fontSize: '17px' }}>
+              Rainbond是开源的面向企业的基础性管理平台，组件于企业的应用开发、应用发布与交付和应用运维的全阶段流程。为了便于你使用和理解Rainbond项目，我们特意为你准备了Rainbond基础功能流程的新手任务。
+            </p>
+            {/* <p><img src="/static/www/img/appOutline/appOutline0.png"></img></p> */}
+            <p>
+              <div className={styles.stepsbox}>
+                {steps.map((item, index) => {
+                  const { status } = item;
+                  return (
                     <div
                       className={
-                        status ? styles.stepssuccesslux : styles.stepsinfolux
+                        status ? styles.stepssuccess : styles.stepsinfo
                       }
-                      style={{
-                        marginLeft:
-                          index == 0
-                            ? "53px"
-                            : index == 1
-                              ? "80px"
+                      key={index}
+                    >
+                      <div
+                        className={
+                          status ? styles.stepssuccesslux : styles.stepsinfolux
+                        }
+                        style={{
+                          marginLeft:
+                            index == 0
+                              ? '53px'
+                              : index == 1
+                              ? '80px'
                               : index == 2
-                                ? "100px"
-                                : index == 3
-                                  ? "72px"
-                                  : index == 4
-                                    ? "82px"
-                                    : index == 5 ? "77px" : "53px",
-                        width:
-                          index == 1
-                            ? "86%"
-                            : index == 2
-                              ? "60%"
+                              ? '100px'
                               : index == 3
-                                ? "86%"
-                                : index == 4
-                                  ? "78%"
-                                  : index == 5 ? "77%" : "100%",
-                        display: index == 6 ? "none" : ""
-                      }}
-                    />
-                    <div
-                      className={
-                        status ? styles.stepssuccessbj : styles.stepsinfobj
-                      }
-                    >
-                      <span>
-                        {status &&
-                          <svg
-                            viewBox="64 64 896 896"
-                            data-icon="check"
-                            width="1em"
-                            height="1em"
-                            fill="currentColor"
-                            aria-hidden="true"
-                          >
-                            <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
-                          </svg>}
-                      </span>
-                    </div>
-                    <div
-                      className={
-                        status
-                          ? styles.stepssuccesscontent
-                          : styles.stepsinfocontent
-                      }
-                    >
-                      <div>
-                        {item.title}
+                              ? '72px'
+                              : index == 4
+                              ? '82px'
+                              : index == 5
+                              ? '77px'
+                              : '53px',
+                          width:
+                            index == 1
+                              ? '86%'
+                              : index == 2
+                              ? '60%'
+                              : index == 3
+                              ? '86%'
+                              : index == 4
+                              ? '78%'
+                              : index == 5
+                              ? '77%'
+                              : '100%',
+                          display: index == 6 ? 'none' : '',
+                        }}
+                      />
+                      <div
+                        className={
+                          status ? styles.stepssuccessbj : styles.stepsinfobj
+                        }
+                      >
+                        <span>
+                          {status && (
+                            <svg
+                              viewBox="64 64 896 896"
+                              data-icon="check"
+                              width="1em"
+                              height="1em"
+                              fill="currentColor"
+                              aria-hidden="true"
+                            >
+                              <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
+                            </svg>
+                          )}
+                        </span>
                       </div>
+                      <div
+                        className={
+                          status
+                            ? styles.stepssuccesscontent
+                            : styles.stepsinfocontent
+                        }
+                      >
+                        <div>{item.title}</div>
+                      </div>
+                      <div />
                     </div>
-                    <div />
-                  </div>
-                );
-              })}
-            </div>
-          </p>
-          <p style={{ textAlign: "center" }}>
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
-              style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
-              }}
-            >
-              <Button type="primary">查看详情</Button>
-            </Link>
-          </p>
-        </Modal>
-
-        <div className={styles.contents}>
-          <Row>
-            <Col
-              xs={14}
-              sm={14}
-              md={14}
-              lg={14}
-              xl={14}
-              style={{ paddingRight: "10px" }}
-            >
-              {extraContent}
-              <Card
+                  );
+                })}
+              </div>
+            </p>
+            <p style={{ textAlign: 'center' }}>
+              <Link
+                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
                 style={{
-                  marginBottom: 10,
-                  height: 475
-                }}
-                title={
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <span>应用</span>
-                    <a
-                      style={{ fontSize: "14px", fontWeight: 400 }}
-                      onClick={() => {
-                        this.setState({ addApplication: true });
-                      }}
-                    >
-                      增加应用
-                    </a>
-                  </div>
-                }
-                bordered={false}
-                bodyStyle={{
-                  padding: 0,
-                  height: "100%"
+                  wordBreak: 'break-all',
+                  wordWrap: 'break-word',
+                  color: '#1890ff',
                 }}
               >
-                {teamAppList &&
-                  teamAppList.length > 0 &&
-                  teamAppList.map((item, index) => {
-                    const {
-                      backup_record_num,
-                      group_name,
-                      run_service_num,
-                      services_num,
-                      share_record_num,
-                      group_id
-                    } = item;
-                    return (
-                      <div
-                        key={index}
-                        style={{ borderBottom: "1px solid #e8e8e8" }}
-                      >
-                        <div style={{ padding: "10px 20px" }}>
-                          <Link
-                            to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`}
-                            style={{
-                              wordBreak: "break-all",
-                              wordWrap: "break-word",
-                              color: "rgba(0,0,0,.85)"
-                            }}
-                          >
-                            <a style={{ fontSize: "16px" }}>
-                              {group_name}
-                            </a>
-                          </Link>
+                <Button type="primary">查看详情</Button>
+              </Link>
+            </p>
+          </Modal>
 
-                          <div className={styles.teamListStyle}>
-                            <div>
-                              <span>组件：</span>
-                              <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}`}
-                                style={{
-                                  wordBreak: "break-all",
-                                  wordWrap: "break-word",
-                                  color: "rgba(0,0,0,.85)"
-                                }}
-                              >
-                                <a>
-                                  {run_service_num ? run_service_num + "/" : ""}
-                                  {services_num}
+          <div className={styles.contents}>
+            <Row>
+              <Col
+                xs={14}
+                sm={14}
+                md={14}
+                lg={14}
+                xl={14}
+                style={{ paddingRight: '10px' }}
+              >
+                {extraContent}
+                <Card
+                  style={{
+                    marginBottom: 10,
+                    height: 475,
+                  }}
+                  title={
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>应用</span>
+                      <a
+                        style={{ fontSize: '14px', fontWeight: 400 }}
+                        onClick={() => {
+                          this.setState({ addApplication: true });
+                        }}
+                      >
+                        增加应用
+                      </a>
+                    </div>
+                  }
+                  bordered={false}
+                  bodyStyle={{
+                    padding: 0,
+                    height: '100%',
+                  }}
+                >
+                  {teamAppList &&
+                    teamAppList.length > 0 &&
+                    teamAppList.map((item, index) => {
+                      const {
+                        backup_record_num,
+                        group_name,
+                        run_service_num,
+                        services_num,
+                        share_record_num,
+                        group_id,
+                      } = item;
+                      return (
+                        <div
+                          key={index}
+                          style={{ borderBottom: '1px solid #e8e8e8' }}
+                        >
+                          <div style={{ padding: '10px 20px' }}>
+                            <Link
+                              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                item.group_id
+                              }`}
+                              style={{
+                                wordBreak: 'break-all',
+                                wordWrap: 'break-word',
+                                color: 'rgba(0,0,0,.85)',
+                              }}
+                            >
+                              <a style={{ fontSize: '16px' }}>{group_name}</a>
+                            </Link>
+
+                            <div className={styles.teamListStyle}>
+                              <div>
+                                <span>组件：</span>
+                                <Link
+                                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                    item.group_id
+                                  }`}
+                                  style={{
+                                    wordBreak: 'break-all',
+                                    wordWrap: 'break-word',
+                                    color: 'rgba(0,0,0,.85)',
+                                  }}
+                                >
+                                  <a>
+                                    {run_service_num
+                                      ? `${run_service_num  }/`
+                                      : ''}
+                                    {services_num}
+                                  </a>
+                                </Link>
+                              </div>
+                              <div>
+                                <span>备份记录：</span>
+                                <Link
+                                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                    item.group_id
+                                  }/backup`}
+                                  style={{
+                                    wordBreak: 'break-all',
+                                    wordWrap: 'break-word',
+                                    color: 'rgba(0,0,0,.85)',
+                                  }}
+                                >
+                                  <a style={{ fontSize: '16px' }}>
+                                    {backup_record_num}
+                                  </a>
+                                </Link>
+                              </div>
+                              <div>
+                                <span>分享记录：</span>
+                                <a style={{ color: 'rgba(0, 0, 0, 0.65)' }}>
+                                  {share_record_num}
                                 </a>
-                              </Link>
-                            </div>
-                            <div>
-                              <span>备份记录：</span>
-                              <Link
-                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/backup`}
-                                style={{
-                                  wordBreak: "break-all",
-                                  wordWrap: "break-word",
-                                  color: "rgba(0,0,0,.85)"
-                                }}
-                              >
-                                <a style={{ fontSize: "16px" }}>
-                                  {backup_record_num}
-                                </a>
-                              </Link>
-                            </div>
-                            <div>
-                              <span>分享记录：</span>
-                              <a style={{ color: "rgba(0, 0, 0, 0.65)" }}>
-                                {share_record_num}
-                              </a>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
 
-                {teamAppList && teamAppList.length > 0 && this.state.total > 0
-                  ? <div style={{ textAlign: "right", margin: "15px" }}>
+                  {teamAppList &&
+                  teamAppList.length > 0 &&
+                  this.state.total > 0 ? (
+                    <div style={{ textAlign: 'right', margin: '15px' }}>
                       <Pagination
                         size="small"
                         current={this.state.page}
@@ -996,124 +1019,127 @@ export default class Index extends PureComponent {
                         onChange={this.onPageChange}
                       />
                     </div>
-                  : <List />}
-              </Card>
+                  ) : (
+                    <List />
+                  )}
+                </Card>
 
-              <Card
-                bodyStyle={{
-                  padding: 0,
-                  height: 410,
-                  overflow: "auto"
-                }}
-                bordered={false}
-                className={styles.activeCard}
-                title="动态"
-                loading={activitiesLoading}
-              >
-                <List loading={activitiesLoading} size="large">
-                  <div className={styles.activitiesList}>
-                    {this.renderActivities()}
-                  </div>
-                </List>
-              </Card>
-            </Col>
-            <Col xs={10} sm={10} md={10} lg={10} xl={10}>
-              <Card
-                style={{
-                  marginBottom: 10,
-                  border: "none",
-                  height: "562px",
-                  overflow: "hidden"
-                }}
-                title="热门访问域名"
-                bordered={false}
-                bodyStyle={{
-                  padding: 0
-                }}
-                border={false}
-              >
-                <ChartCard
-                  style={{
-                    marginTop: "-20px",
-                    border: "none"
+                <Card
+                  bodyStyle={{
+                    padding: 0,
+                    height: 410,
+                    overflow: 'auto',
                   }}
+                  bordered={false}
+                  className={styles.activeCard}
+                  title="动态"
+                  loading={activitiesLoading}
                 >
-                  <NumberInfo
-                    subTitle={
-                      <span>
-                        整体请求量
-                        <Tooltip title={"整体请求量"}>
-                          <Icon
-                            style={{ marginLeft: 8 }}
-                            type="info-circle-o"
-                          />
-                        </Tooltip>
-                      </span>
-                    }
-                    gap={8}
-                    total={numeral(this.state.num).format("0,0")}
-                  />
-                  <MiniArea line height={45} data={this.state.visitData} />
-                  <Table
-                    rowKey={record => record.index}
-                    size="small"
-                    style={{ marginTop: "15px", height: "300px" }}
-                    columns={columns}
-                    dataSource={domainList}
-                    pagination={{
-                      style: { marginBottom: 0 },
-                      current: this.state.domainPage,
-                      pageSize: this.state.domainPage_size,
-                      total: this.state.domainTotal,
-                      onChange: this.onDomainPageChange
-                    }}
-                  />
-                </ChartCard>
-              </Card>
-              <Card
-                style={{
-                  marginBottom: 10,
-                  height: 468
-                }}
-                title="热门访问组件"
-                bordered={false}
-                bodyStyle={{
-                  padding: 0
-                }}
-              >
-                <Col span={24}>
+                  <List loading={activitiesLoading} size="large">
+                    <div className={styles.activitiesList}>
+                      {this.renderActivities()}
+                    </div>
+                  </List>
+                </Card>
+              </Col>
+              <Col xs={10} sm={10} md={10} lg={10} xl={10}>
+                <Card
+                  style={{
+                    marginBottom: 10,
+                    border: 'none',
+                    height: '562px',
+                    overflow: 'hidden',
+                  }}
+                  title="热门访问域名"
+                  bordered={false}
+                  bodyStyle={{
+                    padding: 0,
+                  }}
+                  border={false}
+                >
                   <ChartCard
                     style={{
-                      marginTop: "-20px",
-                      border: "none"
+                      marginTop: '-20px',
+                      border: 'none',
                     }}
                   >
+                    <NumberInfo
+                      subTitle={
+                        <span>
+                          整体请求量
+                          <Tooltip title="整体请求量">
+                            <Icon
+                              style={{ marginLeft: 8 }}
+                              type="info-circle-o"
+                            />
+                          </Tooltip>
+                        </span>
+                      }
+                      gap={8}
+                      total={numeral(this.state.num).format('0,0')}
+                    />
+                    <MiniArea line height={45} data={this.state.visitData} />
                     <Table
-                      className={styles.cancelMargin}
-                      style={{
-                        height: "390px",
-                        marginTop: "-20px",
-                        overflow: "auto"
-                      }}
                       rowKey={record => record.index}
                       size="small"
-                      columns={columnTwo}
-                      dataSource={serviceList}
-                      pagination={false}
+                      style={{ marginTop: '15px', height: '300px' }}
+                      columns={columns}
+                      dataSource={domainList}
+                      pagination={{
+                        style: { marginBottom: 0 },
+                        current: this.state.domainPage,
+                        pageSize: this.state.domainPage_size,
+                        total: this.state.domainTotal,
+                        onChange: this.onDomainPageChange,
+                      }}
                     />
                   </ChartCard>
-                </Col>
-              </Card>
-            </Col>
-          </Row>
-          {this.state.addApplication &&
-            <EditGroupName
-              title="添加应用"
-              onCancel={this.handleCancelApplication}
-              onOk={this.handleOkApplication}
-            />}
+                </Card>
+                <Card
+                  style={{
+                    marginBottom: 10,
+                    height: 468,
+                  }}
+                  title="热门访问组件"
+                  bordered={false}
+                  bodyStyle={{
+                    padding: 0,
+                  }}
+                >
+                  <Col span={24}>
+                    <ChartCard
+                      style={{
+                        marginTop: '-20px',
+                        border: 'none',
+                      }}
+                    >
+                      <Table
+                        className={styles.cancelMargin}
+                        style={{
+                          height: '390px',
+                          marginTop: '-20px',
+                          overflow: 'auto',
+                        }}
+                        rowKey={record => record.index}
+                        size="small"
+                        columns={columnTwo}
+                        dataSource={serviceList}
+                        pagination={false}
+                      />
+                    </ChartCard>
+                  </Col>
+                </Card>
+              </Col>
+            </Row>
+            {this.state.addApplication && (
+              <EditGroupName
+                title="添加应用"
+                onCancel={this.handleCancelApplication}
+                onOk={this.handleOkApplication}
+              />
+            )}
+          </div>
         </div>
-      </div>
       </PageHeaderLayout>
     );
   }

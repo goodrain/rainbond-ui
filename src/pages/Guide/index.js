@@ -137,7 +137,7 @@ export default class Index extends PureComponent {
               this.props.dispatch(
                 routerRedux.push(
                   `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                    res.ID
+                    res.group_id
                   }`
                 )
               );
@@ -217,7 +217,7 @@ export default class Index extends PureComponent {
               region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
-              setFieldsValue({ group_id: group.ID });
+              setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
             }
           });

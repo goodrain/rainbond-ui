@@ -780,7 +780,6 @@ export default {
       };
     },
     showAuthCompany(state, {}) {
-      console.log('jinlai')
       return {
         ...state,
         showAuthCompany: true,
