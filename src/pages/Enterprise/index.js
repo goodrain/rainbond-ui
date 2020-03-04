@@ -34,7 +34,6 @@ import OauthForm from '../../components/OauthForm';
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
-  oauthLongin: loading.effects['global/creatOauth'],
   overviewInfo: index.overviewInfo,
 }))
 export default class Enterprise extends PureComponent {
@@ -283,7 +282,6 @@ export default class Enterprise extends PureComponent {
     window.open('https://t.goodrain.com/');
   };
 
-
   handlUnit = (num, unit) => {
     if (num) {
       let nums = num;
@@ -329,7 +327,7 @@ export default class Enterprise extends PureComponent {
   };
 
   handleIsConvenientEntrance = () => {
-    this.setState({ editorConvenient: true });
+    this.setState({ editorConvenient: !this.state.editorConvenient });
   };
 
   deleteConvenient = collectionInfo => {
@@ -426,6 +424,9 @@ export default class Enterprise extends PureComponent {
       overviewTeamInfo.active_teams &&
       overviewTeamInfo.active_teams.length > 0 &&
       overviewTeamInfo.active_teams;
+
+    const collections =
+      collectionList && collectionList.length > 0 && collectionList;
 
     const teamOperation = (
       <div style={teamBoxsPs}>
@@ -796,7 +797,9 @@ export default class Enterprise extends PureComponent {
                         onClick={() => {
                           this.props.dispatch(
                             routerRedux.replace(
-                              `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                              `/team/${new_join_team[0].team_name}/region/${
+                                new_join_team[0].region
+                              }/index`
                             )
                           );
                         }}
@@ -955,22 +958,26 @@ export default class Enterprise extends PureComponent {
                       >
                         新增
                       </a>
-                      <a
-                        onClick={() => {
-                          this.handleIsConvenientEntrance();
-                        }}
-                      >
-                        编辑
-                      </a>
+                      {collections && (
+                        <a
+                          onClick={() => {
+                            this.handleIsConvenientEntrance();
+                          }}
+                        >
+                          编辑
+                        </a>
+                      )}
                     </Col>
                   </Row>
 
                   <Col span={24}>
                     <Row>
-                      {collectionList &&
-                        collectionList.length > 0 &&
-                        collectionList.map(item => {
+                      {collections &&
+                        collections.map((item, index) => {
                           const { url, name } = item;
+                          if (index > 5) {
+                            return null;
+                          }
                           return (
                             <Col
                               span={12}
@@ -1065,24 +1072,13 @@ export default class Enterprise extends PureComponent {
     this.handelRequest(obj);
   };
 
- 
-
   cancelCreatUser = () => {
     this.setState({
       userVisible: false,
     });
   };
   render() {
-    const { userVisible, } = this.state;
-    const { oauthLongin } = this.props;
-    const pageHeaderContent = (
-      <div className={styles.pageHeaderContent}>
-        <div className={styles.content}>
-          <div>企业管理员可以设置平台信息，管理企业下的团队</div>
-        </div>
-      </div>
-    );
-
+    const { userVisible } = this.state;
     return (
       <div>
         {this.renderContent()}

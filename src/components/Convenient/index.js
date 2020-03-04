@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Modal, Form, Select, Button, Row, Col } from 'antd';
+import { Modal, Form, Select, Button, Row, Col, notification } from 'antd';
 import { connect } from 'dva';
 import styles from '../CreateTeam/index.less';
 
@@ -19,11 +19,13 @@ export default class Convenient extends PureComponent {
       userTeamList: [],
       region_list: [],
       apps: [],
+      components: [],
       Loading: true,
     };
   }
   componentDidMount() {
     this.getUserTeams();
+    this.fetchTeamApps();
   }
 
   handleSubmit = () => {
@@ -42,15 +44,56 @@ export default class Convenient extends PureComponent {
       },
       onOk,
     } = this.props;
-    const { userTeamList } = this.state;
+    const { userTeamList, apps, components } = this.state;
+    const {
+      team_name: teamName,
+      region: regionName,
+      apps: appName,
+      component: componentName,
+    } = values;
 
     let name = '';
-    userTeamList.map(item => {
-      if (item.team_name === values.team_name) {
-        name = item.team_alias;
-      }
-    });
-    const result = `/team/${values.team_name}/region/${values.region}/index`;
+    let result = '';
+
+    if (componentName && components && components.length > 0) {
+      components.map(item => {
+        if (item.service_alias === componentName) {
+          const {
+            service_alias,
+            tenant_name,
+            region_name,
+            service_cname,
+          } = item;
+          result = `/team/${tenant_name}/region/${region_name}/components/${service_alias}/overview`;
+          name = service_cname;
+        }
+      });
+    } else if (appName && apps && apps.length > 0) {
+      apps.map(item => {
+        if (item.ID === appName) {
+          const { group_name, tenant_name, region_name, ID } = item;
+          name = group_name;
+          result = `/team/${tenant_name}/region/${region_name}/apps/${ID}`;
+        }
+      });
+    } else if (
+      teamName &&
+      regionName &&
+      userTeamList &&
+      userTeamList.length > 0
+    ) {
+      userTeamList.map(item => {
+        if (item.team_name === teamName) {
+          name = item.team_alias;
+        }
+      });
+      result = `/team/${teamName}/region/${regionName}/index`;
+    } else {
+      notification.warning({
+        message: '请至少选择一个',
+      });
+      return null;
+    }
     dispatch({
       type: 'user/addCollectionView',
       payload: {
@@ -95,50 +138,26 @@ export default class Convenient extends PureComponent {
   };
 
   // 应用
-  fetchTeamApps = regionName => {
-    const { form } = this.props;
-    const { getFieldValue } = form;
-    console.log('region', getFieldValue('region'));
-    this.props.dispatch({
-      type: 'global/fetchGroups',
+  fetchTeamApps = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseApps',
       payload: {
-        query: {
-          region_name: regionName || getFieldValue('region'),
-        },
-        team_name: getFieldValue('team_name'),
-        region_name: regionName || getFieldValue('region'),
+        enterprise_id: eid,
+        page: 1,
+        page_size: 999,
       },
       callback: res => {
-        this.setState({ apps: res, Loading: false });
+        if (res && res._code === 200) {
+          this.setState({ apps: res.list, Loading: false });
+        }
       },
     });
-  };
-
-  // 组件
-  loadComponents = () => {
-    const { dispatch, currentTeam, currentRegion, currentAppID } = this.props;
-    const { queryName } = this.state;
-    if (currentAppID) {
-      dispatch({
-        type: 'groupControl/fetchApps',
-        payload: {
-          team_name: currentTeam.team_name,
-          region_name: currentRegion.team_region_name,
-          group_id: currentAppID,
-          page: 1,
-          page_size: 50,
-          query: queryName,
-        },
-        callback: data => {
-          if (data && data._code == 200) {
-            this.setState({
-              components: data.list || [],
-              Loading: false,
-            });
-          }
-        },
-      });
-    }
   };
 
   handleTeamChange = value => {
@@ -154,15 +173,29 @@ export default class Convenient extends PureComponent {
     if (region_list && region_list.length > 0) {
       this.setState({ region_list }, () => {
         setFieldsValue({ region: region_list[0] });
-        this.fetchTeamApps(region_list[0]);
       });
+    }
+  };
+
+  handleAppChange = value => {
+    const { form } = this.props;
+    const { setFieldsValue } = form;
+    const { apps } = this.state;
+    let components = [];
+    apps.map(item => {
+      if (item.ID === value) {
+        components = item.service_list;
+      }
+    });
+    if (components && components.length > 0) {
+      this.setState({ components });
     }
   };
 
   render() {
     const { getFieldDecorator } = this.props.form;
     const { onOk, onCancel, title } = this.props;
-    const { userTeamList, apps, region_list } = this.state;
+    const { userTeamList, apps, components, region_list } = this.state;
 
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
 
@@ -180,7 +213,7 @@ export default class Convenient extends PureComponent {
     return (
       <Modal
         title={title}
-        width={600}
+        width={1000}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
@@ -198,12 +231,12 @@ export default class Convenient extends PureComponent {
             )} */}
 
           <Row>
-            <Col span={12}>
+            <Col span={6}>
               <FormItem {...formItemLayout} label="团队名称" hasFeedback>
                 {getFieldDecorator('team_name', {
                   rules: [
                     {
-                      required: true,
+                      required: false,
                       message: '请选择团队',
                     },
                   ],
@@ -222,12 +255,12 @@ export default class Convenient extends PureComponent {
                 )}
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <FormItem {...formItemLayout} label="数据中心" hasFeedback>
                 {getFieldDecorator('region', {
                   rules: [
                     {
-                      required: true,
+                      required: false,
                       message: '请选择数据中心',
                     },
                   ],
@@ -236,6 +269,49 @@ export default class Convenient extends PureComponent {
                     {region_list &&
                       region_list.map(item => (
                         <Option value={item}>{item}</Option>
+                      ))}
+                  </Select>
+                )}
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem {...formItemLayout} label="应用" hasFeedback>
+                {getFieldDecorator('apps', {
+                  rules: [
+                    {
+                      required: false,
+                      message: '请选择应用',
+                    },
+                  ],
+                })(
+                  <Select
+                    style={{ width: '100%' }}
+                    onChange={this.handleAppChange}
+                  >
+                    {apps &&
+                      apps.map(item => (
+                        <Option value={item.ID}>{item.group_name}</Option>
+                      ))}
+                  </Select>
+                )}
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem {...formItemLayout} label="组件" hasFeedback>
+                {getFieldDecorator('component', {
+                  rules: [
+                    {
+                      required: false,
+                      message: '请选择组件',
+                    },
+                  ],
+                })(
+                  <Select style={{ width: '100%' }}>
+                    {components &&
+                      components.map(item => (
+                        <Option value={item.service_alias}>
+                          {item.service_cname}
+                        </Option>
                       ))}
                   </Select>
                 )}
