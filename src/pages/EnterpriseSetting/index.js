@@ -336,6 +336,7 @@ export default class EnterpriseSetting extends PureComponent {
     const {
       rainbondInfo,
       oauthLongin,
+      isRegist,
       match: {
         params: { eid },
       },

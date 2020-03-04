@@ -164,7 +164,8 @@ export default class Enterprise extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            overviewAppInfo: res.bean,
+            overviewAppInfo:
+              res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
             overviewAppInfoLoading: false,
           });
         }
@@ -1035,7 +1036,7 @@ export default class Enterprise extends PureComponent {
         ...values,
       },
       callback: data => {
-        if (data && data._condition == 200) {
+        if (data && data._code == 200) {
           notification.success({ message: data.msg_show });
         } else {
           notification.error({ message: data.msg_show });
