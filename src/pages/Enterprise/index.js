@@ -91,7 +91,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res._code == 200 && res._condition === 200) {
           this.setState({
             collectionList: res.list,
           });
@@ -106,7 +106,7 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState(
             {
               enterpriseList: res.list,
@@ -139,7 +139,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState({
             enterpriseInfo: res.bean,
             enterpriseInfoLoading: false,
@@ -163,9 +163,10 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState({
-            overviewAppInfo: res.bean,
+            overviewAppInfo:
+              res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
             overviewAppInfoLoading: false,
           });
         }
@@ -186,7 +187,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState({
             overviewInfo: res.bean,
             overviewInfoLoading: false,
@@ -210,7 +211,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
             overviewTeamInfoLoading: false,
@@ -234,7 +235,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code === 200 && res._condition === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
             overviewMonitorInfoLoading: false,
@@ -282,7 +283,6 @@ export default class Enterprise extends PureComponent {
   handelObtain = () => {
     window.open('https://t.goodrain.com/');
   };
-
 
   handlUnit = (num, unit) => {
     if (num) {
@@ -354,7 +354,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res._code == 200 && res._condition === 200) {
           notification.success({ message: '删除成功' });
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
@@ -796,7 +796,9 @@ export default class Enterprise extends PureComponent {
                         onClick={() => {
                           this.props.dispatch(
                             routerRedux.replace(
-                              `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                              `/team/${new_join_team[0].team_name}/region/${
+                                new_join_team[0].region
+                              }/index`
                             )
                           );
                         }}
@@ -1065,15 +1067,13 @@ export default class Enterprise extends PureComponent {
     this.handelRequest(obj);
   };
 
- 
-
   cancelCreatUser = () => {
     this.setState({
       userVisible: false,
     });
   };
   render() {
-    const { userVisible, } = this.state;
+    const { userVisible } = this.state;
     const { oauthLongin } = this.props;
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
