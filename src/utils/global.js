@@ -1,5 +1,6 @@
-import styles from "./utils.less";
-import moment from "moment";
+import styles from './utils.less';
+import moment from 'moment';
+
 const global = {
   putLog(info) {
     if (!info) {
@@ -7,103 +8,103 @@ const global = {
     }
     try {
       const defaultOptions = {
-        credentials: "same-origin"
+        credentials: 'same-origin',
       };
-      defaultOptions.url = "https://log.rainbond.com/log";
-      defaultOptions.method = "post";
+      defaultOptions.url = 'https://log.rainbond.com/log';
+      defaultOptions.method = 'post';
       defaultOptions.data = JSON.stringify({
         url: window.location.href,
         eid: info.eid,
         e_name: info.enterprise_name,
         version: info.version,
-        title: info.title
+        title: info.title,
       });
       axios(defaultOptions);
     } catch (e) {}
   },
   getCurrEnterpriseId() {
     const reg = /enterprise\/([^\/]+)/;
-    const hash = location.hash || "";
+    const hash = location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return "";
+    return '';
   },
   getCurrTeamName() {
     const reg = /team\/([^\/]+)/;
-    const hash = location.hash || "";
+    const hash = location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return "";
+    return '';
   },
   getComponentID() {
     const reg = /components\/([^\/]+)/;
-    const hash = location.hash || "";
+    const hash = location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return "";
+    return '';
   },
   getAppID() {
     const reg = /apps\/([^\/]+)/;
-    const hash = location.hash || "";
+    const hash = location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return "";
+    return '';
   },
   getCurrRegionName() {
     const reg = /region\/([^\/]+)/;
-    const hash = location.hash || "";
+    const hash = location.hash || '';
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return "";
+    return '';
   },
   fetchStateColor(status) {
     const statusColorMap = {
-      RUNNING: "#00D777", //运行中 绿色
-      running: "#00D777", //运行中 绿色
-      starting: "#F69D4A", //启动中
-      Starting: "#F69D4A", //启动中
-      NOTREADY: "#F69D4A", //未就绪
-      checking: "F69D4A", //检测中
-      SCHEDULING: "#F69D4A", //检测中
-      stopping: "#20124A", //关闭中 紫色
-      Stopping: "#20124A", //关闭中 紫色
-      unusual: "#CD0200", //异常 纯红
-      ABNORMAL: "#CD0200", //异常 纯红
-      closed: "#000021", //已关闭 黑色
-      Closed: "#000021", //已关闭 黑色
-      undeploy: "#708090", //未部署 石板灰
-      Undeploy: "#708090", //未部署 石板灰
-      Unknow: "#CD0200", //未知深粉色
-      unknow: "#CD0200", //未知/深粉色
-      Creating: "#778899", //部署中 浅石板灰
-      creating: "#778899", //部署中 浅石板灰
-      Third_party: "#5BB2FA",
-      Internet: "#5BB2FA", //蓝色
-      TheInternet: "#5BB2FA", //蓝色
-      Abnormal: "#CD0200", //不正常,纯红
-      abnormal: "#CD0200", //不正常,纯红
-      Build_failure: "#CD0200", //构建失败 纯红
-      build_failure: "#CD0200", //构建失败 纯红
-      Upgrade: "#00FF4A", //升级中
-      upgrade: "#00FF4A", //升级中
-      expired: "#CD0200", //过期 猩红
-      Expired: "#CD0200", //猩红
-      UNHEALTHY: "#CD0200",
-      INITIATING: "#F69D4A",
-      TEMINATING: "#20124A", //关闭中 紫色
-      tEMINATING: "#20124A", //关闭中 紫色
-      Some_abnormal: "#FF0000", //一些不正常 纯红
-      Building: "#007710" //构建  纯蓝
+      RUNNING: '#00D777', // 运行中 绿色
+      running: '#00D777', // 运行中 绿色
+      starting: '#F69D4A', // 启动中
+      Starting: '#F69D4A', // 启动中
+      NOTREADY: '#F69D4A', // 未就绪
+      checking: 'F69D4A', // 检测中
+      SCHEDULING: '#F69D4A', // 检测中
+      stopping: '#20124A', // 关闭中 紫色
+      Stopping: '#20124A', // 关闭中 紫色
+      unusual: '#CD0200', // 异常 纯红
+      ABNORMAL: '#CD0200', // 异常 纯红
+      closed: '#000021', // 已关闭 黑色
+      Closed: '#000021', // 已关闭 黑色
+      undeploy: '#708090', // 未部署 石板灰
+      Undeploy: '#708090', // 未部署 石板灰
+      Unknow: '#CD0200', // 未知深粉色
+      unknow: '#CD0200', // 未知/深粉色
+      Creating: '#778899', // 部署中 浅石板灰
+      creating: '#778899', // 部署中 浅石板灰
+      Third_party: '#5BB2FA',
+      Internet: '#5BB2FA', // 蓝色
+      TheInternet: '#5BB2FA', // 蓝色
+      Abnormal: '#CD0200', // 不正常,纯红
+      abnormal: '#CD0200', // 不正常,纯红
+      Build_failure: '#CD0200', // 构建失败 纯红
+      build_failure: '#CD0200', // 构建失败 纯红
+      Upgrade: '#00FF4A', // 升级中
+      upgrade: '#00FF4A', // 升级中
+      expired: '#CD0200', // 过期 猩红
+      Expired: '#CD0200', // 猩红
+      UNHEALTHY: '#CD0200',
+      INITIATING: '#F69D4A',
+      TEMINATING: '#20124A', // 关闭中 紫色
+      tEMINATING: '#20124A', // 关闭中 紫色
+      Some_abnormal: '#FF0000', // 一些不正常 纯红
+      Building: '#007710', // 构建  纯蓝
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },
@@ -120,15 +121,15 @@ const global = {
           <g
             id="应用视图-总览"
             stroke="none"
-            stroke-width="1"
+            strokeWidth="1"
             fill="none"
-            fill-rule="evenodd"
+            fillRule="evenodd"
           >
             <g
               id="应用视图"
               transform="translate(-101.000000, -117.000000)"
               fill="#1296DB"
-              fill-rule="nonzero"
+              fillRule="nonzero"
             >
               <g id="编组" transform="translate(101.000000, 117.000000)">
                 <path
@@ -143,7 +144,7 @@ const global = {
       component: (
         <svg
           t="1582714685365"
-          class="icon"
+          className="icon"
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -161,7 +162,7 @@ const global = {
       logs: (
         <svg
           style={{
-            cursor: "pointer"
+            cursor: 'pointer',
           }}
           t="1566527207023"
           className={styles.iconm}
@@ -174,7 +175,7 @@ const global = {
         >
           <path
             d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
-            fill={color || "#000"}
+            fill={color || '#000'}
             p-id="5958"
           />
         </svg>
@@ -216,7 +217,7 @@ const global = {
       ),
       useDisk: (
         <svg
-          style={{ marginRight: "6px" }}
+          style={{ marginRight: '6px' }}
           t="1566640777774"
           viewBox="0 0 1024 1024"
           version="1.1"
@@ -315,7 +316,7 @@ const global = {
         >
           <path
             d="M951.509333 507.2L465.194667 993.514667c-0.682667 1.024-1.130667 2.176-2.026667 3.072a20.8 20.8 0 0 1-15.253333 5.994666 20.8 20.8 0 0 1-15.253334-5.994666c-0.896-0.896-1.322667-2.048-2.026666-3.072L73.066667 635.946667c-1.024-0.682667-2.154667-1.130667-3.072-2.026667A20.8 20.8 0 0 1 64 618.666667a20.693333 20.693333 0 0 1 5.994667-15.253334c0.917333-0.896 2.048-1.322667 3.072-2.026666L559.381333 115.093333A20.906667 20.906667 0 0 1 575.914667 106.666667h86.528c2.837333-32.042667 15.914667-60.16 35.626666-78.570667l0.341334 0.384c4.181333-4.416 9.877333-7.146667 16.170666-7.146667 12.629333 0 22.869333 10.922667 22.869334 24.384 0 8-3.84 14.741333-9.408 19.178667-10.218667 9.429333-17.493333 24.298667-19.925334 41.770667h102.464c6.826667 0 12.672 3.413333 16.533334 8.426666l124.373333 124.373334a20.992 20.992 0 0 1 8.426667 16.554666V490.666667a20.906667 20.906667 0 0 1-8.405334 16.533333z m-220.757333-151.658667a22.101333 22.101333 0 0 1-16.170667 7.125334c-12.629333 0-22.826667-10.922667-22.826666-24.384 0-8 3.84-14.741333 9.408-19.2 5.290667-4.885333 9.621333-11.456 13.162666-18.837334-18.24 4.864-31.744 21.333333-31.744 41.066667a42.666667 42.666667 0 0 0 85.333334 0c0-10.090667-3.626667-19.221333-9.493334-26.538667-13.12 33.002667-27.669333 40.768-27.669333 40.768z m186.496-91.413333L802.453333 149.333333h-89.877333c3.712 9.472 9.045333 17.536 15.466667 23.466667 0.874667 0.704 1.962667 1.130667 2.709333 1.962667l0.384-0.384c22.208 20.757333 36.8 53.504 36.8 90.752 0 0.896-0.213333 1.685333-0.256 2.56 25.536 14.741333 42.922667 42.026667 42.922667 73.642666a85.333333 85.333333 0 0 1-170.666667 0 85.141333 85.141333 0 0 1 81.493333-84.949333c-1.92-18.944-9.408-35.157333-20.245333-45.184-0.874667-0.704-1.962667-1.130667-2.752-1.962667l-0.341333 0.384C682.218667 194.794667 670.506667 173.674667 664.96 149.333333h-80.917333l-469.333334 469.333334 333.205334 333.205333 469.333333-469.333333V264.128zM304.682667 582.08a20.842667 20.842667 0 0 1 29.461333 0l150.378667 150.378667a20.842667 20.842667 0 0 1-29.461334 29.461333l-150.378666-150.378667a20.842667 20.842667 0 0 1 0-29.461333z m85.333333-85.333333a20.842667 20.842667 0 0 1 29.461333 0l150.357334 150.378666a20.842667 20.842667 0 0 1-29.461334 29.461334l-150.357333-150.378667a20.842667 20.842667 0 0 1 0-29.461333z"
-            fill={color || "#000"}
+            fill={color || '#000'}
             p-id="26202"
           />
         </svg>
@@ -351,7 +352,7 @@ const global = {
       currentVersion: (
         <svg
           style={{
-            cursor: "pointer"
+            cursor: 'pointer',
           }}
           t="1566532978509"
           className={styles.icon}
@@ -377,7 +378,7 @@ const global = {
       upgrade: (
         <svg
           style={{
-            cursor: "pointer"
+            cursor: 'pointer',
           }}
           t="1566533552365"
           className={styles.icon}
@@ -403,7 +404,7 @@ const global = {
       rollback: (
         <svg
           style={{
-            cursor: "pointer"
+            cursor: 'pointer',
           }}
           t="1566533701108"
           className={styles.icon}
@@ -424,7 +425,7 @@ const global = {
       delete: (
         <svg
           style={{
-            cursor: "pointer"
+            cursor: 'pointer',
           }}
           t="1566533607654"
           className={styles.icon}
@@ -497,7 +498,7 @@ const global = {
             fill="#9d9d9d"
           />
         </svg>
-      )
+      ),
     };
     return svgType[type] || type;
   },
@@ -505,261 +506,265 @@ const global = {
   fetchStateBJColor(status) {
     const statusColorMap = {
       running:
-        "linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat", //运行中 绿色
+        'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 运行中 绿色
       starting:
-        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", //启动中
+        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 启动中
       checking:
-        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", //检测中
+        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 检测中
       stopping:
-        "linear-gradient(to right, #20124A 0, #20124A 10px, #fff 10px, #fff 100%) no-repeat", //关闭中 紫色
+        'linear-gradient(to right, #20124A 0, #20124A 10px, #fff 10px, #fff 100%) no-repeat', // 关闭中 紫色
       unusual:
-        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat", //异常
+        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 异常
       closed:
-        "linear-gradient(to right, #000021 0, #000021 10px, #fff 10px, #fff 100%) no-repeat", //已关闭
+        'linear-gradient(to right, #000021 0, #000021 10px, #fff 10px, #fff 100%) no-repeat', // 已关闭
       undeploy:
-        "linear-gradient(to right, #708090 0, #708090 10px, #fff 10px, #fff 100%) no-repeat", //未部署 石板灰
+        'linear-gradient(to right, #708090 0, #708090 10px, #fff 10px, #fff 100%) no-repeat', // 未部署 石板灰
       unKnow:
-        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat", //未知
+        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 未知
       upgrade:
-        "linear-gradient(to right, #00FF4A 0, #00FF4A 10px, #fff 10px, #fff 100%) no-repeat", //升级中
+        'linear-gradient(to right, #00FF4A 0, #00FF4A 10px, #fff 10px, #fff 100%) no-repeat', // 升级中
       creating:
-        "linear-gradient(to right, #778899 0, #778899 10px, #fff 10px, #fff 100%) no-repeat", //部署中
+        'linear-gradient(to right, #778899 0, #778899 10px, #fff 10px, #fff 100%) no-repeat', // 部署中
       expired:
-        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat" //过期
+        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 过期
     };
     return statusColorMap[status] || statusColorMap.unKnow;
   },
 
   fetchStateText(state) {
     const statusColorMap = {
-      RUNNING: "运行中",
-      running: "运行中",
-      starting: "启动中",
-      checking: "检测中",
-      stopping: "关闭中",
-      unusual: "运行异常",
-      closed: "已关闭",
-      undeploy: "未部署",
-      unKnow: "未知",
-      UNKNOWN: "未知",
-      ABNORMAL: "运行异常",
-      TEMINATING: "关闭中",
-      INITIATING: "等待启动",
-      SCHEDULING: "调度中",
-      TheInternet: "未知",
-      upgrade: "升级中",
-      creating: "部署中",
-      expired: "过期",
-      NOTREADY: "未就绪",
-      UNHEALTHY: "不健康"
+      RUNNING: '运行中',
+      running: '运行中',
+      starting: '启动中',
+      checking: '检测中',
+      stopping: '关闭中',
+      unusual: '运行异常',
+      closed: '已关闭',
+      undeploy: '未部署',
+      unKnow: '未知',
+      UNKNOWN: '未知',
+      ABNORMAL: '运行异常',
+      TEMINATING: '关闭中',
+      INITIATING: '等待启动',
+      SCHEDULING: '调度中',
+      TheInternet: '未知',
+      upgrade: '升级中',
+      creating: '部署中',
+      expired: '过期',
+      NOTREADY: '未就绪',
+      UNHEALTHY: '不健康',
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
   fetchTime(value) {
-    let second = value; //时间差的毫秒数
-    let result = "";
+    const second = value; // 时间差的毫秒数
+    let result = '';
 
-    //计算出相差天数
-    let days = Math.floor(second / (24 * 3600 * 1000));
+    // 计算出相差天数
+    const days = Math.floor(second / (24 * 3600 * 1000));
 
-    //计算出小时数
+    // 计算出小时数
 
-    let leave1 = second % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
-    let hours = Math.floor(leave1 / (3600 * 1000));
-    //计算相差分钟数
-    let leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
-    let minutes = Math.floor(leave2 / (60 * 1000));
+    const leave1 = second % (24 * 3600 * 1000); // 计算天数后剩余的毫秒数
+    const hours = Math.floor(leave1 / (3600 * 1000));
+    // 计算相差分钟数
+    const leave2 = leave1 % (3600 * 1000); // 计算小时数后剩余的毫秒数
+    const minutes = Math.floor(leave2 / (60 * 1000));
 
-    //计算相差秒数
-    let leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
-    let seconds = Math.round(leave3 / 1000);
+    // 计算相差秒数
+    const leave3 = leave2 % (60 * 1000); // 计算分钟数后剩余的毫秒数
+    const seconds = Math.round(leave3 / 1000);
 
     if (days && days >= 1) {
-      result += days + "天";
+      result += `${days  }天`;
     }
     if (hours && hours >= 1) {
-      result += hours + "小时";
+      result += `${hours  }小时`;
     }
 
     if (minutes && minutes >= 1) {
-      result += minutes + "分钟";
+      result += `${minutes  }分钟`;
     }
 
     if (seconds && seconds >= 1) {
-      result += seconds + "秒";
+      result += `${seconds  }秒`;
     }
-    return result ? result : "1秒";
+    return result || '1秒';
   },
   fetchdayTime(date) {
-    let second = Date.parse(new Date()) - new Date(date).getTime();
-    //计算出相差天数
-    let days = Math.floor(second / (24 * 3600 * 1000));
-    //计算出小时数
+    const second = Date.parse(new Date()) - new Date(date).getTime();
+    // 计算出相差天数
+    const days = Math.floor(second / (24 * 3600 * 1000));
+    // 计算出小时数
 
-    let leave1 = second % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
-    let hours = Math.floor(leave1 / (3600 * 1000));
-    //计算相差分钟数
-    let leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
-    let minutes = Math.floor(leave2 / (60 * 1000));
+    const leave1 = second % (24 * 3600 * 1000); // 计算天数后剩余的毫秒数
+    const hours = Math.floor(leave1 / (3600 * 1000));
+    // 计算相差分钟数
+    const leave2 = leave1 % (3600 * 1000); // 计算小时数后剩余的毫秒数
+    const minutes = Math.floor(leave2 / (60 * 1000));
 
-    //计算相差秒数
-    let leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
-    let seconds = Math.round(leave3 / 1000);
+    // 计算相差秒数
+    const leave3 = leave2 % (60 * 1000); // 计算分钟数后剩余的毫秒数
+    const seconds = Math.round(leave3 / 1000);
 
-    let result = "";
+    let result = '';
     if (days && days > 7) {
-      result = moment(date).format("YYYY-MM-DD");
+      result = moment(date).format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
-      result += days + "天前";
+      result += `${days  }天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
-      result += hours + "小时前";
+      result += `${hours  }小时前`;
     } else if (minutes && minutes >= 1 && minutes <= 59) {
-      result += minutes + "分钟前";
+      result += `${minutes  }分钟前`;
     } else if (seconds && seconds >= 1 && seconds <= 59) {
-      result += seconds + "秒前";
+      result += `${seconds  }秒前`;
     } else {
-      result = "1秒前";
+      result = '1秒前';
     }
     return result;
   },
   fetchInstanceReasons(type) {
     const reasonsType = {
-      UnknownContainerStatuses: "未知的容器状态",
-      ContainersNotReady: "容器未就绪",
-      ContainersNotInitialized: "容器尚未初始化"
+      UnknownContainerStatuses: '未知的容器状态',
+      ContainersNotReady: '容器未就绪',
+      ContainersNotInitialized: '容器尚未初始化',
     };
     return reasonsType[type] || type;
   },
   fetchInstanceAdvice(type) {
     const adviceType = {
-      OutOfMemory: "内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存",
-      Unhealthy: "健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确",
-      Initiating: "等待启动中, 请检查该组件所依赖的组件是否已经正常启动"
+      OutOfMemory:
+        '内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存',
+      Unhealthy:
+        '健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确',
+      Initiating: '等待启动中, 请检查该组件所依赖的组件是否已经正常启动',
     };
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
-    if (finalstatus == "") {
-      return <span style={{ color: "#F69C49", paddingLeft: "5px" }}>进行中</span>;
+    if (finalstatus == '') {
+      return (
+        <span style={{ color: '#F69C49', paddingLeft: '5px' }}>进行中</span>
+      );
     }
     if (
-      finalstatus == "timeout" ||
-      (finalstatus == "complete" && status == "timeout")
+      finalstatus == 'timeout' ||
+      (finalstatus == 'complete' && status == 'timeout')
     ) {
-      return <span style={{ color: "rgba(0, 0, 0, 0.65)" }}>操作已超时</span>;
+      return <span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>操作已超时</span>;
     }
 
-    if (finalstatus == "empty" || finalstatus == "emptycomplete") {
+    if (finalstatus == 'empty' || finalstatus == 'emptycomplete') {
       return <span />;
     }
     switch (status) {
-      case "success":
-        return <span style={{ color: "#39AA56" }}>成功</span>;
-      case "failure":
-        return <span style={{ color: "#F5212D" }}>失败</span>;
+      case 'success':
+        return <span style={{ color: '#39AA56' }}>成功</span>;
+      case 'failure':
+        return <span style={{ color: '#F5212D' }}>失败</span>;
     }
   },
   fetchAbnormalcolor(type) {
     const abnormalcolor = {
-      AbnormalRecovery: "#39AA56",
-      OOMKilled: "#CD0200",
-      LivenessProbeFailed: "#CD0200",
-      ReadinessProbeFailed: "#CD0200",
-      AbnormalShtdown: "#CD0200",
-      EventTypeAbnormalExited: "#CD0200",
-      AbnormalExited: "#CD0200"
+      AbnormalRecovery: '#39AA56',
+      OOMKilled: '#CD0200',
+      LivenessProbeFailed: '#CD0200',
+      ReadinessProbeFailed: '#CD0200',
+      AbnormalShtdown: '#CD0200',
+      EventTypeAbnormalExited: '#CD0200',
+      AbnormalExited: '#CD0200',
     };
-    return abnormalcolor[type] || "rgba(0,0,0,0.65)";
+    return abnormalcolor[type] || 'rgba(0,0,0,0.65)';
   },
   fetchStateOptTypeText(state) {
     const statusOptType = {
-      deploy: "构建组件",
-      delete: "删除组件",
-      HorizontalUpgrade: "水平升级",
-      VerticalUpgrade: "垂直升级",
-      create: "创建组件",
-      callback: "回滚",
-      "git-change": "代码仓库修改",
-      own_money: "欠费关闭",
-      add_label: "添加标签",
-      delete_label: "删除标签",
-      service_state: "应用状态修改",
-      reboot: "重启组件",
-      market_sync: "云市同步",
-      truncate: "删除组件",
-      EventTypeAbnormalExited: "组件异常退出",
-      OOMKilled: "发生OOM",
-      LivenessProbeFailed: "健康检查不通过(重启)",
-      ReadinessProbeFailed: "健康检查不通过(下线)",
-      AbnormalShtdown: " 组件异常退出",
-      AbnormalExited: "组件异常退出",
-      AbnormalRecovery: "恢复正常",
-      "": "-",
-      "create-service": "创建组件",
-      "batch-build-service": "批量构建组件",
-      "batch-start-service": "批量启动组件",
-      "batch-stop-service": "批量停止组件",
-      "batch-upgrade-service": "批量升级组件",
-      "build-service": "构建组件",
-      build: "构建组件",
-      upgrade: "滚动升级组件",
-      "start-service": "启动组件",
-      start: "启动组件",
-      "add-app-autoscaler-rule": "添加自动伸缩规则",
-      "update-app-autoscaler-rule": "更新自动伸缩规则",
-      "stop-service": "停止组件",
-      stop: "停止组件",
-      "restart-service": "重启组件",
-      restart: "重启组件",
-      "vertical-service": "垂直扩展组件",
-      vertical: "垂直扩展组件",
-      "horizontal-service": "水平扩展组件",
-      horizontal: "水平扩展组件",
-      "set-language": "设置组件语言",
-      "delete-service": "删除组件",
-      "upgrade-service": "升级组件",
-      "delete-buildversion": "删除构建版本",
-      "share-service": "分享组件",
-      "share-wb": "分享到内部市场",
-      "share-ws": "分享到云端市场",
-      "share-yb": "发布到市场",
-      "share-ys": "发布到市场",
-      updata: "更新组件",
-      "add-service-dependency": "添加组件依赖",
-      "delete-service-dependency": "删除组件依赖",
-      "add-service-env": "添加组件环境变量",
-      "update-service-env": "更新组件环境变量",
-      "delete-service-env": "删除组件环境变量",
-      "add-service-port": "添加组件端口",
-      "update-service-port-old": "更新组件端口",
-      "update-service-port": "更新组件端口",
-      "delete-service-port": "删除组件端口",
-      "handle-service-outerport": "修改组件对外端口",
-      "handle-service-innerport": "修改组件对内端口",
-      "change-service-lbport": "修改组件LB端口",
-      "rollback-service": "回滚",
-      "add-service-volume": "添加组件持久化存储",
-      "update-service-volume": "更新组件持久化存储",
-      "delete-service-volume": "删除组件持久化存储",
-      "add-service-depvolume": "添加组件依赖存储",
-      "delete-service-depvolume": "删除组件依赖存储",
-      "add-service-probe": "添加组件探针",
-      "update-service-probe": "更新组件探针",
-      "delete-service-probe": "删除组件探针",
-      "add-service-label": "添加组件标签",
-      "update-service-label": "更新组件标签",
-      "delete-service-label": "删除组件标签",
-      "add-thirdpart-service": "添加第三方组件",
-      "update-thirdpart-service": "更新第三方组件",
-      "delete-thirdpart-service": "删除第三方组件",
-      "update-service-gateway-rule": "更新组件网关规则",
-      "app-restore-envs": "重新加载应用环境变量",
-      "app-restore-ports": "重新加载应用端口",
-      "app-restore-volumes": "重新加载应用存储",
-      "app-restore-probe": "重新加载应用探针",
-      "app-restore-deps": "重新加载应用依赖",
-      "app-restore-depvols": "重新加载应用依赖存储",
-      "app-restore-plugins": "重新加载应用插件"
+      deploy: '构建组件',
+      delete: '删除组件',
+      HorizontalUpgrade: '水平升级',
+      VerticalUpgrade: '垂直升级',
+      create: '创建组件',
+      callback: '回滚',
+      'git-change': '代码仓库修改',
+      own_money: '欠费关闭',
+      add_label: '添加标签',
+      delete_label: '删除标签',
+      service_state: '应用状态修改',
+      reboot: '重启组件',
+      market_sync: '云市同步',
+      truncate: '删除组件',
+      EventTypeAbnormalExited: '组件异常退出',
+      OOMKilled: '发生OOM',
+      LivenessProbeFailed: '健康检查不通过(重启)',
+      ReadinessProbeFailed: '健康检查不通过(下线)',
+      AbnormalShtdown: ' 组件异常退出',
+      AbnormalExited: '组件异常退出',
+      AbnormalRecovery: '恢复正常',
+      '': '-',
+      'create-service': '创建组件',
+      'batch-build-service': '批量构建组件',
+      'batch-start-service': '批量启动组件',
+      'batch-stop-service': '批量停止组件',
+      'batch-upgrade-service': '批量升级组件',
+      'build-service': '构建组件',
+      build: '构建组件',
+      upgrade: '滚动升级组件',
+      'start-service': '启动组件',
+      start: '启动组件',
+      'add-app-autoscaler-rule': '添加自动伸缩规则',
+      'update-app-autoscaler-rule': '更新自动伸缩规则',
+      'stop-service': '停止组件',
+      stop: '停止组件',
+      'restart-service': '重启组件',
+      restart: '重启组件',
+      'vertical-service': '垂直扩展组件',
+      vertical: '垂直扩展组件',
+      'horizontal-service': '水平扩展组件',
+      horizontal: '水平扩展组件',
+      'set-language': '设置组件语言',
+      'delete-service': '删除组件',
+      'upgrade-service': '升级组件',
+      'delete-buildversion': '删除构建版本',
+      'share-service': '分享组件',
+      'share-wb': '分享到内部市场',
+      'share-ws': '分享到云端市场',
+      'share-yb': '发布到市场',
+      'share-ys': '发布到市场',
+      updata: '更新组件',
+      'add-service-dependency': '添加组件依赖',
+      'delete-service-dependency': '删除组件依赖',
+      'add-service-env': '添加组件环境变量',
+      'update-service-env': '更新组件环境变量',
+      'delete-service-env': '删除组件环境变量',
+      'add-service-port': '添加组件端口',
+      'update-service-port-old': '更新组件端口',
+      'update-service-port': '更新组件端口',
+      'delete-service-port': '删除组件端口',
+      'handle-service-outerport': '修改组件对外端口',
+      'handle-service-innerport': '修改组件对内端口',
+      'change-service-lbport': '修改组件LB端口',
+      'rollback-service': '回滚',
+      'add-service-volume': '添加组件持久化存储',
+      'update-service-volume': '更新组件持久化存储',
+      'delete-service-volume': '删除组件持久化存储',
+      'add-service-depvolume': '添加组件依赖存储',
+      'delete-service-depvolume': '删除组件依赖存储',
+      'add-service-probe': '添加组件探针',
+      'update-service-probe': '更新组件探针',
+      'delete-service-probe': '删除组件探针',
+      'add-service-label': '添加组件标签',
+      'update-service-label': '更新组件标签',
+      'delete-service-label': '删除组件标签',
+      'add-thirdpart-service': '添加第三方组件',
+      'update-thirdpart-service': '更新第三方组件',
+      'delete-thirdpart-service': '删除第三方组件',
+      'update-service-gateway-rule': '更新组件网关规则',
+      'app-restore-envs': '重新加载应用环境变量',
+      'app-restore-ports': '重新加载应用端口',
+      'app-restore-volumes': '重新加载应用存储',
+      'app-restore-probe': '重新加载应用探针',
+      'app-restore-deps': '重新加载应用依赖',
+      'app-restore-depvols': '重新加载应用依赖存储',
+      'app-restore-plugins': '重新加载应用插件',
     };
     return statusOptType[state] || state;
   },
@@ -790,51 +795,57 @@ const global = {
   getSupportComponentTyps() {
     return [
       {
-        type: "state_singleton",
-        name: this.getComponentType("state_singleton"),
-        desc: "部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数"
+        type: 'state_singleton',
+        name: this.getComponentType('state_singleton'),
+        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 ',
       },
       {
-        type: "state_multiple",
-        name: this.getComponentType("state_multiple"),
-        desc: "可多实例运行的无状态组件"
+        type: 'state_multiple',
+        name: this.getComponentType('state_multiple'),
+        desc: '可多实例运行的有状态组件',
       },
       {
-        type: "stateless_singleton",
-        name: this.getComponentType("stateless_singleton"),
-        desc: "部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件"
+        type: 'stateless_singleton',
+        name: this.getComponentType('stateless_singleton'),
+        desc: '部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数',
       },
       {
-        type: "stateless_multiple",
-        name: this.getComponentType("stateless_multiple"),
-        desc: "可多实例运行的有状态组件"
-      }
-    ]
+        type: 'stateless_multiple',
+        name: this.getComponentType('stateless_multiple'),
+        desc: '可多实例运行的无状态组件',
+      },
+    ];
   },
   getComponentType(componentType) {
     switch (componentType) {
-      case "state_singleton":
-        return "有状态单实例"
-      case "state_multiple":
-        return "有状态多实例"
-      case "stateless_singleton":
-        return "无状态单实例"
-      case "stateless_multiple":
-        return "无状态多实例"      
+      case 'state_singleton':
+        return '有状态单实例';
+      case 'state_multiple':
+        return '有状态多实例';
+      case 'stateless_singleton':
+        return '无状态单实例';
+      case 'stateless_multiple':
+        return '无状态多实例';
     }
   },
   isStateComponent(componentType) {
-    if (componentType=="state_singleton" || componentType=="state_multiple"){
-      return true
+    if (
+      componentType == 'state_singleton' ||
+      componentType == 'state_multiple'
+    ) {
+      return true;
     }
-    return false
+    return false;
   },
   isSingletonComponent(componentType) {
-    if (componentType=="state_singleton" || componentType=="stateless_singleton"){
-      return true
+    if (
+      componentType == 'state_singleton' ||
+      componentType == 'stateless_singleton'
+    ) {
+      return true;
     }
-    return false
-  }
+    return false;
+  },
 };
 
 export default global;
