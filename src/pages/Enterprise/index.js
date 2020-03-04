@@ -90,7 +90,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code == 200 && res._condition === 200) {
+        if (res && res._code == 200) {
           this.setState({
             collectionList: res.list,
           });
@@ -105,7 +105,7 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState(
             {
               enterpriseList: res.list,
@@ -138,7 +138,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
             enterpriseInfoLoading: false,
@@ -162,7 +162,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState({
             overviewAppInfo:
               res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
@@ -186,7 +186,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState({
             overviewInfo: res.bean,
             overviewInfoLoading: false,
@@ -210,7 +210,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
             overviewTeamInfoLoading: false,
@@ -234,7 +234,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200 && res._condition === 200) {
+        if (res && res._code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
             overviewMonitorInfoLoading: false,
@@ -353,7 +353,7 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code == 200 && res._condition === 200) {
+        if (res && res._code == 200) {
           notification.success({ message: '删除成功' });
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
@@ -1036,7 +1036,7 @@ export default class Enterprise extends PureComponent {
         ...values,
       },
       callback: data => {
-        if (data && data._condition == 200) {
+        if (data && data._code == 200) {
           notification.success({ message: data.msg_show });
         } else {
           notification.error({ message: data.msg_show });
