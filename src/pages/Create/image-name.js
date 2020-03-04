@@ -41,7 +41,7 @@ export default class Index extends PureComponent {
               region_name: globalUtil.getCurrRegionName(),
             },
             callback: () => {
-              setFieldsValue({ group_id: group.ID });
+              setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
             },
           });
