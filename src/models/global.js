@@ -80,6 +80,7 @@ import {
   getUpdateRecordsList,
   getUpdateRecordsInfo,
   getUpdateRollback,
+  fetchEnterpriseApps,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -122,6 +123,12 @@ export default {
 
     *getAllTeams({ payload, callback }, { call, put }) {
       const data = yield call(getAllTeams, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *fetchEnterpriseApps({ payload, callback }, { call, put }) {
+      const data = yield call(fetchEnterpriseApps, payload);
       if (data && callback) {
         callback(data);
       }
@@ -780,7 +787,6 @@ export default {
       };
     },
     showAuthCompany(state, {}) {
-      console.log('jinlai')
       return {
         ...state,
         showAuthCompany: true,

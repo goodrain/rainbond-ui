@@ -78,8 +78,8 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...vals
       },
-      callback: group => {
-        if (group) {
+      callback: res => {
+        if (res) {
           // 获取群组
           this.props.dispatch({
             type: "global/fetchGroups",
@@ -88,7 +88,7 @@ export default class Index extends PureComponent {
               region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
-              setFieldsValue({ group_id: group.ID });
+              setFieldsValue({ group_id: res.group_id });
               this.cancelAddGroup();
             }
           });
