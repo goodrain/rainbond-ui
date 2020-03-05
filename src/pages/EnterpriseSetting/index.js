@@ -1,5 +1,5 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import {
   Card,
   Button,
@@ -13,17 +13,17 @@ import {
   notification,
   Tabs,
   Switch,
-  Empty
-} from "antd";
-import More from "../../../public/images/more.svg";
-import userUtil from "../../utils/user";
-import rainbondUtil from "../../utils/rainbond";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import AddAdmin from "../../components/AddAdmin";
-import OauthTable from "./oauthTable";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "./index.less";
-import OauthForm from "../../components/OauthForm";
+  Empty,
+} from 'antd';
+import More from '../../../public/images/more.svg';
+import userUtil from '../../utils/user';
+import rainbondUtil from '../../utils/rainbond';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import AddAdmin from '../../components/AddAdmin';
+import OauthTable from './oauthTable';
+import ConfirmModal from '../../components/ConfirmModal';
+import styles from './index.less';
+import OauthForm from '../../components/OauthForm';
 
 const { TabPane } = Tabs;
 
@@ -34,8 +34,8 @@ const { TabPane } = Tabs;
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
-  oauthLongin: loading.effects["global/creatOauth"],
-  overviewInfo: index.overviewInfo
+  oauthLongin: loading.effects['global/creatOauth'],
+  overviewInfo: index.overviewInfo,
 }))
 export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
@@ -46,7 +46,7 @@ export default class EnterpriseSetting extends PureComponent {
     this.state = {
       adminList: [],
       showAddAdmin: false,
-      exitAdminNameID: "",
+      exitAdminNameID: '',
       enterpriseAdminLoading: false,
       adminer,
       showDelTeam: false,
@@ -55,11 +55,12 @@ export default class EnterpriseSetting extends PureComponent {
       oauthTable: [],
       isOpen: false,
       showDeleteDomain: false,
-      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo)
+      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
     };
   }
 
   componentDidMount() {
+    console.log('最新版:15:45')
     const { dispatch, rainbondInfo } = this.props;
     this.getEnterpriseAdmins();
     if (
@@ -70,7 +71,7 @@ export default class EnterpriseSetting extends PureComponent {
     }
 
     dispatch({
-      type: "global/getIsRegist"
+      type: 'global/getIsRegist',
     });
   }
 
@@ -79,14 +80,14 @@ export default class EnterpriseSetting extends PureComponent {
       dispatch,
       rainbondInfo,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
 
     dispatch({
-      type: "global/getOauthInfo",
+      type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -98,10 +99,10 @@ export default class EnterpriseSetting extends PureComponent {
           this.setState({
             oauthInfo: lists ? lists[0] : false,
             oauthTable: lists || [],
-            isOpen: judge ? oauthEnable : false
+            isOpen: judge ? oauthEnable : false,
           });
         }
-      }
+      },
     });
   };
 
@@ -109,16 +110,16 @@ export default class EnterpriseSetting extends PureComponent {
     const { dispatch } = this.props;
     const { oauthInfo } = this.state;
     dispatch({
-      type: "global/deleteOauthInfo",
+      type: 'global/deleteOauthInfo',
       payload: {
-        service_id: oauthInfo.service_id
+        service_id: oauthInfo.service_id,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
+          notification.success({ message: '删除成功' });
           window.location.reload();
         }
-      }
+      },
     });
   };
 
@@ -126,20 +127,20 @@ export default class EnterpriseSetting extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     dispatch({
-      type: "global/addEnterpriseAdminTeams",
+      type: 'global/addEnterpriseAdminTeams',
       payload: {
         enterprise_id: eid,
-        user_id: values.user_id
+        user_id: values.user_id,
       },
       callback: () => {
-        notification.success({ message: "添加成功" });
+        notification.success({ message: '添加成功' });
         this.getEnterpriseAdmins();
         this.cancelCreateAdmin();
-      }
+      },
     });
   };
 
@@ -147,22 +148,22 @@ export default class EnterpriseSetting extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     dispatch({
-      type: "global/fetchEnterpriseAdmin",
+      type: 'global/fetchEnterpriseAdmin',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             adminList: res.list,
-            enterpriseAdminLoading: false
+            enterpriseAdminLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -184,24 +185,24 @@ export default class EnterpriseSetting extends PureComponent {
   handleDelAdmin = () => {
     const { exitAdminNameID } = this.state;
     this.props.dispatch({
-      type: "global/deleteEnterpriseAdmin",
+      type: 'global/deleteEnterpriseAdmin',
       payload: {
-        user_id: exitAdminNameID
+        user_id: exitAdminNameID,
       },
       callback: () => {
-        notification.success({ message: "删除成功" });
+        notification.success({ message: '删除成功' });
         this.getEnterpriseAdmins();
         this.hideDelAdmin();
-      }
+      },
     });
   };
 
   onRegistChange = checked => {
     this.props.dispatch({
-      type: "global/putIsRegist",
+      type: 'global/putIsRegist',
       payload: {
-        isRegist: checked
-      }
+        isRegist: checked,
+      },
     });
   };
 
@@ -212,13 +213,13 @@ export default class EnterpriseSetting extends PureComponent {
 
   handleOpenDomain = () => {
     this.setState({
-      showDeleteDomain: true
+      showDeleteDomain: true,
     });
   };
 
   handleOpen = () => {
     this.setState({
-      openOauth: true
+      openOauth: true,
     });
   };
 
@@ -230,11 +231,11 @@ export default class EnterpriseSetting extends PureComponent {
       oauth_type,
       home_url,
       is_auto_login,
-      redirect_domain
+      redirect_domain,
     } = values;
     oauth_type = oauth_type.toLowerCase();
-    if (oauth_type === "github") {
-      home_url = "https://github.com";
+    if (oauth_type === 'github') {
+      home_url = 'https://github.com';
     }
     const obj = {
       name,
@@ -244,7 +245,7 @@ export default class EnterpriseSetting extends PureComponent {
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
-      is_console: true
+      is_console: true,
     };
     this.handelRequest(obj);
   };
@@ -254,8 +255,8 @@ export default class EnterpriseSetting extends PureComponent {
       dispatch,
       rainbondInfo,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
 
     const { oauthInfo } = this.state;
@@ -266,56 +267,56 @@ export default class EnterpriseSetting extends PureComponent {
     isclone ? (obj.enable = false) : (obj.enable = true);
 
     dispatch({
-      type: "global/editOauth",
+      type: 'global/editOauth',
       payload: {
-        arr: { enable: obj.enable, value: null }
+        arr: { enable: obj.enable, value: null },
       },
       callback: res => {
         if (res && res._code === 200 && isclone) {
           this.fetchRainbondInfo();
         }
-      }
+      },
     });
 
     if (isclone) {
       return null;
     }
     dispatch({
-      type: "global/creatOauth",
+      type: 'global/creatOauth',
       payload: {
         enterprise_id: eid,
-        arr: [obj]
+        arr: [obj],
       },
       callback: data => {
         if (data && data._code === 200) {
           this.fetchRainbondInfo();
         }
-      }
+      },
     });
   };
 
   fetchRainbondInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/fetchRainbondInfo",
+      type: 'global/fetchRainbondInfo',
       callback: info => {
         if (info) {
           this.setState({
-            israinbondTird: rainbondUtil.OauthbEnable(info)
+            israinbondTird: rainbondUtil.OauthbEnable(info),
           });
           this.handelOauthInfo(info);
         }
-      }
+      },
     });
-    dispatch({ type: "user/fetchCurrent" });
-    notification.success({ message: "成功" });
+    dispatch({ type: 'user/fetchCurrent' });
+    notification.success({ message: '成功' });
     this.handelClone();
   };
 
   handelClone = () => {
     this.setState({
       openOauth: false,
-      showDeleteDomain: false
+      showDeleteDomain: false,
     });
   };
 
@@ -329,7 +330,7 @@ export default class EnterpriseSetting extends PureComponent {
       openOauth,
       showDeleteDomain,
       israinbondTird,
-      oauthTable
+      oauthTable,
     } = this.state;
 
     const {
@@ -337,8 +338,8 @@ export default class EnterpriseSetting extends PureComponent {
       oauthLongin,
       isRegist,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     const oauth_services_is_sonsole = rainbondUtil.OauthbIsEnable(rainbondInfo);
     const oauthEnable = rainbondUtil.OauthbIsEnableState(rainbondInfo);
@@ -389,7 +390,7 @@ export default class EnterpriseSetting extends PureComponent {
       );
     };
     const operation = (
-      <Col span={4} style={{ textAlign: "right" }}>
+      <Col span={4} style={{ textAlign: 'right' }}>
         {adminer && (
           <Button
             type="primary"
@@ -402,7 +403,7 @@ export default class EnterpriseSetting extends PureComponent {
       </Col>
     );
     const managementAdmin = (
-      <div style={{ marginTop: "20px" }}>
+      <div style={{ marginTop: '20px' }}>
         <Row>
           <Col span={20} className={styles.teamsTit}>
             企业管理员管理
@@ -414,7 +415,7 @@ export default class EnterpriseSetting extends PureComponent {
             className={styles.teamMinTit}
             type="flex"
             align="middle"
-            style={{ padding: " 0 0 10px 24px" }}
+            style={{ padding: ' 0 0 10px 24px' }}
           >
             <Col span={10}>名称</Col>
             <Col span={5}>时间</Col>
@@ -427,14 +428,14 @@ export default class EnterpriseSetting extends PureComponent {
             return (
               <Card
                 key={user_id}
-                style={{ marginBottom: "10px" }}
+                style={{ marginBottom: '10px' }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
               >
                 <Row
                   type="flex"
                   align="middle"
-                  style={{ paddingLeft: "24px", height: "70px" }}
+                  style={{ paddingLeft: '24px', height: '70px' }}
                 >
                   <Col span={10}>{nick_name}</Col>
                   <Col span={5}>{create_time}</Col>
@@ -444,7 +445,7 @@ export default class EnterpriseSetting extends PureComponent {
                       overlay={managementMenu(user_id)}
                       placement="bottomLeft"
                     >
-                      <Button style={{ border: "none" }}>
+                      <Button style={{ border: 'none' }}>
                         <Icon component={moreSvg} />
                       </Button>
                     </Dropdown>
@@ -466,14 +467,14 @@ export default class EnterpriseSetting extends PureComponent {
             平台设置
           </Col>
         </Row>
-        <Card style={{ marginTop: "10px" }} hoverable bordered={false}>
+        <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
           <Row type="flex" align="middle">
             <Col span={12}>是否允许用户注册：</Col>
-            <Col span={12} style={{ textAlign: "right" }}>
+            <Col span={12} style={{ textAlign: 'right' }}>
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
-                checked={isRegist}
+                checked={this.props.isRegist}
               />
             </Col>
           </Row>
@@ -484,7 +485,7 @@ export default class EnterpriseSetting extends PureComponent {
     const oauth = (
       <div>
         <Card
-          style={{ marginBottom: "10px", borderTop: "1px solid  #ccc" }}
+          style={{ marginBottom: '10px', borderTop: '1px solid  #ccc' }}
           hoverable
           bordered={false}
         >
@@ -494,25 +495,25 @@ export default class EnterpriseSetting extends PureComponent {
               {oauthEnable && oauthInfo ? (
                 <span>
                   已开通{oauthInfo.oauth_type}类型的第三方OAuth互联服务&nbsp;
-                  {oauthInfo.is_auto_login && ", 且已开启自动登录"}
+                  {oauthInfo.is_auto_login && ', 且已开启自动登录'}
                 </span>
               ) : (
-                <span style={{ color: "rgba(0, 0, 0, 0.45)" }}>
+                <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
                   支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
                 </span>
               )}
               {!oauth_services_is_sonsole && (
                 <span
                   style={{
-                    color: "rgba(0, 0, 0, 0.45)",
-                    marginLeft: "10px"
+                    color: 'rgba(0, 0, 0, 0.45)',
+                    marginLeft: '10px',
                   }}
                 >
                   管理后台配置了当前只能查看配置。
                 </span>
               )}
             </Col>
-            <Col span={4} style={{ textAlign: "right" }}>
+            <Col span={4} style={{ textAlign: 'right' }}>
               {oauthInfo && oauth_services_is_sonsole && (
                 <Popconfirm
                   title="删除配置后已绑定的用户数据将清除，确认删除吗?"
@@ -520,13 +521,13 @@ export default class EnterpriseSetting extends PureComponent {
                   okText="确认"
                   cancelText="我再想想"
                 >
-                  <a style={{ marginRight: "10px" }} href="#">
+                  <a style={{ marginRight: '10px' }} href="#">
                     移除配置
                   </a>
                 </Popconfirm>
               )}
               {oauthEnable && israinbondTird && oauth_services_is_sonsole && (
-                <a onClick={this.handleOpen} style={{ marginRight: "10px" }}>
+                <a onClick={this.handleOpen} style={{ marginRight: '10px' }}>
                   编辑
                 </a>
               )}
@@ -535,7 +536,7 @@ export default class EnterpriseSetting extends PureComponent {
                   onClick={() => {
                     this.setState({ showOauthTable: true });
                   }}
-                  style={{ marginRight: "10px" }}
+                  style={{ marginRight: '10px' }}
                 >
                   查看配置
                 </a>
@@ -601,7 +602,7 @@ export default class EnterpriseSetting extends PureComponent {
             title="关闭"
             desc="确定要关闭Oauth2.0认证？"
             onOk={() => {
-              this.handelRequest(oauthInfo, "clone");
+              this.handelRequest(oauthInfo, 'clone');
             }}
             onCancel={this.handelClone}
           />
