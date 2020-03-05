@@ -23,6 +23,7 @@ import Context from './MenuContext';
 import { FormattedMessage } from 'umi-plugin-react/locale';
 import TeamHeader from './components/TeamHeader';
 import AppHeader from './components/AppHeader';
+import AuthCompany from '../components/AuthCompany';
 
 const qs = require('query-string');
 
@@ -108,7 +109,6 @@ class TeamLayout extends React.PureComponent {
   };
   getTeamOverview = () => {
     const { teamName } = this.props.match.params;
-    console.log('teamName',teamName)
     if (teamName) {
       this.props.dispatch({
         type: 'global/getTeamOverview',
@@ -161,6 +161,7 @@ class TeamLayout extends React.PureComponent {
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
     });
+    // 连接云应用市场
     this.setState({ showAuthCompany: this.props.showAuthCompany });
     const query = qs.parse(this.props.location.search);
     if (query && query.market_info) {
@@ -445,6 +446,23 @@ class TeamLayout extends React.PureComponent {
             )}
           </ContainerQuery>
         </DocumentTitle>
+        {/* 企业尚未认证 */}
+        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+          <AuthCompany
+            eid={eid}
+            market_info={this.state.market_info}
+            onOk={() => {
+              const jumpPath = this.props.location.pathname;
+              const query = this.props.location.search.replace(
+                `market_info=${this.state.market_info}`,
+                ''
+              );
+              this.setState({ market_info: '', showAuthCompany: false });
+              this.props.dispatch(routerRedux.replace(jumpPath + query));
+              window.location.reload();
+            }}
+          />
+        )}
       </Fragment>
     );
   }
