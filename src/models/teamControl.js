@@ -76,7 +76,7 @@ export default {
     *exitTeam({ payload, callback }, { call, put }) {
       const response = yield call(exitTeam, payload);
       if (response) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchMember({ payload, callback }, { call, put }) {
@@ -94,7 +94,7 @@ export default {
     *delTeam({ payload, callback }, { call, put }) {
       const response = yield call(deleteTeam, payload);
       if (response && !response.status) {
-        callback && callback();
+        callback && callback(response);
       }
     },
     *fetchAllPerm({ payload, callback }, { call, put }) {
