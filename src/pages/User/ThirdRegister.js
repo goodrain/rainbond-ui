@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import { connect } from "dva";
-import { routerRedux, Link } from "dva/router";
-import { Form, Row, Col, message } from "antd";
-import styles from "./Register.less";
-import cookie from "../../utils/cookie";
-import oauthUtil from "../../utils/oauth";
-import RegisterComponent from "./registerComponent";
-import rainbondUtil from "../../utils/rainbond";
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { routerRedux, Link } from 'dva/router';
+import { Form, Row, Col, message } from 'antd';
+import styles from './Register.less';
+import cookie from '../../utils/cookie';
+import oauthUtil from '../../utils/oauth';
+import RegisterComponent from './registerComponent';
+import rainbondUtil from '../../utils/rainbond';
 
-const oauth_user_id = rainbondUtil.OauthParameter("oauth_user_id");
-const code = rainbondUtil.OauthParameter("code");
-const service_id = rainbondUtil.OauthParameter("service_id");
-const oauth_type = rainbondUtil.OauthParameter("oauth_type");
+const oauth_user_id = rainbondUtil.OauthParameter('oauth_user_id');
+const code = rainbondUtil.OauthParameter('code');
+const service_id = rainbondUtil.OauthParameter('service_id');
+const oauth_type = rainbondUtil.OauthParameter('oauth_type');
 
 @connect(({ user, loading, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
-  isRegist: global.isRegist
+  isRegist: global.isRegist,
 }))
 @Form.create()
 export default class Register extends Component {
@@ -24,23 +24,23 @@ export default class Register extends Component {
   state = {
     user_info: null,
     firstRegist:
-      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register
+      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register,
   };
 
   componentDidMount() {
     this.props.dispatch({
-      type: "user/fetchThirdInfo",
+      type: 'user/fetchThirdInfo',
       payload: {
         code,
-        service_id
+        service_id,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            user_info: res.bean.user_info
+            user_info: res.bean.user_info,
           });
         }
-      }
+      },
     });
   }
 
@@ -48,40 +48,40 @@ export default class Register extends Component {
     const { dispatch } = this.props;
     if (code && service_id && oauth_user_id) {
       dispatch({
-        type: "user/thirdRegister",
+        type: 'user/thirdRegister',
         payload: {
-          ...values
+          ...values,
         },
         callback: data => {
-          if (data && data.token != "") {
-            cookie.set("token", data.token);
+          if (data && data.token != '') {
+            cookie.set('token', data.token);
             dispatch({
-              type: "user/fetchThirdBinding",
+              type: 'user/fetchThirdBinding',
               payload: {
                 service_id,
-                oauth_user_id
+                oauth_user_id,
               },
               callback: res => {
                 if (res && res._code == 200) {
-                  message.success("认证成功", 1, () => {
-                    window.location.reload();
+                  message.success('认证成功', 1, () => {
+                    dispatch(routerRedux.replace('/'));
                   });
                 } else {
-                  message.warning("认证失败，请重新认证", 1, () => {
-                    window.location.reload();
+                  message.warning('认证失败，请重新认证', 1, () => {
+                    dispatch(routerRedux.replace('/user/login'));
                   });
                 }
-              }
+              },
             });
           }
-        }
+        },
       });
     }
   };
 
   changeTime = () => {
     this.setState({
-      time: Date.now()
+      time: Date.now(),
     });
   };
 
@@ -91,7 +91,7 @@ export default class Register extends Component {
         routerRedux.replace(
           code && service_id && oauth_user_id
             ? `/user/login?code=${code}&service_id=${service_id}`
-            : "/user/login"
+            : '/user/login'
         )
       );
       return null;
@@ -106,22 +106,24 @@ export default class Register extends Component {
     });
     return (
       <div className={styles.main}>
-        <p style={{ marginBottom: "24px" }}>
-          来自{oauthServer&&oauthServer.name}登录的{user_info && user_info.oauth_user_name}{" "}
+        <p style={{ marginBottom: '24px' }}>
+          来自{oauthServer && oauthServer.name}登录的
+          {user_info && user_info.oauth_user_name}{' '}
           您好！你需要补充完整平台账号信息
         </p>
-        <Row style={{ marginBottom: "24px" }}>
+        <Row style={{ marginBottom: '24px' }}>
           <Col span={10} className={styles.boxJump}>
-            {!this.state.firstRegist &&
+            {!this.state.firstRegist && (
               <Link
                 to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
               >
                 已有账号，马上绑定
-              </Link>}
+              </Link>
+            )}
           </Col>
           <Col
             span={10}
-            style={{ background: "#CDE2FF" }}
+            style={{ background: '#CDE2FF' }}
             className={styles.boxJump}
             offset={4}
           >

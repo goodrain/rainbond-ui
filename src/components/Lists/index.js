@@ -45,9 +45,7 @@ export default class EnterpriseTeams extends PureComponent {
           <Col span={23}  >{Cols || ''}</Col>
           <Col span={1} className={styles.bor}>
             <Dropdown overlay={overlay} placement="bottomLeft">
-              <Button style={{ border: 'none' }}>
-                <Icon component={moreSvg} />
-              </Button>
+              <Icon component={moreSvg} style={{width:"100%"}}/>
             </Dropdown>
           </Col>
         </Row>

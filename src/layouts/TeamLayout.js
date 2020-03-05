@@ -88,8 +88,8 @@ class TeamLayout extends React.PureComponent {
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch } = this.props;
-    //获取最新的用户信息
-    dispatch({ type: "user/fetchCurrent" });
+    // 获取最新的用户信息
+    dispatch({ type: 'user/fetchCurrent' });
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -108,7 +108,7 @@ class TeamLayout extends React.PureComponent {
   };
   getTeamOverview = () => {
     const { teamName } = this.props.match.params;
-    console.log('teamName',teamName)
+    console.log('teamName', teamName);
     if (teamName) {
       this.props.dispatch({
         type: 'global/getTeamOverview',
@@ -253,6 +253,8 @@ class TeamLayout extends React.PureComponent {
       currentComponent,
     } = this.state;
     const { teamName, regionName } = this.props.match.params;
+
+    const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     // Parameters of the abnormal
     if (!teamName || !regionName) {
       return <Redirect to="/" />;
@@ -263,7 +265,7 @@ class TeamLayout extends React.PureComponent {
       return <PageLoading />;
     }
 
-    if (teamName != currentTeam && currentTeam.team_name) {
+    if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
     const componentID = globalUtil.getComponentID();
@@ -425,6 +427,7 @@ class TeamLayout extends React.PureComponent {
                 style={{
                   margin: '24px 24px 0',
                   height: '100%',
+                  width: autoWidth,
                 }}
               >
                 {renderContent()}

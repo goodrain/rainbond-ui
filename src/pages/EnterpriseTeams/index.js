@@ -82,7 +82,7 @@ export default class EnterpriseTeams extends PureComponent {
   };
 
   load = () => {
-    this.state.adminer&& this.getEnterpriseTeams();
+    this.state.adminer && this.getEnterpriseTeams();
     this.getOverviewTeam();
     this.getUserTeams();
   };
@@ -506,9 +506,7 @@ export default class EnterpriseTeams extends PureComponent {
                     overlay={managementMenu(team_name)}
                     placement="bottomLeft"
                   >
-                    <Button style={{ border: 'none' }}>
-                      <Icon component={moreSvg} />
-                    </Button>
+                    <Icon component={moreSvg} style={{ width: '100%' }} />
                   </Dropdown>
                 </Col>
               </Row>
@@ -579,9 +577,7 @@ export default class EnterpriseTeams extends PureComponent {
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
-                      <Button style={{ border: 'none' }}>
-                        <Icon component={moreSvg} />
-                      </Button>
+                      <Icon component={moreSvg} style={{ width: '100%' }} />
                     </Dropdown>
                   </Col>
                 </Row>
@@ -653,9 +649,7 @@ export default class EnterpriseTeams extends PureComponent {
                     />
                     &nbsp;
                     {is_pass === 0 ? (
-                      <span>
-                        &nbsp;申请加入团队审批中
-                      </span>
+                      <span>&nbsp;申请加入团队审批中</span>
                     ) : (
                       region
                     )}
@@ -667,9 +661,7 @@ export default class EnterpriseTeams extends PureComponent {
                       }
                       placement="bottomLeft"
                     >
-                      <Button style={{ border: 'none' }}>
-                        <Icon component={moreSvg} />
-                      </Button>
+                      <Icon component={moreSvg} style={{ width: '100%' }} />
                     </Dropdown>
                   </Col>
                 </Row>
@@ -677,30 +669,29 @@ export default class EnterpriseTeams extends PureComponent {
             );
           })}
 
-
-          <Row
-            style={{
-              margin: '10px 0',
-              display: 'flex',
-              alignItems: 'center',
-            }}
+        <Row
+          style={{
+            margin: '10px 0',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Col
+            span={4}
+            className={styles.teamsTit}
+            style={{ marginBottom: '0' }}
           >
-            <Col
-              span={4}
-              className={styles.teamsTit}
-              style={{ marginBottom: '0' }}
-            >
-              我的团队
-            </Col>
+            我的团队
+          </Col>
 
-            <Col span={20} style={{ textAlign: 'right' }}>
-              <Search
-                style={{ width: '500px' }}
-                placeholder="请输入团队名称进行搜索"
-                onSearch={this.handleSearchUserTeam}
-              />
-            </Col>
-          </Row>
+          <Col span={20} style={{ textAlign: 'right' }}>
+            <Search
+              style={{ width: '500px' }}
+              placeholder="请输入团队名称进行搜索"
+              onSearch={this.handleSearchUserTeam}
+            />
+          </Col>
+        </Row>
         {!userTeam && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
         {userTeam &&
           userTeam.map(item => {
@@ -741,9 +732,7 @@ export default class EnterpriseTeams extends PureComponent {
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
-                      <Button style={{ border: 'none' }}>
-                        <Icon component={moreSvg} />
-                      </Button>
+                      <Icon component={moreSvg} style={{ width: '100%' }} />
                     </Dropdown>
                   </Col>
                 </Row>

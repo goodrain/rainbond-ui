@@ -60,7 +60,6 @@ export default class EnterpriseSetting extends PureComponent {
   }
 
   componentDidMount() {
-    console.log('最新版:15:45')
     const { dispatch, rainbondInfo } = this.props;
     this.getEnterpriseAdmins();
     if (
@@ -445,9 +444,7 @@ export default class EnterpriseSetting extends PureComponent {
                       overlay={managementMenu(user_id)}
                       placement="bottomLeft"
                     >
-                      <Button style={{ border: 'none' }}>
-                        <Icon component={moreSvg} />
-                      </Button>
+                      <Icon component={moreSvg} style={{ width: '100%' }} />
                     </Dropdown>
                   </Col>
                 </Row>
