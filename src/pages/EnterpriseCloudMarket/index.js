@@ -205,7 +205,7 @@ export default class EnterpriseShared extends PureComponent {
                     发布应用模型
                     {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                       <span>
-                        或<a href="javascript:;">从云端同步</a>
+                        或<span style={{ color: '#1890ff' }}>从云端同步</span>
                       </span>
                     )}
                   </p>

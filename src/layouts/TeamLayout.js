@@ -75,7 +75,7 @@ class TeamLayout extends React.PureComponent {
       showAuthCompany: false,
       enterpriseList: [],
       ready: false,
-      currentTeam: {},
+      currentTeam: false,
       currentEnterprise: false,
       currentComponent: null,
       eid: '',
@@ -89,6 +89,8 @@ class TeamLayout extends React.PureComponent {
   // get enterprise list
   getEnterpriseList = () => {
     const { dispatch } = this.props;
+    //获取最新的用户信息
+    dispatch({ type: "user/fetchCurrent" });
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -106,25 +108,28 @@ class TeamLayout extends React.PureComponent {
     });
   };
   getTeamOverview = () => {
-    const { teamName, regionName } = this.props.match.params;
-    this.props.dispatch({
-      type: 'global/getTeamOverview',
-      payload: {
-        team_name: teamName,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState(
-            {
-              eid: res.bean.eid,
-            },
-            () => {
-              this.load();
-            }
-          );
-        }
-      },
-    });
+    const { teamName } = this.props.match.params;
+    if (teamName) {
+      this.props.dispatch({
+        type: 'global/getTeamOverview',
+        payload: {
+          team_name: teamName,
+        },
+        callback: res => {
+          if (res && res._code == 200) {
+            this.setState(
+              {
+                eid: res.bean.eid,
+              },
+              () => {
+                this.load();
+              }
+            );
+          }
+        },
+      });
+    }
+    return null;
   };
   load = () => {
     const { enterpriseList, eid } = this.state;
@@ -255,11 +260,11 @@ class TeamLayout extends React.PureComponent {
     }
 
     // The necessary data is loaded
-    if (!ready || !currentEnterprise) {
+    if (!ready || !currentEnterprise || !currentTeam) {
       return <PageLoading />;
     }
 
-    if (teamName != currentTeam.team_name) {
+    if (teamName != currentTeam && currentTeam.team_name) {
       this.load();
     }
     const componentID = globalUtil.getComponentID();
