@@ -199,13 +199,13 @@ export default class EnterpriseShared extends PureComponent {
               locale={{
                 emptyText: (
                   <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-                    暂无应用， 你可以
+                    暂无应用模型， 你可以
                     <br />
                     <br />
-                    分享应用到内部市场
+                    发布应用模型
                     {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
                       <span>
-                        或<a href="javascript:;">从云端同步</a>
+                        或<span style={{ color: '#1890ff' }}>从云端同步</span>
                       </span>
                     )}
                   </p>
