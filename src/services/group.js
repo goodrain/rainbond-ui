@@ -362,9 +362,6 @@ export async function deleteShareRecord(
     }/share/record/${body.record_id}`,
     {
       method: "delete",
-      data: {
-        status: 2
-      }
     }
   );
 }
