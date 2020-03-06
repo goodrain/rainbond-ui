@@ -1,16 +1,21 @@
 import React, { PureComponent } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
-import { Card, notification, Button, Icon, Col, Row, Tooltip } from 'antd';
+import {
+  Card,
+  notification,
+  Button,
+  Icon,
+  Col,
+  Row,
+  Tooltip,
+  Empty,
+} from 'antd';
 import styles from '../List/BasicList.less';
-import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import Convenient from '../../components/Convenient';
 import JoinTeam from '../../components/JoinTeam';
 import CreateTeam from '../../components/CreateTeam';
-import CreatUser from '../../components/CreatUserForm';
-import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
 import { Pie } from '../../components/Charts';
 import AddTeam from '../../../public/images/addTeam.png';
@@ -25,36 +30,26 @@ import Team from '../../../public/images/team.png';
 import TeamCrew from '../../../public/images/teamCrew.png';
 import User from '../../../public/images/user.png';
 import Arrow from '../../../public/images/arrow.png';
-import OauthForm from '../../components/OauthForm';
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ user, global, index }) => ({
   user: user.currentUser,
-  list,
-  loading: loading.models.list,
   rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
-  isRegist: global.isRegist,
   overviewInfo: index.overviewInfo,
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
     super(props);
+    const { user } = this.props;
     const params = this.getParam();
-    // const isPublic = this.props.rainbondInfo && this.props.rainbondInfo.is_public;
-    const { user, rainbondInfo } = this.props;
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       // isPublic,
-      teamList: [],
-      teamsPage: 1,
-      teamsPageSize: 8,
       showAddTeam: false,
+      eid: params ? params.eid : '',
       adminer,
-      userVisible: false,
       enterpriseInfo: false,
       enterpriseInfoLoading: true,
-      enterpriseList: [],
       overviewAppInfo: false,
       overviewInfo: false,
       overviewTeamInfo: false,
@@ -68,22 +63,29 @@ export default class Enterprise extends PureComponent {
       editorConvenient: false,
       delcollectionVisible: false,
       collectionInfo: false,
+      collectionInfoLoading: true,
     };
   }
   componentDidMount() {
-    const { dispatch, rainbondInfo } = this.props;
-    this.getEnterpriseList();
-    const { adminer } = this.state;
-    !adminer && this.fetchCollectionViewInfo();
+    this.loading();
   }
-
+  loading = () => {
+    const { adminer, eid } = this.state;
+    if (eid) {
+      this.getEnterpriseInfo();
+      this.getOverviewTeam();
+      if (adminer) {
+        this.getOverviewApp();
+        this.getOverview();
+        this.getOverviewMonitor();
+      } else {
+        this.fetchCollectionViewInfo();
+      }
+    }
+  };
   fetchCollectionViewInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
     dispatch({
       type: 'user/fetchCollectionViewInfo',
       payload: {
@@ -92,6 +94,7 @@ export default class Enterprise extends PureComponent {
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
+            collectionInfoLoading: false,
             collectionList: res.list,
           });
         }
@@ -99,39 +102,10 @@ export default class Enterprise extends PureComponent {
     });
   };
 
-  getEnterpriseList = () => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'global/fetchEnterpriseList',
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState(
-            {
-              enterpriseList: res.list,
-            },
-            () => {
-              if (res.list.length > 0) {
-                this.getEnterpriseInfo();
-                this.getOverviewApp();
-                this.getOverview();
-                this.getOverviewTeam();
-                this.getOverviewMonitor();
-              }
-            }
-          );
-        }
-      },
-    });
-  };
-
   getEnterpriseInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -149,12 +123,8 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewApp = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
 
     dispatch({
       type: 'global/fetchOverviewApp',
@@ -174,12 +144,9 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverview = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
     dispatch({
       type: 'global/fetchOverview',
       payload: {
@@ -197,12 +164,8 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewTeam = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
 
     dispatch({
       type: 'global/fetchOverviewTeam',
@@ -221,12 +184,8 @@ export default class Enterprise extends PureComponent {
   };
 
   getOverviewMonitor = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
+    const { eid } = this.state;
 
     dispatch({
       type: 'global/fetchOverviewMonitor',
@@ -247,15 +206,7 @@ export default class Enterprise extends PureComponent {
   onAddTeam = () => {
     this.setState({ showAddTeam: true });
   };
-  onRegistChange = e => {
-    this.props.dispatch({
-      type: 'global/putIsRegist',
-      payload: {
-        isRegist: e.target.value,
-      },
-      callback: () => {},
-    });
-  };
+
   getParam() {
     return this.props.match.params;
   }
@@ -339,13 +290,8 @@ export default class Enterprise extends PureComponent {
   };
 
   deleteCollectionViewInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
-    const { collectionInfo } = this.state;
+    const { dispatch } = this.props;
+    const { collectionInfo, eid } = this.state;
     dispatch({
       type: 'user/deleteCollectionViewInfo',
       payload: {
@@ -413,6 +359,8 @@ export default class Enterprise extends PureComponent {
       convenientVisible,
       editorConvenient,
       delcollectionVisible,
+      collectionInfoLoading,
+      eid,
     } = this.state;
 
     const new_join_team =
@@ -429,8 +377,10 @@ export default class Enterprise extends PureComponent {
     const collections =
       collectionList && collectionList.length > 0 && collectionList;
 
+    const colors = { color: '#3D54C4', cursor: 'pointer' };
+    const hovers = { boxShadow: 'rgba(0, 0, 0, 0.9) 1px 1px 5px -2px' };
     const teamOperation = (
-      <div style={teamBoxsPs}>
+      <div style={{ width: '100%' }}>
         <div
           style={{ textAlign: 'center', cursor: 'pointer' }}
           onClick={this.onJoinTeam}
@@ -729,7 +679,11 @@ export default class Enterprise extends PureComponent {
                             <img src={Element} alt="" />
                           </div>
                         </li>
-                        <li>{overviewInfo && overviewInfo.shared_apps}</li>
+                        <li>
+                          <Link to={`/enterprise/${eid}/shared`} style={colors}>
+                            {overviewInfo && overviewInfo.shared_apps}
+                          </Link>
+                        </li>
                         <li>应用模板数量</li>
                         <li>——</li>
                       </ul>
@@ -741,7 +695,11 @@ export default class Enterprise extends PureComponent {
                             <img src={Team} alt="" />
                           </div>
                         </li>
-                        <li>{overviewInfo && overviewInfo.total_teams}</li>
+                        <li>
+                          <Link to={`/enterprise/${eid}/teams`} style={colors}>
+                            {overviewInfo && overviewInfo.total_teams}
+                          </Link>
+                        </li>
 
                         <li>团队数量</li>
                         <li>——</li>
@@ -754,8 +712,11 @@ export default class Enterprise extends PureComponent {
                             <img src={User} alt="" />
                           </div>
                         </li>
-                        <li>{overviewInfo && overviewInfo.total_users}</li>
-
+                        <li>
+                          <Link to={`/enterprise/${eid}/users`} style={colors}>
+                            {overviewInfo && overviewInfo.total_users}
+                          </Link>
+                        </li>
                         <li>用户数量</li>
                         <li>——</li>
                       </ul>
@@ -777,66 +738,106 @@ export default class Enterprise extends PureComponent {
                 loading={overviewTeamInfoLoading}
                 style={{ height: '243px', marginRight: '25px' }}
               >
-                {active_teams && (
-                  <Row style={{ marginBottom: '4px' }}>
-                    <Col className={styles.grays} span={12}>
-                      团队
-                    </Col>
-
-                    <Col className={styles.grays} span={12}>
-                      活跃团队
-                    </Col>
-                  </Row>
-                )}
-
-                <Row>
-                  <Col span={active_teams ? 12 : 24}>
-                    {new_join_team && (
-                      <Card
-                        bodyStyle={teamBoxs}
-                        bordered={false}
-                        onClick={() => {
-                          this.props.dispatch(
-                            routerRedux.replace(
-                              `/team/${new_join_team[0].team_name}/region/${
-                                new_join_team[0].region
-                              }/index`
-                            )
-                          );
-                        }}
-                      >
-                        <div className={styles.addTeam}>
-                          <img src={TeamCrew} alt="" />
-                        </div>
-
-                        <div
-                          className={styles.grays}
-                          style={{ marginLeft: '18px', width: '128px' }}
-                        >
-                          新加入团队：
-                        </div>
-                        <Tooltip title={new_join_team[0].team_alias}>
-                          <div
-                            className={`${styles.overText} ${styles.teamtest}`}
-                          >
-                            {new_join_team[0].team_alias}
-                          </div>
-                        </Tooltip>
-                        <div>
-                          <img src={Arrow} alt="" />
-                        </div>
-                      </Card>
-                    )}
-                    <Card bodyStyle={{ padding: 0 }} bordered={false}>
-                      {teamOperation}
-                    </Card>
+                <Row style={{ marginBottom: '4px' }}>
+                  <Col className={styles.grays} span={12}>
+                    团队
                   </Col>
-                  {active_teams && (
+
+                  {active_teams ? (
+                    <Col
+                      className={styles.grays}
+                      span={12}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      活跃团队
+                      <Link style={colors} to={`/enterprise/${eid}/teams`}>
+                        更多
+                      </Link>
+                    </Col>
+                  ) : (
+                    <Col
+                      className={styles.grays}
+                      span={12}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <span style={colors} onClick={this.onJoinTeam}>
+                        加入团队
+                      </span>
+
+                      {this.state.adminer && (
+                        <span
+                          style={{
+                            color: '#3D54C4',
+                            marginLeft: '5px',
+                            cursor: 'pointer',
+                          }}
+                          onClick={this.onAddTeam}
+                        >
+                          创建团队
+                        </span>
+                      )}
+                    </Col>
+                  )}
+                </Row>
+
+                {active_teams ? (
+                  <Row>
+                    <Col span={12}>
+                      {new_join_team && (
+                        <Card
+                          hoverable
+                          bodyStyle={teamBoxs}
+                          bordered={false}
+                          onClick={() => {
+                            this.props.dispatch(
+                              routerRedux.replace(
+                                `/team/${new_join_team[0].team_name}/region/${
+                                  new_join_team[0].region
+                                }/index`
+                              )
+                            );
+                          }}
+                        >
+                          <div className={styles.addTeam}>
+                            <img src={TeamCrew} alt="" />
+                          </div>
+
+                          <div
+                            className={styles.grays}
+                            style={{ marginLeft: '18px', width: '128px' }}
+                          >
+                            新加入团队：
+                          </div>
+                          <Tooltip title={new_join_team[0].team_alias}>
+                            <div
+                              className={`${styles.overText} ${
+                                styles.teamtest
+                              }`}
+                            >
+                              {new_join_team[0].team_alias}
+                            </div>
+                          </Tooltip>
+                          <div>
+                            <img src={Arrow} alt="" />
+                          </div>
+                        </Card>
+                      )}
+                      <Card hoverable bodyStyle={teamBoxs} bordered={false}>
+                        {teamOperation}
+                      </Card>
+                    </Col>
                     <Col span={11} offset={1}>
                       {active_teams.map(item => {
                         const { team_name, region, team_alias } = item;
                         return (
                           <Card
+                            hoverable
                             key={team_name}
                             bodyStyle={teamBoxList}
                             bordered={false}
@@ -862,8 +863,10 @@ export default class Enterprise extends PureComponent {
                         );
                       })}
                     </Col>
-                  )}
-                </Row>
+                  </Row>
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                )}
               </Card>
             </Col>
 
@@ -895,13 +898,16 @@ export default class Enterprise extends PureComponent {
                             <img src={Records} alt="" />
                           </li>
                           <li>
-                            {this.handlUnit(overviewMonitorInfo.memory.used)}
-                            <span className={styles.units}>
-                              {this.handlUnit(
-                                overviewMonitorInfo.memory.used,
-                                'MB'
-                              )}
-                            </span>
+                            <Tooltip title="包含各团队内存使用量、系统使用量和rainbond组件使用量">
+                              {this.handlUnit(overviewMonitorInfo.memory.used)}
+
+                              <span className={styles.units}>
+                                {this.handlUnit(
+                                  overviewMonitorInfo.memory.used,
+                                  'MB'
+                                )}
+                              </span>
+                            </Tooltip>
                             /{this.handlUnit(overviewMonitorInfo.memory.total)}
                             <span className={styles.units}>
                               {this.handlUnit(
@@ -939,7 +945,7 @@ export default class Enterprise extends PureComponent {
               <Col span={11}>
                 <Card
                   bordered={false}
-                  loading={overviewMonitorInfoLoading}
+                  loading={collectionInfoLoading}
                   style={{ height: '243px' }}
                 >
                   <Row style={{ marginBottom: '4px' }}>
@@ -951,29 +957,34 @@ export default class Enterprise extends PureComponent {
                       style={{ textAlign: 'right' }}
                       span={12}
                     >
-                      <a
-                        style={{ marginRight: '10px' }}
+                      <span
+                        style={{
+                          marginRight: '10px',
+                          color: '#3D54C4',
+                          cursor: 'pointer',
+                        }}
                         onClick={() => {
                           this.onConvenientEntrance();
                         }}
                       >
                         新增
-                      </a>
+                      </span>
                       {collections && (
-                        <a
+                        <span
+                          style={colors}
                           onClick={() => {
                             this.handleIsConvenientEntrance();
                           }}
                         >
                           编辑
-                        </a>
+                        </span>
                       )}
                     </Col>
                   </Row>
 
                   <Col span={24}>
                     <Row>
-                      {collections &&
+                      {collections ? (
                         collections.map((item, index) => {
                           const { url, name } = item;
                           if (index > 5) {
@@ -1012,7 +1023,10 @@ export default class Enterprise extends PureComponent {
                               </Card>
                             </Col>
                           );
-                        })}
+                        })
+                      ) : (
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                      )}
                     </Row>
                   </Col>
                 </Card>
@@ -1023,63 +1037,8 @@ export default class Enterprise extends PureComponent {
       </div>
     );
   };
-  // 管理员添加用户
-  addUser = () => {
-    this.setState({
-      userVisible: true,
-    });
-  };
-  handleCreatUser = values => {
-    this.props.dispatch({
-      type: 'global/creatUser',
-      payload: {
-        ...values,
-      },
-      callback: data => {
-        if (data && data._code == 200) {
-          notification.success({ message: data.msg_show });
-        } else {
-          notification.error({ message: data.msg_show });
-        }
-      },
-    });
-    this.cancelCreatUser();
-  };
 
-  handleCreatOauth = values => {
-    let {
-      name,
-      client_id,
-      client_secret,
-      oauth_type,
-      home_url,
-      is_auto_login,
-      redirect_domain,
-    } = values;
-    oauth_type = oauth_type.toLowerCase();
-    if (oauth_type === 'github') {
-      home_url = 'https://github.com';
-    }
-    const obj = {
-      name,
-      client_id,
-      client_secret,
-      is_auto_login,
-      oauth_type,
-      redirect_uri: `${redirect_domain}/console/oauth/redirect`,
-      home_url,
-      is_console: true,
-    };
-    this.handelRequest(obj);
-  };
-
-  cancelCreatUser = () => {
-    this.setState({
-      userVisible: false,
-    });
-  };
   render() {
-    const { userVisible } = this.state;
     return (
       <div>
         {this.renderContent()}
@@ -1087,12 +1046,6 @@ export default class Enterprise extends PureComponent {
           <CreateTeam
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-          />
-        )}
-        {userVisible && (
-          <CreatUser
-            onOk={this.handleCreatUser}
-            onCancel={this.cancelCreatUser}
           />
         )}
       </div>
