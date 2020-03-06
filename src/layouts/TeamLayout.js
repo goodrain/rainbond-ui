@@ -266,6 +266,8 @@ class TeamLayout extends React.PureComponent {
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
+    cookie.set("team_name", teamName);
+    cookie.set("region_name", regionName);
     const componentID = globalUtil.getComponentID();
     let appID = globalUtil.getAppID();
     // currentComponent is exit and id is current componentID
@@ -278,6 +280,7 @@ class TeamLayout extends React.PureComponent {
     } else {
       this.setState({ currentComponent: null });
     }
+
 
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
@@ -449,7 +452,7 @@ class TeamLayout extends React.PureComponent {
         {/* 企业尚未认证 */}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
-            eid={eid}
+            eid={this.state.eid}
             market_info={this.state.market_info}
             onOk={() => {
               const jumpPath = this.props.location.pathname;

@@ -380,7 +380,13 @@ export default class Enterprise extends PureComponent {
     const colors = { color: '#3D54C4', cursor: 'pointer' };
     const hovers = { boxShadow: 'rgba(0, 0, 0, 0.9) 1px 1px 5px -2px' };
     const teamOperation = (
-      <div style={{ width: '100%' }}>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: this.state.adminer ? 'space-around' : 'center',
+        }}
+      >
         <div
           style={{ textAlign: 'center', cursor: 'pointer' }}
           onClick={this.onJoinTeam}
