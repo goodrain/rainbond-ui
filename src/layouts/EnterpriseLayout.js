@@ -224,6 +224,8 @@ class EnterpriseLayout extends PureComponent {
     } = this.props;
 
     const { enterpriseList, enterpriseInfo, ready } = this.state;
+    const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
+
     const queryString = stringify({
       redirect: window.location.href,
     });
@@ -294,6 +296,7 @@ class EnterpriseLayout extends PureComponent {
                 style={{
                   margin: '24px 24px 0',
                   height: '100%',
+                  width: autoWidth,
                 }}
               >
                 <Authorized
