@@ -222,7 +222,9 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState(
-            { record: res.bean, event_id: res.bean.event_id },
+            { record: res.bean, event_id: res.bean.event_id,
+              region_name: res.bean && res.bean.region_name,
+            },
             () => {
               this.openQueryImportStatus();
               this.handleQueryImportDir(true);
@@ -248,7 +250,6 @@ export default class EnterpriseShared extends PureComponent {
       callback: data => {
         if (data && data._code === 200) {
           this.setState({
-            region_name: data.bean && data.bean.region_name || '',
             import_file_status: data.list,
           });
           if (data.bean && data.bean.status == 'uploading') {
