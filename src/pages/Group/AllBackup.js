@@ -150,9 +150,11 @@ class Index extends React.Component {
   }
   handleRecoveryBackup = () => {
     this.setState({ showRecovery: false, backup_id: '', group_id: '' });
+    this.fetchAllBackup();
   }
   cancelRecoveryBackup = () => {
     this.setState({ showRecovery: false, backup_id: '', group_id: '' });
+    this.fetchAllBackup();
   }
 
   // 删除应用备份
@@ -176,6 +178,7 @@ class Index extends React.Component {
           duration: '2'
         });
         this.cancelDelete();
+        this.fetchAllBackup();
       }
     })
   }

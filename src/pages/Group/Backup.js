@@ -367,9 +367,11 @@ export default class AppList extends PureComponent {
   };
   handleRecoveryBackup = () => {
     this.setState({ showRecovery: false, backup_id: "" });
+    this.fetchBackup();
   };
   cancelRecoveryBackup = () => {
     this.setState({ showRecovery: false, backup_id: "" });
+    this.fetchBackup();
   };
   // 迁移应用备份
   handleMove = (data, e) => {
