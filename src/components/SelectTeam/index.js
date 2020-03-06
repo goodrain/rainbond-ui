@@ -61,10 +61,14 @@ export default class SelectTeam extends PureComponent {
   };
 
   handleCreateTeam = values => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+
+    dispatch({
       type: 'teamControl/createTeam',
       payload: values,
       callback: () => {
+        // 获取最新的用户信息
+        dispatch({ type: 'user/fetchCurrent' });
         notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateTeam();
         this.loadUserTeams();
@@ -73,7 +77,7 @@ export default class SelectTeam extends PureComponent {
   };
 
   cancelCreateTeam = () => {
-    this.handleOut()
+    this.handleOut();
     this.setState({ showCreateTeam: false });
   };
 
@@ -93,8 +97,12 @@ export default class SelectTeam extends PureComponent {
       currentUser,
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
+    const currentTeamLink = `/team/${currentTeam.team_name}/region/${
+      currentRegion.team_region_name
+    }/index`;
+    const currentEnterpriseTeamPageLink = `/enterprise/${
+      currentEnterprise.enterprise_id
+    }/teams`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -102,7 +110,7 @@ export default class SelectTeam extends PureComponent {
             <div className={style.dropBoxSearchInput}>
               <Icon
                 className={style.dropBoxSearchInputIcon}
-                loading={`${loading  }`}
+                loading={`${loading}`}
                 type="search"
               />
               <Input.Search
@@ -117,7 +125,9 @@ export default class SelectTeam extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {userTeamList.map(item => {
-                const link = `/team/${item.team_name}/region/${currentRegion.team_region_name}/index`;
+                const link = `/team/${item.team_name}/region/${
+                  item.region
+                }/index`;
                 return (
                   <li key={item.team_name}>
                     <Link to={link} title={item.team_alias}>
@@ -153,7 +163,7 @@ export default class SelectTeam extends PureComponent {
         onMouseLeave={this.handleOut}
         onMouseEnter={this.handleEnter}
       >
-        <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible} >
+        <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible}>
           <div className={style.selectButton}>
             <div
               className={style.selectButtonName}

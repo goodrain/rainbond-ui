@@ -248,7 +248,7 @@ export default class EnterpriseShared extends PureComponent {
       callback: data => {
         if (data && data._code === 200) {
           this.setState({
-            region_name: data.bean && data.bean.region,
+            region_name: data.bean && data.bean.region_name || '',
             import_file_status: data.list,
           });
           if (data.bean && data.bean.status == 'uploading') {
