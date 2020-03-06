@@ -268,17 +268,9 @@ export default class Index extends PureComponent {
         }
       },
       {
-        title: "是否上线",
-        dataIndex: "is_online",
-        key: "3",
-        render: is_online => {
-          return <span>{is_online ? "已上线" : "已下线"}</span>;
-        }
-      },
-      {
         title: "操作",
         dataIndex: "ep_id",
-        key: "4",
+        key: "3",
         render: (ep_id, status) => (
           <div>
             {status.is_static && (
