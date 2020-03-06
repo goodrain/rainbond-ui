@@ -442,7 +442,7 @@ export default class EnterpriseShared extends PureComponent {
           >
             <Row className={styles.box}>
               <Col span={24} className={styles.desc}>
-                正在使用“<span>{region_name}</span>"数据中心完成本次导入任务
+                正在使用<span>{region_name}</span>数据中心完成本次导入任务
               </Col>
             </Row>
           </Card>

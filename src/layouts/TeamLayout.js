@@ -263,8 +263,6 @@ class TeamLayout extends React.PureComponent {
     if (!ready || !currentEnterprise || !currentTeam) {
       return <PageLoading />;
     }
-    console.log('teamName',teamName)
-    console.log('currentTeam',currentTeam)
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
