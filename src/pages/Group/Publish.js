@@ -264,7 +264,7 @@ export default class AppPublishList extends PureComponent {
                     if (val) {
                       return (
                         <p style={{ marginBottom: 0 }}>
-                          {val}({data.alias})
+                          {val}({data.version_alias})
                         </p>
                       );
                     }
