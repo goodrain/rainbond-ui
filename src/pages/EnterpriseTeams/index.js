@@ -233,8 +233,12 @@ export default class EnterpriseTeams extends PureComponent {
       payload: {
         team_name: exitTeamName,
       },
-      callback: () => {
-        location.reload();
+      callback: res => {
+        if (res && res._code === 200) {
+          this.getOverviewTeam();
+          this.getUserTeams();
+          this.hideExitTeam();
+        }
       },
     });
   };
@@ -273,8 +277,11 @@ export default class EnterpriseTeams extends PureComponent {
       payload: {
         team_name: exitTeamName,
       },
-      callback: () => {
-        location.reload();
+      callback: res => {
+        if (res && res._code === 200) {
+          this.getEnterpriseTeams();
+          this.hideDelTeam();
+        }
       },
     });
   };

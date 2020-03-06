@@ -44,7 +44,7 @@ class SelectStore extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { onCancel, visible } = this.props;
+    const { onCancel, visible ,enterprise_id} = this.props;
     const { storeList } = this.state;
 
     const formItemLayout = {
@@ -117,7 +117,7 @@ class SelectStore extends PureComponent {
             </Form>
           : <p>
               当前企业暂无开通应用商店，请前往应用市场申请开通{" "}
-              <a target="_blank" href="https://market.goodrain.com">
+              <a target="_blank" href={`https://market.goodrain.com/manage`}>
                 去开通
               </a>
             </p>}
