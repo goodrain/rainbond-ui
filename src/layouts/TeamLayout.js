@@ -254,18 +254,17 @@ class TeamLayout extends React.PureComponent {
       currentComponent,
     } = this.state;
     const { teamName, regionName } = this.props.match.params;
-
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     // Parameters of the abnormal
     if (!teamName || !regionName) {
       return <Redirect to="/" />;
     }
-
     // The necessary data is loaded
     if (!ready || !currentEnterprise || !currentTeam) {
       return <PageLoading />;
     }
-
+    console.log('teamName',teamName)
+    console.log('currentTeam',currentTeam)
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
