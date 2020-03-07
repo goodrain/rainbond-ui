@@ -188,10 +188,6 @@ export default function request(url, options) {
             type: 'global/showNeedLogin',
           });
           return;
-          // cookie.remove("token");
-          // cookie.remove("token", { domain: "" });
-          // cookie.remove("newbie_guide");
-          // cookie.remove("platform_url");
         }
         if (resData.code === 10400) {
           window.g_app._store.dispatch({

@@ -79,6 +79,7 @@ export default class Index extends PureComponent {
         cookie.remove("token", { domain: "" });
         cookie.remove("guide", { domain: "" });
         cookie.remove("team", { domain: "" });
+        cookie.remove("team_name", { domain: "" });
         cookie.remove("region_name", { domain: "" });
         localStorage.clear();
         this.props.dispatch(routerRedux.replace("/user/login"));
