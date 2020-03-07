@@ -32,7 +32,7 @@ export function createComponent(list, currentTeam, regionNmae, currentComponent)
     if (currentComponent) {
         list.push({
             title: currentComponent.componentName,
-            href: `/team/${currentTeam.team_name}/region/${regionNmae}/apps/${currentComponent.componentID}`
+            href: `/team/${currentTeam.team_name}/region/${regionNmae}/components/${currentComponent.componentID}/overview`
           });
     }
     return list;

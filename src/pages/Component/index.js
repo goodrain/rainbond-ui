@@ -1167,7 +1167,6 @@ class Main extends PureComponent {
       currentRegionName,
       {componentName: appDetail.service.service_cname, componentID: appDetail.service.service_alias}
     )
-    
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
