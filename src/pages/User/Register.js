@@ -35,7 +35,7 @@ export default class Register extends Component {
   };
 
   handleSubmit = values => {
-    const { dispatch } = this.state;
+    const { dispatch } = this.props;
     dispatch({
       type: 'user/register',
       payload: {
