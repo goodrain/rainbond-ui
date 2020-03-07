@@ -816,9 +816,9 @@ export default class Enterprise extends PureComponent {
 
                           <div
                             className={styles.grays}
-                            style={{ marginLeft: '18px', width: '128px' }}
+                            style={{ marginLeft: '18px', width: '140px' }}
                           >
-                            新加入团队：
+                            新加入团队:
                           </div>
                           <Tooltip title={new_join_team[0].team_alias}>
                             <div
