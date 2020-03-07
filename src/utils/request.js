@@ -165,7 +165,7 @@ export default function request(url, options) {
 
           return;
         }
-        if (resData.code === 10408) {
+        if (resData.code === 10409) {
           notification.warning({ message: '与云市连接超时,请检查网络' });
           return;
         }
