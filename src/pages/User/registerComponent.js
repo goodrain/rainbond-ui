@@ -72,6 +72,9 @@ export default class RegisterComponent extends Component {
       },
       (err, values) => {
         if (!err) {
+          cookie.remove('token', { domain: '' });
+          cookie.remove("team_name", { domain: "" });
+          cookie.remove("region_name", { domain: "" });
           onSubmit && onSubmit(values);
         }
       }

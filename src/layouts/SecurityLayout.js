@@ -1,27 +1,27 @@
-import React from "react";
-import { connect } from "dva";
-import { Redirect } from "umi";
+import React from 'react';
+import { connect } from 'dva';
+import { Redirect } from 'umi';
 import PageLoading from '../components/PageLoading';
-import { stringify } from "querystring";
-import cookie from "../utils/cookie";
-import globalUtil from "../utils/global";
+import { stringify } from 'querystring';
+import cookie from '../utils/cookie';
+import globalUtil from '../utils/global';
 
 class SecurityLayout extends React.PureComponent {
   state = {
-    isReady: false
+    isReady: false,
   };
 
   componentDidMount() {
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
-        type: "global/fetchRainbondInfo",
+        type: 'global/fetchRainbondInfo',
         callback: info => {
           if (info) {
             globalUtil.putLog(info);
             this.fetchUserInfo();
           }
-        }
+        },
       });
     }
   }
@@ -30,45 +30,46 @@ class SecurityLayout extends React.PureComponent {
     const { dispatch } = this.props;
     if (dispatch) {
       dispatch({
-        type: "user/fetchCurrent",
+        type: 'user/fetchCurrent',
         callback: () => {
           this.setState({
-            isReady: true
+            isReady: true,
           });
         },
         handleError: err => {
-          debugger
+
           this.setState({
-            isReady: true
+            isReady: true,
           });
-        }
+        },
       });
     }
-  }
+  };
 
   render() {
     const { children, currentUser, needLogin } = this.props;
     const { isReady } = this.state;
     // You can replace it to your authentication rule (such as check token exists)
-    const token = cookie.get("token");
+    const token = cookie.get('token');
     const isLogin = token && currentUser;
     const queryString = stringify({
-      redirect: window.location.href
+      redirect: window.location.href,
     });
     if (needLogin) {
-      cookie.remove("token");
-      cookie.remove("token", { domain: "" });
-      cookie.remove("newbie_guide");
-      cookie.remove("platform_url");
+      cookie.remove('team_name', { domain: '' });
+      cookie.remove('region_name', { domain: '' });
+      cookie.remove('token', { domain: '' });
+      cookie.remove('newbie_guide', { domain: '' });
+      cookie.remove('platform_url', { domain: '' });
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     if (!isReady) {
       return <PageLoading />;
     }
-    if (isReady && !isLogin && window.location.pathname !== "/user/login") {
+    if (isReady && !isLogin && window.location.pathname !== '/user/login') {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-    return children
+    return children;
   }
 }
 

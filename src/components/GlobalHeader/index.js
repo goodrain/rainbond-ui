@@ -47,7 +47,7 @@ export default class GlobalHeader extends PureComponent {
     };
   }
   componentDidMount() {
-    
+
   }
 
   handleNoticeClear = type => {
@@ -88,9 +88,6 @@ export default class GlobalHeader extends PureComponent {
       this.showChangePass();
     }
     if (key === "logout") {
-      cookie.remove("token", { domain: "" });
-      cookie.remove("team", { domain: "" });
-      cookie.remove("region_name", { domain: "" });
       dispatch({ type: "user/logout" });
     }
   };

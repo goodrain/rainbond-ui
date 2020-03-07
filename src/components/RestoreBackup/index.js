@@ -41,6 +41,8 @@ export default class Index extends PureComponent {
       new_group_id: '',
       isFinished: '',
       notRecovered_restore_id: '',
+      restore: false,
+      restoreUrl: '',
     };
     this.mount = false;
   }
@@ -96,7 +98,9 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = e => {
-    this.props.dispatch({
+    const { restore } = this.state;
+    const { dispatch } = this.props;
+    dispatch({
       type: 'groupControl/delRestore',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -106,6 +110,7 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           notification.success({ message: '删除成功', duration: '2' });
+          restore && this.JumpAddress();
           this.props.onCancel & this.props.onCancel();
         }
       },
@@ -115,44 +120,64 @@ export default class Index extends PureComponent {
   // 查询恢复情况
   queryMigrateApp = () => {
     if (!this.mount) return;
-    this.props.dispatch({
+    const { restore_id } = this.state;
+    const { propsParams, dispatch, groupId } = this.props;
+    const team_name = propsParams && propsParams.teamName;
+    const region_name = propsParams && propsParams.regionName;
+    dispatch({
       type: 'groupControl/queryMigrateApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        restore_id: this.state.restore_id,
-        group_id: this.props.groupId,
+        team_name,
+        restore_id,
+        group_id: groupId,
       },
       callback: data => {
-        if (data) {
+        if (data && data.bean) {
+          const info = data.bean;
           this.setState({
             showRestore: true,
-            restore_status: data.bean.status,
-            new_group_id: data.bean.group_id,
+            restore_status: info.status,
+            new_group_id: info.group_id,
           });
-          if (data.bean.status == 'starting') {
+          if (info.status == 'starting') {
             setTimeout(() => {
               this.queryMigrateApp();
             }, 2000);
+          } else if (info.status == 'success') {
+            this.setState({
+              restore: true,
+              restoreUrl: `/team/${team_name}/region/${region_name}/apps/${
+                info.group_id
+              }`,
+            });
           }
         }
       },
     });
   };
 
+  JumpAddress = () => {
+    const { dispatch, onCancel } = this.props;
+    const { restoreUrl } = this.state;
+    dispatch(routerRedux.push(restoreUrl));
+  };
+
   render() {
-    const restoreStatus = this.state.restore_status;
-    if (this.state.isFinished === '') {
+    const { restore, restore_status, isFinished, showRestore } = this.state;
+    const { onCancel } = this.props;
+
+    if (isFinished === '') {
       return null;
     }
     return (
       <Modal
         visible
-        onCancel={this.props.onCancel}
+        onCancel={onCancel}
         title="恢复"
         footer={
-          !this.state.showRestore
+          !showRestore
             ? [
-              <Button key="back" onClick={this.props.onCancel}>
+              <Button key="back" onClick={onCancel}>
                 关闭
               </Button>,
               <Button
@@ -163,9 +188,9 @@ export default class Index extends PureComponent {
                 恢复
               </Button>,
               ]
-            : restoreStatus == 'success'
+            : restore_status == 'success'
             ? [
-              <Button key="back" onClick={this.props.onCancel}>
+              <Button key="back" onClick={this.JumpAddress}>
                 关闭
               </Button>,
               <Button key="submit" type="primary" onClick={this.handleSubmit}>
@@ -173,15 +198,15 @@ export default class Index extends PureComponent {
               </Button>,
               ]
             : [
-              <Button key="back" onClick={this.props.onCancel}>
+              <Button key="back" onClick={onCancel}>
                 关闭
               </Button>,
               ]
         }
       >
-        {this.state.showRestore ? (
+        {showRestore ? (
           <div>
-            {restoreStatus == 'starting' ? (
+            {restore_status == 'starting' ? (
               <div>
                 <p style={{ textAlign: 'center' }}>
                   <Spin />
@@ -193,7 +218,7 @@ export default class Index extends PureComponent {
             ) : (
               ''
             )}
-            {restoreStatus == 'success' ? (
+            {restore_status == 'success' ? (
               <div>
                 <p
                   style={{
@@ -211,7 +236,7 @@ export default class Index extends PureComponent {
             ) : (
               ''
             )}
-            {restoreStatus == 'failed' ? (
+            {restore_status == 'failed' ? (
               <div>
                 <p
                   style={{
@@ -230,7 +255,7 @@ export default class Index extends PureComponent {
               ''
             )}
           </div>
-        ) : this.state.isFinished ? (
+        ) :isFinished ? (
           <div>
             <p>您是否要恢复备份到当前数据中心?</p>
           </div>

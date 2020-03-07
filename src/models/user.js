@@ -18,27 +18,27 @@ import {
   addCollectionView,
   queryCollectionViewInfo,
   putCollectionViewInfo,
-  deleteCollectionViewInfo
-} from "../services/user";
-import { setAuthority } from "../utils/authority";
-import cookie from "../utils/cookie";
-import { routerRedux } from "dva/router";
+  deleteCollectionViewInfo,
+} from '../services/user';
+import { setAuthority } from '../utils/authority';
+import cookie from '../utils/cookie';
+import { routerRedux } from 'dva/router';
 
 export default {
-  namespace: "user",
+  namespace: 'user',
 
   state: {
     list: [],
     currentUser: null,
     notifyCount: 0,
-    register: null
+    register: null,
   },
 
   effects: {
     *getTeamByName({ payload, callback, fail }, { call, put, select }) {
       const response = yield call(getTeamByName, payload);
       if (response) {
-        yield put({ type: "saveOtherTeam", team: response.bean });
+        yield put({ type: 'saveOtherTeam', team: response.bean });
         setTimeout(() => {
           callback && callback(response.bean);
         });
@@ -49,8 +49,8 @@ export default {
     *changePass({ payload, callback }, { call, put, select }) {
       const response = yield call(changePass, payload);
       if (response) {
-        yield put({ type: "tologout" });
-        yield put(routerRedux.push("/user/login"));
+        yield put({ type: 'tologout' });
+        yield put(routerRedux.push('/user/login'));
         callback && callback();
       }
     },
@@ -140,8 +140,8 @@ export default {
     *login({ payload, callback }, { call, put, select }) {
       const response = yield call(login, payload);
       if (response) {
-        yield put({ type: "changeLoginStatus", payload: response });
-        cookie.set("token", response.bean.token);
+        yield put({ type: 'changeLoginStatus', payload: response });
+        cookie.set('token', response.bean.token);
         if (callback) {
           callback();
         }
@@ -152,7 +152,7 @@ export default {
 
       if (response) {
         callback && callback(response);
-        yield put({ type: "changeLoginStatus", payload: response });
+        yield put({ type: 'changeLoginStatus', payload: response });
       }
     },
 
@@ -163,16 +163,16 @@ export default {
         // const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
         // urlParams.searchParams.set("redirect", pathname);
-        window.history.replaceState(null, "login", urlParams.href);
+        window.history.replaceState(null, 'login', urlParams.href);
       } finally {
         // yield put(routerRedux.push('/user/login')); Login out after permission
         // changes to admin or user The refresh will automatically redirect to the login
         // page
-        yield put({ type: "tologout" });
+        yield put({ type: 'tologout' });
 
-        yield put({ type: "saveCurrentUser", payload: null });
+        yield put({ type: 'saveCurrentUser', payload: null });
 
-        yield put(routerRedux.push("/user/login"));
+        yield put(routerRedux.push('/user/login'));
       }
     },
     *register({ payload, complete }, { call, put, select }) {
@@ -182,7 +182,7 @@ export default {
         // 非常粗暴的跳转,登陆成功之后权限会变成user或admin,会自动重定向到主页 Login success after permission
         // changes to admin or user The refresh will automatically redirect to the home
         // page yield put(routerRedux.push('/'));
-        cookie.set("token", response.bean.token);
+        cookie.set('token', response.bean.token);
         const urlParams = new URL(window.location.href);
 
         const pathname = yield select(state => {
@@ -195,9 +195,9 @@ export default {
         });
         // add the parameters in the url
         const redirect = pathname
-          ? urlParams.searchParams.get("redirect", pathname)
+          ? urlParams.searchParams.get('redirect', pathname)
           : null;
-        yield put({ type: "registerHandle", payload: response.bean, redirect });
+        yield put({ type: 'registerHandle', payload: response.bean, redirect });
         if (
           response._code === 200 &&
           response.bean &&
@@ -205,14 +205,14 @@ export default {
         ) {
           yield put(
             routerRedux.push({
-              pathname: "/user/register-result",
+              pathname: '/user/register-result',
               state: {
-                account: response.bean.nick_name
-              }
+                account: response.bean.nick_name,
+              },
             })
           );
         } else {
-          yield put(routerRedux.push("/"));
+          yield put(routerRedux.push('/'));
         }
       }
 
@@ -224,19 +224,19 @@ export default {
         const urlParams = new URL(window.location.href);
         const pathname = yield select(state => state.routing.location.pathname);
         // add the parameters in the url
-        const redirect = urlParams.searchParams.get("redirect", pathname);
-        yield put({ type: "registerHandle", payload: response.bean, redirect });
+        const redirect = urlParams.searchParams.get('redirect', pathname);
+        yield put({ type: 'registerHandle', payload: response.bean, redirect });
         callback && callback(response.bean);
       }
     },
     *fetch(_, { call, put }) {
       const response = yield call(queryUsers);
-      yield put({ type: "save", payload: response });
+      yield put({ type: 'save', payload: response });
     },
     *fetchCurrent({ callback, handleError }, { call, put }) {
       const response = yield call(getDetail, handleError);
       if (response) {
-        yield put({ type: "saveCurrentUser", payload: response.bean });
+        yield put({ type: 'saveCurrentUser', payload: response.bean });
       }
       callback && callback();
     },
@@ -251,7 +251,7 @@ export default {
       if (response) {
         callback && callback(response.bean);
       }
-    }
+    },
   },
 
   reducers: {
@@ -259,35 +259,36 @@ export default {
       return {
         ...state,
         register: payload,
-        redirect
+        redirect,
       };
     },
     changeLoginStatus(state, { payload }) {
-      setAuthority("user");
+      setAuthority('user');
       return {
         ...state,
         status: payload.status,
-        type: payload.type
+        type: payload.type,
       };
     },
     tologout(state, action) {
-      cookie.remove("token");
-      cookie.remove("token", { domain: "" });
-      cookie.remove("guide");
-      cookie.remove("guide", { domain: "" });
-      cookie.remove("newbie_guide");
-      cookie.remove("platform_url");
+      cookie.remove('team_name', { domain: '' });
+      cookie.remove('region_name', { domain: '' });
+      cookie.remove('team', { domain: '' });
+      cookie.remove('token', { domain: '' });
+      cookie.remove('guide', { domain: '' });
+      cookie.remove('newbie_guide', { domain: '' });
+      cookie.remove('platform_url', { domain: '' });
     },
     save(state, action) {
       return {
         ...state,
-        list: action.payload
+        list: action.payload,
       };
     },
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload
+        currentUser: action.payload,
       };
     },
     saveOtherTeam(state, action) {
@@ -295,14 +296,14 @@ export default {
       currentUser.teams.push(action.team);
       return {
         ...state,
-        currentUser: Object.assign({}, currentUser)
+        currentUser: Object.assign({}, currentUser),
       };
     },
     changeNotifyCount(state, action) {
       return {
         ...state,
-        notifyCount: action.payload
+        notifyCount: action.payload,
       };
-    }
-  }
+    },
+  },
 };
