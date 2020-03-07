@@ -2,7 +2,9 @@ import React, { PureComponent, Fragment } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
 import CreateAppModels from '../../components/CreateAppModels';
-import { Table, AutoComplete ,
+import {
+  Table,
+  AutoComplete,
   Row,
   Col,
   Card,
@@ -415,9 +417,9 @@ export default class Main extends PureComponent {
       appDetail: {},
       record: {},
       model: {},
-      currentVersion: {},
       loadingModels: true,
       models: [],
+      versions: [],
     };
     this.com = [];
     this.share_group_info = null;
@@ -485,8 +487,10 @@ export default class Main extends PureComponent {
             () => {
               if (res.list.length > 0) {
                 isCreate && setFieldsValue({ app_id: res.list[0].app_id });
-                if (!res.bean) {
+                if (JSON.stringify(res.bean) === '{}') {
                   this.changeCurrentModel(res.list[0].app_id);
+                } else {
+                  this.changeCurrentModel(res.bean.app_id);
                 }
               }
             }
@@ -862,20 +866,37 @@ export default class Main extends PureComponent {
   handleCancel = () => this.setState({ previewVisible: false });
   changeCurrentVersion = version => {
     const { model } = this.state;
+    const { setFieldsValue } = this.props.form;
+
     model &&
       model.versions &&
       model.versions.map(item => {
         if (version === item.version) {
-          this.setState({ currentVersion: item });
+          setFieldsValue({ version: item.version });
+          setFieldsValue({ version_alias: item.version_alias });
+          setFieldsValue({ describe: item.describe });
         }
       });
   };
   changeCurrentModel = model_id => {
     const { models } = this.state;
+    const { setFieldsValue } = this.props.form;
+
     models &&
+      models.length > 0 &&
       models.map(item => {
-        if (model_id === item.app_id) {
-          this.setState({ model: item });
+        const { app_id, version_alias, describe, versions } = item;
+        if (model_id === app_id) {
+          this.setState({ model: item, versions }, () => {
+            const versionInfo = versions && versions.length > 0 && versions[0];
+            setFieldsValue({
+              version: versionInfo ? versionInfo.version : '',
+            });
+            setFieldsValue({
+              version_alias: versionInfo ? versionInfo.version_alias : '',
+            });
+            setFieldsValue({ describe });
+          });
         }
       });
   };
@@ -896,12 +917,12 @@ export default class Main extends PureComponent {
       shareModal,
       sharearrs,
       share_service_list,
-      currentVersion,
       models,
       appDetail,
       showCreateAppModel,
       model,
       record,
+      versions,
     } = this.state;
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     let breadcrumbList = [];
@@ -917,16 +938,13 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({
       title: '发布记录列表',
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${
-        appDetail.group_id
-      }/publish`,
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`,
     });
     if (record && record.scope == 'goodrain') {
       breadcrumbList.push({ title: '发布到云应用商店' });
     } else {
       breadcrumbList.push({ title: '发布到共享库' });
     }
-
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -991,7 +1009,6 @@ export default class Main extends PureComponent {
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本号">
                       {getFieldDecorator('version', {
-                        initialValue: currentVersion && currentVersion.version,
                         rules: [
                           {
                             required: true,
@@ -1001,17 +1018,19 @@ export default class Main extends PureComponent {
                       })(
                         <AutoComplete
                           style={{ width: 280 }}
-                          onChange={this.changeCurrentVersion}
+                          // onChange={this.changeCurrentVersion}
                           placeholder="版本号默认为选择模版的上次分享版本"
                         >
-                          {model.versions &&
-                            model.versions.map((item, index) => {
+                          {versions &&
+                            versions.length > 0 &&
+                            versions.map((item, index) => {
+                              const { version } = item;
                               return (
                                 <AutoComplete.Option
                                   key={`version${index}`}
-                                  value={item.version}
+                                  value={version}
                                 >
-                                  {item.version}
+                                  {version}
                                 </AutoComplete.Option>
                               );
                             })}
@@ -1021,10 +1040,10 @@ export default class Main extends PureComponent {
                   </Col>
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本别名">
-                      {getFieldDecorator('version_alias', {
-                        initialValue:
-                          currentVersion && currentVersion.version_alias,
-                      })(
+                      {getFieldDecorator(
+                        'version_alias',
+                        {}
+                      )(
                         <Input
                           style={{ width: 280 }}
                           placeholder="设置版本别名，比如高级版"
@@ -1035,7 +1054,6 @@ export default class Main extends PureComponent {
                   <Col span="12" style={{ height: '104px' }}>
                     <Form.Item {...formItemLayout} label="版本说明">
                       {getFieldDecorator('describe', {
-                        initialValue: currentVersion && currentVersion.describe,
                         rules: [
                           {
                             required: false,

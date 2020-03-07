@@ -755,7 +755,7 @@ export default class Index extends PureComponent {
         build_version: plugin.build_version,
       },
       callback: () => {
-        notification.success({ message: "操作成功" });
+        notification.success({ message: "开通成功,需要更新才能生效" });
         this.getPlugins();
         this.props.onshowRestartTips(true);
       },
