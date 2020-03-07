@@ -1,5 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Modal, Form, Select, Button, Row, Col, notification } from 'antd';
+import {
+  Modal,
+  Form,
+  Select,
+  Button,
+  Alert,
+  Row,
+  Col,
+  Spin,
+  notification,
+} from 'antd';
 import { connect } from 'dva';
 import styles from '../CreateTeam/index.less';
 
@@ -195,10 +205,11 @@ export default class Convenient extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { onOk, onCancel, title } = this.props;
-    const { userTeamList, apps, components, region_list } = this.state;
+    const { userTeamList, apps, components, region_list, Loading } = this.state;
 
-    const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
-
+    const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
+    const appList = apps && apps.length > 0 && apps;
+    const componentList = components && components.length > 0 && components;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -206,117 +217,118 @@ export default class Convenient extends PureComponent {
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
+        sm: { span: 17 },
       },
     };
 
     return (
       <Modal
         title={title}
-        width={1000}
+        width={600}
         visible
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
-          <Button type="primary" onClick={this.handleSubmit}>
-            添加
-          </Button>,
+          userTeams && (
+            <Button type="primary" onClick={this.handleSubmit}>
+              添加
+            </Button>
+          ),
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          {/* {this.state.teams.length === 0 && (
-              <div>暂无团队可以添加，可以先创建团队。</div>
-            )} */}
-
+          {Loading ? (
+            <Spin />
+          ) : (
+            !userTeams && (
+              <Alert
+                message="暂无团队可以添加"
+                type="warning"
+                style={{ marginBottom: '20px' }}
+              />
+            )
+          )}
           <Row>
-            <Col span={6}>
-              <FormItem {...formItemLayout} label="团队名称" hasFeedback>
-                {getFieldDecorator('team_name', {
-                  rules: [
-                    {
-                      required: false,
-                      message: '请选择团队',
-                    },
-                  ],
-                })(
-                  <Select
-                    style={{ width: '100%' }}
-                    onChange={this.handleTeamChange}
-                  >
-                    {userTeam &&
-                      userTeam.map(team => (
-                        <Option value={team.team_name}>
-                          {team.team_alias}
+            {userTeams && (
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="团队视图" hasFeedback>
+                  {getFieldDecorator('team_name')(
+                    <Select
+                      style={{ width: '100%' }}
+                      onChange={this.handleTeamChange}
+                      placeholder="请选择团队"
+                    >
+                      {userTeams.map(item => (
+                        <Option key={item.team_name} value={item.team_name}>
+                          {item.team_alias}
                         </Option>
                       ))}
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={6}>
-              <FormItem {...formItemLayout} label="数据中心" hasFeedback>
-                {getFieldDecorator('region', {
-                  rules: [
-                    {
-                      required: false,
-                      message: '请选择数据中心',
-                    },
-                  ],
-                })(
-                  <Select style={{ width: '100%' }}>
-                    {region_list &&
-                      region_list.map(item => (
-                        <Option value={item}>{item}</Option>
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            )}
+            {userTeams && (
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="" hasFeedback>
+                  {getFieldDecorator('region')(
+                    <Select
+                      placeholder="请选择数据中心"
+                      style={{ width: '100%' }}
+                    >
+                      {region_list &&
+                        region_list.map(item => (
+                          <Option key={item} value={item}>
+                            {item}
+                          </Option>
+                        ))}
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            )}
+            {appList && (
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="应用视图" hasFeedback>
+                  {getFieldDecorator('apps')(
+                    <Select
+                      style={{ width: '100%' }}
+                      placeholder="请选择应用"
+                      onChange={this.handleAppChange}
+                    >
+                      {appList.map(item => (
+                        <Option key={item.ID} value={item.ID}>
+                          {item.group_name}
+                        </Option>
                       ))}
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={6}>
-              <FormItem {...formItemLayout} label="应用" hasFeedback>
-                {getFieldDecorator('apps', {
-                  rules: [
-                    {
-                      required: false,
-                      message: '请选择应用',
-                    },
-                  ],
-                })(
-                  <Select
-                    style={{ width: '100%' }}
-                    onChange={this.handleAppChange}
-                  >
-                    {apps &&
-                      apps.map(item => (
-                        <Option value={item.ID}>{item.group_name}</Option>
-                      ))}
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={6}>
-              <FormItem {...formItemLayout} label="组件" hasFeedback>
-                {getFieldDecorator('component', {
-                  rules: [
-                    {
-                      required: false,
-                      message: '请选择组件',
-                    },
-                  ],
-                })(
-                  <Select style={{ width: '100%' }}>
-                    {components &&
-                      components.map(item => (
-                        <Option value={item.service_alias}>
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            )}
+          </Row>
+
+          <Row>
+            {componentList && (
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="组件视图" hasFeedback>
+                  {getFieldDecorator('component')(
+                    <Select placeholder="请选择组件" style={{ width: '100%' }}>
+                      {componentList.map(item => (
+                        <Option
+                          key={item.service_alias}
+                          value={item.service_alias}
+                        >
                           {item.service_cname}
                         </Option>
                       ))}
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            )}
           </Row>
         </Form>
       </Modal>
