@@ -1,7 +1,13 @@
 import styles from './utils.less';
 import moment from 'moment';
+import cookie from './cookie';
 
 const global = {
+  removeCookie() {
+    cookie.remove('token', { domain: '' });
+    cookie.remove('team_name', { domain: '' });
+    cookie.remove('region_name', { domain: '' });
+  },
   putLog(info) {
     if (!info) {
       return null;
@@ -576,18 +582,18 @@ const global = {
     const seconds = Math.round(leave3 / 1000);
 
     if (days && days >= 1) {
-      result += `${days  }天`;
+      result += `${days}天`;
     }
     if (hours && hours >= 1) {
-      result += `${hours  }小时`;
+      result += `${hours}小时`;
     }
 
     if (minutes && minutes >= 1) {
-      result += `${minutes  }分钟`;
+      result += `${minutes}分钟`;
     }
 
     if (seconds && seconds >= 1) {
-      result += `${seconds  }秒`;
+      result += `${seconds}秒`;
     }
     return result || '1秒';
   },
@@ -611,13 +617,13 @@ const global = {
     if (days && days > 7) {
       result = moment(date).format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
-      result += `${days  }天前`;
+      result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
-      result += `${hours  }小时前`;
+      result += `${hours}小时前`;
     } else if (minutes && minutes >= 1 && minutes <= 59) {
-      result += `${minutes  }分钟前`;
+      result += `${minutes}分钟前`;
     } else if (seconds && seconds >= 1 && seconds <= 59) {
-      result += `${seconds  }秒前`;
+      result += `${seconds}秒前`;
     } else {
       result = '1秒前';
     }
