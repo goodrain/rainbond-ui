@@ -816,7 +816,7 @@ export default class Enterprise extends PureComponent {
 
                           <div
                             className={styles.grays}
-                            style={{ marginLeft: '18px', width: '140px' }}
+                            style={{ marginLeft: '18px', width: '150px' }}
                           >
                             新加入团队:
                           </div>
