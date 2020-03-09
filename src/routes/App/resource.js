@@ -1846,7 +1846,6 @@ export default class Index extends PureComponent {
       }
     };
 
-    const languageType = versionLanguage ? versionLanguage : "";
     const {
       thirdInfo,
       buildSource,
@@ -1855,9 +1854,9 @@ export default class Index extends PureComponent {
       fullList,
       tabList
     } = this.state;
-    const { rainbondInfo, form } = this.props;
-    const { getFieldDecorator, getFieldValue } = form;
-    const versionLanguage = buildSource ? buildSource.language : "";
+    const { form } = this.props;
+    const { getFieldDecorator } = form;
+    const languageType = buildSource ? buildSource.language : "";
 
     return (
       <Fragment>
@@ -1979,9 +1978,9 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="项目名称"
               >
-              <a href={buildSource.git_url} target="_blank">
-                 {buildSource.full_name}
-              </a>
+                <a href={buildSource.git_url} target="_blank">
+                  {buildSource.full_name}
+                </a>
               </FormItem>
             )}
 
