@@ -424,7 +424,7 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-      <Col span={4} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
         {adminer && (
           <Button
             type="primary"
@@ -456,7 +456,7 @@ export default class EnterpriseTeams extends PureComponent {
           >
             全部团队
           </Col>
-          <Col span={18} style={{ textAlign: 'left' }}>
+          <Col span={15} style={{ textAlign: 'left' }}>
             <Search
               style={{ width: '500px' }}
               placeholder="请输入团队名称进行搜索"
@@ -526,7 +526,7 @@ export default class EnterpriseTeams extends PureComponent {
     const teamInfo = (
       <div>
         <Row>
-          <Col span={20} className={styles.teamsTit}>
+          <Col span={17} className={styles.teamsTit}>
             {active_teams && <span>我常用的团队</span>}
           </Col>
           {operation}

@@ -70,47 +70,20 @@ i.trigger {
   }
 }
 
-.globalSider {
-  padding-top: 30px;
 
-  :global {
-    .ant-menu-item.ant-menu-item-selected{
-      background: #ffffff;
-      border-left: 4px solid #1890ff;
-    }
-    .ant-menu-item {
-      margin-bottom: 28px !important;
-    }
-
-    .ant-menu-item>a {
-
-      i {
-        display: block !important;
-      }
-
-      span {
-        line-height   : 20px;
-        height        : 20px;
-        text-align    : center;
-        opacity       : 1 !important;
-        display       : block !important;
-        max-width     : 64px !important;
-        font-family   : PingFangSC-Regular;
-        font-size     : 12px;
-        color         : #9CA2A8;
-        letter-spacing: 0;
-      }
-    }
-
-
-  }
-
-}
 
 
 :global {
 
+  .ant-menu-dark.ant-menu-vertical .ant-menu-item,
+  .ant-menu-dark .ant-menu-item-selected {
+    border-color: #1890ff !important;
+  }
 
+  .ant-menu.ant-menu-dark .ant-menu-item-selected,
+  .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
+    background: none !important;
+  }
 
   .ant-menu-inline-collapsed>.ant-menu-item .anticon,
   .ant-menu-inline-collapsed>.ant-menu-item-group>.ant-menu-item-group-list>.ant-menu-item .anticon,
@@ -161,5 +134,44 @@ i.trigger {
   .ant-menu-item>a:hover {
     font-family: PingFangSC-Regular;
     color      : #384551 !important;
+  }
+}
+
+.globalSider {
+  padding-top: 30px;
+
+  :global {
+    .ant-menu-item.ant-menu-item-selected {
+      background : #ffffff;
+      border-left: 4px solid #1890ff;
+
+      a {
+        margin-left: -4px;
+      }
+    }
+
+    .ant-menu-item {
+      margin-bottom: 28px !important;
+    }
+
+    .ant-menu-item>a {
+
+      i {
+        display: block !important;
+      }
+
+      span {
+        line-height   : 20px;
+        height        : 20px;
+        text-align    : center;
+        opacity       : 1 !important;
+        display       : block !important;
+        max-width     : 64px !important;
+        font-family   : PingFangSC-Regular;
+        font-size     : 12px;
+        color         : #9CA2A8;
+        letter-spacing: 0;
+      }
+    }
   }
 }
