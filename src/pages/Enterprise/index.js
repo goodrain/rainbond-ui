@@ -11,11 +11,15 @@ import {
   Tooltip,
   Empty,
 } from 'antd';
+
 import styles from '../List/BasicList.less';
 import userUtil from '../../utils/user';
+import cookie from '../../utils/cookie';
 import Convenient from '../../components/Convenient';
 import JoinTeam from '../../components/JoinTeam';
+import Consulting from '../../components/Consulting';
 import CreateTeam from '../../components/CreateTeam';
+
 import ConfirmModal from '../../components/ConfirmModal';
 import { Pie } from '../../components/Charts';
 import AddTeam from '../../../public/images/addTeam.png';
@@ -74,6 +78,9 @@ export default class Enterprise extends PureComponent {
     if (eid) {
       this.getEnterpriseInfo();
       this.getOverviewTeam();
+      if( !cookie.get('appStore')){
+        this.loadAppStore()
+      }
       if (adminer) {
         this.getOverviewApp();
         this.getOverview();
@@ -83,6 +90,26 @@ export default class Enterprise extends PureComponent {
       }
     }
   };
+
+  loadAppStore = () => {
+    const { eid } = this.state;
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'market/getMarketApp',
+      payload: {
+        enterprise_id: eid,
+        app_name: '',
+        page: 1,
+        page_size: 9,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          cookie.setGuide('appStore', 'true');
+        }
+      },
+    });
+  };
+
   fetchCollectionViewInfo = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
@@ -227,8 +254,15 @@ export default class Enterprise extends PureComponent {
     this.setState({ showAddTeam: false });
   };
 
-  handelUnderstand = () => {
-    window.open('https://www.goodrain.com/industrycloud');
+  handelConsulting = () => {
+    this.setState({
+      consulting: true,
+    });
+  };
+  cancelConsulting = () => {
+    this.setState({
+      consulting: false,
+    });
   };
   handelObtain = () => {
     window.open('https://t.goodrain.com/');
@@ -491,13 +525,7 @@ export default class Enterprise extends PureComponent {
                 </Button>
                 <Button
                   className={styles.buttonBjNot}
-                  onClick={this.handelUnderstand}
-                >
-                  获取资源管理后台
-                </Button>
-                <Button
-                  className={styles.buttonBjNot}
-                  onClick={this.handelObtain}
+                  onClick={this.handelConsulting}
                 >
                   获取商业解决方案
                 </Button>
@@ -1018,13 +1046,21 @@ export default class Enterprise extends PureComponent {
   };
 
   render() {
+    const { showAddTeam, consulting, enterpriseInfo } = this.state;
     return (
       <div>
         {this.renderContent()}
-        {this.state.showAddTeam && (
+        {showAddTeam && (
           <CreateTeam
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
+          />
+        )}
+        {consulting && (
+          <Consulting
+            name={enterpriseInfo && enterpriseInfo.enterprise_alias}
+            onOk={this.cancelConsulting}
+            onCancel={this.cancelConsulting}
           />
         )}
       </div>

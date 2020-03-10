@@ -33,16 +33,18 @@ export default class JoinTeam extends PureComponent {
   };
 
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
+    const { form, onOk } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
-        this.props.onOk && this.props.onOk(values);
+        onOk && onOk(values);
       }
     });
   };
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { onOk, onCancel, actions } = this.props;
-
+    const { onCancel, form } = this.props;
+    const { getFieldDecorator } = form;
+    const { teams } = this.state;
+    const teamList = teams && teams.length > 0 && teams;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -71,6 +73,7 @@ export default class JoinTeam extends PureComponent {
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
             {getFieldDecorator('team_name', {
+              initialValue: (teamList && teamList[0].team_name) || '',
               rules: [
                 {
                   required: true,
@@ -79,19 +82,17 @@ export default class JoinTeam extends PureComponent {
               ],
             })(
               <Select
-                value={this.state.selectedTeam}
                 style={{ width: '100%' }}
                 onChange={this.handleTeamChange}
+                placeholder="请选择一个团队"
               >
-                <Option value="">请选择一个团队</Option>
-                {this.state.teams.map(team => (
-                  <Option value={team.team_name}>{team.team_alias}</Option>
-                ))}
+                {teamList &&
+                  teamList.map(team => (
+                    <Option value={team.team_name}>{team.team_alias}</Option>
+                  ))}
               </Select>
             )}
-            {this.state.teams.length === 0 && (
-              <div>暂无团队可以添加，可以先创建团队。</div>
-            )}
+            {!teamList && <div>暂无团队可以添加，可以先创建团队。</div>}
           </FormItem>
         </Form>
       </Modal>

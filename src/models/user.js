@@ -21,6 +21,8 @@ import {
   deleteCollectionViewInfo,
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
+import userUtil from '../utils/global';
+
 import cookie from '../utils/cookie';
 import { routerRedux } from 'dva/router';
 
@@ -271,13 +273,7 @@ export default {
       };
     },
     tologout(state, action) {
-      cookie.remove('team_name', { domain: '' });
-      cookie.remove('region_name', { domain: '' });
-      cookie.remove('team', { domain: '' });
-      cookie.remove('token', { domain: '' });
-      cookie.remove('guide', { domain: '' });
-      cookie.remove('newbie_guide', { domain: '' });
-      cookie.remove('platform_url', { domain: '' });
+      userUtil.removeCookie();
     },
     save(state, action) {
       return {

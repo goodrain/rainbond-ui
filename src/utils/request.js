@@ -166,6 +166,7 @@ export default function request(url, options) {
           return;
         }
         if (resData.code === 10409) {
+          cookie.setGuide('appStore', 'true');
           notification.warning({ message: '与云市连接超时,请检查网络' });
           return;
         }
@@ -180,6 +181,7 @@ export default function request(url, options) {
           return;
         }
         if (resData.code === 10407) {
+          cookie.setGuide('appStore', 'true');
           window.g_app._store.dispatch({
             type: 'global/showAuthCompany',
           });

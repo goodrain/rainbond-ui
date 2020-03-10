@@ -56,11 +56,7 @@ class SecurityLayout extends React.PureComponent {
       redirect: window.location.href,
     });
     if (needLogin) {
-      cookie.remove('team_name', { domain: '' });
-      cookie.remove('region_name', { domain: '' });
-      cookie.remove('token', { domain: '' });
-      cookie.remove('newbie_guide', { domain: '' });
-      cookie.remove('platform_url', { domain: '' });
+      globalUtil.removeCookie()
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     if (!isReady) {
