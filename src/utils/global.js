@@ -4,9 +4,14 @@ import cookie from './cookie';
 
 const global = {
   removeCookie() {
-    cookie.remove('token', { domain: '' });
     cookie.remove('team_name', { domain: '' });
     cookie.remove('region_name', { domain: '' });
+    cookie.remove('team', { domain: '' });
+    cookie.remove('token', { domain: '' });
+    cookie.remove('guide', { domain: '' });
+    cookie.remove('appStore', { domain: '' });
+    cookie.remove('newbie_guide', { domain: '' });
+    cookie.remove('platform_url', { domain: '' });
   },
   putLog(info) {
     if (!info) {

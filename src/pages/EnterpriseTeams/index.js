@@ -320,6 +320,11 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState({ joinTeam: false });
   };
 
+  onJumpTeam = (team_name, region) => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
+  };
+
   render() {
     const {
       teamList,
@@ -477,6 +482,7 @@ export default class EnterpriseTeams extends PureComponent {
             team_id,
             team_alias,
             region,
+            region_list,
             owner_name,
             role,
             team_name,
@@ -492,11 +498,7 @@ export default class EnterpriseTeams extends PureComponent {
                 <Col
                   span={6}
                   onClick={() => {
-                    this.props.dispatch(
-                      routerRedux.replace(
-                        `/team/${team_name}/region/${region}/index`
-                      )
-                    );
+                    this.onJumpTeam(team_name, region);
                   }}
                 >
                   {team_alias}
@@ -504,9 +506,20 @@ export default class EnterpriseTeams extends PureComponent {
                 <Col span={3}>{owner_name}</Col>
                 <Col span={3}>{roleUtil.actionMap(role)}</Col>
                 <Col span={11}>
-                  <img src={DataCenterImg} alt="" />
-                  &nbsp;
-                  {region}
+                  {region_list.map(item => {
+                    return (
+                      <span
+                        key={item}
+                        onClick={() => {
+                          this.onJumpTeam(team_name, item);
+                        }}
+                      >
+                        <img src={DataCenterImg} alt="" />
+                        &nbsp;
+                        {item}
+                      </span>
+                    );
+                  })}
                 </Col>
                 <Col span={1} className={styles.bor}>
                   <Dropdown
@@ -547,6 +560,7 @@ export default class EnterpriseTeams extends PureComponent {
               team_alias,
               region,
               owner_name,
+              region_list,
               role,
               team_name,
             } = item;
@@ -566,11 +580,7 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col
                     span={6}
                     onClick={() => {
-                      this.props.dispatch(
-                        routerRedux.replace(
-                          `/team/${team_name}/region/${region}/index`
-                        )
-                      );
+                      this.onJumpTeam(team_name, region);
                     }}
                   >
                     {team_alias}
@@ -578,9 +588,20 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col span={11}>
-                    <img src={DataCenterImg} alt="" />
-                    &nbsp;
-                    {region}
+                    {region_list.map(item => {
+                      return (
+                        <span
+                          key={item}
+                          onClick={() => {
+                            this.onJumpTeam(team_name, item);
+                          }}
+                        >
+                          <img src={DataCenterImg} alt="" />
+                          &nbsp;
+                          {item}
+                        </span>
+                      );
+                    })}
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
@@ -609,7 +630,7 @@ export default class EnterpriseTeams extends PureComponent {
               region,
               team_alias,
               owner_name,
-              user_name,
+              region_list,
               role,
             } = item;
             return (
@@ -631,13 +652,7 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col
                     span={6}
                     onClick={() => {
-                      is_pass === 0
-                        ? ''
-                        : this.props.dispatch(
-                            routerRedux.replace(
-                              `/team/${team_name}/region/${region}/index`
-                            )
-                          );
+                      is_pass === 0 ? '' : this.onJumpTeam(team_name, region);
                     }}
                   >
                     {team_alias}
@@ -650,15 +665,26 @@ export default class EnterpriseTeams extends PureComponent {
                       color: is_pass === 0 && '#999999',
                     }}
                   >
-                    <img
-                      src={is_pass === 0 ? WarningImg : DataCenterImg}
-                      alt=""
-                    />
-                    &nbsp;
                     {is_pass === 0 ? (
-                      <span>&nbsp;申请加入团队审批中</span>
+                      <span>
+                        <img src={WarningImg} alt="" />
+                        &nbsp;申请加入团队审批中
+                      </span>
                     ) : (
-                      region
+                      region_list.map(item => {
+                        return (
+                          <span
+                            key={item}
+                            onClick={() => {
+                              this.onJumpTeam(team_name, item);
+                            }}
+                          >
+                            <img src={DataCenterImg} alt="" />
+                            &nbsp;
+                            {item}
+                          </span>
+                        );
+                      })
                     )}
                   </Col>
                   <Col span={1} className={styles.bor}>
@@ -707,6 +733,7 @@ export default class EnterpriseTeams extends PureComponent {
               team_alias,
               team_name,
               region,
+              region_list,
               owner_name,
               role,
             } = item;
@@ -721,11 +748,7 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col
                     span={6}
                     onClick={() => {
-                      this.props.dispatch(
-                        routerRedux.replace(
-                          `/team/${team_name}/region/${region}/index`
-                        )
-                      );
+                      this.onJumpTeam(team_name, region);
                     }}
                   >
                     {team_alias}
@@ -733,9 +756,20 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col span={11}>
-                    <img src={DataCenterImg} alt="" />
-                    &nbsp;
-                    {region}
+                    {region_list.map(item => {
+                      return (
+                        <span
+                          key={item}
+                          onClick={() => {
+                            this.onJumpTeam(team_name, item);
+                          }}
+                        >
+                          <img src={DataCenterImg} alt="" />
+                          &nbsp;
+                          {item}
+                        </span>
+                      );
+                    })}
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
