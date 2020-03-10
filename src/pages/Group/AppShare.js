@@ -448,7 +448,7 @@ export default class Main extends PureComponent {
         record_id: shareId,
       },
       callback: data => {
-        if (data && data.bean) {
+        if (data && data.bean && data._code === 200) {
           this.setState({ record: data.bean, loading: false }, () => {
             this.fetchModels();
           });
@@ -458,19 +458,21 @@ export default class Main extends PureComponent {
   };
 
   fetchModels = isCreate => {
-    const scope = this.state.record && this.state.record.scope;
-    const target = this.state.record && this.state.record.target;
+    const { record } = this.state;
+
+    const scope = record && record.scope;
+    const scope_target = record && record.scope_target;
+
     const { teamName, appID } = this.props.match.params;
     const { dispatch, form } = this.props;
     const { setFieldsValue } = form;
-
     const body = {
       team_name: teamName,
       app_id: appID,
     };
-    if (scope == 'goodrain' && target) {
+    if (scope == 'goodrain' && scope_target) {
       body.scope = 'goodrain';
-      body.market_id = target.market_id;
+      body.market_id = scope_target.store_id;
     }
     this.setState({ loadingModels: true });
     dispatch({
@@ -490,7 +492,10 @@ export default class Main extends PureComponent {
                 if (JSON.stringify(res.bean) === '{}') {
                   this.changeCurrentModel(res.list[0].app_id);
                 } else {
-                  this.changeCurrentModel(res.bean.app_id);
+                  this.changeCurrentModel(
+                    res.bean && res.bean.app_id,
+                    res.bean && res.bean.version
+                  );
                 }
               }
             }
@@ -584,10 +589,10 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
-    const { dispatch, market_id } = this.props;
-    const { record } = this.state;
+    const { dispatch, form } = this.props;
+    const { record, sharearrs } = this.state;
     const newinfo = {};
-    this.props.form.validateFields((err, values) => {
+    form.validateFields((err, values) => {
       if (!err) {
         const app_version_info = {
           share_id: record.record_id,
@@ -597,12 +602,15 @@ export default class Main extends PureComponent {
           version_alias: values.version_alias,
         };
         if (record.scope == 'goodrain') {
-          app_version_info.target = record.target;
+          app_version_info.scope_target = record.scope_target;
+          app_version_info.scope = record.scope;
+          app_version_info.market_id =
+            record.scope_target && record.scope_target.store_id;
         }
         const share_service_data = this.share_service_list;
         const arr = [];
         const dep_service_key = [];
-        this.state.sharearrs.map(item => {
+        sharearrs.map(item => {
           share_service_data.map(option => {
             if (item == option.service_share_uuid) {
               arr.push(option);
@@ -866,39 +874,50 @@ export default class Main extends PureComponent {
   handleCancel = () => this.setState({ previewVisible: false });
   changeCurrentVersion = version => {
     const { model } = this.state;
-    const { setFieldsValue } = this.props.form;
-
     model &&
       model.versions &&
       model.versions.map(item => {
         if (version === item.version) {
-          setFieldsValue({ version: item.version });
-          setFieldsValue({ version_alias: item.version_alias });
-          setFieldsValue({ describe: item.describe });
+          this.handleSetFieldsValue(item);
         }
       });
   };
-  changeCurrentModel = model_id => {
+  changeCurrentModel = (model_id, setVersion) => {
     const { models } = this.state;
-    const { setFieldsValue } = this.props.form;
-
     models &&
       models.length > 0 &&
       models.map(item => {
-        const { app_id, version_alias, describe, versions } = item;
+        const { app_id, versions } = item;
         if (model_id === app_id) {
           this.setState({ model: item, versions }, () => {
-            const versionInfo = versions && versions.length > 0 && versions[0];
-            setFieldsValue({
-              version: versionInfo ? versionInfo.version : '',
-            });
-            setFieldsValue({
-              version_alias: versionInfo ? versionInfo.version_alias : '',
-            });
-            setFieldsValue({ describe });
+            if (versions && versions.length > 0) {
+              let versionInfo = versions[0];
+              if (setVersion) {
+                versions.map(item => {
+                  const { version } = item;
+                  if (version === setVersion) {
+                    versionInfo = item;
+                  }
+                });
+              }
+              this.handleSetFieldsValue(versionInfo);
+            }
           });
         }
       });
+  };
+
+  handleSetFieldsValue = versionInfo => {
+    const { setFieldsValue } = this.props.form;
+    setFieldsValue({
+      version: versionInfo ? versionInfo.version : '',
+    });
+    setFieldsValue({
+      version_alias: versionInfo ? versionInfo.version_alias : '',
+    });
+    setFieldsValue({
+      describe: versionInfo ? versionInfo.describe : '',
+    });
   };
   render() {
     const info = this.state.info;
@@ -1018,7 +1037,7 @@ export default class Main extends PureComponent {
                       })(
                         <AutoComplete
                           style={{ width: 280 }}
-                          // onChange={this.changeCurrentVersion}
+                          onChange={this.changeCurrentVersion}
                           placeholder="版本号默认为选择模版的上次分享版本"
                         >
                           {versions &&
@@ -1220,7 +1239,7 @@ export default class Main extends PureComponent {
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
-              market_id={record.scope_target && record.scope_target.market_id}
+              market_id={record.scope_target && record.scope_target.store_id}
               onCancel={this.hideCreateAppModel}
             />
           )}

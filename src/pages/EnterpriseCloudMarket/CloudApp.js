@@ -42,7 +42,7 @@ export default class CloudApp extends PureComponent {
     };
   }
   componentDidMount = () => {
-    this.handleSync();
+    this.loadApps();
   };
   handleClose = () => {
     const { dispatch, eid } = this.props;
@@ -51,9 +51,7 @@ export default class CloudApp extends PureComponent {
 
     this.setState({ versionList: null });
   };
-  handleSync = () => {
-    this.loadApps();
-  };
+
   handleSearch = app_name => {
     this.setState(
       {
