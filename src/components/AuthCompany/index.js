@@ -183,7 +183,7 @@ export default class Index extends PureComponent {
     return (
       <Modal
         width={800}
-        title="企业尚未认证, 按以下步骤进行认证"
+        title="企业尚未绑定云端应用商店, 按以下步骤进行绑定认证"
         visible
         onCancel={this.hidden}
         footer={null}
