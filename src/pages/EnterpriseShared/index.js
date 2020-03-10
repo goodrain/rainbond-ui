@@ -503,7 +503,7 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const operation = (
-      <Col span={4} style={{ textAlign: "right" }} className={styles.btns}>
+      <Col span={5} style={{ textAlign: "right" }} className={styles.btns}>
         {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
           <Button type="primary" style={{ marginRight: "22px" }}>
             <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
@@ -549,7 +549,7 @@ export default class EnterpriseShared extends PureComponent {
             marginTop: "20px"
           }}
         >
-          <Col span={20} style={{ textAlign: "left", display: "flex" }}>
+          <Col span={19} style={{ textAlign: "left", display: "flex" }}>
             <Search
               style={{ width: "396px" }}
               placeholder="请输入名称进行搜索"

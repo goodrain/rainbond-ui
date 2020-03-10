@@ -242,8 +242,8 @@ export default class Enterprise extends PureComponent {
         nums = num / 1024;
         units = 'GB';
       }
-
-      return unit ? units : nums.toFixed(2);
+      const n = 3.0;
+      return unit ? units : nums.toFixed(2) / 1;
       // parseInt(nums)
     }
     return null;
@@ -334,16 +334,7 @@ export default class Enterprise extends PureComponent {
       ...teamBox,
       ...{ height: '68px', padding: '24px', cursor: 'pointer' },
     };
-    const teamBoxsPs = {
-      ...teamBox,
-      ...{
-        height: '68px',
-        padding: '24px',
-        justifyContent: 'space-around',
-        width: '100%',
-      },
-    };
-
+    const { rainbondInfo } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -378,7 +369,25 @@ export default class Enterprise extends PureComponent {
       collectionList && collectionList.length > 0 && collectionList;
 
     const colors = { color: '#3D54C4', cursor: 'pointer' };
-    const hovers = { boxShadow: 'rgba(0, 0, 0, 0.9) 1px 1px 5px -2px' };
+    const memoryInfo = overviewMonitorInfo && overviewMonitorInfo.memory;
+    const memoryUsed = memoryInfo && this.handlUnit(memoryInfo.used);
+    const memoryUsedUnit = memoryInfo && this.handlUnit(memoryInfo.used, 'MB');
+    const memoryTotal = memoryInfo && this.handlUnit(memoryInfo.total);
+    const cpuInfo = overviewMonitorInfo && overviewMonitorInfo.cpu;
+    const cpuUsed = cpuInfo && cpuInfo.used && parseInt(cpuInfo.used);
+    const cpuTotal = cpuInfo && cpuInfo.total && parseInt(cpuInfo.total);
+    const AppNumInfo = overviewAppInfo && overviewAppInfo.service_groups;
+    const runApp = AppNumInfo && AppNumInfo.running;
+    const appTotal = AppNumInfo && AppNumInfo.total;
+    const appClosed = AppNumInfo && AppNumInfo.closed;
+
+    const comInfo = overviewAppInfo && overviewAppInfo.components;
+    const runCom = comInfo && comInfo.running;
+    const comTotal = comInfo && comInfo.total;
+    const comClosed = comInfo && comInfo.closed;
+
+    const memoryTotalUnit =
+      memoryInfo && this.handlUnit(memoryInfo.total, 'MB');
     const teamOperation = (
       <div
         style={{
@@ -442,34 +451,40 @@ export default class Enterprise extends PureComponent {
           loading={enterpriseInfoLoading}
           bordered={false}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className={styles.eidbox}>
             <div>
               <div className={styles.enterpriseInfo}>
                 <img src={EnterpriseInfo} alt="" />
                 <span>企业信息</span>
               </div>
 
-              <div className={styles.enterpriseName}>
-                {enterpriseInfo &&
-                  `企业名称：
-                ${enterpriseInfo.enterprise_alias}
-                `}
-              </div>
-              <div className={styles.enterpriseBox}>
-                <p>
-                  联合云ID&nbsp;
-                  {enterpriseInfo && enterpriseInfo.enterprise_id}
-                </p>
-                <p>
-                  平台版本&nbsp;
-                  {this.props.rainbondInfo.version || 'V3.7.1-release'}
-                </p>
-                <p>
-                  创建时间&nbsp;
-                  {enterpriseInfo && enterpriseInfo.create_time}
-                </p>
-              </div>
-
+              {enterpriseInfo && (
+                <div className={styles.enterpriseName}>
+                  企业名称：{enterpriseInfo.enterprise_alias}
+                </div>
+              )}
+              {enterpriseInfo && (
+                <div className={styles.enterpriseBox}>
+                  <p>
+                    <Tooltip title={enterpriseInfo.enterprise_id}>
+                      联合云ID&nbsp;
+                      {enterpriseInfo.enterprise_id}
+                    </Tooltip>
+                  </p>
+                  <p>
+                    <Tooltip title={rainbondInfo.version || 'V3.7.1-release'}>
+                      平台版本&nbsp;
+                      {rainbondInfo.version || 'V3.7.1-release'}
+                    </Tooltip>
+                  </p>
+                  <p>
+                    <Tooltip title={enterpriseInfo.create_time}>
+                      创建时间&nbsp;
+                      {enterpriseInfo.create_time}
+                    </Tooltip>
+                  </p>
+                </div>
+              )}
               <div className={styles.btns}>
                 <Button type="primary" onClick={this.handelObtain}>
                   开源社区
@@ -515,159 +530,106 @@ export default class Enterprise extends PureComponent {
                       组件数量
                     </Col>
                   </Row>
-                  <Row>
-                    <Col span={8}>
-                      <Pie
-                        percent={
-                          overviewAppInfo &&
-                          Math.round(
-                            (overviewAppInfo.service_groups.running /
-                              overviewAppInfo.service_groups.total) *
-                              10000
-                          ) / 100.0
-                        }
-                        types="app"
-                        lineWidth={18}
-                        color="#3D58DA"
-                        subTitle={
-                          <div className={styles.appContent}>
-                            <h6>
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.running}
-                              个
-                            </h6>
-                            <div>
-                              共
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.total}
-                              个应用数量
-                            </div>
-                          </div>
-                        }
-                        height={168}
-                      />
-                    </Col>
-
-                    <Col span={4}>
-                      <div>
-                        <div>
-                          <div className={styles.appnumno}>运行中应用</div>
-                          <div className={styles.nums}>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.running}
-                              个
-                            </span>
-                            <span>|</span>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.total}
-                              个
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <div
-                            className={styles.appnums}
-                            style={{ marginTop: '26px' }}
-                          >
-                            未运行应用
-                          </div>
-                          <div className={styles.nums}>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.closed}
-                              个
-                            </span>
-                            <span>|</span>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.service_groups.total}
-                              个
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={8}>
-                      <div style={{ marginTop: '10px' }}>
+                  {AppNumInfo && comInfo && (
+                    <Row>
+                      <Col span={8}>
                         <Pie
                           percent={
-                            overviewAppInfo &&
-                            Math.round(
-                              (overviewAppInfo.components.running /
-                                overviewAppInfo.components.total) *
-                                10000
-                            ) / 100.0
+                            Math.round((runApp / appTotal) * 10000) / 100.0
                           }
-                          types="component"
+                          types="app"
+                          lineWidth={18}
                           color="#3D58DA"
                           subTitle={
-                            <div className={styles.elements}>
+                            <div className={styles.appContent}>
+                              <h6>{runApp}个</h6>
                               <div>
-                                <div>
-                                  {overviewAppInfo &&
-                                    overviewAppInfo.components.closed}
-                                </div>
-                                <div>未运行</div>
-                              </div>
-                              <div />
-                              <div>
-                                <div>
-                                  {overviewAppInfo &&
-                                    overviewAppInfo.components.running}
-                                </div>
-                                <div>运行中</div>
+                                共{appTotal}
+                                个应用数量
                               </div>
                             </div>
                           }
-                          height={156}
+                          height={168}
                         />
-                      </div>
-                    </Col>
+                      </Col>
 
-                    <Col span={4}>
-                      <div>
+                      <Col span={4}>
                         <div>
-                          <div className={styles.appnumno}>运行中组件</div>
-                          <div className={styles.nums}>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.running}
-                              个
-                            </span>
-                            <span>|</span>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.total}
-                              个
-                            </span>
+                          <div>
+                            <div className={styles.appnumno}>运行中应用</div>
+                            <div className={styles.nums}>
+                              <span>{runApp}个</span>
+                              <span>|</span>
+                              <span>{appTotal}个</span>
+                            </div>
+                          </div>
+                          <div>
+                            <div
+                              className={styles.appnums}
+                              style={{ marginTop: '26px' }}
+                            >
+                              未运行应用
+                            </div>
+                            <div className={styles.nums}>
+                              <span>{appClosed}个</span>
+                              <span>|</span>
+                              <span>{appTotal}个</span>
+                            </div>
                           </div>
                         </div>
+                      </Col>
+                      <Col span={8}>
+                        <div style={{ marginTop: '10px' }}>
+                          <Pie
+                            percent={
+                              Math.round((runCom / comTotal) * 10000) / 100.0
+                            }
+                            types="component"
+                            color="#3D58DA"
+                            subTitle={
+                              <div className={styles.elements}>
+                                <div>
+                                  <div>{comClosed}</div>
+                                  <div>未运行</div>
+                                </div>
+                                <div />
+                                <div>
+                                  <div>{runCom}</div>
+                                  <div>运行中</div>
+                                </div>
+                              </div>
+                            }
+                            height={156}
+                          />
+                        </div>
+                      </Col>
+                      <Col span={4}>
                         <div>
-                          <div
-                            className={styles.appnums}
-                            style={{ marginTop: '26px' }}
-                          >
-                            未运行组件
+                          <div>
+                            <div className={styles.appnumno}>运行中组件</div>
+                            <div className={styles.nums}>
+                              <span>{runCom}个</span>
+                              <span>|</span>
+                              <span>{comTotal}个</span>
+                            </div>
                           </div>
-                          <div className={styles.nums}>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.closed}
-                              个
-                            </span>
-                            <span>|</span>
-                            <span>
-                              {overviewAppInfo &&
-                                overviewAppInfo.components.total}
-                              个
-                            </span>
+                          <div>
+                            <div
+                              className={styles.appnums}
+                              style={{ marginTop: '26px' }}
+                            >
+                              未运行组件
+                            </div>
+                            <div className={styles.nums}>
+                              <span>{comClosed}个</span>
+                              <span>|</span>
+                              <span>{comTotal}个</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Col>
-                  </Row>
+                      </Col>
+                    </Row>
+                  )}
                 </Card>
               </Col>
 
@@ -803,9 +765,7 @@ export default class Enterprise extends PureComponent {
                           onClick={() => {
                             this.props.dispatch(
                               routerRedux.replace(
-                                `/team/${new_join_team[0].team_name}/region/${
-                                  new_join_team[0].region
-                                }/index`
+                                `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
                               )
                             );
                           }}
@@ -813,18 +773,17 @@ export default class Enterprise extends PureComponent {
                           <div className={styles.addTeam}>
                             <img src={TeamCrew} alt="" />
                           </div>
+                          <Tooltip title="新加入团队:">
+                            <div
+                              className={`${styles.grays} ${styles.addteam}`}
+                            >
+                              新加入团队:
+                            </div>
+                          </Tooltip>
 
-                          <div
-                            className={styles.grays}
-                            style={{ marginLeft: '18px', width: '150px' }}
-                          >
-                            新加入团队:
-                          </div>
                           <Tooltip title={new_join_team[0].team_alias}>
                             <div
-                              className={`${styles.overText} ${
-                                styles.teamtest
-                              }`}
+                              className={`${styles.overText} ${styles.teamtest}`}
                             >
                               {new_join_team[0].team_alias}
                             </div>
@@ -883,68 +842,82 @@ export default class Enterprise extends PureComponent {
                   loading={overviewMonitorInfoLoading}
                   style={{ height: '243px' }}
                 >
-                  <Row>
-                    <Col span={8}>
-                      <ul className={styles.Box}>
-                        <li>
-                          <img src={Memory} alt="" />
-                        </li>
-                        <li>
-                          {overviewMonitorInfo &&
-                            overviewMonitorInfo.total_regions}
-                        </li>
-                        <li>数据中心数量</li>
-                        <li>——</li>
-                      </ul>
-                    </Col>
-                    <Col span={8}>
-                      {overviewMonitorInfo && (
+                  {overviewMonitorInfo && (
+                    <Row>
+                      <Col span={8}>
                         <ul className={styles.Box}>
                           <li>
                             <img src={Records} alt="" />
                           </li>
+                          <li>{overviewMonitorInfo.total_regions}</li>
+                          <li>数据中心数量</li>
+                          <li>——</li>
+                        </ul>
+                      </Col>
+                      <Col span={8}>
+                        <ul className={styles.Box}>
                           <li>
-                            <Tooltip title="包含各团队内存使用量、系统使用量和rainbond组件使用量">
-                              {this.handlUnit(overviewMonitorInfo.memory.used)}
-
-                              <span className={styles.units}>
-                                {this.handlUnit(
-                                  overviewMonitorInfo.memory.used,
-                                  'MB'
-                                )}
+                            <img src={Memory} alt="" />
+                          </li>
+                          <li>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${memoryUsed}${memoryUsedUnit} 包含各团队内存使用量、系统使用量和rainbond组件使用量`}
+                            >
+                              <span className={styles.numbers}>
+                                {memoryUsed}
+                                <span className={styles.units}>
+                                  {memoryUsedUnit}
+                                </span>
                               </span>
                             </Tooltip>
-                            /{this.handlUnit(overviewMonitorInfo.memory.total)}
-                            <span className={styles.units}>
-                              {this.handlUnit(
-                                overviewMonitorInfo.memory.total,
-                                'MB'
-                              )}
-                            </span>
+                            <Tooltip
+                              title={`${memoryTotal} ${memoryTotalUnit}`}
+                              className={styles.cen}
+                            >
+                              <span className={styles.numbers}>
+                                /{memoryTotal}
+                                <span className={styles.units}>
+                                  {memoryTotalUnit}
+                                </span>
+                              </span>
+                            </Tooltip>
                           </li>
                           <li>内存使用量/总量</li>
                           <li>——</li>
                         </ul>
-                      )}
-                    </Col>
-                    <Col span={8}>
-                      <ul className={styles.Box}>
-                        <li>
-                          <img src={Cpus} alt="" />
-                        </li>
-                        <li>
-                          {overviewMonitorInfo &&
-                            parseInt(overviewMonitorInfo.cpu.used)}
-                          <span className={styles.units}>Core</span>/
-                          {overviewMonitorInfo &&
-                            parseInt(overviewMonitorInfo.cpu.total)}
-                          <span className={styles.units}>Core</span>
-                        </li>
-                        <li>CPU使用量/总量</li>
-                        <li>——</li>
-                      </ul>
-                    </Col>
-                  </Row>
+                      </Col>
+                      <Col span={8}>
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Cpus} alt="" />
+                          </li>
+                          <li>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${cpuUsed}Core`}
+                            >
+                              <span className={styles.numbers}>
+                                {cpuUsed}
+                                <span className={styles.units}>Core</span>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${cpuTotal}Core`}
+                            >
+                              <span className={styles.numbers}>
+                                /{cpuTotal}
+                                <span className={styles.units}>Core</span>
+                              </span>
+                            </Tooltip>
+                          </li>
+                          <li>CPU使用量/总量</li>
+                          <li>——</li>
+                        </ul>
+                      </Col>
+                    </Row>
+                  )}
                 </Card>
               </Col>
             ) : (

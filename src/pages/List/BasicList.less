@@ -62,7 +62,11 @@
   align-items   : center;
 
   p {
-    margin-right: 16px;
+    width        : 30%;
+    margin-right : 16px;
+    overflow     : hidden;
+    white-space  : nowrap;
+    text-overflow: ellipsis;
   }
 }
 
@@ -170,14 +174,14 @@
 }
 
 .elements {
-  display: flex;
-  width  : 118px;
-  height: 90px;
+  display    : flex;
+  width      : 118px;
+  height     : 90px;
   padding-top: 25px;
 
   &>div:nth-of-type(1) {
     font-family   : Silom;
-    color         : #7983AD ;
+    color         : #7983AD;
     letter-spacing: 0;
     padding-right : 3px;
     width         : 58px;
@@ -190,18 +194,20 @@
       font-size: 12px;
     }
   }
+
   &>div:nth-of-type(2) {
-    transform     : rotate(20deg);
-    width         : 1px;
-    border-left   : 1px solid #7983AD;
-    height: 82px;
-    margin-top: -8px;
+    transform  : rotate(20deg);
+    width      : 1px;
+    border-left: 1px solid #7983AD;
+    height     : 82px;
+    margin-top : -8px;
   }
+
   &>div:nth-of-type(3) {
     width         : 58px;
     border-radius : 1px;
     font-family   : PingFangSC-Medium;
-    color         : #5679E2 ;
+    color         : #5679E2;
     letter-spacing: 0;
     padding-left  : 3px;
     padding-top   : 12px;
@@ -240,7 +246,7 @@
   color         : #333333;
   letter-spacing: 0;
   padding-left  : 8px;
-  border-left   : 3px solid #E5E5E5 ;
+  border-left   : 3px solid #E5E5E5;
   border-radius : 4px;
   border-radius : 1.5px;
 }
@@ -266,11 +272,30 @@
   }
 }
 
+.eidbox {
+  display        : flex;
+  justify-content: space-between;
+
+  &>div:nth-of-type(1) {
+    width: calc(100% - 366px);
+  }
+}
+
 .grays {
   font-family   : PingFangSC-Medium;
   font-size     : 14px;
+  line-height   : 14px;
+  height        : 14px;
   color         : #444444;
   letter-spacing: 0;
+  overflow      : hidden;
+  white-space   : nowrap;
+  text-overflow : ellipsis;
+}
+
+.addteam {
+  margin-left: 18px;
+  width      : 150px
 }
 
 .overText {
@@ -286,17 +311,17 @@
 
 .teamtest {
   margin-right: 17px;
-  width: 134px;
-  text-align: center;
-  cursor: pointer;
+  width       : 134px;
+  text-align  : center;
+  cursor      : pointer;
 }
 
 .addTeam {
   background   : #E3E8FF;
-  height       : 44px;
-  width        : 44px;
+  height       : 33px;
+  width        : 33px;
   border-radius: 50%;
-  line-height  : 44px;
+  line-height  : 33px;
   text-align   : center;
 }
 
@@ -307,6 +332,22 @@
   color         : #8D9BAD !important;
   letter-spacing: 0;
   line-height   : 25px;
+}
+
+
+
+.cen {
+  span {
+    display: inline-block;
+  }
+}
+
+.numbers {
+  // width        : calc(100% - 20px);
+  width           : 100%;
+  overflow        : hidden;
+  white-space     : nowrap;
+  text-overflow   : ellipsis;
 }
 
 .Box {
@@ -323,7 +364,9 @@
   li:nth-of-type(1) {
     display        : flex;
     justify-content: center;
+    align-items    : center;
     margin-top     : 3px;
+    height         : 62px;
 
     div {
       width          : 68px;
@@ -338,9 +381,19 @@
   }
 
   li:nth-of-type(2) {
-    font-size: 26px;
-    color    : #333333;
-    margin   : 12px 0 4px 0;
+    width          : 100%;
+    display        : flex;
+    align-items    : baseline;
+    justify-content: center;
+    font-size      : 26px;
+    color          : #333333;
+    margin         : 12px 0 4px 0;
+    span:nth-of-type(1) {
+      text-align: right;
+    }
+    span:nth-of-type(2) {
+      text-align: left;
+    }
   }
 
   li:nth-of-type(3) {
