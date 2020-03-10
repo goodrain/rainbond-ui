@@ -342,5 +342,9 @@ export async function getStoreList(
 export async function getShareModelList(body) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/shared/apps`, {
     method: 'get',
+    params: {
+      scope: body.scope,
+      market_id: body.market_id,
+    },
   });
 }
