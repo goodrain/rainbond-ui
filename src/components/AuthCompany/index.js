@@ -11,6 +11,7 @@ import {
   notification,
   Icon,
 } from 'antd';
+import cookie from '../../utils/cookie';
 
 const { Step } = Steps;
 const { TextArea } = Input;
@@ -111,6 +112,7 @@ export default class Index extends PureComponent {
     this.props.onOk && this.props.onOk();
   };
   hidden = () => {
+    cookie.setGuide('appStore', 'true');
     this.props.dispatch({ type: 'global/hideAuthCompany' });
   };
 

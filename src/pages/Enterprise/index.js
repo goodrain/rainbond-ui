@@ -78,10 +78,10 @@ export default class Enterprise extends PureComponent {
     if (eid) {
       this.getEnterpriseInfo();
       this.getOverviewTeam();
-      if( !cookie.get('appStore')){
-        this.loadAppStore()
-      }
       if (adminer) {
+        if( !cookie.get('appStore')){
+          this.loadAppStore()
+        }
         this.getOverviewApp();
         this.getOverview();
         this.getOverviewMonitor();
