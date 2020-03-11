@@ -355,8 +355,8 @@ export async function getCertificates(
     {
       method: "get",
       params: {
-        page: 1,
-        page_size: 999
+        page: body.page,
+        page_size: body.page_size
       }
     }
   );
