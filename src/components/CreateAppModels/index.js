@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
 import {
   Button,
   Icon,
@@ -10,15 +10,15 @@ import {
   Radio,
   Tag,
   Spin,
-  Checkbox
-} from "antd";
-import { connect } from "dva";
-import userUtil from "../../utils/user";
-import { getAllRegion } from "../../services/api";
-import globalUtil from "../../utils/global";
-import styles from "../CreateTeam/index.less";
-import apiconfig from "../../../config/api.config";
-import cookie from "../../utils/cookie";
+  Checkbox,
+} from 'antd';
+import { connect } from 'dva';
+import userUtil from '../../utils/user';
+import { getAllRegion } from '../../services/api';
+import globalUtil from '../../utils/global';
+import styles from '../CreateTeam/index.less';
+import apiconfig from '../../../config/api.config';
+import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -28,7 +28,7 @@ const { TextArea } = Input;
 @connect(({ user, global, teamControl }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  currentTeam: teamControl.currentTeam
+  currentTeam: teamControl.currentTeam,
 }))
 class CreateAppModels extends PureComponent {
   constructor(props) {
@@ -37,15 +37,15 @@ class CreateAppModels extends PureComponent {
     this.state = {
       actions: [],
       regions: [],
-      previewImage: "",
+      previewImage: '',
       previewVisible: false,
       tagList: [],
       inputVisible: false,
-      inputValue: "",
-      imageBase64: "",
-      imageUrl: props.appInfo ? props.appInfo.pic : "",
+      inputValue: '',
+      imageBase64: '',
+      imageUrl: props.appInfo ? props.appInfo.pic : '',
       loading: false,
-      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status)
+      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
     };
   }
   componentDidMount() {
@@ -55,17 +55,17 @@ class CreateAppModels extends PureComponent {
   getTags = () => {
     const { dispatch, eid, form } = this.props;
     dispatch({
-      type: "market/fetchAppModelsTags",
+      type: 'market/fetchAppModelsTags',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tagList: res.list
+            tagList: res.list,
           });
         }
-      }
+      },
     });
   };
   handleSubmit = () => {
@@ -83,16 +83,16 @@ class CreateAppModels extends PureComponent {
 
   getLogoBase64 = (img, callback) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => callback(reader.result));
+    reader.addEventListener('load', () => callback(reader.result));
     reader.readAsDataURL(img);
   };
 
   handleLogoChange = info => {
-    if (info.file.status === "uploading") {
+    if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
     }
-    if (info.file.status === "done") {
+    if (info.file.status === 'done') {
       this.setState({
         imageUrl:
           info.file &&
@@ -100,19 +100,19 @@ class CreateAppModels extends PureComponent {
           info.file.response.data &&
           info.file.response.data.bean &&
           info.file.response.data.bean.file_url,
-        loading: false
+        loading: false,
       });
 
       this.getLogoBase64(info.file.originFileObj, imageBase64 =>
         this.setState({
-          imageBase64
+          imageBase64,
         })
       );
     }
   };
 
   handleLogoRemove = () => {
-    this.setState({ imageUrl: "", imageBase64: "" });
+    this.setState({ imageUrl: '', imageBase64: '' });
   };
   handlePreview = async file => {
     if (!file.url && !file.preview) {
@@ -120,7 +120,7 @@ class CreateAppModels extends PureComponent {
     }
     this.setState({
       previewImage: file.url || file.preview,
-      previewVisible: true
+      previewVisible: true,
     });
   };
 
@@ -145,16 +145,16 @@ class CreateAppModels extends PureComponent {
   createTag = name => {
     const { dispatch, eid } = this.props;
     dispatch({
-      type: "market/createTag",
+      type: 'market/createTag',
       payload: {
         enterprise_id: eid,
-        name
+        name,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.getTags();
         }
-      }
+      },
     });
   };
 
@@ -197,21 +197,21 @@ class CreateAppModels extends PureComponent {
       });
     }
     dispatch({
-      type: "market/upAppModel",
+      type: 'market/upAppModel',
       payload: {
         enterprise_id: eid,
         app_id: appInfo.app_id,
         name: values.name,
         pic: imageUrl,
-        dev_status: values.dev_status ? "release" : "",
+        dev_status: values.dev_status ? 'release' : '',
         describe: values.describe,
-        tag_ids: arr
+        tag_ids: arr,
       },
       callback: res => {
         if (res && res._code === 200) {
           onOk && onOk();
         }
-      }
+      },
     });
   };
 
@@ -242,26 +242,26 @@ class CreateAppModels extends PureComponent {
       team_name: currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
-      tag_ids: arr
+      tag_ids: arr,
     };
     if (market_id) {
       body.scope_target = { market_id };
-      body.scope = "goodrain";
+      body.scope = 'goodrain';
     }
     dispatch({
-      type: "market/createAppModel",
+      type: 'market/createAppModel',
       payload: body,
       callback: res => {
         if (res && res._code === 200) {
           onOk && onOk();
         }
-      }
+      },
     });
   };
 
   onChangeRadio = e => {
     this.setState({
-      scope: e.target.value
+      scope: e.target.value,
     });
   };
 
@@ -290,7 +290,7 @@ class CreateAppModels extends PureComponent {
   handleChangeSelect = value => {
     const { tagList } = this.state;
 
-    const set = "";
+    const set = '';
     if (value && tagList) {
       value.map(item => {
         tagList.map(items => {});
@@ -299,7 +299,7 @@ class CreateAppModels extends PureComponent {
   };
   onChangeCheckbox = value => {
     this.setState({
-      Checkboxvalue: !this.state.Checkboxvalue
+      Checkboxvalue: !this.state.Checkboxvalue,
     });
   };
 
@@ -311,7 +311,8 @@ class CreateAppModels extends PureComponent {
       title,
       appInfo,
       defaultScope,
-      market_id
+      market_id,
+      appName,
     } = this.props;
     const {
       imageUrl,
@@ -319,17 +320,17 @@ class CreateAppModels extends PureComponent {
       previewVisible,
       tagList,
       imageBase64,
-      Checkboxvalue
+      Checkboxvalue,
     } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 }
+        sm: { span: 5 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 19 }
-      }
+        sm: { span: 19 },
+      },
     };
     const arr = [];
 
@@ -345,7 +346,7 @@ class CreateAppModels extends PureComponent {
       });
     }
 
-    const token = cookie.get("token");
+    const token = cookie.get('token');
     const myheaders = {};
     if (token) {
       myheaders.Authorization = `GRJWT ${token}`;
@@ -364,7 +365,7 @@ class CreateAppModels extends PureComponent {
           footer={null}
           onCancel={this.handleCancel}
         >
-          <img alt="example" style={{ width: "100%" }} src={previewImage} />
+          <img alt="example" style={{ width: '100%' }} src={previewImage} />
         </Modal>
         <Modal
           title={title}
@@ -377,19 +378,21 @@ class CreateAppModels extends PureComponent {
             <Button onClick={onCancel}> 取消 </Button>,
             <Button type="primary" onClick={this.handleSubmit}>
               确定
-            </Button>
+            </Button>,
           ]}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <FormItem {...formItemLayout} label="名称">
-              {getFieldDecorator("name", {
-                initialValue: appInfo ? appInfo.app_name : "",
+              {getFieldDecorator('name', {
+                initialValue: appName || (appInfo
+                  ? appInfo.app_name
+                  : ''),
                 rules: [
                   {
                     required: true,
-                    message: "请输入名称"
-                  }
-                ]
+                    message: '请输入名称',
+                  },
+                ],
               })(<Input placeholder="请输入名称" />)}
               <div className={styles.conformDesc}>
                 请输入创建的应用模板名称，最多64字.
@@ -397,16 +400,16 @@ class CreateAppModels extends PureComponent {
             </FormItem>
             {!market_id && (
               <FormItem {...formItemLayout} label="发布范围">
-                {getFieldDecorator("scope", {
+                {getFieldDecorator('scope', {
                   initialValue: appInfo
                     ? appInfo.scope
-                    : defaultScope || "enterprise",
+                    : defaultScope || 'enterprise',
                   rules: [
                     {
                       required: true,
-                      message: "请输入名称"
-                    }
-                  ]
+                      message: '请输入名称',
+                    },
+                  ],
                 })(
                   <Radio.Group name="scope">
                     <Radio value="team">当前团队</Radio>
@@ -418,22 +421,22 @@ class CreateAppModels extends PureComponent {
             )}
 
             <FormItem {...formItemLayout} label="描述">
-              {getFieldDecorator("describe", {
-                initialValue: appInfo ? appInfo.describe : "",
+              {getFieldDecorator('describe', {
+                initialValue: appInfo ? appInfo.describe : '',
                 rules: [
                   {
                     required: true,
-                    message: "请输入描述"
-                  }
-                ]
+                    message: '请输入描述',
+                  },
+                ],
               })(<TextArea placeholder="请输入描述" />)}
               <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
             </FormItem>
 
             {appInfo && (
               <FormItem {...formItemLayout} label="是否Release">
-                {getFieldDecorator("dev_status", {
-                  initialValue: appInfo && appInfo.dev_status ? true : ""
+                {getFieldDecorator('dev_status', {
+                  initialValue: appInfo && appInfo.dev_status ? true : '',
                 })(
                   <Checkbox
                     onChange={this.onChangeCheckbox}
@@ -449,20 +452,20 @@ class CreateAppModels extends PureComponent {
             )}
 
             <Form.Item {...formItemLayout} label="分类标签">
-              {getFieldDecorator("tag_ids", {
+              {getFieldDecorator('tag_ids', {
                 initialValue: arr,
                 rules: [
                   {
                     required: false,
-                    message: "请添加标签"
-                  }
-                ]
+                    message: '请添加标签',
+                  },
+                ],
               })(
                 <Select
                   mode="tags"
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                   onSelect={this.handleOnSelect}
-                  tokenSeparators={[","]}
+                  tokenSeparators={[',']}
                   placeholder="请选择分类标签"
                 >
                   {tagList.map(item => {
@@ -477,14 +480,14 @@ class CreateAppModels extends PureComponent {
               )}
             </Form.Item>
             <Form.Item {...formItemLayout} label="LOGO">
-              {getFieldDecorator("pic", {
-                initialValue: appInfo ? appInfo.pic : "",
+              {getFieldDecorator('pic', {
+                initialValue: appInfo ? appInfo.pic : '',
                 rules: [
                   {
                     required: false,
-                    message: "请上传图标"
-                  }
-                ]
+                    message: '请上传图标',
+                  },
+                ],
               })(
                 <Upload
                   className="logo-uploader"
@@ -502,7 +505,7 @@ class CreateAppModels extends PureComponent {
                     <img
                       src={imageBase64 || imageUrl}
                       alt="avatar"
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                     />
                   ) : (
                     uploadButton

@@ -501,7 +501,8 @@ export default class Main extends PureComponent {
                     isCreate
                       ? res.list[isMarket ? res.list.length - 1 : 0].app_id
                       : res.bean && res.bean.app_id,
-                    isCreate ? '' : res.bean && res.bean.version
+                    isCreate ? '' : res.bean && res.bean.version,
+                    isCreate
                   );
                 }
               }
@@ -889,14 +890,13 @@ export default class Main extends PureComponent {
         }
       });
   };
-  changeCurrentModel = (model_id, setVersion) => {
+  changeCurrentModel = (model_id, setVersion, isCreate) => {
     const { models } = this.state;
     models &&
       models.length > 0 &&
       models.map(item => {
         const { app_id, versions } = item;
         if (model_id === app_id) {
-          console.log('item', item);
           this.setState({ model: item, versions }, () => {
             if (versions && versions.length > 0) {
               let versionInfo = versions[0];
@@ -908,22 +908,20 @@ export default class Main extends PureComponent {
                   }
                 });
               }
-              this.handleSetFieldsValue(versionInfo);
+              this.handleSetFieldsValue(versionInfo, isCreate);
             } else {
-              this.handleSetFieldsValue(item);
+              this.handleSetFieldsValue(item, isCreate);
             }
           });
         }
       });
   };
 
-  handleSetFieldsValue = versionInfo => {
+  handleSetFieldsValue = (versionInfo, isCreate) => {
     const { setFieldsValue } = this.props.form;
-    console.log('versionInfo', versionInfo);
-
     this.setState({ versionInfo });
     setFieldsValue({
-      version: versionInfo ? versionInfo.version : '',
+      version: isCreate ? '0.1' : versionInfo ? versionInfo.version : '',
     });
     setFieldsValue({
       version_alias: versionInfo ? versionInfo.version_alias : '',
@@ -1259,6 +1257,7 @@ export default class Main extends PureComponent {
           {showCreateAppModel && (
             <CreateAppModels
               title="创建应用模版"
+              appName={appDetail && appDetail.group_name}
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
