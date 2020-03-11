@@ -207,7 +207,10 @@ export default class Index extends PureComponent {
       single_port: null,
       tcp_ports: [],
       single_service_id: "",
-      subPort: ""
+      subPort: "",
+      page: 1,
+      page_size: 10,
+      isAddLicense: false
     };
   }
 
@@ -216,16 +219,39 @@ export default class Index extends PureComponent {
     this.fetchPorts();
     this.fetchCertificates();
   }
+
+  addLicense = () => {
+    this.setState(
+      {
+        page_size: this.state.page_size + 10
+      },
+      () => {
+        this.fetchCertificates();
+      }
+    );
+  };
+
   // 获取证书
   fetchCertificates() {
     const { dispatch } = this.props;
+    const { page, page_size } = this.state;
     dispatch({
       type: "appControl/fetchCertificates",
       payload: {
+        page,
+        page_size,
         team_name: globalUtil.getCurrTeamName()
+      },
+      callback: data => {
+        if (data && data.list) {
+          let listNum = (data.bean && data.bean.nums) || 0;
+          let isAdd = listNum && listNum > page_size ? true : false;
+          this.setState({ isAddLicense: isAdd });
+        }
       }
     });
   }
+
   fetchPorts = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -559,6 +585,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { ports, certificates, appDetail } = this.props;
+    const { isAddLicense } = this.state;
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
     return (
@@ -653,6 +680,8 @@ export default class Index extends PureComponent {
         )}
         {this.state.showAddDomain && (
           <AddDomain
+            addLicense={this.addLicense}
+            isAddLicense={isAddLicense}
             certificates={certificates || []}
             onCreateKey={this.handleCreateKey}
             onOk={this.handleAddDomain}

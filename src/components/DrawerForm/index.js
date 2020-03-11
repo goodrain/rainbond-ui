@@ -6,7 +6,7 @@ import {
   Row,
   Col,
   Card,
-  Table,
+  Divider,
   Button,
   Drawer,
   Form,
@@ -38,6 +38,9 @@ class DrawerForm extends PureComponent {
       serviceComponentList: [],
       portList: [],
       licenseList: [],
+      isAddLicense: false,
+      page: 1,
+      page_size: 10,
       service_id: "",
       group_name: "",
       descriptionVisible: false,
@@ -58,16 +61,21 @@ class DrawerForm extends PureComponent {
   }
 
   heandleEditInfo = props => {
-    const { dispatch, editInfo, appID } = props;
+    const { page, page_size } = this.state;
+    const { dispatch, editInfo, form } = props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "appControl/fetchCertificates",
       payload: {
-        team_name
+        team_name,
+        page,
+        page_size
       },
       callback: data => {
         if (data && data.list) {
-          this.setState({ licenseList: data.list });
+          let listNum = (data.bean && data.bean.nums) || 0;
+          let isAdd = listNum && listNum > page_size ? true : false;
+          this.setState({ licenseList: data.list, isAddLicense: isAdd });
         }
       }
     });
@@ -77,6 +85,17 @@ class DrawerForm extends PureComponent {
     if (appID) {
       this.handleServices({key: appID});
     }
+  };
+
+  addLicense = () => {
+    this.setState(
+      {
+        page_size: this.state.page_size + 10
+      },
+      () => {
+        this.heandleEditInfo(this.props);
+      }
+    );
   };
   handleOk = e => {
     e.preventDefault();
@@ -236,8 +255,7 @@ class DrawerForm extends PureComponent {
       currentRegion = teamUtil.getRegionByName(currTeam, currRegionName);
     }
 
-    const { routingConfiguration } = this.state;
-
+    const { routingConfiguration, licenseList, isAddLicense } = this.state;
     return (
       <div>
         <Drawer
@@ -332,7 +350,7 @@ class DrawerForm extends PureComponent {
                     <InputNumber min={1} max={100} style={{ width: "100%" }} />
                   )}
                 </FormItem>
-                {this.state.licenseList && (
+                {licenseList && (
                   <FormItem
                     {...formItemLayout}
                     label="HTTPs证书"
@@ -344,14 +362,33 @@ class DrawerForm extends PureComponent {
                       <Select
                         placeholder="请绑定证书"
                         onSelect={this.handeCertificateSelect}
+                        dropdownRender={menu => (
+                          <div>
+                            {menu}
+                            {isAddLicense && (
+                              <div>
+                                <Divider style={{ margin: "4px 0" }} />
+                                <div
+                                  style={{
+                                    padding: "4px 8px",
+                                    cursor: "pointer"
+                                  }}
+                                  onMouseDown={e => e.preventDefault()}
+                                  onClick={this.addLicense}
+                                >
+                                  <Icon type="plus" /> 加载更多
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       >
-                        {this.state.licenseList &&
-                          this.state.licenseList.length > 0 && (
-                            <Option value={""} key={99}>
-                              不绑定
-                            </Option>
-                          )}
-                        {this.state.licenseList.map((license, index) => {
+                        {licenseList && licenseList.length > 0 && (
+                          <Option value={""} key={99}>
+                            不绑定
+                          </Option>
+                        )}
+                        {licenseList.map((license, index) => {
                           return (
                             <Option value={license.id} key={index}>
                               {license.alias}
@@ -407,11 +444,7 @@ class DrawerForm extends PureComponent {
             >
               访问目标
             </h3>
-            <FormItem
-              {...formItemLayout}
-              label="应用"
-              style={{ zIndex: 999 }}
-            >
+            <FormItem {...formItemLayout} label="应用" style={{ zIndex: 999 }}>
               {getFieldDecorator("group_id", {
                 rules: [{ required: true, message: "请选择" }],
                 initialValue: appID ? {key: appID} : (editInfo && {
@@ -435,11 +468,7 @@ class DrawerForm extends PureComponent {
                 </Select>
               )}
             </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="组件"
-              style={{ zIndex: 999 }}
-            >
+            <FormItem {...formItemLayout} label="组件" style={{ zIndex: 999 }}>
               {getFieldDecorator("service_id", {
                 rules: [{ required: true, message: "请选择" }],
                 initialValue:
@@ -450,10 +479,7 @@ class DrawerForm extends PureComponent {
                     ? this.state.serviceComponentList[0].service_id
                     : undefined
               })(
-                <Select
-                  placeholder="请选择组件"
-                  onChange={this.handlePorts}
-                >
+                <Select placeholder="请选择组件" onChange={this.handlePorts}>
                   {(this.state.serviceComponentList || []).map(
                     (service, index) => {
                       return (

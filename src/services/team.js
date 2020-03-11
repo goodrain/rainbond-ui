@@ -85,9 +85,7 @@ export async function userDetail(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
-      body.user_name
-    }/details`,
+    `${config.baseUrl}/console/teams/${body.team_name}/${body.user_name}/details`,
     {
       method: "get"
     }
@@ -134,9 +132,7 @@ export async function editMember(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
-      body.user_id
-    }/mod-role`,
+    `${config.baseUrl}/console/teams/${body.team_name}/${body.user_id}/mod-role`,
     {
       method: "post",
       data: {
@@ -323,9 +319,7 @@ export async function getTeamRegionAppsStatus(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${
-      body.region_name
-    }/overview/services/status`,
+    `${config.baseUrl}/console/teams/${body.team_name}/${body.region_name}/overview/services/status`,
     {
       method: "post",
       data: {
@@ -359,7 +353,14 @@ export async function getCertificates(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/certificates`
+    `${config.baseUrl}/console/teams/${body.team_name}/certificates`,
+    {
+      method: "get",
+      params: {
+        page: body.page,
+        page_size: body.page_size
+      }
+    }
   );
 }
 
@@ -489,9 +490,7 @@ export async function getRegionKey(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${
-      body.region_name
-    }/publickey`,
+    `${config.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/publickey`,
     { method: "get" }
   );
 }
