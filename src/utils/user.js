@@ -34,7 +34,7 @@ const userUtil = {
     const currTeam = user&&user.teams.filter(item => item.team_name === currTeamName)[0];
     return currTeam;
   },
-  // 用户是否在某个团队下，拥有某个数据中心
+  // 用户是否在某个团队下，拥有某个集群
   hasTeamAndRegion(user, team_name, region_name) {
     const team = this.getTeamByTeamName(user, team_name);
     if (!team) {
@@ -43,7 +43,7 @@ const userUtil = {
     const region = (team.region || []).filter(item => item.team_region_name === region_name)[0];
     return region;
   },
-  // 获取某个团队的默认数据中心
+  // 获取某个团队的默认集群
 
   // 是否开通了gitlab账号
   hasGitlatAccount(user) {

@@ -238,7 +238,7 @@ export default class GlobalRouter extends PureComponent {
       const region_name = globalUtil.getCurrRegionName();
       const region = userUtil.hasTeamAndRegion(user, team_name, region_name);
       if (region) {
-        // 当前是公有数据中心
+        // 当前是公有集群
         if (region.region_scope === "public" && teamUtil.canViewFinance(team)) {
           return ItemDom;
         }

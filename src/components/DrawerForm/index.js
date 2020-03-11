@@ -223,7 +223,7 @@ class DrawerForm extends PureComponent {
         }
       });
     }
-    /**筛选当前的数据中心 */
+    /**筛选当前的集群 */
 
     let currentRegion = "";
     const { currUser, appID } = this.props;
@@ -543,10 +543,10 @@ class DrawerForm extends PureComponent {
             <ul className={styles.ulStyle}>
               <li>
                 1.HTTP访问控制策略是基于“域名"等组成路由规则，你需要在所绑定域名的域名服务商增加域名DNS
-                A记录 到当前数据中心的应用网关出口IP地址之上域名访问即可生效。
+                A记录 到当前集群的应用网关出口IP地址之上域名访问即可生效。
               </li>
               <li>
-                2.当前数据中心（
+                2.当前集群（
                 {currentRegion && currentRegion.team_region_alias}
                 ）出口IP地址是: {currentRegion && currentRegion.tcpdomain}
               </li>

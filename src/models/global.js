@@ -93,7 +93,7 @@ export default {
     notices: [],
     // 是否是有公有云
     isPubCloud: null,
-    // 当前团队和数据中心的群组
+    // 当前团队和集群的群组
     groups: null,
     currTeam: '',
     currRegion: '',

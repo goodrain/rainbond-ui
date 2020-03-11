@@ -93,7 +93,7 @@ export default class Index extends PureComponent {
       <div className={styles.pageHeaderContent}>
         <div className={styles.content}>
           <div>
-            将当前平台和云应用市场进行互联，同步应用，插件，数据中心等资源
+            将当前平台和云应用市场进行互联，同步应用，插件，集群等资源
           </div>
           <div>
             应用下载完成后，方可在{" "}
@@ -130,7 +130,7 @@ export default class Index extends PureComponent {
           showIcon
           message={`当前市场${rainbondUtil.appstoreImageHubEnable(
             rainbondInfo
-          )}跨数据中心互联功能`}
+          )}跨集群互联功能`}
           type="info"
         />
         {this.renderContent()}

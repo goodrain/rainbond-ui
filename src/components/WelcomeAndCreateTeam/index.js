@@ -92,7 +92,7 @@ export default class Index extends PureComponent {
               <div className={styles.body}>
                 <Steps current={this.state.current}>
                   <Step title="创建您的团队" description="" />
-                  <Step title="开通数据中心" description="" />
+                  <Step title="开通集群" description="" />
                 </Steps>
                 <Form.Item
                   style={{ display: this.state.current === 0 ? 'block' : 'none' }}
@@ -116,11 +116,11 @@ export default class Index extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: '请为团队选择一个数据中心',
+                        message: '请为团队选择一个集群',
                       },
                     ],
                   })(<Select onChange={this.handleRegionChange} style={{ width: '100%' }}>
-                    <Option value="">请为团队选择一个数据中心</Option>
+                    <Option value="">请为团队选择一个集群</Option>
                     {this.state.regions.map(region => (
                       <Option value={region.region_name}>{region.region_alias}</Option>
                     ))}

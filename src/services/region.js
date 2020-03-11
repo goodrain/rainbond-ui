@@ -2,7 +2,7 @@ import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
 /*
-	获取数据中心下的协议
+	获取集群下的协议
 */
 export async function getProtocols(body = {
   team_name,

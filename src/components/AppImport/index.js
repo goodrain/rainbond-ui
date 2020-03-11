@@ -268,7 +268,7 @@ export default class Index extends PureComponent {
           <div>
             <div style={{ paddingBottom: 8 }}>
               <span style={{ marginRight: 8 }}>
-                你可以将RainbondAPP文件复制到数据中心管理节点目录:
+                你可以将RainbondAPP文件复制到集群管理节点目录:
               </span>
               <a style={{ marginRight: 16 }}>{this.state.record.source_dir}</a>
               <CopyToClipboard

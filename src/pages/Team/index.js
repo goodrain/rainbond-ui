@@ -169,7 +169,7 @@ export default class Index extends PureComponent {
       },
       {
         key: 'datecenter',
-        tab: '数据中心',
+        tab: '集群',
       },
       {
         key: 'role',

@@ -65,7 +65,7 @@ export default class Index extends PureComponent {
                 .dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`));
             }
 
-            //访问的应用不在当前的数据中心里
+            //访问的应用不在当前的集群里
             if (code === 10404) {}
 
             //访问的应用不在当前团队里

@@ -6,7 +6,7 @@ export default {
     'header.team.getall':'查看所有团队',
     'header.region.name':'集群',
     'header.region.search':'筛选团队',
-    'header.region.open':'开通新数据中心',
+    'header.region.open':'开通新集群',
     'header.app.re':'返回团队视图',
     'header.app.name':'应用视图',
     'header.app.search':'根据应用名称筛选应用',

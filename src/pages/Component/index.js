@@ -439,7 +439,7 @@ class Main extends PureComponent {
             );
           }
 
-          //访问的应用不在当前的数据中心里
+          //访问的应用不在当前的集群里
           if (code === 10404) {
           }
 

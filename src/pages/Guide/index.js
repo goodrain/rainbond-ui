@@ -314,7 +314,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          4. 应用整体的备份和恢复以及跨团队或数据中心迁移{" "}
+          4. 应用整体的备份和恢复以及跨团队或集群迁移{" "}
           <a
             href={`${platform_url}docs/user-manual/app-manage/app-backup/`}
             target="_blank"

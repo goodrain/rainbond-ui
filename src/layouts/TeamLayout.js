@@ -325,7 +325,7 @@ class TeamLayout extends React.PureComponent {
         return <Redirect to="/" />;
       }
       const renderContent = () => {
-        // 数据中心维护中
+        // 集群维护中
         if (isRegionMaintain || nouse) {
           return (
             <div style={{ textAlign: 'center', padding: '200px 0' }}>
@@ -340,7 +340,7 @@ class TeamLayout extends React.PureComponent {
                   marginBottom: 20,
                 }}
               >
-                {nouse ? '当前授权已过期' : '数据中心维护中'}
+                {nouse ? '当前授权已过期' : '集群维护中'}
               </h1>
               <p
                 style={{
@@ -349,7 +349,7 @@ class TeamLayout extends React.PureComponent {
               >
                 {nouse
                   ? '请联系 010-64666786 获取更多商业服务。'
-                  : '请稍后访问当前数据中心'}
+                  : '请稍后访问当前集群'}
               </p>
             </div>
           );

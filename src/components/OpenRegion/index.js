@@ -5,7 +5,7 @@ import { unOpenRegion } from "../../services/team";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 
-//开通数据中心
+//开通集群
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
   enterprise: global.enterprise
@@ -23,7 +23,7 @@ class OpenRegion extends PureComponent {
 
     const { currUser } = this.props;
     const team = userUtil.getDefaultTeam(currUser);
-    // 当前团队里没有数据中心
+    // 当前团队里没有集群
     const currRegion = team.region[0] ? team.region[0].team_region_name : "";
 
     if (currRegion) {
@@ -38,7 +38,7 @@ class OpenRegion extends PureComponent {
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
       notification.warning({
-        message: "请选择要开通的数据中心"
+        message: "请选择要开通的集群"
       });
       return;
     }
@@ -73,7 +73,7 @@ class OpenRegion extends PureComponent {
     if (mode === "modal") {
       return (
         <Modal
-          title="开通数据中心"
+          title="开通集群"
           width={600}
           visible={true}
           onOk={this.handleSubmit}
@@ -95,7 +95,7 @@ class OpenRegion extends PureComponent {
             rowSelection={rowSelection}
             columns={[
               {
-                title: "数据中心",
+                title: "集群",
                 dataIndex: "region_alias"
               },
               {
@@ -109,7 +109,7 @@ class OpenRegion extends PureComponent {
     }
 
     return (
-      <Card title="当前团队没有数据中心，请先开通" style={{ height: "500px" }}>
+      <Card title="当前团队没有集群，请先开通" style={{ height: "500px" }}>
         <Table
           size="small"
           pagination={false}
@@ -117,7 +117,7 @@ class OpenRegion extends PureComponent {
           rowSelection={rowSelection}
           columns={[
             {
-              title: "数据中心",
+              title: "集群",
               dataIndex: "region_alias"
             },
             {

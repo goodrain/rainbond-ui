@@ -188,7 +188,7 @@ export default class EnterpriseShared extends PureComponent {
     this.setState({
       appInfo,
       deleteApp: true,
-      bouncedText: "删除应用模型",
+      bouncedText: "删除应用模版",
       bouncedType: "delete"
     });
   };
@@ -446,7 +446,7 @@ export default class EnterpriseShared extends PureComponent {
               this.showOfflineApp(appInfo);
             }}
           >
-            删除应用模型
+            删除应用模版
           </a>
         </Menu.Item>
       );
@@ -731,7 +731,7 @@ export default class EnterpriseShared extends PureComponent {
             onOk={this.handleDeleteApp}
             desc="确定要删除此应用模型吗?"
             subDesc="删除后其他人将无法安装此应用模型"
-            title="删除应用模型"
+            title="删除应用模版"
             onCancel={this.handleCancelDelete}
           />
         )}
