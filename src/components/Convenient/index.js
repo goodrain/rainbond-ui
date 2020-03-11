@@ -275,7 +275,7 @@ export default class Convenient extends PureComponent {
                 <FormItem {...formItemLayout} label="" hasFeedback>
                   {getFieldDecorator('region')(
                     <Select
-                      placeholder="请选择数据中心"
+                      placeholder="请选择集群"
                       style={{ width: '100%' }}
                     >
                       {region_list &&

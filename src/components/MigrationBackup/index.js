@@ -97,7 +97,7 @@ export default class Index extends PureComponent {
       return;
     }
     if (regionName == "") {
-      notification.warning({ message: "请选择迁移数据中心" });
+      notification.warning({ message: "请选择迁移集群" });
       return;
     }
     this.props.dispatch({
@@ -257,7 +257,7 @@ export default class Index extends PureComponent {
           </div>
         ) : (
           <div>
-            <p>请选择迁移的团队和数据中心</p>
+            <p>请选择迁移的团队和集群</p>
             <Select
               style={{ width: 120, marginRight: "10px" }}
               onSelect={this.handleTeamsChange}
@@ -272,7 +272,7 @@ export default class Index extends PureComponent {
             <Select
               style={{ width: 120 }}
               onSelect={this.onRegionChange}
-              defaultValue="请选择数据中心"
+              defaultValue="请选择集群"
             >
               {regionData.map(order => {
                 return (

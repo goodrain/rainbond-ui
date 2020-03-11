@@ -205,7 +205,7 @@ export default function request(url, options) {
           return;
         }
 
-        // 访问资源数据中心与当前数据中心不一致
+        // 访问资源集群与当前集群不一致
         if (resData.code === 10404) {
           location.href = globalUtil.replaceUrlRegion(
             resData.data.bean.service_region

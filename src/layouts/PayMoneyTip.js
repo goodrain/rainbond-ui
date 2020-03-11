@@ -29,7 +29,7 @@ export default class PayMoneyTip extends React.PureComponent {
         if(regionId){
             window.open(`https://www.goodrain.com/spa/#/resBuy/${regionId}`)
         }else{
-            notification.warning({message: '当前数据中心不可购买'})
+            notification.warning({message: '当前集群不可购买'})
         }
         this.handleCancel();
     }

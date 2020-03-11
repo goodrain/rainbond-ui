@@ -474,7 +474,7 @@ export default class EnterpriseTeams extends PureComponent {
           <Col span={6}>团队名称</Col>
           <Col span={3}>拥有人</Col>
           <Col span={3}>角色</Col>
-          <Col span={11}>数据中心</Col>
+          <Col span={11}>集群</Col>
         </Row>
 
         {teamList.map(item => {
@@ -549,7 +549,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Col span={6}>团队名称</Col>
             <Col span={3}>拥有人</Col>
             <Col span={3}>角色</Col>
-            <Col span={12}>数据中心</Col>
+            <Col span={12}>集群</Col>
           </Row>
         )}
 

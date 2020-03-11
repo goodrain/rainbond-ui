@@ -91,19 +91,19 @@ class CreateTeam extends PureComponent {
             </div>
           </FormItem>
 
-          <FormItem {...formItemLayout} label="数据中心" hasFeedback>
+          <FormItem {...formItemLayout} label="集群" hasFeedback>
             {getFieldDecorator('useable_regions', {
               rules: [
                 {
                   required: true,
-                  message: '请选择数据中心',
+                  message: '请选择集群',
                 },
               ],
             })(
               <Select
                 mode="multiple"
                 style={{ width: '100%' }}
-                placeholder="选择数据中心"
+                placeholder="选择集群"
               >
                 {(this.state.regions || []).map(item => {
                   return (
@@ -112,7 +112,7 @@ class CreateTeam extends PureComponent {
                 })}
               </Select>
             )}
-            <div className={styles.conformDesc}>请选择使用的数据中心</div>
+            <div className={styles.conformDesc}>请选择使用的集群</div>
           </FormItem>
         </Form>
       </Modal>

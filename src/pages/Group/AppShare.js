@@ -420,6 +420,7 @@ export default class Main extends PureComponent {
       loadingModels: true,
       models: [],
       versions: [],
+      versionInfo: false,
     };
     this.com = [];
     this.share_group_info = null;
@@ -909,6 +910,7 @@ export default class Main extends PureComponent {
 
   handleSetFieldsValue = versionInfo => {
     const { setFieldsValue } = this.props.form;
+    this.setState({ versionInfo });
     setFieldsValue({
       version: versionInfo ? versionInfo.version : '',
     });
@@ -929,7 +931,6 @@ export default class Main extends PureComponent {
     const tabk = this.state.key;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
-    const fileList = this.state.fileList;
     const {
       previewVisible,
       previewImage,
@@ -941,7 +942,9 @@ export default class Main extends PureComponent {
       showCreateAppModel,
       model,
       record,
+      versionInfo,
       versions,
+      fileList,
     } = this.state;
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     let breadcrumbList = [];
@@ -1028,6 +1031,7 @@ export default class Main extends PureComponent {
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本号">
                       {getFieldDecorator('version', {
+                        initialValue: versionInfo && versionInfo.version ||'',
                         rules: [
                           {
                             required: true,
@@ -1059,10 +1063,9 @@ export default class Main extends PureComponent {
                   </Col>
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本别名">
-                      {getFieldDecorator(
-                        'version_alias',
-                        {}
-                      )(
+                      {getFieldDecorator('version_alias', {
+                        initialValue: versionInfo && versionInfo.version_alias||'',
+                      })(
                         <Input
                           style={{ width: 280 }}
                           placeholder="设置版本别名，比如高级版"
@@ -1073,6 +1076,7 @@ export default class Main extends PureComponent {
                   <Col span="12" style={{ height: '104px' }}>
                     <Form.Item {...formItemLayout} label="版本说明">
                       {getFieldDecorator('describe', {
+                        initialValue: versionInfo && versionInfo.describe ||'',
                         rules: [
                           {
                             required: false,

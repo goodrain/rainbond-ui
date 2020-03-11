@@ -257,7 +257,7 @@ export default class Index extends PureComponent {
           </div>
         ) :isFinished ? (
           <div>
-            <p>您是否要恢复备份到当前数据中心?</p>
+            <p>您是否要恢复备份到当前集群?</p>
           </div>
         ) : (
           <div>

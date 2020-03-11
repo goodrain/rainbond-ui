@@ -46,7 +46,7 @@ const teamUtil = {
     const actions = teamBean.tenant_actions || [];
     return actions.indexOf("drop_tenant") > -1;
   },
-  // 是否有权限开通数据中心
+  // 是否有权限开通集群
   canAddRegion(teamBean = {}) {
     const actions = teamBean.tenant_actions || [];
     return actions.indexOf("tenant_open_region") > -1;

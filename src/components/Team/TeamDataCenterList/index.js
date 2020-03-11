@@ -67,14 +67,14 @@ export default class DatacenterList extends PureComponent {
           style={{
             marginBottom: 24
           }}
-          title="已开通数据中心"
+          title="已开通集群"
           bordered={false}
           extra={
             teamUtil.canAddRegion(team) &&
             rainbondUtil.openDataCenterStatusEnable(rainbondInfo) ? (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 {" "}
-                开通数据中心{" "}
+                开通集群{" "}
               </a>
             ) : null
           }
@@ -115,7 +115,7 @@ export default class DatacenterList extends PureComponent {
                 paddingTop: 20
               }}
             >
-              暂无数据中心
+              暂无集群
             </p>
           ) : (
             ""

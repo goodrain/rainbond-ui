@@ -13,7 +13,7 @@ export default {
   // 判断平台是否配置了导出应用功能
   exportAppEnable: (bean = {}) =>
     (bean.export_app && bean.export_app.enable) || false,
-  // 判断平台是否配置了市场支持跨数据中心
+  // 判断平台是否配置了市场支持跨集群
   appstoreImageHubEnable: (bean = {}) =>
     (bean.appstore_image_hub && bean.appstore_image_hub.enable && "支持") ||
     "不支持",
@@ -81,7 +81,7 @@ export default {
   // 判断平台是否配置了官方Demo
   officialDemoEnable: (bean = {}) =>
     (bean.official_demo && bean.official_demo.enable) || false,
-  // 判断平台是否配置了具有开通数据中心权限
+  // 判断平台是否配置了具有开通集群权限
   openDataCenterStatusEnable: (bean = {}) =>
     (bean.open_data_center_status && bean.open_data_center_status.enable) ||
     false,

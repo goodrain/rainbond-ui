@@ -878,7 +878,7 @@ export default class Enterprise extends PureComponent {
                             <img src={Records} alt="" />
                           </li>
                           <li>{overviewMonitorInfo.total_regions}</li>
-                          <li>数据中心数量</li>
+                          <li>集群数量</li>
                           <li>——</li>
                         </ul>
                       </Col>

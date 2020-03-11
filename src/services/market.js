@@ -70,7 +70,7 @@ export async function fetchAppModels(param) {
         scope: param.scope,
         app_name: param.app_name,
         is_complete: param.is_complete,
-        tags:JSON.stringify(param.tags),
+        tags: JSON.stringify(param.tags),
       },
     }
   );
@@ -90,7 +90,7 @@ export async function upAppModel(body) {
         describe: body.describe,
         tag_ids: body.tag_ids,
         dev_status: body.dev_status ? body.dev_status : '',
-        details: "This is a default description",
+        details: 'This is a default description',
       },
     }
   );
@@ -106,10 +106,11 @@ export async function createAppModel(body) {
       data: {
         team_name: body.team_name,
         scope: body.scope,
+        scope_target: body.scope_target,
         dev_status: body.dev_status ? body.dev_status : '',
         name: body.name,
         pic: body.pic,
-        details: "This is a default description",
+        details: 'This is a default description',
         describe: body.describe,
         tag_ids: body.tag_ids,
       },
@@ -313,38 +314,46 @@ export async function getRecommendMarketAppList(
     page,
     page_size,
     is_complete,
-    enterprise_id
+    enterprise_id,
   }
 ) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/recommend`, {
-    method: 'get',
-    params: {
-      app_name: body.app_name,
-      page: body.page,
-      page_size: body.page_size,
-    },
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/recommend`,
+    {
+      method: 'get',
+      params: {
+        app_name: body.app_name,
+        page: body.page,
+        page_size: body.page_size,
+      },
+    }
+  );
 }
-
 
 /* 获取企业开通的商店列表 */
 export async function getStoreList(
   body = {
-    enterprise_id
+    enterprise_id,
   }
 ) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`, {
-    method: 'get',
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
+    {
+      method: 'get',
+    }
+  );
 }
 
 /* 获取分享的应用模型列表 */
 export async function getShareModelList(body) {
-  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/shared/apps`, {
-    method: 'get',
-    params: {
-      scope: body.scope,
-      market_id: body.market_id,
-    },
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/shared/apps`,
+    {
+      method: 'get',
+      params: {
+        scope: body.scope,
+        market_id: body.market_id,
+      },
+    }
+  );
 }

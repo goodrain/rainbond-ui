@@ -145,7 +145,7 @@ class Backup extends PureComponent {
       }
     };
     const cloudBackupTip = is_configed
-      ? "备份到云端存储上，可实现跨数据中心迁移"
+      ? "备份到云端存储上，可实现跨集群迁移"
       : "请在Rainbond管理后台开启此功能";
     return (
       <Modal
@@ -175,7 +175,7 @@ class Backup extends PureComponent {
                     云端备份
                   </RadioButton>
                 </Tooltip>
-                <Tooltip title="备份到当前数据中心本地，不能跨数据中心迁移">
+                <Tooltip title="备份到当前集群本地，不能跨集群迁移">
                   <RadioButton value="full-offline">本地备份</RadioButton>
                 </Tooltip>
               </RadioGroup>
@@ -574,7 +574,7 @@ export default class AppList extends PureComponent {
         title="备份管理"
         content={
           <p>
-            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨数据中心应用迁移操作。
+            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作。
           </p>
         }
         extraContent={

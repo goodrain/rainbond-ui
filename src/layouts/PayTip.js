@@ -33,7 +33,7 @@ export default class PayTip extends React.PureComponent {
       const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/finance`;
       this.props.dispatch(routerRedux.push(url));
     } else {
-      notification.warning({ message: '当前数据中心不可购买' });
+      notification.warning({ message: '当前集群不可购买' });
     }
     this.handleCancel();
   };

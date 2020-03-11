@@ -30,7 +30,7 @@ export default {
     members: [],
     // 权限列表
     actions: [],
-    // 已开通的数据中心
+    // 已开通的集群
     regions: [],
     // current show teams
     currentTeam: {},
@@ -149,14 +149,14 @@ export default {
     * fetchCurrentRegionName({ payload }, { call, put }) {
       yield put({ type: "saveCurrentRegionName", payload: payload });
     },
-    // 开通数据中心
+    // 开通集群
     *openRegion({ payload, callback }, { call, put }) {
       const response = yield call(openRegion, payload);
       if (response && !response.status) {
         callback && callback();
       }
     },
-    // 获取某个数据中心的key
+    // 获取某个集群的key
     *getRegionKey({ payload, callback }, { call, put }) {
       const response = yield call(getRegionKey, payload);
       if (response) {

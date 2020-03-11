@@ -259,7 +259,7 @@ export async function deleteTeam(
 }
 
 /*
-	获取团队下的数据中心
+	获取团队下的集群
 */
 export async function getRegions(
   body = {
@@ -272,7 +272,7 @@ export async function getRegions(
 }
 
 /*
-   总览团队在某个数据中心下的信息
+   总览团队在某个集群下的信息
 */
 export async function getTeamRegionOverview(
   body = {
@@ -299,7 +299,7 @@ export async function getTeamAppOverview(
 }
 
 /*
-	获取团队在某个数据数据中心下的所有应用
+	获取团队在某个数据集群下的所有应用
 */
 export async function getTeamRegionApps(body = {}) {
   return request(
@@ -313,7 +313,7 @@ export async function getTeamRegionApps(body = {}) {
 }
 
 /*
-   查询某个团队在某个数据中心下的所有应用状态
+   查询某个团队在某个集群下的所有应用状态
 */
 export async function getTeamRegionAppsStatus(
   body = {
@@ -336,7 +336,7 @@ export async function getTeamRegionAppsStatus(
 }
 
 /*
-	获取团队在某个数据中心下的所有应用组
+	获取团队在某个集群下的所有应用组
 */
 export async function getTeamRegionGroups(body) {
   return request(
@@ -411,7 +411,7 @@ export async function getNewestEvent(
 }
 
 /*
-  获取团队未开通的数据中心列表
+  获取团队未开通的集群列表
 */
 export function unOpenRegion(
   body = {
@@ -426,7 +426,7 @@ export function unOpenRegion(
   );
 }
 
-/* 开通数据中心 */
+/* 开通集群 */
 export function openRegion(
   body = {
     team_name,
@@ -480,7 +480,7 @@ export function getGitlabInfo(
 }
 
 /*
-  获取数据中心的key
+  获取集群的key
 */
 export async function getRegionKey(
   body = {
