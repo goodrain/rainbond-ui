@@ -1,5 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import { Link } from 'dva/router';
 import globalUtil from '../../utils/global';
 import ChangeBuildSource from './setting/edit-buildsource';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
@@ -69,7 +70,7 @@ export default class Index extends PureComponent {
         const { oauth_type, service_id } = item;
         tabList.push({
           type: oauth_type,
-          id: `${service_id  }`,
+          id: `${service_id}`,
         });
       });
       this.setState({
@@ -254,7 +255,6 @@ export default class Index extends PureComponent {
             },
             () => {
               if (this.state.create_status == 'failure') {
-                
               } else {
                 this.handleDetectGetLanguage();
               }
@@ -316,9 +316,8 @@ export default class Index extends PureComponent {
       type: 'global/codeWarehouseInfo',
       payload: {
         page: 1,
-        oauth_service_id: id || (oauth_service_id || (tabList.length > 0
-          ? tabList[0].id
-          : '')),
+        oauth_service_id:
+          id || oauth_service_id || (tabList.length > 0 ? tabList[0].id : ''),
       },
       callback: res => {
         if (res && res.bean) {
@@ -438,10 +437,12 @@ export default class Index extends PureComponent {
       fullList,
       tabList,
     } = this.state;
-    const { form } = this.props;
+    const { form,match } = this.props;
+    const { teamName, regionName } =match.params;
     const { getFieldDecorator } = form;
     const versionLanguage = buildSource ? buildSource.language : '';
-
+    const buildShared = appUtil.getCreateTypeCNByBuildSource(buildSource);
+    const isLocalShared = buildShared && buildShared === '本地共享库';
     return (
       <Fragment>
         {buildSource && (
@@ -472,9 +473,14 @@ export default class Index extends PureComponent {
                 {...formItemLayout}
                 label="创建方式"
               >
-                {appUtil.isOauthByBuildSource(buildSource)
-                  ? thirdInfo.service_type
-                  : appUtil.getCreateTypeCNByBuildSource(buildSource)}
+                <Link
+                  to={isLocalShared&& `/team/${teamName}/region/${regionName}/create/market`}
+                  style={{ color: !isLocalShared && 'rgba(0, 0, 0, 0.65)' }}
+                >
+                  {appUtil.isOauthByBuildSource(buildSource)
+                    ? thirdInfo.service_type
+                    : buildShared}
+                </Link>
               </FormItem>
             </div>
 
@@ -518,7 +524,7 @@ export default class Index extends PureComponent {
                     marginBottom: 0,
                   }}
                   {...formItemLayout}
-                  label="云市应用名称"
+                  label="应用模版名称"
                 >
                   {buildSource.group_key ? (
                     <a
@@ -806,7 +812,7 @@ export default class Index extends PureComponent {
               <Form onSubmit={this.handleSubmitOauth}>
                 <FormItem {...formOauthLayout} label="创建方式">
                   {getFieldDecorator('oauth_service_id', {
-                    initialValue: thirdInfo ? `${thirdInfo.service_id  }` : '',
+                    initialValue: thirdInfo ? `${thirdInfo.service_id}` : '',
                     rules: [{ required: true, message: '请选择创建方式' }],
                   })(
                     <Select
