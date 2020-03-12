@@ -475,6 +475,7 @@ export default class Main extends PureComponent {
       body.scope = 'goodrain';
       body.market_id = scope_target.store_id;
     }
+    const isMarket = scope_target && scope_target.store_id;
     this.setState({ loadingModels: true });
     dispatch({
       type: 'enterprise/fetchShareModels',
@@ -489,13 +490,19 @@ export default class Main extends PureComponent {
             },
             () => {
               if (res.list.length > 0) {
-                isCreate && setFieldsValue({ app_id: res.list[0].app_id });
+                isCreate &&
+                  setFieldsValue({
+                    app_id: res.list[isMarket ? res.list.length - 1 : 0].app_id,
+                  });
                 if (JSON.stringify(res.bean) === '{}') {
                   this.changeCurrentModel(res.list[0].app_id);
                 } else {
                   this.changeCurrentModel(
-                    res.bean && res.bean.app_id,
-                    res.bean && res.bean.version
+                    isCreate
+                      ? res.list[isMarket ? res.list.length - 1 : 0].app_id
+                      : res.bean && res.bean.app_id,
+                    isCreate ? '' : res.bean && res.bean.version,
+                    isCreate
                   );
                 }
               }
@@ -883,7 +890,7 @@ export default class Main extends PureComponent {
         }
       });
   };
-  changeCurrentModel = (model_id, setVersion) => {
+  changeCurrentModel = (model_id, setVersion, isCreate) => {
     const { models } = this.state;
     models &&
       models.length > 0 &&
@@ -901,24 +908,28 @@ export default class Main extends PureComponent {
                   }
                 });
               }
-              this.handleSetFieldsValue(versionInfo);
+              this.handleSetFieldsValue(versionInfo, isCreate);
+            } else {
+              this.handleSetFieldsValue(item, isCreate);
             }
           });
         }
       });
   };
 
-  handleSetFieldsValue = versionInfo => {
+  handleSetFieldsValue = (versionInfo, isCreate) => {
     const { setFieldsValue } = this.props.form;
     this.setState({ versionInfo });
     setFieldsValue({
-      version: versionInfo ? versionInfo.version : '',
+      version: isCreate ? '0.1' : versionInfo ? versionInfo.version : '',
     });
     setFieldsValue({
       version_alias: versionInfo ? versionInfo.version_alias : '',
     });
     setFieldsValue({
-      describe: versionInfo ? versionInfo.describe : '',
+      describe: versionInfo
+        ? versionInfo.describe || versionInfo.app_describe
+        : '',
     });
   };
   render() {
@@ -1031,7 +1042,8 @@ export default class Main extends PureComponent {
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本号">
                       {getFieldDecorator('version', {
-                        initialValue: versionInfo && versionInfo.version ||'',
+                        initialValue:
+                          (versionInfo && versionInfo.version) || '',
                         rules: [
                           {
                             required: true,
@@ -1064,7 +1076,8 @@ export default class Main extends PureComponent {
                   <Col span="12">
                     <Form.Item {...formItemLayout} label="版本别名">
                       {getFieldDecorator('version_alias', {
-                        initialValue: versionInfo && versionInfo.version_alias||'',
+                        initialValue:
+                          (versionInfo && versionInfo.version_alias) || '',
                       })(
                         <Input
                           style={{ width: 280 }}
@@ -1076,7 +1089,11 @@ export default class Main extends PureComponent {
                   <Col span="12" style={{ height: '104px' }}>
                     <Form.Item {...formItemLayout} label="版本说明">
                       {getFieldDecorator('describe', {
-                        initialValue: versionInfo && versionInfo.describe ||'',
+                        initialValue:
+                          (versionInfo &&
+                            (versionInfo.describe ||
+                              versionInfo.app_describe)) ||
+                          '',
                         rules: [
                           {
                             required: false,
@@ -1240,6 +1257,7 @@ export default class Main extends PureComponent {
           {showCreateAppModel && (
             <CreateAppModels
               title="创建应用模版"
+              appName={appDetail && appDetail.group_name}
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
