@@ -12,6 +12,7 @@ docker build -t "$DOCKER_USERNAME/rainbond-ui:$VERSION" .
 docker push "$DOCKER_USERNAME/rainbond-ui:$VERSION"
 
 sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
+sed -i "s/DOMESTIC_BASE_NAME/$DOMESTIC_BASE_NAME/g" ./build/Dockerfile
 mv dist build/dist
 docker build -t "$DOCKER_USERNAME/rbd-app-ui:$VERSION" ./build
 docker push "$DOCKER_USERNAME/rbd-app-ui:$VERSION"
