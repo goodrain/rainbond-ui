@@ -6,7 +6,7 @@ if [ -z "$VERSION" ];then
 		VERSION=$TRAVIS_TAG
 	fi
 fi
-DOMESTIC_BASE_NAME="images.goodrain.com"
+DOMESTIC_BASE_NAME="image.goodrain.com"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  ${DOMESTIC_BASE_NAME}
 docker build -t "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION" .
 docker push "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION"
