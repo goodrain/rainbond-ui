@@ -6,19 +6,12 @@ if [ -z "$VERSION" ];then
 		VERSION=$TRAVIS_TAG
 	fi
 fi
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
-docker build -t "rainbond/rainbond-ui:$VERSION" .
-docker push "rainbond/rainbond-ui:$VERSION"
+DOMESTIC_BASE_NAME="images.goodrain.com"
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  ${DOMESTIC_BASE_NAME}
+docker build -t "$DOCKER_USERNAME/rainbond-ui:$VERSION" .
+docker push "$DOCKER_USERNAME/rainbond-ui:$VERSION"
 
 sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
 mv dist build/dist
-docker build -t "rainbond/rbd-app-ui:$VERSION" ./build
-docker push "rainbond/rbd-app-ui:$VERSION"
-
-if [ ${DOMESTIC_BASE_NAME} ];
-then
-	newTag="${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-app-ui:${VERSION}"
-	docker tag "rainbond/rbd-app-ui:$VERSION" "${newTag}"
-	docker login -u "$DOMESTIC_DOCKER_USERNAME" -p "$DOMESTIC_DOCKER_PASSWORD" ${DOMESTIC_BASE_NAME}
-	docker push "${newTag}"
-fi
+docker build -t "$DOCKER_USERNAME/rbd-app-ui:$VERSION" ./build
+docker push "$DOCKER_USERNAME/rbd-app-ui:$VERSION"
