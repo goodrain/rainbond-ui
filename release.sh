@@ -8,11 +8,11 @@ if [ -z "$VERSION" ];then
 fi
 DOMESTIC_BASE_NAME="images.goodrain.com"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  ${DOMESTIC_BASE_NAME}
-docker build -t "$DOCKER_USERNAME/rainbond-ui:$VERSION" .
-docker push "$DOCKER_USERNAME/rainbond-ui:$VERSION"
+docker build -t "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION" .
+docker push "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION"
 
 sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
 sed -i "s/DOMESTIC_BASE_NAME/$DOMESTIC_BASE_NAME/g" ./build/Dockerfile
 mv dist build/dist
-docker build -t "$DOCKER_USERNAME/rbd-app-ui:$VERSION" ./build
-docker push "$DOCKER_USERNAME/rbd-app-ui:$VERSION"
+docker build -t "$DOMESTIC_BASE_NAME/rbd-app-ui:$VERSION" ./build
+docker push "$DOMESTIC_BASE_NAME/rbd-app-ui:$VERSION"
