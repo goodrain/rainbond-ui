@@ -62,7 +62,7 @@ class DrawerForm extends PureComponent {
 
   heandleEditInfo = props => {
     const { page, page_size } = this.state;
-    const { dispatch, editInfo, form } = props;
+    const { dispatch, editInfo, appID } = props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: "appControl/fetchCertificates",
