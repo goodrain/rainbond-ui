@@ -10,6 +10,10 @@
         "site": "roadhog-api-doc static && gh-pages -d dist",
         "analyze": "cross-env ANALYZE=true roadhog build"
     },
+    "engines": {
+        "node": "11.1.0",
+        "yarn": "1.9.4"
+    },
     "dependencies": {
         "@ant-design/compatible": "^0.0.1-rc.1",
         "@ant-design/pro-layout": "^4.4.2",
