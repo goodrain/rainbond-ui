@@ -4,7 +4,7 @@ import { connect } from "dva";
 import JavaJDK from "../java-jdk";
 const RadioGroup = Radio.Group;
 
-@connect(null, null, null, 
+@connect(null, null, null,
   { withRef: true }
   )
 class Index extends PureComponent {
@@ -45,8 +45,6 @@ class Index extends PureComponent {
           })(
             <Switch
               defaultChecked={envs && envs.BUILD_NO_CACHE ? true : false}
-              checkedChildren="开"
-              unCheckedChildren="关"
             />
           )}
         </Form.Item>
