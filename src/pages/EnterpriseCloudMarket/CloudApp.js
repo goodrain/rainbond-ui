@@ -131,7 +131,7 @@ export default class CloudApp extends PureComponent {
       type: 'global/getVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_name: data.group_name,
+        app_name: data.app_name,
         group_key: data.group_key,
         version,
       },
@@ -287,7 +287,7 @@ export default class CloudApp extends PureComponent {
                         this.showMarketAppDetail(item);
                       }}
                     >
-                      {item.group_name}
+                      {item.app_name}
                       {!this.state.loading && (
                         <Select
                           style={{ marginLeft: '18px' }}
