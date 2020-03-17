@@ -53,7 +53,7 @@ class Index extends PureComponent {
         <Form.Item {...formItemLayout} label="禁用缓存" help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库">
           {getFieldDecorator("BUILD_NO_CACHE", {
             initialValue: envs && envs.BUILD_NO_CACHE ? true : false
-          })(<Switch defaultChecked={envs && envs.BUILD_NO_CACHE ? true : false} checkedChildren="开" unCheckedChildren="关" />)}
+          })(<Switch defaultChecked={envs && envs.BUILD_NO_CACHE ? true : false}  />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="JDK类型" help="默认提供OpenJDK,若需要其他JDK,请选用自定义JDK">
           {getFieldDecorator("JDK_TYPE", {

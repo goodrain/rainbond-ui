@@ -43,8 +43,6 @@ class Index extends PureComponent {
           })(
             <Switch
               defaultChecked={!!(envs && envs.BUILD_NO_CACHE)}
-              checkedChildren="开"
-              unCheckedChildren="关"
             />
           )}
         </Form.Item>

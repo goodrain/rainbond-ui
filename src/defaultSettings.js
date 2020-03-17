@@ -9,4 +9,7 @@ module.exports = {
   collapse: true,
   pwa: false,
   title: 'rainbond',
+  menu:{
+    disableLocal:true
+  }
 };
