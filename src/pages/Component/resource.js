@@ -428,7 +428,6 @@ export default class Index extends PureComponent {
       },
     };
 
-    const languageType = versionLanguage || '';
     const {
       thirdInfo,
       buildSource,
@@ -443,6 +442,7 @@ export default class Index extends PureComponent {
     const versionLanguage = buildSource ? buildSource.language : '';
     const buildShared = appUtil.getCreateTypeCNByBuildSource(buildSource);
     const isLocalShared = buildShared && buildShared === '本地共享库';
+    const languageType = versionLanguage || '';
     return (
       <Fragment>
         {buildSource && (
