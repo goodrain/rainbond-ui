@@ -107,7 +107,7 @@ class AppInfo extends PureComponent {
     const { dispatch } = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log(values);
+        console.log(err);
       }
     });
   };
@@ -417,6 +417,7 @@ export default class Main extends PureComponent {
       appDetail: {},
       record: {},
       model: {},
+      submitLoading: false,
       loadingModels: true,
       models: [],
       versions: [],
@@ -597,6 +598,7 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
+    this.setState({submitLoading: true})
     const { dispatch, form } = this.props;
     const { record, sharearrs } = this.state;
     const newinfo = {};
@@ -943,8 +945,6 @@ export default class Main extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const loading = this.props.loading;
     const {
-      previewVisible,
-      previewImage,
       shareModal,
       sharearrs,
       share_service_list,
@@ -955,7 +955,7 @@ export default class Main extends PureComponent {
       record,
       versionInfo,
       versions,
-      fileList,
+      submitLoading,
     } = this.state;
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     let breadcrumbList = [];
@@ -1270,6 +1270,7 @@ export default class Main extends PureComponent {
             <Button
               type="primary"
               htmlType="submit"
+              loading={submitLoading}
               onClick={this.handleSubmit}
             >
               提交
