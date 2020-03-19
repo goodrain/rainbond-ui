@@ -1,10 +1,11 @@
-import React, { PureComponent } from "react";
-import { routerRedux, Link } from "dva/router";
-import { connect } from "dva";
-import { Card, Table } from "antd";
-import { createEnterprise, createTeam } from "../../utils/breadcrumb";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import ScrollerX from "../../components/ScrollerX";
+import React, { PureComponent } from 'react';
+import { routerRedux, Link } from 'dva/router';
+import { connect } from 'dva';
+import { Card, Table, Button, Row, notification } from 'antd';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ScrollerX from '../../components/ScrollerX';
+import AddGroup from '../../components/AddOrEditGroup';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -13,7 +14,7 @@ import ScrollerX from "../../components/ScrollerX";
   loading: loading.models.list,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
 }))
 export default class AppList extends PureComponent {
   constructor(props) {
@@ -22,37 +23,55 @@ export default class AppList extends PureComponent {
       apps: [],
       loading: true,
       page: 1,
-      page_size: 10
+      page_size: 10,
     };
   }
   componentDidMount() {
     this.getTeamAppList();
   }
   onPageChange = page => {
-    this.setState({ page: page }, () => {
+    this.setState({ page }, () => {
       this.getTeamAppList();
     });
   };
+  handleAddGroup = vals => {
+    const { teamName } = this.props.match.params;
+    this.props.dispatch({
+      type: 'groupControl/addGroup',
+      payload: {
+        team_name: teamName,
+        ...vals,
+      },
+      callback: res => {
+        if (res) {
+          notification.success({ message: '新建成功' });
+          this.getTeamAppList();
+          this.cancelAddGroup();
+        }
+      },
+    });
+  };
+
   getTeamAppList = () => {
     const { teamName, regionName } = this.props.match.params;
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "global/getTeamAppList",
+      type: 'global/getTeamAppList',
       payload: {
         team_name: teamName,
         region: regionName,
         page,
-        page_size
+        page_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             loading: false,
             apps: res.list,
-            total: res.bean && res.bean.total
+            total: res.bean && res.bean.total,
           });
         }
-      }
+      },
     });
   };
   jumpToAllbackup = () => {
@@ -61,11 +80,15 @@ export default class AppList extends PureComponent {
       routerRedux.push(`/team/${teamName}/region/${regionName}/allbackup`)
     );
   };
-  deleteApp = appID => {};
-
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
   render() {
     const { teamName, regionName } = this.props.match.params;
-    const { apps, loading, page, page_size, total } = this.state;
+    const { apps, loading, page, page_size, total, addGroup } = this.state;
     let breadcrumbList = [];
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
@@ -73,29 +96,46 @@ export default class AppList extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: "应用列表" });
+    breadcrumbList.push({ title: '应用列表' });
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         title="应用管理"
         content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成。"
       >
+        <Row>
+          <Button
+            type="primary"
+            icon="plus"
+            style={{ float: 'right', marginBottom: '20px' }}
+            onClick={this.onAddGroup}
+          >
+            新建应用
+          </Button>
+        </Row>
+
         <Card loading={loading}>
+          {addGroup && (
+            <AddGroup
+              onCancel={this.cancelAddGroup}
+              onOk={this.handleAddGroup}
+            />
+          )}
           <ScrollerX sm={800}>
             <Table
               size="middle"
               pagination={{
                 current: page,
                 pageSize: page_size,
-                total: total,
-                onChange: this.onPageChange
+                total,
+                onChange: this.onPageChange,
               }}
               dataSource={apps || []}
               columns={[
                 {
-                  title: "应用名称",
-                  dataIndex: "group_name",
-                  width: "300px",
+                  title: '应用名称',
+                  dataIndex: 'group_name',
+                  width: '300px',
                   render: (val, data) => {
                     return (
                       <Link
@@ -104,75 +144,75 @@ export default class AppList extends PureComponent {
                         {val}
                       </Link>
                     );
-                  }
+                  },
                 },
                 {
-                  title: "组件(运行/总数)",
-                  dataIndex: "services_num",
-                  align: "center",
-                  width: "150px",
-                  render: (val, data) => {
+                  title: '组件(运行/总数)',
+                  dataIndex: 'services_num',
+                  align: 'center',
+                  width: '150px',
+                  render: (_, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
                         {data.run_service_num}/{data.services_num}
                       </p>
                     );
-                  }
+                  },
                 },
                 {
-                  title: "占用内存/分配内存(MB)",
-                  dataIndex: "used_mem",
-                  align: "center",
-                  width: "200px",
-                  render: (val, data) => {
+                  title: '占用内存/分配内存(MB)',
+                  dataIndex: 'used_mem',
+                  align: 'center',
+                  width: '200px',
+                  render: (_, data) => {
                     return (
                       <p style={{ marginBottom: 0 }}>
                         {data.used_mem}/{data.allocate_mem}
                       </p>
                     );
-                  }
+                  },
                 },
                 {
-                  title: "备份记录",
-                  width: "200px",
-                  dataIndex: "backup_record_num",
-                  align: "center",
+                  title: '备份记录',
+                  width: '200px',
+                  dataIndex: 'backup_record_num',
+                  align: 'center',
                   render: (val, data) => {
                     return (
                       <Link
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/backup`}
                       >
-                        {val}
+                        {val || '-'}
                       </Link>
                     );
-                  }
+                  },
                 },
                 {
-                  title: "发布记录",
-                  width: "200px",
-                  dataIndex: "share_record_num",
-                  align: "center",
+                  title: '发布记录',
+                  width: '200px',
+                  dataIndex: 'share_record_num',
+                  align: 'center',
                   render: (val, data) => {
                     return (
                       <Link
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/publish`}
                       >
-                        {val}
+                        {val || '-'}
                       </Link>
                     );
-                  }
+                  },
                 },
                 {
-                  title: "备注",
-                  dataIndex: "group_note",
-                  render: (val, data) => {
+                  title: '备注',
+                  dataIndex: 'group_note',
+                  render: val => {
                     return (
-                      <p style={{ marginBottom: 0, color: "#999999" }}>
-                        {val}
+                      <p style={{ marginBottom: 0, color: '#999999' }}>
+                        {val || '-'}
                       </p>
                     );
-                  }
-                }
+                  },
+                },
               ]}
             />
           </ScrollerX>
