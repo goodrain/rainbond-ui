@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { Icon, Button } from "antd";
 import SelectApp from "../../components/SelectApp";
+import SelectTeam from "../../components/SelectTeam";
 import SelectComponent from "../../components/SelectComponent";
 import headerStype from "../../components/GlobalHeader/index.less";
 import { FormattedMessage } from "umi-plugin-react/locale";
@@ -17,30 +18,31 @@ export default function TeamHeader(props) {
     currentComponent,
     componentID
   } = props;
-  const link = (
-    <Link to={`/team/${currentTeam.team_name}/region/${regionName}/index`}>
-      <Button
-        size="small"
-        style={{
-          float: "left",
-          margin: "17px 0px 20px 24px",
-          background: "#ffffff",
-          color: "#333333",
-          border: "none",
-          padding: "0 8px",
-          height: "30px"
-        }}
-      >
-        <Icon type="left" />
-        <FormattedMessage id="header.app.re" />
-      </Button>
-    </Link>
-  );
 
   return (
-    <div>
-      {link}
+    <div className={headerStype.itemBox}>
+      <div className={headerStype.item}>
+        <Link
+          className={headerStype.itemlink}
+          to={`/enterprise/${currentEnterprise.enterprise_id}/index`}
+        >
+          {currentEnterprise && currentEnterprise.enterprise_alias}
+        </Link>
+        <span className={headerStype.itemseparator}>></span>
+      </div>
+      <SelectTeam
+        active={false}
+        className={headerStype.select}
+        teamName={teamName}
+        currentEnterprise={currentEnterprise}
+        currentTeam={currentTeam}
+        currentRegion={currentRegion}
+      />
+      <div className={headerStype.item}>
+        <span className={headerStype.itemseparator}>></span>
+      </div>
       <SelectApp
+        active={currentComponent == undefined}
         className={headerStype.select}
         teamName={teamName}
         currentEnterprise={currentEnterprise}
@@ -49,15 +51,21 @@ export default function TeamHeader(props) {
         currentAppID={appID}
         currentComponent={currentComponent}
       />
-      <SelectComponent
-        className={headerStype.select}
-        teamName={teamName}
-        currentEnterprise={currentEnterprise}
-        currentTeam={currentTeam}
-        currentRegion={currentRegion}
-        currentAppID={appID}
-        currentComponent={currentComponent}
-      />
+      {currentComponent &&
+        <div className={headerStype.item}>
+          <span className={headerStype.itemseparator}>></span>
+        </div>}
+      {currentComponent &&
+        <SelectComponent
+          active={true}
+          className={headerStype.select}
+          teamName={teamName}
+          currentEnterprise={currentEnterprise}
+          currentTeam={currentTeam}
+          currentRegion={currentRegion}
+          currentAppID={appID}
+          currentComponent={currentComponent}
+        />}
     </div>
   );
 }

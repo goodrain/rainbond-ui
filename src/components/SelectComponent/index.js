@@ -67,11 +67,13 @@ export default class SelectComponent extends PureComponent {
       currentTeam,
       currentComponent,
       currentRegion,
-      currentAppID
+      active
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const { components, loading, currentApp, visible } = this.state;
-    const currentAPPLink = currentComponent && `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
+    const currentAPPLink =
+      currentComponent &&
+      `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -116,9 +118,9 @@ export default class SelectComponent extends PureComponent {
         </div>
       </div>
     );
-    let showstyle = {}
+    let showstyle = {};
     if (currentComponent) {
-      showstyle = {background: "#1890ff", color: "#ffffff"}
+      showstyle = { background: "#1890ff", color: "#ffffff" };
     }
     return (
       <div
@@ -127,18 +129,26 @@ export default class SelectComponent extends PureComponent {
         onMouseEnter={this.handleEnter}
       >
         <Dropdown overlay={dropdown} visible={visible}>
-          <div className={style.selectButton}>
-            <div className={style.selectButtonName} style={showstyle}>
-              <span>
-                <FormattedMessage id="header.component.name" />
-                <Icon className={style.selectButtonArray} type="caret-down" />
-              </span>
-            </div>
+          <div>
+            {active &&
+              <div className={style.selectButton}>
+                <div className={style.selectButtonName} style={showstyle}>
+                  <span>
+                    {currentComponent && currentComponent.service_cname}
+                    <Icon
+                      className={style.selectButtonArray}
+                      type="caret-down"
+                    />
+                  </span>
+                </div>
+              </div>}
+            {!active &&
+              currentAPPLink &&
+              <Link className={style.selectButtonLink} to={currentAPPLink}>
+                {currentComponent && currentComponent.service_cname}
+              </Link>}
           </div>
         </Dropdown>
-        {currentAPPLink && <Link className={style.selectButtonLink} to={currentAPPLink}>
-          {currentComponent && currentComponent.service_cname}
-        </Link>}
       </div>
     );
   }
