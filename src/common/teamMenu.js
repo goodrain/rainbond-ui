@@ -12,6 +12,12 @@ const menuData = function(teamName, regionName) {
       authority: ["admin", "user"]
     },
     {
+      name: formatMessage({id: "menu.team.app"}),
+      icon: "appstore-o",
+      path: `team/${teamName}/region/${regionName}/apps`,
+      authority: ["admin", "user"]
+    },
+    {
       name: formatMessage({id: "menu.team.create"}),
       icon: "plus",
       path: `team/${teamName}/region/${regionName}/create`,
@@ -42,12 +48,6 @@ const menuData = function(teamName, regionName) {
           authority: ["admin", "user"]
         }
       ]
-    },
-    {
-      name: formatMessage({id: "menu.team.app"}),
-      icon: "appstore-o",
-      path: `team/${teamName}/region/${regionName}/apps`,
-      authority: ["admin", "user"]
     },
     {
       name: formatMessage({id: "menu.team.gateway"}),

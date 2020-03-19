@@ -4,7 +4,7 @@ export default {
     'menu.enterprise.team': '团队',
     'menu.enterprise.setting': '设置',
     'menu.team.dashboard': '总览',
-    'menu.team.create': '创建',
+    'menu.team.create': '新增',
     'menu.team.create.code': '基于源码创建组件',
     'menu.team.create.image': '基于镜像创建组件',
     'menu.team.create.market': '基于共享库创建组件',

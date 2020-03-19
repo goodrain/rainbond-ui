@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import { routerRedux, Link } from 'dva/router';
 import { connect } from 'dva';
-import { Card, Table, Button, Row, notification } from 'antd';
+import { Card, Table, Button, Row, notification, Form, Input } from 'antd';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ScrollerX from '../../components/ScrollerX';
 import AddGroup from '../../components/AddOrEditGroup';
 
+const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
 
 @connect(({ list, loading, teamControl, enterprise }) => ({
@@ -23,12 +24,22 @@ export default class AppList extends PureComponent {
       apps: [],
       loading: true,
       page: 1,
+      query: '',
       page_size: 10,
     };
   }
   componentDidMount() {
     this.getTeamAppList();
   }
+  handleSearch = e => {
+    this.getTeamAppList();
+  };
+  handelChange = (e) => {
+		this.setState({ query: e.target.value})
+	}
+	handleEnter=()=>{
+		this.handleSearch()
+	}
   onPageChange = page => {
     this.setState({ page }, () => {
       this.getTeamAppList();
@@ -54,12 +65,13 @@ export default class AppList extends PureComponent {
 
   getTeamAppList = () => {
     const { teamName, regionName } = this.props.match.params;
-    const { page, page_size } = this.state;
+    const { page, page_size, query } = this.state;
     this.props.dispatch({
       type: 'global/getTeamAppList',
       payload: {
         team_name: teamName,
         region: regionName,
+        query: query,
         page,
         page_size,
       },
@@ -104,6 +116,16 @@ export default class AppList extends PureComponent {
         content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成"
       >
         <Row>
+          <Form layout="inline" style={{ display: 'inline-block'}}>
+            <FormItem>
+                <Input placeholder="搜索应用"  onChange={this.handelChange.bind(this)} onPressEnter={this.handleEnter} style={{width:250}} />
+            </FormItem>
+            <FormItem>
+              <Button type="primary" onClick={this.handleSearch} icon="search">
+                搜索
+              </Button>
+            </FormItem>
+          </Form>
           <Button
             type="primary"
             icon="plus"
@@ -123,8 +145,9 @@ export default class AppList extends PureComponent {
           )}
           <ScrollerX sm={800}>
             <Table
-              size="middle"
+              size="default"
               pagination={{
+                size: "default",
                 current: page,
                 pageSize: page_size,
                 total,
@@ -182,7 +205,7 @@ export default class AppList extends PureComponent {
                       <Link
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/backup`}
                       >
-                        {val || '-'}
+                        {val}
                       </Link>
                     );
                   },
@@ -197,7 +220,7 @@ export default class AppList extends PureComponent {
                       <Link
                         to={`/team/${teamName}/region/${regionName}/apps/${data.group_id}/publish`}
                       >
-                        {val || '-'}
+                        {val}
                       </Link>
                     );
                   },
@@ -208,7 +231,7 @@ export default class AppList extends PureComponent {
                   render: val => {
                     return (
                       <p style={{ marginBottom: 0, color: '#999999' }}>
-                        {val || '-'}
+                        {val}
                       </p>
                     );
                   },

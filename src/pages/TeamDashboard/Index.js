@@ -57,7 +57,7 @@ export default class Index extends PureComponent {
       addApplication: false,
       teamAppList: [],
       page: 1,
-      page_size: 5,
+      page_size: 10,
       total: 0,
       domainList: [],
       domainPage: 1,
@@ -900,7 +900,6 @@ export default class Index extends PureComponent {
                 <Card
                   style={{
                     marginBottom: 10,
-                    height: 475,
                   }}
                   title={
                     <div
@@ -910,14 +909,14 @@ export default class Index extends PureComponent {
                       }}
                     >
                       <span>应用</span>
-                      <a
+                      <Link
                         style={{ fontSize: '14px', fontWeight: 400 }}
                         onClick={() => {
                           this.setState({ addApplication: true });
                         }}
                       >
                         增加应用
-                      </a>
+                      </Link>
                     </div>
                   }
                   bordered={false}
@@ -1011,7 +1010,6 @@ export default class Index extends PureComponent {
                   this.state.total > 0 ? (
                     <div style={{ textAlign: 'right', margin: '15px' }}>
                       <Pagination
-                        size="small"
                         current={this.state.page}
                         pageSize={this.state.page_size}
                         total={Number(this.state.total)}
@@ -1021,24 +1019,6 @@ export default class Index extends PureComponent {
                   ) : (
                     <List />
                   )}
-                </Card>
-
-                <Card
-                  bodyStyle={{
-                    padding: 0,
-                    height: 410,
-                    overflow: 'auto',
-                  }}
-                  bordered={false}
-                  className={styles.activeCard}
-                  title="动态"
-                  loading={activitiesLoading}
-                >
-                  <List loading={activitiesLoading} size="large">
-                    <div className={styles.activitiesList}>
-                      {this.renderActivities()}
-                    </div>
-                  </List>
                 </Card>
               </Col>
               <Col xs={10} sm={10} md={10} lg={10} xl={10}>

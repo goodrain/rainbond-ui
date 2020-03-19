@@ -220,6 +220,7 @@ export async function getTeamAppList(
     region,
     page,
     page_size,
+    query
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`, {
@@ -227,6 +228,7 @@ export async function getTeamAppList(
     params: {
       page: body.page,
       page_size: body.page_size,
+      query: body.query,
     },
   });
 }
