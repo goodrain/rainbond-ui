@@ -15,7 +15,7 @@ import {
   Switch,
   Empty,
 } from 'antd';
-import More from '../../../public/images/more.svg';
+import { routerRedux } from 'dva/router';
 import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -24,8 +24,6 @@ import OauthTable from './oauthTable';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
 import OauthForm from '../../components/OauthForm';
-
-const { TabPane } = Tabs;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -59,6 +57,11 @@ export default class EnterpriseSetting extends PureComponent {
     };
   }
 
+  componentWillMount() {
+    const { adminer } = this.state;
+    const { dispatch } = this.props;
+    !adminer && dispatch(routerRedux.push(`/`));
+  }
   componentDidMount() {
     const { dispatch, rainbondInfo } = this.props;
     this.getEnterpriseAdmins();

@@ -1,14 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Card, Button, Table, Tabs, Row, Col, notification } from 'antd';
-import styles from './index.less';
+import { routerRedux } from 'dva/router';
 import userUtil from '../../utils/user';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import moment from 'moment';
 
-const { TabPane } = Tabs;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -23,7 +22,7 @@ const { TabPane } = Tabs;
 export default class EnterpriseUsers extends PureComponent {
   constructor(props) {
     super(props);
-    const { user, rainbondInfo } = this.props;
+    const { user } = this.props;
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -37,6 +36,11 @@ export default class EnterpriseUsers extends PureComponent {
       text: '',
       delVisible: false,
     };
+  }
+  componentWillMount() {
+    const { adminer } = this.state;
+    const { dispatch } = this.props;
+    !adminer && dispatch(routerRedux.push(`/`));
   }
   componentDidMount() {
     this.loadUser();
