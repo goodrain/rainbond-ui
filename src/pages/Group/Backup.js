@@ -574,7 +574,7 @@ export default class AppList extends PureComponent {
         title="备份管理"
         content={
           <p>
-            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作。
+            应用备份是指将当前应用元数据、持久化数据、版本数据完整备份，备份记录可用于应用迁移和回滚，云端备份记录可用于跨集群应用迁移操作
           </p>
         }
         extraContent={

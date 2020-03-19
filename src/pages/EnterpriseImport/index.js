@@ -433,7 +433,7 @@ export default class EnterpriseShared extends PureComponent {
     return (
       <PageHeaderLayout
         title="离线应用模板导入"
-        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他Rainbond平台导出或云应用商店导出"
+        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他 Rainbond 平台导出或云应用商店导出"
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
           <div className={styles.tit}>离线应用模板导入</div>
@@ -451,7 +451,7 @@ export default class EnterpriseShared extends PureComponent {
           <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
-                上传RainbondAPP文件
+                上传Rainbond APP文件
                 {percents && (
                   <Progress
                     percent={parseInt(percents)}

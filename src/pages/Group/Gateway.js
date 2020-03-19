@@ -124,7 +124,7 @@ export default class AppGatewayList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         title="网关访问策略管理"
-        content="访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略。"
+        content="访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略"
         tabList={[
           {
             key: "http",

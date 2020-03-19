@@ -461,7 +461,7 @@ export default class EnterpriseSetting extends PureComponent {
       <div>
         <Row>
           <Col span={20} className={styles.teamsTit}>
-            平台设置
+            基础设置
           </Col>
         </Row>
         <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
@@ -554,7 +554,7 @@ export default class EnterpriseSetting extends PureComponent {
     return (
       <PageHeaderLayout
         title="企业设置"
-        content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供。"
+        content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
       >
         {this.state.showOauthTable && (
           <OauthTable

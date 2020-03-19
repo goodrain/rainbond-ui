@@ -444,7 +444,7 @@ class DrawerForm extends PureComponent {
             >
               访问目标
             </h3>
-            <FormItem {...formItemLayout} label="应用" style={{ zIndex: 999 }}>
+            <FormItem {...formItemLayout} label="应用名称" style={{ zIndex: 999 }}>
               {getFieldDecorator("group_id", {
                 rules: [{ required: true, message: "请选择" }],
                 initialValue: appID ? {key: appID} : (editInfo && {

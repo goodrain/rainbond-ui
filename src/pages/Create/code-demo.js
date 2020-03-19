@@ -95,7 +95,15 @@ export default class Index extends PureComponent {
     const code = decodeURIComponent(this.props.match.params.code || "");
     return (
       <Card>
-        <div className={styles.formWrap}>
+        <div 
+          className={styles.formWrap}
+          style={{
+            width:
+              this.props.handleType && this.props.handleType === "Service"
+                ? "auto"
+                : "500px"
+          }}
+        >
           <CodeDemoForm
             data={{ git_url: code || "" }}
             onSubmit={this.handleSubmit}

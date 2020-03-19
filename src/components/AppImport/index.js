@@ -268,7 +268,7 @@ export default class Index extends PureComponent {
           <div>
             <div style={{ paddingBottom: 8 }}>
               <span style={{ marginRight: 8 }}>
-                你可以将RainbondAPP文件复制到集群管理节点目录:
+                你可以将Rainbond APP文件复制到集群管理节点目录:
               </span>
               <a style={{ marginRight: 16 }}>{this.state.record.source_dir}</a>
               <CopyToClipboard
@@ -282,7 +282,7 @@ export default class Index extends PureComponent {
             </div>
             <div style={{ borderBottom: "solid #ccc 1px", paddingBottom: 16 }}>
               <span style={{ marginRight: 8 }}>
-                你也可以直接上传RainbondAPP文件:
+                你也可以直接上传Rainbond APP文件:
               </span>
               <Upload
                 name="appTarFile"
@@ -303,7 +303,7 @@ export default class Index extends PureComponent {
                 {this.autoQuery ? (
                   <div style={{ marginBottom: 16 }}>
                     <p style={{ fontSize: 16 }}>
-                      正在自动识别已上传RainbondAPP文件...<a
+                      正在自动识别已上传Rainbond APP文件...<a
                         onClick={() => {
                           this.closeAutoQuery();
                         }}

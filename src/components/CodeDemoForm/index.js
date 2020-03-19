@@ -236,7 +236,7 @@ export default class Index extends PureComponent {
 
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="应用">
+        <Form.Item {...formItemLayout} label="应用名称">
           {getFieldDecorator("group_id", {
             initialValue: data.groupd_id ? data.groupd_id : undefined,
             rules: [{ required: true, message: "请选择" }]

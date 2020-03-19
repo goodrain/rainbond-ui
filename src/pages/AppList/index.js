@@ -101,7 +101,7 @@ export default class AppList extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         title="应用管理"
-        content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成。"
+        content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成"
       >
         <Row>
           <Button

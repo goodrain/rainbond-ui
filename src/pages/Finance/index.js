@@ -285,7 +285,7 @@ export default class BasicList extends PureComponent {
             paddingTop: 12,
           }}
           bordered={false}
-          title="平台设置"
+          title="基础设置"
         >
           <DescriptionList
             col="1"

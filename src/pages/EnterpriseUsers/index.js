@@ -257,7 +257,7 @@ export default class EnterpriseUsers extends PureComponent {
     return (
       <PageHeaderLayout
         title="用户管理"
-        content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队。"
+        content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队"
       >
         <Card>
           <Row style={{ marginBottom: '20px' }}>
