@@ -78,7 +78,7 @@ export default class Main extends PureComponent {
         content={
           <p>
             第三方组件，即运行于Rainbond集群外的组件，在Rainbond中创建组件即可以将其与Rainbond网关无缝对接，同时也可以被Rainbond内服务访问。满足用户通过Rainbond可以对
-            各类组件进行统一的监控和管理的需要。
+            各类组件进行统一的监控和管理的需要
           </p>
         }
         // tabActiveKey={type}

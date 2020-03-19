@@ -710,7 +710,7 @@ export default class EnterpriseShared extends PureComponent {
     return (
       <PageHeaderLayout
         title="共享库"
-        content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台。"
+        content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台"
       >
         {this.state.moreTags && (
           <TagList

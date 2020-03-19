@@ -242,7 +242,7 @@ export default class Index extends PureComponent {
     const branchs = this.state.branchs || [];
     return (
       <Form layout="horizontal" hideRequiredMark>
-        <Form.Item {...formItemLayout} label="应用">
+        <Form.Item {...formItemLayout} label="应用名称">
           {getFieldDecorator("group_id", {
             initialValue: (this.props.handleType && this.props.handleType === "Service") ? Number(this.props.groupId) : data.groupd_id,
             rules: [{ required: true, message: "请选择" }],

@@ -32,11 +32,11 @@ class UserLayout extends React.PureComponent {
               <div className={styles.top}>
                 <div className={styles.header}>
                   <Link to="/">
-                    <h1 className={styles.titles}>{rainbondInfo&&rainbondInfo.title}</h1>
+                    <h1 className={styles.titles}>{rainbondInfo && rainbondInfo.enterprise_name ? rainbondInfo.enterprise_name: "Rainbond"}</h1>
                   </Link>
                 </div>
                 <div className={styles.desc}>
-                  无服务器PaaS、以应用为中心、软件定义一切
+                  以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台
                 </div>
               </div>
             )}

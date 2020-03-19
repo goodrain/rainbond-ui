@@ -76,7 +76,7 @@ export default class Main extends PureComponent {
         breadcrumbList={breadcrumbList}
         title="从Docker镜像创建组件"
         onTabChange={this.handleTabChange}
-        content="支持从单一镜像、Docker命令、Docker-Compose配置创建应用"
+        content="支持从单一镜像、Docker命令、DockerCompose配置创建应用"
         tabActiveKey={type}
         tabList={tabList}
       >

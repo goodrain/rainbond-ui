@@ -106,7 +106,7 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
-          <Form.Item {...formItemLayout} label="应用">
+          <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator("group_id", {
               initialValue:
                 this.props.handleType && this.props.handleType === "Service"
@@ -158,7 +158,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          <div style={{ textAlign: "right" }}>
+          <div style={{ textAlign: "right", marginTop:"-16px" }}>
             这是一个私有仓库?{" "}
             <a
               onClick={() => {

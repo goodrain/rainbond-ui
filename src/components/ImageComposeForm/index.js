@@ -75,7 +75,11 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
-        <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
+        <Card 
+          style={{width: "800px", margin: "0 auto"}}
+          bordered={false}
+        >
+          <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator("group_name", {
               initialValue: data.group_name || "",
@@ -92,11 +96,8 @@ export default class Index extends PureComponent {
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="注意">
-            Rainbond将解析DockerCompose配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值
-          </Form.Item>
-
-          <div style={{ textAlign: "right", marginTop: 20 }}>
-            这是一个私有仓库?{" "}
+            Rainbond 将解析 DockerCompose 配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值,
+            其中使用了私有仓库的镜像?{" "}
             <a
               onClick={() => {
                 this.setState({ showUsernameAndPass: true });
@@ -105,7 +106,7 @@ export default class Index extends PureComponent {
             >
               填写仓库账号密码
             </a>
-          </div>
+          </Form.Item>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
             {...formItemLayout}
@@ -114,7 +115,7 @@ export default class Index extends PureComponent {
             {getFieldDecorator("user_name", {
               initialValue: data.user_name || "",
               rules: [{ required: false, message: "请输入仓库用户名" }]
-            })(<Input autoComplete="off" placeholder="请输入仓库用户名" />)}
+            })(<Input style={{ maxWidth: 300 }} autoComplete="off" placeholder="请输入仓库用户名" />)}
           </Form.Item>
           <Form.Item
             style={{ display: this.state.showUsernameAndPass ? "" : "none" }}
@@ -128,6 +129,7 @@ export default class Index extends PureComponent {
               <Input
                 autoComplete="new-password"
                 type="password"
+                style={{ maxWidth: 300 }}
                 placeholder="请输入仓库密码"
               />
             )}
@@ -153,6 +155,7 @@ export default class Index extends PureComponent {
             </Form.Item>
           ) : null}
         </Form>
+        </Card>
       </Fragment>
     );
   }

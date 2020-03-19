@@ -87,7 +87,8 @@ export default class SelectApp extends PureComponent {
       currentEnterprise,
       currentRegion,
       currentAppID,
-      currentComponent
+      currentComponent,
+      active
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const {
@@ -160,18 +161,21 @@ export default class SelectApp extends PureComponent {
         onMouseEnter={this.handleEnter}
       >
         <Dropdown overlay={dropdown} visible={showCreateApp ? false : visible}>
-          <div className={style.selectButton}>
-            <div className={style.selectButtonName} style={showstyle}>
-              <span>
-                <FormattedMessage id="header.app.name" />
-              </span>
-              <Icon className={style.selectButtonArray} type="caret-down" />
-            </div>
+          <div>
+            {active && <div className={style.selectButton}>
+              <div className={style.selectButtonName} style={showstyle}>
+                <span>
+                  {currentApp.group_name}
+                </span>
+                <Icon className={style.selectButtonArray} type="caret-down" />
+              </div>
+            </div>}
+            {!active &&<Link className={style.selectButtonLink} to={currentAPPLink}>
+              {currentApp.group_name}
+            </Link>}
           </div>
         </Dropdown>
-        <Link className={style.selectButtonLink} to={currentAPPLink}>
-          {currentApp.group_name}
-        </Link>
+       
         {showCreateApp &&
           <EditGroupName
             title={formatMessage({ id: "header.app.create" })}

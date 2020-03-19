@@ -235,7 +235,7 @@ class DrawerForm extends PureComponent {
 
               <FormItem
                 {...formItemLayout}
-                label="应用"
+                label="应用名称"
                 style={{ zIndex: 10011 }}
               >
                 {getFieldDecorator("group_id", {

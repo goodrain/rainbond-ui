@@ -748,7 +748,7 @@ export default class Enterprise extends PureComponent {
                         justifyContent: 'space-between',
                       }}
                     >
-                      活跃团队
+                      常用团队
                       <Link style={colors} to={`/enterprise/${eid}/teams`}>
                         更多
                       </Link>

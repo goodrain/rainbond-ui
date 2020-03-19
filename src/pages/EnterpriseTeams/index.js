@@ -540,7 +540,7 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-            {active_teams && <span>我常用的团队</span>}
+            {active_teams && <span>常用团队</span>}
           </Col>
           {operation}
         </Row>
@@ -620,7 +620,14 @@ export default class EnterpriseTeams extends PureComponent {
             </Col>
           </Row>
         )}
-
+        {request_join_team && (
+          <Row className={styles.teamMinTit} type="flex" align="middle">
+            <Col span={6}>团队名称</Col>
+            <Col span={3}>拥有人</Col>
+            <Col span={3}>角色</Col>
+            <Col span={12}>集群</Col>
+          </Row>
+        )}
         {request_join_team &&
           request_join_team.map(item => {
             const {
@@ -716,7 +723,7 @@ export default class EnterpriseTeams extends PureComponent {
           >
             我的团队
           </Col>
-
+          
           <Col span={20} style={{ textAlign: 'right' }}>
             <Search
               style={{ width: '500px' }}
@@ -725,6 +732,14 @@ export default class EnterpriseTeams extends PureComponent {
             />
           </Col>
         </Row>
+        {userTeam && (
+          <Row className={styles.teamMinTit} type="flex" align="middle">
+            <Col span={6}>团队名称</Col>
+            <Col span={3}>拥有人</Col>
+            <Col span={3}>角色</Col>
+            <Col span={12}>集群</Col>
+          </Row>
+        )}
         {!userTeam && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
         {userTeam &&
           userTeam.map(item => {
@@ -795,8 +810,8 @@ export default class EnterpriseTeams extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="用户团队管理"
-        content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示。企业管理员可见企业团队管理入口"
+        title="我的团队"
+        content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示，企业管理员可见企业团队管理入口"
       >
         {this.state.joinTeam && (
           <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
