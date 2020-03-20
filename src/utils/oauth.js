@@ -31,7 +31,18 @@ const oauthUtil = {
         str.indexOf('/enterprise-server'),
         str.length
       );
-      const url = agreement + content + suffix;
+      const newUrl = agreement + content + suffix;
+      const isRedirectUrl = newUrl.indexOf('redirect_uri=') > -1;
+      const redirectbefore =
+        isRedirectUrl &&
+        newUrl.substring(0, newUrl.indexOf('redirect_uri='));
+
+      const redirectSuffix =
+        isRedirectUrl &&
+        newUrl.substring(newUrl.indexOf('/console'), newUrl.length);
+      const url = isRedirectUrl
+        ? `${`${redirectbefore}redirect_uri=${agreement}${content}`}${redirectSuffix}`
+        : newUrl;
       return url;
     }
     if (authorize_url) {
