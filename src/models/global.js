@@ -44,8 +44,11 @@ import {
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
+  fetchEnterpriseDataCenters,
   deleteEnterpriseUsers,
+  deleteEnterpriseCluster,
   upEnterpriseUsers,
+  upEnterpriseCluster,
   fetchEnterpriseAdmin,
   deleteEnterpriseAdmin,
   addEnterpriseAdminTeams,
@@ -65,6 +68,7 @@ import {
   queryCodeWarehouseType,
   queryThirdInfo,
   toCreatUser,
+  toCreatCluster,
   toCeateSourceCode,
   toCreatOauth,
   toEditOauth,
@@ -525,12 +529,25 @@ export default {
         callback && callback(response);
       }
     },
+    *fetchEnterpriseDataCenters({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseDataCenters, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
     *deleteEnterpriseUsers({ payload, callback }, { put, call }) {
       const response = yield call(deleteEnterpriseUsers, payload);
       if (response) {
         callback && callback(response);
       }
     },
+    *deleteEnterpriseCluster({ payload, callback }, { put, call }) {
+      const response = yield call(deleteEnterpriseCluster, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
 
     *upEnterpriseUsers({ payload, callback }, { put, call }) {
       const response = yield call(upEnterpriseUsers, payload);
@@ -538,6 +555,14 @@ export default {
         callback && callback(response);
       }
     },
+    *upEnterpriseCluster({ payload, callback }, { put, call }) {
+      const response = yield call(upEnterpriseCluster, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
+
 
     *addEnterpriseAdminTeams({ payload, callback }, { put, call }) {
       const response = yield call(addEnterpriseAdminTeams, payload);
@@ -633,6 +658,12 @@ export default {
     },
     *creatUser({ payload, callback }, { call }) {
       const response = yield call(toCreatUser, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *creatCluster({ payload, callback }, { call }) {
+      const response = yield call(toCreatCluster, payload);
       if (callback) {
         callback(response);
       }

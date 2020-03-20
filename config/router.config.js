@@ -65,6 +65,13 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/clusters',
+            component: './EnterpriseClusters',
+            name: 'EnterpriseClusters',
+            authority: ['admin', 'user'],
+          },
+
+          {
             path: '/enterprise/:eid/setting',
             component: './EnterpriseSetting',
             name: 'EnterpriseSetting',
