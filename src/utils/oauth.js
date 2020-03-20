@@ -29,7 +29,7 @@ const oauthUtil = {
       const content = window.location.host;
       const suffix = str.substring(
         str.indexOf('/enterprise-server'),
-        str.length - 1
+        str.length
       );
       const url = agreement + content + suffix;
       return url;
