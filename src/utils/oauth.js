@@ -43,6 +43,8 @@ const oauthUtil = {
       const url = isRedirectUrl
         ? `${`${redirectbefore}redirect_uri=${agreement}${content}`}${redirectSuffix}`
         : newUrl;
+      console.log('版本','20-21:30')
+
       return url;
     }
     if (authorize_url) {
