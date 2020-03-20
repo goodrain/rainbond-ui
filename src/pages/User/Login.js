@@ -1,59 +1,56 @@
-import React, { Component } from "react";
-import { connect } from "dva";
-import { Divider, Row, Col } from "antd";
-import styles from "./Login.less";
-import rainbondUtil from "../../utils/rainbond";
-import LoginComponent from "./loginComponent";
-import oauthUtil from "../../utils/oauth";
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Divider, Row, Col } from 'antd';
+import styles from './Login.less';
+import rainbondUtil from '../../utils/rainbond';
+import LoginComponent from './loginComponent';
+import oauthUtil from '../../utils/oauth';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class LoginPage extends Component {
+  constructor(props) {
+    super(props);
+    const { rainbondInfo } = this.props;
+    this.state = {
+      oauth_servicesList:
+        rainbondInfo &&
+        rainbondInfo.oauth_services &&
+        rainbondInfo.oauth_services.value &&
+        rainbondInfo.oauth_services.value.length > 0 &&
+        rainbondInfo.oauth_services.value,
+    };
+  }
+
   handleSubmit = values => {
     const { dispatch } = this.props;
     const query_params = new URLSearchParams(this.props.location.search);
-    const redirect = query_params.get("redirect");
+    const redirect = query_params.get('redirect');
     dispatch({
-      type: "user/login",
+      type: 'user/login',
       payload: {
-        ...values
+        ...values,
       },
       callback: () => {
-        let url = "/";
+        let url = '/';
         if (redirect) {
           url = redirect;
         }
         window.location.href = url;
-      }
+      },
     });
   };
   componentWillMount() {
     const { dispatch } = this.props;
-    dispatch({ type: "global/hideNeedLogin" });
-    //check auto login
-    const { rainbondInfo } = this.props;
-    let disable_auto_login = rainbondUtil.OauthParameter("disable_auto_login");
-    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      rainbondInfo.oauth_services.value.map(item => {
-        const { is_auto_login } = item;
-        if (is_auto_login && disable_auto_login != "true") {
-          window.location.href = oauthUtil.getAuthredictURL(item);
-        }
-      });
-    }
+    dispatch({ type: 'global/hideNeedLogin' });
   }
 
   render() {
     const { rainbondInfo } = this.props;
+    const { oauth_servicesList } = this.state;
 
-    const oauth_servicesList =
-      rainbondInfo &&
-      rainbondInfo.oauth_services &&
-      rainbondInfo.oauth_services.value &&
-      rainbondInfo.oauth_services.value.length > 0 &&
-      rainbondInfo.oauth_services.value;
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
@@ -65,8 +62,8 @@ export default class LoginPage extends Component {
             <Row className={styles.third}>
               {oauth_servicesList.map(item => {
                 const { name, client_id } = item;
-                let url = oauthUtil.getAuthredictURL(item);
-                let icon = oauthUtil.getIcon(item);
+                const url = oauthUtil.getAuthredictURL(item);
+                const icon = oauthUtil.getIcon(item);
                 return (
                   <Col span={8} className={styles.thirdCol} key={client_id}>
                     <a href={url}>
