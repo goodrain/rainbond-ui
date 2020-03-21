@@ -215,7 +215,7 @@ export async function getTeamAppList(
     region,
     page,
     page_size,
-    query
+    query,
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`, {
@@ -891,8 +891,8 @@ export async function fetchEnterpriseUsers(param) {
 /* 获取企业集群 */
 export async function fetchEnterpriseDataCenters(param) {
   return request(
-    `http://5000.grff7f27.2c9v614j.17f4cc.grapps.cn/console/enterprise/${param.enterprise_id}/regions`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
+    // `http://5000.grff7f27.2c9v614j.17f4cc.grapps.cn/console/enterprise/${param.enterprise_id}/regions`,
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
     {
       method: 'get',
       // params: {
@@ -1183,6 +1183,7 @@ export async function toCreatUser(params) {
         tenant_name: params.tenant_name,
         user_name: params.user_name,
         phone: params.phone,
+        real_name: params.real_name,
         email: params.email,
         password: params.password,
         re_password: params.password,
@@ -1227,6 +1228,7 @@ export async function upEnterpriseUsers(params) {
     {
       method: 'PUT',
       data: {
+        real_name: params.real_name,
         tenant_name: params.tenant_name,
         user_name: params.user_name,
         phone: params.phone,
