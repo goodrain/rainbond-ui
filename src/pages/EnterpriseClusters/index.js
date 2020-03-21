@@ -144,7 +144,7 @@ export default class EnterpriseClusters extends PureComponent {
     } = this.props;
     const { page, page_size } = this.state;
     dispatch({
-      type: 'global/fetchEnterpriseDataCenters',
+      type: 'global/fetchEnterpriseClusters',
       payload: {
         enterprise_id: eid,
         page,
@@ -176,11 +176,7 @@ export default class EnterpriseClusters extends PureComponent {
   };
 
   handleEdit = item => {
-    this.setState({
-      regionInfo: item,
-      dataCenterVisible: true,
-      text: '编辑集群',
-    });
+    this.loadPutCluster(item.region_id)
   };
 
   delUser = regionInfo => {
@@ -206,6 +202,33 @@ export default class EnterpriseClusters extends PureComponent {
       return num;
     }
   };
+
+
+  loadPutCluster = region_id => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseCluster',
+      payload: {
+        enterprise_id: eid,
+        region_id,
+      },
+      callback: res => {
+        if (res&&res._code===200) {
+          this.setState({
+            regionInfo: res.bean,
+            dataCenterVisible: true,
+            text: '编辑集群',
+          });
+        }
+      },
+    });
+  };
+
   render() {
     const { adminList, adminer, text, regionInfo, delVisible } = this.state;
 
@@ -232,16 +255,6 @@ export default class EnterpriseClusters extends PureComponent {
         align: 'center',
         width: '30%',
       },
-      // {
-      //   title: '类型',
-      //   dataIndex: 'region_type',
-      //   rowKey: 'region_type',
-      //   align: 'center',
-      //   width: '20%',
-      //   render: val => {
-      //     return <span> {val}</span>;
-      //   },
-      // },
       {
         title: '内存(GB)',
         dataIndex: 'total_memory',

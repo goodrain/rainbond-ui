@@ -889,7 +889,7 @@ export async function fetchEnterpriseUsers(param) {
 }
 
 /* 获取企业集群 */
-export async function fetchEnterpriseDataCenters(param) {
+export async function fetchEnterpriseClusters(param) {
   return request(
     // `http://5000.grff7f27.2c9v614j.17f4cc.grapps.cn/console/enterprise/${param.enterprise_id}/regions`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
@@ -903,6 +903,16 @@ export async function fetchEnterpriseDataCenters(param) {
     }
   );
 }
+/* 获取企业集群详情 */
+export async function fetchEnterpriseCluster(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}`,
+    {
+      method: 'get',
+    }
+  );
+}
+
 
 /** 添加企业管理员 */
 export async function addEnterpriseAdminTeams(param) {

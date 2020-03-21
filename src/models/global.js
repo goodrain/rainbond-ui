@@ -44,7 +44,8 @@ import {
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
-  fetchEnterpriseDataCenters,
+  fetchEnterpriseClusters,
+  fetchEnterpriseCluster,
   deleteEnterpriseUsers,
   deleteEnterpriseCluster,
   upEnterpriseUsers,
@@ -529,8 +530,14 @@ export default {
         callback && callback(response);
       }
     },
-    *fetchEnterpriseDataCenters({ payload, callback }, { put, call }) {
-      const response = yield call(fetchEnterpriseDataCenters, payload);
+    *fetchEnterpriseClusters({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseClusters, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *fetchEnterpriseCluster({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseCluster, payload);
       if (response) {
         callback && callback(response);
       }
