@@ -1,12 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Table, Tabs, Row, Col, notification } from 'antd';
+import { Card, Button, Table, Form, Row, Col, notification, Input } from 'antd';
 import { routerRedux } from 'dva/router';
 import userUtil from '../../utils/user';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import moment from 'moment';
+
+const FormItem = Form.Item;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -139,14 +141,28 @@ export default class EnterpriseUsers extends PureComponent {
     );
   };
 
-  loadUser = name => {
+  handleSearch = e => {
+    this.setState(
+      {
+        page: 1,
+      },
+      () => {
+        this.loadUser();
+      }
+    );
+  };
+  handelChange = e => {
+    this.setState({ name: e.target.value });
+  };
+
+  loadUser = () => {
     const {
       dispatch,
       match: {
         params: { eid },
       },
     } = this.props;
-    const { page, page_size } = this.state;
+    const { page, page_size, name } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
@@ -275,20 +291,38 @@ export default class EnterpriseUsers extends PureComponent {
             alignItems: 'center',
           }}
         >
-          <Col span={12} style={{ color: '#2B3844' }}>
-            企业用户
+          <Col span={12}>
+            <Form layout="inline" style={{ display: 'inline-block' }}>
+              <FormItem>
+                <Input
+                  placeholder="搜索用户"
+                  onChange={this.handelChange.bind(this)}
+                  onPressEnter={this.handleSearch}
+                  style={{ width: 250 }}
+                />
+              </FormItem>
+              <FormItem>
+                <Button
+                  type="primary"
+                  onClick={this.handleSearch}
+                  icon="search"
+                >
+                  搜索
+                </Button>
+              </FormItem>
+            </Form>
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
-            {/* {adminer && ( */}
-            <Button
-              type="primary"
-              icon="plus"
-              style={{ float: 'right' }}
-              onClick={this.addUser}
-            >
-              新增用户
-            </Button>
-            {/* )} */}
+            {adminer && (
+              <Button
+                type="primary"
+                icon="plus"
+                style={{ float: 'right' }}
+                onClick={this.addUser}
+              >
+                新增用户
+              </Button>
+            )}
           </Col>
         </Row>
         <Card>

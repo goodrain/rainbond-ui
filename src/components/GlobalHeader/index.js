@@ -261,7 +261,7 @@ export default class GlobalHeader extends PureComponent {
                     src={userIcon}
                   />
                   <span className={styles.name}>
-                    {currentUser.user_name}
+                    {currentUser.real_name}
                   </span>
                 </span>
               </Dropdown>
