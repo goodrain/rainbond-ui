@@ -419,14 +419,15 @@ export default class EnterpriseSetting extends PureComponent {
             align="middle"
             style={{ padding: ' 0 0 10px 24px' }}
           >
-            <Col span={10}>名称</Col>
-            <Col span={5}>时间</Col>
+            <Col span={7}>名称</Col>
+            <Col span={7}>姓名</Col>
+            <Col span={7}>时间</Col>
           </Row>
         )}
 
         {adminLists ? (
           adminLists.map(item => {
-            const { user_id, create_time, nick_name } = item;
+            const { user_id, create_time, nick_name,real_name } = item;
             return (
               <Card
                 key={user_id}
@@ -439,9 +440,10 @@ export default class EnterpriseSetting extends PureComponent {
                   align="middle"
                   style={{ paddingLeft: '24px', height: '70px' }}
                 >
-                  <Col span={10}>{nick_name}</Col>
-                  <Col span={5}>{create_time}</Col>
-                  <Col span={8} />
+                  <Col span={7}>{nick_name}</Col>
+                  <Col span={7}>{real_name}</Col>
+                  <Col span={7}>{create_time}</Col>
+                  <Col span={2} />
                   <Col span={1} className={styles.bor}>
                     <Dropdown
                       overlay={managementMenu(user_id)}
