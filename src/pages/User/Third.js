@@ -82,6 +82,7 @@ export default class ThirdLogin extends Component {
         payload: {
           code,
           service_id,
+          domain: window.location.host,
         },
         callback: res => {
           if (res && res.status && res.status === 400) {
@@ -109,21 +110,13 @@ export default class ThirdLogin extends Component {
               if (!data.result.is_authenticated) {
                 dispatch(
                   routerRedux.push(
-                    `/user/third/register?code=${data.result.code}&service_id=${
-                      data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
-                      data.result.oauth_type
-                    }`
+                    `/user/third/register?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
                   )
                 );
               } else {
                 dispatch(
                   routerRedux.push(
-                    `/user/third/login?code=${data.result.code}&service_id=${
-                      data.result.service_id
-                    }&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${
-                      data.result.oauth_type
-                    }`
+                    `/user/third/login?code=${data.result.code}&service_id=${data.result.service_id}&oauth_user_id=${data.result.oauth_user_id}&oauth_type=${data.result.oauth_type}`
                   )
                 );
               }
