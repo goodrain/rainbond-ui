@@ -1,6 +1,6 @@
 {
     "name": "rainbond-ui",
-    "version": "5.1.6",
+    "version": "5.2.0",
     "description": "rainbond front-end project. ",
     "private": true,
     "scripts": {
@@ -11,8 +11,8 @@
         "analyze": "cross-env ANALYZE=true roadhog build"
     },
     "engines": {
-        "node": "11.1.0",
-        "yarn": "1.9.4"
+        "node": "12.8.1",
+        "yarn": "1.17.3"
     },
     "dependencies": {
         "@ant-design/compatible": "^0.0.1-rc.1",
