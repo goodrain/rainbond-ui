@@ -75,15 +75,25 @@ class CreateUserForm extends PureComponent {
         onCancel={onCancel}
       >
         <Form onSubmit={this.handleSubmit}>
-          <FormItem {...formItemLayout} label="用户名">
-            {getFieldDecorator('user_name', {
-              initialValue: userInfo ? userInfo.nick_name : '',
-              rules: [{ required: true, message: '请填写用户名!' }],
-            })(<Input placeholder="请填写用户名!" disabled={userInfo} />)}
+          {!userInfo && (
+            <FormItem {...formItemLayout} label="用户名">
+              {getFieldDecorator('user_name', {
+                initialValue: userInfo ? userInfo.nick_name : '',
+                rules: [{ required: true, message: '请填写用户名!' }],
+              })(<Input placeholder="请填写用户名!" />)}
+            </FormItem>
+          )}
+
+          <FormItem {...formItemLayout} label="姓名">
+            {getFieldDecorator('real_name', {
+              initialValue: (userInfo && userInfo.real_name) || '',
+              rules: [{ required: true, message: '请填写姓名!' }],
+            })(<Input type="text" placeholder="请填写姓名!" />)}
           </FormItem>
 
           <FormItem {...formItemLayout} label="密码">
             {getFieldDecorator('password', {
+              initialValue: (userInfo && userInfo.password) || '',
               rules: [
                 {
                   required: true,
@@ -103,12 +113,6 @@ class CreateUserForm extends PureComponent {
                     { type: 'email', message: '邮箱格式不正确!' },
                   ],
                 })(<Input type="text" placeholder="请填写邮箱!" />)}
-              </FormItem>
-
-              <FormItem {...formItemLayout} label="手机号">
-                {getFieldDecorator('phone', {
-                  rules: [{ required: false, message: '请填写手机号!' }],
-                })(<Input type="text" placeholder="请填写手机号!" />)}
               </FormItem>
 
               <FormItem {...formItemLayout} label="所属团队">
