@@ -176,6 +176,7 @@ export default class shareCheck extends PureComponent {
       successNum: 0,
       showDelete: false,
       startShareCallback: [],
+      completeLoading: false,
       isStart: false,
     };
     this.fails = [];
@@ -293,6 +294,7 @@ export default class shareCheck extends PureComponent {
     this.setState({ status: "checking" });
   };
   handleCompleteShare = () => {
+    this.setState({completeLoading: true})
     const params = this.getParams();
     this.props.dispatch({
       type: "groupControl/completeShare",
@@ -330,7 +332,7 @@ export default class shareCheck extends PureComponent {
     const params = this.getParams();
     const eventList = this.state.shareEventList;
     const status = this.state.status;
-    const loading = this.props.loading;
+    const { completeLoading } = this.state
     const extra = (
       <div>
         {(eventList || []).map(item => (
@@ -357,7 +359,7 @@ export default class shareCheck extends PureComponent {
         <Button onClick={this.showDelete} type="default">
           放弃分享
         </Button>,
-        <Button onClick={this.handleCompleteShare} type="primary">
+        <Button loading={completeLoading} onClick={this.handleCompleteShare} type="primary">
           {" "}
           确认分享{" "}
         </Button>,
