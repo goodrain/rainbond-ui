@@ -81,7 +81,7 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  addLicense = () => {
+  addTeams = () => {
     this.setState(
       {
         enterpriseTeamsLoading: true,
@@ -500,7 +500,7 @@ class CreateAppModels extends PureComponent {
                                   }}
                                   onMouseDown={e => e.preventDefault()}
                                   onClick={() => {
-                                    this.addLicense();
+                                    this.addTeams();
                                   }}
                                 >
                                   <Icon type="plus" /> 加载更多
