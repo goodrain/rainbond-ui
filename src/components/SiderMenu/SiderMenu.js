@@ -326,7 +326,8 @@ export default class SiderMenu extends PureComponent {
                   <Icon
                     className={styles.addCollection}
                     component={delSvg}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       this.handleOpenDelCollectionVisible(item);
                     }}
                   />

@@ -422,6 +422,8 @@ export default class Main extends PureComponent {
       models: [],
       versions: [],
       versionInfo: false,
+      editorAppModel: false,
+      appModelInfo: false,
     };
     this.com = [];
     this.share_group_info = null;
@@ -459,7 +461,7 @@ export default class Main extends PureComponent {
     });
   };
 
-  fetchModels = isCreate => {
+  fetchModels = (isCreate, isEditor) => {
     const { record } = this.state;
 
     const scope = record && record.scope;
@@ -491,6 +493,18 @@ export default class Main extends PureComponent {
             },
             () => {
               if (res.list.length > 0) {
+                if (isEditor) {
+                  const info = res.list.filter(item => {
+                    return item.app_id === isEditor.app_id;
+                  });
+                  if (info && info.length > 0) {
+                    const { setFieldsValue } = this.props.form;
+                    setFieldsValue({
+                      describe: info[0].app_describe || '',
+                    });
+                  }
+                  return null;
+                }
                 isCreate &&
                   setFieldsValue({
                     app_id: res.list[isMarket ? res.list.length - 1 : 0].app_id,
@@ -598,7 +612,7 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
-    this.setState({submitLoading: true})
+    this.setState({ submitLoading: true });
     const { dispatch, form } = this.props;
     const { record, sharearrs } = this.state;
     const newinfo = {};
@@ -934,6 +948,46 @@ export default class Main extends PureComponent {
         : '',
     });
   };
+
+  handleEditorAppModel = info => {
+    notification.success({ message: '编辑成功' });
+    this.fetchModels(false, info);
+    this.hideEditorAppModel();
+  };
+
+  showEditorAppModel = app_id => {
+    const { models } = this.state;
+    const info = models.filter(item => {
+      return item.app_id === app_id;
+    });
+    if (info && info.length > 0) {
+      this.setState({
+        appModelInfo: info[0],
+        editorAppModel: true,
+      });
+    }
+  };
+
+  hideEditorAppModel = () => {
+    this.setState({ editorAppModel: false, appModelInfo: false });
+  };
+
+    //验证上传文件方式
+    checkVersion = (rules, value, callback) => {
+      if(value===''){
+        callback('版本不能为空, 请选择或添加版本')
+      }
+      if (value) {
+          if (!/^([0-9]+.[0-9]+.[0-9]+)*$/.test(value) ) {
+              callback('只允许输入数字、版本格式:1.0.0');
+              return;
+          }
+      }
+      callback()
+  }
+
+
+
   render() {
     const info = this.state.info;
     if (!info) {
@@ -951,13 +1005,16 @@ export default class Main extends PureComponent {
       models,
       appDetail,
       showCreateAppModel,
+      editorAppModel,
       model,
       record,
       versionInfo,
       versions,
       submitLoading,
+      appModelInfo,
     } = this.state;
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const Application = getFieldValue('app_id');
     let breadcrumbList = [];
     breadcrumbList = createApp(
       createTeam(
@@ -978,6 +1035,8 @@ export default class Main extends PureComponent {
     } else {
       breadcrumbList.push({ title: '发布到共享库' });
     }
+    const market_id = record.scope_target && record.scope_target.store_id;
+
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1037,6 +1096,19 @@ export default class Main extends PureComponent {
                           ))}
                         </Select>
                       )}
+                      {Application &&
+                        models &&
+                        models.length > 0 &&
+                        !market_id && (
+                          <a
+                            style={{ marginLeft: '10px' }}
+                            onClick={() => {
+                              this.showEditorAppModel(Application);
+                            }}
+                          >
+                            编辑应用模版
+                          </a>
+                        )}
                     </Form.Item>
                   </Col>
                   <Col span="12">
@@ -1047,7 +1119,8 @@ export default class Main extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: '版本不能为空, 请选择或添加版本',
+
+                            validator: this.checkVersion
                           },
                         ],
                       })(
@@ -1261,8 +1334,20 @@ export default class Main extends PureComponent {
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
-              market_id={record.scope_target && record.scope_target.store_id}
+              market_id={market_id}
               onCancel={this.hideCreateAppModel}
+            />
+          )}
+
+          {editorAppModel && (
+            <CreateAppModels
+              title="编辑应用模版"
+              team_name={currentTeam.team_name}
+              appInfo={appModelInfo}
+              eid={currentEnterprise.enterprise_id}
+              onOk={this.handleEditorAppModel}
+              defaultScope="team"
+              onCancel={this.hideEditorAppModel}
             />
           )}
 
