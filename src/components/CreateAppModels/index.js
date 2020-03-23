@@ -512,7 +512,7 @@ class CreateAppModels extends PureComponent {
                       )}
                     >
                       <Option value="enterprise" key="enterprise">
-                        <div style={{borderBottom:"1px solid #ccc"}}>~当前企业~</div>
+                        <div style={{borderBottom:"1px solid #ccc"}}>当前企业</div>
                       </Option>
 
                       {teamList &&
