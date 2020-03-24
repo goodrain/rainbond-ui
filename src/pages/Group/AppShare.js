@@ -477,6 +477,8 @@ export default class Main extends PureComponent {
     if (scope == 'goodrain' && scope_target) {
       body.scope = 'goodrain';
       body.market_id = scope_target.store_id;
+    }else{
+      body.scope = 'local';
     }
     const isMarket = scope_target && scope_target.store_id;
     this.setState({ loadingModels: true });
