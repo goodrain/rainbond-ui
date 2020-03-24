@@ -779,13 +779,7 @@ export default class EnterpriseShared extends PureComponent {
             overflow: 'hidden',
           }}
         >
-          {userTeamsLoading ? (
-            <div className={styles.example}>
-              <Spin />
-            </div>
-          ) : (
-            <div>{sharedList}</div>
-          )}
+         {sharedList}
         </div>
       </PageHeaderLayout>
     );
