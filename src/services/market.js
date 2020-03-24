@@ -106,6 +106,7 @@ export async function createAppModel(body) {
     {
       method: 'post',
       data: {
+        source: body.source,
         create_team: body.create_team,
         team_name: body.team_name,
         scope: body.scope,
