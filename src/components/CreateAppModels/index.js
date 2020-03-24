@@ -10,6 +10,7 @@ import {
   Radio,
   Tag,
   Spin,
+  Divider,
   Checkbox,
 } from 'antd';
 import { connect } from 'dva';
@@ -33,8 +34,11 @@ const { TextArea } = Input;
 class CreateAppModels extends PureComponent {
   constructor(props) {
     super(props);
-
+    const { user } = this.props;
+    const adminer =
+      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
+      isShared: window.location.href.indexOf('shared') > -1,
       actions: [],
       regions: [],
       previewImage: '',
@@ -45,11 +49,19 @@ class CreateAppModels extends PureComponent {
       imageBase64: '',
       imageUrl: props.appInfo ? props.appInfo.pic : '',
       loading: false,
+      page: 1,
+      page_size: 10,
+      adminer,
+      teamList: [],
+      isAddLicense: false,
+      enterpriseTeamsLoading: true,
       Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
     };
   }
   componentDidMount() {
     this.getTags();
+    const { isShared, adminer } = this.state;
+    isShared && adminer && this.getEnterpriseTeams();
   }
 
   getTags = () => {
@@ -68,6 +80,47 @@ class CreateAppModels extends PureComponent {
       },
     });
   };
+
+  addTeams = () => {
+    this.setState(
+      {
+        enterpriseTeamsLoading: true,
+        page_size: this.state.page_size + 10,
+      },
+      () => {
+        this.getEnterpriseTeams();
+      }
+    );
+  };
+
+  getEnterpriseTeams = name => {
+    const { dispatch, eid } = this.props;
+    const { page, page_size } = this.state;
+    dispatch({
+      type: 'global/fetchEnterpriseTeams',
+      payload: {
+        name,
+        page,
+        page_size,
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          if (res.bean && res.bean.list) {
+            const listNum = (res.bean && res.bean.total_count) || 0;
+            const isAdd = !!(listNum && listNum > page_size);
+
+            this.setState({
+              teamList: res.bean.list,
+              isAddLicense: isAdd,
+              enterpriseTeamsLoading: false,
+            });
+          }
+        }
+      },
+    });
+  };
+
   handleSubmit = () => {
     const { form, appInfo } = this.props;
     form.validateFields((err, values) => {
@@ -178,46 +231,9 @@ class CreateAppModels extends PureComponent {
   saveInputRef = input => (this.input = input);
 
   upAppModel = values => {
-    const { dispatch, eid, appInfo, onOk } = this.props;
-    const { imageUrl, tagList, tags } = this.state;
+    const { dispatch, eid, appInfo, onOk, team_name } = this.props;
+    const { imageUrl, tagList, isShared } = this.state;
 
-    const arr = [];
-    if (
-      values.tag_ids &&
-      values.tag_ids.length > 0 &&
-      tagList &&
-      tagList.length > 0
-    ) {
-      values.tag_ids.map(items => {
-        tagList.map(item => {
-          if (items === item.name) {
-            arr.push(parseFloat(item.tag_id));
-          }
-        });
-      });
-    }
-    dispatch({
-      type: 'market/upAppModel',
-      payload: {
-        enterprise_id: eid,
-        app_id: appInfo.app_id,
-        name: values.name,
-        pic: imageUrl,
-        dev_status: values.dev_status ? 'release' : '',
-        describe: values.describe,
-        tag_ids: arr,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          onOk && onOk();
-        }
-      },
-    });
-  };
-
-  createAppModel = values => {
-    const { dispatch, eid, onOk, currentTeam, market_id } = this.props;
-    const { imageUrl, tagList } = this.state;
     const arr = [];
     if (
       values.tag_ids &&
@@ -238,15 +254,64 @@ class CreateAppModels extends PureComponent {
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
-      scope: values.scope,
+      tag_ids: arr,
+      app_id: appInfo.app_id,
+      dev_status: values.dev_status ? 'release' : '',
+      describe: values.describe,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
+    };
+    if (team_name) {
+      body.create_team = team_name;
+    } else if (isShared && values.scope !== 'enterprise') {
+      body.create_team = values.scope;
+    }
+    dispatch({
+      type: 'market/upAppModel',
+      payload: body,
+      callback: res => {
+        if (res && res._code === 200) {
+          onOk && onOk(appInfo);
+        }
+      },
+    });
+  };
+
+  createAppModel = values => {
+    const { dispatch, eid, onOk, currentTeam, market_id } = this.props;
+    const { imageUrl, tagList, isShared } = this.state;
+    const arr = [];
+    if (
+      values.tag_ids &&
+      values.tag_ids.length > 0 &&
+      tagList &&
+      tagList.length > 0
+    ) {
+      values.tag_ids.map(items => {
+        tagList.map(item => {
+          if (items === item.name) {
+            arr.push(parseFloat(item.tag_id));
+          }
+        });
+      });
+    }
+
+    const body = {
+      enterprise_id: eid,
+      name: values.name,
+      pic: imageUrl,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
       team_name: currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
       tag_ids: arr,
     };
+
     if (market_id) {
       body.scope_target = { market_id };
       body.scope = 'goodrain';
+    }
+    if (isShared && values.scope !== 'enterprise') {
+      body.create_team = values.scope;
     }
     dispatch({
       type: 'market/createAppModel',
@@ -307,7 +372,7 @@ class CreateAppModels extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const {
       onCancel,
-      actions,
+      eid,
       title,
       appInfo,
       defaultScope,
@@ -321,7 +386,12 @@ class CreateAppModels extends PureComponent {
       tagList,
       imageBase64,
       Checkboxvalue,
+      teamList,
+      isAddLicense,
+      isShared,
+      enterpriseTeamsLoading,
     } = this.state;
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -384,9 +454,7 @@ class CreateAppModels extends PureComponent {
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <FormItem {...formItemLayout} label="名称">
               {getFieldDecorator('name', {
-                initialValue: appName || (appInfo
-                  ? appInfo.app_name
-                  : ''),
+                initialValue: appName || (appInfo ? appInfo.app_name : ''),
                 rules: [
                   {
                     required: true,
@@ -402,7 +470,9 @@ class CreateAppModels extends PureComponent {
               <FormItem {...formItemLayout} label="发布范围">
                 {getFieldDecorator('scope', {
                   initialValue: appInfo
-                    ? appInfo.scope
+                    ? isShared && appInfo.scope && appInfo.scope === 'team'
+                      ? appInfo.create_team
+                      : appInfo.scope
                     : defaultScope || 'enterprise',
                   rules: [
                     {
@@ -411,43 +481,57 @@ class CreateAppModels extends PureComponent {
                     },
                   ],
                 })(
-                  <Radio.Group name="scope">
-                    <Radio value="team">当前团队</Radio>
-                    <Radio value="enterprise">企业</Radio>
-                  </Radio.Group>
+                  isShared ? (
+                    <Select
+                      placeholder="请选择发布范围"
+                      dropdownRender={menu => (
+                        <div>
+                          {menu}
+                          {isAddLicense && (
+                            <div>
+                              <Divider style={{ margin: '4px 0' }} />
+                              {enterpriseTeamsLoading ? (
+                                <Spin size="small" />
+                              ) : (
+                                <div
+                                  style={{
+                                    padding: '4px 8px',
+                                    cursor: 'pointer',
+                                  }}
+                                  onMouseDown={e => e.preventDefault()}
+                                  onClick={() => {
+                                    this.addTeams();
+                                  }}
+                                >
+                                  <Icon type="plus" /> 加载更多
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    >
+                      <Option value="enterprise" key="enterprise">
+                        <div style={{borderBottom:"1px solid #ccc"}}>当前企业</div>
+                      </Option>
+
+                      {teamList &&
+                        teamList.map(item => {
+                          return (
+                            <Option key={item.team_name} value={item.team_name}>
+                              {item.team_alias}
+                            </Option>
+                          );
+                        })}
+                    </Select>
+                  ) : (
+                    <Radio.Group name="scope">
+                      <Radio value="team">当前团队</Radio>
+                      <Radio value="enterprise">企业</Radio>
+                    </Radio.Group>
+                  )
                 )}
                 <div className={styles.conformDesc}>发布模型的可视范围</div>
-              </FormItem>
-            )}
-
-            <FormItem {...formItemLayout} label="描述">
-              {getFieldDecorator('describe', {
-                initialValue: appInfo ? appInfo.describe : '',
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入描述',
-                  },
-                ],
-              })(<TextArea placeholder="请输入描述" />)}
-              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
-            </FormItem>
-
-            {appInfo && (
-              <FormItem {...formItemLayout} label="是否Release">
-                {getFieldDecorator('dev_status', {
-                  initialValue: appInfo && appInfo.dev_status ? true : '',
-                })(
-                  <Checkbox
-                    onChange={this.onChangeCheckbox}
-                    checked={Checkboxvalue}
-                  >
-                    release
-                  </Checkbox>
-                )}
-                <div className={styles.conformDesc}>
-                  请选择当前应用的开发状态
-                </div>
               </FormItem>
             )}
 
@@ -479,6 +563,20 @@ class CreateAppModels extends PureComponent {
                 </Select>
               )}
             </Form.Item>
+            <FormItem {...formItemLayout} label="描述">
+              {getFieldDecorator('describe', {
+                initialValue: appInfo
+                  ? appInfo.describe || appInfo.app_describe
+                  : '',
+                rules: [
+                  {
+                    required: false,
+                    message: '请输入描述',
+                  },
+                ],
+              })(<TextArea placeholder="请输入描述" />)}
+              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
+            </FormItem>
             <Form.Item {...formItemLayout} label="LOGO">
               {getFieldDecorator('pic', {
                 initialValue: appInfo ? appInfo.pic : '',
@@ -513,6 +611,24 @@ class CreateAppModels extends PureComponent {
                 </Upload>
               )}
             </Form.Item>
+
+            {appInfo && (
+              <FormItem {...formItemLayout} label="是否Release">
+                {getFieldDecorator('dev_status', {
+                  initialValue: appInfo && appInfo.dev_status ? true : '',
+                })(
+                  <Checkbox
+                    onChange={this.onChangeCheckbox}
+                    checked={Checkboxvalue}
+                  >
+                    release
+                  </Checkbox>
+                )}
+                <div className={styles.conformDesc}>
+                  请选择当前应用的开发状态
+                </div>
+              </FormItem>
+            )}
           </Form>
         </Modal>
       </div>
