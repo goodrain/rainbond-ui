@@ -284,7 +284,7 @@ class Main extends PureComponent {
               this.cancelDelete();
               this.props.dispatch(
                 routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
                 )
               );
             } else {

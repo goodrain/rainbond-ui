@@ -703,7 +703,7 @@ export default class Main extends PureComponent {
             new_info: newinfo,
           },
           callback: data => {
-            this.setState({ submitLoading: true });
+            this.setState({ submitLoading: false });
             if (data) {
               this.onCancels('false');
               dispatch(
