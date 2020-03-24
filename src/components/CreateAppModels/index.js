@@ -277,7 +277,14 @@ class CreateAppModels extends PureComponent {
   };
 
   createAppModel = values => {
-    const { dispatch, eid, onOk, currentTeam, market_id } = this.props;
+    const {
+      dispatch,
+      eid,
+      onOk,
+      currentTeam,
+      market_id,
+      team_name,
+    } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const arr = [];
     if (
@@ -309,10 +316,12 @@ class CreateAppModels extends PureComponent {
     if (market_id) {
       body.scope_target = { market_id };
       body.scope = 'goodrain';
+      body.source = 'local';
     }
-    if (isShared && values.scope !== 'enterprise') {
+     if (isShared && values.scope !== 'enterprise') {
       body.create_team = values.scope;
     }
+
     dispatch({
       type: 'market/createAppModel',
       payload: body,
@@ -512,7 +521,9 @@ class CreateAppModels extends PureComponent {
                       )}
                     >
                       <Option value="enterprise" key="enterprise">
-                        <div style={{borderBottom:"1px solid #ccc"}}>当前企业</div>
+                        <div style={{ borderBottom: '1px solid #ccc' }}>
+                          当前企业
+                        </div>
                       </Option>
 
                       {teamList &&
