@@ -502,6 +502,9 @@ export default class Main extends PureComponent {
                     setFieldsValue({
                       describe: info[0].app_describe || '',
                     });
+                    this.setState({
+                      model: info[0],
+                    });
                   }
                   return null;
                 }
@@ -612,12 +615,12 @@ export default class Main extends PureComponent {
     });
   };
   handleSubmit = e => {
-    this.setState({ submitLoading: true });
     const { dispatch, form } = this.props;
     const { record, sharearrs } = this.state;
     const newinfo = {};
     form.validateFields((err, values) => {
       if (!err) {
+        this.setState({ submitLoading: true });
         const app_version_info = {
           share_id: record.record_id,
           app_model_id: values.app_id,
@@ -700,12 +703,15 @@ export default class Main extends PureComponent {
             new_info: newinfo,
           },
           callback: data => {
-            this.onCancels('false');
-            dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two`
-              )
-            );
+            this.setState({ submitLoading: true });
+            if (data) {
+              this.onCancels('false');
+              dispatch(
+                routerRedux.push(
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two`
+                )
+              );
+            }
           },
         });
       }
@@ -972,21 +978,19 @@ export default class Main extends PureComponent {
     this.setState({ editorAppModel: false, appModelInfo: false });
   };
 
-    //验证上传文件方式
-    checkVersion = (rules, value, callback) => {
-      if(value===''){
-        callback('版本不能为空, 请选择或添加版本')
+  // 验证上传文件方式
+  checkVersion = (rules, value, callback) => {
+    if (value === '') {
+      callback('版本不能为空, 请选择或添加版本');
+    }
+    if (value) {
+      if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(value)) {
+        callback('只允许输入数字、版本格式:1.0或1.0.0');
+        return;
       }
-      if (value) {
-          if (!/^([0-9]+.[0-9]+.[0-9]+)*$/.test(value) ) {
-              callback('只允许输入数字、版本格式:1.0.0');
-              return;
-          }
-      }
-      callback()
-  }
-
-
+    }
+    callback();
+  };
 
   render() {
     const info = this.state.info;
@@ -1120,7 +1124,7 @@ export default class Main extends PureComponent {
                           {
                             required: true,
 
-                            validator: this.checkVersion
+                            validator: this.checkVersion,
                           },
                         ],
                       })(
