@@ -109,8 +109,10 @@ class TeamLayout extends React.PureComponent {
     });
   };
   getTeamOverview = () => {
-    const { teamName } = this.props.match.params;
-    if (teamName) {
+    const { teamName, regionName } = this.props.match.params;
+    if (teamName && regionName) {
+      cookie.set('team_name', teamName);
+      cookie.set('region_name', regionName);
       this.props.dispatch({
         type: 'global/getTeamOverview',
         payload: {
