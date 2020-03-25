@@ -4,6 +4,7 @@ import {
   login,
   getDetail,
   logout,
+  fetchEnterpriseNoTeamUser,
   queryOauthType,
   register,
   gitlabRegister,
@@ -56,6 +57,13 @@ export default {
         callback && callback();
       }
     },
+    *searchEnterpriseNoTeamUser({ payload, callback }, { call, put, select }) {
+      const response = yield call(fetchEnterpriseNoTeamUser, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
 
     // 第三方认证
     *fetchThirdCertification(

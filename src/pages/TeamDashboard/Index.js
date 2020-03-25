@@ -36,6 +36,7 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   index,
+  enterprise: global.enterprise,
   events: index.events,
   pagination: index.pagination,
   rainbondInfo: global.rainbondInfo,
@@ -144,8 +145,8 @@ export default class Index extends PureComponent {
 
   componentWillMount() {
     this.getTeamAppList();
-    const { rainbondInfo } = this.props;
-    rainbondUtil.newbieGuideEnable(rainbondInfo) && this.getGuideState();
+    const { enterprise } = this.props;
+    rainbondUtil.newbieGuideEnable(enterprise) && this.getGuideState();
   }
 
   getTeamAppList = () => {

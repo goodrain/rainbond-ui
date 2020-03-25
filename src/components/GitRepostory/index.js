@@ -1,16 +1,17 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import { Card } from "antd";
-import rainbondUtil from "../../utils/rainbond";
-import globalUtil from "../../utils/global";
-import oauthUtil from "../../utils/oauth";
-import ThirdList from "../../components/ThirdList";
-import styles from "./index.less";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import { Card } from 'antd';
+import rainbondUtil from '../../utils/rainbond';
+import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
+import ThirdList from '../../components/ThirdList';
+import styles from './index.less';
 
 @connect(({ user, groupControl, global }) => ({
   rainbondInfo: global.rainbondInfo,
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
+  enterprise: global.enterprise,
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -19,32 +20,32 @@ export default class Index extends PureComponent {
       // 是否绑定了github仓库
       is_auth: false,
       // oauth url
-      auth_url: "",
+      auth_url: '',
       // 代码分支及版本信息
-      codeList: []
+      codeList: [],
     };
   }
   componentDidMount() {
-    const { rainbondInfo, type } = this.props;
+    const { rainbondInfo, enterprise, type } = this.props;
     const git_type = this.setType();
-    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
+    const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type, enterprise);
     if (gitinfo) {
       this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
     }
-    if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
-      this.getGitRepostoryInfo(rainbondInfo, type);
+    if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
+      this.getGitRepostoryInfo(rainbondInfo, type, OauthbTypes);
     }
   }
   componentWillUpdate(props) {
     this.props = props;
-    const { rainbondInfo, type } = props;
+    const { rainbondInfo, type, enterprise } = props;
     const git_type = this.setType();
-    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type);
+    const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type, enterprise);
     if (gitinfo) {
       this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
     }
-    if (rainbondUtil.OauthbTypes(rainbondInfo, git_type)) {
-      this.getGitRepostoryInfo(rainbondInfo, type);
+    if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
+      this.getGitRepostoryInfo(rainbondInfo, type, enterprise);
     }
   }
   setType = () => {
@@ -52,7 +53,7 @@ export default class Index extends PureComponent {
     if (gitType) {
       return gitType;
     }
-    let typs = "";
+    let typs = '';
     tabList &&
       tabList.map(item => {
         const { key, types } = item;
@@ -63,11 +64,11 @@ export default class Index extends PureComponent {
     return typs;
   };
 
-  getGitRepostoryInfo = (rainbondInfo, key) => {
-    let gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, key);
+  getGitRepostoryInfo = (rainbondInfo, key, enterprise) => {
+    const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, key, enterprise);
     const { currentUser } = this.props;
     this.setState({
-      is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key)
+      is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key),
     });
   };
 
@@ -75,22 +76,22 @@ export default class Index extends PureComponent {
     const type = this.setType();
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "global/createSourceCode",
+      type: 'global/createSourceCode',
       payload: {
         team_name: teamName,
         code_from: type,
-        ...value
+        ...value,
       },
       callback: data => {
         const appAlias = data && data.bean.service_alias;
-        this.props.handleType && this.props.handleType === "Service"
+        this.props.handleType && this.props.handleType === 'Service'
           ? this.props.handleServiceGetData(appAlias)
           : this.props.dispatch(
               routerRedux.push(
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
               )
             );
-      }
+      },
     });
   };
 
@@ -99,24 +100,24 @@ export default class Index extends PureComponent {
     const { type: service_id } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "createApp/createThirtAppByCode",
+      type: 'createApp/createThirtAppByCode',
       payload: {
         service_id,
         code_version: value.code_version,
         git_url: value.project_url,
         group_id: value.group_id,
-        server_type: "git",
+        server_type: 'git',
         service_cname: value.service_cname,
         is_oauth: true, // 是否为oauth创建
         git_project_id: value.project_id,
         team_name: teamName,
         open_webhook: true, // 是否开启webhook
-        full_name: value.project_full_name
+        full_name: value.project_full_name,
       },
       callback: data => {
         const appAlias = data && data.bean.service_alias;
 
-        this.props.handleType && this.props.handleType === "Service"
+        this.props.handleType && this.props.handleType === 'Service'
           ? this.props.handleServiceGetData(appAlias)
           : this.props.dispatch(
               routerRedux.push(
@@ -124,9 +125,9 @@ export default class Index extends PureComponent {
               )
             );
         this.props.handleType &&
-          this.props.handleType === "Service" &&
+          this.props.handleType === 'Service' &&
           this.props.handleServiceBotton(null, null);
-      }
+      },
     });
   };
 
@@ -141,36 +142,36 @@ export default class Index extends PureComponent {
           {!is_auth ? (
             <div
               style={{
-                textAlign: "center",
-                padding: "100px 0",
-                fontSize: 14
+                textAlign: 'center',
+                padding: '100px 0',
+                fontSize: 14,
               }}
             >
               尚未绑定{type}账号
-              {handleType && handleType === "Service" && ButtonGroupState
+              {handleType && handleType === 'Service' && ButtonGroupState
                 ? handleServiceBotton(
-                    <a href={auth_url} target="_blank" type="primary">
-                      去认证
-                    </a>,
+                  <a href={auth_url} target="_blank" type="primary">
+                    去认证
+                  </a>,
                     null
                   )
                 : !handleType && (
-                    <a
-                      href={auth_url}
-                      target="_blank"
-                      style={{
-                        marginLeft: 20
+                <a
+                  href={auth_url}
+                  target="_blank"
+                  style={{
+                        marginLeft: 20,
                       }}
-                      type="primary"
-                    >
-                      去认证
-                    </a>
+                  type="primary"
+                >
+                  去认证
+                </a>
                   )}
             </div>
           ) : (
             <div>
               {handleType &&
-                handleType === "Service" &&
+                handleType === 'Service' &&
                 (ButtonGroupState || ButtonGroupState === null) &&
                 handleServiceBotton(null, true)}
               <ThirdList onSubmit={this.handleSubmit} {...this.props} />

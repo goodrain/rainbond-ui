@@ -33,6 +33,7 @@ const CheckboxGroup = Checkbox.Group;
 @connect(({ user, global }) => ({
   currentUser: user.currentUser,
   rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
 }))
 class ExportBtn extends PureComponent {
   constructor(props) {
@@ -175,10 +176,10 @@ class ExportBtn extends PureComponent {
   };
   render() {
     const app = this.props.app || {};
-    const { rainbondInfo } = this.props;
+    const { rainbondInfo,enterprise } = this.props;
     return (
       <Fragment>
-        {rainbondUtil.exportAppEnable(rainbondInfo) && (
+        {rainbondUtil.exportAppEnable(enterprise) && (
           <Tooltip title="导出后的文件可直接在Rainbond平台安装">
             <a
               onClick={this.showAppExport}
@@ -537,7 +538,7 @@ export default class AppList extends PureComponent {
 
   render() {
     const { group_version } = this.state;
-    const { rainbondInfo } = this.props;
+    const { form ,enterprise} = this.props;
 
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
@@ -546,7 +547,7 @@ export default class AppList extends PureComponent {
             离线导入应用
           </Button>
         )}
-        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+        {rainbondUtil.cloudMarketEnable(enterprise) && (
           <Button
             style={{ marginLeft: 16 }}
             type="primary"
@@ -570,7 +571,7 @@ export default class AppList extends PureComponent {
       },
     };
 
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -651,7 +652,7 @@ export default class AppList extends PureComponent {
                   <br />
                   <br />
                   发布应用模型
-                  {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+                  {rainbondUtil.cloudMarketEnable(enterprise) && (
                     <span>
                       或
                       <span
@@ -686,7 +687,7 @@ export default class AppList extends PureComponent {
                               <ExportBtn app={item} />
                               {item.source === 'market' &&
                                 rainbondUtil.cloudMarketEnable(
-                                  rainbondInfo
+                                  enterprise
                                 ) && (
                                   <a
                                     style={{ marginRight: 8 }}

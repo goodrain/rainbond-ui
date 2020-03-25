@@ -1,6 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -18,17 +18,20 @@ import {
   notification,
   Menu,
   Dropdown,
-  Upload
-} from "antd";
-import ConfirmModal from "../../components/ConfirmModal";
-import BasicListStyles from "../List/BasicList.less";
-import CloudPlugin from "./CloudPlugin";
-import MarketPluginDetailShow from "../../components/MarketPluginDetailShow";
-import rainbondUtil from "../../utils/rainbond";
+  Upload,
+} from 'antd';
+import ConfirmModal from '../../components/ConfirmModal';
+import BasicListStyles from '../List/BasicList.less';
+import CloudPlugin from './CloudPlugin';
+import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
+import rainbondUtil from '../../utils/rainbond';
 
 const { Search } = Input;
 
-@connect(({ global }) => ({ rainbondInfo: global.rainbondInfo }))
+@connect(({ global }) => ({
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
+}))
 export default class PluginList extends PureComponent {
   constructor(props) {
     super(props);
@@ -37,19 +40,19 @@ export default class PluginList extends PureComponent {
       sync: false,
       page: 1,
       pageSize: 10,
-      app_name: this.getParams().name || "",
+      app_name: this.getParams().name || '',
       plugins: [],
       loading: true,
       total: 0,
-      type: "",
+      type: '',
       showOfflinePlugin: null,
       showCloudPlugin: false,
       showMarketPluginDetail: false,
-      showPlugin: {}
+      showPlugin: {},
     };
   }
   getParams = () => {
-    var param = this.props.match.params || {};
+    const param = this.props.match.params || {};
     if (param.name) {
       param.name = decodeURIComponent(param.name);
     }
@@ -61,17 +64,17 @@ export default class PluginList extends PureComponent {
   handleSync = () => {
     this.setState(
       {
-        sync: true
+        sync: true,
       },
       () => {
         this.props
           .dispatch({
-            type: "global/syncMarketPlugins"
+            type: 'global/syncMarketPlugins',
           })
           .then(() => {
             this.setState(
               {
-                sync: false
+                sync: false,
               },
               () => {
                 this.loadPlugins();
@@ -84,41 +87,41 @@ export default class PluginList extends PureComponent {
   loadPlugins = () => {
     this.setState(
       {
-        loading: true
+        loading: true,
       },
       () => {
         this.props.dispatch({
-          type: "global/getMarketPlugins",
+          type: 'global/getMarketPlugins',
           payload: {
             plugin_name: this.state.app_name,
             page: this.state.page,
             limit: this.state.pageSize,
-            is_complete: this.state.type
+            is_complete: this.state.type,
           },
           callback: data => {
             if (data) {
               this.setState({
                 plugins: data.list || [],
                 loading: false,
-                total: data.total
+                total: data.total,
               });
             }
-          }
+          },
         });
       }
     );
   };
   handleLoadPluginDetail = data => {
     this.props.dispatch({
-      type: "global/syncMarketPluginTmp",
+      type: 'global/syncMarketPluginTmp',
       payload: {
         plugin_key: data.plugin_key,
-        version: data.version
+        version: data.version,
       },
       callback: data => {
-        notification.success({ message: "操作成功" });
+        notification.success({ message: '操作成功' });
         this.loadPlugins();
-      }
+      },
     });
   };
   handlePageChange = page => {
@@ -128,8 +131,8 @@ export default class PluginList extends PureComponent {
   handleSearch = app_name => {
     this.setState(
       {
-        app_name: app_name,
-        page: 1
+        app_name,
+        page: 1,
       },
       () => {
         this.loadPlugins();
@@ -145,17 +148,17 @@ export default class PluginList extends PureComponent {
   handleOfflinePlugin = () => {
     const plugin = this.state.showOfflinePlugin;
     this.props.dispatch({
-      type: "global/deleteMarketPlugin",
+      type: 'global/deleteMarketPlugin',
       payload: {
-        plugin_id: plugin.id
+        plugin_id: plugin.id,
       },
       callback: () => {
         notification.success({
-          message: "删除成功"
+          message: '删除成功',
         });
         this.hideOfflinePlugin();
         this.loadPlugins();
-      }
+      },
     });
   };
   showOfflinePlugin = plugin => {
@@ -171,11 +174,11 @@ export default class PluginList extends PureComponent {
     this.setState({ showMarketPluginDetail: true, showPlugin: plugin });
   };
   render() {
-    const { rainbondInfo } = this.props;
+    const { enterprise } = this.props;
 
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
-        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+        {rainbondUtil.cloudMarketEnable(enterprise) && (
           <Button
             type="primary"
             onClick={() => {
@@ -195,15 +198,15 @@ export default class PluginList extends PureComponent {
       current: this.state.page,
       onChange: pageSize => {
         this.handlePageChange(pageSize);
-      }
+      },
     };
     return (
       <div
         className={BasicListStyles.standardList}
         style={{
-          display: this.state.showCloudPlugin ? "flex" : "block",
-          position: "relative",
-          overflow: "hidden"
+          display: this.state.showCloudPlugin ? 'flex' : 'block',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <Card
@@ -221,12 +224,12 @@ export default class PluginList extends PureComponent {
             </div>
           }
           style={{
-            transition: "all .8s",
-            width: this.state.showCloudPlugin ? "50%" : "100%",
-            display: "inline-block"
+            transition: 'all .8s',
+            width: this.state.showCloudPlugin ? '50%' : '100%',
+            display: 'inline-block',
           }}
           bodyStyle={{
-            padding: "0 32px 40px 32px"
+            padding: '0 32px 40px 32px',
           }}
           extra={this.state.showCloudPlugin ? null : extraContent}
         >
@@ -240,9 +243,9 @@ export default class PluginList extends PureComponent {
                   <br />
                   <br />
                   分享插件到内部市场
-                  {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+                  {rainbondUtil.cloudMarketEnable(enterprise) && (
                     <span>
-                      或{" "}
+                      或{' '}
                       <a
                         onClick={() => {
                           this.setState({ showCloudPlugin: true });
@@ -254,7 +257,7 @@ export default class PluginList extends PureComponent {
                     </span>
                   )}
                 </p>
-              )
+              ),
             }}
             loading={this.state.loading}
             pagination={paginationProps}
@@ -267,8 +270,8 @@ export default class PluginList extends PureComponent {
                     : [
                         item.is_complete ? (
                           <Fragment>
-                            {item.source === "market" &&
-                              rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+                            {item.source === 'market' &&
+                              rainbondUtil.cloudMarketEnable(enterprise) && (
                                 <a
                                   style={{ marginRight: 8 }}
                                   href="javascript:;"
@@ -297,7 +300,7 @@ export default class PluginList extends PureComponent {
                           >
                             下载应用
                           </a>
-                        )
+                        ),
                       ]
                 }
               >
@@ -306,7 +309,7 @@ export default class PluginList extends PureComponent {
                     <Avatar
                       src={
                         item.pic ||
-                        require("../../../public/images/app_icon.jpg")
+                        require('../../../public/images/app_icon.jpg')
                       }
                       shape="square"
                       size="large"
@@ -317,7 +320,7 @@ export default class PluginList extends PureComponent {
                   }
                   title={
                     <a
-                      style={{ color: "#1890ff" }}
+                      style={{ color: '#1890ff' }}
                       href="javascript:;"
                       onClick={() => {
                         this.showMarketPluginDetail(item);
@@ -326,7 +329,7 @@ export default class PluginList extends PureComponent {
                       {item.plugin_name}
                     </a>
                   }
-                  description={item.desc || "-"}
+                  description={item.desc || '-'}
                 />
               </List.Item>
             )}
@@ -334,12 +337,12 @@ export default class PluginList extends PureComponent {
         </Card>
         <div
           style={{
-            transition: "all .8s",
+            transition: 'all .8s',
             transform: this.state.showCloudPlugin
-              ? "translate3d(0, 0, 0)"
-              : "translate3d(100%, 0, 0)",
+              ? 'translate3d(0, 0, 0)'
+              : 'translate3d(100%, 0, 0)',
             marginLeft: 8,
-            width: "49%"
+            width: '49%',
           }}
         >
           {this.state.showCloudPlugin ? (
@@ -357,9 +360,9 @@ export default class PluginList extends PureComponent {
         {this.state.showOfflinePlugin && (
           <ConfirmModal
             onOk={this.handleOfflinePlugin}
-            desc={`确定要删除此插件吗?`}
+            desc="确定要删除此插件吗?"
             subDesc="删除后其他人将无法安装此插件"
-            title={"删除插件"}
+            title="删除插件"
             onCancel={this.hideOfflinePlugin}
           />
         )}

@@ -35,6 +35,7 @@ const Option = Select.Option;
   events: index.events,
   pagination: index.pagination,
   rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
   projectLoading: loading.effects["project/fetchNotice"],
   activitiesLoading: loading.effects["activities/fetchList"],
   loading
@@ -93,15 +94,15 @@ export default class Index extends PureComponent {
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`
       }
     ];
-    const rainbondInfo = this.props.rainbondInfo;
-    if (rainbondUtil.OauthbTypes(rainbondInfo, "github")) {
+    const {enterprise} = this.props;
+    if (rainbondUtil.OauthbTypes(enterprise, "github")) {
       codelinks.push({
         title: "Github项目",
         icontype: "github",
         href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
       });
     }
-    if (rainbondUtil.OauthbTypes(rainbondInfo, "gitlab")) {
+    if (rainbondUtil.OauthbTypes(enterprise, "gitlab")) {
       codelinks.push({
         title: "Gitlab仓库",
         icontype: "gitlab",

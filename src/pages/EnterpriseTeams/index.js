@@ -723,7 +723,7 @@ export default class EnterpriseTeams extends PureComponent {
           >
             我的团队
           </Col>
-          
+
           <Col span={20} style={{ textAlign: 'right' }}>
             <Search
               style={{ width: '500px' }}
@@ -819,6 +819,7 @@ export default class EnterpriseTeams extends PureComponent {
 
         {this.state.showAddTeam && (
           <CreateTeam
+            enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
           />

@@ -36,14 +36,16 @@ export async function addCollectionView(body = { name, url }) {
 /* 收藏视图列表 */
 
 export async function queryCollectionViewInfo(body = {}) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`, {
-    method: 'get',
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`,
+    {
+      method: 'get',
+    }
+  );
 }
 
 /* 更新视图列表 */
 export async function putCollectionViewInfo(body = { favorite_id }) {
-
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite/${body.favorite_id}`,
     {
@@ -246,17 +248,18 @@ export async function getDetail(handleError) {
 /*
 	模糊查询用户
 */
-export async function search(
-  body = {
-    key,
-  }
-) {
-  return request(`${apiconfig.baseUrl}/console/users/query`, {
-    method: 'get',
-    params: {
-      query_key: body.key,
-    },
-  });
+export async function fetchEnterpriseNoTeamUser(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/notjoinusers`,
+    {
+      method: 'get',
+      params: {
+        query: body.query,
+        page: body.page,
+        page_size: body.page_size,
+      },
+    }
+  );
 }
 
 /*

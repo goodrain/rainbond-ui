@@ -19,8 +19,8 @@ class AuthorizedRoute extends React.Component {
     if (redirectPath === "/user/login") {
       if (
         rainbondInfo &&
-        rainbondInfo.is_public !== undefined &&
-        rainbondInfo.is_public
+        rainbondInfo.is_public &&
+        rainbondInfo.is_public.enable
       ) {
         return <PublicLogin />;
       }

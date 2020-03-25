@@ -1,12 +1,15 @@
-import Gitee from "../../public/images/gitee.png";
-import rainbondUtil from "./rainbond";
-import { Icon } from "antd";
+import Gitee from '../../public/images/gitee.png';
+import rainbondUtil from './rainbond';
+import { Icon } from 'antd';
 
 const oauthUtil = {
-  getEnableGitOauthServer(rainbondInfo) {
-    let servers = [];
-    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      rainbondInfo.oauth_services.value.map(item => {
+  getEnableGitOauthServer(rainbondInfo, enterprise) {
+    const servers = [];
+    if (
+      rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondUtil.OauthEnterpriseEnable(enterprise)
+    ) {
+      enterprise.oauth_services.value.map(item => {
         if (item.is_git && item.enable) {
           servers.push(item);
         }
@@ -15,32 +18,39 @@ const oauthUtil = {
     return servers;
   },
   getAuthredictURL(item) {
-    const { oauth_type, client_id, auth_url, redirect_uri, service_id, authorize_url } = item;
+    const {
+      oauth_type,
+      client_id,
+      auth_url,
+      redirect_uri,
+      service_id,
+      authorize_url,
+    } = item;
     if (authorize_url) {
-      return authorize_url
+      return authorize_url;
     }
-    if (oauth_type == "github") {
+    if (oauth_type == 'github') {
       return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&scope=user%20repo%20admin:repo_hook`;
     }
     return `${auth_url}?client_id=${client_id}&redirect_uri=${redirect_uri}?service_id=${service_id}&response_type=code`;
   },
-  getIcon(item, size = "32px") {
+  getIcon(item, size = '32px') {
     const { oauth_type } = item;
     switch (oauth_type) {
-      case "github":
+      case 'github':
         return (
-          <Icon style={{ fontSize: size, color: "#40485B" }} type="github" />
+          <Icon style={{ fontSize: size, color: '#40485B' }} type="github" />
         );
-      case "gitlab":
+      case 'gitlab':
         return <Icon style={{ fontSize: size }} type="gitlab" />;
-      case "gitee":
+      case 'gitee':
         return (
           <img
             style={{
               height: size,
               width: size,
-              borderRadius: "50%",
-              marginRight: "5px"
+              borderRadius: '50%',
+              marginRight: '5px',
             }}
             src={Gitee}
           />
@@ -49,10 +59,13 @@ const oauthUtil = {
         return <Icon style={{ fontSize: size }} type="sync" />;
     }
   },
-  getGitOauthServer(rainbondInfo, service_id) {
+  getGitOauthServer(rainbondInfo, service_id, enterprise) {
     let selectServer = null;
-    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      rainbondInfo.oauth_services.value.map(item => {
+    if (
+      rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondUtil.OauthEnterpriseEnable(enterprise)
+    ) {
+      enterprise.oauth_services.value.map(item => {
         if (item.is_git && item.service_id == service_id) {
           selectServer = item;
         }
@@ -73,7 +86,7 @@ const oauthUtil = {
         }
       });
     return isBond;
-  }
+  },
 };
 
 export default oauthUtil;

@@ -110,9 +110,9 @@ export default class Index extends PureComponent {
     return '';
   };
   render() {
-    const form = this.props.form;
-    const { getFieldDecorator } = form;
-    const is_public = this.props.rainbondInfo.is_public;
+    const { rainbondInfo } = this.props;
+    const is_public =
+      rainbondInfo && rainbondInfo.is_public && rainbondInfo.is_public.enable;
     return (
       <div
         className={userStyles.container}

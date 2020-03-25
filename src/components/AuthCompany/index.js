@@ -104,7 +104,7 @@ export default class Index extends PureComponent {
   }
 
   componentWillMount() {
-    this.handleMarket()
+    this.handleMarket();
   }
 
   handleClose = () => {
@@ -159,24 +159,15 @@ export default class Index extends PureComponent {
   handleTakeInfo = () => {
     const { rainbondInfo, eid } = this.props;
     const domain =
-      rainbondInfo &&
-      rainbondInfo.market_url !== undefined &&
-      rainbondInfo.market_url
-        ? rainbondInfo.market_url
+      rainbondInfo && rainbondInfo.market_url && rainbondInfo.market_url.enable
+        ? rainbondInfo.market_url.value
         : 'https://market.goodrain.com';
     const callback = window.location.href;
     const version =
-      rainbondInfo && rainbondInfo.version !== undefined
-        ? rainbondInfo.version
+      rainbondInfo && rainbondInfo.version && rainbondInfo.version.enable
+        ? rainbondInfo.version.value
         : '';
-    const url =
-      `${domain
-      }/manage/jointcloud?join_id=${
-      eid
-      }&callback_url=${
-      callback
-      }&rbd_version=${
-      version}`;
+    const url = `${domain}/manage/jointcloud?join_id=${eid}&callback_url=${callback}&rbd_version=${version}`;
     window.location.href = url;
   };
 

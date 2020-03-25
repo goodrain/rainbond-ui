@@ -419,7 +419,10 @@ export default class Enterprise extends PureComponent {
     const runCom = comInfo && comInfo.running;
     const comTotal = comInfo && comInfo.total;
     const comClosed = comInfo && comInfo.closed;
-
+    const enterpriseVersion =
+      rainbondInfo && rainbondInfo.version && rainbondInfo.version.enable
+        ? rainbondInfo.version.value
+        : '';
     const memoryTotalUnit =
       memoryInfo && this.handlUnit(memoryInfo.total, 'MB');
     const teamOperation = (
@@ -506,9 +509,9 @@ export default class Enterprise extends PureComponent {
                     </Tooltip>
                   </p>
                   <p>
-                    <Tooltip title={rainbondInfo.version || 'V3.7.1-release'}>
+                    <Tooltip title={enterpriseVersion}>
                       平台版本&nbsp;
-                      {rainbondInfo.version || 'V3.7.1-release'}
+                      {enterpriseVersion}
                     </Tooltip>
                   </p>
                   <p>
@@ -1046,12 +1049,13 @@ export default class Enterprise extends PureComponent {
   };
 
   render() {
-    const { showAddTeam, consulting, enterpriseInfo } = this.state;
+    const { showAddTeam, consulting, enterpriseInfo,eid } = this.state;
     return (
       <div>
         {this.renderContent()}
         {showAddTeam && (
           <CreateTeam
+            enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
           />
