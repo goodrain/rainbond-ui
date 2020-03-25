@@ -282,7 +282,11 @@ class Main extends PureComponent {
             if (res && res._code == 200) {
               notification.success({ message: '删除成功' });
               this.cancelDelete();
-              this.newAddress(grid);
+              this.props.dispatch(
+                routerRedux.push(
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+                )
+              );
             } else {
               this.setState({
                 clearTime: false,

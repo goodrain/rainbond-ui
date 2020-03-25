@@ -708,7 +708,7 @@ export default class EnterpriseShared extends PureComponent {
 
         <div style={{ textAlign: 'right' }}>
           <Pagination
-            size="small"
+            showQuickJumper
             current={this.state.page}
             pageSize={this.state.page_size}
             total={Number(this.state.total)}
