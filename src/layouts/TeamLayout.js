@@ -12,6 +12,7 @@ import { enquireScreen } from 'enquire-js';
 import GlobalHeader from '../components/GlobalHeader';
 import SiderMenu from '../components/SiderMenu';
 import userUtil from '../utils/user';
+import rainbondUtil from '../utils/rainbond';
 import globalUtil from '../utils/global';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
@@ -108,8 +109,10 @@ class TeamLayout extends React.PureComponent {
     });
   };
   getTeamOverview = () => {
-    const { teamName } = this.props.match.params;
-    if (teamName) {
+    const { teamName, regionName } = this.props.match.params;
+    if (teamName && regionName) {
+      cookie.set('team_name', teamName);
+      cookie.set('region_name', regionName);
       this.props.dispatch({
         type: 'global/getTeamOverview',
         payload: {
@@ -157,6 +160,7 @@ class TeamLayout extends React.PureComponent {
         });
       }
     });
+    this.fetchEnterpriseInfo(eid);
     this.fetchTeamApps();
     enquireScreen(mobile => {
       this.setState({ isMobile: mobile });
@@ -199,6 +203,19 @@ class TeamLayout extends React.PureComponent {
     });
   };
 
+  fetchEnterpriseInfo = eid => {
+    if (!eid) {
+      return null;
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid,
+      },
+    });
+  };
+
   getChildContext = () => {
     const { location } = this.props;
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
@@ -208,8 +225,9 @@ class TeamLayout extends React.PureComponent {
     const { rainbondInfo } = this.props;
     const title =
       (rainbondInfo &&
-        rainbondInfo.title !== undefined &&
-        rainbondInfo.title) ||
+        rainbondInfo.title &&
+        rainbondInfo.title.enable &&
+        rainbondInfo.title.value) ||
       'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
   };
@@ -244,6 +262,7 @@ class TeamLayout extends React.PureComponent {
       location: { pathname },
       nouse,
       rainbondInfo,
+      enterprise,
     } = this.props;
     const {
       enterpriseList,
@@ -266,8 +285,9 @@ class TeamLayout extends React.PureComponent {
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
-    cookie.set("team_name", teamName);
-    cookie.set("region_name", regionName);
+
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
     let appID = globalUtil.getAppID();
     // currentComponent is exit and id is current componentID
@@ -280,7 +300,6 @@ class TeamLayout extends React.PureComponent {
     } else {
       this.setState({ currentComponent: null });
     }
-
 
     const mode = this.getMode(appID || componentID);
     const customHeader = () => {
@@ -374,12 +393,7 @@ class TeamLayout extends React.PureComponent {
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentUser={currentUser}
-            logo={
-              (rainbondInfo &&
-                rainbondInfo.logo !== undefined &&
-                rainbondInfo.logo) ||
-              logo
-            }
+            logo={fetchLogo}
             Authorized={Authorized}
             collapsed={collapsed}
             location={location}
@@ -394,11 +408,11 @@ class TeamLayout extends React.PureComponent {
                 currentRegion.team_region_name +
                 appID
               }
-              logo={logo}
+              logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&
-                rainbondInfo.is_public !== undefined &&
-                rainbondInfo.is_public
+                rainbondInfo.is_public &&
+                rainbondInfo.is_public.enable
               }
               currentUser={currentUser}
               collapsed={collapsed}
@@ -411,8 +425,9 @@ class TeamLayout extends React.PureComponent {
                 enterpriseList={enterpriseList}
                 title={
                   rainbondInfo &&
-                  rainbondInfo.title !== undefined &&
-                  rainbondInfo.title
+                  rainbondInfo.title &&
+                  rainbondInfo.title.enable &&
+                  rainbondInfo.title.value
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
@@ -438,6 +453,9 @@ class TeamLayout extends React.PureComponent {
         </Layout>
       );
     };
+    const fetchLogo =
+      rainbondUtil.exportAppEnable(rainbondInfo, enterprise) || logo;
+
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
@@ -485,4 +503,5 @@ export default connect(({ user, global, index, loading }) => ({
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
+  enterprise: global.enterprise,
 }))(TeamLayout);

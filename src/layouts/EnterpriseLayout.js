@@ -16,6 +16,7 @@ import SiderMenu from '../components/SiderMenu';
 import pathToRegexp from 'path-to-regexp';
 import globalUtil from '../utils/global';
 import Authorized from '../utils/Authorized';
+import rainbondUtil from '../utils/rainbond';
 import { getMenuData } from '../common/enterpriseMenu';
 import logo from '../../public/logo.png';
 import Loading from '../components/Loading';
@@ -145,8 +146,9 @@ class EnterpriseLayout extends PureComponent {
     const { rainbondInfo } = this.props;
     const title =
       (rainbondInfo &&
-        rainbondInfo.title !== undefined &&
-        rainbondInfo.title) ||
+        rainbondInfo.title &&
+        rainbondInfo.title.enable &&
+        rainbondInfo.title.value) ||
       'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
   };
@@ -194,6 +196,7 @@ class EnterpriseLayout extends PureComponent {
         if (selectE == null) {
           selectE = enterpriseList[0];
         }
+        this.fetchEnterpriseInfo(selectE.enterprise_id);
         this.setState({ enterpriseInfo: selectE });
         dispatch(
           routerRedux.replace(`/enterprise/${selectE.enterprise_id}/index`)
@@ -204,10 +207,24 @@ class EnterpriseLayout extends PureComponent {
     } else {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
+          this.fetchEnterpriseInfo(eid);
           this.setState({ enterpriseInfo: item });
         }
       });
     }
+  };
+
+  fetchEnterpriseInfo = eid => {
+    if (!eid) {
+      return null;
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid,
+      },
+    });
   };
 
   render() {
@@ -221,6 +238,7 @@ class EnterpriseLayout extends PureComponent {
       groups,
       children,
       rainbondInfo,
+      enterprise,
     } = this.props;
 
     const { enterpriseList, enterpriseInfo, ready } = this.state;
@@ -235,6 +253,7 @@ class EnterpriseLayout extends PureComponent {
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
+
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
@@ -249,12 +268,7 @@ class EnterpriseLayout extends PureComponent {
             currentEnterprise={enterpriseInfo}
             enterpriseList={enterpriseList}
             currentUser={currentUser}
-            logo={
-              (rainbondInfo &&
-                rainbondInfo.logo !== undefined &&
-                rainbondInfo.logo) ||
-              logo
-            }
+            logo={fetchLogo}
             Authorized={Authorized}
             collapsed={collapsed}
             location={location}
@@ -263,11 +277,11 @@ class EnterpriseLayout extends PureComponent {
           />
           <Layout>
             <GlobalHeader
-              logo={logo}
+              logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&
-                rainbondInfo.is_public !== undefined &&
-                rainbondInfo.is_public
+                rainbondInfo.is_public &&
+                rainbondInfo.is_public.enable
               }
               currentUser={currentUser}
               collapsed={collapsed}
@@ -280,8 +294,9 @@ class EnterpriseLayout extends PureComponent {
                 enterpriseList={enterpriseList}
                 title={
                   rainbondInfo &&
-                  rainbondInfo.title !== undefined &&
-                  rainbondInfo.title
+                  rainbondInfo.title &&
+                  rainbondInfo.title.enable &&
+                  rainbondInfo.title.value
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
@@ -313,7 +328,8 @@ class EnterpriseLayout extends PureComponent {
         </Layout>
       );
     };
-
+    const fetchLogo =
+    rainbondUtil.exportAppEnable(enterpriseInfo, enterprise) || logo;
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
@@ -329,8 +345,8 @@ class EnterpriseLayout extends PureComponent {
         <Loading />
 
         {rainbondInfo &&
-          rainbondInfo.is_public !== undefined &&
-          rainbondInfo.is_public && <Meiqia />}
+          rainbondInfo.is_public &&
+          rainbondInfo.is_public.enable && <Meiqia />}
         {/* 企业尚未认证 */}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
@@ -368,4 +384,5 @@ export default connect(({ user, global, index, loading }) => ({
   showAuthCompany: global.showAuthCompany,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
+  enterprise: global.enterprise,
 }))(EnterpriseLayout);

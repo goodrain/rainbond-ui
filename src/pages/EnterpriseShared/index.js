@@ -36,6 +36,7 @@ const { Search } = Input;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
+  enterprise: global.enterprise,
   rainbondInfo: global.rainbondInfo,
 }))
 export default class EnterpriseShared extends PureComponent {
@@ -350,6 +351,7 @@ export default class EnterpriseShared extends PureComponent {
   render() {
     const {
       rainbondInfo,
+      enterprise,
       match: {
         params: { eid },
       },
@@ -465,14 +467,14 @@ export default class EnterpriseShared extends PureComponent {
       const exportOperation = appInfo &&
         appInfo.versions_info &&
         appInfo.versions_info.length > 0 &&
-        rainbondUtil.exportAppEnable(rainbondInfo) && (
+        rainbondUtil.exportAppEnable(enterprise) && (
           <Menu.Item>
             <ExportOperation app={appInfo} eid={eid} />
           </Menu.Item>
         );
 
       const cloudsUpdate = appInfo.source === 'market' &&
-        rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+        rainbondUtil.cloudMarketEnable(enterprise) && (
           <Menu.Item>
             <a
               style={{ marginRight: 8 }}
@@ -513,7 +515,7 @@ export default class EnterpriseShared extends PureComponent {
 
     const operation = (
       <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
-        {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+        {rainbondUtil.cloudMarketEnable(enterprise) && (
           <Button type="primary" style={{ marginRight: '22px' }}>
             <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
           </Button>
@@ -531,7 +533,7 @@ export default class EnterpriseShared extends PureComponent {
         <img src={NoComponent} />
         <p>当前无组件，请选择方式添加</p>
         <div className={styles.btns}>
-          {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+          {rainbondUtil.cloudMarketEnable(enterprise) && (
             <Button type="primary">
               <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
             </Button>

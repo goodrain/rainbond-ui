@@ -11,7 +11,8 @@ import AppList from "./AppList";
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -84,7 +85,7 @@ export default class Index extends PureComponent {
     }
   };
   render() {
-    const { currUser, rainbondInfo } = this.props;
+    const { enterprise, rainbondInfo } = this.props;
     const { loading } = this.state;
 
     const team_name = globalUtil.getCurrTeamName();
@@ -129,7 +130,7 @@ export default class Index extends PureComponent {
         <Alert
           showIcon
           message={`当前市场${rainbondUtil.appstoreImageHubEnable(
-            rainbondInfo
+            enterprise
           )}跨集群互联功能`}
           type="info"
         />

@@ -51,28 +51,32 @@ export default class LoginPage extends Component {
     const { rainbondInfo } = this.props;
     const { oauth_servicesList } = this.state;
 
+    const oauthInfo =
+      rainbondInfo &&
+      rainbondInfo.enterprise_center_oauth &&
+      rainbondInfo.enterprise_center_oauth.value;
+    const url = oauthInfo && oauthUtil.getAuthredictURL(oauthInfo);
+    const icon = oauthInfo && oauthUtil.getIcon(oauthInfo);
+
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
-        {rainbondUtil.OauthbEnable(rainbondInfo) && oauth_servicesList && (
+        {rainbondUtil.OauthbEnable(rainbondInfo) && oauthInfo && (
           <div className={styles.thirdBox}>
             <Divider>
               <div className={styles.thirdLoadingTitle}>第三方登录</div>
             </Divider>
             <Row className={styles.third}>
-              {oauth_servicesList.map(item => {
-                const { name, client_id } = item;
-                const url = oauthUtil.getAuthredictURL(item);
-                const icon = oauthUtil.getIcon(item);
-                return (
-                  <Col span={8} className={styles.thirdCol} key={client_id}>
-                    <a href={url}>
-                      {icon}
-                      <p>{name}</p>
-                    </a>
-                  </Col>
-                );
-              })}
+              <Col
+                span={8}
+                className={styles.thirdCol}
+                key={oauthInfo.client_id}
+              >
+                <a href={url}>
+                  {icon}
+                  <p>{oauthInfo.name}</p>
+                </a>
+              </Col>
             </Row>
           </div>
         )}

@@ -38,7 +38,7 @@ import OauthForm from '../../components/OauthForm';
 export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
     super(props);
-    const { user, rainbondInfo } = this.props;
+    const { user, rainbondInfo,enterprise } = this.props;
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -53,7 +53,7 @@ export default class EnterpriseSetting extends PureComponent {
       oauthTable: [],
       isOpen: false,
       showDeleteDomain: false,
-      israinbondTird: rainbondUtil.OauthbEnable(rainbondInfo),
+      israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise),
     };
   }
 
@@ -61,13 +61,15 @@ export default class EnterpriseSetting extends PureComponent {
     const { adminer } = this.state;
     const { dispatch } = this.props;
     !adminer && dispatch(routerRedux.push(`/`));
+    adminer&&this.fetchEnterpriseInfo(true);
   }
   componentDidMount() {
-    const { dispatch, rainbondInfo } = this.props;
+    const { dispatch, enterprise } = this.props;
     this.getEnterpriseAdmins();
+
     if (
-      rainbondUtil.OauthbIsEnable(rainbondInfo) ||
-      rainbondUtil.OauthbEnable(rainbondInfo)
+      // rainbondUtil.OauthbIsEnable(enterprise) ||
+      rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
       this.handelOauthInfo();
     }
@@ -80,7 +82,7 @@ export default class EnterpriseSetting extends PureComponent {
   handelOauthInfo = info => {
     const {
       dispatch,
-      rainbondInfo,
+      enterprise,
       match: {
         params: { eid },
       },
@@ -93,9 +95,9 @@ export default class EnterpriseSetting extends PureComponent {
       },
       callback: res => {
         if (res && res._code == 200) {
-          const judge = rainbondUtil.OauthbEnable(info || rainbondInfo);
+          const judge = rainbondUtil.OauthEnterpriseEnable(info || enterprise);
           const oauthEnable = rainbondUtil.OauthbIsEnableState(
-            info || rainbondInfo
+            info || enterprise
           );
           const lists = res.list && res.list.length > 0 && res.list;
           this.setState({
@@ -260,9 +262,8 @@ export default class EnterpriseSetting extends PureComponent {
         params: { eid },
       },
     } = this.props;
-
     const { oauthInfo } = this.state;
-    obj.eid = rainbondInfo.eid;
+    obj.eid = eid;
     oauthInfo
       ? (obj.service_id = oauthInfo.service_id)
       : (obj.service_id = null);
@@ -275,7 +276,7 @@ export default class EnterpriseSetting extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200 && isclone) {
-          this.fetchRainbondInfo();
+          this.fetchEnterpriseInfo();
         }
       },
     });
@@ -291,27 +292,32 @@ export default class EnterpriseSetting extends PureComponent {
       },
       callback: data => {
         if (data && data._code === 200) {
-          this.fetchRainbondInfo();
+          this.fetchEnterpriseInfo();
         }
       },
     });
   };
 
-  fetchRainbondInfo = () => {
-    const { dispatch } = this.props;
+  fetchEnterpriseInfo = (isMeg) => {
+    const { dispatch,match: {
+      params: { eid },
+    }} = this.props;
     dispatch({
-      type: 'global/fetchRainbondInfo',
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid,
+      },
       callback: info => {
         if (info) {
           this.setState({
-            israinbondTird: rainbondUtil.OauthbEnable(info),
+            israinbondTird: rainbondUtil.OauthEnterpriseEnable(info.bean),
           });
-          this.handelOauthInfo(info);
+          this.handelOauthInfo(info.bean);
         }
       },
     });
     dispatch({ type: 'user/fetchCurrent' });
-    notification.success({ message: '成功' });
+    !isMeg&&notification.success({ message: '成功' });
     this.handelClone();
   };
 
@@ -337,16 +343,20 @@ export default class EnterpriseSetting extends PureComponent {
 
     const {
       rainbondInfo,
+      enterprise,
       oauthLongin,
       isRegist,
       match: {
         params: { eid },
       },
     } = this.props;
-    const oauth_services_is_sonsole = rainbondUtil.OauthbIsEnable(rainbondInfo);
-    const oauthEnable = rainbondUtil.OauthbIsEnableState(rainbondInfo);
-
+    // const oauth_services_is_sonsole = rainbondUtil.OauthbIsEnable(rainbondInfo);
+    const oauthEnable = rainbondUtil.OauthbIsEnableState(enterprise);
     const adminLists = adminList && adminList.length > 0 && adminList;
+
+
+
+
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -504,7 +514,7 @@ export default class EnterpriseSetting extends PureComponent {
                   支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
                 </span>
               )}
-              {!oauth_services_is_sonsole && (
+              {/* {!oauth_services_is_sonsole && (
                 <span
                   style={{
                     color: 'rgba(0, 0, 0, 0.45)',
@@ -513,10 +523,10 @@ export default class EnterpriseSetting extends PureComponent {
                 >
                   管理后台配置了当前只能查看配置。
                 </span>
-              )}
+              )} */}
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
-              {oauthInfo && oauth_services_is_sonsole && (
+              {oauthInfo && (
                 <Popconfirm
                   title="删除配置后已绑定的用户数据将清除，确认删除吗?"
                   onConfirm={this.handleDeleteOauth}
@@ -528,12 +538,12 @@ export default class EnterpriseSetting extends PureComponent {
                   </a>
                 </Popconfirm>
               )}
-              {oauthEnable && israinbondTird && oauth_services_is_sonsole && (
+              {oauthEnable && israinbondTird  && (
                 <a onClick={this.handleOpen} style={{ marginRight: '10px' }}>
                   编辑
                 </a>
               )}
-              {!oauth_services_is_sonsole && (
+              {/* {!oauth_services_is_sonsole && (
                 <a
                   onClick={() => {
                     this.setState({ showOauthTable: true });
@@ -542,14 +552,14 @@ export default class EnterpriseSetting extends PureComponent {
                 >
                   查看配置
                 </a>
-              )}
-              {oauth_services_is_sonsole && (
+              )} */}
+              {/* {oauth_services_is_sonsole && ( */}
                 <Switch
                   onChange={this.handlChooseeOpen}
                   checked={israinbondTird && isOpen}
                   className={styles.automaTictelescopingSwitch}
                 />
-              )}
+              {/* )} */}
             </Col>
           </Row>
         </Card>

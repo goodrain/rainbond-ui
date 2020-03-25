@@ -99,11 +99,12 @@ export default class Register extends Component {
     const { user_info } = this.state;
     const { form, rainbondInfo } = this.props;
     let oauthServer = null;
-    rainbondInfo.oauth_services.value.map(item => {
-      if (item.service_id == service_id) {
-        oauthServer = item;
-      }
-    });
+    rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondInfo.oauth_services.value.map(item => {
+        if (item.service_id == service_id) {
+          oauthServer = item;
+        }
+      });
     return (
       <div className={styles.main}>
         <p style={{ marginBottom: '24px' }}>

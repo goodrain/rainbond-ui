@@ -17,10 +17,11 @@ class CreateTeam extends PureComponent {
     };
   }
   componentDidMount() {
-    this.getUnRelationedApp();
+    const { enterprise_id } = this.props;
+    enterprise_id && this.getUnRelationedApp(enterprise_id);
   }
-  getUnRelationedApp = () => {
-    getAllRegion().then(data => {
+  getUnRelationedApp = enterprise_id => {
+    getAllRegion({enterprise_id}).then(data => {
       if (data) {
         this.setState({ regions: data.list || [] });
       }
@@ -76,7 +77,7 @@ class CreateTeam extends PureComponent {
           </Button>,
         ]}
       >
-        <Form onSubmit={this.handleSubmit} layout="horizontal" >
+        <Form onSubmit={this.handleSubmit} layout="horizontal">
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
             {getFieldDecorator('team_name', {
               rules: [

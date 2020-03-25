@@ -3,7 +3,6 @@ import { Link } from 'dva/router';
 import { connect } from 'dva';
 import styles from './UserLayout.less';
 import globalUtil from '../utils/global';
-import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
 
 class UserLayout extends React.PureComponent {
@@ -13,7 +12,6 @@ class UserLayout extends React.PureComponent {
       isRender: false,
     };
   }
-
   componentWillMount() {
     const { dispatch } = this.props;
 
@@ -24,26 +22,14 @@ class UserLayout extends React.PureComponent {
         if (info) {
           globalUtil.putLog(info);
           // check auto login
-          const disable_auto_login = rainbondUtil.OauthParameter(
-            'disable_auto_login'
-          );
           const isOauth = rainbondUtil.OauthbEnable(info);
-          const oauth_servicesList =
-            info &&
-            info.oauth_services &&
-            info.oauth_services.value &&
-            info.oauth_services.value.length > 0 &&
-            info.oauth_services.value;
-          if (isOauth && oauth_servicesList) {
-            let isRender = true;
-            oauth_servicesList.map(item => {
-              const { is_auto_login } = item;
-              if (is_auto_login && disable_auto_login != 'true') {
-                isRender = false;
-                window.location.href = oauthUtil.getAuthredictURL(item);
-              }
-            });
-            this.isRender(isRender);
+          const oauthInfo =
+            info.bean && info.bean.enterprise_center_oauth.value;
+          if (isOauth && oauthInfo) {
+            if (oauthInfo.is_auto_login) {
+              window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
+            }
+            this.isRender(!oauthInfo.is_auto_login);
           } else {
             this.isRender(true);
           }
@@ -51,7 +37,6 @@ class UserLayout extends React.PureComponent {
       },
     });
   }
-
   isRender = isRender => {
     this.setState({
       isRender,
@@ -71,8 +56,8 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <h1 className={styles.titles}>
-                    {rainbondInfo && rainbondInfo.enterprise_name
-                      ? rainbondInfo.enterprise_name
+                    {rainbondInfo && rainbondInfo.title&&rainbondInfo.title.enable
+                      ? rainbondInfo.title.value
                       : 'Rainbond'}
                   </h1>
                 </Link>

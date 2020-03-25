@@ -25,7 +25,7 @@ export default class Index extends PureComponent {
   getAllRegion = () => {
     this.props.dispatch({
       type: 'global/getAllRegion',
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ regions: data.list });
         }
@@ -34,7 +34,7 @@ export default class Index extends PureComponent {
   };
   handleNext = () => {
     const form = this.props.form;
-    form.validateFields(['team_alias'], (error) => {
+    form.validateFields(['team_alias'], error => {
       if (!error) {
         this.setState({ current: 1 });
       }
@@ -57,11 +57,13 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleRegionChange = (value) => {
+  handleRegionChange = value => {
     this.setState({ selectedRegion: value });
   };
   showRegionTip = () => {
-    const region = this.state.regions.filter(region => region.region_name === this.state.selectedRegion)[0];
+    const region = this.state.regions.filter(
+      region => region.region_name === this.state.selectedRegion
+    )[0];
 
     if (region && region.scope !== 'private') {
       return true;
@@ -69,11 +71,16 @@ export default class Index extends PureComponent {
     return false;
   };
   render() {
-    const form = this.props.form;
+    const { form, rainbondInfo } = this.props;
     const { getFieldDecorator } = form;
-    const is_public = this.props.rainbondInfo.is_public;
+    const is_public =
+      rainbondInfo && rainbondInfo.is_public && rainbondInfo.is_public.enable;
+
     return (
-      <div className={userStyles.container} style={{ position: 'relative', zIndex: 33 }}>
+      <div
+        className={userStyles.container}
+        style={{ position: 'relative', zIndex: 33 }}
+      >
         <div className={userStyles.content}>
           <div className={userStyles.top}>
             <div className={userStyles.header}>
@@ -95,7 +102,9 @@ export default class Index extends PureComponent {
                   <Step title="开通集群" description="" />
                 </Steps>
                 <Form.Item
-                  style={{ display: this.state.current === 0 ? 'block' : 'none' }}
+                  style={{
+                    display: this.state.current === 0 ? 'block' : 'none',
+                  }}
                   className={styles.formWrap}
                 >
                   {getFieldDecorator('team_alias', {
@@ -108,7 +117,9 @@ export default class Index extends PureComponent {
                   })(<Input placeholder="请为您的团队起个名称吧" />)}
                 </Form.Item>
                 <Form.Item
-                  style={{ display: this.state.current === 1 ? 'block' : 'none' }}
+                  style={{
+                    display: this.state.current === 1 ? 'block' : 'none',
+                  }}
                   className={styles.formWrap}
                 >
                   {getFieldDecorator('region_name', {
@@ -119,12 +130,19 @@ export default class Index extends PureComponent {
                         message: '请为团队选择一个集群',
                       },
                     ],
-                  })(<Select onChange={this.handleRegionChange} style={{ width: '100%' }}>
-                    <Option value="">请为团队选择一个集群</Option>
-                    {this.state.regions.map(region => (
-                      <Option value={region.region_name}>{region.region_alias}</Option>
-                    ))}
-                  </Select>)}
+                  })(
+                    <Select
+                      onChange={this.handleRegionChange}
+                      style={{ width: '100%' }}
+                    >
+                      <Option value="">请为团队选择一个集群</Option>
+                      {this.state.regions.map(region => (
+                        <Option value={region.region_name}>
+                          {region.region_alias}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
                   {this.showRegionTip() && (
                     <p className={userStyles.desc}>
                       4G内存，1G 高速分布式存储，{' '}

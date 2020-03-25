@@ -609,6 +609,7 @@ export async function syncMarketApp(
    获取云帮的公共信息、配置信息
 */
 export function getRainbondInfo() {
+  //
   return request(`${apiconfig.baseUrl}/console/config/info`, {
     passAuthorization: false,
   });
@@ -641,9 +642,12 @@ export async function isPubCloud() {
   return request(`${apiconfig.baseUrl}/console/checksource`);
 }
 
-// 获取全部集群
-export function getAllRegion() {
-  return request(`${apiconfig.baseUrl}/console/regions`, { method: 'get' });
+// 获取全部数据中心
+export function getAllRegion(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
+    { method: 'get' }
+  );
 }
 
 export async function queryProjectNotice() {
@@ -824,21 +828,10 @@ export async function buyPurchase(
   );
 }
 
-/* 查询企业团队信息 */
-export async function getEnterpriseInfo(param) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/info`, {
-    method: 'get',
-    params: {
-      team_name: param.team_name,
-    },
-  });
-}
-
 /* 查询企业信息 */
 export async function fetchEnterpriseInfo(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/info`,
-    // `http://doc.goodrain.org/mock/18/enterprise/{enterprise_id}/info`,
     {
       method: 'get',
     }
@@ -1255,17 +1248,6 @@ export async function upEnterpriseUsers(params) {
 export async function deleteEnterpriseUsers(params) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
-    {
-      method: 'DELETE',
-    }
-  );
-}
-
-/** 删除集群 */
-export async function deleteEnterpriseCluster(params) {
-  return request(
-    // `http://106.15.152.33:10017/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
-    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
     {
       method: 'DELETE',
     }

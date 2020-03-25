@@ -118,13 +118,6 @@ export default [
             authority: ['admin', 'user'],
           },
           {
-            path: '/team/:teamName/region/:regionName/finance',
-            component: './Finance',
-            name: 'Finance',
-            authority: ['admin', 'user'],
-          },
-
-          {
             path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',
