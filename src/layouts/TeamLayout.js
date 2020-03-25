@@ -12,6 +12,7 @@ import { enquireScreen } from 'enquire-js';
 import GlobalHeader from '../components/GlobalHeader';
 import SiderMenu from '../components/SiderMenu';
 import userUtil from '../utils/user';
+import rainbondUtil from '../utils/rainbond';
 import globalUtil from '../utils/global';
 import cookie from '../utils/cookie';
 import Authorized from '../utils/Authorized';
@@ -259,7 +260,7 @@ class TeamLayout extends React.PureComponent {
       location: { pathname },
       nouse,
       rainbondInfo,
-      enterprise
+      enterprise,
     } = this.props;
     const {
       enterpriseList,
@@ -282,6 +283,7 @@ class TeamLayout extends React.PureComponent {
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
+
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
@@ -389,13 +391,7 @@ class TeamLayout extends React.PureComponent {
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
             currentUser={currentUser}
-            logo={
-              (enterprise &&
-                enterprise.logo &&
-                enterprise.logo.enable &&
-                enterprise.logo.value) ||
-              logo
-            }
+            logo={fetchLogo}
             Authorized={Authorized}
             collapsed={collapsed}
             location={location}
@@ -410,7 +406,7 @@ class TeamLayout extends React.PureComponent {
                 currentRegion.team_region_name +
                 appID
               }
-              logo={logo}
+              logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&
                 rainbondInfo.is_public &&
@@ -455,6 +451,9 @@ class TeamLayout extends React.PureComponent {
         </Layout>
       );
     };
+    const fetchLogo =
+      rainbondUtil.exportAppEnable(rainbondInfo, enterprise) || logo;
+
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>

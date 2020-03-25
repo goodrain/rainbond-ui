@@ -57,8 +57,8 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <h1 className={styles.titles}>
-                    {rainbondInfo && rainbondInfo.enterprise_name
-                      ? rainbondInfo.enterprise_name
+                    {rainbondInfo && rainbondInfo.title&&rainbondInfo.title.enable
+                      ? rainbondInfo.title.value
                       : 'Rainbond'}
                   </h1>
                 </Link>

@@ -827,16 +827,6 @@ export async function buyPurchase(
   );
 }
 
-/* 查询企业团队信息 */
-export async function getEnterpriseInfo(param) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/info`, {
-    method: 'get',
-    params: {
-      team_name: param.team_name,
-    },
-  });
-}
-
 /* 查询企业信息 */
 export async function fetchEnterpriseInfo(param) {
   return request(

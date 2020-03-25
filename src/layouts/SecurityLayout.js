@@ -49,6 +49,7 @@ class SecurityLayout extends React.PureComponent {
   render() {
     const { children, currentUser, needLogin } = this.props;
     const { isReady } = this.state;
+    console.log('版本号为3-25-17')
     // You can replace it to your authentication rule (such as check token exists)
     const token = cookie.get('token');
     const isLogin = token && currentUser;

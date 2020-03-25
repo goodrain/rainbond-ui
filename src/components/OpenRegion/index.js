@@ -20,20 +20,6 @@ class OpenRegion extends PureComponent {
   }
   componentDidMount() {
     this.getUnRelationedApp();
-
-    const { currUser } = this.props;
-    const team = userUtil.getDefaultTeam(currUser);
-    // 当前团队里没有集群
-    const currRegion = team.region[0] ? team.region[0].team_region_name : "";
-    console.log('当前团队里没有集群当前团队里没有集群当前团队里没有集群当前团队里没有集群')
-    if (currRegion) {
-      this.props.dispatch({
-        type: "global/getEnterpriseInfo",
-        payload: {
-          team_name: globalUtil.getCurrTeamName()
-        }
-      });
-    }
   }
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {

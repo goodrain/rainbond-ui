@@ -40,7 +40,6 @@ import {
   deleteJoinTeam,
   setRegist,
   getRegist,
-  getEnterpriseInfo,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
@@ -363,7 +362,7 @@ export default {
       const data = yield call(isPubCloud);
       yield put({
         type: 'saveIsPubCloud',
-        payload: !!data.bean.is_public.enable,
+        payload: !!(data.bean.is_public&&data.bean.is_public.enable),
       });
     },
     *fetchNotices(_, { call, put }) {
@@ -475,16 +474,6 @@ export default {
         yield put({
           type: 'saveIsRegist',
           payload: response.bean && response.bean.is_regist,
-        });
-      }
-    },
-    *getEnterpriseInfo({ payload, callback }, { put, call }) {
-      const response = yield call(getEnterpriseInfo, payload);
-      if (response) {
-        callback && callback();
-        yield put({
-          type: 'saveEnterpriseInfo',
-          payload: response.bean,
         });
       }
     },

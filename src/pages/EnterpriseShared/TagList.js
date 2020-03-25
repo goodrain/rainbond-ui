@@ -49,7 +49,6 @@ export default class TagList extends PureComponent {
       },
     };
 
-    console.log('seeTag', seeTag);
     return (
       <Modal
         title={title}

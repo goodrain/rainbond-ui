@@ -41,8 +41,8 @@ export default class LoginPage extends Component {
       rainbondInfo &&
       rainbondInfo.enterprise_center_oauth &&
       rainbondInfo.enterprise_center_oauth.value;
-    const url = oauthUtil.getAuthredictURL(oauthInfo);
-    const icon = oauthUtil.getIcon(oauthInfo);
+    const url = oauthInfo && oauthUtil.getAuthredictURL(oauthInfo);
+    const icon = oauthInfo && oauthUtil.getIcon(oauthInfo);
 
     return (
       <div className={styles.main}>
