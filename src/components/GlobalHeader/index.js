@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
 import {
   Layout,
   Menu,
@@ -9,26 +9,27 @@ import {
   Avatar,
   Divider,
   Tooltip,
-  Modal
-} from "antd";
-import { connect } from "dva";
-import ChangePassword from "../ChangePassword";
-import moment from "moment";
-import groupBy from "lodash/groupBy";
-import Debounce from "lodash-decorators/debounce";
-import { Link, routerRedux } from "dva/router";
-import cookie from "../../utils/cookie";
-import styles from "./index.less";
-import oauthUtil from "../../utils/oauth";
-import userIcon from "../../../public/images/user-icon-small.png";
-import globalUtil from "../../utils/global";
-import rainbondUtil from "../../utils/rainbond";
+  Modal,
+} from 'antd';
+import { connect } from 'dva';
+import ChangePassword from '../ChangePassword';
+import moment from 'moment';
+import groupBy from 'lodash/groupBy';
+import Debounce from 'lodash-decorators/debounce';
+import { Link, routerRedux } from 'dva/router';
+import cookie from '../../utils/cookie';
+import styles from './index.less';
+import oauthUtil from '../../utils/oauth';
+import userIcon from '../../../public/images/user-icon-small.png';
+import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 
 const { Header } = Layout;
 
 @connect(({ global, appControl }) => ({
   rainbondInfo: global.rainbondInfo,
-  appDetail: appControl.appDetail
+  enterprise: global.enterprise,
+  appDetail: appControl.appDetail,
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -38,28 +39,26 @@ export default class GlobalHeader extends PureComponent {
       noticeList: [],
       total: 0,
       pageSize: 1000,
-      msg_type: "",
+      msg_type: '',
       popupVisible: false,
-      msg_ids: "",
+      msg_ids: '',
       newNoticeList: {},
       showDialogMessage: null,
       showChangePassword: false,
     };
   }
-  componentDidMount() {
-
-  }
+  componentDidMount() {}
 
   handleNoticeClear = type => {
     message.success(`清空了${type}`);
     const { dispatch } = this.props;
-    dispatch({ type: "global/clearNotices", payload: type });
+    dispatch({ type: 'global/clearNotices', payload: type });
   };
 
   handleNoticeVisibleChange = visible => {
     const { dispatch } = this.props;
     if (visible) {
-      dispatch({ type: "global/fetchNotices" });
+      dispatch({ type: 'global/fetchNotices' });
     }
   };
 
@@ -71,24 +70,24 @@ export default class GlobalHeader extends PureComponent {
   };
   handleChangePass = vals => {
     this.props.dispatch({
-      type: "user/changePass",
+      type: 'user/changePass',
       payload: {
-        ...vals
+        ...vals,
       },
       callback: () => {
-        notification.success({ message: "修改成功，请重新登录" });
-      }
+        notification.success({ message: '修改成功，请重新登录' });
+      },
     });
   };
 
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
 
-    if (key === "cpw") {
+    if (key === 'cpw') {
       this.showChangePass();
     }
-    if (key === "logout") {
-      dispatch({ type: "user/logout" });
+    if (key === 'logout') {
+      dispatch({ type: 'user/logout' });
     }
   };
   componentWillUnmount() {
@@ -100,7 +99,7 @@ export default class GlobalHeader extends PureComponent {
     }
     const newNotices = notices.map(notice => {
       const newNotice = {
-        ...notice
+        ...notice,
       };
       if (newNotice.create_time) {
         newNotice.datetime = moment(notice.create_time).fromNow();
@@ -117,7 +116,7 @@ export default class GlobalHeader extends PureComponent {
       }
       return newNotice;
     });
-    return groupBy(newNotices, "msg_type");
+    return groupBy(newNotices, 'msg_type');
   }
   handleVisibleChange = flag => {
     this.setState({ popupVisible: flag, total: 0 }, () => {});
@@ -138,8 +137,8 @@ export default class GlobalHeader extends PureComponent {
   @Debounce(600)
   triggerResizeEvent() {
     // eslint-disable-line
-    const event = document.createEvent("HTMLEvents");
-    event.initEvent("resize", true, false);
+    const event = document.createEvent('HTMLEvents');
+    event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
 
@@ -149,51 +148,57 @@ export default class GlobalHeader extends PureComponent {
       customHeader,
       isPubCloud,
       rainbondInfo,
-      collapsed
+      collapsed,
+      enterprise,
     } = this.props;
 
     if (!currentUser) {
       return null;
     }
 
-    const handleEditSvg = () =>
+    const handleEditSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
         <path d="M626.9 248.2L148.2 726.9 92.1 932.3l204.6-57 480.5-480.5-150.3-146.6z m274.3-125.8c-41-41-107.5-41-148.5 0l-80.5 80.5L823.1 349l78.1-78.2c41-41 41-107.5 0-148.4zM415.1 932.3h452.2v-64.6H415.1v64.6z m193.8-193.8h258.4v-64.6H608.9v64.6z" />
-      </svg>;
-    const handleLogoutSvg = () =>
+      </svg>
+    );
+    const handleLogoutSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
-      </svg>;
+      </svg>
+    );
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {rainbondUtil.OauthbEnable(rainbondInfo) &&
-            currentUser.oauth_services &&
-            currentUser.oauth_services.length > 0 &&
-            <div className={styles.uesrInfoTitle}>Oauth认证：</div>}
-          {rainbondUtil.OauthbEnable(rainbondInfo) &&
-            currentUser.oauth_services &&
-            currentUser.oauth_services.length > 0 &&
-            currentUser.oauth_services.map(item => {
-              const { service_name, is_authenticated, is_expired } = item;
+          {
+            rainbondUtil.OauthEnterpriseEnable(enterprise) && (
+              <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+            )}
+
+          {enterprise&&rainbondUtil.OauthEnterpriseEnable(enterprise) &&
+            enterprise.oauth_services.value &&
+            enterprise.oauth_services.value.length > 0 &&
+            enterprise.oauth_services.value.map(item => {
+              const { name, is_authenticated, is_expired } = item;
               const authURL = oauthUtil.getAuthredictURL(item);
               return (
-                <Menu.Item key={service_name}>
+                <Menu.Item key={name}>
                   <div className={styles.userInfoContent}>
-                    <span className={styles.oneSpan} title={service_name}>
-                      {oauthUtil.getIcon(item, "16px")}
-                      {service_name}
+                    <span className={styles.oneSpan} title={name}>
+                      {oauthUtil.getIcon(item, '16px')}
+                      {name}
                     </span>
                     <span>
-                      {is_authenticated
-                        ? <span style={{ color: "green" }}>已认证</span>
-                        : is_expired
-                          ? <a href={authURL} target="_blank">
-                              已过期重新认证
-                            </a>
-                          : <a href={authURL} target="_blank">
-                              去认证
-                            </a>}
+                      {is_authenticated ? (
+                        <span style={{ color: 'green' }}>已认证</span>
+                      ) : is_expired ? (
+                        <a href={authURL} target="_blank">
+                          已过期重新认证
+                        </a>
+                      ) : (
+                        <a href={authURL} target="_blank">
+                          去认证
+                        </a>
+                      )}
                     </span>
                   </div>
                 </Menu.Item>
@@ -202,24 +207,25 @@ export default class GlobalHeader extends PureComponent {
 
           <div className={styles.uesrInfoTitle}>账号设置：</div>
 
-          {!isPubCloud &&
+          {!isPubCloud && (
             <Menu.Item key="cpw">
               <div className={styles.userInfoContent}>
                 <Icon
                   component={handleEditSvg}
                   style={{
-                    marginRight: 8
+                    marginRight: 8,
                   }}
-                />{" "}
-                修改密码{" "}
+                />{' '}
+                修改密码{' '}
               </div>
-            </Menu.Item>}
+            </Menu.Item>
+          )}
           <Menu.Item key="logout">
             <div className={styles.userInfoContent}>
               <Icon
                 component={handleLogoutSvg}
                 style={{
-                  marginRight: 8
+                  marginRight: 8,
                 }}
               />
               退出登录
@@ -232,13 +238,13 @@ export default class GlobalHeader extends PureComponent {
       <Header className={styles.header}>
         <Icon
           className={styles.trigger}
-          type={!collapsed ? "menu-unfold" : "menu-fold"}
-          style={{color: "#ffffff", float: "left"}}
+          type={!collapsed ? 'menu-unfold' : 'menu-fold'}
+          style={{ color: '#ffffff', float: 'left' }}
           onClick={this.toggle}
         />
         {customHeader && customHeader()}
         <div className={styles.right}>
-          {rainbondUtil.documentEnable(rainbondInfo) &&
+          {rainbondUtil.documentEnable(rainbondInfo) && (
             <Tooltip title="平台使用手册">
               <a
                 target="_blank"
@@ -250,34 +256,32 @@ export default class GlobalHeader extends PureComponent {
               >
                 <Icon type="question-circle-o" />
               </a>
-            </Tooltip>}
+            </Tooltip>
+          )}
 
-          {currentUser
-            ? <Dropdown overlay={menu}>
-                <span className={`${styles.action} ${styles.account}`}>
-                  <Avatar
-                    size="small"
-                    className={styles.avatar}
-                    src={userIcon}
-                  />
-                  <span className={styles.name}>
-                    {currentUser.user_name}
-                  </span>
-                </span>
-              </Dropdown>
-            : <Spin
-                size="small"
-                style={{
-                  marginLeft: 8
-                }}
-              />}
+          {currentUser ? (
+            <Dropdown overlay={menu}>
+              <span className={`${styles.action} ${styles.account}`}>
+                <Avatar size="small" className={styles.avatar} src={userIcon} />
+                <span className={styles.name}>{currentUser.user_name}</span>
+              </span>
+            </Dropdown>
+          ) : (
+            <Spin
+              size="small"
+              style={{
+                marginLeft: 8,
+              }}
+            />
+          )}
         </div>
         {/* change password */}
-        {this.state.showChangePassword &&
+        {this.state.showChangePassword && (
           <ChangePassword
             onOk={this.handleChangePass}
             onCancel={this.cancelChangePass}
-          />}
+          />
+        )}
       </Header>
     );
   }

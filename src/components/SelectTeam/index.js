@@ -96,27 +96,23 @@ export default class SelectTeam extends PureComponent {
       currentEnterprise,
       currentRegion,
       currentUser,
-      active
+      active,
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${
-      currentRegion.team_region_name
-    }/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${
-      currentEnterprise.enterprise_id
-    }/teams`;
-    let items = []
+    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
+    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
+    const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
       teamInfo.region.map(region => {
         const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
-        let item={
+        const item = {
           name: `${team.team_alias} | ${region.team_region_alias}`,
-          link: link,
-        }
-        items.push(item)
-      })
-    })
+          link,
+        };
+        items.push(item);
+      });
+    });
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -139,13 +135,13 @@ export default class SelectTeam extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {items.map(item => {
-                  return (
-                    <li key={item.name}>
-                      <Link to={item.link} title={item.name}>
-                        <span>{item.name}</span>
-                      </Link>
-                    </li>
-                  );
+                return (
+                  <li key={item.name}>
+                    <Link to={item.link} title={item.name}>
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                );
               })}
             </ul>
             {currentUser.is_user_enter_amdin && (
@@ -167,7 +163,7 @@ export default class SelectTeam extends PureComponent {
         </div>
       </div>
     );
-    const showstyle = {background: "#1890ff", color: "#ffffff"}
+    const showstyle = { background: '#1890ff', color: '#ffffff' };
     return (
       <div
         className={className}
@@ -176,21 +172,26 @@ export default class SelectTeam extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible}>
           <div>
-            {active && <div className={style.selectButton}>
-              <div className={style.selectButtonName} style={showstyle}>
-                <span>
-                  {currentTeam.team_alias} | {currentRegion.team_region_alias}
-                </span>
-                <Icon className={style.selectButtonArray} type="caret-down" />
+            {active && (
+              <div className={style.selectButton}>
+                <div className={style.selectButtonName} style={showstyle}>
+                  <span>
+                    {currentTeam.team_alias} | {currentRegion.team_region_alias}
+                  </span>
+                  <Icon className={style.selectButtonArray} type="caret-down" />
+                </div>
               </div>
-            </div>}
-            {!active && <Link className={style.selectButtonLink} to={currentTeamLink}>
-              {currentTeam.team_alias} | {currentRegion.team_region_alias}
-            </Link>}
+            )}
+            {!active && (
+              <Link className={style.selectButtonLink} to={currentTeamLink}>
+                {currentTeam.team_alias} | {currentRegion.team_region_alias}
+              </Link>
+            )}
           </div>
         </Dropdown>
         {showCreateTeam && (
           <CreateTeam
+            enterprise_id={currentEnterprise.enterprise_id}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
           />

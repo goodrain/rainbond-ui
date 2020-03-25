@@ -40,7 +40,6 @@ import {
   deleteJoinTeam,
   setRegist,
   getRegist,
-  getEnterpriseInfo,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
@@ -106,6 +105,7 @@ export default {
     showAuthCompany: false,
     // enterprise info
     enterprise: null,
+    enterpriseInfo: null,
     isRegist: false,
     memoryTip: '',
     is_enterprise_version: false,
@@ -347,17 +347,9 @@ export default {
       const data = yield call(getRainbondInfo);
       if (data) {
         cookie.set(
-          'newbie_guide',
-          data.bean && data.bean.newbie_guide !== undefined
-            ? data.bean.newbie_guide.enable
-            : false
-        );
-        cookie.set(
           'platform_url',
-          data.bean &&
-            data.bean.document !== undefined &&
-            data.bean.document.platform_url !== undefined
-            ? data.bean.document.platform_url
+          data.bean && data.bean.document && data.bean.document.enable
+            ? data.bean.document.value.platform_url
             : 'https://www.rainbond.com/'
         );
         yield put({ type: 'saveRainBondInfo', payload: data.bean });
@@ -370,7 +362,7 @@ export default {
       const data = yield call(isPubCloud);
       yield put({
         type: 'saveIsPubCloud',
-        payload: !!data.bean.is_public,
+        payload: !!(data.bean.is_public&&data.bean.is_public.enable),
       });
     },
     *fetchNotices(_, { call, put }) {
@@ -485,19 +477,13 @@ export default {
         });
       }
     },
-    *getEnterpriseInfo({ payload, callback }, { put, call }) {
-      const response = yield call(getEnterpriseInfo, payload);
+    *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
+      const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
-        callback && callback();
         yield put({
           type: 'saveEnterpriseInfo',
           payload: response.bean,
         });
-      }
-    },
-    *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
-      const response = yield call(fetchEnterpriseInfo, payload);
-      if (response) {
         callback && callback(response);
       }
     },
@@ -735,7 +721,7 @@ export default {
       return {
         ...state,
         rainbondInfo: payload,
-        isRegist: payload.is_regist,
+        isRegist: payload.is_regist.enable,
       };
     },
     saveIsPubCloud(state, { payload }) {
@@ -823,6 +809,10 @@ export default {
       };
     },
     saveEnterpriseInfo(state, { payload }) {
+      cookie.set(
+        'newbie_guide',
+        payload && payload.newbie_guide && payload.newbie_guide.enable
+      );
       return {
         ...state,
         enterprise: payload,

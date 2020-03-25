@@ -34,6 +34,7 @@ const { TabPane } = Tabs;
     rainbondInfo: global.rainbondInfo,
     loading,
     appDetail: appControl.appDetail,
+    enterprise: global.enterprise,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
@@ -69,7 +70,7 @@ export default class Main extends PureComponent {
       scope: '',
       scopeMax:
         this.props.scopeMax ||
-        (rainbondUtil.cloudMarketEnable(this.props.rainbondInfo)
+        (rainbondUtil.cloudMarketEnable(this.props.enterprise)
           ? 'cloudApplication'
           : 'localApplication'),
       target: 'searchWrap',
@@ -631,6 +632,7 @@ export default class Main extends PureComponent {
     const {
       form,
       appDetail,
+      enterprise,
       rainbondInfo,
       currentEnterprise,
       currentTeam,
@@ -697,7 +699,7 @@ export default class Main extends PureComponent {
               <br />
               <br />
               发布应用模型
-              {rainbondUtil.cloudMarketEnable(rainbondInfo) &&
+              {rainbondUtil.cloudMarketEnable(enterprise) &&
                 currentEnterprise && (
                   <span>
                     或{' '}
@@ -740,7 +742,7 @@ export default class Main extends PureComponent {
               <br />
               <br />
               发布应用模型
-              {rainbondUtil.cloudMarketEnable(rainbondInfo) &&
+              {rainbondUtil.cloudMarketEnable(enterprise) &&
                 currentEnterprise && (
                   <span>
                     或{' '}
@@ -829,7 +831,7 @@ export default class Main extends PureComponent {
       },
     ];
 
-    if (rainbondUtil.cloudMarketEnable(rainbondInfo)) {
+    if (rainbondUtil.cloudMarketEnable(enterprise)) {
       tabListMax.unshift({
         key: 'cloudApplication',
         tab: '云端应用',

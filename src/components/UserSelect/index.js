@@ -1,44 +1,55 @@
-import React, { PureComponent, Fragment } from 'react';
-import { search } from  '../../services/user';
-import { Select, Form, Spin } from 'antd';
+import React from 'react';
+import { connect } from 'dva';
+import { Select, Spin } from 'antd';
 import debounce from 'lodash.debounce';
-const Option = Select.Option;
+import globalUtil from '../../utils/global';
 
+const Option = Select.Option;
+@connect()
 
 class UserRemoteSelect extends React.Component {
   constructor(props) {
     super(props);
     this.lastFetchId = 0;
-    this.fetchUser = debounce(this.fetchUser, 800);
     this.state = {
-  	    data: [],
-  	    value: [],
-  	    fetching: false
-  	}
+      data: [],
+      value: [],
+      fetching: false,
+    };
   }
-  
-  fetchUser = (value) => {
-  	
-    this.lastFetchId += 1;
-    const fetchId = this.lastFetchId;
+  componentDidMount() {
+    this.fetchUser();
+  }
+  fetchUser = value => {
     this.setState({ data: [], fetching: true });
-    search({key: value}).then((response)=>{
-    	if(response){
-	    	 var data = response.list || [];
-	       this.setState({ data: data, fetching: false });
-	    }
-    })
-  }
-  handleChange = (value) => {
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
 
+   dispatch({
+      type: 'user/searchEnterpriseNoTeamUser',
+      payload: {
+        team_name,
+        query: value,
+        page_size: 99,
+        page: 1
+      },
+      callback: response => {
+        if (response) {
+          const data = response.list || [];
+          this.setState({ data, fetching: false });
+        }
+      },
+    });
+  };
+  handleChange = value => {
     this.setState({
       value,
       fetching: false,
     });
-    this.props.onChange && this.props.onChange(value)
-  }
+    this.props.onChange && this.props.onChange(value);
+  };
   render() {
-    const { fetching, data, value, members } = this.state;
+    const { fetching, data, value } = this.state;
     return (
       <Select
         mode="multiple"
@@ -51,7 +62,9 @@ class UserRemoteSelect extends React.Component {
         onChange={this.handleChange}
         style={{ width: '100%' }}
       >
-        {data.map(d => <Option key={d.user_id}>{d.nick_name}</Option>)}
+        {data.map(d => (
+          <Option key={d.user_id}>{d.nick_name}</Option>
+        ))}
       </Select>
     );
   }

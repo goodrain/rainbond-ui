@@ -391,7 +391,6 @@ export default class Index extends React.Component {
           ...vals
         },
         callback: res => {
-          console.log('res',res)
           if (res && res._code == 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();

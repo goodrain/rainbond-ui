@@ -84,7 +84,6 @@ class CreateMarketApp extends PureComponent {
 
   handleClose = removedTag => {
     const tagList = this.state.tagList.filter(tag => tag !== removedTag);
-    console.log(tagList);
     this.setState({ tagList });
   };
 
@@ -102,7 +101,6 @@ class CreateMarketApp extends PureComponent {
     if (inputValue && tagList.indexOf(inputValue) === -1) {
       tagList = [...tagList, inputValue];
     }
-    console.log(tagList);
     this.setState({
       tagList,
       inputVisible: false,

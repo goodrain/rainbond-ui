@@ -33,6 +33,7 @@ const { Option, OptGroup } = Select;
     currUser: user.currentUser,
     createWay: appControl.createWay,
     rainbondInfo: global.rainbondInfo,
+    enterprise: global.enterprise,
   }),
   null,
   null,
@@ -63,10 +64,13 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    const { rainbondInfo } = this.props;
+    const { rainbondInfo,enterprise} = this.props;
     const tabList = [];
-    if (rainbondUtil.OauthbEnable(rainbondInfo)) {
-      rainbondInfo.oauth_services.value.map(item => {
+    if (
+      rainbondUtil.OauthbEnable(rainbondInfo) &&
+      rainbondUtil.OauthEnterpriseEnable(enterprise)
+    ) {
+      enterprise.oauth_services.value.map(item => {
         const { oauth_type, service_id } = item;
         tabList.push({
           type: oauth_type,
@@ -436,8 +440,8 @@ export default class Index extends PureComponent {
       fullList,
       tabList,
     } = this.state;
-    const { form,match } = this.props;
-    const { teamName, regionName } =match.params;
+    const { form, match } = this.props;
+    const { teamName, regionName } = match.params;
     const { getFieldDecorator } = form;
     const versionLanguage = buildSource ? buildSource.language : '';
     const buildShared = appUtil.getCreateTypeCNByBuildSource(buildSource);
@@ -474,7 +478,10 @@ export default class Index extends PureComponent {
                 label="创建方式"
               >
                 <Link
-                  to={isLocalShared&& `/team/${teamName}/region/${regionName}/create/market`}
+                  to={
+                    isLocalShared &&
+                    `/team/${teamName}/region/${regionName}/create/market`
+                  }
                   style={{ color: !isLocalShared && 'rgba(0, 0, 0, 0.65)' }}
                 >
                   {appUtil.isOauthByBuildSource(buildSource)

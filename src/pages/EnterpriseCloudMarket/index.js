@@ -33,6 +33,7 @@ const { Search } = Input;
 @connect(({ user, global }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
+  enterprise: global.enterprise,
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -142,6 +143,7 @@ export default class EnterpriseShared extends PureComponent {
     const { componentList } = this.state;
     const {
       rainbondInfo,
+      enterprise,
       match: {
         params: { eid },
       },
@@ -203,7 +205,7 @@ export default class EnterpriseShared extends PureComponent {
                     <br />
                     <br />
                     发布应用模型
-                    {rainbondUtil.cloudMarketEnable(rainbondInfo) && (
+                    {rainbondUtil.cloudMarketEnable(enterprise) && (
                       <span>
                         或<span style={{ color: '#1890ff' }}>从云端同步</span>
                       </span>

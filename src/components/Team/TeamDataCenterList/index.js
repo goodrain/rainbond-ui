@@ -70,13 +70,12 @@ export default class DatacenterList extends PureComponent {
           title="已开通集群"
           bordered={false}
           extra={
-            teamUtil.canAddRegion(team) &&
-            rainbondUtil.openDataCenterStatusEnable(rainbondInfo) ? (
+            teamUtil.canAddRegion(team) && (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 {" "}
                 开通集群{" "}
               </a>
-            ) : null
+            )
           }
           loading={projectLoading}
           bodyStyle={{

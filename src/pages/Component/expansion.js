@@ -718,7 +718,6 @@ export default class Index extends PureComponent {
     const { extendInfo, appAlias, form, appDetail } = this.props;
     let notAllowScaling = false
     if (appDetail) {
-      console.log(appDetail.service.extend_method)
       if (globalUtil.isSingletonComponent(appDetail.service.extend_method)){
         notAllowScaling = true
       }
