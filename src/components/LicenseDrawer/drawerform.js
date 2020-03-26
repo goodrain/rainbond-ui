@@ -1,18 +1,14 @@
 import React, { Component } from "react";
-import apiconfig from "../../../config/api.config";
 import {
   Row,
   Col,
-  Card,
-  Table,
   Button,
-  Drawer,
   Form,
   Input,
   Radio,
   Upload,
-  Icon
 } from "antd";
+import apiconfig from "../../../config/api.config";
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -25,10 +21,6 @@ class FormDrawer extends Component {
   render() {
     const {
       getFieldDecorator,
-      getFieldsError,
-      getFieldError,
-      isFieldTouched,
-      getFieldValue
     } = this.props.form;
     const formItemLayout = {
       labelCol: {
@@ -88,7 +80,7 @@ class FormDrawer extends Component {
                 <Upload
                   action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                   showUploadList={false}
-                  withCredentials={true}
+                  withCredentials
                   headers={{
                     Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8`
                   }}
@@ -118,7 +110,7 @@ class FormDrawer extends Component {
                 <Upload
                   action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
                   showUploadList={false}
-                  withCredentials={true}
+                  withCredentials
                   headers={{
                     Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8`
                   }}

@@ -646,7 +646,12 @@ export async function isPubCloud() {
 export function getAllRegion(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
-    { method: 'get' }
+    { 
+      method: 'get',
+      params: {
+        status: param.status,
+      }
+    }
   );
 }
 
@@ -881,33 +886,7 @@ export async function fetchEnterpriseUsers(param) {
   );
 }
 
-/* 获取企业集群 */
-export async function fetchEnterpriseClusters(param) {
-  return request(
-    // `http://5000.grff7f27.2c9v614j.17f4cc.grapps.cn/console/enterprise/${param.enterprise_id}/regions`,
-    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
-    {
-      method: 'get',
-      // params: {
-      //   page: param.page,
-      //   page_size: param.page_size,
-      //   query: param.name,
-      // },
-    }
-  );
-}
-/* 获取企业集群详情 */
-export async function fetchEnterpriseCluster(param) {
-  return request(
-    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}`,
-    {
-      method: 'get',
-    }
-  );
-}
-
-
-/** 添加企业管理员 */
+/* 添加企业管理员 */
 export async function addEnterpriseAdminTeams(param) {
   return request(
     // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
@@ -1192,34 +1171,6 @@ export async function toCreatUser(params) {
         re_password: params.password,
         role_ids: params.role_ids ? params.role_ids.join(',') : [],
       },
-    }
-  );
-}
-
-/** 创建集群 */
-export async function toCreatCluster(params) {
-  return request(
-    // `http://106.15.152.33:10017/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
-    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
-    {
-      method: 'post',
-      data: {
-        region_alias: params.region_alias,
-        region_name: params.region_name,
-        region_type: params.region_type,
-        token: cookie.get('token'),
-      },
-    }
-  );
-}
-
-/** 编辑集群 */
-export async function upEnterpriseCluster(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions/${params.region_id}`,
-    {
-      method: 'PUT',
-      data: params,
     }
   );
 }

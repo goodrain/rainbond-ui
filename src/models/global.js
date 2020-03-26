@@ -48,7 +48,6 @@ import {
   deleteEnterpriseUsers,
   deleteEnterpriseCluster,
   upEnterpriseUsers,
-  upEnterpriseCluster,
   fetchEnterpriseAdmin,
   deleteEnterpriseAdmin,
   addEnterpriseAdminTeams,
@@ -516,31 +515,12 @@ export default {
         callback && callback(response);
       }
     },
-    *fetchEnterpriseClusters({ payload, callback }, { put, call }) {
-      const response = yield call(fetchEnterpriseClusters, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-    *fetchEnterpriseCluster({ payload, callback }, { put, call }) {
-      const response = yield call(fetchEnterpriseCluster, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
     *deleteEnterpriseUsers({ payload, callback }, { put, call }) {
       const response = yield call(deleteEnterpriseUsers, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    *deleteEnterpriseCluster({ payload, callback }, { put, call }) {
-      const response = yield call(deleteEnterpriseCluster, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-
 
     *upEnterpriseUsers({ payload, callback }, { put, call }) {
       const response = yield call(upEnterpriseUsers, payload);
@@ -548,14 +528,6 @@ export default {
         callback && callback(response);
       }
     },
-    *upEnterpriseCluster({ payload, callback }, { put, call }) {
-      const response = yield call(upEnterpriseCluster, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-
-
 
     *addEnterpriseAdminTeams({ payload, callback }, { put, call }) {
       const response = yield call(addEnterpriseAdminTeams, payload);
