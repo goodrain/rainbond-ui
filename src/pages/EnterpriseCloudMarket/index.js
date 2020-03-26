@@ -163,7 +163,7 @@ export default class EnterpriseShared extends PureComponent {
       >
         <div className={styles.descText}>
           <Icon type="exclamation-circle" />
-          {`当前市场${rainbondUtil.appstoreImageHubEnable(
+          {`当前共享库${rainbondUtil.appstoreImageHubEnable(
             enterprise
           )}跨集群互联功能`}
         </div>
