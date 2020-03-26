@@ -23,8 +23,7 @@ class UserLayout extends React.PureComponent {
           globalUtil.putLog(info);
           // check auto login
           const isOauth = rainbondUtil.OauthbEnable(info);
-          const oauthInfo =
-            info.bean && info.bean.enterprise_center_oauth.value;
+          const oauthInfo = info.enterprise_center_oauth.value;
           if (isOauth && oauthInfo) {
             if (oauthInfo.is_auto_login) {
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
