@@ -4,6 +4,8 @@ import { connect } from 'dva';
 import styles from './UserLayout.less';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
+import oauthUtil from '../utils/oauth';
+
 
 class UserLayout extends React.PureComponent {
   constructor(props) {

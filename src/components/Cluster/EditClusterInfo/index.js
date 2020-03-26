@@ -1,24 +1,69 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Input, Modal } from 'antd';
-import styles from '../CreateTeam/index.less';
+import { Form, Input, Modal, notification, Alert } from 'antd';
+import styles from '../../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
 
 @connect()
-class CreatDataCenter extends PureComponent {
+class EditClusterInfo extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      healthStatus: true,
+    }
+  }
   handleSubmit = () => {
-    const { form, onOk } = this.props;
+    const { form } = this.props;
     const { validateFields } = form;
     validateFields((err, values) => {
       if (!err) {
-        onOk && onOk(values);
+        this.upClusters(values);
       }
     });
   };
+  upClusters = values => {
+    const { dispatch, eid, regionInfo } = this.props;
+    dispatch({
+      type: "region/upEnterpriseCluster",
+      payload: {
+        region_id: regionInfo && regionInfo.region_id,
+        ...values,
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res._condition === 200) {
+          this.fetCluster()
+        }
+      }
+    });
+  };
+
+  fetCluster = () => {
+    const { dispatch, eid, regionInfo, onOk } = this.props;
+    dispatch({
+      type: "region/fetchEnterpriseCluster",
+      payload: {
+        region_id: regionInfo && regionInfo.region_id,
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res.bean && res.bean.health_status === "failure") {
+          this.setState({healthStatus: false})
+        }else{
+          notification.success({ message: "编辑成功" });
+          if (onOk) {
+            onOk()
+          }
+        }
+      }
+    });
+  };
+
   render() {
     const { form, onCancel, title, regionInfo } = this.props;
+    const { healthStatus } = this.state
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -41,40 +86,40 @@ class CreatDataCenter extends PureComponent {
         width={1000}
         onCancel={onCancel}
       >
+        {!healthStatus && <Alert style={{textAlign: "center", marginBottom: "8px"}} message="集群连接失败，请确认配置是否正确" type="error" />}
         <Form onSubmit={this.handleSubmit}>
           <div style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
-              label="数据中心唯一标识"
+              label="集群ID"
               style={{
                 width: '50%',
               }}
             >
               {getFieldDecorator('region_name', {
-                initialValue: regionInfo ? regionInfo.region_alias : '',
-                rules: [{ required: true, message: '请填写数据中心唯一标识!' }],
+                initialValue: regionInfo ? regionInfo.region_name : '',
+                rules: [{ required: true, message: '集群ID不可修改' }],
               })(
                 <Input
-                  placeholder="请填写数据中心唯一标识!"
-                  disabled={regionInfo}
+                  placeholder="请填写集群ID"
+                  disabled={regionInfo!==undefined}
                 />
               )}
             </FormItem>
 
             <FormItem
               {...formItemLayout}
-              label="数据中心名称"
+              label="集群名称"
               style={{
                 width: '50%',
               }}
             >
               {getFieldDecorator('region_alias', {
                 initialValue: regionInfo ? regionInfo.region_alias : '',
-                rules: [{ required: true, message: '请填写数据中心名称!' }],
+                rules: [{ required: true, message: '请填写集群名称!' }],
               })(
                 <Input
-                  placeholder="请填写数据中心名称!"
-                  disabled={regionInfo}
+                  placeholder="请填写集群名称"
                 />
               )}
             </FormItem>
@@ -118,20 +163,20 @@ class CreatDataCenter extends PureComponent {
           </div>
           <div style={{ display: 'flex' }}>
             <FormItem
-              label="HTTP应用默认顶级域名"
+              label="HTTP应用默认域名后缀"
               {...formItemLayout}
               style={{ width: '50%' }}
             >
               {getFieldDecorator('httpdomain', {
                 initialValue: regionInfo.httpdomain,
                 rules: [
-                  { required: true, message: 'HTTP应用默认顶级域名是必填项' },
+                  { required: true, message: 'HTTP应用默认域名后缀是必填项' },
                   {
                     pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
                     message: '格式不正确',
                   },
                 ],
-              })(<Input placeholder="请输入HTTP应用默认顶级域名" />)}
+              })(<Input placeholder="请输入HTTP应用默认域名后缀" />)}
             </FormItem>
 
             <FormItem
@@ -200,7 +245,7 @@ class CreatDataCenter extends PureComponent {
               )}
             </FormItem>
             <FormItem
-              label="数据中心说明"
+              label="备注"
               {...formItemLayout}
               style={{ width: '50%' }}
             >
@@ -209,7 +254,7 @@ class CreatDataCenter extends PureComponent {
               })(
                 <TextArea
                   autosize={{ minRows: 3, maxRows: 6 }}
-                  placeholder="数据中心简介"
+                  placeholder="集群备注信息"
                 />
               )}
             </FormItem>
@@ -219,5 +264,5 @@ class CreatDataCenter extends PureComponent {
     );
   }
 }
-const createDataCenter = Form.create()(CreatDataCenter);
-export default createDataCenter;
+const editClusterInfo = Form.create()(EditClusterInfo);
+export default editClusterInfo;

@@ -5,7 +5,7 @@ import { unOpenRegion } from "../../services/team";
 import globalUtil from "../../utils/global";
 import userUtil from "../../utils/user";
 
-//开通集群
+// 开通集群
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
   enterprise: global.enterprise
@@ -45,7 +45,6 @@ class OpenRegion extends PureComponent {
   };
   render() {
     const mode = this.props.mode || "modal";
-    const { enterprise } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
@@ -61,19 +60,10 @@ class OpenRegion extends PureComponent {
         <Modal
           title="开通集群"
           width={600}
-          visible={true}
+          visible
           onOk={this.handleSubmit}
           onCancel={this.handleCancel}
         >
-          {this.state.regions.length == 0 &&
-            enterprise &&
-            !enterprise.is_enterprise && (
-              <div style={{ width: "100%", textAlign: "center" }}>
-                <a href="https://www.goodrain.com/info.html" target="_blank">
-                  多云管理功能请咨询企业服务
-                </a>
-              </div>
-            )}
           <Table
             size="small"
             pagination={false}
