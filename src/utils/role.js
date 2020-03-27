@@ -14,6 +14,6 @@ export default {
     return !role.is_default;
   },
   actionMap(name) {
-    return actionMaps[name] || '-';
+    return actionMaps[name] || name;
   },
 };

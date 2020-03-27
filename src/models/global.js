@@ -34,7 +34,7 @@ import {
   buyPurchase,
   getPayHistory,
   getAllRegionFee,
-  getAllTeams,
+  getUserCanJoinTeams,
   joinTeam,
   getJoinTeam,
   deleteJoinTeam,
@@ -57,7 +57,6 @@ import {
   fetchOverviewTeam,
   fetchOverviewMonitor,
   fetchEnterpriseList,
-  getEnterpriseTeams,
   queryOauthInfo,
   deleteOauth,
   queryAuthority,
@@ -125,8 +124,8 @@ export default {
       });
     },
 
-    *getAllTeams({ payload, callback }, { call, put }) {
-      const data = yield call(getAllTeams, payload);
+    *getUserCanJoinTeams({ payload, callback }, { call, put }) {
+      const data = yield call(getUserCanJoinTeams, payload);
       if (data && callback) {
         callback(data);
       }
@@ -578,12 +577,6 @@ export default {
       }
     },
 
-    *getEnterpriseTeams({ payload, callback }, { put, call }) {
-      const response = yield call(getEnterpriseTeams, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
     *getOauthInfo({ callback, payload }, { call }) {
       const response = yield call(queryOauthInfo, payload);
       if (callback) {
