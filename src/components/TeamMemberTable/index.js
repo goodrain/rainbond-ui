@@ -1,13 +1,14 @@
-import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
-import { Table, Alert, Badge, Divider } from "antd";
-import teamUtil from "../../utils/team";
+import React, { PureComponent, Fragment } from 'react';
+import moment from 'moment';
+import { Table, Alert, Badge, Divider } from 'antd';
+import teamUtil from '../../utils/team';
+import roleUtil from '../../utils/role';
 
-const statusMap = ["default", "processing", "success", "error"];
+const statusMap = ['default', 'processing', 'success', 'error'];
 class TeamMemberTable extends PureComponent {
   state = {
     selectedRowKeys: [],
-    totalCallNo: 0,
+    totalCallNo: 0
   };
 
   componentWillReceiveProps(nextProps) {}
@@ -17,40 +18,54 @@ class TeamMemberTable extends PureComponent {
   };
 
   render() {
-    const { selectedRowKeys, totalCallNo } = this.state;
     const {
-      list, pagination, onDelete, onEditAction, onMoveTeam, team,
+      list,
+      pagination,
+      onDelete,
+      onEditAction,
+      onMoveTeam,
+      team
     } = this.props;
 
     const columns = [
       {
-        title: "用户名",
-        dataIndex: "user_name",
+        title: '用户名',
+        dataIndex: 'user_name'
       },
       {
-        title: "邮箱",
-        dataIndex: "email",
+        title: '邮箱',
+        dataIndex: 'email'
       },
       {
-        title: "角色",
-        dataIndex: "role_info",
+        title: '角色',
+        dataIndex: 'role_info',
         render(val) {
-          return <span>{(val || []).map(item => item.role_name).join(", ")}</span>;
-        },
+          return (
+            <span>
+              {(val || []).map(item => {
+                return (
+                  <span style={{ marginRight: '8px' }} key={'role' + item.role_id}>
+                    {roleUtil.actionMap(item.role_name)}
+                  </span>
+                );
+              })}
+            </span>
+          );
+        }
       },
       {
-        title: "操作",
-        dataIndex: "action",
+        title: '操作',
+        dataIndex: 'action',
         render(val, data) {
           const roles = data.role_info || [];
-          const creater = roles.filter(item => item.role_name === "owner")[0];
+          const creater = roles.filter(item => item.role_name === 'owner')[0];
           if (creater) {
             return null;
           }
 
           return (
             <div>
-              {teamUtil.canDeleteMember(team) && (
+              {teamUtil.canDeleteMember(team) &&
                 <a
                   href="javascript:;"
                   onClick={() => {
@@ -58,13 +73,12 @@ class TeamMemberTable extends PureComponent {
                   }}
                 >
                   删除
-                </a>
-              )}
+                </a>}
 
-              {teamUtil.canEditMemberRole(team) && (
+              {teamUtil.canEditMemberRole(team) &&
                 <a
                   style={{
-                    marginLeft: 6,
+                    marginLeft: 6
                   }}
                   onClick={() => {
                     onEditAction(data);
@@ -72,13 +86,12 @@ class TeamMemberTable extends PureComponent {
                   href="javascript:;"
                 >
                   修改角色
-                </a>
-              )}
+                </a>}
 
-              {teamUtil.canChangeOwner(team) && (
+              {teamUtil.canChangeOwner(team) &&
                 <a
                   style={{
-                    marginLeft: 6,
+                    marginLeft: 6
                   }}
                   onClick={() => {
                     onMoveTeam(data);
@@ -86,12 +99,11 @@ class TeamMemberTable extends PureComponent {
                   href="javascript:;"
                 >
                   移交团队
-                </a>
-              )}
+                </a>}
             </div>
           );
-        },
-      },
+        }
+      }
     ];
 
     return (

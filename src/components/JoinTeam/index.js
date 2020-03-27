@@ -21,9 +21,12 @@ export default class JoinTeam extends PureComponent {
     this.loadTeams();
   }
   loadTeams = () => {
+    const { enterpriseID } = this.props
     this.props.dispatch({
-      type: 'global/getAllTeams',
-      payload: { user_id: this.props.currUser.user_id, page_size: 100 },
+      type: 'global/getUserCanJoinTeams',
+      payload: {
+        enterpriseID: enterpriseID,
+      },
       callback: data => {
         if (data) {
           this.setState({ teams: data.list });

@@ -37,13 +37,9 @@ export async function fetchEnterpriseApps(body = { enterprise_id }) {
 /*
   获取用户可加入团队列表
  */
-export async function getAllTeams(body = { user_id, page_size }) {
-  return request(`${apiconfig.baseUrl}/console/user/jointeams`, {
+export async function getUserCanJoinTeams(body = { enterpriseID }) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterpriseID}/jointeams`, {
     method: 'get',
-    params: {
-      user_id: body.user_id,
-      page_size: body.page_size,
-    },
   });
 }
 
@@ -972,20 +968,6 @@ export async function fetchOverviewMonitor(param) {
       method: 'get',
     }
   );
-}
-
-/* 查询企业信息 */
-export async function getEnterpriseTeams(
-  body = { page_num, page_size, team_name }
-) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/teams`, {
-    method: 'get',
-    params: {
-      page_num: body.page_num,
-      page_size: body.page_size,
-      team_name: body.team_name,
-    },
-  });
 }
 
 /* 设置注册功能 */
