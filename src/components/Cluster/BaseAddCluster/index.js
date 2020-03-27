@@ -21,7 +21,11 @@ class EditClusterInfo extends PureComponent {
   };
   checkConfigFile = (rules, value, callback) => {
     if (value) {
-        if (value.fileList.length > 0 && (value.file.name.endsWith(".yaml") || value.file.name.endsWith(".yml"))) {
+        if (!value.file.name.endsWith(".yaml") && !value.file.name.endsWith(".yml")){
+          callback("请上传以yaml、yml结尾的 Region Config 文件")
+          return
+        }
+        if (value.fileList.length > 0) {
             const fileList =  value.fileList.splice(-1);
             this.readFileContents(fileList, 'token');
             callback();
