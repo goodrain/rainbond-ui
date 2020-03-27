@@ -31,8 +31,10 @@ class EditClusterInfo extends PureComponent {
             callback();
             return;
         }
+        callback("上传的 Region Config 文件非法")
+        return
     }
-    callback("上传的 Region Config 文件非法")
+    callback();
   }
   readFileContents = (fileList, name) => {
     const reader = new FileReader();
