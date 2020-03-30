@@ -116,6 +116,8 @@
   padding      : 0 5px;
 
   &>div:nth-of-type(1) {
+    min-width: 116px;
+
     :global {
       .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
         box-shadow: none !important;
@@ -129,13 +131,18 @@
         border: none !important;
       }
     }
+
   }
 
   &>div:nth-of-type(2) {
-    width     : 1px;
-    height    : 14px;
-    background: #D8D8D8;
-    margin    : 0 14px 0 24px;
+    width       : 1px;
+    height      : 14px;
+    background  : #D8D8D8;
+    margin-right: 14px;
+  }
+
+  &>div:nth-of-type(3) {
+    flex: 1 1;
   }
 }
 
