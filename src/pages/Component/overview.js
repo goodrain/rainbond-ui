@@ -378,7 +378,8 @@ class LogList extends PureComponent {
     requestTime: appControl.requestTime,
     requestTimeRange: appControl.requestTimeRange,
     appDisk: appControl.appDisk,
-    appMemory: appControl.appMemory
+    appMemory: appControl.appMemory,
+    componentTimers:appControl.componentTimers,
   }),
   null,
   null,
@@ -410,7 +411,8 @@ export default class Index extends PureComponent {
       current_version: null,
       status: "",
       isopenLog: false,
-      buildSource: null
+      buildSource: null,
+      componentTimers:this.props.timers
     };
     this.inerval = 5000;
   }
@@ -425,23 +427,46 @@ export default class Index extends PureComponent {
     this.getVersionList();
     this.fetchOperationLog(true);
     this.fetchPods();
-    this.interval = setInterval(() => this.fetchPods(), 5000);
+    this.setTimer();
   }
   componentWillUnmount() {
     this.mounted = false;
-
-    clearTimeout(this.cycleevent);
-    clearInterval(this.interval);
+    this.closeTimer()
   }
 
+
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.status !== prevState.status) {
+    if (nextProps.status !== prevState.status || 
+      nextProps.timers !== prevState.timers
+        ) {
       return {
-        status: nextProps.status
+        status: nextProps.status,
+        componentTimers: nextProps.timers,
       };
     }
     return null;
   }
+  
+    setTimer  = () =>{
+      const { componentTimers} =this.state
+      if(componentTimers){
+        this.openTimer()
+        }else{
+          this.closeTimer()
+        }
+    }
+
+  openTimer = ()=>{
+    if(this.interval){return null}
+    this.interval = setInterval(() => this.fetchPods(), 5000);
+  }
+
+  closeTimer = ()=>{
+    clearTimeout(this.cycleevent);
+    clearInterval(this.interval);
+    this.interval = null
+  }
+  
   fetchAppDiskAndMemory() {
     this.props.dispatch({
       type: "appControl/getAppResource",
@@ -647,8 +672,10 @@ export default class Index extends PureComponent {
       isopenLog,
       recordLoading,
       has_next,
-      current_version
+      current_version,
+      componentTimers
     } = this.state;
+    this.setTimer()
     const { status } = this.props;
     return (
       <Fragment>

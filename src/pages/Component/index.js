@@ -323,7 +323,8 @@ class Main extends PureComponent {
       rollingCanClick: false,
       isShowThirdParty: false,
       promptModal: null,
-      websocketURL: ""
+      websocketURL: "",
+      componentTimer:true,
     };
     this.timer = null;
     this.mount = false;
@@ -629,7 +630,9 @@ class Main extends PureComponent {
     this.ref = ref;
   };
   handleDropClick = item => {
+
     if (item === "deleteApp") {
+      this.closeComponentTimer();
       this.onDeleteApp();
     }
 
@@ -642,10 +645,20 @@ class Main extends PureComponent {
       });
     }
   };
+  closeComponentTimer = () =>{
+    console.log('componentTimerfalse')
+   this.setState({componentTimer:false})
+  }
+  openComponentTimer = () =>{
+    console.log('componentTimertrue')
+    this.setState({componentTimer:true})
+  }
+
   onDeleteApp = () => {
     this.setState({ showDeleteApp: true });
   };
   cancelDeleteApp = () => {
+    this.openComponentTimer()
     this.setState({ showDeleteApp: false });
   };
   createSocket() {
@@ -1145,7 +1158,7 @@ class Main extends PureComponent {
         span: 23
       }
     };
-    const { BuildList } = this.state;
+    const { BuildList,componentTimer } = this.state;
     let breadcrumbList = [];
     const {
       currentEnterprise,
@@ -1289,6 +1302,7 @@ class Main extends PureComponent {
 
         {Com
           ? <Com
+              timers={componentTimer}
               status={this.state.status}
               ref={this.saveRef}
               {...this.props.match.params}
