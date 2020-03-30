@@ -78,6 +78,7 @@ export default class EnterpriseShared extends PureComponent {
     if (user) {
       this.load();
     }
+
   }
 
   load = () => {
@@ -586,12 +587,12 @@ export default class EnterpriseShared extends PureComponent {
                   >
                     {tagLists.map((item, index) => {
                       const { name, tag_id } = item;
-                      if (index === 5) {
+                      if (index === 3) {
                         return (
-                          <a onClick={this.handleOpenEditorMoreTags}>更多</a>
+                          <a style={{padding:'0 5px'}} onClick={this.handleOpenEditorMoreTags}>更多</a>
                         );
                       }
-                      if (index > 5) {
+                      if (index > 3) {
                         return null;
                       }
                       return (
