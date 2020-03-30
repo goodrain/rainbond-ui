@@ -71,7 +71,9 @@ export default class ComponentList extends Component {
     }, 5000)
   }
   loadComponents = () => {
-    const { dispatch, form, index } = this.props;
+    const { dispatch, groupId: group_id } = this.props;
+    const { current, pageSize: page_size } = this.state;
+
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
 
@@ -80,9 +82,9 @@ export default class ComponentList extends Component {
       payload: {
         team_name,
         region_name,
-        group_id: this.props.groupId,
-        page: this.state.current,
-        page_size: 10
+        group_id,
+        page: current,
+        page_size,
       },
       callback: data => {
         if (data&&data._code == 200) {
@@ -97,7 +99,8 @@ export default class ComponentList extends Component {
   };
 
   deleteData = () => {
-    const { dispatch, form, index } = this.props;
+    const { dispatch, groupId: group_id } = this.props;
+    const { current, pageSize: page_size } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
 
@@ -106,9 +109,9 @@ export default class ComponentList extends Component {
       payload: {
         team_name,
         region_name,
-        group_id: this.props.groupId,
-        page: this.state.current,
-        page_size: 10
+        group_id,
+        page: current,
+        page_size,
       },
       callback: data => {
         if (data&&data._code == 200) {
@@ -296,16 +299,17 @@ export default class ComponentList extends Component {
   };
 
   render() {
-    const { apps, teamAction } = this.state;
-    const { selectedRowKeys } = this.state;
+
+    const { selectedRowKeys, current, total, apps, pageSize } = this.state;
+
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
     };
-    const hasSelected = selectedRowKeys.length > 0;
     const pagination = {
-      current: this.state.current,
-      total: this.state.total,
+      pageSize,
+      current,
+      total,
       onChange: page => {
         this.setState(
           {
@@ -313,7 +317,7 @@ export default class ComponentList extends Component {
             selectedRowKeys: []
           },
           () => {
-            this.loadApps();
+            this.loadComponents();
           }
         );
       }
