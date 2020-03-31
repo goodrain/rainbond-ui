@@ -41,18 +41,55 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false
+      showModal: false,
+      componentTimers: this.props.timers,
     };
     this.mount = false;
   }
   componentDidMount() {
     this.mount = true;
-    this.fetchVisitInfo();
+    this.setTimer();
   }
   componentWillUnmount() {
     this.mount = false;
     this.props.dispatch({ type: "appControl/clearVisitInfo" });
   }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (
+      nextProps.timers !== prevState.timers
+    ) {
+      return {
+        componentTimers: nextProps.timers,
+      };
+    }
+    return null;
+  }
+
+  setTimer = () => {
+    const { componentTimers } = this.state;
+    if (componentTimers) {
+      this.openTimer();
+    } else {
+      this.closeTimer();
+    }
+  };
+
+  openTimer = () => {
+    if (this.interval) {
+      return null;
+    }
+    this.interval = setInterval(() => {
+      this.fetchVisitInfo();
+    }, 5000);
+  };
+
+  closeTimer = () => {
+    clearInterval(this.interval);
+    this.interval = null;
+  };
+
+
+
   fetchVisitInfo = () => {
     if (!this.mount) return;
     const appAlias = this.props.app_alias;
@@ -63,9 +100,6 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       }
     });
-    setTimeout(() => {
-      this.fetchVisitInfo();
-    }, 4000);
   };
 
   showModal = () => {
@@ -551,6 +585,7 @@ export default class Index extends PureComponent {
     if (!visitInfo) {
       return null;
     }
+    this.setTimer()
     if (visitInfo.access_type == "no_port") {
       return this.renderNoPort(visitInfo);
     }
