@@ -78,6 +78,7 @@ export default class Index extends PureComponent {
     if (this.interval) {
       return null;
     }
+    this.fetchVisitInfo();
     this.interval = setInterval(() => {
       this.fetchVisitInfo();
     }, 5000);
