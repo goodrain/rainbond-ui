@@ -382,7 +382,6 @@ class LogList extends PureComponent {
     requestTimeRange: appControl.requestTimeRange,
     appDisk: appControl.appDisk,
     appMemory: appControl.appMemory,
-    componentTimers: appControl.componentTimers,
   }),
   null,
   null,
@@ -462,6 +461,8 @@ export default class Index extends PureComponent {
     if (this.interval) {
       return null;
     }
+    this.fetchPods();
+    this.fetchOperationLog();
     this.interval = setInterval(() => {
       this.fetchPods();
       this.fetchOperationLog();
