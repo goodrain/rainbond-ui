@@ -364,6 +364,7 @@ class Main extends PureComponent {
         timer: true,
       },
       () => {
+        this.getStatus();
         this.interval = setInterval(() => {
           this.getStatus();
         }, 5000);
@@ -375,7 +376,6 @@ class Main extends PureComponent {
     clearInterval(this.interval);
     this.setState({ timer: false });
     this.interval = null;
-    this.timer = null;
   };
 
   loadBuildState = appDetail => {
