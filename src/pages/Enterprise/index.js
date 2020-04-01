@@ -10,6 +10,7 @@ import {
   Row,
   Tooltip,
   Empty,
+  Affix,
 } from 'antd';
 
 import styles from '../List/BasicList.less';
@@ -19,10 +20,11 @@ import Convenient from '../../components/Convenient';
 import JoinTeam from '../../components/JoinTeam';
 import Consulting from '../../components/Consulting';
 import CreateTeam from '../../components/CreateTeam';
-
+import Meiqia from '../../layouts/Meiqia';
 import ConfirmModal from '../../components/ConfirmModal';
 import { Pie } from '../../components/Charts';
 import AddTeam from '../../../public/images/addTeam.png';
+import CustomerService from '../../../public/images/CustomerService.png';
 import Cpus from '../../../public/images/cpus.png';
 import CreationTeam from '../../../public/images/creationTeam.png';
 import Element from '../../../public/images/element.png';
@@ -48,7 +50,6 @@ export default class Enterprise extends PureComponent {
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
-      // isPublic,
       showAddTeam: false,
       eid: params ? params.eid : '',
       adminer,
@@ -73,14 +74,15 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     this.loading();
   }
+
   loading = () => {
     const { adminer, eid } = this.state;
     if (eid) {
       this.getEnterpriseInfo();
       this.getOverviewTeam();
       if (adminer) {
-        if( !cookie.get('appStore')){
-          this.loadAppStore()
+        if (!cookie.get('appStore')) {
+          this.loadAppStore();
         }
         this.getOverviewApp();
         this.getOverview();
@@ -459,7 +461,11 @@ export default class Enterprise extends PureComponent {
     return (
       <div>
         {this.state.joinTeam && (
-          <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
+          <JoinTeam
+            enterpriseID={eid}
+            onOk={this.handleJoinTeam}
+            onCancel={this.cancelJoinTeam}
+          />
         )}
         {convenientVisible && (
           <Convenient
@@ -802,7 +808,17 @@ export default class Enterprise extends PureComponent {
                           }}
                         >
                           <div className={styles.addTeam}>
-                            <img src={TeamCrew} alt="" />
+                            <img
+                              onClick={() => {
+                                this.props.dispatch(
+                                  routerRedux.replace(
+                                    `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                                  )
+                                );
+                              }}
+                              src={TeamCrew}
+                              alt=""
+                            />
                           </div>
                           <Tooltip title="新加入团队:">
                             <div
@@ -853,7 +869,17 @@ export default class Enterprise extends PureComponent {
                               <Tooltip title={team_alias}>{team_alias}</Tooltip>
                             </div>
                             <div>
-                              <img src={Arrow} alt="" />
+                              <img
+                                onClick={() => {
+                                  this.props.dispatch(
+                                    routerRedux.replace(
+                                      `/team/${team_name}/region/${region}/index`
+                                    )
+                                  );
+                                }}
+                                src={Arrow}
+                                alt=""
+                              />
                             </div>
                           </Card>
                         );
@@ -1015,11 +1041,17 @@ export default class Enterprise extends PureComponent {
                               <Card
                                 bodyStyle={teamBoxList}
                                 bordered={false}
-                                style={{ height: '40px', paddingRight: '10px' }}
+                                style={{
+                                  height: '40px',
+                                  paddingRight: '10px',
+                                }}
                               >
                                 <div
                                   className={styles.overText}
-                                  style={{ width: '93%', cursor: 'pointer' }}
+                                  style={{
+                                    width: '93%',
+                                    cursor: 'pointer',
+                                  }}
                                 >
                                   <Tooltip title={name}>{name}</Tooltip>
                                 </div>
@@ -1049,10 +1081,25 @@ export default class Enterprise extends PureComponent {
   };
 
   render() {
-    const { showAddTeam, consulting, enterpriseInfo,eid } = this.state;
+    const { showAddTeam, consulting, enterpriseInfo, eid } = this.state;
+    const { rainbondInfo } = this.props;
     return (
       <div>
         {this.renderContent()}
+        {rainbondInfo &&
+          rainbondInfo.is_public &&
+          rainbondInfo.is_public.enable && (
+            <div className={styles.customerService}>
+              <Meiqia/>
+                <div
+                  onClick={() => {
+                    _MEIQIA && _MEIQIA('showPanel');
+                  }}
+                >
+                  <img src={CustomerService} alt="" />
+                </div>
+            </div>
+          )}
         {showAddTeam && (
           <CreateTeam
             enterprise_id={eid}

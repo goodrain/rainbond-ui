@@ -77,6 +77,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/orders/:orderType/details',
+            component: './EnterpriseOrders',
+            name: 'EnterpriseServiceOverview',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/orders/:orderType/orderDetails/:orderId',
             component: './EnterpriseOrders',
             name: 'EnterpriseOorderDetails',

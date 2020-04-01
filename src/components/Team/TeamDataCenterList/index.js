@@ -43,6 +43,7 @@ export default class DatacenterList extends PureComponent {
       callback: () => {
         this.fetchRegions();
         this.props.dispatch({ type: "user/fetchCurrent" });
+        this.cancelOpenRegion()
       }
     });
   };

@@ -98,12 +98,17 @@ export default class EnterpriseClusters extends PureComponent {
       },
       {
         title: '订单周期',
-        dataIndex: 'months',
-        rowKey: 'months',
+        dataIndex: 'expired_time',
+        rowKey: 'expired_time',
         align: 'center',
         width: '20%',
-        render: months => {
-          return <span>{months}</span>;
+        render: (expired_time, val) => {
+          return (
+            <div>
+              <div>{moment(val.create_time).format('YYYY-MM-DD hh:mm:ss')}</div>
+              <div>{moment(expired_time).format('YYYY-MM-DD hh:mm:ss')}</div>
+            </div>
+          );
         },
       },
       {
@@ -140,42 +145,27 @@ export default class EnterpriseClusters extends PureComponent {
         align: 'center',
         width: '15%',
         sorter: (a, b) => a.age - b.age,
-        render: (val, data) => {
+        render: val => {
           switch (val) {
-            case '0':
+            case 'ToBePaid':
               return (
                 <div style={colorbj('#1890ff', '#e6f7ff')}>
                   <Badge color="#1890ff" />
                   待支付
                 </div>
               );
-            case '1':
+            case 'Paid':
               return (
                 <div style={colorbj('#52c41a', '#e9f8e2')}>
                   <Badge color="#52c41a" />
                   已支付
                 </div>
               );
-            case '2':
+            case 'Closed':
               return (
                 <div style={colorbj('#b7b7b7', '#f5f5f5')}>
                   <Badge color="#b7b7b7" />
                   已关闭
-                </div>
-              );
-
-            case '3':
-              return (
-                <div style={colorbj('#1890ff', '#e6f7ff')}>
-                  <Badge color="#1890ff" />
-                  待支付
-                </div>
-              );
-            case '5':
-              return (
-                <div style={colorbj('#fff', '#f54545')}>
-                  <Badge color="#fff" />
-                  异常
                 </div>
               );
             default:

@@ -37,14 +37,11 @@ export default class EnterpriseOrders extends PureComponent {
         params: { eid, orderType, orderId },
       },
     } = this.props;
+    const EnterpriseServiceOverview =window.location.href.indexOf('overviewService/details')>-1
     const tabList = [
       {
         key: 'overviewService',
         tab: '服务概览',
-      },
-      {
-        key: 'serviceOverviewDetails',
-        tab: '服务概览详情',
       },
       {
         key: 'orderManagement',
@@ -58,19 +55,18 @@ export default class EnterpriseOrders extends PureComponent {
         tabActiveKey={orderType}
         onTabChange={this.callback}
       >
-        {orderType === 'overviewService' && <ServiceOverview eid={eid} />}
-        {orderType === 'serviceOverviewDetails' && (
-          <ServiceOverviewDetails eid={eid} />
-        )}
-        {orderType === 'orderManagement' ? (
-          orderId ? (
+        {orderType === 'overviewService' &&
+          (EnterpriseServiceOverview ? (
+            <ServiceOverviewDetails eid={eid} />
+          ) : (
+            <ServiceOverview eid={eid} />
+          ))}
+        {orderType === 'orderManagement' &&
+          (orderId ? (
             <OrderDetails eid={eid} orderId={orderId} />
           ) : (
             <OrderManagement eid={eid} />
-          )
-        ) : (
-          ''
-        )}
+          ))}
       </PageHeaderLayout>
     );
   }

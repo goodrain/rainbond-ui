@@ -24,8 +24,8 @@ export default class OrderDetails extends PureComponent {
       info: null,
       loading: true,
       visible: true,
-      bankInfo:null,
-     };
+      bankInfo: null,
+    };
   }
 
   componentWillMount() {
@@ -34,12 +34,12 @@ export default class OrderDetails extends PureComponent {
   }
 
   fetchEnterpriseOrderDetails = () => {
-    const { dispatch, eid ,orderId} = this.props;
+    const { dispatch, eid, orderId } = this.props;
     dispatch({
       type: 'order/fetchEnterpriseOrderDetails',
       payload: {
         enterprise_id: eid,
-        order_id:orderId
+        order_id: orderId,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -49,11 +49,20 @@ export default class OrderDetails extends PureComponent {
           });
         }
       },
+      handleError: res => {
+        if (res && res.data && res.data.code === 6004) {
+          notification.warning({ message: '订单不存在' });
+          this.jump();
+        }
+      },
     });
   };
-
+  jump = () => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push(`/enterprise/${eid}/orders/orderManagement`));
+  };
   fetchBankInfo = () => {
-    const { dispatch, eid ,orderId} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'order/fetchBankInfo',
       callback: res => {
@@ -66,7 +75,6 @@ export default class OrderDetails extends PureComponent {
       },
     });
   };
-
 
   handlUnit = num => {
     if (num) {
@@ -82,17 +90,16 @@ export default class OrderDetails extends PureComponent {
     this.setState({ visible: false });
   };
   render() {
-    const { info,bankInfo } = this.state;
+    const { info, bankInfo } = this.state;
 
     const arr = info && [
       { name: '订单号', value: info.order_id },
       {
         name: '服务周期',
-        value: info.months,
+        value: `${info.months}月`,
       },
       { name: '容量', value: `${this.handlUnit(info.memory)}GB调度内存` },
       { name: '总费用', value: `¥ ${info.final_price} ` },
-      { name: '备注', value: '从免费用户升级为付费用户' },
     ];
     return (
       <Card>
@@ -129,33 +136,35 @@ export default class OrderDetails extends PureComponent {
             </Col>
 
             <Col span={11}>
-             {bankInfo&& <Row>
-                <Col span={8} className={styles.orderTitleL}>
-                  <div>待支付：</div>
-                  <div>¥ 3990</div>
-                </Col>
-                <Col span={16} className={styles.orderTitleR}>
-                  <p>请通过对公付款到以下账号：</p>
-                  <p>
-                    <span>开户行：</span>
-                    <Paragraph
-                      style={{ marginBottom: '0px' }}
-                      copyable={{ text: '招商银行北京市支行' }}
-                    >
-                      bankInfo.bank
-                    </Paragraph>
-                  </p>
-                  <p>
-                    <span>账&nbsp;&nbsp;&nbsp;号：</span>
-                    <Paragraph
-                      style={{ marginBottom: '0px' }}
-                      copyable={{ text: '34567890987654345678' }}
-                    >
-                      bankInfo.account
-                    </Paragraph>
-                  </p>
-                </Col>
-              </Row>}
+              {bankInfo && (
+                <Row>
+                  <Col span={8} className={styles.orderTitleL}>
+                    <div>待支付：</div>
+                    <div>¥&nbsp;{info && info.final_price}</div>
+                  </Col>
+                  <Col span={16} className={styles.orderTitleR}>
+                    <p>请通过对公付款到以下账号：</p>
+                    <p>
+                      <span>开户行：</span>
+                      <Paragraph
+                        style={{ marginBottom: '0px' }}
+                        copyable={{ text: bankInfo.bank }}
+                      >
+                        bankInfo.bank
+                      </Paragraph>
+                    </p>
+                    <p>
+                      <span>账&nbsp;&nbsp;&nbsp;号：</span>
+                      <Paragraph
+                        style={{ marginBottom: '0px' }}
+                        copyable={{ text: bankInfo.account }}
+                      >
+                        bankInfo.account
+                      </Paragraph>
+                    </p>
+                  </Col>
+                </Row>
+              )}
               {this.state.visible ? (
                 <Alert
                   style={{ marginBottom: '20px' }}
@@ -166,7 +175,9 @@ export default class OrderDetails extends PureComponent {
                   afterClose={this.handleClose}
                 />
               ) : null}
-              <Button type="primary">完成支付</Button>
+              <Button type="primary" onClick={this.jump}>
+                完成支付
+              </Button>
             </Col>
           </Row>
         </Card>

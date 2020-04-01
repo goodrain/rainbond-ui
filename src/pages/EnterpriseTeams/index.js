@@ -89,7 +89,6 @@ export default class EnterpriseTeams extends PureComponent {
 
   handlePaginations = isPages => (
     <Pagination
-      size="small"
       current={this.state.page}
       pageSize={this.state.page_size}
       total={Number(this.state.total)}
@@ -324,8 +323,29 @@ export default class EnterpriseTeams extends PureComponent {
     const { dispatch } = this.props;
     dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
   };
+  showRegions = (team_name, regions) => {
+    return regions.map(item => {
+      return (
+        <Button
+          key={item.region_name+'region'}
+          className={styles.regionShow}
+          onClick={() => {
+            this.onJumpTeam(team_name, item.region_name);
+          }}
+        >
+          {item.region_alias}
+          <Icon type="right" />
+        </Button>
+      );
+    })
+  }
 
   render() {
+    const {
+      match: {
+        params: { eid },
+      },
+    } = this.props;
     const {
       teamList,
       overviewTeamInfo,
@@ -336,17 +356,12 @@ export default class EnterpriseTeams extends PureComponent {
       userTeamsLoading,
     } = this.state;
 
-    const active_teams =
-      overviewTeamInfo &&
-      overviewTeamInfo.active_teams &&
-      overviewTeamInfo.active_teams.length > 0 &&
-      overviewTeamInfo.active_teams;
-
-    const request_join_team =
-      overviewTeamInfo &&
-      overviewTeamInfo.request_join_team &&
-      overviewTeamInfo.request_join_team.length > 0 &&
-      overviewTeamInfo.request_join_team;
+    const request_join_team = overviewTeamInfo && overviewTeamInfo.request_join_team.filter(item => {
+        if (item.is_pass===0){
+          return item
+        }
+    })
+    const haveNewJoinTeam = request_join_team.length>0
 
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
     const moreSvg = () => (
@@ -429,20 +444,20 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-      <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
-        {adminer && (
-          <Button
-            type="primary"
-            onClick={this.onAddTeam}
-            style={{ marginRight: '5px' }}
-          >
-            创建团队
+        <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
+          {adminer && (
+            <Button
+              type="primary"
+              onClick={this.onAddTeam}
+              style={{ marginRight: '5px' }}
+            >
+              创建团队
+            </Button>
+          )}
+          <Button type="primary" onClick={this.onJoinTeam}>
+            加入团队
           </Button>
-        )}
-        <Button type="primary" onClick={this.onJoinTeam}>
-          加入团队
-        </Button>
-      </Col>
+        </Col>
     );
 
     const managementTemas = (
@@ -473,7 +488,6 @@ export default class EnterpriseTeams extends PureComponent {
         <Row className={styles.teamMinTit} type="flex" align="middle">
           <Col span={6}>团队名称</Col>
           <Col span={3}>拥有人</Col>
-          <Col span={3}>角色</Col>
           <Col span={11}>集群</Col>
         </Row>
 
@@ -481,10 +495,8 @@ export default class EnterpriseTeams extends PureComponent {
           const {
             team_id,
             team_alias,
-            region,
             region_list,
             owner_name,
-            role,
             team_name,
           } = item;
           return (
@@ -497,29 +509,12 @@ export default class EnterpriseTeams extends PureComponent {
               <Row type="flex" align="middle" className={styles.pl24}>
                 <Col
                   span={6}
-                  onClick={() => {
-                    this.onJumpTeam(team_name, region);
-                  }}
                 >
                   {team_alias}
                 </Col>
                 <Col span={3}>{owner_name}</Col>
-                <Col span={3}>{roleUtil.actionMap(role)}</Col>
-                <Col span={11}>
-                  {region_list.map(item => {
-                    return (
-                      <span
-                        key={item}
-                        onClick={() => {
-                          this.onJumpTeam(team_name, item);
-                        }}
-                      >
-                        <img src={DataCenterImg} alt="" />
-                        &nbsp;
-                        {item}
-                      </span>
-                    );
-                  })}
+                <Col span={14}>
+                  {this.showRegions(team_name, region_list)}
                 </Col>
                 <Col span={1} className={styles.bor}>
                   <Dropdown
@@ -540,92 +535,16 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-            {active_teams && <span>常用团队</span>}
+          {haveNewJoinTeam && ("最新加入团队")}
           </Col>
           {operation}
         </Row>
-        {active_teams && (
+        {haveNewJoinTeam && (
           <Row className={styles.teamMinTit} type="flex" align="middle">
             <Col span={6}>团队名称</Col>
             <Col span={3}>拥有人</Col>
             <Col span={3}>角色</Col>
-            <Col span={12}>集群</Col>
-          </Row>
-        )}
-
-        {active_teams &&
-          active_teams.map(item => {
-            const {
-              team_id,
-              team_alias,
-              region,
-              owner_name,
-              region_list,
-              role,
-              team_name,
-            } = item;
-            return (
-              <Card
-                key={team_id}
-                style={{ marginTop: '10px' }}
-                hoverable
-                bodyStyle={{ padding: 0 }}
-              >
-                <Row
-                  type="flex"
-                  align="middle"
-                  className={styles.teamContent}
-                  style={pd24}
-                >
-                  <Col
-                    span={6}
-                    onClick={() => {
-                      this.onJumpTeam(team_name, region);
-                    }}
-                  >
-                    {team_alias}
-                  </Col>
-                  <Col span={3}>{owner_name}</Col>
-                  <Col span={3}>{roleUtil.actionMap(role)}</Col>
-                  <Col span={11}>
-                    {region_list.map(item => {
-                      return (
-                        <span
-                          key={item}
-                          onClick={() => {
-                            this.onJumpTeam(team_name, item);
-                          }}
-                        >
-                          <img src={DataCenterImg} alt="" />
-                          &nbsp;
-                          {item}
-                        </span>
-                      );
-                    })}
-                  </Col>
-                  <Col span={1} className={styles.bor}>
-                    <Dropdown overlay={menu(team_name)} placement="bottomLeft">
-                      <Icon component={moreSvg} style={{ width: '100%' }} />
-                    </Dropdown>
-                  </Col>
-                </Row>
-              </Card>
-            );
-          })}
-
-        {request_join_team && (
-          <Row>
-            <Col span={24} className={styles.teamsTit}>
-              最新加入团队
-            </Col>
-          </Row>
-        )}
-        {request_join_team && (
-          <Row className={styles.teamMinTit} type="flex" align="middle">
-            <Col span={6}>团队名称</Col>
-            <Col span={3}>拥有人</Col>
-            <Col span={3}>角色</Col>
-            <Col span={12}>集群</Col>
+            <Col span={12}>状态</Col>
           </Row>
         )}
         {request_join_team &&
@@ -634,10 +553,8 @@ export default class EnterpriseTeams extends PureComponent {
               is_pass,
               team_id,
               team_name,
-              region,
               team_alias,
               owner_name,
-              region_list,
               role,
             } = item;
             return (
@@ -658,9 +575,6 @@ export default class EnterpriseTeams extends PureComponent {
                 >
                   <Col
                     span={6}
-                    onClick={() => {
-                      is_pass === 0 ? '' : this.onJumpTeam(team_name, region);
-                    }}
                   >
                     {team_alias}
                   </Col>
@@ -672,26 +586,11 @@ export default class EnterpriseTeams extends PureComponent {
                       color: is_pass === 0 && '#999999',
                     }}
                   >
-                    {is_pass === 0 ? (
+                    {is_pass === 0 && (
                       <span>
                         <img src={WarningImg} alt="" />
                         &nbsp;申请加入团队审批中
                       </span>
-                    ) : (
-                      region_list.map(item => {
-                        return (
-                          <span
-                            key={item}
-                            onClick={() => {
-                              this.onJumpTeam(team_name, item);
-                            }}
-                          >
-                            <img src={DataCenterImg} alt="" />
-                            &nbsp;
-                            {item}
-                          </span>
-                        );
-                      })
                     )}
                   </Col>
                   <Col span={1} className={styles.bor}>
@@ -747,7 +646,6 @@ export default class EnterpriseTeams extends PureComponent {
               team_id,
               team_alias,
               team_name,
-              region,
               region_list,
               owner_name,
               role,
@@ -763,28 +661,17 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col
                     span={6}
                     onClick={() => {
-                      this.onJumpTeam(team_name, region);
+                      if (region_list.length>0){
+                        this.onJumpTeam(team_name, region_list[0].region_name);
+                      }
                     }}
                   >
                     {team_alias}
                   </Col>
                   <Col span={3}>{owner_name}</Col>
-                  <Col span={3}>{roleUtil.actionMap(role)}</Col>
+                  <Col span={3}>{role.split(",").map(item=>{return <span style={{marginRight: "8px"}} key={"role"+item}>{roleUtil.actionMap(item)}</span>})}</Col>
                   <Col span={11}>
-                    {region_list.map(item => {
-                      return (
-                        <span
-                          key={item}
-                          onClick={() => {
-                            this.onJumpTeam(team_name, item);
-                          }}
-                        >
-                          <img src={DataCenterImg} alt="" />
-                          &nbsp;
-                          {item}
-                        </span>
-                      );
-                    })}
+                    {this.showRegions(team_name, region_list)}
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
@@ -802,19 +689,13 @@ export default class EnterpriseTeams extends PureComponent {
       </div>
     );
 
-    const {
-      match: {
-        params: { eid },
-      },
-    } = this.props;
-
     return (
       <PageHeaderLayout
         title="我的团队"
         content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示，企业管理员可见企业团队管理入口"
       >
         {this.state.joinTeam && (
-          <JoinTeam onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
+          <JoinTeam enterpriseID={eid} onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
         )}
 
         {this.state.showAddTeam && (

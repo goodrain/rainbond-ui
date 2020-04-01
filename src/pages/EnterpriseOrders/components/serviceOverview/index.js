@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { Link } from 'dva/router';
 import { Button, Row, Col, Card } from 'antd';
 import styles from '../../index.less';
 import Phoneimg from '../../../../../public/images/phone.png';
@@ -51,6 +52,7 @@ export default class ServiceOverview extends PureComponent {
 
   render() {
     const { info, loading } = this.state;
+    const { eid } = this.props;
     const free = info && info.type === 'free';
     const version = free ? '免费版' : '付费版';
     const versionName = free ? 'RAINBOND ONLINE' : 'RAINBOND CLOUD';
@@ -70,7 +72,7 @@ export default class ServiceOverview extends PureComponent {
                 <p> {version} </p>
                 {!free ? (
                   <p>
-                    {moment(info.expired_time).format('YYYY-MM-DD hh:mm:ss')}
+                    {moment(info.expired_time).format('YYYY-MM-DD')}
                     到期
                   </p>
                 ) : (
@@ -82,10 +84,14 @@ export default class ServiceOverview extends PureComponent {
                   <Col span={12} className={styles.unit}>
                     <div>
                       <p>当前使用调度内存(GB)</p>
-                      <h6>{this.handlUnit(info.used_memory)}</h6>
+                      <h6>{this.handlUnit(info.used_memory) || 0}</h6>
                     </div>
                     <Button style={{ marginTop: '50px' }} type="primary">
-                      {free ? '订购' : '扩容续费'}
+                      <Link
+                        to={`/enterprise/${eid}/orders/overviewService/details`}
+                      >
+                        {free ? '订购' : '扩容续费'}
+                      </Link>
                     </Button>
                   </Col>
                   <Col span={12} className={styles.unit}>

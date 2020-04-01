@@ -5,10 +5,14 @@
   position   : relative;
   cursor     : pointer;
 
+  &:hover {
+    -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .08), 0 0 1px 0 rgba(0, 0, 0, .05);
+    box-shadow        : 0 4px 8px 0 rgba(0, 0, 0, .08), 0 0 1px 0 rgba(0, 0, 0, .05);
+  }
+
   &>div:nth-of-type(1) {
-    background: #f3f5f9;
-    width     : 100px;
-    ;
+    background : #f3f5f9;
+    width      : 100px;
     text-align : center;
     line-height: 82px;
 
@@ -82,6 +86,37 @@
   font-size        : 18px;
   color            : #fff;
 }
+
+
+
+.checked {
+  border-color: #06f;
+
+  .durationChecked {
+    position         : absolute;
+    right            : -35px;
+    bottom           : -35px;
+    width            : 0;
+    height           : 0;
+    border           : 35px solid transparent;
+    border-top-color : #06f;
+    font-size        : 18px;
+    -webkit-transform: rotate(315deg);
+    -ms-transform    : rotate(315deg);
+    transform        : rotate(315deg);
+    color            : #fff;
+  }
+
+  .cukIconCheck {
+    position         : absolute;
+    top              : -29px;
+    left             : -9px;
+    -webkit-transform: rotate(45deg);
+    -ms-transform    : rotate(45deg);
+    transform        : rotate(45deg);
+  }
+}
+
 
 .boxs {
   background: #F5F7FA;
@@ -214,6 +249,12 @@
   }
 }
 
+@media screen and (max-width: 1400px) and (min-width: 1000px) {
+  .unit {
+    padding-left: 30px;
+  }
+}
+
 .imgbox {
   display        : flex;
   align-items    : center;
@@ -247,7 +288,7 @@
 .serviceBox {
   background: #fff;
   padding   : 40px 38px 18px 40px;
-  height    : 100vh;
+  height    : 100%;
 }
 
 .serviceDetailsBox {
@@ -256,7 +297,7 @@
 }
 
 .serviceDetailsL {
-  width      : 80%;
+  width      : 70%;
   margin-left: 18px;
 
   h6 {
@@ -288,6 +329,7 @@
 
 .serviceDetailsR {
   padding-top: 66px;
+  flex       : 1 1;
 
   div {
     font-family   : PingFangSC-Semibold;

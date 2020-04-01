@@ -1,9 +1,19 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Row, Col, Card, Slider, Alert } from 'antd';
+import { routerRedux } from 'dva/router';
+import {
+  Button,
+  Row,
+  Col,
+  Card,
+  Slider,
+  Alert,
+  InputNumber,
+  notification,
+  Spin,
+} from 'antd';
 import styles from '../../index.less';
-import Phoneimg from '../../../../../public/images/phone.png';
-import weChatimg from '../../../../../public/images/weChat.png';
+import moment from 'moment';
 
 @connect(({ user, list, loading, global, index }) => ({
   rainbondInfo: global.rainbondInfo,
@@ -14,95 +24,546 @@ export default class ServiceOverview extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       visible: true,
+      cycleVisible: true,
+      info: null,
+      selected: 1,
+      price: 49,
+      capacity: 30,
+      yearsPay: (49 * 30 * 12).toFixed(2) / 1,
+      discount: (49 * 30 * 12 * 0.75).toFixed(2) / 1,
+      monthNumber: 1,
+      monthPay: (1 * 49 * 30).toFixed(2) / 1,
+      extended: 0,
     };
   }
-  componentWillMount() {}
+  componentWillMount() {
+    this.fetchEnterpriseService();
+  }
   componentDidMount() {}
-  handleClose = () => {
-    this.setState({ visible: false });
+  fetchEnterpriseService = () => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'order/fetchEnterpriseService',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              loading: false,
+              info: res.bean,
+              capacity: this.handlUnit(res.bean && res.bean.memory_limit),
+            },
+            () => {
+              this.calculatePrice();
+            }
+          );
+        }
+      },
+    });
+  };
+
+  handleClose = visibles => {
+    this.setState({ [visibles]: false });
+  };
+
+  selected = selected => {
+    this.setState(
+      {
+        selected,
+      },
+      () => {
+        this.calculatePrice();
+      }
+    );
+  };
+
+  // 计算价格
+  calculatePrice = () => {
+    const { monthNumber, price, capacity, info, selected } = this.state;
+    const timeDelay = selected === 3;
+    const isRenewal = info && info.type === 'vip';
+    const memory_limit = this.handlUnit(info && info.memory_limit);
+    const billing = capacity - memory_limit <= 0;
+    this.calculateExtended(
+      timeDelay,
+      isRenewal,
+      price,
+      capacity,
+      memory_limit,
+      billing
+    );
+    this.calculateYearsPay(
+      12,
+      price,
+      capacity,
+      isRenewal,
+      memory_limit,
+      billing
+    );
+    this.calculateMonthPay(
+      monthNumber,
+      price,
+      capacity,
+      isRenewal,
+      memory_limit,
+      billing
+    );
+  };
+  // 计算年付
+  calculateYearsPay = (
+    monthNumber,
+    price,
+    capacity,
+    isRenewal,
+    memory_limit,
+    billing
+  ) => {
+    let yearsPay = 0;
+    let discount = 0;
+    if (isRenewal) {
+      const calculateNumberDays = this.calculateNumberDays();
+      const dayCost = (price / 30).toFixed(2) / 1;
+      const newCapacity = capacity - memory_limit;
+      const supplementary =
+        (calculateNumberDays * dayCost * newCapacity).toFixed(2) / 1;
+
+      yearsPay = billing
+        ? 0
+        : supplementary + (monthNumber * price * capacity).toFixed(2) / 1;
+      discount = billing
+        ? 0
+        : supplementary +
+          (monthNumber * price * capacity * 0.75).toFixed(2) / 1;
+    } else {
+      yearsPay = (monthNumber * price * capacity).toFixed(2) / 1;
+      discount = (monthNumber * price * capacity * 0.75).toFixed(2) / 1;
+    }
+
+    this.setState({
+      yearsPay,
+      discount,
+    });
+  };
+
+  // 计算月付
+  calculateMonthPay = (
+    monthNumber,
+    price,
+    capacity,
+    isRenewal,
+    memory_limit,
+    billing
+  ) => {
+    let yearsPay = 0;
+    let monthPay = 0;
+
+    if (isRenewal) {
+      const calculateNumberDays = this.calculateNumberDays();
+      const dayCost = (price / 30).toFixed(2) / 1;
+      const newCapacity = capacity - memory_limit;
+      const supplementary =
+        (calculateNumberDays * dayCost * newCapacity).toFixed(2) / 1;
+
+      const yearsNum = parseInt(monthNumber / 12);
+
+      yearsPay = yearsNum
+        ? (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1
+        : 0;
+
+      monthPay = billing
+        ? 0
+        : (
+            supplementary +
+            (monthNumber - yearsNum * 12) * price * capacity
+          ).toFixed(2) / 1;
+    } else {
+      const yearsNum = parseInt(monthNumber / 12);
+      yearsPay = (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1;
+      monthPay =
+        ((monthNumber - yearsNum * 12) * price * capacity).toFixed(2) / 1;
+    }
+
+    this.setState({
+      monthPay: monthPay + yearsPay,
+    });
+  };
+
+  // 不延长
+  calculateExtended = (
+    timeDelay,
+    isRenewal,
+    price,
+    capacity,
+    memory_limit,
+    billing
+  ) => {
+    if (timeDelay && isRenewal) {
+      const calculateNumberDays = this.calculateNumberDays();
+      console.log('calculateNumberDays',calculateNumberDays)
+      const dayCost = (price / 30).toFixed(2) / 1;
+      console.log('dayCost',dayCost)
+      console.log('capacity',capacity - memory_limit)
+
+      const supplementary =
+        (calculateNumberDays * dayCost * (capacity - memory_limit)).toFixed(2) /
+        1;
+      this.setState({ extended: billing ? 0 : supplementary });
+    }
+  };
+
+  durationChecked = () => {
+    return (
+      <div className={styles.durationChecked}>
+        <svg
+          fill="currentColor"
+          preserveAspectRatio="xMidYMid meet"
+          height="1em"
+          width="1em"
+          viewBox="0 0 18 18"
+          className={styles.cukIconCheck}
+          style={{ verticalAlign: 'middle' }}
+        >
+          <g>
+            <path
+              d="m16.03125 3.33984375h-1.2287109c-.1722657 0-.3357422.07910156-.441211.21445312l-7.24746091 9.18105473-3.47519531-4.40332035c-.10722657-.13535156-.26894532-.21445313-.44121094-.21445313h-1.22871094c-.11777344 0-.1828125.13535157-.11074219.22675782l4.81464844 6.09960936c.225.2847656.65742187.2847656.88417969 0l8.58515626-10.87910155c.0720703-.08964844.0070312-.225-.1107422-.225z"
+              fillRule="evenodd"
+            />
+          </g>
+        </svg>
+      </div>
+    );
+  };
+
+  handlUnit = num => {
+    if (num) {
+      let nums = num;
+      if (nums >= 1024) {
+        nums = num / 1024;
+        return parseInt(nums);
+      }
+      return num;
+    }
+    return 30;
+  };
+
+  toThousands = num => {
+    return (num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+  };
+
+  onChangeMonthNumber = monthNumber => {
+    this.setState(
+      {
+        monthNumber: monthNumber < 1 ? 1 : monthNumber,
+      },
+      () => {
+        this.calculatePrice();
+      }
+    );
+  };
+
+  calculateNumberDays = () => {
+    const { info } = this.state;
+    const expired_time = info && info.expired_time;
+    const dateBegin = new Date(expired_time); // 转化为Date对象的形式
+    const date = new Date(); // 当前日期
+    const result = dateBegin.getTime() - date.getTime();
+    const dayNum = Math.floor(result / (24 * 3600 * 1000)); // 1000是毫秒
+    return dayNum;
+  };
+
+  submitOrders = () => {
+    const {
+      monthNumber,
+      capacity,
+      price,
+      yearsPay,
+      selected,
+      extended,
+      discount,
+      monthPay,
+    } = this.state;
+    const { dispatch, eid } = this.props;
+    const totalPrice =
+      selected === 1 ? discount : selected === 2 ? monthPay : extended;
+    const month = selected === 1 ? 12 : selected === 2 ? monthNumber : 0;
+    const originalPrice =
+      selected === 1
+        ? yearsPay
+        : selected === 2
+        ? price * capacity * monthNumber
+        : extended;
+    dispatch({
+      type: 'order/createOrder',
+      payload: {
+        enterprise_id: eid,
+        final_price: totalPrice,
+        memory: capacity,
+        months: month,
+        original_price: originalPrice,
+      },
+      callback: res => {
+        if (res && res._code === 200 && res.bean) {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${eid}/orders/orderManagement/orderDetails/${res.bean.order_id}`
+            )
+          );
+        }
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code) {
+          switch (res.data.code) {
+            case 6000:
+              return notification.warning({
+                message: '请求的价格, 和实际计算出来的价格不一致',
+              });
+            case 6002:
+              return notification.warning({ message: '参数 months 不正确' });
+            case 6003:
+              return notification.warning({ message: '参数 memory 不正确' });
+            case 6005:
+              return notification.warning({
+                message: '内存不能小于已使用内存',
+              });
+            case 6006:
+              return notification.warning({ message: '还有未支付的订单' });
+          }
+        }
+      },
+    });
+  };
+
+  setObj = () => {
+    const obj = {};
+    for (let i = 0; i <= 40; i++) {
+      obj[`${i * 5}`] =
+        i * 5 === 5
+          ? '5GB'
+          : i * 5 === 50
+          ? '50GB'
+          : i * 5 === 100
+          ? '10GB'
+          : i * 5 === 150
+          ? '150GB'
+          : i * 5 === 200
+          ? '200GB'
+          : '';
+    }
+    return obj;
   };
   render() {
+    const {
+      info,
+      loading,
+      selected,
+      visible,
+      cycleVisible,
+      price,
+      capacity,
+      yearsPay,
+      discount,
+      monthNumber,
+      monthPay,
+      extended,
+    } = this.state;
+    const free = info && info.type === 'free';
+    const minCapacity = this.handlUnit(info && info.memory_limit);
+    const marks = this.setObj();
+    const totalPrice = this.toThousands(
+      selected === 1 ? discount : selected === 2 ? monthPay : extended
+    );
     return (
       <div className={styles.serviceBox}>
-        <Card
-          bordered={false}
-          style={{ marginBottom: '30px', background: '#f3f5f9' }}
-          bodyStyle={{ padding: '35px 55px 10px 72px' }}
-        >
-          <Row className={styles.serviceDetailsBox}>
-            <div className={styles.serviceDetailsL}>
-              <h6>RAINBOND ONLINE 付费版</h6>
-              <ul>
-                <li>接入集群数量无限制</li>
-                <li>团队、用户数量无限制</li>
-                <li>共享库应用模版数量，版本数量无限制</li>
-                <li>SLA保证、7x24小时在线服务</li>
-              </ul>
-              <a href="">查看更多付费版特权</a>
-            </div>
-            <div className={styles.serviceDetailsR}>
-              <div>
-                <span>¥49 </span>
-                <span>/GB/月</span>
-              </div>
-              <div>按照平台调度的应用内存总数计费</div>
-            </div>
-          </Row>
-        </Card>
-        <div className={styles.capacityBox}>
-          <span>容量选择</span>
-          <span>（购买后可叠加订单扩大容量）</span>
-        </div>
-        {this.state.visible ? (
-          <Alert
-            style={{ marginBottom: '20px' }}
-            message="最小购买量应该大于当前资源使用量，当前使用 30 GB"
-            type="info"
-            showIcon
-            closable
-            afterClose={this.handleClose}
-          />
-        ) : null}
-        <Slider defaultValue={30} />
-
-        <div className={styles.capacityBox}>
-          <span>时长选择</span>
-        </div>
-
-        <Row style={{marginBottom:"30px"}}>
-          <Col span={8}>
-            <div className={styles.orders}>
-              <div>
-                <span>1</span>
-                <span>年</span>
-              </div>
-              <div>
-                <div>
-                  <span>¥1470</span>
-                  <s>¥ 1470</s>
-                </div>
-                <div>立享7.5优惠</div>
-              </div>
-              <div className={styles.tagVertical}>
-                荐
-              </div>
-            </div>
-          </Col>
-          <Col span={8} />
-          <Col span={8} />
-        </Row>
-        <Card
-          className={styles.amount}
-          bodyStyle={{ padding: '20px 0 15px 24px' }}
-        >
-          <div>
-            <span>应付总额：</span>
-            <span>¥ 4,310</span>
+        {loading ? (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              margin: 'auto',
+              paddingTop: 50,
+              textAlign: 'center',
+            }}
+          >
+            <Spin size="large" />
           </div>
-          <div>总共可管理 30 GB 调度内存的应用到 2020 年 06 月 02 日</div>
-        </Card>
-        <Button type="primary"> 提交订单</Button>
+        ) : (
+          <div>
+            <Card
+              loading={loading}
+              bordered={false}
+              style={{ marginBottom: '30px', background: '#f3f5f9' }}
+              bodyStyle={{ padding: '35px 55px 10px 72px' }}
+            >
+              <Row className={styles.serviceDetailsBox}>
+                <div className={styles.serviceDetailsL}>
+                  <h6>RAINBOND ONLINE 付费版</h6>
+                  <ul>
+                    <li>接入集群数量无限制</li>
+                    <li>团队、用户数量无限制</li>
+                    <li>共享库应用模版数量，版本数量无限制</li>
+                    <li>SLA保证、7x24小时在线服务</li>
+                  </ul>
+                  <a href="">查看更多付费版特权</a>
+                </div>
+                <div className={styles.serviceDetailsR}>
+                  <div>
+                    <span>¥{price} </span>
+                    <span>/GB/月</span>
+                  </div>
+                  <div>按照平台调度的应用内存总数计费</div>
+                </div>
+              </Row>
+            </Card>
+            <div className={styles.capacityBox}>
+              <span>容量选择</span>
+              <span>（购买后可叠加订单扩大容量）</span>
+            </div>
+            {visible && (
+              <Alert
+                message={
+                  free
+                    ? `最小购买量应该大于当前资源使用量，当前使用 ${minCapacity} GB`
+                    : `当前已购买容量 ${minCapacity} GB，你可以增加购买更多容量，扩大容量付款即立即生效`
+                }
+                type="info"
+                showIcon
+                closable
+                afterClose={() => {
+                  this.handleClose('visible');
+                }}
+              />
+            )}
+
+            <Slider
+              tooltipVisible
+              style={{ margin: '70px 0 50px 0 ' }}
+              marks={marks}
+              step={null}
+              onAfterChange={value => {
+                const values = value >= minCapacity ? value : minCapacity;
+                this.setState({ capacity: values }, () => {
+                  this.calculatePrice();
+                });
+              }}
+              onChange={value => {
+                this.setState({ capacity: value });
+              }}
+              value={capacity}
+              // min={minCapacity}
+              max={200}
+            />
+
+            <div className={styles.capacityBox}>
+              <span>{free ? '时长选择' : '延长周期选择'}</span>
+            </div>
+            {!free && cycleVisible && info && (
+              <Alert
+                message={`当前服务到期时间为 ${moment(info.expired_time).format(
+                  'YYYY-MM-DD'
+                )}`}
+                type="info"
+                showIcon
+                closable
+                afterClose={() => {
+                  this.handleClose('cycleVisible');
+                }}
+                style={{ marginBottom: '20px' }}
+              />
+            )}
+            <Row gutter={24} style={{ marginBottom: '30px' }}>
+              <Col
+                span={8}
+                onClick={() => {
+                  this.selected(1);
+                }}
+              >
+                <div
+                  className={`${styles.orders} ${selected === 1 &&
+                    styles.checked}`}
+                >
+                  <div>
+                    <span>1</span>
+                    <span>年</span>
+                  </div>
+                  <div>
+                    <div>
+                      <span>¥&nbsp;{this.toThousands(discount)}</span>
+                      <s>¥&nbsp;{this.toThousands(yearsPay)}</s>
+                    </div>
+                    <div>立享7.5优惠</div>
+                  </div>
+                  <div className={styles.tagVertical}>荐</div>
+                  {selected === 1 && this.durationChecked()}
+                </div>
+              </Col>
+              <Col
+                span={8}
+                onClick={() => {
+                  this.selected(2);
+                }}
+              >
+                <div
+                  className={`${styles.orders} ${selected === 2 &&
+                    styles.checked}`}
+                >
+                  <div>
+                    <span>
+                      <InputNumber
+                        size="small"
+                        min={1}
+                        value={monthNumber}
+                        style={{ width: '45px', marginRight: '5px' }}
+                        onChange={this.onChangeMonthNumber}
+                      />
+                    </span>
+                    <span>月</span>
+                  </div>
+                  <div>
+                    <div>
+                      <span>¥&nbsp;{this.toThousands(monthPay)}</span>
+                    </div>
+                  </div>
+                  {selected === 2 && this.durationChecked()}
+                </div>
+              </Col>
+              {!free && (
+                <Col
+                  span={8}
+                  onClick={() => {
+                    this.selected(3);
+                  }}
+                >
+                  <div
+                    className={`${styles.orders} ${selected === 3 &&
+                      styles.checked}`}
+                  >
+                    <div style={{ width: '0px' }} />
+                    <div style={{ width: '100%' }}>不延长</div>
+                    {selected === 3 && this.durationChecked()}
+                  </div>
+                </Col>
+              )}
+            </Row>
+            <Card
+              className={styles.amount}
+              bodyStyle={{ padding: '20px 0 15px 24px' }}
+            >
+              <div>
+                <span>应付总额：</span>
+                <span>¥&nbsp;{totalPrice}</span>
+              </div>
+              <div>总共可管理 30 GB 调度内存的应用到 2020 年 06 月 02 日</div>
+            </Card>
+            <Button type="primary" onClick={this.submitOrders}>
+              {' '}
+              提交订单
+            </Button>
+          </div>
+        )}
       </div>
     );
   }

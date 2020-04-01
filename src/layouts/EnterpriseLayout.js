@@ -22,7 +22,6 @@ import logo from '../../public/logo.png';
 import Loading from '../components/Loading';
 import GlobalRouter from '../components/GlobalRouter';
 import AuthCompany from '../components/AuthCompany';
-import Meiqia from './Meiqia';
 import Context from './MenuContext';
 import headerStype from '../components/GlobalHeader/index.less';
 
@@ -344,9 +343,6 @@ class EnterpriseLayout extends PureComponent {
 
         <Loading />
 
-        {rainbondInfo &&
-          rainbondInfo.is_public &&
-          rainbondInfo.is_public.enable && <Meiqia />}
         {/* 企业尚未认证 */}
         {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
