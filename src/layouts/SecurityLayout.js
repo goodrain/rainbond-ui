@@ -25,6 +25,11 @@ class SecurityLayout extends React.PureComponent {
       });
     }
   }
+  componentDidUpdate(prevProps) {
+    if (this.props.location !== prevProps.location) {
+      window.scrollTo(0, 0);
+    }
+  }
 
   fetchUserInfo = () => {
     const { dispatch } = this.props;
@@ -36,8 +41,7 @@ class SecurityLayout extends React.PureComponent {
             isReady: true,
           });
         },
-        handleError: err => {
-
+        handleError: () => {
           this.setState({
             isReady: true,
           });
@@ -56,7 +60,7 @@ class SecurityLayout extends React.PureComponent {
       redirect: window.location.href,
     });
     if (needLogin) {
-      globalUtil.removeCookie()
+      globalUtil.removeCookie();
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     if (!isReady) {
