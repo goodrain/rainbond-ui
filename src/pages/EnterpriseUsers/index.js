@@ -338,6 +338,7 @@ export default class EnterpriseUsers extends PureComponent {
 
           {this.state.userVisible && (
             <CreatUser
+              eid={eid}
               userInfo={userInfo}
               title={text}
               onOk={this.handleCreatUser}

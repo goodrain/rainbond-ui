@@ -1,13 +1,14 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Icon, Dropdown, notification, Input } from "antd";
-import style from "../SelectTeam/index.less";
-import EditGroupName from "../AddOrEditGroup";
-import { Link } from "dva/router";
-import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Icon, Dropdown, notification, Input } from 'antd';
+import style from '../SelectTeam/index.less';
+import EditGroupName from '../AddOrEditGroup';
+import { Link } from 'dva/router';
+import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 
-@connect(({ user }) => ({
-  currentUser: user.currentUser
+@connect(({ user, appControl }) => ({
+  currentUser: user.currentUser,
+  appDetail: appControl.appDetail,
 }))
 export default class SelectComponent extends PureComponent {
   constructor(props) {
@@ -16,9 +17,8 @@ export default class SelectComponent extends PureComponent {
       components: [],
       showOpenRegion: false,
       loading: true,
-      currentApp: {},
-      queryName: "",
-      visible: false
+      queryName: '',
+      visible: false,
     };
   }
   componentDidMount() {
@@ -34,22 +34,22 @@ export default class SelectComponent extends PureComponent {
     const { queryName } = this.state;
     if (currentAppID) {
       dispatch({
-        type: "groupControl/fetchApps",
+        type: 'groupControl/fetchApps',
         payload: {
           team_name: currentTeam.team_name,
           region_name: currentRegion.team_region_name,
           group_id: currentAppID,
           page: 1,
           page_size: 50,
-          query: queryName
+          query: queryName,
         },
         callback: data => {
           if (data && data._code == 200) {
             this.setState({
-              components: data.list || []
+              components: data.list || [],
             });
           }
-        }
+        },
       });
     }
   };
@@ -67,10 +67,13 @@ export default class SelectComponent extends PureComponent {
       currentTeam,
       currentComponent,
       currentRegion,
-      active
+      active,
+      appDetail,
     } = this.props;
-    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
-    const { components, loading, currentApp, visible } = this.state;
+    const groupId =
+      appDetail && appDetail.service && appDetail.service.group_id;
+    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${groupId}`;
+    const { components, loading, visible } = this.state;
     const currentAPPLink =
       currentComponent &&
       `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
@@ -87,7 +90,7 @@ export default class SelectComponent extends PureComponent {
               <Input.Search
                 onSearch={this.queryComponent}
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: "header.component.search" })}
+                placeholder={formatMessage({ id: 'header.component.search' })}
               />
             </div>
           </div>
@@ -100,9 +103,7 @@ export default class SelectComponent extends PureComponent {
                 return (
                   <li key={item.service_alias}>
                     <Link to={link} title={item.service_cname}>
-                      <span>
-                        {item.service_cname}
-                      </span>
+                      <span>{item.service_cname}</span>
                     </Link>
                   </li>
                 );
@@ -120,7 +121,7 @@ export default class SelectComponent extends PureComponent {
     );
     let showstyle = {};
     if (currentComponent) {
-      showstyle = { background: "#1890ff", color: "#ffffff" };
+      showstyle = { background: '#1890ff', color: '#ffffff' };
     }
     return (
       <div
@@ -130,7 +131,7 @@ export default class SelectComponent extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={visible}>
           <div>
-            {active &&
+            {active && (
               <div className={style.selectButton}>
                 <div className={style.selectButtonName} style={showstyle}>
                   <span>
@@ -141,12 +142,13 @@ export default class SelectComponent extends PureComponent {
                     />
                   </span>
                 </div>
-              </div>}
-            {!active &&
-              currentAPPLink &&
+              </div>
+            )}
+            {!active && currentAPPLink && (
               <Link className={style.selectButtonLink} to={currentAPPLink}>
                 {currentComponent && currentComponent.service_cname}
-              </Link>}
+              </Link>
+            )}
           </div>
         </Dropdown>
       </div>

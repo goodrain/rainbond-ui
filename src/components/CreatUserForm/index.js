@@ -7,7 +7,7 @@ import styles from '../CreateTeam/index.less';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-@connect(({}) => ({}))
+@connect()
 class CreateUserForm extends PureComponent {
   constructor(props) {
     super(props);
@@ -39,7 +39,9 @@ class CreateUserForm extends PureComponent {
     });
   };
   checkAccount = (rule, value, callback) => {
-    if (value.length < 8) {
+    if (!value) {
+      callback('请填写密码');
+    } else if (value && value.length < 8) {
       callback('密码长度至少为8位');
     } else {
       callback();
@@ -54,7 +56,7 @@ class CreateUserForm extends PureComponent {
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { onOk, onCancel, title, userInfo } = this.props;
+    const { eid, onCancel, title, userInfo } = this.props;
     const { authorityList } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -97,7 +99,6 @@ class CreateUserForm extends PureComponent {
               rules: [
                 {
                   required: true,
-                  message: '密码长度至少为8位!',
                   validator: this.checkAccount,
                 },
               ],
@@ -121,6 +122,7 @@ class CreateUserForm extends PureComponent {
                 })(
                   <TenantSelect
                     placeholder="请输入团队名称进行查询"
+                    eid={eid}
                     onChange={this.handleChange}
                     onSelect={this.handleSelect}
                   />

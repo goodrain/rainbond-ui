@@ -4,46 +4,55 @@ import { Select } from 'antd';
 
 const Option = Select.Option;
 
-@connect(({ }) => ({}))
+@connect(({}) => ({}))
 class TenantSelect extends Component {
   constructor(props) {
     super(props);
     this.state = {
       data: [],
-      tenant: undefined
-    }
+      tenant: undefined,
+    };
+  }
+  componentDidMount() {
+    this.handleSearch();
   }
 
-  handleSearch = (value) => {
-    this.props.dispatch({
+  handleSearch = value => {
+    const { eid, dispatch } = this.props;
+    dispatch({
       type: 'global/searchTenant',
       payload: {
-        tenant: value
+        eid,
+        tenant: value,
       },
-      callback: data => {
-        if (data) {
-          this.setState({ data: (data.list || []) })
+      callback: res => {
+        if (res && res._code === 200 && res.bean) {
+          this.setState({ data: res.bean.list || [] });
         }
-      }
-    })
-  }
+      },
+    });
+  };
 
-  handleChange = (value) => {
+  handleChange = value => {
     this.setState({ tenant: value }, () => {
-      this.props.onChange && this.props.onChange(value)
-    })
-  }
+      this.props.onChange && this.props.onChange(value);
+    });
+  };
 
-  handleSelect = (value) => {
+  handleSelect = value => {
     const { onSelect } = this.props;
-    onSelect && onSelect(value)
-  }
+    onSelect && onSelect(value);
+  };
   componentWillUnmount() {
-    this.setState({ data: [], tenant: '' })
+    this.setState({ data: [], tenant: '' });
   }
 
   render() {
-    var options = this.state.data.map((d, index) => <Option value={d.team_name} key={index}>{d.team_alias}</Option>);
+    const options = this.state.data.map((d, index) => (
+      <Option value={d.team_name} key={index}>
+        {d.team_alias}
+      </Option>
+    ));
     return (
       <Select
         showSearch
