@@ -8,7 +8,6 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import moment from 'moment';
 
-
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
   list,
@@ -289,6 +288,7 @@ export default class EnterpriseUsers extends PureComponent {
 
           {this.state.userVisible && (
             <CreatUser
+              eid={eid}
               userInfo={userInfo}
               title={text}
               onOk={this.handleCreatUser}
