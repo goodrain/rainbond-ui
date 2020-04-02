@@ -155,6 +155,16 @@ export default function request(url, options) {
           return;
         }
 
+        if (resData.code >= 20001 && resData.code <= 20003) {
+          window.g_app._store.dispatch({
+            type: 'global/showOrders',
+            payload: {
+              code: resData.code,
+            },
+          });
+          return;
+        }
+
         if (resData.code === 10406) {
           window.g_app._store.dispatch({
             type: 'global/showMemoryTip',

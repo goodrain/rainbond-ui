@@ -13,18 +13,18 @@ import {
   Spin,
 } from 'antd';
 import styles from '../../index.less';
+import ordersUtil from '../../../../utils/orders';
 import moment from 'moment';
 
-@connect(({ user, list, loading, global, index }) => ({
-  rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
-  overviewInfo: index.overviewInfo,
+@connect(({ order }) => ({
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
 export default class ServiceOverview extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
+      submitLoading: false,
       visible: true,
       cycleVisible: true,
       info: null,
@@ -35,7 +35,9 @@ export default class ServiceOverview extends PureComponent {
       discount: (49 * 30 * 12 * 0.75).toFixed(2) / 1,
       monthNumber: 1,
       monthPay: (1 * 49 * 30).toFixed(2) / 1,
+      originalMonthPay: (1 * 49 * 30).toFixed(2) / 1,
       extended: 0,
+      months: '',
     };
   }
   componentWillMount() {
@@ -43,27 +45,20 @@ export default class ServiceOverview extends PureComponent {
   }
   componentDidMount() {}
   fetchEnterpriseService = () => {
-    const { dispatch, eid } = this.props;
-    dispatch({
-      type: 'order/fetchEnterpriseService',
-      payload: {
-        enterprise_id: eid,
+    const { enterpriseServiceInfo } = this.props;
+    if (!enterpriseServiceInfo) {
+      return null;
+    }
+    this.setState(
+      {
+        loading: false,
+        info: enterpriseServiceInfo,
+        capacity: ordersUtil.handlUnit(enterpriseServiceInfo.memory_limit),
       },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState(
-            {
-              loading: false,
-              info: res.bean,
-              capacity: this.handlUnit(res.bean && res.bean.memory_limit),
-            },
-            () => {
-              this.calculatePrice();
-            }
-          );
-        }
-      },
-    });
+      () => {
+        this.calculatePrice();
+      }
+    );
   };
 
   handleClose = visibles => {
@@ -86,8 +81,10 @@ export default class ServiceOverview extends PureComponent {
     const { monthNumber, price, capacity, info, selected } = this.state;
     const timeDelay = selected === 3;
     const isRenewal = info && info.type === 'vip';
-    const memory_limit = this.handlUnit(info && info.memory_limit);
+    const memory_limit = ordersUtil.handlUnit(info && info.memory_limit);
     const billing = capacity - memory_limit <= 0;
+    const expired_time = info && info.expired_time;
+    this.fetchmonths(selected, monthNumber, expired_time);
     this.calculateExtended(
       timeDelay,
       isRenewal,
@@ -159,6 +156,7 @@ export default class ServiceOverview extends PureComponent {
     billing
   ) => {
     let yearsPay = 0;
+    let originalYearsPay = 0;
     let monthPay = 0;
 
     if (isRenewal) {
@@ -173,7 +171,9 @@ export default class ServiceOverview extends PureComponent {
       yearsPay = yearsNum
         ? (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1
         : 0;
-
+      originalYearsPay = yearsNum
+        ? (yearsNum * 12 * price * capacity).toFixed(2) / 1
+        : 0;
       monthPay = billing
         ? 0
         : (
@@ -183,12 +183,14 @@ export default class ServiceOverview extends PureComponent {
     } else {
       const yearsNum = parseInt(monthNumber / 12);
       yearsPay = (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1;
+      originalYearsPay = (yearsNum * 12 * price * capacity).toFixed(2) / 1;
       monthPay =
         ((monthNumber - yearsNum * 12) * price * capacity).toFixed(2) / 1;
     }
 
     this.setState({
       monthPay: monthPay + yearsPay,
+      originalMonthPay: monthPay + originalYearsPay,
     });
   };
 
@@ -203,11 +205,7 @@ export default class ServiceOverview extends PureComponent {
   ) => {
     if (timeDelay && isRenewal) {
       const calculateNumberDays = this.calculateNumberDays();
-      console.log('calculateNumberDays',calculateNumberDays)
       const dayCost = (price / 30).toFixed(2) / 1;
-      console.log('dayCost',dayCost)
-      console.log('capacity',capacity - memory_limit)
-
       const supplementary =
         (calculateNumberDays * dayCost * (capacity - memory_limit)).toFixed(2) /
         1;
@@ -279,23 +277,23 @@ export default class ServiceOverview extends PureComponent {
     const {
       monthNumber,
       capacity,
-      price,
       yearsPay,
       selected,
       extended,
       discount,
       monthPay,
+      originalMonthPay,
     } = this.state;
+    this.setState({
+      submitLoading: true,
+    });
     const { dispatch, eid } = this.props;
     const totalPrice =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const month = selected === 1 ? 12 : selected === 2 ? monthNumber : 0;
+
     const originalPrice =
-      selected === 1
-        ? yearsPay
-        : selected === 2
-        ? price * capacity * monthNumber
-        : extended;
+      selected === 1 ? yearsPay : selected === 2 ? originalMonthPay : extended;
     dispatch({
       type: 'order/createOrder',
       payload: {
@@ -315,6 +313,9 @@ export default class ServiceOverview extends PureComponent {
         }
       },
       handleError: res => {
+        this.setState({
+          submitLoading: false,
+        });
         if (res && res.data && res.data.code) {
           switch (res.data.code) {
             case 6000:
@@ -337,24 +338,41 @@ export default class ServiceOverview extends PureComponent {
     });
   };
 
-  setObj = () => {
+  setObj = minCapacity => {
     const obj = {};
-    for (let i = 0; i <= 40; i++) {
-      obj[`${i * 5}`] =
-        i * 5 === 5
-          ? '5GB'
-          : i * 5 === 50
-          ? '50GB'
-          : i * 5 === 100
-          ? '10GB'
-          : i * 5 === 150
-          ? '150GB'
-          : i * 5 === 200
-          ? '200GB'
+    const totalNumber = minCapacity + 200;
+    for (let i = 0; i <= totalNumber; i++) {
+      const interval = i * 5;
+      obj[`${interval}`] =
+        interval === totalNumber
+          ? `${interval}GB`
+          : interval % 50 === 0
+          ? `${interval}GB`
           : '';
     }
     return obj;
   };
+
+  fetchmonths = (selected, monthNumber, expired_time) => {
+    let moments = '';
+    const date = new Date(); // 获取当前日期
+    if (selected === 1) {
+      moments = moment(date.setMonth(date.getMonth() + 12)).format(
+        'YYYY年MM月DD日'
+      );
+    } else if (selected === 2) {
+      moments = moment(date.setMonth(date.getMonth() + monthNumber)).format(
+        'YYYY年MM月DD日'
+      );
+    } else {
+      moments = moment(expired_time).format('YYYY年MM月DD日');
+    }
+
+    this.setState({
+      moments,
+    });
+  };
+
   render() {
     const {
       info,
@@ -369,13 +387,18 @@ export default class ServiceOverview extends PureComponent {
       monthNumber,
       monthPay,
       extended,
+      moments,
+      submitLoading,
     } = this.state;
+
     const free = info && info.type === 'free';
-    const minCapacity = this.handlUnit(info && info.memory_limit);
-    const marks = this.setObj();
-    const totalPrice = this.toThousands(
-      selected === 1 ? discount : selected === 2 ? monthPay : extended
-    );
+    const minCapacity = ordersUtil.handlUnit(info && info.memory_limit);
+    const usedMemory = ordersUtil.handlUnit(info && info.used_memory);
+    const marks = this.setObj(minCapacity);
+    const totalCalculate =
+      selected === 1 ? discount : selected === 2 ? monthPay : extended;
+    const totalPrice = this.toThousands(totalCalculate);
+
     return (
       <div className={styles.serviceBox}>
         {loading ? (
@@ -426,7 +449,7 @@ export default class ServiceOverview extends PureComponent {
               <Alert
                 message={
                   free
-                    ? `最小购买量应该大于当前资源使用量，当前使用 ${minCapacity} GB`
+                    ? `最小购买量应该大于当前资源使用量，当前使用 ${usedMemory} GB`
                     : `当前已购买容量 ${minCapacity} GB，你可以增加购买更多容量，扩大容量付款即立即生效`
                 }
                 type="info"
@@ -439,6 +462,7 @@ export default class ServiceOverview extends PureComponent {
             )}
 
             <Slider
+              className={styles.zslSlider}
               tooltipVisible
               style={{ margin: '70px 0 50px 0 ' }}
               marks={marks}
@@ -453,8 +477,8 @@ export default class ServiceOverview extends PureComponent {
                 this.setState({ capacity: value });
               }}
               value={capacity}
-              // min={minCapacity}
-              max={200}
+              min={minCapacity}
+              max={minCapacity + 200}
             />
 
             <div className={styles.capacityBox}>
@@ -463,7 +487,7 @@ export default class ServiceOverview extends PureComponent {
             {!free && cycleVisible && info && (
               <Alert
                 message={`当前服务到期时间为 ${moment(info.expired_time).format(
-                  'YYYY-MM-DD'
+                  'YYYY年MM月DD日'
                 )}`}
                 type="info"
                 showIcon
@@ -513,10 +537,12 @@ export default class ServiceOverview extends PureComponent {
                   <div>
                     <span>
                       <InputNumber
+                        className={styles.showInput}
                         size="small"
                         min={1}
+                        max={12}
                         value={monthNumber}
-                        style={{ width: '45px', marginRight: '5px' }}
+                        style={{ width: '50px', marginRight: '5px' }}
                         onChange={this.onChangeMonthNumber}
                       />
                     </span>
@@ -556,10 +582,16 @@ export default class ServiceOverview extends PureComponent {
                 <span>应付总额：</span>
                 <span>¥&nbsp;{totalPrice}</span>
               </div>
-              <div>总共可管理 30 GB 调度内存的应用到 2020 年 06 月 02 日</div>
+              <div>
+                总共可管理 {capacity} GB 调度内存的应用到 {moments}
+              </div>
             </Card>
-            <Button type="primary" onClick={this.submitOrders}>
-              {' '}
+            <Button
+              type="primary"
+              disabled={!totalCalculate || totalCalculate === 0}
+              loading={submitLoading}
+              onClick={this.submitOrders}
+            >
               提交订单
             </Button>
           </div>

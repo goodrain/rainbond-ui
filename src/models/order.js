@@ -9,31 +9,34 @@ import {
 export default {
   namespace: 'order',
 
-  state: {},
+  state: {
+    enterpriseServiceInfo: null,
+  },
 
   effects: {
     *fetchEnterpriseService({ payload, callback }, { call, put }) {
       const response = yield call(queryEnterpriseService, payload);
-      if (response && callback) {
-        callback(response);
+      if (response && response._code === 200) {
+        yield put({
+          type: 'setEnterpriseServiceInfo',
+          payload: response.bean,
+        });
+        callback && callback(response);
       }
     },
-    *createOrder({ payload, callback, handleError }, { call, put }) {
+    *createOrder({ payload, callback, handleError }, { call }) {
       const response = yield call(CreateOrder, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *fetchEnterpriseOrderList({ payload, callback }, { call, put }) {
+    *fetchEnterpriseOrderList({ payload, callback }, { call }) {
       const response = yield call(queryEnterpriseOrderList, payload);
       if (response && callback) {
         callback(response);
       }
     },
-    *fetchEnterpriseOrderDetails(
-      { payload, callback, handleError },
-      { call, put }
-    ) {
+    *fetchEnterpriseOrderDetails({ payload, callback, handleError }, { call }) {
       const response = yield call(
         queryEnterpriseOrderDetails,
         payload,
@@ -43,7 +46,7 @@ export default {
         callback(response);
       }
     },
-    *fetchBankInfo({ payload, callback }, { call, put }) {
+    *fetchBankInfo({ payload, callback }, { call }) {
       const response = yield call(queryBankInfo, payload);
       if (response && callback) {
         callback(response);
@@ -51,5 +54,12 @@ export default {
     },
   },
 
-  reducers: {},
+  reducers: {
+    setEnterpriseServiceInfo(state, { payload }) {
+      return {
+        ...state,
+        enterpriseServiceInfo: payload,
+      };
+    },
+  },
 };

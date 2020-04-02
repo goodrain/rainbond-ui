@@ -22,6 +22,7 @@ import logo from '../../public/logo.png';
 import Loading from '../components/Loading';
 import GlobalRouter from '../components/GlobalRouter';
 import AuthCompany from '../components/AuthCompany';
+import ServiceOrder from '../components/ServiceOrder';
 import Context from './MenuContext';
 import headerStype from '../components/GlobalHeader/index.less';
 
@@ -218,8 +219,19 @@ class EnterpriseLayout extends PureComponent {
       return null;
     }
     const { dispatch } = this.props;
+    this.fetchEnterpriseService(eid);
     dispatch({
       type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid,
+      },
+    });
+  };
+
+  fetchEnterpriseService = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/fetchEnterpriseService',
       payload: {
         enterprise_id: eid,
       },
@@ -229,12 +241,13 @@ class EnterpriseLayout extends PureComponent {
   render() {
     const {
       currentUser,
+      enterpriseServiceInfo,
       collapsed,
       location: { pathname },
       match: {
         params: { eid },
       },
-      groups,
+      orders,
       children,
       rainbondInfo,
       enterprise,
@@ -246,7 +259,7 @@ class EnterpriseLayout extends PureComponent {
     const queryString = stringify({
       redirect: window.location.href,
     });
-    if (!ready || !enterpriseInfo) {
+    if (!ready || !enterpriseInfo || !enterpriseServiceInfo) {
       return <PageLoading />;
     }
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
@@ -328,7 +341,7 @@ class EnterpriseLayout extends PureComponent {
       );
     };
     const fetchLogo =
-    rainbondUtil.exportAppEnable(enterpriseInfo, enterprise) || logo;
+      rainbondUtil.exportAppEnable(enterpriseInfo, enterprise) || logo;
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
@@ -360,11 +373,13 @@ class EnterpriseLayout extends PureComponent {
             }}
           />
         )}
+
+        {orders && <ServiceOrder enterpriseServiceInfo={enterpriseServiceInfo} eid={eid} orders={orders} />}
       </Fragment>
     );
   }
 }
-export default connect(({ user, global, index, loading }) => ({
+export default connect(({ user, global, index, loading, order }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -378,7 +393,9 @@ export default connect(({ user, global, index, loading }) => ({
   memoryTip: global.memoryTip,
   noMoneyTip: global.noMoneyTip,
   showAuthCompany: global.showAuthCompany,
+  orders: global.orders,
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))(EnterpriseLayout);

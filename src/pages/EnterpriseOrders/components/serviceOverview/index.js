@@ -4,23 +4,23 @@ import { Link } from 'dva/router';
 import { Button, Row, Col, Card } from 'antd';
 import styles from '../../index.less';
 import Phoneimg from '../../../../../public/images/phone.png';
-import weChatimg from '../../../../../public/images/weChat.png';
+import weChatimg from '../../../../../public/images/weChat.jpeg';
+import ordersUtil from '../../../../utils/orders';
+
 import moment from 'moment';
 
-@connect(({ user, list, loading, global, index }) => ({
-  rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
-  overviewInfo: index.overviewInfo,
+@connect(({ order }) => ({
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
 export default class ServiceOverview extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { info: null, loading: true };
+    this.state = { loading: true };
   }
+
   componentWillMount() {
     this.fetchEnterpriseService();
   }
-
   fetchEnterpriseService = () => {
     const { dispatch, eid } = this.props;
     dispatch({
@@ -32,28 +32,16 @@ export default class ServiceOverview extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             loading: false,
-            info: res.bean,
           });
         }
       },
     });
   };
 
-  handlUnit = num => {
-    if (num) {
-      let nums = num;
-      if (nums >= 1024) {
-        nums = num / 1024;
-        return nums.toFixed(2) / 1;
-      }
-      return num;
-    }
-  };
-
   render() {
-    const { info, loading } = this.state;
-    const { eid } = this.props;
-    const free = info && info.type === 'free';
+    const { loading } = this.state;
+    const { eid, enterpriseServiceInfo } = this.props;
+    const free = enterpriseServiceInfo && enterpriseServiceInfo.type === 'free';
     const version = free ? '免费版' : '付费版';
     const versionName = free ? 'RAINBOND ONLINE' : 'RAINBOND CLOUD';
     const service = free ? '免费服务' : '付费服务';
@@ -61,18 +49,20 @@ export default class ServiceOverview extends PureComponent {
       <div>
         <Card
           bordered={false}
-          loading={loading}
+          loading={!enterpriseServiceInfo}
           style={{ marginBottom: '45px' }}
           bodyStyle={{ padding: !loading && '0' }}
         >
-          {info && (
+          {enterpriseServiceInfo && (
             <Row>
               <Col span={7} className={styles.boxs}>
                 <p>{versionName}</p>
                 <p> {version} </p>
                 {!free ? (
                   <p>
-                    {moment(info.expired_time).format('YYYY-MM-DD')}
+                    {moment(enterpriseServiceInfo.expired_time).format(
+                      'YYYY-MM-DD'
+                    )}
                     到期
                   </p>
                 ) : (
@@ -84,7 +74,11 @@ export default class ServiceOverview extends PureComponent {
                   <Col span={12} className={styles.unit}>
                     <div>
                       <p>当前使用调度内存(GB)</p>
-                      <h6>{this.handlUnit(info.used_memory) || 0}</h6>
+                      <h6>
+                        {ordersUtil.handlUnit(
+                          enterpriseServiceInfo.used_memory
+                        ) || 0}
+                      </h6>
                     </div>
                     <Button style={{ marginTop: '50px' }} type="primary">
                       <Link
@@ -97,7 +91,11 @@ export default class ServiceOverview extends PureComponent {
                   <Col span={12} className={styles.unit}>
                     <div>
                       <p>调度内存上限(GB)</p>
-                      <h6>{this.handlUnit(info.memory_limit)}</h6>
+                      <h6>
+                        {ordersUtil.handlUnit(
+                          enterpriseServiceInfo.memory_limit
+                        )}
+                      </h6>
                     </div>
                   </Col>
                 </Row>
@@ -120,14 +118,14 @@ export default class ServiceOverview extends PureComponent {
                 <img src={Phoneimg} alt="" />
                 <div>
                   <p>专属客服电话</p>
-                  <p>13132075355</p>
+                  <p>18701654470</p>
                 </div>
               </Col>
               <Col span={12} className={styles.imgbox}>
                 <img src={weChatimg} alt="" />
                 <div>
                   <p>专属客服微信</p>
-                  <p>weichart</p>
+                  <p>wechat</p>
                 </div>
               </Col>
             </Row>

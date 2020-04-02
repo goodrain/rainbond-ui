@@ -186,7 +186,7 @@
   &>p {
     font-family   : PingFangSC;
     letter-spacing: 0;
-    margin-bottom : 7px;
+    margin-bottom : 14px;
     display       : flex;
     align-items   : center;
 
@@ -387,4 +387,78 @@
   }
 
 
+}
+
+.showInput {
+  :global {
+    .ant-input-number-handler-wrap {
+      opacity: 1;
+    }
+  }
+}
+
+.zslSlider {
+  :global {
+    .ant-slider-rail {
+      background: #f5f7fa !important;
+      height    : 20px !important;
+
+      &:before,
+      &:after {
+        display      : inline-block;
+        content      : "";
+        background   : #80b3ff;
+        border-radius: 1px;
+        height       : 30px;
+        width        : 3px;
+        position     : absolute;
+        top          : -5px;
+        z-index      : 3;
+      }
+
+      &:before {
+        left: 0;
+      }
+
+      &:after {
+        right: 0;
+      }
+    }
+
+    .ant-slider-step {
+      bottom: -15px;
+    }
+
+    .ant-slider-handle {
+      border-radius: 5px !important;
+      box-shadow   : 0 1px 2px 0 rgba(0, 0, 0, .05), 0 3px 10px 0 rgba(96, 108, 128, .3);
+      height       : 40px !important;
+      width        : 20px !important;
+      margin-top   : -10px !important;
+      z-index      : 9;
+      border-color : #fff !important;
+
+      .ant-tooltip-open {
+        border-color: #fff !important;
+      }
+    }
+
+    .ant-slider-dot {
+      margin-left  : -2px !important;
+      border-radius: inherit !important;
+      border       : 1px solid #dadfe6 !important;
+      height       : 5px !important;
+      width        : 1px !important;
+      top          : 0 !important;
+    }
+
+    .ant-slider-track {
+      height    : 20px !important;
+      background: linear-gradient(90deg, #80b3ff, #3386ff) !important;
+    }
+
+    .ant-slider-mark {
+      top: 35px !important;
+    }
+  }
 }

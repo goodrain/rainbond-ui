@@ -1,49 +1,25 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Link, Route, routerRedux } from "dva/router";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Select,
-  Input,
-  Modal
-} from "antd";
-import styles from "./Index.less";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
-import CodeCustomForm from "../../components/CodeCustomForm";
-import { width } from "window-size";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import { Card } from 'antd';
+import styles from './Index.less';
+import globalUtil from '../../utils/global';
+import CodeCustomForm from '../../components/CodeCustomForm';
+import TopUpHints from '../../components/TopUpHints';
+import { width } from 'window-size';
 
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    span: 5
-  },
-  wrapperCol: {
-    span: 19
-  }
-};
-
-@connect(({ user, global }) => ({
+@connect(({ user, global, order }) => ({
   currUser: user.currentUser,
-  groups: global.groups
+  groups: global.groups,
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      codeType: "Git",
+      codeType: 'Git',
       showUsernameAndPass: false,
       showKey: false,
-      addGroup: false
+      addGroup: false,
     };
   }
   onAddGroup = () => {
@@ -56,27 +32,27 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals
+        ...vals,
       },
       callback: group => {
         if (group) {
           // 获取群组
           this.props.dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
+              region_name: globalUtil.getCurrRegionName(),
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            }
+            },
           });
         }
-      }
+      },
     });
   };
   hideShowKey = () => {
@@ -89,18 +65,18 @@ export default class Index extends PureComponent {
     delete value.username_1;
     delete value.password_1;
     this.props.dispatch({
-      type: "createApp/createAppByCode",
+      type: 'createApp/createAppByCode',
       payload: {
         team_name: teamName,
-        code_from: "gitlab_manual",
+        code_from: 'gitlab_manual',
         ...value,
         username,
-        password
+        password,
       },
       callback: data => {
         if (data) {
           const appAlias = data.bean.service_alias;
-          this.props.handleType && this.props.handleType === "Service"
+          this.props.handleType && this.props.handleType === 'Service'
             ? this.props.handleServiceGetData(appAlias)
             : this.props.dispatch(
                 routerRedux.push(
@@ -108,7 +84,7 @@ export default class Index extends PureComponent {
                 )
               );
         }
-      }
+      },
     });
   };
   render() {
@@ -118,11 +94,12 @@ export default class Index extends PureComponent {
           className={styles.formWrap}
           style={{
             width:
-              this.props.handleType && this.props.handleType === "Service"
-                ? "auto"
-                : "500px"
+              this.props.handleType && this.props.handleType === 'Service'
+                ? 'auto'
+                : '500px',
           }}
         >
+          <TopUpHints />
           <CodeCustomForm onSubmit={this.handleSubmit} {...this.props} />
         </div>
       </Card>

@@ -17,7 +17,6 @@ import {
   notification
 } from "antd";
 import { connect } from "dva";
-import { routerRedux } from "dva/router";
 import globalUtil from "../../utils/global";
 import { Link } from "dva/router";
 import CodeBuildConfig from "../CodeBuildConfig";

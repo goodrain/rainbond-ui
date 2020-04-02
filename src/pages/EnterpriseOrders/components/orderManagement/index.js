@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Table, Tabs, Row, Col, notification, Badge } from 'antd';
-import userUtil from '../../../../utils/user';
-import PageHeaderLayout from '../../../../layouts/PageHeaderLayout';
-import { routerRedux, Link } from 'dva/router';
+import { Card, Table, Badge } from 'antd';
+import { Link } from 'dva/router';
+import ordersUtil from '../../../../utils/orders';
 import moment from 'moment';
 
 @connect(({ user, list, loading, global, index }) => ({
@@ -80,7 +79,7 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'order_id',
         rowKey: 'order_id',
         align: 'center',
-        width: '20%',
+        width: '220px',
         render: val => {
           return (
             <Link
@@ -97,28 +96,13 @@ export default class EnterpriseClusters extends PureComponent {
         },
       },
       {
-        title: '订单周期',
-        dataIndex: 'expired_time',
-        rowKey: 'expired_time',
-        align: 'center',
-        width: '20%',
-        render: (expired_time, val) => {
-          return (
-            <div>
-              <div>{moment(val.create_time).format('YYYY-MM-DD hh:mm:ss')}</div>
-              <div>{moment(expired_time).format('YYYY-MM-DD hh:mm:ss')}</div>
-            </div>
-          );
-        },
-      },
-      {
         title: '购买容量(GB)',
         dataIndex: 'memory',
         rowKey: 'memory',
         align: 'center',
-        width: '15%',
-        render: (memory, val) => {
-          return <span>{this.handlUnit(memory)}</span>;
+        width: '110px',
+        render: memory => {
+          return <span>{ordersUtil.handlUnit(memory)}</span>;
         },
       },
       {
@@ -126,25 +110,92 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'create_time',
         rowKey: 'create_time',
         align: 'center',
-        width: '15%',
+        width: '130px',
+
         render: val => {
-          return <span> {moment(val).format('YYYY-MM-DD hh:mm:ss')}</span>;
+          return <span> {moment(val).format('YYYY-MM-DD')}</span>;
         },
       },
+      {
+        title: '服务周期',
+        dataIndex: 'effect_time',
+        rowKey: 'effect_time',
+        align: 'center',
+        render: (effect_time, val) => {
+          return (
+            <div>
+              {val.final_price === 0 ? (
+                '不限制'
+              ) : val.status === 'Paid' ? (
+                <div>
+                  {moment(effect_time).format('YYYY-MM-DD')}
+                  &nbsp;到&nbsp;
+                  {moment(val.expired_time).format('YYYY-MM-DD')}
+                  &nbsp;(
+                  {val.months}
+                  月)
+                </div>
+              ) : (
+                <div>未生效</div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: '结束时间',
+        dataIndex: 'expired_time',
+        rowKey: 'expired_time',
+        align: 'center',
+        width: '130px',
+        render: (expired_time, val) => {
+          return (
+            <div>
+              {val.final_price === 0 ? (
+                '不限制'
+              ) : val.status === 'Paid' ? (
+                <div>{moment(expired_time).format('YYYY-MM-DD')}</div>
+              ) : (
+                <div>未生效</div>
+              )}
+            </div>
+          );
+        },
+      },
+
       {
         title: '总价',
         dataIndex: 'final_price',
         rowKey: 'final_price',
         align: 'center',
-        width: '15%',
+        width: '150px',
+        render: final_price => {
+          return <div>¥{final_price}</div>;
+        },
       },
       {
         title: '订单状态',
         dataIndex: 'status',
         rowKey: 'status',
         align: 'center',
-        width: '15%',
-        sorter: (a, b) => a.age - b.age,
+        width: '110px',
+        filters: [
+          {
+            text: '待支付',
+            value: 'ToBePaid',
+          },
+          {
+            text: '已支付',
+            value: 'Paid',
+          },
+          {
+            text: '已关闭',
+            value: 'Closed',
+          },
+        ],
+        filterMultiple: false,
+        onFilter: (value, record) => record.status.indexOf(value) === 0,
+        sortDirections: ['descend', 'ascend'],
         render: val => {
           switch (val) {
             case 'ToBePaid':
