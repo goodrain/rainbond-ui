@@ -1215,10 +1215,10 @@ export async function toQueryLinks(params) {
 }
 
 export async function toSearchTenant(params) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/teams`, {
+  return request(`${apiconfig.baseUrl}/console/enterprise/${params.eid}/teams`, {
     method: 'get',
     params: {
-      tenant_alias: params.tenant,
+      name: params.tenant,
       page_num: params.page_num || 1,
       page_size: params.page_size || 1000,
     },
