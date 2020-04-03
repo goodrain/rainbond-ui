@@ -3,7 +3,7 @@ import { Form, Radio, Switch, Input } from "antd";
 import { connect } from "dva";
 const RadioGroup = Radio.Group;
 
-@connect(_, null, null, { withRef: true })
+@connect(null, null, null, { withRef: true })
 
 class Index extends PureComponent {
   constructor(props) {
