@@ -19,6 +19,8 @@ import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import ImageCmdForm from "../../components/ImageCmdForm";
+import TopUpHints from '../../components/TopUpHints';
+
 const { Option } = Select;
 
 const formItemLayout = {
@@ -110,6 +112,7 @@ export default class Index extends PureComponent {
     );
     return (
       <Card>
+        <TopUpHints />
         <div
           className={styles.formWrap}
           style={{

@@ -53,7 +53,9 @@ export default class ServiceOverview extends PureComponent {
       {
         loading: false,
         info: enterpriseServiceInfo,
-        capacity: ordersUtil.handlUnit(enterpriseServiceInfo.memory_limit),
+        capacity: ordersUtil.handlUnitMemory(
+          enterpriseServiceInfo.memory_limit
+        ),
       },
       () => {
         this.calculatePrice();
@@ -81,9 +83,18 @@ export default class ServiceOverview extends PureComponent {
     const { monthNumber, price, capacity, info, selected } = this.state;
     const timeDelay = selected === 3;
     const isRenewal = info && info.type === 'vip';
-    const memory_limit = ordersUtil.handlUnit(info && info.memory_limit);
+    const memory_limit = ordersUtil.handlUnitMemory(info && info.memory_limit);
     const billing = capacity - memory_limit <= 0;
     const expired_time = info && info.expired_time;
+    const MonthNum = isRenewal && ordersUtil.fetchHowManyMonths(expired_time);
+    const DayNum = isRenewal
+      ? MonthNum && MonthNum === 12
+        ? 0
+        : ordersUtil.fetchHowManyDays(expired_time)
+      : ordersUtil.fetchHowManyDays(expired_time);
+
+    const supplementary = this.calculateDifference(price, MonthNum, DayNum);
+
     this.fetchmonths(selected, monthNumber, expired_time);
     this.calculateExtended(
       timeDelay,
@@ -91,15 +102,18 @@ export default class ServiceOverview extends PureComponent {
       price,
       capacity,
       memory_limit,
-      billing
+      billing,
+      supplementary,
+      MonthNum
     );
+
     this.calculateYearsPay(
       12,
       price,
       capacity,
       isRenewal,
       memory_limit,
-      billing
+      supplementary
     );
     this.calculateMonthPay(
       monthNumber,
@@ -107,7 +121,7 @@ export default class ServiceOverview extends PureComponent {
       capacity,
       isRenewal,
       memory_limit,
-      billing
+      supplementary
     );
   };
   // 计算年付
@@ -117,29 +131,20 @@ export default class ServiceOverview extends PureComponent {
     capacity,
     isRenewal,
     memory_limit,
-    billing
+    supplementarys
   ) => {
     let yearsPay = 0;
     let discount = 0;
+
+    yearsPay = ordersUtil.fetchOrderCost(true, monthNumber, price, capacity);
+    discount = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity);
+
     if (isRenewal) {
-      const calculateNumberDays = this.calculateNumberDays();
-      const dayCost = (price / 30).toFixed(2) / 1;
       const newCapacity = capacity - memory_limit;
-      const supplementary =
-        (calculateNumberDays * dayCost * newCapacity).toFixed(2) / 1;
-
-      yearsPay = billing
-        ? 0
-        : supplementary + (monthNumber * price * capacity).toFixed(2) / 1;
-      discount = billing
-        ? 0
-        : supplementary +
-          (monthNumber * price * capacity * 0.75).toFixed(2) / 1;
-    } else {
-      yearsPay = (monthNumber * price * capacity).toFixed(2) / 1;
-      discount = (monthNumber * price * capacity * 0.75).toFixed(2) / 1;
+      const supplementary = (supplementarys * newCapacity).toFixed(2) / 1;
+      yearsPay = supplementary + yearsPay;
+      discount = supplementary + discount;
     }
-
     this.setState({
       yearsPay,
       discount,
@@ -153,44 +158,29 @@ export default class ServiceOverview extends PureComponent {
     capacity,
     isRenewal,
     memory_limit,
-    billing
+    supplementarys
   ) => {
-    let yearsPay = 0;
-    let originalYearsPay = 0;
+    let originalMonthPay = 0;
     let monthPay = 0;
 
+    monthPay = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity);
+    originalMonthPay = ordersUtil.fetchOrderCost(
+      true,
+      monthNumber,
+      price,
+      capacity
+    );
+
     if (isRenewal) {
-      const calculateNumberDays = this.calculateNumberDays();
-      const dayCost = (price / 30).toFixed(2) / 1;
       const newCapacity = capacity - memory_limit;
-      const supplementary =
-        (calculateNumberDays * dayCost * newCapacity).toFixed(2) / 1;
-
-      const yearsNum = parseInt(monthNumber / 12);
-
-      yearsPay = yearsNum
-        ? (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1
-        : 0;
-      originalYearsPay = yearsNum
-        ? (yearsNum * 12 * price * capacity).toFixed(2) / 1
-        : 0;
-      monthPay = billing
-        ? 0
-        : (
-            supplementary +
-            (monthNumber - yearsNum * 12) * price * capacity
-          ).toFixed(2) / 1;
-    } else {
-      const yearsNum = parseInt(monthNumber / 12);
-      yearsPay = (yearsNum * 12 * price * capacity * 0.75).toFixed(2) / 1;
-      originalYearsPay = (yearsNum * 12 * price * capacity).toFixed(2) / 1;
-      monthPay =
-        ((monthNumber - yearsNum * 12) * price * capacity).toFixed(2) / 1;
+      const supplementary = (supplementarys * newCapacity).toFixed(2) / 1;
+      monthPay = supplementary + monthPay;
+      originalMonthPay = supplementary + originalMonthPay;
     }
 
     this.setState({
-      monthPay: monthPay + yearsPay,
-      originalMonthPay: monthPay + originalYearsPay,
+      monthPay,
+      originalMonthPay,
     });
   };
 
@@ -201,16 +191,23 @@ export default class ServiceOverview extends PureComponent {
     price,
     capacity,
     memory_limit,
-    billing
+    billing,
+    supplementarys,
+    MonthNum
   ) => {
     if (timeDelay && isRenewal) {
-      const calculateNumberDays = this.calculateNumberDays();
-      const dayCost = (price / 30).toFixed(2) / 1;
+      const discount = MonthNum > 11 ? 0.75 : 1;
       const supplementary =
-        (calculateNumberDays * dayCost * (capacity - memory_limit)).toFixed(2) /
-        1;
+        (supplementarys * (capacity - memory_limit) * discount).toFixed(2) / 1;
       this.setState({ extended: billing ? 0 : supplementary });
     }
+  };
+
+  calculateDifference = (price, MonthNum, DayNum) => {
+    const MonthMoney = MonthNum * price;
+    const DayMoney = (DayNum / 30) * price;
+    const TotalPrice = MonthMoney + DayMoney;
+    return TotalPrice;
   };
 
   durationChecked = () => {
@@ -236,18 +233,6 @@ export default class ServiceOverview extends PureComponent {
     );
   };
 
-  handlUnit = num => {
-    if (num) {
-      let nums = num;
-      if (nums >= 1024) {
-        nums = num / 1024;
-        return parseInt(nums);
-      }
-      return num;
-    }
-    return 30;
-  };
-
   toThousands = num => {
     return (num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
   };
@@ -261,16 +246,6 @@ export default class ServiceOverview extends PureComponent {
         this.calculatePrice();
       }
     );
-  };
-
-  calculateNumberDays = () => {
-    const { info } = this.state;
-    const expired_time = info && info.expired_time;
-    const dateBegin = new Date(expired_time); // 转化为Date对象的形式
-    const date = new Date(); // 当前日期
-    const result = dateBegin.getTime() - date.getTime();
-    const dayNum = Math.floor(result / (24 * 3600 * 1000)); // 1000是毫秒
-    return dayNum;
   };
 
   submitOrders = () => {
@@ -344,11 +319,7 @@ export default class ServiceOverview extends PureComponent {
     for (let i = 0; i <= totalNumber; i++) {
       const interval = i * 5;
       obj[`${interval}`] =
-        interval === totalNumber
-          ? `${interval}GB`
-          : interval % 50 === 0
-          ? `${interval}GB`
-          : '';
+        interval !== 0 && interval % 50 === 0 ? `${interval}GB` : '';
     }
     return obj;
   };
@@ -357,15 +328,15 @@ export default class ServiceOverview extends PureComponent {
     let moments = '';
     const date = new Date(); // 获取当前日期
     if (selected === 1) {
-      moments = moment(date.setMonth(date.getMonth() + 12)).format(
-        'YYYY年MM月DD日'
-      );
+      moments = moment
+        .utc(date.setMonth(date.getMonth() + 12))
+        .format('YYYY年MM月DD日');
     } else if (selected === 2) {
-      moments = moment(date.setMonth(date.getMonth() + monthNumber)).format(
-        'YYYY年MM月DD日'
-      );
+      moments = moment
+        .utc(date.setMonth(date.getMonth() + monthNumber))
+        .format('YYYY年MM月DD日');
     } else {
-      moments = moment(expired_time).format('YYYY年MM月DD日');
+      moments = moment.utc(expired_time).format('YYYY年MM月DD日');
     }
 
     this.setState({
@@ -392,8 +363,8 @@ export default class ServiceOverview extends PureComponent {
     } = this.state;
 
     const free = info && info.type === 'free';
-    const minCapacity = ordersUtil.handlUnit(info && info.memory_limit);
-    const usedMemory = ordersUtil.handlUnit(info && info.used_memory);
+    const minCapacity = ordersUtil.handlUnitMemory(info && info.memory_limit);
+    const usedMemory = ordersUtil.handlUnitMemory(info && info.used_memory);
     const marks = this.setObj(minCapacity);
     const totalCalculate =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
@@ -449,7 +420,7 @@ export default class ServiceOverview extends PureComponent {
               <Alert
                 message={
                   free
-                    ? `最小购买量应该大于当前资源使用量，当前使用 ${usedMemory} GB`
+                    ? `最小购买量应该大于当前资源使用量${usedMemory} GB 并且大于30GB`
                     : `当前已购买容量 ${minCapacity} GB，你可以增加购买更多容量，扩大容量付款即立即生效`
                 }
                 type="info"
@@ -486,9 +457,9 @@ export default class ServiceOverview extends PureComponent {
             </div>
             {!free && cycleVisible && info && (
               <Alert
-                message={`当前服务到期时间为 ${moment(info.expired_time).format(
-                  'YYYY年MM月DD日'
-                )}`}
+                message={`当前服务到期时间为 ${moment
+                  .utc(info.expired_time)
+                  .format('YYYY年MM月DD日')}`}
                 type="info"
                 showIcon
                 closable
@@ -568,7 +539,9 @@ export default class ServiceOverview extends PureComponent {
                       styles.checked}`}
                   >
                     <div style={{ width: '0px' }} />
-                    <div style={{ width: '100%' }}>不延长</div>
+                    <div style={{ width: '100%', paddingLeft: '0' }}>
+                      不延长
+                    </div>
                     {selected === 3 && this.durationChecked()}
                   </div>
                 </Col>

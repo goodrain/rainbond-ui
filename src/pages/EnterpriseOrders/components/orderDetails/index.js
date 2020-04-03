@@ -14,6 +14,7 @@ import {
   Typography,
 } from 'antd';
 import styles from '../../index.less';
+import ordersUtil from '../../../../utils/orders';
 import moment from 'moment';
 
 const { Paragraph } = Typography;
@@ -106,21 +107,24 @@ export default class OrderDetails extends PureComponent {
     const isPaid = info && info.status && info.status === 'Paid';
     const isToBePaid = info && info.status && info.status === 'ToBePaid';
     const arr = info && [
-      { name: '订单号', value: info.order_id },
+      { name: '订单编号', value: info.order_id },
       {
         name: '创建时间',
-        value: `${moment(info.create_time).format('YYYY年MM月DD日')}`,
+        value: `${moment.utc(info.create_time).format('YYYY-MM-DD HH:mm:ss')}`,
       },
       {
         name: '服务周期',
+        value: `
+        ${info.final_price === 0 ? '不限制' : `${info.months}月`}`,
+      },
+      {
+        name: '生效时间',
         value: `
         ${
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment(info.effect_time).format('YYYY年MM月DD日')} 到
-              ${moment(info.expired_time).format('YYYY年MM月DD日')} （共
-              ${info.months}月）`
+            ? `${moment.utc(info.effect_time).format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },
@@ -130,12 +134,12 @@ export default class OrderDetails extends PureComponent {
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment(info.expired_time).format('YYYY年MM月DD日')}`
+            ? `${moment.utc(info.expired_time).format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },
 
-      { name: '容量', value: `${this.handlUnit(info.memory)}GB调度内存` },
+      { name: '购买容量', value: `${ordersUtil.handlUnit(info.memory)}GB调度内存` },
       {
         name: '总费用',
         value: `¥ ${info.final_price} ${
@@ -162,7 +166,7 @@ export default class OrderDetails extends PureComponent {
                   return (
                     <Col
                       span={isToBePaid ? 24 : 12}
-                      style={{ marginBottom: '20px' }}
+                      style={{ marginBottom: '14px' }}
                     >
                       <Col span={4} className={styles.ordelText}>
                         {name}
@@ -203,11 +207,11 @@ export default class OrderDetails extends PureComponent {
               <Col span={11} style={{ height: '246px' }}>
                 {bankInfo && (
                   <Row>
-                    <Col span={8} className={styles.orderTitleL}>
+                    <Col span={12} className={styles.orderTitleL}>
                       <div>{this.handleStateText(info && info.status)}</div>
                       <div>¥&nbsp;{info && info.final_price}</div>
                     </Col>
-                    <Col span={16} className={styles.orderTitleR}>
+                    <Col span={12} className={styles.orderTitleR}>
                       <p>请通过对公付款到以下账号：</p>
                       <p>
                         <span>开户行：</span>

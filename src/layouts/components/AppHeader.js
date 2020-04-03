@@ -7,7 +7,7 @@ import headerStype from "../../components/GlobalHeader/index.less";
 import { FormattedMessage } from "umi-plugin-react/locale";
 import { Link } from "dva/router";
 
-export default function TeamHeader(props) {
+export default function AppHeader(props) {
   const {
     teamName,
     currentEnterprise,
@@ -16,12 +16,14 @@ export default function TeamHeader(props) {
     regionName,
     appID,
     currentComponent,
-    componentID
+    componentID,
+    nobleIcon
   } = props;
 
   return (
     <div className={headerStype.itemBox}>
       <div className={headerStype.item}>
+      {nobleIcon}
         <Link
           className={headerStype.itemlink}
           to={`/enterprise/${currentEnterprise.enterprise_id}/index`}

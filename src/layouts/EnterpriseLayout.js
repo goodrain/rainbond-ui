@@ -1,6 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification } from 'antd';
+import { Layout, Icon, message, notification, Tooltip } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Route, Redirect, routerRedux } from 'dva/router';
@@ -269,6 +269,9 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
+          <Tooltip title={enterpriseServiceInfo.type==='vip'?'尊贵的VIP':'免费版'}>
+            {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
+          </Tooltip>
           {enterpriseInfo && enterpriseInfo.enterprise_alias}
         </div>
       );
@@ -289,6 +292,7 @@ class EnterpriseLayout extends PureComponent {
           />
           <Layout>
             <GlobalHeader
+              eid={eid}
               logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&
@@ -374,7 +378,13 @@ class EnterpriseLayout extends PureComponent {
           />
         )}
 
-        {orders && <ServiceOrder enterpriseServiceInfo={enterpriseServiceInfo} eid={eid} orders={orders} />}
+        {orders && (
+          <ServiceOrder
+            enterpriseServiceInfo={enterpriseServiceInfo}
+            eid={eid}
+            orders={orders}
+          />
+        )}
       </Fragment>
     );
   }

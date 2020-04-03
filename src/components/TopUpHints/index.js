@@ -31,7 +31,7 @@ export default class Index extends PureComponent {
 
     const usedMemory = ordersUtil.handlUnit(info.used_memory);
     const memoryLimit = ordersUtil.handlUnit(info.memory_limit);
-    if (memoryLimit) {
+    if (memoryLimit - usedMemory <= 1) {
       return (
         <div>
           {visible ? (

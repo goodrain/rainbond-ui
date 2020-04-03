@@ -90,6 +90,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div
           className={styles.formWrap}
           style={{
@@ -99,7 +100,6 @@ export default class Index extends PureComponent {
                 : '500px',
           }}
         >
-          <TopUpHints />
           <CodeCustomForm onSubmit={this.handleSubmit} {...this.props} />
         </div>
       </Card>

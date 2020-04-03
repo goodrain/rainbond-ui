@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification, Button } from 'antd';
+import { Layout, Icon, message, notification, Button, Tooltip } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Route, Redirect, routerRedux } from 'dva/router';
@@ -289,11 +289,16 @@ class TeamLayout extends React.PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     // Parameters of the abnormal
-    if (!teamName || !regionName ) {
+    if (!teamName || !regionName) {
       return <Redirect to="/" />;
     }
     // The necessary data is loaded
-    if (!ready || !currentEnterprise || !currentTeam || !enterpriseServiceInfo) {
+    if (
+      !ready ||
+      !currentEnterprise ||
+      !currentTeam ||
+      !enterpriseServiceInfo
+    ) {
       return <PageLoading />;
     }
     if (teamName != (currentTeam && currentTeam.team_name)) {
@@ -315,10 +320,19 @@ class TeamLayout extends React.PureComponent {
     }
 
     const mode = this.getMode(appID || componentID);
+    const nobleIcon = (
+      <Tooltip
+        title={enterpriseServiceInfo.type === 'vip' ? '尊贵的VIP' : '免费版'}
+      >
+        {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
+      </Tooltip>
+    );
+
     const customHeader = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
+            nobleIcon={nobleIcon}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -335,6 +349,7 @@ class TeamLayout extends React.PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
+          nobleIcon={nobleIcon}
           currentComponent={currentComponent}
           componentID={componentID}
         />
@@ -421,6 +436,7 @@ class TeamLayout extends React.PureComponent {
                 currentRegion.team_region_name +
                 appID
               }
+              eid={currentEnterprise.enterprise_id}
               logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&

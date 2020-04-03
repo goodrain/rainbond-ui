@@ -19,6 +19,7 @@ import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import ImageComposeForm from "../../components/ImageComposeForm";
+import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
 
@@ -104,6 +105,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div className={styles.formWrap}>
           <ImageComposeForm onSubmit={this.handleSubmit} />
         </div>

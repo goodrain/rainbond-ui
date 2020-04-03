@@ -1,20 +1,41 @@
-const categoryMap = {
-  'net-plugin:up': '入口网络',
-  'net-plugin:in-and-out': '出口入口共治网络',
-  'net-plugin:down': '出口网络',
-  'analyst-plugin:perf': '性能分析',
-  'init-plugin': '初始化类型',
-  'general-plugin': '一般类型',
-  downstream_net_plugin: '网络治理',
-  perf_analyze_plugin: '性能分析',
-  inandout_net_plugin: '出口入口共治网络',
-};
+import moment from 'moment';
 
+const format = 'YYYY-MM-DD';
 export default {
-  getCategoryCN(category) {
-    return categoryMap[category] || '未知类型';
+  fetchHowManyDays(endTimes) {
+    if (endTimes) {
+      const startTime = moment.utc().format(format);
+      const endTime = moment.utc(endTimes).format(format);
+      const momentNumber = moment.utc(endTime).diff(moment.utc(startTime), 'months');
+      const momentTime = moment.utc()
+        .add(momentNumber, 'months')
+        .format(format);
+      const dayNumber = moment.utc(endTime).diff(moment.utc(momentTime), 'days');
+      return dayNumber;
+    }
+  },
+  fetchHowManyMonths(endTimes) {
+    if (endTimes) {
+      const startTime = moment.utc().format(format);
+      const endTime = moment.utc(endTimes).format(format);
+      const momentNumber = moment.utc(endTime).diff(moment.utc(startTime), 'months');
+      return momentNumber >= 12 ? 12 : momentNumber;
+    }
+  },
+
+  fetchOrderCost(isDiscount, monthNumber, price, capacity) {
+    const discount = isDiscount ? 1 : monthNumber === 12 ? 0.75 : 1;
+    const totalPrice =
+      (monthNumber * price * capacity * discount).toFixed(2) / 1;
+    return totalPrice;
   },
   handlUnit(num) {
     return num && (num / 1024).toFixed(2) / 1;
+  },
+  handlUnitMemory(num) {
+    if (num) {
+      return parseInt(num / 1024);
+    }
+    return 30;
   },
 };
