@@ -12,7 +12,7 @@ import globalUtil from "../../utils/global";
 import { getVolumeTypeShowName } from "../../utils/utils";
 const { Search } = Input;
 @connect(
-  _,
+  null,
   null,
   null,
   { withRef: true }
