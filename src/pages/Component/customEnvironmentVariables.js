@@ -1,6 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Card,
   Form,
@@ -12,15 +12,16 @@ import {
   Row,
   Col,
   Alert,
-  Input
-} from "antd";
-import ConfirmModal from "../../components/ConfirmModal";
-import AddVarModal from "./setting/env";
-import { getMnt, addMnt } from "../../services/app";
-import globalUtil from "../../utils/global";
-import RelationMnt from "../../components/AddStorage/relationMnt";
-import ScrollerX from "../../components/ScrollerX";
-import AddStorage from "../../components/AddStorage";
+  Input,
+} from 'antd';
+import ConfirmModal from '../../components/ConfirmModal';
+import AddVarModal from './setting/env';
+import { getMnt, addMnt } from '../../services/app';
+import globalUtil from '../../utils/global';
+import RelationMnt from '../../components/AddStorage/relationMnt';
+import ScrollerX from '../../components/ScrollerX';
+import AddStorage from '../../components/AddStorage';
+import styles from './Index.less';
 
 const { Search } = Input;
 @connect(
@@ -37,7 +38,7 @@ const { Search } = Input;
     appControl,
 
     volumes: appControl.volumes,
-    appBaseInfo: appControl.baseInfo
+    appBaseInfo: appControl.baseInfo,
   }),
   null,
   null,
@@ -74,18 +75,20 @@ export default class Index extends React.Component {
       page: 1,
       page_size: 5,
       total: 0,
-      env_name: "",
+      env_name: '',
       showAddVars: null,
       showAddRelation: false,
       selfPathList: [],
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
-      editor: null
+      editor: null,
+      isPassword: 'password',
+      setPassword: 'text',
     };
   }
   componentDidMount() {
-    this.props.dispatch({ type: "teamControl/fetchAllPerm" });
+    this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
     this.fetchInnerEnvs();
     this.loadMembers();
     this.loadpermsMembers();
@@ -97,12 +100,12 @@ export default class Index extends React.Component {
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
-    dispatch({ type: "appControl/clearTags" });
-    dispatch({ type: "appControl/clearPorts" });
-    dispatch({ type: "appControl/clearInnerEnvs" });
-    dispatch({ type: "appControl/clearStartProbe" });
-    dispatch({ type: "appControl/clearRunningProbe" });
-    dispatch({ type: "appControl/clearMembers" });
+    dispatch({ type: 'appControl/clearTags' });
+    dispatch({ type: 'appControl/clearPorts' });
+    dispatch({ type: 'appControl/clearInnerEnvs' });
+    dispatch({ type: 'appControl/clearStartProbe' });
+    dispatch({ type: 'appControl/clearRunningProbe' });
+    dispatch({ type: 'appControl/clearMembers' });
   }
   onDeleteVar = data => {
     this.setState({ deleteVar: data });
@@ -111,19 +114,19 @@ export default class Index extends React.Component {
   fetchInnerEnvs = () => {
     const { page, page_size, env_name } = this.state;
     this.props.dispatch({
-      type: "appControl/fetchInnerEnvs",
+      type: 'appControl/fetchInnerEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         page,
         page_size,
-        env_name
+        env_name,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }
-      }
+      },
     });
   };
 
@@ -131,16 +134,16 @@ export default class Index extends React.Component {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
-      type: "teamControl/fetchMember",
+      type: 'teamControl/fetchMember',
       payload: {
         team_name,
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: data => {
         if (data) {
           this.setState({ memberslist: data.list });
         }
-      }
+      },
     });
   };
 
@@ -148,16 +151,16 @@ export default class Index extends React.Component {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
-      type: "appControl/fetchpermsMember",
+      type: 'appControl/fetchpermsMember',
       payload: {
         team_name,
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: data => {
         if (data) {
           this.setState({ members: data.list });
         }
-      }
+      },
     });
   };
   handleAddVar = () => {
@@ -168,21 +171,21 @@ export default class Index extends React.Component {
   };
   handleSubmitAddVar = vals => {
     this.props.dispatch({
-      type: "appControl/addInnerEnvs",
+      type: 'appControl/addInnerEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
-        name: vals.name
+        name: vals.name,
       },
       callback: res => {
         if (res && res._code === 200) {
-          notification.success({ message: "添加成功" });
+          notification.success({ message: '添加成功' });
           this.fetchInnerEnvs();
           this.handleCancelAddVar();
         }
-      }
+      },
     });
   };
 
@@ -194,40 +197,40 @@ export default class Index extends React.Component {
   };
   handleDeleteVar = () => {
     this.props.dispatch({
-      type: "appControl/deleteEnvs",
+      type: 'appControl/deleteEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID
+        ID: this.state.deleteVar.ID,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
+          notification.success({ message: '删除成功' });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVar();
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
 
   handleTransfer = () => {
     const { transfer } = this.state;
     this.props.dispatch({
-      type: "appControl/putTransfer",
+      type: 'appControl/putTransfer',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == "inner" ? "outer" : "inner"
+        scope: transfer.scope == 'inner' ? 'outer' : 'inner',
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "转移成功" });
+          notification.success({ message: '转移成功' });
           this.fetchInnerEnvs();
           this.cancelTransfer();
         }
-      }
+      },
     });
   };
 
@@ -240,21 +243,21 @@ export default class Index extends React.Component {
   handleEditVar = vals => {
     const { showEditVar } = this.state;
     this.props.dispatch({
-      type: "appControl/editEvns",
+      type: 'appControl/editEvns',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: showEditVar.ID,
         attr_value: vals.attr_value,
-        name: vals.name
+        name: vals.name,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "编辑成功" });
+          notification.success({ message: '编辑成功' });
           this.cancelEditVar();
           this.fetchInnerEnvs();
         }
-      }
+      },
     });
   };
 
@@ -272,27 +275,27 @@ export default class Index extends React.Component {
   handleDelMember = () => {
     const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "appControl/deleteMember",
+      type: 'appControl/deleteMember',
       payload: {
         team_name,
         app_alias: this.props.appAlias,
-        user_id: this.state.toDeleteMember.user_id
+        user_id: this.state.toDeleteMember.user_id,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
+          notification.success({ message: '删除成功' });
           this.loadMembers();
           this.loadpermsMembers();
           this.hideDelMember();
         }
-      }
+      },
     });
   };
 
   onPageChange = page => {
     this.setState(
       {
-        page
+        page,
       },
       () => {
         this.fetchInnerEnvs();
@@ -304,7 +307,7 @@ export default class Index extends React.Component {
     this.setState(
       {
         page: 1,
-        env_name
+        env_name,
       },
       () => {
         this.fetchInnerEnvs();
@@ -318,22 +321,22 @@ export default class Index extends React.Component {
 
   fetchVolumes = () => {
     this.props.dispatch({
-      type: "appControl/fetchVolumes",
+      type: 'appControl/fetchVolumes',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        is_config: true
-      }
+        is_config: true,
+      },
     });
   };
   fetchBaseInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchBaseInfo",
+      type: 'appControl/fetchBaseInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      }
+        app_alias: this.props.appAlias,
+      },
     });
   };
   loadMntList = () => {
@@ -342,11 +345,11 @@ export default class Index extends React.Component {
       app_alias: this.props.appAlias,
       page: 1,
       page_size: 1000,
-      volume_type: ["config-file"]
+      volume_type: ['config-file'],
     }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || []
+          mntList: data.list || [],
         });
       }
     });
@@ -354,8 +357,8 @@ export default class Index extends React.Component {
   handleAddVars = () => {
     this.setState({
       showAddVars: {
-        new: true
-      }
+        new: true,
+      },
     });
   };
   handleCancelAddVars = () => {
@@ -365,39 +368,39 @@ export default class Index extends React.Component {
     const { editor } = this.state;
     if (editor) {
       this.props.dispatch({
-        type: "appControl/editorVolume",
+        type: 'appControl/editorVolume',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
           new_volume_path: vals.volume_path,
           new_file_content: vals.file_content,
-          ID: editor.ID
+          ID: editor.ID,
         },
         callback: res => {
           if (res && res._code == 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: "编辑成功" });
+            notification.success({ message: '编辑成功' });
             this.props.onshowRestartTips(true);
           }
-        }
+        },
       });
     } else {
       this.props.dispatch({
-        type: "appControl/addVolume",
+        type: 'appControl/addVolume',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: this.props.appAlias,
-          ...vals
+          ...vals,
         },
         callback: res => {
           if (res && res._code == 200) {
             this.fetchVolumes();
             this.handleCancelAddVars();
-            notification.success({ message: "添加成功" });
+            notification.success({ message: '添加成功' });
             this.props.onshowRestartTips(true);
           }
-        }
+        },
       });
     }
   };
@@ -411,12 +414,12 @@ export default class Index extends React.Component {
     addMnt({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      body: mnts
+      body: mnts,
     }).then(data => {
       if (data) {
         this.handleCancelAddRelation();
         this.loadMntList();
-        notification.success({ message: "操作成功" });
+        notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
       }
     });
@@ -435,80 +438,69 @@ export default class Index extends React.Component {
   };
   handleDeleteVolume = () => {
     this.props.dispatch({
-      type: "appControl/deleteVolume",
+      type: 'appControl/deleteVolume',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        volume_id: this.state.toDeleteVolume.ID
+        volume_id: this.state.toDeleteVolume.ID,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
+          notification.success({ message: '删除成功' });
           this.onCancelDeleteVolume();
           this.fetchVolumes();
           this.props.onshowRestartTips(true);
         }
-      }
+      },
     });
   };
   handleDeleteMnt = () => {
     this.props.dispatch({
-      type: "appControl/deleteMnt",
+      type: 'appControl/deleteMnt',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        dep_vol_id: this.state.toDeleteMnt.dep_vol_id
+        dep_vol_id: this.state.toDeleteMnt.dep_vol_id,
       },
       callback: () => {
         this.cancelDeleteMnt();
         this.loadMntList();
-        notification.success({ message: "操作成功" });
+        notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
   cancelDeleteMnt = () => {
     this.setState({ toDeleteMnt: null });
   };
 
+  AfterPassword = value => {
+    const passwordShow = globalUtil.fetchSvg('passwordShow');
+    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
+    return (
+      <span
+        onClick={() => {
+          this.handlePassword(value);
+        }}
+      >
+        {this.state[value] === 'text' ? passwordShow : passwordHidden}
+      </span>
+    );
+  };
+  handlePassword = value => {
+    this.setState({
+      [value]: this.state[value] === 'text' ? 'password' : 'text',
+    });
+  };
+
   render() {
-    const self = this;
-    const { mntList } = this.state;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 4
-        }
-      },
-      wrapperCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 18
-        }
-      }
-    };
-    const appsetting_formItemLayout = {
-      labelCol: {
-        span: 5
-      },
-      wrapperCol: {
-        span: 19
-      }
-    };
-    const radioStyle = {
-      display: "block",
-      height: "30px",
-      lineHeight: "30px"
-    };
+    const { mntList, isPassword, setPassword } = this.state;
     const { innerEnvs, baseInfo, volumes } = this.props;
-    const members = this.state.members || [];
-    if (typeof baseInfo.build_upgrade != "boolean") {
+    const wraps = {
+      wordBreak: 'break-all',
+      wordWrap: 'break-word',
+    };
+    if (typeof baseInfo.build_upgrade !== 'boolean') {
       return null;
     }
     return (
@@ -520,7 +512,7 @@ export default class Index extends React.Component {
               message="组件环境配置变更后需要更新或重启组件生效"
               type="info"
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             />
           </Col>
@@ -528,19 +520,19 @@ export default class Index extends React.Component {
         <Row>
           <Card
             style={{
-              marginBottom: 24
+              marginBottom: 24,
             }}
             title="自定义环境变量"
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "20px"
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '20px',
               }}
             >
               <Search
-                style={{ width: "260px" }}
+                style={{ width: '260px' }}
                 placeholder="请输入变量名进行搜索"
                 onSearch={this.handleSearch}
               />
@@ -553,64 +545,57 @@ export default class Index extends React.Component {
               <Table
                 columns={[
                   {
-                    title: "变量名",
-                    dataIndex: "attr_name",
-                    key: "1",
-                    width: "20%",
-                    render: v => (
-                      <Tooltip title={v}>
-                        <div
-                          style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word"
-                          }}
-                        >
-                          {v}
+                    title: '变量名',
+                    dataIndex: 'attr_name',
+                    key: '1',
+                    width: '20%',
+                    render: v => {
+                      const isHidden = globalUtil.confirmEnding(
+                        `${v}`,
+                        '_PASS'
+                      );
+                      const types = isHidden ? isPassword : setPassword;
+                      return (
+                        <div style={wraps} key={v}>
+                          <Input
+                            addonAfter={this.AfterPassword(
+                              isHidden ? 'isPassword' : 'setPassword'
+                            )}
+                            type={types}
+                            className={styles.hiddeninput}
+                            value={v}
+                          />
                         </div>
-                      </Tooltip>
-                    )
+                      );
+                    },
                   },
                   {
-                    title: "变量值",
-                    dataIndex: "attr_value",
-                    key: "2",
-                    width: "40%",
+                    title: '变量值',
+                    dataIndex: 'attr_value',
+                    key: '2',
+                    width: '40%',
                     render: v => (
                       <Tooltip title={v}>
-                        <div
-                          style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word"
-                          }}
-                        >
-                          {v}
-                        </div>
+                        <div style={wraps}>{v}</div>
                       </Tooltip>
-                    )
+                    ),
                   },
                   {
-                    title: "说明",
-                    dataIndex: "name",
-                    key: "3",
-                    width: "20%",
+                    title: '说明',
+                    dataIndex: 'name',
+                    key: '3',
+                    width: '20%',
                     render: v => (
                       <Tooltip title={v}>
-                        <div
-                          style={{
-                            wordBreak: "break-all",
-                            wordWrap: "break-word"
-                          }}
-                        >
-                          {v}
-                        </div>
+                        <div style={wraps}>{v}</div>
                       </Tooltip>
-                    )
+                    ),
                   },
                   {
-                    title: "操作",
-                    dataIndex: "action",
-                    key: "4",
-                    width: "20%",
+                    title: '操作',
+                    dataIndex: 'action',
+                    key: '4',
+                    width: '20%',
                     render: (v, data) => (
                       <Fragment>
                         <a
@@ -618,7 +603,7 @@ export default class Index extends React.Component {
                           onClick={() => {
                             this.onDeleteVar(data);
                           }}
-                          style={{ marginRight: "5px" }}
+                          style={{ marginRight: '5px' }}
                         >
                           删除
                         </a>
@@ -636,7 +621,7 @@ export default class Index extends React.Component {
                             onClick={() => {
                               this.onTransfer(data);
                             }}
-                            style={{ marginRight: "5px" }}
+                            style={{ marginRight: '5px' }}
                           >
                             转移
                           </a>
@@ -647,23 +632,23 @@ export default class Index extends React.Component {
                             onClick={() => {
                               this.onEditVar(data);
                             }}
-                            style={{ marginRight: "5px" }}
+                            style={{ marginRight: '5px' }}
                           >
                             修改
                           </a>
                         ) : (
-                          ""
+                          ''
                         )}
                       </Fragment>
-                    )
-                  }
+                    ),
+                  },
                 ]}
                 dataSource={innerEnvs}
                 pagination={{
                   current: this.state.page,
                   pageSize: this.state.page_size,
                   total: this.state.total,
-                  onChange: this.onPageChange
+                  onChange: this.onPageChange,
                 }}
               />
             </ScrollerX>
@@ -675,14 +660,14 @@ export default class Index extends React.Component {
               message="配置文件内容支持使用环境变量动态渲染，方式为：${ENV_NAME}"
               type="info"
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             />
           </Col>
         </Row>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           title={<span> 配置文件设置 </span>}
         >
@@ -691,16 +676,16 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: "配置文件名称",
-                  dataIndex: "volume_name"
+                  title: '配置文件名称',
+                  dataIndex: 'volume_name',
                 },
                 {
-                  title: "配置文件挂载路径",
-                  dataIndex: "volume_path"
+                  title: '配置文件挂载路径',
+                  dataIndex: 'volume_path',
                 },
                 {
-                  title: "操作",
-                  dataIndex: "action",
+                  title: '操作',
+                  dataIndex: 'action',
                   render: (v, data) => (
                     <div>
                       <a
@@ -720,8 +705,8 @@ export default class Index extends React.Component {
                         编辑
                       </a>
                     </div>
-                  )
-                }
+                  ),
+                },
               ]}
               dataSource={volumes}
             />
@@ -729,7 +714,7 @@ export default class Index extends React.Component {
           <div
             style={{
               marginTop: 10,
-              textAlign: "right"
+              textAlign: 'right',
             }}
           >
             <Button onClick={this.handleAddVars}>
@@ -744,64 +729,43 @@ export default class Index extends React.Component {
               pagination={false}
               columns={[
                 {
-                  title: "本地挂载配置文件路径",
-                  dataIndex: "local_vol_path",
-                  key: "1",
-                  width: "20%",
+                  title: '本地挂载配置文件路径',
+                  dataIndex: 'local_vol_path',
+                  key: '1',
+                  width: '20%',
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {data}
-                      </span>
+                      <span style={wraps}>{data}</span>
                     </Tooltip>
-                  )
+                  ),
                 },
                 {
-                  title: "配置文件名称",
-                  dataIndex: "dep_vol_name",
-                  key: "2",
-                  width: "15%",
+                  title: '配置文件名称',
+                  dataIndex: 'dep_vol_name',
+                  key: '2',
+                  width: '15%',
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {data}
-                      </span>
+                      <span style={wraps}>{data}</span>
                     </Tooltip>
-                  )
+                  ),
                 },
                 {
-                  title: "目标挂载配置文件路径",
-                  dataIndex: "dep_vol_path",
-                  key: "3",
-                  width: "20%",
+                  title: '目标挂载配置文件路径',
+                  dataIndex: 'dep_vol_path',
+                  key: '3',
+                  width: '20%',
                   render: (data, index) => (
                     <Tooltip title={data}>
-                      <span
-                        style={{
-                          wordBreak: "break-all",
-                          wordWrap: "break-word"
-                        }}
-                      >
-                        {data}
-                      </span>
+                      <span style={wraps}>{data}</span>
                     </Tooltip>
-                  )
+                  ),
                 },
                 {
-                  title: "所属组件",
-                  dataIndex: "dep_app_name",
-                  key: "4",
-                  width: "15%",
+                  title: '所属组件',
+                  dataIndex: 'dep_app_name',
+                  key: '4',
+                  width: '15%',
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -810,13 +774,13 @@ export default class Index extends React.Component {
                     >
                       {v}
                     </Link>
-                  )
+                  ),
                 },
                 {
-                  title: "组件所属应用",
-                  dataIndex: "dep_app_group",
-                  key: "5",
-                  width: "15%",
+                  title: '组件所属应用',
+                  dataIndex: 'dep_app_group',
+                  key: '5',
+                  width: '15%',
                   render: (v, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
@@ -825,13 +789,13 @@ export default class Index extends React.Component {
                     >
                       {v}
                     </Link>
-                  )
+                  ),
                 },
                 {
-                  title: "操作",
-                  dataIndex: "action",
-                  key: "6",
-                  width: "15%",
+                  title: '操作',
+                  dataIndex: 'action',
+                  key: '6',
+                  width: '15%',
                   render: (v, data) => (
                     <a
                       onClick={() => {
@@ -841,8 +805,8 @@ export default class Index extends React.Component {
                     >
                       取消挂载
                     </a>
-                  )
-                }
+                  ),
+                },
               ]}
               dataSource={mntList}
             />
@@ -850,7 +814,7 @@ export default class Index extends React.Component {
           <div
             style={{
               marginTop: 10,
-              textAlign: "right"
+              textAlign: 'right',
             }}
           >
             <Button onClick={this.showAddRelation}>
@@ -874,7 +838,7 @@ export default class Index extends React.Component {
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}
-            volume_type={["config-file"]}
+            volume_type={['config-file']}
           />
         )}
         {this.state.toDeleteMnt && (

@@ -1,6 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -13,25 +13,25 @@ import {
   Table,
   Modal,
   notification,
-  Tooltip
-} from "antd";
+  Tooltip,
+} from 'antd';
 import {
   getRelationedApp,
   removeRelationedApp,
-  batchAddRelationedApp
-} from "../../services/app";
-
-import globalUtil from "../../utils/global";
-import ConfirmModal from "../../components/ConfirmModal";
-import AddRelation from "../../components/AddRelation";
-import ScrollerX from "../../components/ScrollerX";
+  batchAddRelationedApp,
+} from '../../services/app';
+import styles from './Index.less';
+import globalUtil from '../../utils/global';
+import ConfirmModal from '../../components/ConfirmModal';
+import AddRelation from '../../components/AddRelation';
+import ScrollerX from '../../components/ScrollerX';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 // 查看连接信息
 @connect(({ user, appControl }) => ({
-  relationOuterEnvs: appControl.relationOuterEnvs
+  relationOuterEnvs: appControl.relationOuterEnvs,
 }))
 class ViewRelationInfo extends PureComponent {
   constructor(props) {
@@ -40,7 +40,7 @@ class ViewRelationInfo extends PureComponent {
       list: [],
       page: 1,
       page_size: 8,
-      total: 0
+      total: 0,
     };
   }
   componentDidMount() {
@@ -49,7 +49,7 @@ class ViewRelationInfo extends PureComponent {
   onPageChange = page => {
     this.setState(
       {
-        page
+        page,
       },
       () => {
         this.getEnvs();
@@ -59,18 +59,18 @@ class ViewRelationInfo extends PureComponent {
   getEnvs = () => {
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "appControl/fetchRelationOuterEnvs",
+      type: 'appControl/fetchRelationOuterEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         page,
-        page_size
+        page_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }
-      }
+      },
     });
   };
   // componentWillUnmount() {
@@ -84,9 +84,9 @@ class ViewRelationInfo extends PureComponent {
         <div
           style={{
             width: 150,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden"
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
           }}
         >
           {v}
@@ -114,24 +114,24 @@ class ViewRelationInfo extends PureComponent {
             current: page,
             pageSize: page_size,
             total,
-            onChange: this.onPageChange
+            onChange: this.onPageChange,
           }}
           columns={[
             {
-              title: "变量名",
-              dataIndex: "attr_name",
-              render: v => this.handleOver(v)
+              title: '变量名',
+              dataIndex: 'attr_name',
+              render: v => this.handleOver(v),
             },
             {
-              title: "变量值",
-              dataIndex: "attr_value",
-              render: v => this.handleOver(v)
+              title: '变量值',
+              dataIndex: 'attr_value',
+              render: v => this.handleOver(v),
             },
             {
-              title: "说明",
-              dataIndex: "name",
-              render: v => this.handleOver(v)
-            }
+              title: '说明',
+              dataIndex: 'name',
+              render: v => this.handleOver(v),
+            },
           ]}
           dataSource={relationOuterEnvs || []}
         />
@@ -148,7 +148,7 @@ class AddVarModal extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      list: []
+      list: [],
     };
   }
   handleSubmit = e => {
@@ -167,68 +167,68 @@ class AddVarModal extends PureComponent {
       return false;
     }
     this.props.dispatch({
-      type: "appControl/getVariableList",
+      type: 'appControl/getVariableList',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         attr_name,
-        attr_value
+        attr_value,
       },
       callback: res => {
-        let arr = res && res.list ? res.list : [];
-        arr.unshift(attr_name ? attr_name + "" : attr_value + "");
+        const arr = res && res.list ? res.list : [];
+        arr.unshift(attr_name ? `${attr_name}` : `${attr_value}`);
         Array.from(new Set(arr));
 
-        if (arr && arr.length > 0 && arr[0] == "null") {
+        if (arr && arr.length > 0 && arr[0] == 'null') {
           return;
         }
 
         this.setState({ list: arr });
         attr_name &&
           this.props.form.setFieldsValue({
-            attr_name: attr_name
+            attr_name,
           });
         attr_value &&
           this.props.form.setFieldsValue({
-            attr_value: attr_value
+            attr_value,
           });
-      }
+      },
     });
   };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const data = this.props.data || "";
+    const data = this.props.data || '';
     const { list } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 6 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 }
-      }
+        sm: { span: 16 },
+      },
     };
     return (
       <Modal
-        title={data ? "编辑变量" : "添加变量"}
+        title={data ? '编辑变量' : '添加变量'}
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
         visible
       >
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="变量名">
-            {getFieldDecorator("attr_name", {
-              initialValue: (data && data.attr_name) || "",
+            {getFieldDecorator('attr_name', {
+              initialValue: (data && data.attr_name) || '',
               rules: [
-                { required: true, message: "请输入变量名称" },
+                { required: true, message: '请输入变量名称' },
                 {
                   pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-                  message: "格式不正确， /^[A-Za-z].*$/"
-                }
-              ]
+                  message: '格式不正确， /^[A-Za-z].*$/',
+                },
+              ],
             })(
               <Select
-                disabled={data && data.attr_name ? true : false}
+                disabled={!!(data && data.attr_name)}
                 placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
                 showSearch
                 onSearch={val => {
@@ -247,9 +247,9 @@ class AddVarModal extends PureComponent {
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
-            {getFieldDecorator("attr_value", {
-              initialValue: (data && data.attr_value) || "",
-              rules: [{ required: true, message: "请输入变量值" }]
+            {getFieldDecorator('attr_value', {
+              initialValue: (data && data.attr_value) || '',
+              rules: [{ required: true, message: '请输入变量值' }],
             })(
               <Select
                 showSearch
@@ -270,9 +270,9 @@ class AddVarModal extends PureComponent {
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="说明">
-            {getFieldDecorator("name", {
-              initialValue: (data && data.name) || "",
-              rules: [{ required: false, message: "请输入变量说明" }]
+            {getFieldDecorator('name', {
+              initialValue: (data && data.name) || '',
+              rules: [{ required: false, message: '请输入变量说明' }],
             })(<Input placeholder="请输入变量说明" />)}
           </FormItem>
         </Form>
@@ -284,7 +284,7 @@ class AddVarModal extends PureComponent {
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
-    outerEnvs: appControl.outerEnvs
+    outerEnvs: appControl.outerEnvs,
   }),
   null,
   null,
@@ -304,7 +304,9 @@ export default class Index extends PureComponent {
       transfer: null,
       page: 1,
       page_size: 5,
-      total: 0
+      total: 0,
+      isPassword: 'password',
+      setPassword: 'text',
     };
   }
 
@@ -319,7 +321,7 @@ export default class Index extends PureComponent {
   loadRelationedApp = () => {
     getRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.props.appAlias
+      app_alias: this.props.appAlias,
     }).then(res => {
       if (res) {
         let arr = res.bean.port_list;
@@ -335,11 +337,11 @@ export default class Index extends PureComponent {
     });
   };
   isRepeat = arr => {
-    var hash = {};
+    const hash = {};
 
-    for (var i in arr) {
+    for (const i in arr) {
       if (hash[arr[i]])
-        //hash 哈希
+        // hash 哈希
 
         return true;
       hash[arr[i]] = true;
@@ -362,10 +364,10 @@ export default class Index extends PureComponent {
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      dep_service_ids: ids
+      dep_service_ids: ids,
     }).then(data => {
       if (data) {
-        notification.info({ message: "需要更新才能生效" });
+        notification.info({ message: '需要更新才能生效' });
         this.loadRelationedApp();
         this.handleCancelAddRelation();
       }
@@ -373,21 +375,21 @@ export default class Index extends PureComponent {
   };
   handleSubmitAddVar = vals => {
     this.props.dispatch({
-      type: "appControl/addOuterEnvs",
+      type: 'appControl/addOuterEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
-        name: vals.name
+        name: vals.name,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
         this.handleCancelAddVar();
-      }
+      },
     });
   };
   onDeleteVar = data => {
@@ -398,7 +400,7 @@ export default class Index extends PureComponent {
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      dep_service_id: app.service_id
+      dep_service_id: app.service_id,
     }).then(data => {
       if (data) {
         this.loadRelationedApp();
@@ -410,19 +412,19 @@ export default class Index extends PureComponent {
   };
   handleDeleteVar = () => {
     this.props.dispatch({
-      type: "appControl/deleteEnvs",
+      type: 'appControl/deleteEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID
+        ID: this.state.deleteVar.ID,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
         this.cancelDeleteVar();
-      }
+      },
     });
   };
   onEditVar = data => {
@@ -434,38 +436,38 @@ export default class Index extends PureComponent {
   handleEditVar = vals => {
     const { showEditVar } = this.state;
     this.props.dispatch({
-      type: "appControl/editEvns",
+      type: 'appControl/editEvns',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: showEditVar.ID,
         attr_value: vals.attr_value,
-        name: vals.name
+        name: vals.name,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
         this.cancelEditVar();
-      }
+      },
     });
   };
   fetchOuterEnvs = () => {
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "appControl/fetchOuterEnvs",
+      type: 'appControl/fetchOuterEnvs',
       payload: {
         page,
         page_size,
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }
-      }
+      },
     });
   };
   onViewRelationInfo = data => {
@@ -486,27 +488,27 @@ export default class Index extends PureComponent {
   handleTransfer = () => {
     const { transfer } = this.state;
     this.props.dispatch({
-      type: "appControl/putTransfer",
+      type: 'appControl/putTransfer',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == "inner" ? "outer" : "inner"
+        scope: transfer.scope == 'inner' ? 'outer' : 'inner',
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
         this.cancelTransfer();
-      }
+      },
     });
   };
 
   onServiceInfoPageChange = page => {
     this.setState(
       {
-        page
+        page,
       },
       () => {
         this.fetchOuterEnvs();
@@ -514,12 +516,40 @@ export default class Index extends PureComponent {
     );
   };
 
+
+  AfterPassword = value => {
+    const passwordShow = globalUtil.fetchSvg('passwordShow');
+    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
+    return (
+      <span
+        onClick={() => {
+          this.handlePassword(value);
+        }}
+      >
+        {this.state[value] === 'text' ? passwordShow : passwordHidden}
+      </span>
+    );
+  };
+  handlePassword = value => {
+    this.setState({
+      [value]: this.state[value] === 'text' ? 'password' : 'text',
+    });
+  };
+
   render() {
-    const { showText, relationList, page, page_size, total } = this.state;
+    const {
+      showText,
+      relationList,
+      page,
+      page_size,
+      total,
+      isPassword,
+      setPassword,
+    } = this.state;
     const { outerEnvs } = this.props;
-    let wraps = {
-      wordBreak: "break-all",
-      wordWrap: "break-word"
+    const wraps = {
+      wordBreak: 'break-all',
+      wordWrap: 'break-word',
     };
     return (
       <Fragment>
@@ -530,47 +560,58 @@ export default class Index extends PureComponent {
                 current: page,
                 pageSize: page_size,
                 total,
-                onChange: this.onServiceInfoPageChange
+                onChange: this.onServiceInfoPageChange,
               }}
               columns={[
                 {
-                  title: "变量名",
-                  dataIndex: "attr_name",
-                  key: "1",
-                  width: "30%",
+                  title: '变量名',
+                  dataIndex: 'attr_name',
+                  key: 'attr_name',
+                  width: '30%',
+                  render: v => {
+                    const isHidden = globalUtil.confirmEnding(`${v}`, '_PASS');
+                    const types = isHidden ? isPassword : setPassword;
+                    return (
+                      <div style={wraps}>
+                        <Input
+                          addonAfter={this.AfterPassword(
+                            isHidden ? 'isPassword' : 'setPassword'
+                          )}
+                          type={types}
+                          className={styles.hiddeninput}
+                          value={v}
+                        />
+                      </div>
+                    );
+                  },
+                },
+                {
+                  title: '变量值',
+                  dataIndex: 'attr_value',
+                  key: '2',
+                  width: '30%',
                   render: v => (
                     <Tooltip title={v}>
                       <div style={wraps}>{v}</div>
                     </Tooltip>
-                  )
+                  ),
                 },
                 {
-                  title: "变量值",
-                  dataIndex: "attr_value",
-                  key: "2",
-                  width: "30%",
+                  title: '说明',
+                  dataIndex: 'name',
+                  key: '3',
+                  width: '25%',
                   render: v => (
                     <Tooltip title={v}>
                       <div style={wraps}>{v}</div>
                     </Tooltip>
-                  )
+                  ),
                 },
                 {
-                  title: "说明",
-                  dataIndex: "name",
-                  key: "3",
-                  width: "25%",
-                  render: v => (
-                    <Tooltip title={v}>
-                      <div style={wraps}>{v}</div>
-                    </Tooltip>
-                  )
-                },
-                {
-                  title: "操作",
-                  dataIndex: "action",
-                  key: "4",
-                  width: "15%",
+                  title: '操作',
+                  dataIndex: 'action',
+                  key: '4',
+                  width: '15%',
                   render: (val, data) => (
                     <Fragment>
                       {data.is_change ? (
@@ -583,7 +624,7 @@ export default class Index extends PureComponent {
                           删除
                         </a>
                       ) : (
-                        ""
+                        ''
                       )}
                       <Tooltip
                         title={
@@ -599,7 +640,7 @@ export default class Index extends PureComponent {
                           onClick={() => {
                             this.onTransfer(data);
                           }}
-                          style={{ marginRight: "5px" }}
+                          style={{ marginRight: '5px' }}
                         >
                           转移
                         </a>
@@ -615,16 +656,16 @@ export default class Index extends PureComponent {
                           修改
                         </a>
                       ) : (
-                        ""
+                        ''
                       )}
                     </Fragment>
-                  )
-                }
+                  ),
+                },
               ]}
               dataSource={outerEnvs}
             />
           </ScrollerX>
-          <div style={{ marginTop: 10, textAlign: "right" }}>
+          <div style={{ marginTop: 10, textAlign: 'right' }}>
             <Button onClick={this.handleAddVar}>
               <Icon type="plus" /> 添加变量
             </Button>
@@ -633,9 +674,9 @@ export default class Index extends PureComponent {
         <Card
           title={[
             <span>依赖组件信息</span>,
-            <span style={{ color: "red" }}>
-              {showText && "（依赖的组件有相同的端口冲突,请处理）"}
-            </span>
+            <span style={{ color: 'red' }}>
+              {showText && '（依赖的组件有相同的端口冲突,请处理）'}
+            </span>,
           ]}
         >
           <ScrollerX sm={650}>
@@ -643,8 +684,8 @@ export default class Index extends PureComponent {
               pagination={false}
               columns={[
                 {
-                  title: "组件名",
-                  dataIndex: "service_cname",
+                  title: '组件名',
+                  dataIndex: 'service_cname',
                   render: (val, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -653,11 +694,11 @@ export default class Index extends PureComponent {
                     >
                       {val}
                     </Link>
-                  )
+                  ),
                 },
                 {
-                  title: "所属应用",
-                  dataIndex: "group_name",
+                  title: '所属应用',
+                  dataIndex: 'group_name',
                   render: (val, data) => (
                     <Link
                       to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
@@ -666,11 +707,11 @@ export default class Index extends PureComponent {
                     >
                       {val}
                     </Link>
-                  )
+                  ),
                 },
                 {
-                  title: "操作",
-                  dataIndex: "var",
+                  title: '操作',
+                  dataIndex: 'var',
                   render: (val, data) => (
                     <Fragment>
                       <a
@@ -690,13 +731,13 @@ export default class Index extends PureComponent {
                         取消依赖
                       </a>
                     </Fragment>
-                  )
-                }
+                  ),
+                },
               ]}
               dataSource={relationList}
             />
           </ScrollerX>
-          <div style={{ marginTop: 10, textAlign: "right" }}>
+          <div style={{ marginTop: 10, textAlign: 'right' }}>
             <Button onClick={this.showAddRelation}>
               <Icon type="plus" /> 添加依赖
             </Button>
