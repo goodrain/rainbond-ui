@@ -23,15 +23,10 @@ export default class Index extends PureComponent {
     dispatch({ type: 'global/hideOrders' });
   };
 
-  fetchCenter = (code, enterpriseServiceInfo) => {
-    const { used_memory, memory_limit } = enterpriseServiceInfo;
+  fetchCenter = (code) => {
     const map = {
       20001: '免费用户不支持此操作，是否前往升级为付费用户。',
-      20002: `当前使用调度内存容量（${ordersUtil.handlUnit(
-        used_memory
-      )} GB）已经达到订购容量（${ordersUtil.handlUnit(
-        memory_limit
-      )} GB）的上限，为了不影响正常使用，请尽快前往服务订购页扩容更大容量。`,
+      20002: `当前剩余容量不支持此操作，为了不影响正常使用，请尽快前往服务订购页扩容更大容量。`,
       20003: '当前订购的付费服务已过期，为了不影响正常使用，请尽快前往服务订购页面进行续费。',
     };
     return map[code] || '';
@@ -64,7 +59,7 @@ export default class Index extends PureComponent {
           </Button>,
         ]}
       >
-        <div>{this.fetchCenter(orders, enterpriseServiceInfo)}</div>
+        <div>{this.fetchCenter(orders)}</div>
       </Modal>
     );
   }
