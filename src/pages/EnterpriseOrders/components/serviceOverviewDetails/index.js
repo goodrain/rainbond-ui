@@ -407,7 +407,8 @@ export default class ServiceOverview extends PureComponent {
     const free = info && info.type === 'free';
     const minCapacity = ordersUtil.handlUnitMemory(info && info.memory_limit);
     const usedMemory = ordersUtil.handlUnitMemory(info && info.used_memory);
-    const marks = this.setObj(minCapacity);
+    const minSlider =usedMemory > minCapacity?usedMemory:minCapacity
+    const marks = this.setObj(minSlider);
     const totalCalculate =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const totalPrice = this.toThousands(totalCalculate);
@@ -449,7 +450,7 @@ export default class ServiceOverview extends PureComponent {
                     <li>共享库应用模版数量，版本数量无限制</li>
                     <li>SLA保证、7x24小时在线服务</li>
                   </ul>
-                  <a href="">查看更多付费版特权</a>
+                  {/* <a href="">查看更多付费版特权</a> */}
                 </div>
                 <div className={styles.serviceDetailsR}>
                   <div>
@@ -496,8 +497,8 @@ export default class ServiceOverview extends PureComponent {
                 this.setState({ capacity: value });
               }}
               value={capacity}
-              min={minCapacity}
-              max={minCapacity + 200}
+              min={minSlider}
+              max={minSlider + 200}
             />
 
             <div className={styles.capacityBox}>
