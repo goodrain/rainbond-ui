@@ -37,7 +37,6 @@ class SecurityLayout extends React.PureComponent {
           });
         },
         handleError: err => {
-
           this.setState({
             isReady: true,
           });
@@ -56,7 +55,7 @@ class SecurityLayout extends React.PureComponent {
       redirect: window.location.href,
     });
     if (needLogin) {
-      globalUtil.removeCookie()
+      globalUtil.removeCookie();
       return <Redirect to={`/user/login?${queryString}`} />;
     }
     if (!isReady) {
@@ -69,7 +68,7 @@ class SecurityLayout extends React.PureComponent {
   }
 }
 
-export default connect(({ user, loading }) => ({
+export default connect(({ user, loading, global }) => ({
   currentUser: user.currentUser,
   loading: loading.models.user,
   needLogin: global.needLogin,
