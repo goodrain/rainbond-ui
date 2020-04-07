@@ -14,6 +14,7 @@ import {
 import { Link } from 'dva/router';
 import ordersUtil from '../../../../utils/orders';
 import moment from 'moment';
+
 const { Option } = Select;
 const FormItem = Form.Item;
 
@@ -46,7 +47,9 @@ export default class EnterpriseClusters extends PureComponent {
   }
 
   handelChange = value => {
-    this.setState({ query: value },()=>{this.handleSearch()});
+    this.setState({ query: value }, () => {
+      this.handleSearch();
+    });
   };
   handleSearch = () => {
     this.setState(
@@ -212,9 +215,26 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'final_price',
         rowKey: 'final_price',
         align: 'center',
-        width: '150px',
-        render: final_price => {
-          return <div>¥{final_price}</div>;
+        width: '200px',
+        render: (final_price, data) => {
+          return (
+            <div>
+              ¥{final_price}
+              {final_price !== 0 &&
+                data.original_price &&
+                data.original_price !== final_price && (
+                  <s
+                    style={{
+                      color: '#b7bcc7',
+                      fontSize: '12px',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    ( 已优惠¥{data.original_price - final_price} )
+                  </s>
+                )}
+            </div>
+          );
         },
       },
       {

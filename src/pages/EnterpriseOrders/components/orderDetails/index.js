@@ -4,12 +4,10 @@ import { Link, routerRedux } from 'dva/router';
 import {
   Card,
   Button,
-  Table,
-  Tabs,
+  Modal,
   Row,
   Col,
   notification,
-  Badge,
   Alert,
   Typography,
 } from 'antd';
@@ -61,10 +59,27 @@ export default class OrderDetails extends PureComponent {
       },
     });
   };
+  financialInfo = () => {
+    const _th = this;
+    Modal.info({
+      title: '温馨提示',
+      content: (
+        <div>
+          <p>财务人员将会在24小时内审核</p>
+          <p>若有疑问请联系18701654470</p>
+        </div>
+      ),
+      onOk() {
+        _th.jump();
+      },
+    });
+  };
+
   jump = () => {
     const { dispatch, eid } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/orderManagement`));
   };
+
   fetchBankInfo = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -139,12 +154,15 @@ export default class OrderDetails extends PureComponent {
         }`,
       },
 
-      { name: '购买容量', value: `${ordersUtil.handlUnit(info.memory)}GB调度内存` },
+      {
+        name: '购买容量',
+        value: `${ordersUtil.handlUnit(info.memory)}GB调度内存`,
+      },
       {
         name: '总费用',
-        value: `¥ ${info.final_price} ${
-          info.origin_price ? `已优惠${info.origin_price}` : ''
-        }`,
+        value: `¥ ${info.final_price} ${info.original_price &&
+          info.original_price !== info.final_price &&
+          `已优惠¥ ${info.original_price - info.final_price}`}`,
       },
     ];
 
@@ -253,7 +271,14 @@ export default class OrderDetails extends PureComponent {
                     afterClose={this.handleClose}
                   />
                 ) : null}
-                <Button type="primary" onClick={this.jump}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    info && info.status === 'ToBePaid'
+                      ? this.financialInfo()
+                      : this.jump();
+                  }}
+                >
                   {info && info.status === 'ToBePaid' ? '完成支付' : '返回'}
                 </Button>
               </Col>
