@@ -37,7 +37,11 @@ export default class ServiceOverview extends PureComponent {
       monthPay: (1 * 49 * 30).toFixed(2) / 1,
       originalMonthPay: (1 * 49 * 30).toFixed(2) / 1,
       extended: 0,
+      noDiscountExtended:0,
       months: '',
+      computingYears: '',
+      computingMonth: '',
+      computingNewOrder: '',
     };
   }
   componentWillMount() {
@@ -93,18 +97,38 @@ export default class ServiceOverview extends PureComponent {
         : ordersUtil.fetchHowManyDays(expired_time)
       : ordersUtil.fetchHowManyDays(expired_time);
 
-    const supplementary = this.calculateDifference(price, MonthNum, DayNum);
+    const newCapacity = capacity - memory_limit;
+    const supplementarys = this.calculateDifference(
+      price,
+      MonthNum,
+      DayNum,
+      newCapacity
+    );
+    const noDiscountSupplementarys = this.calculateDifference(
+      price,
+      MonthNum,
+      DayNum,
+      newCapacity,
+      true
+    );
+    const Filling =
+      isRenewal &&
+      `¥${price}/GB/月 x ${newCapacity}GB容量 x ${MonthNum}月 ${
+        MonthNum >= 12 ? 'x 7.5优惠' : ''
+      } ${
+        DayNum !== 0
+          ? `+ ( (¥${price}/GB/月 x ${newCapacity}GB容量 x ${DayNum}天 / 30 ) )`
+          : ''
+      } `;
 
     this.fetchmonths(selected, monthNumber, expired_time);
     this.calculateExtended(
       timeDelay,
       isRenewal,
-      price,
-      capacity,
-      memory_limit,
       billing,
-      supplementary,
-      MonthNum
+      supplementarys,
+      Filling,
+      noDiscountSupplementarys
     );
 
     this.calculateYearsPay(
@@ -112,16 +136,20 @@ export default class ServiceOverview extends PureComponent {
       price,
       capacity,
       isRenewal,
-      memory_limit,
-      supplementary
+      newCapacity,
+      supplementarys,
+      Filling,
+      noDiscountSupplementarys
     );
     this.calculateMonthPay(
       monthNumber,
       price,
       capacity,
       isRenewal,
-      memory_limit,
-      supplementary
+      newCapacity,
+      supplementarys,
+      Filling,
+      noDiscountSupplementarys
     );
   };
   // 计算年付
@@ -130,22 +158,26 @@ export default class ServiceOverview extends PureComponent {
     price,
     capacity,
     isRenewal,
-    memory_limit,
-    supplementarys
+    newCapacity,
+    supplementarys,
+    Filling,
+    noDiscountSupplementarys
   ) => {
     let yearsPay = 0;
     let discount = 0;
-
+    let computingYears = `( ${price}/GB/月 x ${capacity}GB容量 x ${monthNumber}月 x 7.5优惠 )`;
     yearsPay = ordersUtil.fetchOrderCost(true, monthNumber, price, capacity);
     discount = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity);
 
     if (isRenewal) {
-      const newCapacity = capacity - memory_limit;
-      const supplementary = (supplementarys * newCapacity).toFixed(2) / 1;
-      yearsPay = supplementary + yearsPay;
-      discount = supplementary + discount;
+      computingYears = `${
+        newCapacity !== 0 ? `延长费用 ( ${Filling} ) +` : ''
+      } ${newCapacity !== 0 ? `不延长费用` : ''} ${computingYears}`;
+      yearsPay = noDiscountSupplementarys + yearsPay;
+      discount = supplementarys + discount;
     }
     this.setState({
+      computingYears,
       yearsPay,
       discount,
     });
@@ -157,11 +189,16 @@ export default class ServiceOverview extends PureComponent {
     price,
     capacity,
     isRenewal,
-    memory_limit,
-    supplementarys
+    newCapacity,
+    supplementarys,
+    Filling,
+    noDiscountSupplementarys
   ) => {
     let originalMonthPay = 0;
     let monthPay = 0;
+    let computingMonth = `( ${price}/GB/月 x ${capacity}GB容量 x ${
+      monthNumber >= 12 ? `${monthNumber}月 x 7.5优惠 )` : `${monthNumber}月 )`
+    }`;
 
     monthPay = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity);
     originalMonthPay = ordersUtil.fetchOrderCost(
@@ -172,13 +209,15 @@ export default class ServiceOverview extends PureComponent {
     );
 
     if (isRenewal) {
-      const newCapacity = capacity - memory_limit;
-      const supplementary = (supplementarys * newCapacity).toFixed(2) / 1;
-      monthPay = supplementary + monthPay;
-      originalMonthPay = supplementary + originalMonthPay;
+      computingMonth = `${
+        newCapacity !== 0 ? `延长费用 ( ${Filling} ) +` : ''
+      } ${newCapacity !== 0 ? `不延长费用` : ''} ${computingMonth}`;
+      monthPay = supplementarys + monthPay;
+      originalMonthPay = noDiscountSupplementarys + originalMonthPay;
     }
 
     this.setState({
+      computingMonth,
       monthPay,
       originalMonthPay,
     });
@@ -188,25 +227,25 @@ export default class ServiceOverview extends PureComponent {
   calculateExtended = (
     timeDelay,
     isRenewal,
-    price,
-    capacity,
-    memory_limit,
     billing,
     supplementarys,
-    MonthNum
+    Filling,
+    noDiscountSupplementarys
   ) => {
     if (timeDelay && isRenewal) {
-      const discount = MonthNum > 11 ? 0.75 : 1;
-      const supplementary =
-        (supplementarys * (capacity - memory_limit) * discount).toFixed(2) / 1;
-      this.setState({ extended: billing ? 0 : supplementary });
+      this.setState({
+        extended: billing ? 0 : supplementarys,
+        noDiscountExtended: billing ? 0 : noDiscountSupplementarys,
+        computingNewOrder: billing ? '' : Filling,
+      });
     }
   };
 
-  calculateDifference = (price, MonthNum, DayNum) => {
-    const MonthMoney = MonthNum * price;
-    const DayMoney = (DayNum / 30) * price;
-    const TotalPrice = MonthMoney + DayMoney;
+  calculateDifference = (price, MonthNum, DayNum, newCapacity, NoDiscount) => {
+    const discount = NoDiscount ? 1 : MonthNum > 11 ? 0.75 : 1;
+    const MonthMoney = price * MonthNum * newCapacity * discount;
+    const DayMoney = (DayNum / 30) * price * newCapacity;
+    const TotalPrice = (MonthMoney + DayMoney).toFixed(2) / 1;
     return TotalPrice;
   };
 
@@ -255,6 +294,7 @@ export default class ServiceOverview extends PureComponent {
       yearsPay,
       selected,
       extended,
+      noDiscountExtended,
       discount,
       monthPay,
       originalMonthPay,
@@ -266,9 +306,8 @@ export default class ServiceOverview extends PureComponent {
     const totalPrice =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const month = selected === 1 ? 12 : selected === 2 ? monthNumber : 0;
-
     const originalPrice =
-      selected === 1 ? yearsPay : selected === 2 ? originalMonthPay : extended;
+      selected === 1 ? yearsPay : selected === 2 ? originalMonthPay : noDiscountExtended;
     dispatch({
       type: 'order/createOrder',
       payload: {
@@ -360,6 +399,9 @@ export default class ServiceOverview extends PureComponent {
       extended,
       moments,
       submitLoading,
+      computingYears,
+      computingMonth,
+      computingNewOrder,
     } = this.state;
 
     const free = info && info.type === 'free';
@@ -369,6 +411,12 @@ export default class ServiceOverview extends PureComponent {
     const totalCalculate =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const totalPrice = this.toThousands(totalCalculate);
+    const computing =
+      selected === 1
+        ? computingYears
+        : selected === 2
+        ? computingMonth
+        : computingNewOrder;
 
     return (
       <div className={styles.serviceBox}>
@@ -554,6 +602,7 @@ export default class ServiceOverview extends PureComponent {
               <div>
                 <span>应付总额：</span>
                 <span>¥&nbsp;{totalPrice}</span>
+                <span>&nbsp;{computing}&nbsp;</span>
               </div>
               <div>
                 总共可管理 {capacity} GB 调度内存的应用到 {moments}
