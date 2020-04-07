@@ -127,15 +127,15 @@ export default class Index extends PureComponent {
               const isGuidevisible =
                 this.state.current == 7
                   ? false
-                  : !cookie.get('guide');
+                  : !cookie.get('newbie_guide');
               this.setState({
                 guidevisible: isGuidevisible,
               });
               this.state.current == 7
                 ? false
-                : cookie.get('guide')
+                : cookie.get('newbie_guide')
                 ? false
-                : cookie.setGuide('guide', 'true');
+                : cookie.setGuide('newbie_guide', 'true');
             }
           );
         }
