@@ -282,10 +282,12 @@ class TeamLayout extends React.PureComponent {
     if (!ready || !currentEnterprise || !currentTeam) {
       return <PageLoading />;
     }
-    if (teamName != (currentTeam && currentTeam.team_name)) {
+    if (
+      teamName !== (currentTeam && currentTeam.team_name) ||
+      regionName !== (currentRegion && currentRegion.team_region_name)
+    ) {
       this.load();
     }
-
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
