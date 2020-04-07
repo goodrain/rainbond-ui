@@ -13,7 +13,7 @@ const code = rainbondUtil.OauthParameter('code');
 const service_id = rainbondUtil.OauthParameter('service_id');
 const oauth_type = rainbondUtil.OauthParameter('oauth_type');
 
-@connect(({ user, loading, global }) => ({
+@connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
   isRegist: global.isRegist,
@@ -23,8 +23,6 @@ export default class Register extends Component {
   // first user, to register admin
   state = {
     user_info: null,
-    firstRegist:
-      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register,
   };
 
   componentDidMount() {
@@ -86,8 +84,9 @@ export default class Register extends Component {
   };
 
   render() {
-    if (!this.props.isRegist) {
-      this.props.dispatch(
+    const { isRegist, dispatch, rainbondInfo } = this.props;
+    if (!isRegist) {
+      dispatch(
         routerRedux.replace(
           code && service_id && oauth_user_id
             ? `/user/login?code=${code}&service_id=${service_id}`
@@ -97,7 +96,7 @@ export default class Register extends Component {
       return null;
     }
     const { user_info } = this.state;
-    const { form, rainbondInfo } = this.props;
+    const firstRegist = rainbondUtil.fetchFirstRegist(rainbondInfo);
     let oauthServer = null;
     rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondInfo.oauth_services.value.map(item => {
@@ -114,7 +113,7 @@ export default class Register extends Component {
         </p>
         <Row style={{ marginBottom: '24px' }}>
           <Col span={10} className={styles.boxJump}>
-            {!this.state.firstRegist && (
+            {!firstRegist && (
               <Link
                 to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
               >
