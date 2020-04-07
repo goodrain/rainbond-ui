@@ -8,6 +8,7 @@ import {
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import OuterCustomForm from "../../components/OuterCustomForm";
+import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
 
@@ -113,6 +114,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div className={styles.formWrap}>
           <OuterCustomForm onSubmit={this.handleSubmit} {...this.props} />
         </div>

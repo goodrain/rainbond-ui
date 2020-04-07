@@ -4,7 +4,7 @@ import {
   Menu,
   Icon,
   Spin,
-  Tag,
+  Button,
   Dropdown,
   Avatar,
   Divider,
@@ -26,10 +26,11 @@ import rainbondUtil from '../../utils/rainbond';
 
 const { Header } = Layout;
 
-@connect(({ global, appControl }) => ({
+@connect(({ global, appControl, order }) => ({
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   appDetail: appControl.appDetail,
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -122,7 +123,8 @@ export default class GlobalHeader extends PureComponent {
     this.setState({ popupVisible: flag, total: 0 }, () => {});
   };
   onClear = () => {
-    this.props.dispatch(
+    const { dispatch } = this.props;
+    dispatch(
       routerRedux.replace(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/message`
       )
@@ -141,6 +143,10 @@ export default class GlobalHeader extends PureComponent {
     event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
+  handleVip = () => {
+    const { dispatch, eid } = this.props;
+    dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
+  };
 
   render() {
     const {
@@ -150,9 +156,10 @@ export default class GlobalHeader extends PureComponent {
       rainbondInfo,
       collapsed,
       enterprise,
+      enterpriseServiceInfo,
+      eid,
     } = this.props;
-
-    if (!currentUser) {
+    if (!currentUser && !enterpriseServiceInfo) {
       return null;
     }
 
@@ -166,15 +173,16 @@ export default class GlobalHeader extends PureComponent {
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
       </svg>
     );
+
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {
-            rainbondUtil.OauthEnterpriseEnable(enterprise) && (
-              <div className={styles.uesrInfoTitle}>Oauth认证：</div>
-            )}
+          {rainbondUtil.OauthEnterpriseEnable(enterprise) && (
+            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+          )}
 
-          {enterprise&&rainbondUtil.OauthEnterpriseEnable(enterprise) &&
+          {enterprise &&
+            rainbondUtil.OauthEnterpriseEnable(enterprise) &&
             enterprise.oauth_services.value &&
             enterprise.oauth_services.value.length > 0 &&
             enterprise.oauth_services.value.map(item => {
@@ -244,6 +252,11 @@ export default class GlobalHeader extends PureComponent {
         />
         {customHeader && customHeader()}
         <div className={styles.right}>
+          {enterpriseServiceInfo.type === 'free' && (
+            <Button type="primary" onClick={this.handleVip}>
+              升级付费服务
+            </Button>
+          )}
           {rainbondUtil.documentEnable(rainbondInfo) && (
             <Tooltip title="平台使用手册">
               <a

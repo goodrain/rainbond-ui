@@ -9,13 +9,15 @@ export default function TeamHeader(props) {
     currentEnterprise,
     currentTeam,
     currentRegion,
-    regionName
+    regionName,
+    nobleIcon
   } = props;
   return (
     <div className={headerStype.itemBox}>
       <div 
         className={headerStype.item}
       >
+      {nobleIcon}
         <Link className={headerStype.itemlink} to={`/enterprise/${currentEnterprise.enterprise_id}/index`}>{currentEnterprise && currentEnterprise.enterprise_alias}</Link>
         <span className={headerStype.itemseparator}>></span>
       </div>

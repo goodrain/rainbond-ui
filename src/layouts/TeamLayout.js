@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification, Button } from 'antd';
+import { Layout, Icon, message, notification, Button, Tooltip } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Route, Redirect, routerRedux } from 'dva/router';
@@ -25,6 +25,7 @@ import { FormattedMessage } from 'umi-plugin-react/locale';
 import TeamHeader from './components/TeamHeader';
 import AppHeader from './components/AppHeader';
 import AuthCompany from '../components/AuthCompany';
+import ServiceOrder from '../components/ServiceOrder';
 
 const qs = require('query-string');
 
@@ -207,9 +208,20 @@ class TeamLayout extends React.PureComponent {
     if (!eid) {
       return null;
     }
+    this.fetchEnterpriseService(eid);
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid,
+      },
+    });
+  };
+
+  fetchEnterpriseService = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/fetchEnterpriseService',
       payload: {
         enterprise_id: eid,
       },
@@ -257,12 +269,14 @@ class TeamLayout extends React.PureComponent {
   render() {
     const {
       currentUser,
+      enterpriseServiceInfo,
       collapsed,
       children,
       location: { pathname },
       nouse,
       rainbondInfo,
       enterprise,
+      orders,
     } = this.props;
     const {
       enterpriseList,
@@ -279,13 +293,17 @@ class TeamLayout extends React.PureComponent {
       return <Redirect to="/" />;
     }
     // The necessary data is loaded
-    if (!ready || !currentEnterprise || !currentTeam) {
+    if (
+      !ready ||
+      !currentEnterprise ||
+      !currentTeam ||
+      !enterpriseServiceInfo
+    ) {
       return <PageLoading />;
     }
     if (teamName != (currentTeam && currentTeam.team_name)) {
       this.load();
     }
-
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
@@ -302,10 +320,19 @@ class TeamLayout extends React.PureComponent {
     }
 
     const mode = this.getMode(appID || componentID);
+    const nobleIcon = (
+      <Tooltip
+        title={enterpriseServiceInfo.type === 'vip' ? '尊贵的VIP' : '免费版'}
+      >
+        {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
+      </Tooltip>
+    );
+
     const customHeader = () => {
       if (mode == 'team') {
         return (
           <TeamHeader
+            nobleIcon={nobleIcon}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -322,6 +349,7 @@ class TeamLayout extends React.PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
+          nobleIcon={nobleIcon}
           currentComponent={currentComponent}
           componentID={componentID}
         />
@@ -408,6 +436,7 @@ class TeamLayout extends React.PureComponent {
                 currentRegion.team_region_name +
                 appID
               }
+              eid={currentEnterprise.enterprise_id}
               logo={fetchLogo}
               isPubCloud={
                 rainbondInfo &&
@@ -484,12 +513,19 @@ class TeamLayout extends React.PureComponent {
             }}
           />
         )}
+        {orders && (
+          <ServiceOrder
+            enterpriseServiceInfo={enterpriseServiceInfo}
+            eid={currentEnterprise && currentEnterprise.enterprise_id}
+            orders={orders}
+          />
+        )}
       </Fragment>
     );
   }
 }
 
-export default connect(({ user, global, index, loading }) => ({
+export default connect(({ user, global, index, loading, order }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -504,4 +540,6 @@ export default connect(({ user, global, index, loading }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
+  orders: global.orders,
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))(TeamLayout);

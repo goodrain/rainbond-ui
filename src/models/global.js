@@ -106,6 +106,7 @@ export default {
     payTip: false,
     noMoneyTip: false,
     showAuthCompany: false,
+    orders:false,
     // enterprise info
     enterprise: null,
     enterpriseInfo: null,
@@ -773,6 +774,18 @@ export default {
       return {
         ...state,
         apploadingnum: state.apploadingnum - 1,
+      };
+    },
+    showOrders(state,{payload}){
+      return {
+        ...state,
+        orders:payload.code
+      }
+    },
+    hideOrders(state, {}) {
+      return {
+        ...state,
+        orders: false,
       };
     },
     showAuthCompany(state, {}) {

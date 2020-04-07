@@ -17,6 +17,7 @@ import {
 import styles from "./Index.less";
 import CodeDemoForm from "../../components/CodeDemoForm";
 import globalUtil from "../../utils/global";
+import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
 const formItemLayout = {
@@ -95,7 +96,8 @@ export default class Index extends PureComponent {
     const code = decodeURIComponent(this.props.match.params.code || "");
     return (
       <Card>
-        <div 
+        <TopUpHints />
+        <div
           className={styles.formWrap}
           style={{
             width:
