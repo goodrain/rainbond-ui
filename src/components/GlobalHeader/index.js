@@ -166,26 +166,28 @@ export default class GlobalHeader extends PureComponent {
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
       </svg>
     );
+    const isOauth = rainbondUtil.OauthEnterpriseEnable(enterprise);
+    const oauth_services =
+      currentUser.oauth_services &&
+      currentUser.oauth_services.length > 0 &&
+      currentUser.oauth_services;
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {
-            rainbondUtil.OauthEnterpriseEnable(enterprise) && (
-              <div className={styles.uesrInfoTitle}>Oauth认证：</div>
-            )}
-
-          {enterprise&&rainbondUtil.OauthEnterpriseEnable(enterprise) &&
-            enterprise.oauth_services.value &&
-            enterprise.oauth_services.value.length > 0 &&
-            enterprise.oauth_services.value.map(item => {
-              const { name, is_authenticated, is_expired } = item;
+          {isOauth && oauth_services && (
+            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
+          )}
+          {enterprise &&
+            isOauth &&
+            oauth_services.map(item => {
+              const { service_name, is_authenticated, is_expired } = item;
               const authURL = oauthUtil.getAuthredictURL(item);
               return (
-                <Menu.Item key={name}>
+                <Menu.Item key={service_name}>
                   <div className={styles.userInfoContent}>
-                    <span className={styles.oneSpan} title={name}>
+                    <span className={styles.oneSpan} title={service_name}>
                       {oauthUtil.getIcon(item, '16px')}
-                      {name}
+                      {service_name}
                     </span>
                     <span>
                       {is_authenticated ? (
