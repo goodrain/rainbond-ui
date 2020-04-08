@@ -125,7 +125,7 @@ export default class OrderDetails extends PureComponent {
       { name: '订单编号', value: info.order_id },
       {
         name: '创建时间',
-        value: `${moment.utc(info.create_time).format('YYYY-MM-DD HH:mm:ss')}`,
+        value: `${moment(info.create_time).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}`,
       },
       {
         name: '服务周期',
@@ -139,7 +139,7 @@ export default class OrderDetails extends PureComponent {
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment.utc(info.effect_time).format('YYYY-MM-DD')}`
+            ? `${moment(info.effect_time).locale('zh-cn').format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },
@@ -149,7 +149,7 @@ export default class OrderDetails extends PureComponent {
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment.utc(info.expired_time).format('YYYY-MM-DD')}`
+            ? `${moment(info.expired_time).locale('zh-cn').format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },

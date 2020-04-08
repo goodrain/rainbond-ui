@@ -37,7 +37,7 @@ export default class ServiceOverview extends PureComponent {
       monthPay: (1 * 49 * 30).toFixed(2) / 1,
       originalMonthPay: (1 * 49 * 30).toFixed(2) / 1,
       extended: 0,
-      noDiscountExtended:0,
+      noDiscountExtended: 0,
       months: '',
       computingYears: '',
       computingMonth: '',
@@ -113,11 +113,17 @@ export default class ServiceOverview extends PureComponent {
     );
     const Filling =
       isRenewal &&
-      `¥${price}/GB/月 x ${newCapacity}GB容量 x ${MonthNum}月 ${
-        MonthNum >= 12 ? 'x 7.5优惠' : ''
-      } ${
+      `${
+        MonthNum !== 0
+          ? `¥${price}/GB/月 x ${newCapacity}GB容量 x ${MonthNum}月 ${
+              MonthNum >= 12 ? 'x 7.5优惠' : ''
+            } `
+          : ''
+      }
+      ${MonthNum !== 0 && DayNum !== 0 ? ' + ' : ''}
+      ${
         DayNum !== 0
-          ? `+ ( (¥${price}/GB/月 x ${newCapacity}GB容量 x ${DayNum}天 / 30 ) )`
+          ? `( (¥${price}/GB/月 x ${newCapacity}GB容量 x ${DayNum}天 / 30 ) )`
           : ''
       } `;
 
@@ -307,7 +313,11 @@ export default class ServiceOverview extends PureComponent {
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const month = selected === 1 ? 12 : selected === 2 ? monthNumber : 0;
     const originalPrice =
-      selected === 1 ? yearsPay : selected === 2 ? originalMonthPay : noDiscountExtended;
+      selected === 1
+        ? yearsPay
+        : selected === 2
+        ? originalMonthPay
+        : noDiscountExtended;
     dispatch({
       type: 'order/createOrder',
       payload: {
@@ -367,15 +377,17 @@ export default class ServiceOverview extends PureComponent {
     let moments = '';
     const date = new Date(); // 获取当前日期
     if (selected === 1) {
-      moments = moment
-        .utc(date.setMonth(date.getMonth() + 12))
+      moments = moment(date.setMonth(date.getMonth() + 12))
+        .locale('zh-cn')
         .format('YYYY年MM月DD日');
     } else if (selected === 2) {
-      moments = moment
-        .utc(date.setMonth(date.getMonth() + monthNumber))
+      moments = moment(date.setMonth(date.getMonth() + monthNumber))
+        .locale('zh-cn')
         .format('YYYY年MM月DD日');
     } else {
-      moments = moment.utc(expired_time).format('YYYY年MM月DD日');
+      moments = moment(expired_time)
+        .locale('zh-cn')
+        .format('YYYY年MM月DD日');
     }
 
     this.setState({
@@ -407,7 +419,7 @@ export default class ServiceOverview extends PureComponent {
     const free = info && info.type === 'free';
     const minCapacity = ordersUtil.handlUnitMemory(info && info.memory_limit);
     const usedMemory = ordersUtil.handlUnitMemory(info && info.used_memory);
-    const minSlider =usedMemory > minCapacity?usedMemory:minCapacity
+    const minSlider = usedMemory > minCapacity ? usedMemory : minCapacity;
     const marks = this.setObj(minSlider);
     const totalCalculate =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
@@ -506,8 +518,8 @@ export default class ServiceOverview extends PureComponent {
             </div>
             {!free && cycleVisible && info && (
               <Alert
-                message={`当前服务到期时间为 ${moment
-                  .utc(info.expired_time)
+                message={`当前服务到期时间为 ${moment(info.expired_time)
+                  .locale('zh-cn')
                   .format('YYYY年MM月DD日')}`}
                 type="info"
                 showIcon

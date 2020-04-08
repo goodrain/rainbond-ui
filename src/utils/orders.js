@@ -4,21 +4,23 @@ const format = 'YYYY-MM-DD';
 export default {
   fetchHowManyDays(endTimes) {
     if (endTimes) {
-      const startTime = moment.utc().format(format);
-      const endTime = moment.utc(endTimes).format(format);
-      const momentNumber = moment.utc(endTime).diff(moment.utc(startTime), 'months');
-      const momentTime = moment.utc()
+      const startTime = moment().locale('zh-cn').format(format);
+      const endTime = moment(endTimes).locale('zh-cn').format(format);
+      const momentNumber = moment(endTime).diff(moment(startTime), 'months');
+      const momentTime = moment()
         .add(momentNumber, 'months')
-        .format(format);
-      const dayNumber = moment.utc(endTime).diff(moment.utc(momentTime), 'days');
+        .locale('zh-cn').format(format);
+      const dayNumber = moment(endTime).locale('zh-cn').diff(moment(momentTime), 'days');
       return dayNumber;
     }
   },
   fetchHowManyMonths(endTimes) {
     if (endTimes) {
-      const startTime = moment.utc().format(format);
-      const endTime = moment.utc(endTimes).format(format);
-      const momentNumber = moment.utc(endTime).diff(moment.utc(startTime), 'months');
+      const startTime = moment().locale('zh-cn').format(format);
+      const endTime = moment(endTimes).locale('zh-cn').format(format);
+
+      const momentNumber = moment(endTime).locale('zh-cn').diff(moment(startTime), 'months');
+
       return momentNumber >= 12 ? 12 : momentNumber;
     }
   },
