@@ -136,7 +136,7 @@ export default class Index extends PureComponent {
               <Icon onClick={this.showEditName} type="edit" />
             )}
           </div>
-          <div>创建于 {moment(team.create_time).format('YYYY-MM-DD')}</div>
+          <div>创建于 {moment(team.create_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
         </div>
       </div>
     );

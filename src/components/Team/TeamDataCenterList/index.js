@@ -102,7 +102,7 @@ export default class DatacenterList extends PureComponent {
                 />
                 <div className={styles.projectItemContent}>
                   <span className={styles.datetime}>
-                    开通于 {moment(item.create_time).format("YYYY年-MM月-DD日")}
+                    开通于 {moment(item.create_time).locale('zh-cn').format("YYYY年-MM月-DD日")}
                   </span>
                 </div>
               </Card>
