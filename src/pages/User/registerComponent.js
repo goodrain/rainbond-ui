@@ -5,6 +5,7 @@ import { Form, Input, Button, Row, Col, Progress } from 'antd';
 import styles from './Register.less';
 import apiconfig from '../../../config/api.config';
 import userUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
 
 const FormItem = Form.Item;
 
@@ -31,8 +32,6 @@ export default class RegisterComponent extends Component {
     help: '',
     prefix: '86',
     time: Date.now(),
-    firstRegist:
-      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register,
   };
 
   componentWillUnmount() {
@@ -151,11 +150,20 @@ export default class RegisterComponent extends Component {
     });
   };
   render() {
-    const { form, submitting, thirdsubmitting, type, user_info } = this.props;
+    const {
+      form,
+      submitting,
+      thirdsubmitting,
+      type,
+      user_info,
+      rainbondInfo,
+    } = this.props;
     const { getFieldDecorator } = form;
+    const firstRegist = rainbondUtil.fetchFirstRegist(rainbondInfo);
+    const { time, help } = this.state;
     return (
       <Form onSubmit={this.handleSubmit}>
-        {this.state.firstRegist && (
+        {firstRegist && (
           <FormItem>
             {getFieldDecorator('enter_name', {
               rules: [
@@ -193,7 +201,7 @@ export default class RegisterComponent extends Component {
             ],
           })(<Input size="large" placeholder="邮箱" />)}
         </FormItem>
-        <FormItem help={this.state.help}>
+        <FormItem help={help}>
           {getFieldDecorator('password', {
             rules: [
               {
@@ -236,7 +244,7 @@ export default class RegisterComponent extends Component {
             <Col span={8}>
               <img
                 onClick={this.changeTime}
-                src={`${apiconfig.baseUrl}/console/captcha?_=${this.state.time}`}
+                src={`${apiconfig.baseUrl}/console/captcha?_=${time}`}
                 style={{
                   width: '100%',
                   height: 40,
@@ -254,14 +262,14 @@ export default class RegisterComponent extends Component {
             type="primary"
             htmlType="submit"
           >
-            {this.state.firstRegist
+            {firstRegist
               ? '管理员注册'
               : type === 'register'
               ? '注册'
               : '注册并绑定'}
           </Button>
 
-          {!this.state.firstRegist && type === 'register' && (
+          {!firstRegist && type === 'register' && (
             <Link className={styles.login} to="/user/login">
               使用已有账户登录
             </Link>
