@@ -421,7 +421,7 @@ export default class Index extends PureComponent {
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>{team.team_alias}</div>
-          <div>创建于 {moment(team.create_time).format("YYYY-MM-DD")}</div>
+          <div>创建于 {moment(team.create_time).locale('zh-cn').format("YYYY-MM-DD")}</div>
         </div>
       </div>
     );
