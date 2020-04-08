@@ -250,7 +250,7 @@ export default class EnterpriseUsers extends PureComponent {
         rowKey: 'create_time',
         align: 'center',
         render: val => {
-          return <span> {moment(val).format('YYYY-MM-DD hh:mm:ss')}</span>;
+          return <span> {moment(val).locale('zh-cn').format('YYYY-MM-DD hh:mm:ss')}</span>;
         },
       },
       {

@@ -709,7 +709,7 @@ const global = {
 
     let result = '';
     if (days && days > 7) {
-      result = moment(date).format('YYYY-MM-DD');
+      result = moment(date).locale('zh-cn').format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
       result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {

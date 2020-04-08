@@ -33,7 +33,7 @@ export default class Index extends PureComponent {
       this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
     }
     if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
-      this.getGitRepostoryInfo(rainbondInfo, type, OauthbTypes);
+      this.getGitRepostoryInfo(rainbondInfo, type, enterprise);
     }
   }
   componentWillUpdate(props) {

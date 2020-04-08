@@ -82,7 +82,7 @@ export default class Index extends PureComponent {
       var msg = data.message;
       return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
         data.time
-      ).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+      ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
     }
     try {
       const message = data.message;
@@ -95,16 +95,16 @@ export default class Index extends PureComponent {
       if (msg) {
         return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
           data.time
-        ).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
       return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
         data.time
-      ).format("HH:mm:ss")}</span><span>${message.stream}</span>`;
+      ).locale('zh-cn').format("HH:mm:ss")}</span><span>${message.stream}</span>`;
     } catch (e) {
       if (data.message) {
         return `<span className="time" style="display:inline-block;margin-right: 8px;">${moment(
           data.time
-        ).format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
+        ).locale('zh-cn').format("HH:mm:ss")}</span><span>${msg || ""}</span>`;
       }
       return "";
     }

@@ -375,7 +375,7 @@ export default class ComponentList extends Component {
       {
         title: "更新时间",
         dataIndex: "update_time",
-        render: val => moment(val).format("YYYY-MM-DD HH:mm:ss")
+        render: val => moment(val).locale('zh-cn').format("YYYY-MM-DD HH:mm:ss")
       },
       {
         title: "操作",
