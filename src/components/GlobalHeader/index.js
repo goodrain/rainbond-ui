@@ -178,7 +178,7 @@ export default class GlobalHeader extends PureComponent {
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
           {enterprise &&
-            isOauth &&
+            isOauth && oauth_services &&
             oauth_services.map(item => {
               const { service_name, is_authenticated, is_expired } = item;
               const authURL = oauthUtil.getAuthredictURL(item);
