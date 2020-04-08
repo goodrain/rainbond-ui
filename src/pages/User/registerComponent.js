@@ -163,7 +163,7 @@ export default class RegisterComponent extends Component {
     const { time, help } = this.state;
     return (
       <Form onSubmit={this.handleSubmit}>
-        {firstRegist && (
+        {!firstRegist && (
           <FormItem>
             {getFieldDecorator('enter_name', {
               rules: [
@@ -262,7 +262,7 @@ export default class RegisterComponent extends Component {
             type="primary"
             htmlType="submit"
           >
-            {firstRegist
+            {!firstRegist
               ? '管理员注册'
               : type === 'register'
               ? '注册'
