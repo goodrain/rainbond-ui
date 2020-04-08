@@ -155,8 +155,6 @@ export default class GlobalHeader extends PureComponent {
     if (!currentUser) {
       return null;
     }
-    console.log('currentUser', currentUser);
-
     const handleEditSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
         <path d="M626.9 248.2L148.2 726.9 92.1 932.3l204.6-57 480.5-480.5-150.3-146.6z m274.3-125.8c-41-41-107.5-41-148.5 0l-80.5 80.5L823.1 349l78.1-78.2c41-41 41-107.5 0-148.4zM415.1 932.3h452.2v-64.6H415.1v64.6z m193.8-193.8h258.4v-64.6H608.9v64.6z" />
