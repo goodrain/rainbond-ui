@@ -18,7 +18,7 @@ export default {
       enterpriseInfo.logo.enable &&
       enterpriseInfo.logo.value),
   // 判断是否是第一个用户注册管理员
-  fetchFirstRegist: (bean = {}) =>
+  fetchIsFirstRegist: (bean = {}) =>
     (bean && bean.is_user_register && bean.is_user_register.enable) || true,
   // 判断企业是否配置了市场支持跨集群
   appstoreImageHubEnable: (bean = {}) =>
