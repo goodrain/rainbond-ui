@@ -182,7 +182,7 @@ export default class Convenient extends PureComponent {
     });
     if (region_list && region_list.length > 0) {
       this.setState({ region_list }, () => {
-        setFieldsValue({ region: region_list[0] });
+        setFieldsValue({ region: region_list[0].region_name });
       });
     }
   };
@@ -280,8 +280,8 @@ export default class Convenient extends PureComponent {
                     >
                       {region_list &&
                         region_list.map(item => (
-                          <Option key={item} value={item}>
-                            {item}
+                          <Option key={item.region_name} value={item.region_name}>
+                            {item.region_alias}
                           </Option>
                         ))}
                     </Select>
