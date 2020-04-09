@@ -143,7 +143,7 @@ export default class EnterpriseClusters extends PureComponent {
         align: 'center',
         width: '190px',
         render: val => {
-          return <span> {moment.utc(val).format('YYYY-MM-DD HH:mm:ss')}</span>;
+          return <span> {moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}</span>;
         },
       },
       {
@@ -172,7 +172,7 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment.utc(effect_time).format('YYYY-MM-DD')}</div>
+                <div>{moment(effect_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
               ) : (
                 <div>未生效</div>
               )}
@@ -192,7 +192,7 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment.utc(expired_time).format('YYYY-MM-DD')}</div>
+                <div>{moment(expired_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
               ) : (
                 <div>未生效</div>
               )}
