@@ -64,7 +64,7 @@ class Login extends Component {
   }
   componentWillMount() {
     const { rainbondInfo, dispatch } = this.props;
-    const firstRegist = rainbondUtil.fetchFirstRegist(rainbondInfo);
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     // first user, to register admin
     if (firstRegist) {
       dispatch(routerRedux.replace('/user/register'));

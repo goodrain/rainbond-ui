@@ -96,7 +96,7 @@ export default class Register extends Component {
       return null;
     }
     const { user_info } = this.state;
-    const firstRegist = rainbondUtil.fetchFirstRegist(rainbondInfo);
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     let oauthServer = null;
     rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondInfo.oauth_services.value.map(item => {

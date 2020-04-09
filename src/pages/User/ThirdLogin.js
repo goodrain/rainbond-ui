@@ -78,6 +78,7 @@ export default class LoginPage extends Component {
   render() {
     const { rainbondInfo, isRegist } = this.props;
     const { user_info } = this.state;
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
     let oauthServer = null;
@@ -100,7 +101,7 @@ export default class LoginPage extends Component {
             className={styles.boxJump}
             style={{ background: '#CDE2FF' }}
           >
-            {!this.state.firstRegist && (
+            {!firstRegist && (
               <Link
                 to={`/user/third/login?code=${code}&service_id=${service_id}&oauth_user_id=${oauth_user_id}`}
               >
