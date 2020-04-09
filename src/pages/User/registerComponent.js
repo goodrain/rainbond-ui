@@ -159,7 +159,7 @@ export default class RegisterComponent extends Component {
       rainbondInfo,
     } = this.props;
     const { getFieldDecorator } = form;
-    const firstRegist = rainbondUtil.fetchFirstRegist(rainbondInfo);
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     const { time, help } = this.state;
     return (
       <Form onSubmit={this.handleSubmit}>
@@ -269,7 +269,7 @@ export default class RegisterComponent extends Component {
               : '注册并绑定'}
           </Button>
 
-          {!firstRegist && type === 'register' && (
+          {firstRegist && type === 'register' && (
             <Link className={styles.login} to="/user/login">
               使用已有账户登录
             </Link>
