@@ -10,7 +10,10 @@ export default {
         .startOf('day')
         .locale('zh-cn')
         .format(format);
+
       const endTime = moment(endTimes)
+        .add(1, 'days')
+        .startOf('day')
         .locale('zh-cn')
         .format(format);
       const momentNumber = moment(endTime).diff(moment(startTime), 'months');
@@ -20,6 +23,7 @@ export default {
         .add(momentNumber, 'months')
         .locale('zh-cn')
         .format(format);
+
       const dayNumber = moment(endTime)
         .locale('zh-cn')
         .diff(moment(momentTime), 'days');
