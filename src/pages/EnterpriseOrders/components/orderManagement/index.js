@@ -215,11 +215,11 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'final_price',
         rowKey: 'final_price',
         align: 'center',
-        width: '200px',
+        width: '220px',
         render: (final_price, data) => {
           return (
             <div>
-              ¥{final_price}
+              ¥{final_price.toFixed(2) / 1}
               {final_price !== 0 &&
                 data.original_price &&
                 data.original_price !== final_price && (
@@ -230,7 +230,7 @@ export default class EnterpriseClusters extends PureComponent {
                       marginLeft: '5px',
                     }}
                   >
-                    ( 已优惠¥{data.original_price - final_price} )
+                    ( 已优惠¥{(data.original_price - final_price).toFixed(2) / 1} )
                   </s>
                 )}
             </div>

@@ -1,10 +1,13 @@
 import moment from 'moment';
 
 const format = 'YYYY-MM-DD';
+
 export default {
   fetchHowManyDays(endTimes) {
     if (endTimes) {
       const startTime = moment()
+        .add(1, 'days')
+        .startOf('day')
         .locale('zh-cn')
         .format(format);
       const endTime = moment(endTimes)
@@ -12,13 +15,15 @@ export default {
         .format(format);
       const momentNumber = moment(endTime).diff(moment(startTime), 'months');
       const momentTime = moment()
+        .add(1, 'days')
+        .startOf('day')
         .add(momentNumber, 'months')
         .locale('zh-cn')
         .format(format);
       const dayNumber = moment(endTime)
         .locale('zh-cn')
         .diff(moment(momentTime), 'days');
-      return dayNumber===0?0:dayNumber-1;
+      return dayNumber;
     }
   },
   fetchHowManyMonths(endTimes) {

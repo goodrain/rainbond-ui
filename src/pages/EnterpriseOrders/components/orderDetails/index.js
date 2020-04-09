@@ -125,7 +125,9 @@ export default class OrderDetails extends PureComponent {
       { name: '订单编号', value: info.order_id },
       {
         name: '创建时间',
-        value: `${moment(info.create_time).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}`,
+        value: `${moment(info.create_time)
+          .locale('zh-cn')
+          .format('YYYY-MM-DD HH:mm:ss')}`,
       },
       {
         name: '服务周期',
@@ -139,7 +141,9 @@ export default class OrderDetails extends PureComponent {
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment(info.effect_time).locale('zh-cn').format('YYYY-MM-DD')}`
+            ? `${moment(info.effect_time)
+                .locale('zh-cn')
+                .format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },
@@ -149,7 +153,9 @@ export default class OrderDetails extends PureComponent {
           info.final_price === 0
             ? '不限制'
             : isPaid
-            ? `${moment(info.expired_time).locale('zh-cn').format('YYYY-MM-DD')}`
+            ? `${moment(info.expired_time)
+                .locale('zh-cn')
+                .format('YYYY-MM-DD')}`
             : '未生效'
         }`,
       },
@@ -160,9 +166,11 @@ export default class OrderDetails extends PureComponent {
       },
       {
         name: '总费用',
-        value: `¥ ${info.final_price} ${info.original_price &&
-          info.original_price !== info.final_price &&
-          `已优惠¥ ${info.original_price - info.final_price}`}`,
+        value: `¥ ${info.final_price.toFixed(2) / 1} ${info.original_price &&
+          info.final_price !== 0 &&
+          info.original_price !== info.final_price ?
+          `已优惠¥ ${(info.original_price - info.final_price).toFixed(2) /
+            1}`:''}`,
       },
     ];
 
@@ -227,7 +235,9 @@ export default class OrderDetails extends PureComponent {
                   <Row>
                     <Col span={12} className={styles.orderTitleL}>
                       <div>{this.handleStateText(info && info.status)}</div>
-                      <div>¥&nbsp;{info && info.final_price}</div>
+                      <div>
+                        ¥&nbsp;{info && info.final_price.toFixed(2) / 1}
+                      </div>
                     </Col>
                     <Col span={12} className={styles.orderTitleR}>
                       <p>请通过对公付款到以下账号：</p>
