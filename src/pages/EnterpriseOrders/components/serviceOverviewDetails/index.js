@@ -31,8 +31,8 @@ export default class ServiceOverview extends PureComponent {
       selected: 1,
       price: 49,
       capacity: 30,
-      discountMoney:0.8,
-      discountText:'8折优惠',
+      discountMoney: 0.8,
+      discountText: '8折优惠',
       yearsPay: (49 * 30 * 12).toFixed(2) / 1,
       discount: (49 * 30 * 12 * 0.8).toFixed(2) / 1,
       monthNumber: 1,
@@ -87,7 +87,15 @@ export default class ServiceOverview extends PureComponent {
 
   // 计算价格
   calculatePrice = () => {
-    const { monthNumber, price, capacity, info, selected ,discountText,discountMoney} = this.state;
+    const {
+      monthNumber,
+      price,
+      capacity,
+      info,
+      selected,
+      discountText,
+      discountMoney,
+    } = this.state;
     const timeDelay = selected === 3;
     const isRenewal = info && info.type === 'vip';
     const memory_limit = ordersUtil.handlUnitMemory(info && info.memory_limit);
@@ -133,7 +141,7 @@ export default class ServiceOverview extends PureComponent {
           : ''
       } `;
 
-    this.fetchmonths(selected, monthNumber, expired_time);
+    this.fetchmonths(selected, monthNumber, expired_time, isRenewal);
     this.calculateExtended(
       timeDelay,
       isRenewal,
@@ -186,8 +194,20 @@ export default class ServiceOverview extends PureComponent {
     let yearsPay = 0;
     let discount = 0;
     let computingYears = `( ${price}/GB/月 x ${capacity}GB容量 x ${monthNumber}月 x ${discountText} )`;
-    yearsPay = ordersUtil.fetchOrderCost(true, monthNumber, price, capacity,discountMoney);
-    discount = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity,discountMoney);
+    yearsPay = ordersUtil.fetchOrderCost(
+      true,
+      monthNumber,
+      price,
+      capacity,
+      discountMoney
+    );
+    discount = ordersUtil.fetchOrderCost(
+      false,
+      monthNumber,
+      price,
+      capacity,
+      discountMoney
+    );
 
     if (isRenewal) {
       computingYears = `${
@@ -219,10 +239,18 @@ export default class ServiceOverview extends PureComponent {
     let originalMonthPay = 0;
     let monthPay = 0;
     let computingMonth = `( ${price}/GB/月 x ${capacity}GB容量 x ${
-      monthNumber >= 12 ? `${monthNumber}月 x ${discountText} )` : `${monthNumber}月 )`
+      monthNumber >= 12
+        ? `${monthNumber}月 x ${discountText} )`
+        : `${monthNumber}月 )`
     }`;
 
-    monthPay = ordersUtil.fetchOrderCost(false, monthNumber, price, capacity,discountMoney);
+    monthPay = ordersUtil.fetchOrderCost(
+      false,
+      monthNumber,
+      price,
+      capacity,
+      discountMoney
+    );
     originalMonthPay = ordersUtil.fetchOrderCost(
       true,
       monthNumber,
@@ -265,7 +293,14 @@ export default class ServiceOverview extends PureComponent {
     }
   };
 
-  calculateDifference = (price, MonthNum, DayNum, newCapacity, NoDiscount,discountMoney) => {
+  calculateDifference = (
+    price,
+    MonthNum,
+    DayNum,
+    newCapacity,
+    NoDiscount,
+    discountMoney
+  ) => {
     const discount = NoDiscount ? 1 : MonthNum > 11 ? discountMoney : 1;
     const MonthMoney = price * MonthNum * newCapacity * discount;
     const DayMoney = (DayNum / 30) * price * newCapacity;
@@ -391,17 +426,27 @@ export default class ServiceOverview extends PureComponent {
     return obj;
   };
 
-  fetchmonths = (selected, monthNumber, expired_time) => {
+  fetchmonths = (selected, monthNumber, expired_time, isRenewal) => {
     let moments = '';
     const date = new Date(); // 获取当前日期
     if (selected === 1) {
-      moments = moment(date.setMonth(date.getMonth() + 12))
-        .locale('zh-cn')
-        .format('YYYY年MM月DD日');
+      moments = isRenewal
+        ? moment(expired_time)
+            .add(12, 'months')
+            .locale('zh-cn')
+            .format('YYYY年MM月DD日')
+        : moment(date.setMonth(date.getMonth() + 12))
+            .locale('zh-cn')
+            .format('YYYY年MM月DD日');
     } else if (selected === 2) {
-      moments = moment(date.setMonth(date.getMonth() + monthNumber))
-        .locale('zh-cn')
-        .format('YYYY年MM月DD日');
+      moments = isRenewal
+        ? moment(expired_time)
+            .add(monthNumber, 'months')
+            .locale('zh-cn')
+            .format('YYYY年MM月DD日')
+        : moment(date.setMonth(date.getMonth() + monthNumber))
+            .locale('zh-cn')
+            .format('YYYY年MM月DD日');
     } else {
       moments = moment(expired_time)
         .locale('zh-cn')
