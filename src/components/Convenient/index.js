@@ -9,6 +9,8 @@ import {
   Col,
   Spin,
   notification,
+  Divider,
+  Icon,
 } from 'antd';
 import { connect } from 'dva';
 import styles from '../CreateTeam/index.less';
@@ -30,6 +32,12 @@ export default class Convenient extends PureComponent {
       region_list: [],
       apps: [],
       components: [],
+      app_page_size: 10,
+      app_page: 1,
+      component_page_size: 10,
+      component_page: 1,
+      isAddApps: false,
+      isAddComponents: false,
       Loading: true,
     };
   }
@@ -134,7 +142,7 @@ export default class Convenient extends PureComponent {
         enterprise_id: eid,
         user_id: user.user_id,
         page: 1,
-        page_size: 999,
+        app_page_size: 999,
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -147,6 +155,17 @@ export default class Convenient extends PureComponent {
     });
   };
 
+  addApps = () => {
+    this.setState(
+      {
+        app_page_size: this.state.app_page_size + 10,
+      },
+      () => {
+        this.fetchTeamApps();
+      }
+    );
+  };
+
   // 应用
   fetchTeamApps = () => {
     const {
@@ -155,16 +174,64 @@ export default class Convenient extends PureComponent {
         params: { eid },
       },
     } = this.props;
+    const { app_page, app_page_size } = this.state;
+
     dispatch({
       type: 'global/fetchEnterpriseApps',
       payload: {
         enterprise_id: eid,
-        page: 1,
-        page_size: 999,
+        page: app_page,
+        page_size: app_page_size,
       },
       callback: res => {
         if (res && res._code === 200) {
-          this.setState({ apps: res.list, Loading: false });
+          const listNum = res.total_count || 0;
+          const isAdd = !!(listNum && listNum > app_page_size);
+          this.setState({ isAddApps: isAdd, apps: res.list, Loading: false });
+        }
+      },
+    });
+  };
+
+  addComponents = () => {
+    const { form } = this.props;
+    const { getFieldValue } = form;
+    const ID = getFieldValue('apps');
+    this.setState(
+      {
+        component_page_size: this.state.component_page_size + 10,
+      },
+      () => {
+        this.fetchComponents(ID);
+      }
+    );
+  };
+  // 组件
+  fetchComponents = ID => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    const { component_page_size, component_page } = this.state;
+    dispatch({
+      type: 'global/fetchAppComponents',
+      payload: {
+        app_id: ID,
+        enterprise_id: eid,
+        page: component_page,
+        page_size: component_page_size,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          const listNum = res.total_count || 0;
+          const isAdd = !!(listNum && listNum > component_page_size);
+          this.setState({
+            isAddComponents: isAdd,
+            components: res.list,
+            Loading: false,
+          });
         }
       },
     });
@@ -182,30 +249,43 @@ export default class Convenient extends PureComponent {
     });
     if (region_list && region_list.length > 0) {
       this.setState({ region_list }, () => {
-        setFieldsValue({ region: region_list[0].region_name });
+        setFieldsValue({
+          region: region_list[0].region_name,
+        });
       });
     }
   };
 
-  handleAppChange = value => {
+  handleAppChange = ID => {
     const { form } = this.props;
     const { setFieldsValue } = form;
     const { apps } = this.state;
-    let components = [];
+    let obj = null;
     apps.map(item => {
-      if (item.ID === value) {
-        components = item.service_list;
+      if (item.ID === ID) {
+        obj = item;
       }
     });
-    if (components && components.length > 0) {
-      this.setState({ components });
+    if (obj) {
+      setFieldsValue({ team_name: obj.tenant_name });
+      setFieldsValue({ region: obj.region_name });
     }
+    setFieldsValue({ component: '' });
+    this.fetchComponents(ID);
   };
 
   render() {
     const { getFieldDecorator } = this.props.form;
     const { onOk, onCancel, title } = this.props;
-    const { userTeamList, apps, components, region_list, Loading } = this.state;
+    const {
+      userTeamList,
+      apps,
+      components,
+      region_list,
+      Loading,
+      isAddApps,
+      isAddComponents,
+    } = this.state;
 
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
     const appList = apps && apps.length > 0 && apps;
@@ -274,13 +354,13 @@ export default class Convenient extends PureComponent {
               <Col span={12}>
                 <FormItem {...formItemLayout} label="" hasFeedback>
                   {getFieldDecorator('region')(
-                    <Select
-                      placeholder="请选择集群"
-                      style={{ width: '100%' }}
-                    >
+                    <Select placeholder="请选择集群" style={{ width: '100%' }}>
                       {region_list &&
                         region_list.map(item => (
-                          <Option key={item.region_name} value={item.region_name}>
+                          <Option
+                            key={item.region_name}
+                            value={item.region_name}
+                          >
                             {item.region_alias}
                           </Option>
                         ))}
@@ -296,6 +376,26 @@ export default class Convenient extends PureComponent {
                     <Select
                       style={{ width: '100%' }}
                       placeholder="请选择应用"
+                      dropdownRender={menu => (
+                        <div>
+                          {menu}
+                          {isAddApps && (
+                            <div>
+                              <Divider style={{ margin: '4px 0' }} />
+                              <div
+                                style={{
+                                  padding: '4px 8px',
+                                  cursor: 'pointer',
+                                }}
+                                onMouseDown={e => e.preventDefault()}
+                                onClick={this.addApps}
+                              >
+                                <Icon type="plus" /> 加载更多
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       onChange={this.handleAppChange}
                     >
                       {appList.map(item => (
@@ -315,7 +415,30 @@ export default class Convenient extends PureComponent {
               <Col span={12}>
                 <FormItem {...formItemLayout} label="组件视图" hasFeedback>
                   {getFieldDecorator('component')(
-                    <Select placeholder="请选择组件" style={{ width: '100%' }}>
+                    <Select
+                      placeholder="请选择组件"
+                      dropdownRender={menu => (
+                        <div>
+                          {menu}
+                          {isAddComponents && (
+                            <div>
+                              <Divider style={{ margin: '4px 0' }} />
+                              <div
+                                style={{
+                                  padding: '4px 8px',
+                                  cursor: 'pointer',
+                                }}
+                                onMouseDown={e => e.preventDefault()}
+                                onClick={this.addComponents}
+                              >
+                                <Icon type="plus" /> 加载更多
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      style={{ width: '100%' }}
+                    >
                       {componentList.map(item => (
                         <Option
                           key={item.service_alias}

@@ -79,6 +79,7 @@ import {
   getUpdateRecordsInfo,
   getUpdateRollback,
   fetchEnterpriseApps,
+  fetchAppComponents,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -128,6 +129,12 @@ export default {
     },
     *fetchEnterpriseApps({ payload, callback }, { call, put }) {
       const data = yield call(fetchEnterpriseApps, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *fetchAppComponents({ payload, callback }, { call, put }) {
+      const data = yield call(fetchAppComponents, payload);
       if (data && callback) {
         callback(data);
       }

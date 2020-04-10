@@ -9,7 +9,8 @@ import {
   Col,
   Row,
   Tooltip,
-  Empty
+  Empty,
+  Pagination,
 } from 'antd';
 
 import styles from '../List/BasicList.less';
@@ -38,7 +39,7 @@ import Arrow from '../../../public/images/arrow.png';
 @connect(({ user, global, index }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -67,7 +68,10 @@ export default class Enterprise extends PureComponent {
       editorConvenient: false,
       delcollectionVisible: false,
       collectionInfo: false,
-      collectionInfoLoading: true
+      collectionInfoLoading: true,
+      page_size: 6,
+      page: 1,
+      total: 0,
     };
   }
   componentDidMount() {
@@ -100,32 +104,39 @@ export default class Enterprise extends PureComponent {
         enterprise_id: eid,
         app_name: '',
         page: 1,
-        page_size: 9
+        page_size: 9,
       },
       callback: res => {
         if (res && res._code == 200) {
           cookie.setGuide('appStore', 'true');
         }
-      }
+      },
     });
   };
-
+  onPageChangeCollectionView = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
+      this.fetchCollectionViewInfo();
+    });
+  };
   fetchCollectionViewInfo = () => {
     const { dispatch } = this.props;
-    const { eid } = this.state;
+    const { eid, page_size, page } = this.state;
     dispatch({
       type: 'user/fetchCollectionViewInfo',
       payload: {
-        enterprise_id: eid
+        page_size,
+        page,
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
+            total: res.total,
             collectionInfoLoading: false,
-            collectionList: res.list
+            collectionList: res.list,
           });
         }
-      }
+      },
     });
   };
 
@@ -136,16 +147,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false
+            enterpriseInfoLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -156,17 +167,17 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewApp',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             overviewAppInfo:
               res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
-            overviewAppInfoLoading: false
+            overviewAppInfoLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -177,16 +188,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverview',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             overviewInfo: res.bean,
-            overviewInfoLoading: false
+            overviewInfoLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -197,16 +208,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewTeam',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading: false
+            overviewTeamInfoLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -217,16 +228,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewMonitor',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading: false
+            overviewMonitorInfoLoading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -247,7 +258,7 @@ export default class Enterprise extends PureComponent {
         this.cancelCreateTeam();
         this.getOverviewTeam();
         this.props.dispatch({ type: 'user/fetchCurrent' });
-      }
+      },
     });
   };
   cancelCreateTeam = () => {
@@ -256,12 +267,12 @@ export default class Enterprise extends PureComponent {
 
   handelConsulting = () => {
     this.setState({
-      consulting: true
+      consulting: true,
     });
   };
   cancelConsulting = () => {
     this.setState({
-      consulting: false
+      consulting: false,
     });
   };
   handelObtain = () => {
@@ -290,7 +301,7 @@ export default class Enterprise extends PureComponent {
       callback: () => {
         notification.success({ message: '申请成功，请等待审核' });
         this.cancelJoinTeam();
-      }
+      },
     });
   };
 
@@ -319,7 +330,7 @@ export default class Enterprise extends PureComponent {
   deleteConvenient = collectionInfo => {
     this.setState({
       delcollectionVisible: true,
-      collectionInfo
+      collectionInfo,
     });
   };
 
@@ -330,7 +341,7 @@ export default class Enterprise extends PureComponent {
       type: 'user/deleteCollectionViewInfo',
       payload: {
         favorite_id: collectionInfo && collectionInfo.favorite_id,
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -338,14 +349,14 @@ export default class Enterprise extends PureComponent {
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
         }
-      }
+      },
     });
   };
   handleCloseDelCollectionVisible = () => {
     this.setState({
       delcollectionVisible: false,
       collectionInfo: false,
-      editorConvenient: false
+      editorConvenient: false,
     });
   };
 
@@ -357,16 +368,16 @@ export default class Enterprise extends PureComponent {
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)',
       color: '#3D54C4',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
     };
 
     const teamBoxList = {
       ...teamBox,
-      ...{ height: '40px', padding: '12px' }
+      ...{ height: '40px', padding: '12px' },
     };
     const teamBoxs = {
       ...teamBox,
-      ...{ height: '68px', padding: '24px', cursor: 'pointer' }
+      ...{ height: '68px', padding: '24px', cursor: 'pointer' },
     };
     const { rainbondInfo } = this.props;
     const {
@@ -385,7 +396,10 @@ export default class Enterprise extends PureComponent {
       editorConvenient,
       delcollectionVisible,
       collectionInfoLoading,
-      eid
+      eid,
+      total,
+      page_size,
+      page,
     } = this.state;
 
     const new_join_team =
@@ -430,7 +444,7 @@ export default class Enterprise extends PureComponent {
         style={{
           width: '100%',
           display: 'flex',
-          justifyContent: this.state.adminer ? 'space-around' : 'center'
+          justifyContent: this.state.adminer ? 'space-around' : 'center',
         }}
       >
         <div
@@ -443,7 +457,7 @@ export default class Enterprise extends PureComponent {
           </div>
         </div>
 
-        {this.state.adminer &&
+        {this.state.adminer && (
           <div
             style={{ textAlign: 'center', cursor: 'pointer' }}
             onClick={this.onAddTeam}
@@ -452,37 +466,41 @@ export default class Enterprise extends PureComponent {
             <div style={{ marginTop: '5px' }}>
               <a className={styles.teamTit}>创建团队</a>
             </div>
-          </div>}
+          </div>
+        )}
       </div>
     );
     return (
       <div>
-        {this.state.joinTeam &&
+        {this.state.joinTeam && (
           <JoinTeam
             enterpriseID={eid}
             onOk={this.handleJoinTeam}
             onCancel={this.cancelJoinTeam}
-          />}
-        {convenientVisible &&
+          />
+        )}
+        {convenientVisible && (
           <Convenient
             {...this.props}
             title="添加快捷入口"
             onOk={this.handleConvenientEntrance}
             onCancel={this.cancelConvenientEntrance}
-          />}
+          />
+        )}
 
-        {delcollectionVisible &&
+        {delcollectionVisible && (
           <ConfirmModal
             title="删除快捷入口"
             subDesc="此操作不可恢复"
             desc="确定要删除此快捷入口吗？"
             onOk={this.deleteCollectionViewInfo}
             onCancel={this.handleCloseDelCollectionVisible}
-          />}
+          />
+        )}
 
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           style={{ marginBottom: '20px' }}
           loading={enterpriseInfoLoading}
@@ -495,11 +513,12 @@ export default class Enterprise extends PureComponent {
                 <span>企业信息</span>
               </div>
 
-              {enterpriseInfo &&
+              {enterpriseInfo && (
                 <div className={styles.enterpriseName}>
                   企业名称：{enterpriseInfo.enterprise_alias}
-                </div>}
-              {enterpriseInfo &&
+                </div>
+              )}
+              {enterpriseInfo && (
                 <div className={styles.enterpriseBox}>
                   <p>
                     <Tooltip title={enterpriseInfo.enterprise_id}>
@@ -519,7 +538,8 @@ export default class Enterprise extends PureComponent {
                       {enterpriseInfo.create_time}
                     </Tooltip>
                   </p>
-                </div>}
+                </div>
+              )}
               <div className={styles.btns}>
                 <Button type="primary" onClick={this.handelObtain}>
                   开源社区
@@ -539,10 +559,10 @@ export default class Enterprise extends PureComponent {
         </Card>
 
         <div>
-          {this.state.adminer &&
+          {this.state.adminer && (
             <Row
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             >
               <Col span={13}>
@@ -559,22 +579,19 @@ export default class Enterprise extends PureComponent {
                       组件数量
                     </Col>
                   </Row>
-                  {AppNumInfo &&
-                    comInfo &&
+                  {AppNumInfo && comInfo && (
                     <Row>
                       <Col span={8}>
                         <Pie
                           percent={
-                            Math.round(runApp / appTotal * 10000) / 100.0
+                            Math.round((runApp / appTotal) * 10000) / 100.0
                           }
                           types="app"
                           lineWidth={18}
                           color="#3D58DA"
                           subTitle={
                             <div className={styles.appContent}>
-                              <h6>
-                                {runApp}个
-                              </h6>
+                              <h6>{runApp}个</h6>
                               <div>
                                 共{appTotal}
                                 个应用数量
@@ -590,13 +607,9 @@ export default class Enterprise extends PureComponent {
                           <div>
                             <div className={styles.appnumno}>运行中应用</div>
                             <div className={styles.nums}>
-                              <span>
-                                {runApp}个
-                              </span>
+                              <span>{runApp}个</span>
                               <span>|</span>
-                              <span>
-                                {appTotal}个
-                              </span>
+                              <span>{appTotal}个</span>
                             </div>
                           </div>
                           <div>
@@ -607,13 +620,9 @@ export default class Enterprise extends PureComponent {
                               未运行应用
                             </div>
                             <div className={styles.nums}>
-                              <span>
-                                {appClosed}个
-                              </span>
+                              <span>{appClosed}个</span>
                               <span>|</span>
-                              <span>
-                                {appTotal}个
-                              </span>
+                              <span>{appTotal}个</span>
                             </div>
                           </div>
                         </div>
@@ -622,23 +631,19 @@ export default class Enterprise extends PureComponent {
                         <div style={{ marginTop: '10px' }}>
                           <Pie
                             percent={
-                              Math.round(runCom / comTotal * 10000) / 100.0
+                              Math.round((runCom / comTotal) * 10000) / 100.0
                             }
                             types="component"
                             color="#3D58DA"
                             subTitle={
                               <div className={styles.elements}>
                                 <div>
-                                  <div>
-                                    {comClosed}
-                                  </div>
+                                  <div>{comClosed}</div>
                                   <div>未运行</div>
                                 </div>
                                 <div />
                                 <div>
-                                  <div>
-                                    {runCom}
-                                  </div>
+                                  <div>{runCom}</div>
                                   <div>运行中</div>
                                 </div>
                               </div>
@@ -652,13 +657,9 @@ export default class Enterprise extends PureComponent {
                           <div>
                             <div className={styles.appnumno}>运行中组件</div>
                             <div className={styles.nums}>
-                              <span>
-                                {runCom}个
-                              </span>
+                              <span>{runCom}个</span>
                               <span>|</span>
-                              <span>
-                                {comTotal}个
-                              </span>
+                              <span>{comTotal}个</span>
                             </div>
                           </div>
                           <div>
@@ -669,18 +670,15 @@ export default class Enterprise extends PureComponent {
                               未运行组件
                             </div>
                             <div className={styles.nums}>
-                              <span>
-                                {comClosed}个
-                              </span>
+                              <span>{comClosed}个</span>
                               <span>|</span>
-                              <span>
-                                {comTotal}个
-                              </span>
+                              <span>{comTotal}个</span>
                             </div>
                           </div>
                         </div>
                       </Col>
-                    </Row>}
+                    </Row>
+                  )}
                 </Card>
               </Col>
 
@@ -743,11 +741,12 @@ export default class Enterprise extends PureComponent {
                   </Row>
                 </Card>
               </Col>
-            </Row>}
+            </Row>
+          )}
 
           <Row
             style={{
-              marginBottom: 24
+              marginBottom: 24,
             }}
           >
             <Col span={13}>
@@ -761,116 +760,128 @@ export default class Enterprise extends PureComponent {
                     团队
                   </Col>
 
-                  {active_teams
-                    ? <Col
-                        className={styles.grays}
-                        span={12}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        常用团队
-                        <Link style={colors} to={`/enterprise/${eid}/teams`}>
-                          更多
-                        </Link>
-                      </Col>
-                    : <Col
-                        className={styles.grays}
-                        span={12}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'flex-end'
-                        }}
-                      >
-                        <span style={colors} onClick={this.onJoinTeam}>
-                          加入团队
-                        </span>
+                  {active_teams ? (
+                    <Col
+                      className={styles.grays}
+                      span={12}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      常用团队
+                      <Link style={colors} to={`/enterprise/${eid}/teams`}>
+                        更多
+                      </Link>
+                    </Col>
+                  ) : (
+                    <Col
+                      className={styles.grays}
+                      span={12}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <span style={colors} onClick={this.onJoinTeam}>
+                        加入团队
+                      </span>
 
-                        {this.state.adminer &&
-                          <span
-                            style={{
-                              color: '#3D54C4',
-                              marginLeft: '5px',
-                              cursor: 'pointer'
-                            }}
-                            onClick={this.onAddTeam}
-                          >
-                            创建团队
-                          </span>}
-                      </Col>}
+                      {this.state.adminer && (
+                        <span
+                          style={{
+                            color: '#3D54C4',
+                            marginLeft: '5px',
+                            cursor: 'pointer',
+                          }}
+                          onClick={this.onAddTeam}
+                        >
+                          创建团队
+                        </span>
+                      )}
+                    </Col>
+                  )}
                 </Row>
 
-                {active_teams
-                  ? <Row>
-                      <Col span={12}>
-                        {new_join_team &&
+                {active_teams ? (
+                  <Row>
+                    <Col span={12}>
+                      {new_join_team && (
+                        <Card
+                          hoverable
+                          bodyStyle={teamBoxs}
+                          bordered={false}
+                          onClick={() => {
+                            this.props.dispatch(
+                              routerRedux.replace(
+                                `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                              )
+                            );
+                          }}
+                        >
+                          <div className={styles.addTeam}>
+                            <img
+                              onClick={() => {
+                                this.props.dispatch(
+                                  routerRedux.replace(
+                                    `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                                  )
+                                );
+                              }}
+                              src={TeamCrew}
+                              alt=""
+                            />
+                          </div>
+                          <Tooltip title="新加入团队:">
+                            <div
+                              className={`${styles.grays} ${styles.addteam}`}
+                            >
+                              新加入团队:
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title={new_join_team[0].team_alias}>
+                            <div
+                              className={`${styles.overText} ${styles.teamtest}`}
+                            >
+                              {new_join_team[0].team_alias}
+                            </div>
+                          </Tooltip>
+                          <div>
+                            <img src={Arrow} alt="" />
+                          </div>
+                        </Card>
+                      )}
+                      <Card hoverable bodyStyle={teamBoxs} bordered={false}>
+                        {teamOperation}
+                      </Card>
+                    </Col>
+                    <Col span={11} offset={1}>
+                      {active_teams.map(item => {
+                        const { team_name, region, team_alias } = item;
+                        return (
                           <Card
                             hoverable
-                            bodyStyle={teamBoxs}
+                            key={team_name}
+                            bodyStyle={teamBoxList}
                             bordered={false}
-                            onClick={() => {
-                              this.props.dispatch(
-                                routerRedux.replace(
-                                  `/team/${new_join_team[0]
-                                    .team_name}/region/${new_join_team[0]
-                                    .region}/index`
-                                )
-                              );
-                            }}
+                            style={{ height: '40px' }}
                           >
-                            <div className={styles.addTeam}>
-                              <img
-                                onClick={() => {
-                                  this.props.dispatch(
-                                    routerRedux.replace(
-                                      `/team/${new_join_team[0]
-                                        .team_name}/region/${new_join_team[0]
-                                        .region}/index`
-                                    )
-                                  );
-                                }}
-                                src={TeamCrew}
-                                alt=""
-                              />
-                            </div>
-                            <Tooltip title="新加入团队:">
-                              <div
-                                className={`${styles.grays} ${styles.addteam}`}
-                              >
-                                新加入团队:
-                              </div>
-                            </Tooltip>
-
-                            <Tooltip title={new_join_team[0].team_alias}>
-                              <div
-                                className={`${styles.overText} ${styles.teamtest}`}
-                              >
-                                {new_join_team[0].team_alias}
-                              </div>
-                            </Tooltip>
-                            <div>
-                              <img src={Arrow} alt="" />
-                            </div>
-                          </Card>}
-                        <Card hoverable bodyStyle={teamBoxs} bordered={false}>
-                          {teamOperation}
-                        </Card>
-                      </Col>
-                      <Col span={11} offset={1}>
-                        {active_teams.map(item => {
-                          const { team_name, region, team_alias } = item;
-                          return (
-                            <Card
-                              hoverable
-                              key={team_name}
-                              bodyStyle={teamBoxList}
-                              bordered={false}
-                              style={{ height: '40px' }}
+                            <div
+                              className={styles.overText}
+                              style={{ width: '93%', cursor: 'pointer' }}
+                              onClick={() => {
+                                this.props.dispatch(
+                                  routerRedux.replace(
+                                    `/team/${team_name}/region/${region}/index`
+                                  )
+                                );
+                              }}
                             >
-                              <div
-                                className={styles.overText}
-                                style={{ width: '93%', cursor: 'pointer' }}
+                              <Tooltip title={team_alias}>{team_alias}</Tooltip>
+                            </div>
+                            <div>
+                              <img
                                 onClick={() => {
                                   this.props.dispatch(
                                     routerRedux.replace(
@@ -878,211 +889,211 @@ export default class Enterprise extends PureComponent {
                                     )
                                   );
                                 }}
-                              >
-                                <Tooltip title={team_alias}>
-                                  {team_alias}
-                                </Tooltip>
-                              </div>
-                              <div>
-                                <img
-                                  onClick={() => {
-                                    this.props.dispatch(
-                                      routerRedux.replace(
-                                        `/team/${team_name}/region/${region}/index`
-                                      )
-                                    );
-                                  }}
-                                  src={Arrow}
-                                  alt=""
-                                />
-                              </div>
-                            </Card>
-                          );
-                        })}
-                      </Col>
-                    </Row>
-                  : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                                src={Arrow}
+                                alt=""
+                              />
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </Col>
+                  </Row>
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                )}
               </Card>
             </Col>
 
-            {this.state.adminer
-              ? <Col span={11}>
-                  <Card
-                    bordered={false}
-                    loading={overviewMonitorInfoLoading}
-                    style={{ height: '243px' }}
-                  >
-                    {overviewMonitorInfo &&
-                      <Row>
-                        <Col span={8}>
-                          <ul className={styles.Box}>
-                            <li>
-                              <img src={Records} alt="" />
-                            </li>
-                            <li>
-                              {overviewMonitorInfo.total_regions}
-                            </li>
-                            <li>集群数量</li>
-                            <li>——</li>
-                          </ul>
-                        </Col>
-                        <Col span={8}>
-                          <ul className={styles.Box}>
-                            <li>
-                              <img src={Memory} alt="" />
-                            </li>
-                            <li>
-                              <Tooltip
-                                className={styles.cen}
-                                title={`${memoryUsed}${memoryUsedUnit} 包含各团队内存使用量、系统使用量和rainbond组件使用量`}
-                              >
-                                <span className={styles.numbers}>
-                                  {memoryUsed}
-                                  <span className={styles.units}>
-                                    {memoryUsedUnit}
-                                  </span>
-                                </span>
-                              </Tooltip>
-                              <Tooltip
-                                title={`${memoryTotal} ${memoryTotalUnit}`}
-                                className={styles.cen}
-                              >
-                                <span className={styles.numbers}>
-                                  /{memoryTotal}
-                                  <span className={styles.units}>
-                                    {memoryTotalUnit}
-                                  </span>
-                                </span>
-                              </Tooltip>
-                            </li>
-                            <li>内存使用量/总量</li>
-                            <li>——</li>
-                          </ul>
-                        </Col>
-                        <Col span={8}>
-                          <ul className={styles.Box}>
-                            <li>
-                              <img src={Cpus} alt="" />
-                            </li>
-                            <li>
-                              <Tooltip
-                                className={styles.cen}
-                                title={`${cpuUsed}Core`}
-                              >
-                                <span className={styles.numbers}>
-                                  {cpuUsed}
-                                  <span className={styles.units}>Core</span>
-                                </span>
-                              </Tooltip>
-                              <Tooltip
-                                className={styles.cen}
-                                title={`${cpuTotal}Core`}
-                              >
-                                <span className={styles.numbers}>
-                                  /{cpuTotal}
-                                  <span className={styles.units}>Core</span>
-                                </span>
-                              </Tooltip>
-                            </li>
-                            <li>CPU使用量/总量</li>
-                            <li>——</li>
-                          </ul>
-                        </Col>
-                      </Row>}
-                  </Card>
-                </Col>
-              : <Col span={11}>
-                  <Card
-                    bordered={false}
-                    loading={collectionInfoLoading}
-                    style={{ height: '243px' }}
-                  >
-                    <Row style={{ marginBottom: '4px' }}>
-                      <Col className={styles.grays} span={12}>
-                        便捷入口
+            {this.state.adminer ? (
+              <Col span={11}>
+                <Card
+                  bordered={false}
+                  loading={overviewMonitorInfoLoading}
+                  style={{ height: '243px' }}
+                >
+                  {overviewMonitorInfo && (
+                    <Row>
+                      <Col span={8}>
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Records} alt="" />
+                          </li>
+                          <li>{overviewMonitorInfo.total_regions}</li>
+                          <li>集群数量</li>
+                          <li>——</li>
+                        </ul>
                       </Col>
-                      <Col
-                        className={styles.grays}
-                        style={{ textAlign: 'right' }}
-                        span={12}
-                      >
-                        <span
-                          style={{
-                            marginRight: '10px',
-                            color: '#3D54C4',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => {
-                            this.onConvenientEntrance();
-                          }}
-                        >
-                          新增
-                        </span>
-                        {collections &&
-                          <span
-                            style={colors}
-                            onClick={() => {
-                              this.handleIsConvenientEntrance();
-                            }}
-                          >
-                            编辑
-                          </span>}
+                      <Col span={8}>
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Memory} alt="" />
+                          </li>
+                          <li>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${memoryUsed}${memoryUsedUnit} 包含各团队内存使用量、系统使用量和rainbond组件使用量`}
+                            >
+                              <span className={styles.numbers}>
+                                {memoryUsed}
+                                <span className={styles.units}>
+                                  {memoryUsedUnit}
+                                </span>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              title={`${memoryTotal} ${memoryTotalUnit}`}
+                              className={styles.cen}
+                            >
+                              <span className={styles.numbers}>
+                                /{memoryTotal}
+                                <span className={styles.units}>
+                                  {memoryTotalUnit}
+                                </span>
+                              </span>
+                            </Tooltip>
+                          </li>
+                          <li>内存使用量/总量</li>
+                          <li>——</li>
+                        </ul>
+                      </Col>
+                      <Col span={8}>
+                        <ul className={styles.Box}>
+                          <li>
+                            <img src={Cpus} alt="" />
+                          </li>
+                          <li>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${cpuUsed}Core`}
+                            >
+                              <span className={styles.numbers}>
+                                {cpuUsed}
+                                <span className={styles.units}>Core</span>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              className={styles.cen}
+                              title={`${cpuTotal}Core`}
+                            >
+                              <span className={styles.numbers}>
+                                /{cpuTotal}
+                                <span className={styles.units}>Core</span>
+                              </span>
+                            </Tooltip>
+                          </li>
+                          <li>CPU使用量/总量</li>
+                          <li>——</li>
+                        </ul>
                       </Col>
                     </Row>
+                  )}
+                </Card>
+              </Col>
+            ) : (
+              <Col span={11}>
+                <Card
+                  bordered={false}
+                  loading={collectionInfoLoading}
+                  style={{ height: '243px' }}
+                >
+                  <Row style={{ marginBottom: '4px' }}>
+                    <Col className={styles.grays} span={12}>
+                      便捷入口
+                    </Col>
+                    <Col
+                      className={styles.grays}
+                      style={{ textAlign: 'right' }}
+                      span={12}
+                    >
+                      <span
+                        style={{
+                          marginRight: '10px',
+                          color: '#3D54C4',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => {
+                          this.onConvenientEntrance();
+                        }}
+                      >
+                        新增
+                      </span>
+                      {collections && (
+                        <span
+                          style={colors}
+                          onClick={() => {
+                            this.handleIsConvenientEntrance();
+                          }}
+                        >
+                          编辑
+                        </span>
+                      )}
+                    </Col>
+                  </Row>
 
-                    <Col span={24}>
-                      <Row>
-                        {collections
-                          ? collections.map((item, index) => {
-                              const { url, name } = item;
-                              if (index > 5) {
-                                return null;
-                              }
-                              return (
-                                <Col
-                                  span={12}
-                                  key={name}
-                                  onClick={() => {
-                                    editorConvenient
-                                      ? this.deleteConvenient(item)
-                                      : this.props.dispatch(
-                                          routerRedux.replace(url)
-                                        );
+                  <Col span={24}>
+                    <Row>
+                      {collections ? (
+                        collections.map((item, index) => {
+                          const { url, name } = item;
+                          return (
+                            <Col
+                              span={12}
+                              key={name}
+                              onClick={() => {
+                                editorConvenient
+                                  ? this.deleteConvenient(item)
+                                  : this.props.dispatch(
+                                      routerRedux.replace(url)
+                                    );
+                              }}
+                            >
+                              <Card
+                                bodyStyle={teamBoxList}
+                                bordered={false}
+                                style={{
+                                  height: '40px',
+                                  paddingRight: '10px',
+                                }}
+                              >
+                                <div
+                                  className={styles.overText}
+                                  style={{
+                                    width: '93%',
+                                    cursor: 'pointer',
                                   }}
                                 >
-                                  <Card
-                                    bodyStyle={teamBoxList}
-                                    bordered={false}
-                                    style={{
-                                      height: '40px',
-                                      paddingRight: '10px'
-                                    }}
-                                  >
-                                    <div
-                                      className={styles.overText}
-                                      style={{
-                                        width: '93%',
-                                        cursor: 'pointer'
-                                      }}
-                                    >
-                                      <Tooltip title={name}>
-                                        {name}
-                                      </Tooltip>
-                                    </div>
-                                    <div>
-                                      {editorConvenient
-                                        ? <Icon type="close" />
-                                        : <img src={Arrow} alt="" />}
-                                    </div>
-                                  </Card>
-                                </Col>
-                              );
-                            })
-                          : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
-                      </Row>
-                    </Col>
-                  </Card>
-                </Col>}
+                                  <Tooltip title={name}>{name}</Tooltip>
+                                </div>
+                                <div>
+                                  {editorConvenient ? (
+                                    <Icon type="close" />
+                                  ) : (
+                                    <img src={Arrow} alt="" />
+                                  )}
+                                </div>
+                              </Card>
+                            </Col>
+                          );
+                        })
+                      ) : (
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                      )}
+                    </Row>
+
+                    <div style={{ textAlign: 'right',marginTop:'8px' }}>
+                      <Pagination
+                        size="small"
+                        hideOnSinglePage
+                        current={page}
+                        pageSize={page_size}
+                        total={Number(total)}
+                        onChange={this.onPageChangeCollectionView}
+                      />
+                    </div>
+                  </Col>
+                </Card>
+              </Col>
+            )}
           </Row>
         </div>
       </div>
@@ -1094,18 +1105,20 @@ export default class Enterprise extends PureComponent {
     return (
       <div>
         {this.renderContent()}
-        {showAddTeam &&
+        {showAddTeam && (
           <CreateTeam
             enterprise_id={eid}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-          />}
-        {consulting &&
+          />
+        )}
+        {consulting && (
           <Consulting
             name={enterpriseInfo && enterpriseInfo.enterprise_alias}
             onOk={this.cancelConsulting}
             onCancel={this.cancelConsulting}
-          />}
+          />
+        )}
       </div>
     );
   }
