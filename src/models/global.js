@@ -102,6 +102,8 @@ export default {
     payTip: false,
     noMoneyTip: false,
     showAuthCompany: false,
+    // 更新头部信息
+    upDataHeader: false,
     // enterprise info
     enterprise: null,
     enterpriseInfo: null,
@@ -361,7 +363,7 @@ export default {
       const data = yield call(isPubCloud);
       yield put({
         type: 'saveIsPubCloud',
-        payload: !!(data.bean.is_public&&data.bean.is_public.enable),
+        payload: !!(data.bean.is_public && data.bean.is_public.enable),
       });
     },
     *fetchNotices(_, { call, put }) {
@@ -545,6 +547,12 @@ export default {
       }
     },
 
+    *IsUpDataHeader({ payload }, { put }) {
+      yield put({
+        type: 'isUpDataHeader',
+        payload: payload.isUpData,
+      });
+    },
     *fetchOverviewApp({ payload, callback }, { put, call }) {
       const response = yield call(fetchOverviewApp, payload);
       if (response) {
@@ -672,8 +680,13 @@ export default {
       }
     },
   },
-
   reducers: {
+    isUpDataHeader(state, action) {
+      return {
+        ...state,
+        upDataHeader: action.payload,
+      };
+    },
     showPayTip(state) {
       return {
         ...state,
