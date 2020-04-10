@@ -361,7 +361,7 @@ export default {
       const data = yield call(isPubCloud);
       yield put({
         type: 'saveIsPubCloud',
-        payload: !!(data.bean.is_public&&data.bean.is_public.enable),
+        payload: !!(data.bean.is_public && data.bean.is_public.enable),
       });
     },
     *fetchNotices(_, { call, put }) {
@@ -610,8 +610,8 @@ export default {
         callback(response);
       }
     },
-    *creatUser({ payload, callback }, { call }) {
-      const response = yield call(toCreatUser, payload);
+    *creatUser({ payload, callback, handleError }, { call }) {
+      const response = yield call(toCreatUser, payload, handleError);
       if (callback) {
         callback(response);
       }
