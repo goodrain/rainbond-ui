@@ -143,7 +143,7 @@ export default class EnterpriseClusters extends PureComponent {
         align: 'center',
         width: '190px',
         render: val => {
-          return <span> {moment.utc(val).format('YYYY-MM-DD HH:mm:ss')}</span>;
+          return <span> {moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}</span>;
         },
       },
       {
@@ -172,7 +172,7 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment.utc(effect_time).format('YYYY-MM-DD')}</div>
+                <div>{moment(effect_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
               ) : (
                 <div>未生效</div>
               )}
@@ -192,7 +192,7 @@ export default class EnterpriseClusters extends PureComponent {
               {val.final_price === 0 ? (
                 '不限制'
               ) : val.status === 'Paid' ? (
-                <div>{moment.utc(expired_time).format('YYYY-MM-DD')}</div>
+                <div>{moment(expired_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
               ) : (
                 <div>未生效</div>
               )}
@@ -215,11 +215,11 @@ export default class EnterpriseClusters extends PureComponent {
         dataIndex: 'final_price',
         rowKey: 'final_price',
         align: 'center',
-        width: '200px',
+        width: '220px',
         render: (final_price, data) => {
           return (
             <div>
-              ¥{final_price}
+              ¥{final_price.toFixed(2) / 1}
               {final_price !== 0 &&
                 data.original_price &&
                 data.original_price !== final_price && (
@@ -230,7 +230,7 @@ export default class EnterpriseClusters extends PureComponent {
                       marginLeft: '5px',
                     }}
                   >
-                    ( 已优惠¥{data.original_price - final_price} )
+                    ( 已优惠¥{(data.original_price - final_price).toFixed(2) / 1} )
                   </s>
                 )}
             </div>
