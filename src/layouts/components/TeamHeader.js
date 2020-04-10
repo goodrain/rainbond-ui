@@ -1,7 +1,8 @@
-import React, { Fragment } from "react";
-import SelectTeam from "../../components/SelectTeam";
-import headerStype from "../../components/GlobalHeader/index.less";
-import { Link } from "dva/router";
+import React, { Fragment } from 'react';
+import SelectTeam from '../../components/SelectTeam';
+import headerStype from '../../components/GlobalHeader/index.less';
+import { Spin } from 'antd';
+import { Link } from 'dva/router';
 
 export default function TeamHeader(props) {
   const {
@@ -9,26 +10,38 @@ export default function TeamHeader(props) {
     currentEnterprise,
     currentTeam,
     currentRegion,
-    regionName,
-    nobleIcon
+    nobleIcon,
+    upDataHeader
   } = props;
+
   return (
     <div className={headerStype.itemBox}>
-      <div 
-        className={headerStype.item}
-      >
-      {nobleIcon}
-        <Link className={headerStype.itemlink} to={`/enterprise/${currentEnterprise.enterprise_id}/index`}>{currentEnterprise && currentEnterprise.enterprise_alias}</Link>
-        <span className={headerStype.itemseparator}>></span>
-      </div>
-      <SelectTeam
-        active={true}
-        className={headerStype.select}
-        teamName={teamName}
-        currentEnterprise={currentEnterprise}
-        currentTeam={currentTeam}
-        currentRegion={currentRegion}
-      />
+      {upDataHeader ? (
+        <Spin size="large" />
+      ) : (
+        <div>
+          <div className={headerStype.item}>
+          {nobleIcon}
+            <Link
+              className={headerStype.itemlink}
+              to={`/enterprise/${currentEnterprise.enterprise_id}/index`}
+            >
+              {currentEnterprise && currentEnterprise.enterprise_alias}
+            </Link>
+            <span className={headerStype.itemseparator}>></span>
+          </div>
+
+          <SelectTeam
+            active
+            upDataHeader={upDataHeader}
+            className={headerStype.select}
+            teamName={teamName}
+            currentEnterprise={currentEnterprise}
+            currentTeam={currentTeam}
+            currentRegion={currentRegion}
+          />
+        </div>
+      )}
     </div>
   );
 }

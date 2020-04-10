@@ -269,7 +269,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          <Tooltip title={enterpriseServiceInfo.type==='vip'?'尊贵的VIP':'免费版'}>
+          <Tooltip title={enterpriseServiceInfo.type==='vip'?'尊贵的付费企业用户':'免费用户'}>
             {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
           </Tooltip>
           {enterpriseInfo && enterpriseInfo.enterprise_alias}

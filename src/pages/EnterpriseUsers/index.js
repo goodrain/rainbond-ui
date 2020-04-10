@@ -69,9 +69,22 @@ export default class EnterpriseUsers extends PureComponent {
         if (data && data._condition == 200) {
           this.loadUser();
           this.cancelCreatUser();
-          notification.success({ message: data.msg_show });
-        } else {
-          notification.error({ message: data.msg_show });
+          notification.success({ message: data.msg_show || '' });
+        }
+      },
+      handleError: res => {
+        if (res && res.data && res.data.code) {
+          switch (res.data.code) {
+            case 3000:
+              notification.warning({ message: '用户已存在' });
+              break;
+            case 3003:
+              notification.warning({ message: '邮箱已存在' });
+              break;
+            case 3004:
+              notification.warning({ message: '电话已存在' });
+              break;
+          }
         }
       },
     });
@@ -250,7 +263,14 @@ export default class EnterpriseUsers extends PureComponent {
         rowKey: 'create_time',
         align: 'center',
         render: val => {
-          return <span> {moment(val).locale('zh-cn').format('YYYY-MM-DD hh:mm:ss')}</span>;
+          return (
+            <span>
+              {' '}
+              {moment(val)
+                .locale('zh-cn')
+                .format('YYYY-MM-DD hh:mm:ss')}
+            </span>
+          );
         },
       },
       {

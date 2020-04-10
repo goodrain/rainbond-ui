@@ -39,9 +39,12 @@ export async function fetchEnterpriseApps(body = { enterprise_id }) {
   获取用户可加入团队列表
  */
 export async function getUserCanJoinTeams(body = { enterpriseID }) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${body.enterpriseID}/jointeams`, {
-    method: 'get',
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseID}/jointeams`,
+    {
+      method: 'get',
+    }
+  );
 }
 
 /*
@@ -1138,11 +1141,12 @@ export async function toCeateSourceCode(params) {
 }
 
 /** 创建用户 */
-export async function toCreatUser(params) {
+export async function toCreatUser(params,handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/users`,
     {
       method: 'post',
+      handleError,
       data: {
         tenant_name: params.tenant_name,
         user_name: params.user_name,
@@ -1223,12 +1227,15 @@ export async function toQueryLinks(params) {
 }
 
 export async function toSearchTenant(params) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${params.eid}/teams`, {
-    method: 'get',
-    params: {
-      name: params.tenant,
-      page_num: params.page_num || 1,
-      page_size: params.page_size || 1000,
-    },
-  });
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.eid}/teams`,
+    {
+      method: 'get',
+      params: {
+        name: params.tenant,
+        page_num: params.page_num || 1,
+        page_size: params.page_size || 1000,
+      },
+    }
+  );
 }

@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification, Button, Tooltip } from 'antd';
+import { Layout, Icon, Tooltip } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
-import { Route, Redirect, routerRedux } from 'dva/router';
+import { Redirect, routerRedux } from 'dva/router';
 import PageLoading from '../components/PageLoading';
 import memoizeOne from 'memoize-one';
 import { ContainerQuery } from 'react-container-query';
@@ -109,6 +109,11 @@ class TeamLayout extends React.PureComponent {
       },
     });
   };
+  upData = () =>{
+    const { dispatch } = this.props;
+    dispatch({ type: 'user/fetchCurrent' });
+    this.getTeamOverview();
+  }
   getTeamOverview = () => {
     const { teamName, regionName } = this.props.match.params;
     if (teamName && regionName) {
@@ -135,6 +140,7 @@ class TeamLayout extends React.PureComponent {
     }
     return null;
   };
+
   load = () => {
     const { enterpriseList, eid } = this.state;
     const { currentUser, dispatch } = this.props;
@@ -174,8 +180,15 @@ class TeamLayout extends React.PureComponent {
       this.setState({ showAuthCompany: true });
     }
     this.queryComponentDeatil();
+    this.handleUpDataHeader();
   };
-
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: { isUpData: false },
+    });
+  };
   queryComponentDeatil = () => {
     const { teamName } = this.props.match.params;
     const componentID = globalUtil.getComponentID();
@@ -277,6 +290,7 @@ class TeamLayout extends React.PureComponent {
       rainbondInfo,
       enterprise,
       orders,
+      upDataHeader,
     } = this.props;
     const {
       enterpriseList,
@@ -302,10 +316,13 @@ class TeamLayout extends React.PureComponent {
       return <PageLoading />;
     }
     if (
-      teamName !== (currentTeam && currentTeam.team_name) ||
+      teamName !== (currentTeam.team_name) ||
       regionName !== (currentRegion && currentRegion.team_region_name)
     ) {
       this.load();
+    }
+    if (upDataHeader) {
+      this.upData();
     }
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
@@ -325,7 +342,7 @@ class TeamLayout extends React.PureComponent {
     const mode = this.getMode(appID || componentID);
     const nobleIcon = (
       <Tooltip
-        title={enterpriseServiceInfo.type === 'vip' ? '尊贵的VIP' : '免费版'}
+        title={enterpriseServiceInfo.type === 'vip' ? '尊贵的付费企业用户' : '免费用户'}
       >
         {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
       </Tooltip>
@@ -341,6 +358,7 @@ class TeamLayout extends React.PureComponent {
             currentTeam={currentTeam}
             currentRegion={currentRegion}
             regionName={regionName}
+            upDataHeader={upDataHeader}
           />
         );
       }
@@ -355,6 +373,7 @@ class TeamLayout extends React.PureComponent {
           nobleIcon={nobleIcon}
           currentComponent={currentComponent}
           componentID={componentID}
+          upDataHeader={upDataHeader}
         />
       );
     };
@@ -545,4 +564,5 @@ export default connect(({ user, global, index, loading, order }) => ({
   enterprise: global.enterprise,
   orders: global.orders,
   enterpriseServiceInfo: order.enterpriseServiceInfo,
+  upDataHeader: global.upDataHeader,
 }))(TeamLayout);
