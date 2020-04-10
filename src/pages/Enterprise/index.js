@@ -11,7 +11,7 @@ import {
   Tooltip,
   Empty
 } from 'antd';
-
+import CustomerService from '../../../public/images/CustomerService.png';
 import styles from '../List/BasicList.less';
 import userUtil from '../../utils/user';
 import cookie from '../../utils/cookie';
@@ -19,7 +19,7 @@ import Convenient from '../../components/Convenient';
 import JoinTeam from '../../components/JoinTeam';
 import Consulting from '../../components/Consulting';
 import CreateTeam from '../../components/CreateTeam';
-
+import Meiqia from '../../layouts/Meiqia';
 import ConfirmModal from '../../components/ConfirmModal';
 import { Pie } from '../../components/Charts';
 import AddTeam from '../../../public/images/addTeam.png';
@@ -1091,9 +1091,24 @@ export default class Enterprise extends PureComponent {
 
   render() {
     const { showAddTeam, consulting, enterpriseInfo, eid } = this.state;
+    const { rainbondInfo } = this.props;
     return (
       <div>
         {this.renderContent()}
+        {rainbondInfo &&
+          rainbondInfo.is_public &&
+          rainbondInfo.is_public.enable && (
+            <div className={styles.customerService}>
+              <Meiqia/>
+                <div
+                  onClick={() => {
+                    _MEIQIA && _MEIQIA('showPanel');
+                  }}
+                >
+                  <img src={CustomerService} alt="" />
+                </div>
+            </div>
+          )}
         {showAddTeam &&
           <CreateTeam
             enterprise_id={eid}
