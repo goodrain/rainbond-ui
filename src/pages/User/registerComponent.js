@@ -269,7 +269,7 @@ export default class RegisterComponent extends Component {
               : '注册并绑定'}
           </Button>
 
-          {firstRegist && type === 'register' && (
+          {!firstRegist && type === 'register' && (
             <Link className={styles.login} to="/user/login">
               使用已有账户登录
             </Link>
