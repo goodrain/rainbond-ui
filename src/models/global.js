@@ -618,8 +618,8 @@ export default {
         callback(response);
       }
     },
-    *creatUser({ payload, callback }, { call }) {
-      const response = yield call(toCreatUser, payload);
+    *creatUser({ payload, callback, handleError }, { call }) {
+      const response = yield call(toCreatUser, payload, handleError);
       if (callback) {
         callback(response);
       }
