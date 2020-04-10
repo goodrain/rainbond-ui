@@ -4,6 +4,7 @@ const dateUtil = {
     const protocolStr = document.location.protocol;
     let str = websocketURL.substr(0, websocketURL.indexOf(":"));
     if (protocolStr === "https:" && str  && str === "ws") {
+      Modal.destroyAll()
       Modal.error({
         title: "消息通道不可用",
         content: (
@@ -19,6 +20,7 @@ const dateUtil = {
       str &&
       str === "wss"
     ) {
+      Modal.destroyAll()
       Modal.error({
         title: "消息通道不可用",
         content: (

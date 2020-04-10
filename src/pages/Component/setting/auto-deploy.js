@@ -66,11 +66,13 @@ export default class AutoDeploy extends PureComponent {
         if (data) {
           const statusing = status;
           const tabLoad = tabLoading;
-          const activeKey = setTabActiveKey || (data.bean.support_type == 1
-            ? 0
-            : data.bean.support_type == 2
-            ? 1
-            : 2);
+          const activeKey =
+            setTabActiveKey ||
+            (data.bean.support_type == 1
+              ? 0
+              : data.bean.support_type == 2
+              ? 1
+              : 2);
           statusing.splice(activeKey, 1, data.bean.status || false);
           tabLoad.splice(activeKey, 1, data.bean.status || false);
           this.setState({
@@ -410,7 +412,8 @@ export default class AutoDeploy extends PureComponent {
                       href={`${rainbondUtil.documentPlatform_url(
                         rainbondInfo
                       )}docs/user-manual/app-service-manage/auto-deploy/#api%E8%A7%A6%E5%8F%91%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA"
-                      target="_blank`}
+                      `}
+                      target="_blank"
                       style={{ color: '#fff' }}
                     >
                       点击阅读文档
