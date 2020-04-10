@@ -301,92 +301,58 @@ export default class SiderMenu extends PureComponent {
             onCancel={this.handleCloseDelCollectionVisible}
           />
         )}
-        <div className={styles.logo}>
-          <img src={logo} />
-        </div>
-        <div className={styles.gtitle} key="gtitle">
-          <div className={styles.viewTit}>
-            <FormattedMessage id="sidecar.title" />
+        <div className={styles.leftSider}>
+          <div className={styles.logo}>
+            <img src={logo} />
           </div>
-        </div>
-        <div className={styles.viewContent}>
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.collection" />
-            <Icon
-              className={styles.addCollection}
-              component={addSvg}
-              onClick={this.handleOpenCollectionVisible}
-            />
+          <div className={styles.gtitle} key="gtitle">
+            <div className={styles.viewTit}>
+              <FormattedMessage id="sidecar.title" />
+            </div>
           </div>
-          {collectionList.map(item => {
-            return (
-              <Link key={item.url} to={item.url}>
-                <div className={styles.con}>
-                  {item.name}
-                  <Icon
-                    className={styles.addCollection}
-                    component={delSvg}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.handleOpenDelCollectionVisible(item);
-                    }}
-                  />
-                </div>
-              </Link>
-            );
-          })}
-
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.enterprise" />
-          </div>
-          {enterpriseList.map(item => {
-            return (
-              <Link
-                key={item.enterprise_id}
-                to={`/enterprise/${item.enterprise_id}/index`}
-              >
-                <div className={styles.con}>
-                  {item.enterprise_alias}
-                  {item.enterprise_id == currentEnterprise.enterprise_id && (
+          <div className={styles.viewContent}>
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.collection" />
+              <Icon
+                className={styles.addCollection}
+                component={addSvg}
+                onClick={this.handleOpenCollectionVisible}
+              />
+            </div>
+            {collectionList.map(item => {
+              return (
+                <Link key={item.url} to={item.url}>
+                  <div className={styles.con}>
+                    {item.name}
                     <Icon
-                      title={formatMessage({ id: 'sidecar.currentEnterprise' })}
-                      className={styles.checkIcon}
-                      component={checkSvg}
+                      className={styles.addCollection}
+                      component={delSvg}
+                      onClick={e => {
+                        e.preventDefault();
+                        this.handleOpenDelCollectionVisible(item);
+                      }}
                     />
-                  )}
-                </div>
-              </Link>
-            );
-          })}
+                  </div>
+                </Link>
+              );
+            })}
 
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.team" />
-            <Icon type="search" onClick={this.handleIsShowSearch} />
-          </div>
-          {isSearch && (
-            <Search
-              placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
-              onSearch={this.handleOnSearchTeam}
-              className={styles.searchTeam}
-            />
-          )}
-          {userTeam &&
-            userTeam.map(item => {
-              const currRegion = 'no-region';
-              const { region, team_name, team_alias } = item;
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.enterprise" />
+            </div>
+            {enterpriseList.map(item => {
               return (
                 <Link
-                  key={item.team_name}
-                  to={`/team/${team_name}/region/${
-                    region
-                    // region.length > 0 ? region[0].team_region_name : currRegion
-                  }/index`}
+                  key={item.enterprise_id}
+                  to={`/enterprise/${item.enterprise_id}/index`}
                 >
                   <div className={styles.con}>
-                    {team_alias}
-                    {currentTeam && item.team_name == currentTeam.team_name && (
+                    {item.enterprise_alias}
+                    {item.enterprise_id == currentEnterprise.enterprise_id && (
                       <Icon
-                        title={formatMessage({ id: 'sidecar.currentTeam' })}
+                        title={formatMessage({
+                          id: 'sidecar.currentEnterprise',
+                        })}
                         className={styles.checkIcon}
                         component={checkSvg}
                       />
@@ -395,6 +361,45 @@ export default class SiderMenu extends PureComponent {
                 </Link>
               );
             })}
+
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.team" />
+              <Icon type="search" onClick={this.handleIsShowSearch} />
+            </div>
+            {isSearch && (
+              <Search
+                placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
+                onSearch={this.handleOnSearchTeam}
+                className={styles.searchTeam}
+              />
+            )}
+            {userTeam &&
+              userTeam.map(item => {
+                const currRegion = 'no-region';
+                const { region, team_name, team_alias } = item;
+                return (
+                  <Link
+                    key={item.team_name}
+                    to={`/team/${team_name}/region/${
+                      region
+                      // region.length > 0 ? region[0].team_region_name : currRegion
+                    }/index`}
+                  >
+                    <div className={styles.con}>
+                      {team_alias}
+                      {currentTeam &&
+                        item.team_name == currentTeam.team_name && (
+                          <Icon
+                            title={formatMessage({ id: 'sidecar.currentTeam' })}
+                            className={styles.checkIcon}
+                            component={checkSvg}
+                          />
+                        )}
+                    </div>
+                  </Link>
+                );
+              })}
+          </div>
         </div>
       </Sider>
     );
