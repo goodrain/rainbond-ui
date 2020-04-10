@@ -417,7 +417,7 @@ export default class ServiceOverview extends PureComponent {
 
   setObj = minCapacity => {
     const obj = {};
-    const totalNumber = minCapacity + 200;
+    const totalNumber = (minCapacity + 200)/5;
     for (let i = 0; i <= totalNumber; i++) {
       const interval = i * 5;
       obj[`${interval}`] =
