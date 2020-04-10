@@ -137,7 +137,7 @@ export default class ServiceOverview extends PureComponent {
       ${MonthNum !== 0 && DayNum !== 0 ? ' + ' : ''}
       ${
         DayNum !== 0
-          ? `( (¥${price}/GB/月 x ${newCapacity}GB容量 x ${DayNum}天 / 30 ) )`
+          ? ` ¥${price}/GB/月 x ( ${newCapacity}GB容量 x ${DayNum}天 / 30 ) `
           : ''
       } `;
 
@@ -211,8 +211,8 @@ export default class ServiceOverview extends PureComponent {
 
     if (isRenewal) {
       computingYears = `${
-        newCapacity !== 0 ? `延长费用 ( ${Filling} ) +` : ''
-      } ${newCapacity !== 0 ? `不延长费用` : ''} ${computingYears}`;
+        newCapacity !== 0 ? `不延长费用 ( ${Filling} ) +` : ''
+      } ${newCapacity !== 0 ? `延长费用` : ''} ${computingYears}`;
       yearsPay = noDiscountSupplementarys + yearsPay;
       discount = supplementarys + discount;
     }
@@ -261,8 +261,8 @@ export default class ServiceOverview extends PureComponent {
 
     if (isRenewal) {
       computingMonth = `${
-        newCapacity !== 0 ? `延长费用 ( ${Filling} ) +` : ''
-      } ${newCapacity !== 0 ? `不延长费用` : ''} ${computingMonth}`;
+        newCapacity !== 0 ? `不延长费用 ( ${Filling} ) +` : ''
+      } ${newCapacity !== 0 ? `延长费用` : ''} ${computingMonth}`;
       monthPay = supplementarys + monthPay;
       originalMonthPay = noDiscountSupplementarys + originalMonthPay;
     }
@@ -417,7 +417,7 @@ export default class ServiceOverview extends PureComponent {
 
   setObj = minCapacity => {
     const obj = {};
-    const totalNumber = minCapacity + 200;
+    const totalNumber = (minCapacity + 200)/5;
     for (let i = 0; i <= totalNumber; i++) {
       const interval = i * 5;
       obj[`${interval}`] =
