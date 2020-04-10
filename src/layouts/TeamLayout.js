@@ -108,6 +108,11 @@ class TeamLayout extends React.PureComponent {
       },
     });
   };
+  upData = () =>{
+    const { dispatch } = this.props;
+    dispatch({ type: 'user/fetchCurrent' });
+    this.getTeamOverview();
+  }
   getTeamOverview = () => {
     const { teamName, regionName } = this.props.match.params;
     if (teamName && regionName) {
@@ -134,6 +139,7 @@ class TeamLayout extends React.PureComponent {
     }
     return null;
   };
+
   load = () => {
     const { enterpriseList, eid } = this.state;
     const { currentUser, dispatch } = this.props;
@@ -173,8 +179,15 @@ class TeamLayout extends React.PureComponent {
       this.setState({ showAuthCompany: true });
     }
     this.queryComponentDeatil();
+    this.handleUpDataHeader();
   };
-
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: { isUpData: false },
+    });
+  };
   queryComponentDeatil = () => {
     const { teamName } = this.props.match.params;
     const componentID = globalUtil.getComponentID();
@@ -263,6 +276,7 @@ class TeamLayout extends React.PureComponent {
       nouse,
       rainbondInfo,
       enterprise,
+      upDataHeader,
     } = this.props;
     const {
       enterpriseList,
@@ -287,6 +301,9 @@ class TeamLayout extends React.PureComponent {
       regionName !== (currentRegion && currentRegion.team_region_name)
     ) {
       this.load();
+    }
+    if (upDataHeader) {
+      this.upData();
     }
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
@@ -313,6 +330,7 @@ class TeamLayout extends React.PureComponent {
             currentTeam={currentTeam}
             currentRegion={currentRegion}
             regionName={regionName}
+            upDataHeader={upDataHeader}
           />
         );
       }
@@ -326,6 +344,7 @@ class TeamLayout extends React.PureComponent {
           appID={appID}
           currentComponent={currentComponent}
           componentID={componentID}
+          upDataHeader={upDataHeader}
         />
       );
     };
@@ -506,4 +525,5 @@ export default connect(({ user, global, index, loading }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
+  upDataHeader: global.upDataHeader,
 }))(TeamLayout);

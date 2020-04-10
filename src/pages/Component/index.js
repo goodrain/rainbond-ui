@@ -136,7 +136,7 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(({}), null, null, { withRef: true })
+@connect(null, null, null, { withRef: true })
 class EditName extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -150,9 +150,8 @@ class EditName extends PureComponent {
     this.props.onCancel();
   };
   render() {
-    const { title } = this.props;
+    const { title, name } = this.props;
     const { getFieldDecorator } = this.props.form;
-    const initValue = this.props.name;
     return (
       <Modal
         title={title || '修改组件名称'}
@@ -163,7 +162,7 @@ class EditName extends PureComponent {
         <Form onSubmit={this.handleSubmit}>
           <FormItem label="">
             {getFieldDecorator('service_cname', {
-              initialValue: initValue || '',
+              initialValue: name || '',
               rules: [
                 {
                   required: true,
@@ -727,9 +726,9 @@ class Main extends PureComponent {
   };
   handleEditName = data => {
     const team_name = globalUtil.getCurrTeamName();
-    const appDetail = this.props.appDetail;
+    const { appDetail, dispatch } = this.props;
     const serviceAlias = appDetail.service.service_alias;
-    this.props.dispatch({
+    dispatch({
       type: 'appControl/editName',
       payload: {
         team_name,
@@ -737,11 +736,19 @@ class Main extends PureComponent {
         ...data,
       },
       callback: () => {
+        this.handleUpDataHeader();
         this.loadDetail();
         this.hideEditName();
       },
     });
   };
+  handleUpDataHeader = () =>{
+    const {  dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: {isUpData: true,},
+    });
+  }
   showMoveGroup = () => {
     this.setState({ showMoveGroup: true });
   };
