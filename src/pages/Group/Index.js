@@ -345,6 +345,7 @@ class Main extends PureComponent {
         group_note: vals.group_note,
       },
       callback: () => {
+        this.handleUpDataHeader();
         this.cancelEdit();
         this.fetchAppDetail();
         dispatch({
@@ -356,6 +357,13 @@ class Main extends PureComponent {
       },
     });
   };
+  handleUpDataHeader = () =>{
+    const {  dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: {isUpData: true,},
+    });
+  }
   toAdd = () => {
     this.setState({ toAdd: true });
   };
