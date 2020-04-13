@@ -120,18 +120,16 @@ export default class Enterprise extends PureComponent {
   };
   fetchCollectionViewInfo = () => {
     const { dispatch } = this.props;
-    const { eid, page_size, page } = this.state;
+    const { eid } = this.state;
     dispatch({
       type: 'user/fetchCollectionViewInfo',
       payload: {
-        page_size,
-        page,
         enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            total: res.total,
+            total: res.list.length,
             collectionInfoLoading: false,
             collectionList: res.list,
           });
@@ -1035,6 +1033,15 @@ export default class Enterprise extends PureComponent {
                       {collections ? (
                         collections.map((item, index) => {
                           const { url, name } = item;
+                          const startPage = (page - 1) * page_size;
+
+                          const totals = page * page_size;
+                          if (page !== 1 && index < startPage) {
+                            return null;
+                          }
+                          if (index >= totals) {
+                            return null;
+                          }
                           return (
                             <Col
                               span={12}
@@ -1080,7 +1087,7 @@ export default class Enterprise extends PureComponent {
                       )}
                     </Row>
 
-                    <div style={{ textAlign: 'right',marginTop:'8px' }}>
+                    <div style={{ textAlign: 'right', marginTop: '8px' }}>
                       <Pagination
                         size="small"
                         hideOnSinglePage

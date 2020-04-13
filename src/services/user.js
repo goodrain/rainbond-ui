@@ -40,10 +40,6 @@ export async function queryCollectionViewInfo(body = {}) {
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`,
     {
       method: 'get',
-      params: {
-        page_size: body.page_size || 99,
-        page: body.page || 1,
-      },
     }
   );
 }
