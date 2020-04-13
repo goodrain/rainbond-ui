@@ -1,5 +1,3 @@
-<img src="https://www.rainbond.com/images/logo.png" width="100%">
-
 
 [![GitHub stars](https://img.shields.io/github/stars/goodrain/rainbond-ui.svg?style=flat-square)](https://github.com/goodrain/rainbond-ui/stargazers)
 [![Build Status](https://travis-ci.org/goodrain/rainbond-ui.svg?branch=V5.1)](https://travis-ci.org/goodrain/rainbond-ui)
