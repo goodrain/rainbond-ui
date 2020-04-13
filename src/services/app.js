@@ -1643,6 +1643,26 @@ export async function getVolumeOpts(
   );
 }
 
+
+/*
+  获取存储被依赖的组件
+*/
+export async function getVolumedependent(
+  body = {
+    team_name,
+    app_alias,
+  }
+) {
+  return request(
+    // `http://doc.goodrain.org/mock/18/console/teams/t4f76byl/apps/gr68b84c/volumedependent`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${
+      body.app_alias
+    }/volumedependent`,
+    {
+      method: "get",
+    }
+  );
+}
 /*
 	添加组件的存储
 */
