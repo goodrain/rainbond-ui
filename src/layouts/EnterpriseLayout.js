@@ -24,6 +24,7 @@ import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
+import userUtil from '../utils/user';
 import Context from './MenuContext';
 
 const qs = require('query-string');
