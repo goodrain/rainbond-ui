@@ -1,30 +1,30 @@
-import React, { Fragment, PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification, Tooltip } from 'antd';
-import DocumentTitle from 'react-document-title';
-import { connect } from 'dva';
-import { Route, Redirect, routerRedux } from 'dva/router';
-import { stringify } from 'querystring';
-import memoizeOne from 'memoize-one';
-import deepEqual from 'lodash.isequal';
-import { ContainerQuery } from 'react-container-query';
+import { Layout, Tooltip } from 'antd';
 import classNames from 'classnames';
+import { connect } from 'dva';
+import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
-import GlobalHeader from '../components/GlobalHeader';
-import PageLoading from '../components/PageLoading';
-import SiderMenu from '../components/SiderMenu';
+import deepEqual from 'lodash.isequal';
+import memoizeOne from 'memoize-one';
 import pathToRegexp from 'path-to-regexp';
-import globalUtil from '../utils/global';
-import Authorized from '../utils/Authorized';
-import rainbondUtil from '../utils/rainbond';
-import { getMenuData } from '../common/enterpriseMenu';
+import PropTypes from 'prop-types';
+import { stringify } from 'querystring';
+import React, { Fragment, PureComponent } from 'react';
+import { ContainerQuery } from 'react-container-query';
+import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
-import Loading from '../components/Loading';
-import GlobalRouter from '../components/GlobalRouter';
+import { getMenuData } from '../common/enterpriseMenu';
 import AuthCompany from '../components/AuthCompany';
-import ServiceOrder from '../components/ServiceOrder';
-import Context from './MenuContext';
+import GlobalHeader from '../components/GlobalHeader';
 import headerStype from '../components/GlobalHeader/index.less';
+import GlobalRouter from '../components/GlobalRouter';
+import Loading from '../components/Loading';
+import PageLoading from '../components/PageLoading';
+import ServiceOrder from '../components/ServiceOrder';
+import SiderMenu from '../components/SiderMenu';
+import Authorized from '../utils/Authorized';
+import globalUtil from '../utils/global';
+import rainbondUtil from '../utils/rainbond';
+import Context from './MenuContext';
 
 const qs = require('query-string');
 
@@ -101,6 +101,7 @@ class EnterpriseLayout extends PureComponent {
   componentDidMount() {
     // fetch enterprise info
     this.getEnterpriseList();
+    this.loadClusters();
   }
 
   // get enterprise list
@@ -120,6 +121,28 @@ class EnterpriseLayout extends PureComponent {
               this.load();
             }
           );
+        }
+      },
+    });
+  };
+
+  loadClusters = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: eid,
+        check_status: 'no',
+      },
+      callback: res => {
+        console.log(res.list)
+        if (res && res.list.length == 0) {
+          dispatch(routerRedux.push(`/enterprise/${eid}/addCluster?init=true`));
         }
       },
     });
@@ -269,7 +292,13 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          <Tooltip title={enterpriseServiceInfo.type==='vip'?'尊贵的付费企业用户':'免费用户'}>
+          <Tooltip
+            title={
+              enterpriseServiceInfo.type === 'vip'
+                ? '尊贵的付费企业用户'
+                : '免费用户'
+            }
+          >
             {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
           </Tooltip>
           {enterpriseInfo && enterpriseInfo.enterprise_alias}

@@ -1,5 +1,5 @@
-import routerConfig from "./router.config";
 import defaultSettings from "../src/defaultSettings";
+import routerConfig from "./router.config";
 
 export default {
   history: "hash",
@@ -25,7 +25,7 @@ export default {
           default: 'zh-CN',
           // default true, when it is true, will use `navigator.language` overwrite default
           baseNavigator: false,
-        },
+        }
       },
     ]
   ],
@@ -38,5 +38,11 @@ export default {
   },
   disableDynamicImport: true,
 
-  routes: routerConfig
+  routes: routerConfig,
+  proxy: {
+    '/enterprise-server/': {
+      target: 'http://127.0.0.1:8080',
+      changeOrigin: true
+    }
+  }
 };

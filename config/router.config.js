@@ -112,6 +112,12 @@ export default [
             name: 'EnterpriseImport',
             authority: ['admin', 'user'],
           },
+          {
+            path: '/enterprise/:eid/addCluster',
+            component: './AddCluster',
+            name: 'AddCluster',
+            authority: ['admin', 'user'],
+          },
         ],
       },
       // team view layout

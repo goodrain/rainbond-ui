@@ -1,12 +1,13 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import { connect } from 'dva';
-import { Card, Button, Table, Form, Row, Col, notification, Input } from 'antd';
 import { routerRedux } from 'dva/router';
-import userUtil from '../../utils/user';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ConfirmModal from '../../components/ConfirmModal';
-import moment from 'moment';
+import cloud from '../../utils/cloud';
+import userUtil from '../../utils/user';
 
 const FormItem = Form.Item;
 
@@ -73,19 +74,7 @@ export default class EnterpriseUsers extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.data && res.data.code) {
-          switch (res.data.code) {
-            case 3000:
-              notification.warning({ message: '用户已存在' });
-              break;
-            case 3003:
-              notification.warning({ message: '邮箱已存在' });
-              break;
-            case 3004:
-              notification.warning({ message: '电话已存在' });
-              break;
-          }
-        }
+        cloud.handleCloudAPIError(res && res.data && res.data.code)
       },
     });
   };

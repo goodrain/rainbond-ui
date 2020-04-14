@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /*
 	获取集群下的协议
@@ -47,6 +47,9 @@ export async function fetchEnterpriseClusters(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
     {
       method: 'get',
+      params: {
+        check_status: param.check_status || "yes"
+      }
     }
   );
 }
