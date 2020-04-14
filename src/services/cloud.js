@@ -3,7 +3,7 @@ import request from '../utils/request';
 /* 获取企业的cloud access key */
 export async function queryEnterpriseAccesskey(body = {}) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/accesskey`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/accesskey`,
     {
       method: 'get',
       params: {
@@ -16,7 +16,7 @@ export async function queryEnterpriseAccesskey(body = {}) {
 /* 设置企业的cloud access key */
 export async function setEnterpriseAccesskey(body = {}) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/accesskey`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/accesskey`,
     {
       method: 'post',
       data: {
@@ -31,7 +31,7 @@ export async function setEnterpriseAccesskey(body = {}) {
 /* 获取阿里云的kubernetes集群列表 */
 export async function loadKubereneteClusters(body, handleError) {
     return request(
-      `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/kclusters`,
+      `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters`,
       {
         method: 'get',
         params: {
@@ -46,7 +46,7 @@ export async function loadKubereneteClusters(body, handleError) {
 /* 创建Kubernetes集群 */
 export async function createKubernetesCluster(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/kclusters`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters`,
     {
       method: 'post',
       data: {
@@ -64,7 +64,7 @@ export async function createKubernetesCluster(body, handleError) {
 /* 获取task event 列表 */
 export async function loadTaskEvents(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/tasks/${body.taskID}/events`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/tasks/${body.taskID}/events`,
     {
       method: 'get',
       handleError
@@ -75,7 +75,7 @@ export async function loadTaskEvents(body, handleError) {
 /* 获取上一次未完成的create kubernetes task */
 export async function loadLastTask(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/last-ck-task`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/last-ck-task`,
     {
       method: 'get',
       params: {
@@ -89,7 +89,7 @@ export async function loadLastTask(body, handleError) {
 /* 获取指定的create kubernetes task */
 export async function loadTask(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/ck-task/${body.taskID}`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/ck-task/${body.taskID}`,
     {
       method: 'get',
       handleError
@@ -100,7 +100,7 @@ export async function loadTask(body, handleError) {
 /* 获取指定集群的init task */
 export async function loadInitRainbondTask(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/init-task/${body.clusterID}`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/init-task/${body.clusterID}`,
     {
       method: 'get',
       params: {
@@ -115,7 +115,7 @@ export async function loadInitRainbondTask(body, handleError) {
 /* 获取指定集群的init task */
 export async function initRainbondRegion(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/init-cluster`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/init-cluster`,
     {
       method: 'post',
       data: {
@@ -131,7 +131,7 @@ export async function initRainbondRegion(body, handleError) {
 /* 获取running init task */
 export async function loadRunningInitRainbondTasks(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/init-tasks`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/init-tasks`,
     {
       method: 'get',
       handleError
@@ -142,7 +142,7 @@ export async function loadRunningInitRainbondTasks(body, handleError) {
 /* 获取running init task */
 export async function loadRegionConfig(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/regionconfig`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/kclusters/${body.clusterID}/regionconfig`,
     {
       method: 'get',
       params: {
@@ -155,7 +155,7 @@ export async function loadRegionConfig(body, handleError) {
 
 export async function updateInitTaskStatus(body, handleError) {
   return request(
-    `/console/proxy/enterprise-server/v1/enterprises/${body.enterprise_id}/init-tasks/${body.taskID}/status`,
+    `/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/init-tasks/${body.taskID}/status`,
     {
       method: 'put',
       data: {
