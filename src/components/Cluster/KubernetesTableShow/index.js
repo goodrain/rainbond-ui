@@ -41,7 +41,7 @@ export default class KubernetesClusterShow extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
       },
     });
   };

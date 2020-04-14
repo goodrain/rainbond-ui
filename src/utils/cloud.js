@@ -430,7 +430,12 @@ const cloud = {
         return n
     }
   },
-  handleCloudAPIError (code) {
+  handleCloudAPIError (res) {
+    if (!res) {
+      notification.error({ message: 'API请求错误' })
+      return
+    }
+    const code = res.data ? res.data.code : res.code
     switch (code) {
       case 3000:
         notification.warning({ message: '用户已存在' })

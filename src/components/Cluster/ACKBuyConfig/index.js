@@ -56,7 +56,7 @@ export default class ACKBuyConfig extends PureComponent {
             });
             return;
           }
-          cloud.handleCloudAPIError(res && res.data && res.data.code);
+          cloud.handleCloudAPIError(res);
           this.setState({ loading: false });
         },
       });

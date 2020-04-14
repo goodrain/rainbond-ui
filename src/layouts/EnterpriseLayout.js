@@ -129,6 +129,7 @@ class EnterpriseLayout extends PureComponent {
   loadClusters = () => {
     const {
       dispatch,
+      currentUser,
       match: {
         params: { eid },
       },
@@ -140,8 +141,8 @@ class EnterpriseLayout extends PureComponent {
         check_status: 'no',
       },
       callback: res => {
-        console.log(res.list)
-        if (res && res.list.length == 0) {
+        const adminer = userUtil.isCompanyAdmin(currentUser);
+        if (res && res.list && res.list.length == 0 && adminer) {
           dispatch(routerRedux.push(`/enterprise/${eid}/addCluster?init=true`));
         }
       },

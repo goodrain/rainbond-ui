@@ -143,7 +143,7 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });
@@ -169,7 +169,7 @@ export default class EnterpriseClusters extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });

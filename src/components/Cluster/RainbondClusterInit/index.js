@@ -50,7 +50,7 @@ export default class RainbondClusterInit extends PureComponent {
             });
             return;
           }
-          cloud.handleCloudAPIError(res && res.data && res.data.code);
+          cloud.handleCloudAPIError(res);
         },
       });
     } else {
@@ -85,7 +85,7 @@ export default class RainbondClusterInit extends PureComponent {
         if (res && res.data && res.data.code == 404) {
           return;
         }
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });

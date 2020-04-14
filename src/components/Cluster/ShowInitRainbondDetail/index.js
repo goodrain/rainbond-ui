@@ -43,7 +43,7 @@ class InitRainbondDetail extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });
@@ -74,7 +74,7 @@ class InitRainbondDetail extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });

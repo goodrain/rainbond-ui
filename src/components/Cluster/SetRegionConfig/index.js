@@ -51,7 +51,7 @@ export default class SetRegionConfig extends PureComponent {
                 dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
               },
               handleError: res => {
-                cloud.handleCloudAPIError(res && res.data && res.data.code);
+                cloud.handleCloudAPIError(res);
                 this.setState({commitloading: false})
               },
             });
@@ -75,7 +75,7 @@ export default class SetRegionConfig extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });
@@ -98,7 +98,7 @@ export default class SetRegionConfig extends PureComponent {
         }
       },
       handleError: res => {
-        cloud.handleCloudAPIError(res && res.data && res.data.code);
+        cloud.handleCloudAPIError(res);
         this.setState({ loading: false });
       },
     });
