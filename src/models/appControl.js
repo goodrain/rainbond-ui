@@ -31,7 +31,6 @@ import {
   deleteMnt,
   getVolumes,
   getVolumeOpts,
-  getVolumedependent,
   addVolume,
   editorVolume,
   deleteVolume,
@@ -728,12 +727,6 @@ export default {
     },
     *fetchVolumeOpts({ payload, callback }, { call, put }) {
       const response = yield call(getVolumeOpts, payload);
-      if (response) {
-        callback && callback(response);
-      }
-    },
-    *fetchVolumedependent({ payload, callback }, { call, put }) {
-      const response = yield call(getVolumedependent, payload);
       if (response) {
         callback && callback(response);
       }

@@ -13,6 +13,7 @@ import {
   notification,
 } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
+import RelyComponentModal from '../../components/RelyComponentModal';
 import { getMnt, addMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
@@ -42,32 +43,27 @@ export default class Index extends PureComponent {
       toDeleteVolume: null,
       editor: null,
       volumeOpts: [],
-      volumedependent: [],
+      relyComponent: false,
+      relyComponentList: [],
     };
   }
 
   componentDidMount() {
-    this.fetchVolumedependent();
     this.fetchVolumeOpts();
     this.loadMntList();
     this.fetchVolumes();
     this.fetchBaseInfo();
   }
-  fetchVolumedependent = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'appControl/fetchVolumedependent',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            volumedependent: data.list || [],
-          });
-        }
-      },
+  handleOpenRelyComponent = relyComponentList => {
+    this.setState({
+      relyComponent: true,
+      relyComponentList,
+    });
+  };
+  handleCloseRelyComponent = () => {
+    this.setState({
+      relyComponent: false,
+      relyComponentList: [],
     });
   };
   fetchVolumes = () => {
@@ -263,8 +259,9 @@ export default class Index extends PureComponent {
     return getVolumeTypeShowName(volumeOpts, volume_type);
   };
   render() {
-    const { mntList, volumedependent } = this.state;
+    const { mntList, relyComponent, relyComponentList } = this.state;
     const { volumes } = this.props;
+
     return (
       <Fragment>
         <Row>
@@ -292,6 +289,22 @@ export default class Index extends PureComponent {
                 {
                   title: '存储名称',
                   dataIndex: 'volume_name',
+                  render: (text, item) => {
+                    return (
+                      <span
+                        style={{
+                          cursor: 'pointer',
+                          color: item.dep_services && '#1890ff',
+                        }}
+                        onClick={() => {
+                          item.dep_services &&
+                            this.handleOpenRelyComponent(item.dep_services);
+                        }}
+                      >
+                        {text}
+                      </span>
+                    );
+                  },
                 },
                 {
                   title: '挂载路径',
@@ -495,46 +508,6 @@ export default class Index extends PureComponent {
           </div>
         </Card>
 
-        <Card
-          style={{
-            marginBottom: 24,
-          }}
-          title={<span>存储被依赖的组件</span>}
-        >
-          <ScrollerX sm={650}>
-            <Table
-              pagination={false}
-              columns={[
-                {
-                  title: '存储名称',
-                  dataIndex: 'vol_name',
-                  width:'50%',
-                  key: "vol_name",
-                },
-                {
-                  title: '组件名称',
-                  dataIndex: 'service_name',
-                  key: "service_name",
-                  width:'50%',
-                  render: (data, item) => (
-                    <Tooltip title={data} key={data}>
-                      <Link
-                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-                          item.service_alias
-                        }/overview`}
-                        title={data}
-                      >
-                        <span>{data}</span>
-                      </Link>
-                    </Tooltip>
-                  ),
-                },
-              ]}
-              dataSource={volumedependent}
-            />
-          </ScrollerX>
-        </Card>
-
         {this.state.showAddVar && (
           <AddVolumes
             onCancel={this.handleCancelAddVar}
@@ -566,6 +539,14 @@ export default class Index extends PureComponent {
             desc="确定要删除此存储目录吗?"
             onCancel={this.onCancelDeleteVolume}
             onOk={this.handleDeleteVolume}
+          />
+        )}
+        {relyComponent && (
+          <RelyComponentModal
+            title="存储被依赖的组件"
+            relyComponentList={relyComponentList}
+            onCancel={this.handleCloseRelyComponent}
+            onOk={this.handleCloseRelyComponent}
           />
         )}
       </Fragment>
