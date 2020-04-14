@@ -437,6 +437,9 @@ const cloud = {
     }
     const code = res.data ? res.data.code : res.code
     switch (code) {
+      case 4001:
+        notification.warning({ message: '请求Token过期，请尝试重新登录' })
+        break
       case 3000:
         notification.warning({ message: '用户已存在' })
         break
@@ -464,6 +467,9 @@ const cloud = {
         break
       case 400:
         notification.warning({ message: '请求参数错误' })
+        break
+      case undefined:
+        notification.error({ message: `API请求错误` })
         break
       default:
         notification.warning({ message: `未知的Cloud错误，错误码为${code}` })
