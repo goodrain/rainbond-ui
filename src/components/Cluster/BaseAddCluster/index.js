@@ -50,7 +50,7 @@ class EditClusterInfo extends PureComponent {
       type: "region/createEnterpriseCluster",
       payload: {
         ...values,
-        region_type: "custom",
+        region_type: ["custom"],
         enterprise_id: eid
       },
       callback: res => {
@@ -176,7 +176,7 @@ class EditClusterInfo extends PureComponent {
                   }}
                     >
                       <Button type="link" size="small">上传 Region-Config 文件</Button>
-                      
+
                     </Upload>
               )}
                   <span style={{fontSize: "12px"}}>Region-Config 文件内容可通过执行`grctl config`命令获得</span>
