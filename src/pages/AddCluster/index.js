@@ -61,9 +61,6 @@ export default class EnterpriseClusters extends PureComponent {
     this.loadRunningInitTasks();
   }
 
-  editClusterOK = () => {
-    this.cancelCreatClusters();
-  };
 
   addClusterOK = () => {
     const { dispatch } = this.props;

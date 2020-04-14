@@ -35,7 +35,7 @@ export default class SetRegionConfig extends PureComponent {
           enterprise_id: eid,
           desc: '来源于阿里云托管集群自动对接',
           token: configsYaml,
-          region_type: 'custom',
+          region_type: ["custom"],
         },
         callback: res => {
           if (res && res._condition === 200) {

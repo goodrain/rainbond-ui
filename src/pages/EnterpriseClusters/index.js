@@ -43,16 +43,6 @@ export default class EnterpriseClusters extends PureComponent {
     this.loadClusters();
   }
 
-  editClusterOK = () => {
-    this.loadClusters();
-    this.cancelCreatClusters();
-  };
-
-  addClusterOK = () => {
-    this.loadClusters();
-    this.cancelAddCluster();
-  };
-
   handleDelete = () => {
     const { regionInfo } = this.state;
     const {
@@ -341,7 +331,7 @@ export default class EnterpriseClusters extends PureComponent {
               regionInfo={regionInfo}
               title={text}
               eid={eid}
-              onOk={this.editClusterOK}
+              onOk={this.cancelEditClusters}
               onCancel={this.cancelEditClusters}
             />
           )}
