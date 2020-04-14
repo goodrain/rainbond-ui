@@ -34,8 +34,7 @@ export default {
   OauthbEnable: (bean = {}) =>
     (bean &&
       bean.enterprise_center_oauth &&
-      bean.enterprise_center_oauth.enable &&
-      bean.enterprise_center_oauth.value) ||
+      bean.enterprise_center_oauth.enable) ||
     false,
 
   // 判断企业是否配置了oautg 2.0

@@ -54,7 +54,7 @@ export default class Main extends PureComponent {
     if (rainbondUtil.officialDemoEnable(rainbondInfo)) {
       tabList.push({ key: 'demo', tab: '官方DEMO' });
     }
-    const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo, enterprise);
+    const servers = oauthUtil.getEnableGitOauthServer(enterprise);
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
