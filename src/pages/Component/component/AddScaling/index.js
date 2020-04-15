@@ -54,7 +54,7 @@ class AddScaling extends PureComponent {
     return values === undefined ? 0 : values;
   };
   checkContent = (res, value, callback) => {
-    let min = res.field === "maxNum" || res.field === "minNum" ? 1 : 0;
+    let min = 1;
     let num = Number(value);
     if (num || num === 0) {
       if (num < min) {
@@ -242,6 +242,8 @@ class AddScaling extends PureComponent {
               })(
                 <InputNumber
                   placeholder="请输入数字"
+                  min={1}
+                  max={65535}
                   style={{ width: "100%" }}
                 />
               )}
