@@ -716,9 +716,15 @@ export default class Main extends PureComponent {
             }
           },
           handleError: err => {
-            const msg = err && err.data && err.data.msg_show;
-            notification.error({ message: '请求错误', description: msg });
             this.setState({ submitLoading: false });
+            const data =err && err.data
+            const msg = data && data.msg_show;
+            if(data&&data.code&&data.code===10501){
+              notification.warning({ message: '提示', description: msg });
+              this.setState({isShare: 'true'})
+              return null;
+            }
+            notification.error({ message: '请求错误', description: msg });
           },
         });
       }
