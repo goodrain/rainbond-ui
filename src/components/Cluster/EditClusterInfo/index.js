@@ -24,7 +24,7 @@ class EditClusterInfo extends PureComponent {
     });
   };
   upClusters = values => {
-    const { dispatch, eid, regionInfo } = this.props;
+    const { dispatch, eid, regionInfo,onOk } = this.props;
     dispatch({
       type: "region/upEnterpriseCluster",
       payload: {
@@ -33,33 +33,18 @@ class EditClusterInfo extends PureComponent {
         enterprise_id: eid
       },
       callback: res => {
-        if (res && res._condition === 200) {
-          this.fetCluster()
-        }
-      }
-    });
-  };
-
-  fetCluster = () => {
-    const { dispatch, eid, regionInfo, onOk } = this.props;
-    dispatch({
-      type: "region/fetchEnterpriseCluster",
-      payload: {
-        region_id: regionInfo && regionInfo.region_id,
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res.bean && res.bean.health_status === "failure") {
-          this.setState({healthStatus: false})
-        }else{
-          notification.success({ message: "编辑成功" });
-          if (onOk) {
-            onOk()
+        if (res && res._code === 200) {
+          if (res.bean && res.bean.health_status === "failure") {
+            this.setState({healthStatus: false})
+          }else{
+            notification.success({ message: "编辑成功" });
+            onOk&&onOk()
           }
         }
       }
     });
   };
+
 
   render() {
     const { form, onCancel, title, regionInfo } = this.props;
