@@ -238,7 +238,7 @@ export default class AddServiceComponent extends PureComponent {
       </svg>
     );
 
-    const servers = oauthUtil.getEnableGitOauthServer(rainbondInfo, enterprise);
+    const servers = oauthUtil.getEnableGitOauthServer(enterprise);
     return (
       <div>
         <Button
@@ -274,17 +274,18 @@ export default class AddServiceComponent extends PureComponent {
                     <Icon component={codeSvg} />
                     <p className={styles.ServiceSmallTitle}>自定义仓库</p>
                   </Col>
-                  {servers.map(item => {
+                  {servers && servers.length>0 && servers.map(item => {
+                    const { service_id, oauth_type } = item;
                     return (
                       <Col
-                        key={item.service_id}
+                        key={service_id}
                         span={8}
                         className={styles.ServiceDiv}
                         onClick={() => {
                           this.setState(
                             {
-                              gitType: item.oauth_type,
-                              gitServiceID: item.service_id,
+                              gitType: oauth_type,
+                              gitServiceID: service_id,
                             },
                             () => {
                               this.handleServiceComponent(
