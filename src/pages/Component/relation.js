@@ -305,6 +305,7 @@ export default class Index extends PureComponent {
       page: 1,
       page_size: 5,
       total: 0,
+      isShowList:[],
       isPassword: 'password',
       setPassword: 'text',
     };
@@ -464,6 +465,7 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
       },
       callback: res => {
+        console.log('ree',res)
         if (res && res._code == 200) {
           this.setState({ total: res.bean.total });
         }

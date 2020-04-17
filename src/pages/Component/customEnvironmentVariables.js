@@ -83,6 +83,7 @@ export default class Index extends React.Component {
       toDeleteMnt: null,
       toDeleteVolume: null,
       editor: null,
+      isAttrNameList: [],
       isPassword: 'password',
       setPassword: 'text',
     };
@@ -124,7 +125,19 @@ export default class Index extends React.Component {
       },
       callback: res => {
         if (res && res._code == 200) {
-          this.setState({ total: res.bean.total });
+          const arr = [];
+          if (res.list && res.list.length > 0) {
+            res.list.map(item => {
+              const isHidden = globalUtil.confirmEnding(
+                `${item.attr_name}`,
+                '_PASS'
+              );
+              if (isHidden) {
+                arr.push(item.ID);
+              }
+            });
+          }
+          this.setState({ isAttrNameList: arr, total: res.bean.total });
         }
       },
     });
@@ -474,27 +487,35 @@ export default class Index extends React.Component {
     this.setState({ toDeleteMnt: null });
   };
 
-  AfterPassword = value => {
+  AfterPassword = (isHidden, ID) => {
     const passwordShow = globalUtil.fetchSvg('passwordShow');
     const passwordHidden = globalUtil.fetchSvg('passwordHidden');
     return (
       <span
         onClick={() => {
-          this.handlePassword(value);
+          this.handlePassword(isHidden, ID);
         }}
       >
-        {this.state[value] === 'text' ? passwordShow : passwordHidden}
+        {isHidden ? passwordShow : passwordHidden}
       </span>
     );
   };
-  handlePassword = value => {
+  handlePassword = (isHidden, ID) => {
+    const { isAttrNameList } = this.state;
+    const arr = isAttrNameList;
+    if (isHidden) {
+      var index = arr.indexOf(ID);
+      arr.splice(index, 1);
+    } else {
+      arr.push(ID);
+    }
     this.setState({
-      [value]: this.state[value] === 'text' ? 'password' : 'text',
+      isAttrNameList: arr,
     });
   };
 
   render() {
-    const { mntList, isPassword, setPassword } = this.state;
+    const { mntList, isAttrNameList, isPassword, setPassword } = this.state;
     const { innerEnvs, baseInfo, volumes } = this.props;
     const wraps = {
       wordBreak: 'break-all',
@@ -549,19 +570,13 @@ export default class Index extends React.Component {
                     dataIndex: 'attr_name',
                     key: '1',
                     width: '20%',
-                    render: v => {
-                      const isHidden = globalUtil.confirmEnding(
-                        `${v}`,
-                        '_PASS'
-                      );
-                      const types = isHidden ? isPassword : setPassword;
+                    render: (v, item) => {
+                      const isHidden = isAttrNameList.includes(item.ID);
                       return (
                         <div style={wraps} key={v}>
                           <Input
-                            addonAfter={this.AfterPassword(
-                              isHidden ? 'isPassword' : 'setPassword'
-                            )}
-                            type={types}
+                            addonAfter={this.AfterPassword(isHidden, item.ID)}
+                            type={isHidden ? 'password' : 'text'}
                             className={styles.hiddeninput}
                             value={v}
                           />
