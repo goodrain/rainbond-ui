@@ -102,7 +102,6 @@ class EnterpriseLayout extends PureComponent {
   componentDidMount() {
     // fetch enterprise info
     this.getEnterpriseList();
-    this.loadClusters();
   }
 
   // get enterprise list
@@ -127,13 +126,10 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  loadClusters = () => {
+  loadClusters = (eid) => {
     const {
       dispatch,
       currentUser,
-      match: {
-        params: { eid },
-      },
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
@@ -233,6 +229,7 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
           this.fetchEnterpriseInfo(eid);
+          this.loadClusters(eid)
           this.setState({ enterpriseInfo: item });
         }
       });
