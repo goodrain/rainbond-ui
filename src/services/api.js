@@ -36,6 +36,27 @@ export async function fetchEnterpriseApps(body = { enterprise_id }) {
 }
 
 /*
+  获取应用列表下组件
+ */
+
+
+export async function fetchAppComponents(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/apps/${body.app_id}/components`,
+    {
+      method: 'get',
+      params: {
+        page: body.page,
+        page_size: body.page_size,
+        name: body.name,
+      },
+    }
+  );
+}
+
+
+
+/*
   获取用户可加入团队列表
  */
 export async function getUserCanJoinTeams(body = { enterpriseID }) {

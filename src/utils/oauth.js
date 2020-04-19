@@ -3,10 +3,9 @@ import rainbondUtil from './rainbond';
 import { Icon } from 'antd';
 
 const oauthUtil = {
-  getEnableGitOauthServer(rainbondInfo, enterprise) {
+  getEnableGitOauthServer(enterprise) {
     const servers = [];
     if (
-      rainbondUtil.OauthbEnable(rainbondInfo) &&
       rainbondUtil.OauthEnterpriseEnable(enterprise)
     ) {
       enterprise.oauth_services.value.map(item => {

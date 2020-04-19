@@ -699,19 +699,16 @@ export default class Main extends PureComponent {
               <br />
               <br />
               发布应用模型
-              {rainbondUtil.cloudMarketEnable(enterprise) &&
-                currentEnterprise && (
-                  <span>
-                    或{' '}
-                    <Link
-                      to={`/enterprise/${
-                        currentEnterprise.enterprise_id
-                      }/shared/cloudMarket`}
-                    >
-                      从云端同步
-                    </Link>
-                  </span>
-                )}
+              {rainbondUtil.cloudMarketEnable(enterprise) && currentEnterprise && (
+                <span>
+                  或{' '}
+                  <Link
+                    to={`/enterprise/${currentEnterprise.enterprise_id}/shared/cloudMarket`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
             </p>
           ),
         }}
@@ -742,19 +739,16 @@ export default class Main extends PureComponent {
               <br />
               <br />
               发布应用模型
-              {rainbondUtil.cloudMarketEnable(enterprise) &&
-                currentEnterprise && (
-                  <span>
-                    或{' '}
-                    <Link
-                      to={`/enterprise/${
-                        currentEnterprise.enterprise_id
-                      }/shared/cloudMarket`}
-                    >
-                      从云端同步
-                    </Link>
-                  </span>
-                )}
+              {rainbondUtil.cloudMarketEnable(enterprise) && currentEnterprise && (
+                <span>
+                  或{' '}
+                  <Link
+                    to={`/enterprise/${currentEnterprise.enterprise_id}/shared/cloudMarket`}
+                  >
+                    从云端同步
+                  </Link>
+                </span>
+              )}
             </p>
           ),
         }}
@@ -848,6 +842,21 @@ export default class Main extends PureComponent {
     breadcrumbList.push({ title: '创建组件' });
     return (
       <div>
+        {this.state.showCreate && (
+          <CreateAppFromMarketForm
+            disabled={loading.effects['createApp/installApp']}
+            onSubmit={
+              handleType
+                ? this.handleCreate
+                : scopeMax == 'localApplication'
+                ? this.handleCreate
+                : this.handleCloudCreate
+            }
+            onCancel={this.onCancelCreate}
+            showCreate={this.state.showCreate}
+          />
+        )}
+
         {handleType ? (
           <div>
             {!moreState && mainSearch}
@@ -956,15 +965,6 @@ export default class Main extends PureComponent {
                 </Form>
               </Modal>
             )}
-
-            {this.state.showCreate && (
-              <CreateAppFromMarketForm
-                disabled={loading.effects['createApp/installApp']}
-                onSubmit={this.handleCreate}
-                onCancel={this.onCancelCreate}
-                showCreate={this.state.showCreate}
-              />
-            )}
             {this.state.showMarketAppDetail && (
               <MarketAppDetailShow
                 onOk={this.hideMarketAppDetail}
@@ -1010,16 +1010,7 @@ export default class Main extends PureComponent {
                             >
                               {cardList}
                             </div>
-                            {this.state.showCreate && (
-                              <CreateAppFromMarketForm
-                                disabled={
-                                  loading.effects['createApp/installApp']
-                                }
-                                onSubmit={this.handleCreate}
-                                onCancel={this.onCancelCreate}
-                                showCreate={this.state.showCreate}
-                              />
-                            )}
+
                             {this.state.showMarketAppDetail && (
                               <MarketAppDetailShow
                                 onOk={this.hideMarketAppDetail}
@@ -1060,14 +1051,6 @@ export default class Main extends PureComponent {
                           />
                         )}
                       </div>
-                      {this.state.showCreate && (
-                        <CreateAppFromMarketForm
-                          disabled={loading.effects['createApp/installApp']}
-                          onSubmit={this.handleCloudCreate}
-                          onCancel={this.onCancelCreate}
-                          showCreate={this.state.showCreate}
-                        />
-                      )}
                       {this.state.showMarketAppDetail && (
                         <MarketAppDetailShow
                           onOk={this.hideMarketAppDetail}

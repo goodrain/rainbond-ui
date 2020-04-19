@@ -11,6 +11,7 @@ import {
   Tooltip,
   Empty,
   Affix,
+  Pagination,
 } from 'antd';
 
 import styles from '../List/BasicList.less';
@@ -69,6 +70,9 @@ export default class Enterprise extends PureComponent {
       delcollectionVisible: false,
       collectionInfo: false,
       collectionInfoLoading: true,
+      page_size: 6,
+      page: 1,
+      total: 0,
     };
   }
   componentDidMount() {
@@ -111,7 +115,11 @@ export default class Enterprise extends PureComponent {
       },
     });
   };
-
+  onPageChangeCollectionView = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
+      this.fetchCollectionViewInfo();
+    });
+  };
   fetchCollectionViewInfo = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
@@ -123,6 +131,7 @@ export default class Enterprise extends PureComponent {
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
+            total: res.list.length,
             collectionInfoLoading: false,
             collectionList: res.list,
           });
@@ -388,6 +397,9 @@ export default class Enterprise extends PureComponent {
       delcollectionVisible,
       collectionInfoLoading,
       eid,
+      total,
+      page_size,
+      page,
     } = this.state;
 
     const new_join_team =
@@ -1023,7 +1035,13 @@ export default class Enterprise extends PureComponent {
                       {collections ? (
                         collections.map((item, index) => {
                           const { url, name } = item;
-                          if (index > 5) {
+                          const startPage = (page - 1) * page_size;
+
+                          const totals = page * page_size;
+                          if (page !== 1 && index < startPage) {
+                            return null;
+                          }
+                          if (index >= totals) {
                             return null;
                           }
                           return (
@@ -1070,6 +1088,17 @@ export default class Enterprise extends PureComponent {
                         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                       )}
                     </Row>
+
+                    <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                      <Pagination
+                        size="small"
+                        hideOnSinglePage
+                        current={page}
+                        pageSize={page_size}
+                        total={Number(total)}
+                        onChange={this.onPageChangeCollectionView}
+                      />
+                    </div>
                   </Col>
                 </Card>
               </Col>

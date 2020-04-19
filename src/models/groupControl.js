@@ -166,8 +166,8 @@ export default {
       }
     },
     // 提交分享信息
-    * subShareInfo({ payload, callback }, { call, put }) {
-      const response = yield call(submitShare, payload);
+    * subShareInfo({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(submitShare, payload, handleError);
       if (response) {
         callback && callback(response);
       }
