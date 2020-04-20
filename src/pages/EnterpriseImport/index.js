@@ -175,12 +175,21 @@ export default class EnterpriseShared extends PureComponent {
       },
     } = this.props;
     const { scopeValue, tenant_name, event_id, file_list } = this.state;
-    if (file_list.length == 0) {
+    if (file_list.length === 0) {
+      notification.destroy();
       notification.warning({
         message: '请至少选择一个应用',
       });
       return;
     }
+    if (tenant_name === '' && scopeValue !== 'enterprise') {
+      notification.destroy();
+      notification.warning({
+        message: '请选择一个团队',
+      });
+      return null;
+    }
+
     let fileStr = '';
     file_list.map(order => {
       fileStr += `${order},`;
@@ -222,7 +231,9 @@ export default class EnterpriseShared extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState(
-            { record: res.bean, event_id: res.bean.event_id,
+            {
+              record: res.bean,
+              event_id: res.bean.event_id,
               region_name: res.bean && res.bean.region_name,
             },
             () => {
@@ -271,8 +282,11 @@ export default class EnterpriseShared extends PureComponent {
             return;
           }
           if (data.bean && data.bean.status == 'failed') {
-            notification.success({
+            notification.error({
               message: '应用导入失败',
+            });
+            this.setState({
+              import_file_status:[],
             });
             return;
           }
@@ -398,12 +412,7 @@ export default class EnterpriseShared extends PureComponent {
       </svg>
     );
 
-    const appstatus = {
-      pending: '等待中',
-      importing: '导入中',
-      success: '成功',
-      failed: '失败',
-    };
+
     const myheaders = {};
     const {
       existFileList,

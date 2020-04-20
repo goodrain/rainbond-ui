@@ -477,7 +477,7 @@ export default class Main extends PureComponent {
     if (scope == 'goodrain' && scope_target) {
       body.scope = 'goodrain';
       body.market_id = scope_target.store_id;
-    }else{
+    } else {
       body.scope = 'local';
     }
     const isMarket = scope_target && scope_target.store_id;
@@ -714,6 +714,17 @@ export default class Main extends PureComponent {
                 )
               );
             }
+          },
+          handleError: err => {
+            this.setState({ submitLoading: false });
+            const data =err && err.data
+            const msg = data && data.msg_show;
+            if(data&&data.code&&data.code===10501){
+              notification.warning({ message: '提示', description: msg });
+              this.setState({isShare: 'true'})
+              return null;
+            }
+            notification.error({ message: '请求错误', description: msg });
           },
         });
       }
@@ -982,7 +993,7 @@ export default class Main extends PureComponent {
 
   // 验证上传文件方式
   checkVersion = (rules, value, callback) => {
-    if (value === '') {
+    if (value === '' || !value) {
       callback('版本不能为空, 请选择或添加版本');
     }
     if (value) {
@@ -1042,7 +1053,6 @@ export default class Main extends PureComponent {
       breadcrumbList.push({ title: '发布到共享库' });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
-
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1125,7 +1135,6 @@ export default class Main extends PureComponent {
                         rules: [
                           {
                             required: true,
-
                             validator: this.checkVersion,
                           },
                         ],

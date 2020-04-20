@@ -379,13 +379,15 @@ export async function submitShare(
     share_id,
     new_info,
     use_force,
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/info`,
     {
       method: 'post',
       data: body.new_info,
+      handleError,
       params: {
         use_force: body.use_force,
       },

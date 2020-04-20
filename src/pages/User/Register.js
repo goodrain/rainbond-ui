@@ -1,26 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { Form, Input, Button, Row, Col, Progress } from 'antd';
+import { routerRedux } from 'dva/router';
 import styles from './Register.less';
 import RegisterComponent from './registerComponent';
-import cookie from '../../utils/cookie';
+import rainbondUtil from '../../utils/rainbond';
 
-const FormItem = Form.Item;
-
-const passwordProgressMap = {
-  ok: 'success',
-  pass: 'normal',
-  poor: 'exception',
-};
-
-@connect(({ user, loading, global }) => ({
+@connect(({ user, global }) => ({
   register: user.register,
   rainbondInfo: global.rainbondInfo,
   isRegist: global.isRegist,
-  submitting: loading.effects['user/register'],
 }))
-@Form.create()
 export default class Register extends Component {
   // first user, to register admin
   state = {
@@ -30,8 +19,6 @@ export default class Register extends Component {
     help: '',
     prefix: '86',
     time: Date.now(),
-    firstRegist:
-      this.props.rainbondInfo && !this.props.rainbondInfo.is_user_register,
   };
 
   handleSubmit = values => {
@@ -42,24 +29,23 @@ export default class Register extends Component {
         ...values,
       },
       complete: () => {
-        this.changeTime();
+        this.setState({
+          time: Date.now(),
+        });
       },
     });
   };
 
-  changeTime = () => {
-    this.setState({
-      time: Date.now(),
-    });
-  };
   render() {
-    if (!this.props.isRegist) {
-      this.props.dispatch(routerRedux.replace('/user/login'));
+    const { isRegist, dispatch, rainbondInfo } = this.props;
+    if (!isRegist) {
+      dispatch(routerRedux.replace('/user/login'));
       return null;
     }
+    const firstRegist = !rainbondUtil.fetchIsFirstRegist(rainbondInfo);
     return (
       <div className={styles.main}>
-        <h3>{this.state.firstRegist ? '管理员注册' : '用户注册'}</h3>
+        <h3>{firstRegist ? '管理员注册' : '用户注册'}</h3>
         <RegisterComponent onSubmit={this.handleSubmit} type="register" />
       </div>
     );

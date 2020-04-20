@@ -250,7 +250,9 @@ export default class HttpTable extends PureComponent {
       }
     );
   };
-
+  handleCancel_second = () => {
+    this.setState({ whether_open_form: false });
+  };
   handleOkParameter = values => {
     const { dispatch } = this.props;
     const arr = [
@@ -683,6 +685,7 @@ export default class HttpTable extends PureComponent {
             title="确认要添加吗？"
             visible={this.state.whether_open_form}
             onOk={this.handleOk}
+            onCancel={this.handleCancel_second}
             footer={[
               <Button type="primary" size="small" onClick={this.resolveOk}>
                 确定

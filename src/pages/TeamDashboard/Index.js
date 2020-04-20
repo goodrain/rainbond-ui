@@ -127,15 +127,15 @@ export default class Index extends PureComponent {
               const isGuidevisible =
                 this.state.current == 7
                   ? false
-                  : !cookie.get('guide');
+                  : !cookie.get('newbie_guide');
               this.setState({
                 guidevisible: isGuidevisible,
               });
               this.state.current == 7
                 ? false
-                : cookie.get('guide')
+                : cookie.get('newbie_guide')
                 ? false
-                : cookie.setGuide('guide', 'true');
+                : cookie.setGuide('newbie_guide', 'true');
             }
           );
         }
@@ -234,7 +234,7 @@ export default class Index extends PureComponent {
           if (visitDatas && visitDatas.length > 0) {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
-                x: moment(new Date(visitDatas[i][0] * 1000)).format(
+                x: moment(new Date(visitDatas[i][0] * 1000)).locale('zh-cn').format(
                   'YYYY-MM-DD hh:mm'
                 ),
                 y: Math.floor(visitDatas[i][1]),

@@ -153,7 +153,7 @@ class Index extends PureComponent {
                     <li>
                       <span>创建时间:</span>
                       <span>
-                        {moment(instanceInfo.start_time).format(
+                        {moment(instanceInfo.start_time).locale('zh-cn').format(
                           "YYYY-MM-DD hh:mm:ss"
                         )}
                       </span>
@@ -277,7 +277,7 @@ class Index extends PureComponent {
                         key: "started",
                         width: "20%",
                         render: started =>
-                          moment(started).format("YYYY-MM-DD hh:mm:ss")
+                          moment(started).locale('zh-cn').format("YYYY-MM-DD hh:mm:ss")
                       },
                       {
                         title: "状态",

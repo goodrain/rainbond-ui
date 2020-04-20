@@ -319,7 +319,7 @@ export default class AppPublishList extends PureComponent {
                   dataIndex: "create_time",
                   render: val =>
                     <span>
-                      {moment(val).format("YYYY-MM-DD HH:mm:ss")}
+                      {moment(val).locale('zh-cn').format("YYYY-MM-DD HH:mm:ss")}
                     </span>
                 },
                 {

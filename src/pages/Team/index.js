@@ -93,9 +93,17 @@ export default class Index extends PureComponent {
       callback: () => {
         this.props.dispatch({ type: 'user/fetchCurrent' });
         this.hideEditName();
+        this.handleUpDataHeader();
       },
     });
   };
+  handleUpDataHeader = () =>{
+    const {  dispatch } = this.props;
+    dispatch({
+      type: 'global/IsUpDataHeader',
+      payload: {isUpData: true,},
+    });
+  }
   handleDelTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
     const { teamsUrl } = this.state;
@@ -136,7 +144,7 @@ export default class Index extends PureComponent {
               <Icon onClick={this.showEditName} type="edit" />
             )}
           </div>
-          <div>创建于 {moment(team.create_time).format('YYYY-MM-DD')}</div>
+          <div>创建于 {moment(team.create_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
         </div>
       </div>
     );

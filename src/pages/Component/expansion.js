@@ -1208,7 +1208,7 @@ export default class Index extends PureComponent {
                   <div
                     style={{ wordWrap: "break-word", wordBreak: "break-word" }}
                   >
-                    {moment(val).format("YYYY-MM-DD HH:mm:ss")}
+                    {moment(val).locale('zh-cn').format("YYYY-MM-DD HH:mm:ss")}
                   </div>
               },
               {

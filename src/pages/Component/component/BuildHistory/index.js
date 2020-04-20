@@ -416,7 +416,7 @@ class Index extends PureComponent {
                                   }}
                                 >
                                   {create_time &&
-                                    moment(create_time).format(
+                                    moment(create_time).locale('zh-cn').format(
                                       "YYYY-MM-DD hh:mm:ss"
                                     )}
                                 </font>

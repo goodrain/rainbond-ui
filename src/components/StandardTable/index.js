@@ -91,7 +91,7 @@ class StandardTable extends PureComponent {
         title: '更新时间',
         dataIndex: 'updatedAt',
         sorter: true,
-        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        render: val => <span>{moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}</span>,
       },
       {
         title: '操作',
