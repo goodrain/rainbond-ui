@@ -84,8 +84,6 @@ export default class Index extends React.Component {
       toDeleteVolume: null,
       editor: null,
       isAttrNameList: [],
-      isPassword: 'password',
-      setPassword: 'text',
     };
   }
   componentDidMount() {
@@ -496,7 +494,7 @@ export default class Index extends React.Component {
           this.handlePassword(isHidden, ID);
         }}
       >
-        {isHidden ? passwordShow : passwordHidden}
+        {isHidden ? passwordHidden : passwordShow}
       </span>
     );
   };
@@ -504,7 +502,7 @@ export default class Index extends React.Component {
     const { isAttrNameList } = this.state;
     const arr = isAttrNameList;
     if (isHidden) {
-      var index = arr.indexOf(ID);
+      const index = arr.indexOf(ID);
       arr.splice(index, 1);
     } else {
       arr.push(ID);
@@ -515,7 +513,7 @@ export default class Index extends React.Component {
   };
 
   render() {
-    const { mntList, isAttrNameList, isPassword, setPassword } = this.state;
+    const { mntList, isAttrNameList} = this.state;
     const { innerEnvs, baseInfo, volumes } = this.props;
     const wraps = {
       wordBreak: 'break-all',
@@ -570,30 +568,32 @@ export default class Index extends React.Component {
                     dataIndex: 'attr_name',
                     key: '1',
                     width: '20%',
-                    render: (v, item) => {
-                      const isHidden = isAttrNameList.includes(item.ID);
-                      return (
-                        <div style={wraps} key={v}>
-                          <Input
-                            addonAfter={this.AfterPassword(isHidden, item.ID)}
-                            type={isHidden ? 'password' : 'text'}
-                            className={styles.hiddeninput}
-                            value={v}
-                          />
-                        </div>
-                      );
-                    },
+                    render: v => (
+                      <Tooltip title={v}>
+                        <div style={wraps}>{v}</div>
+                      </Tooltip>
+                    ),
                   },
                   {
                     title: '变量值',
                     dataIndex: 'attr_value',
                     key: '2',
                     width: '40%',
-                    render: v => (
-                      <Tooltip title={v}>
-                        <div style={wraps}>{v}</div>
-                      </Tooltip>
-                    ),
+                    render: (v, item) => {
+                      const isHidden = isAttrNameList.includes(item.ID);
+                      return (
+                        <div style={wraps} key={v}>
+                          <Tooltip title={!isHidden&&v}>
+                            <Input
+                              addonAfter={this.AfterPassword(isHidden, item.ID)}
+                              type={isHidden ? 'password' : 'text'}
+                              className={styles.hiddeninput}
+                              value={v}
+                            />
+                          </Tooltip>
+                        </div>
+                      );
+                    },
                   },
                   {
                     title: '说明',

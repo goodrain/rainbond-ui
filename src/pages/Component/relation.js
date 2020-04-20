@@ -305,9 +305,7 @@ export default class Index extends PureComponent {
       page: 1,
       page_size: 5,
       total: 0,
-      isShowList:[],
-      isPassword: 'password',
-      setPassword: 'text',
+      isAttrNameList: [],
     };
   }
 
@@ -465,9 +463,20 @@ export default class Index extends PureComponent {
         app_alias: this.props.appAlias,
       },
       callback: res => {
-        console.log('ree',res)
         if (res && res._code == 200) {
-          this.setState({ total: res.bean.total });
+          const arr = [];
+          if (res.list && res.list.length > 0) {
+            res.list.map(item => {
+              const isHidden = globalUtil.confirmEnding(
+                `${item.attr_name}`,
+                '_PASS'
+              );
+              if (isHidden) {
+                arr.push(item.ID);
+              }
+            });
+          }
+          this.setState({ isAttrNameList: arr, total: res.bean.total });
         }
       },
     });
@@ -518,23 +527,30 @@ export default class Index extends PureComponent {
     );
   };
 
-
-  AfterPassword = value => {
+  AfterPassword = (isHidden, ID) => {
     const passwordShow = globalUtil.fetchSvg('passwordShow');
     const passwordHidden = globalUtil.fetchSvg('passwordHidden');
     return (
       <span
         onClick={() => {
-          this.handlePassword(value);
+          this.handlePassword(isHidden, ID);
         }}
       >
-        {this.state[value] === 'text' ? passwordShow : passwordHidden}
+        {isHidden ? passwordHidden : passwordShow}
       </span>
     );
   };
-  handlePassword = value => {
+  handlePassword = (isHidden, ID) => {
+    const { isAttrNameList } = this.state;
+    const arr = isAttrNameList;
+    if (isHidden) {
+      const index = arr.indexOf(ID);
+      arr.splice(index, 1);
+    } else {
+      arr.push(ID);
+    }
     this.setState({
-      [value]: this.state[value] === 'text' ? 'password' : 'text',
+      isAttrNameList: arr,
     });
   };
 
@@ -545,8 +561,7 @@ export default class Index extends PureComponent {
       page,
       page_size,
       total,
-      isPassword,
-      setPassword,
+      isAttrNameList,
     } = this.state;
     const { outerEnvs } = this.props;
     const wraps = {
@@ -570,33 +585,32 @@ export default class Index extends PureComponent {
                   dataIndex: 'attr_name',
                   key: 'attr_name',
                   width: '30%',
-                  render: v => {
-                    const isHidden = globalUtil.confirmEnding(`${v}`, '_PASS');
-                    const types = isHidden ? isPassword : setPassword;
-                    return (
-                      <div style={wraps}>
-                        <Input
-                          addonAfter={this.AfterPassword(
-                            isHidden ? 'isPassword' : 'setPassword'
-                          )}
-                          type={types}
-                          className={styles.hiddeninput}
-                          value={v}
-                        />
-                      </div>
-                    );
-                  },
+                  render: v => (
+                    <Tooltip title={v}>
+                      <div style={wraps}>{v}</div>
+                    </Tooltip>
+                  ),
                 },
                 {
                   title: '变量值',
                   dataIndex: 'attr_value',
                   key: '2',
                   width: '30%',
-                  render: v => (
-                    <Tooltip title={v}>
-                      <div style={wraps}>{v}</div>
-                    </Tooltip>
-                  ),
+                  render: (v, item) => {
+                    const isHidden = isAttrNameList.includes(item.ID);
+                    return (
+                      <div style={wraps} key={v}>
+                        <Tooltip title={!isHidden && v}>
+                          <Input
+                            addonAfter={this.AfterPassword(isHidden, item.ID)}
+                            type={isHidden ? 'password' : 'text'}
+                            className={styles.hiddeninput}
+                            value={v}
+                          />
+                        </Tooltip>
+                      </div>
+                    );
+                  },
                 },
                 {
                   title: '说明',

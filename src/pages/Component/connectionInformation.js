@@ -1,5 +1,5 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
 import {
   Card,
   Form,
@@ -12,17 +12,18 @@ import {
   Modal,
   Radio,
   Popconfirm,
-  Input
-} from "antd";
-import SetMemberAppAction from "../../components/SetMemberAppAction";
-import ScrollerX from "../../components/ScrollerX";
-import AddVarModal from "./setting/env";
-import ConfirmModal from "../../components/ConfirmModal";
-import globalUtil from "../../utils/global";
+  Input,
+} from 'antd';
+import SetMemberAppAction from '../../components/SetMemberAppAction';
+import ScrollerX from '../../components/ScrollerX';
+import AddVarModal from './setting/env';
+import ConfirmModal from '../../components/ConfirmModal';
+import globalUtil from '../../utils/global';
+import styles from './Index.less';
+import { getStatus, restart } from '../../services/app';
+import { width } from 'window-size';
 
 const FormItem = Form.Item;
-import { getStatus, restart } from "../../services/app";
-import { width } from "window-size";
 const RadioGroup = Radio.Group;
 
 @connect(
@@ -37,7 +38,7 @@ const RadioGroup = Radio.Group;
     appDetail: appControl.appDetail,
     outerEnvs: appControl.outerEnvs,
     teamControl,
-    appControl
+    appControl,
   }),
   null,
   null,
@@ -53,7 +54,8 @@ export default class Index extends React.Component {
       deleteVar: null,
       page: 1,
       page_size: 5,
-      total: 0
+      total: 0,
+      isAttrNameList: [],
     };
   }
   componentDidMount() {
@@ -78,37 +80,49 @@ export default class Index extends React.Component {
   fetchOuterEnvs = () => {
     const { page, page_size } = this.state;
     this.props.dispatch({
-      type: "appControl/fetchOuterEnvs",
+      type: 'appControl/fetchOuterEnvs',
       payload: {
         page,
         page_size,
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        env_type: "outer"
+        env_type: 'outer',
       },
       callback: res => {
         if (res && res._code == 200) {
-          this.setState({ total: res.bean.total });
+          const arr = [];
+          if (res.list && res.list.length > 0) {
+            res.list.map(item => {
+              const isHidden = globalUtil.confirmEnding(
+                `${item.attr_name}`,
+                '_PASS'
+              );
+              if (isHidden) {
+                arr.push(item.ID);
+              }
+            });
+          }
+          this.setState({ isAttrNameList: arr, total: res.bean.total });
         }
-      }
+      },
     });
   };
 
   handleDeleteVar = () => {
     this.props.dispatch({
-      type: "appControl/deleteEnvs",
+      type: 'appControl/deleteEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        ID: this.state.deleteVar.ID
+        ID: this.state.deleteVar.ID,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
         this.cancelDeleteVar();
-      }
+      },
     });
   };
 
@@ -119,36 +133,36 @@ export default class Index extends React.Component {
   handleEditVar = vals => {
     const { showEditVar } = this.state;
     this.props.dispatch({
-      type: "appControl/editEvns",
+      type: 'appControl/editEvns',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: showEditVar.ID,
         attr_value: vals.attr_value,
-        name: vals.name
+        name: vals.name,
       },
       callback: res => {
         this.fetchOuterEnvs();
         this.cancelEditVar();
-      }
+      },
     });
   };
 
   handleSubmitAddVar = vals => {
     this.props.dispatch({
-      type: "appControl/addInnerEnvs",
+      type: 'appControl/addInnerEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
         name: vals.name,
-        scope: "outer"
+        scope: 'outer',
       },
       callback: res => {
         this.fetchOuterEnvs();
         this.handleCancelAddVar();
-      }
+      },
     });
   };
 
@@ -163,27 +177,27 @@ export default class Index extends React.Component {
   handleTransfer = () => {
     const { transfer } = this.state;
     this.props.dispatch({
-      type: "appControl/putTransfer",
+      type: 'appControl/putTransfer',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == "inner" ? "outer" : "inner"
+        scope: transfer.scope == 'inner' ? 'outer' : 'inner',
       },
       callback: res => {
         this.cancelTransfer();
         if (res && res._code == 200) {
-          notification.success({ message: "操作成功" });
+          notification.success({ message: '操作成功' });
           this.fetchOuterEnvs();
         }
-      }
+      },
     });
   };
 
   onServiceInfoPageChange = page => {
     this.setState(
       {
-        page
+        page,
       },
       () => {
         this.fetchOuterEnvs();
@@ -191,74 +205,101 @@ export default class Index extends React.Component {
     );
   };
 
+  AfterPassword = (isHidden, ID) => {
+    const passwordShow = globalUtil.fetchSvg('passwordShow');
+    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
+    return (
+      <span
+        onClick={() => {
+          this.handlePassword(isHidden, ID);
+        }}
+      >
+        {isHidden ? passwordHidden : passwordShow}
+      </span>
+    );
+  };
+  handlePassword = (isHidden, ID) => {
+    const { isAttrNameList } = this.state;
+    const arr = isAttrNameList;
+    if (isHidden) {
+      const index = arr.indexOf(ID);
+      arr.splice(index, 1);
+    } else {
+      arr.push(ID);
+    }
+    this.setState({
+      isAttrNameList: arr,
+    });
+  };
+
   render() {
-    const { page, page_size, total } = this.state;
+    const { page, page_size, total, isAttrNameList } = this.state;
     const { outerEnvs } = this.props;
+    const wraps = {
+      wordBreak: 'break-all',
+      wordWrap: 'break-word',
+    };
+
     return (
       <Fragment>
         <Card
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           title="组件连接信息"
         >
           <ScrollerX sm={600}>
             <Table
-              style={{ width: "100%", overflowX: "auto" }}
+              style={{ width: '100%', overflowX: 'auto' }}
               columns={[
                 {
-                  title: "变量名",
-                  dataIndex: "attr_name",
-                  key: "1",
-                  width: "30%",
+                  title: '变量名',
+                  dataIndex: 'attr_name',
+                  key: '1',
+                  width: '30%',
                   render: v => (
-                    <div
-                      style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}
-                    >
-                      {v}
-                    </div>
-                  )
+                    <Tooltip title={v}>
+                      <div style={wraps}>{v}</div>
+                    </Tooltip>
+                  ),
                 },
                 {
-                  title: "变量值",
-                  dataIndex: "attr_value",
-                  key: "2",
-                  width: "30%",
-                  render: v => (
-                    <div
-                      style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}
-                    >
-                      {v}
-                    </div>
-                  )
+                  title: '变量值',
+                  dataIndex: 'attr_value',
+                  key: '2',
+                  width: '30%',
+                  render: (v, item) => {
+                    const isHidden = isAttrNameList.includes(item.ID);
+                    return (
+                      <div style={wraps} key={v}>
+                        <Tooltip title={!isHidden && v}>
+                          <Input
+                            addonAfter={this.AfterPassword(isHidden, item.ID)}
+                            type={isHidden ? 'password' : 'text'}
+                            className={styles.hiddeninput}
+                            value={v}
+                          />
+                        </Tooltip>
+                      </div>
+                    );
+                  },
                 },
                 {
-                  title: "说明",
-                  dataIndex: "name",
-                  key: "3",
-                  width: "25%",
+                  title: '说明',
+                  dataIndex: 'name',
+                  key: '3',
+                  width: '25%',
                   render: v => (
-                    <div
-                      style={{
-                        wordBreak: "break-all",
-                        wordWrap: "break-word"
-                      }}
-                    >
-                      {v}
-                    </div>
-                  )
+                    <Tooltip title={v}>
+                      <div style={wraps}>{v}</div>
+                    </Tooltip>
+                  ),
                 },
                 {
-                  title: "操作",
-                  dataIndex: "action",
-                  key: "4",
-                  width: "15%",
+                  title: '操作',
+                  dataIndex: 'action',
+                  key: '4',
+                  width: '15%',
                   render: (v, data) => (
                     <Fragment>
                       <a
@@ -291,25 +332,25 @@ export default class Index extends React.Component {
                           修改
                         </a>
                       ) : (
-                        ""
+                        ''
                       )}
                     </Fragment>
-                  )
-                }
+                  ),
+                },
               ]}
               pagination={{
                 current: page,
                 pageSize: page_size,
                 total,
-                onChange: this.onServiceInfoPageChange
+                onChange: this.onServiceInfoPageChange,
               }}
               dataSource={outerEnvs}
             />
           </ScrollerX>
           <div
             style={{
-              textAlign: "right",
-              paddingTop: 20
+              textAlign: 'right',
+              paddingTop: 20,
             }}
           >
             <Button onClick={this.handleAddVar}>
