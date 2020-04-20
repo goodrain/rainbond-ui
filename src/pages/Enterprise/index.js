@@ -1,33 +1,12 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Empty, Icon, notification, Pagination, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import {
-  Card,
-  notification,
-  Button,
-  Icon,
-  Col,
-  Row,
-  Tooltip,
-  Empty,
-  Affix,
-  Pagination,
-} from 'antd';
-
-import styles from '../List/BasicList.less';
-import userUtil from '../../utils/user';
-import cookie from '../../utils/cookie';
-import Convenient from '../../components/Convenient';
-import JoinTeam from '../../components/JoinTeam';
-import Consulting from '../../components/Consulting';
-import CreateTeam from '../../components/CreateTeam';
-import Meiqia from '../../layouts/Meiqia';
-import ConfirmModal from '../../components/ConfirmModal';
-import { Pie } from '../../components/Charts';
+import { Link, routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
 import AddTeam from '../../../public/images/addTeam.png';
-import CustomerService from '../../../public/images/CustomerService.png';
+import Arrow from '../../../public/images/arrow.png';
 import Cpus from '../../../public/images/cpus.png';
 import CreationTeam from '../../../public/images/creationTeam.png';
+import CustomerService from '../../../public/images/CustomerService.png';
 import Element from '../../../public/images/element.png';
 import EnterpriseBj from '../../../public/images/enterpriseBj.png';
 import EnterpriseInfo from '../../../public/images/enterpriseInfo.png';
@@ -36,12 +15,22 @@ import Records from '../../../public/images/records.png';
 import Team from '../../../public/images/team.png';
 import TeamCrew from '../../../public/images/teamCrew.png';
 import User from '../../../public/images/user.png';
-import Arrow from '../../../public/images/arrow.png';
+import { Pie } from '../../components/Charts';
+import ConfirmModal from '../../components/ConfirmModal';
+import Consulting from '../../components/Consulting';
+import Convenient from '../../components/Convenient';
+import CreateTeam from '../../components/CreateTeam';
+import JoinTeam from '../../components/JoinTeam';
+import Meiqia from '../../layouts/Meiqia';
+import cookie from '../../utils/cookie';
+import userUtil from '../../utils/user';
+import styles from '../List/BasicList.less';
 
-@connect(({ user, global, index }) => ({
+@connect(({ user, global, index, order }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   overviewInfo: index.overviewInfo,
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -379,7 +368,7 @@ export default class Enterprise extends PureComponent {
       ...teamBox,
       ...{ height: '68px', padding: '24px', cursor: 'pointer' },
     };
-    const { rainbondInfo } = this.props;
+    const { rainbondInfo, enterpriseServiceInfo } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -515,7 +504,7 @@ export default class Enterprise extends PureComponent {
 
               {enterpriseInfo && (
                 <div className={styles.enterpriseName}>
-                  企业名称：{enterpriseInfo.enterprise_alias}
+                  企业名称：{enterpriseInfo.enterprise_alias}({(enterpriseServiceInfo && enterpriseServiceInfo.type === 'vip') ? "付费用户":"免费用户"})
                 </div>
               )}
               {enterpriseInfo && (
@@ -540,17 +529,20 @@ export default class Enterprise extends PureComponent {
                   </p>
                 </div>
               )}
-              <div className={styles.btns}>
-                <Button type="primary" onClick={this.handelObtain}>
-                  开源社区
-                </Button>
-                <Button
-                  className={styles.buttonBjNot}
-                  onClick={this.handelConsulting}
-                >
-                  获取商业解决方案
-                </Button>
-              </div>
+              {(!enterpriseServiceInfo ||
+                enterpriseServiceInfo.type != 'vip') && (
+                <div className={styles.btns}>
+                  <Button type="primary" onClick={this.handelObtain}>
+                    开源社区
+                  </Button>
+                  <Button
+                    className={styles.buttonBjNot}
+                    onClick={this.handelConsulting}
+                  >
+                    获取商业解决方案
+                  </Button>
+                </div>
+              )}
             </div>
             <div>
               <img src={EnterpriseBj} alt="" style={{ marginRight: '54px' }} />
@@ -918,7 +910,14 @@ export default class Enterprise extends PureComponent {
                           <li>
                             <img src={Records} alt="" />
                           </li>
-                          <li>{overviewMonitorInfo.total_regions}</li>
+                          <li>
+                            <Link
+                              style={colors}
+                              to={`/enterprise/${eid}/clusters`}
+                            >
+                              {overviewMonitorInfo.total_regions || 0}
+                            </Link>
+                          </li>
                           <li>集群数量</li>
                           <li>——</li>
                         </ul>
@@ -1119,14 +1118,14 @@ export default class Enterprise extends PureComponent {
           rainbondInfo.is_public &&
           rainbondInfo.is_public.enable && (
             <div className={styles.customerService}>
-              <Meiqia/>
-                <div
-                  onClick={() => {
-                    _MEIQIA && _MEIQIA('showPanel');
-                  }}
-                >
-                  <img src={CustomerService} alt="" />
-                </div>
+              <Meiqia />
+              <div
+                onClick={() => {
+                  _MEIQIA && _MEIQIA('showPanel');
+                }}
+              >
+                <img src={CustomerService} alt="" />
+              </div>
             </div>
           )}
         {showAddTeam && (
