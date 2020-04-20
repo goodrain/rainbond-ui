@@ -1,13 +1,13 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Row } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Button, Row, Col, Card } from 'antd';
-import styles from '../../index.less';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
 import Phoneimg from '../../../../../public/images/phone.png';
 import weChatimg from '../../../../../public/images/weChat.jpeg';
 import ordersUtil from '../../../../utils/orders';
+import styles from '../../index.less';
 
-import moment from 'moment';
 
 @connect(({ order }) => ({
   enterpriseServiceInfo: order.enterpriseServiceInfo,
@@ -43,7 +43,7 @@ export default class ServiceOverview extends PureComponent {
     const { eid, enterpriseServiceInfo } = this.props;
     const free = enterpriseServiceInfo && enterpriseServiceInfo.type === 'free';
     const version = free ? '免费版' : '付费版';
-    const versionName = free ? 'RAINBOND ONLINE' : 'RAINBOND CLOUD';
+    const versionName = 'RAINBOND CLOUD';
     const service = free ? '免费服务' : '付费服务';
     return (
       <div>
