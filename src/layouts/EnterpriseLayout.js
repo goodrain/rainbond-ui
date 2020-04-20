@@ -229,7 +229,6 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
           this.fetchEnterpriseInfo(eid);
-          this.loadClusters(eid)
           this.setState({ enterpriseInfo: item });
         }
       });
@@ -242,6 +241,7 @@ class EnterpriseLayout extends PureComponent {
     }
     const { dispatch } = this.props;
     this.fetchEnterpriseService(eid);
+    this.loadClusters(eid)
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
