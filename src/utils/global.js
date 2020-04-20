@@ -119,12 +119,7 @@ const global = {
     return statusColorMap[status] || statusColorMap.unknow;
   },
   confirmEnding(str, target) {
-    const start = str.length - target.length;
-    const arr = str.substr(start, target.length);
-    if (arr == target) {
-      return true;
-    }
-    return false;
+    return str.indexOf(target) > -1 || str.indexOf(target.toLowerCase()) > -1;
   },
   fetchSvg(type, color) {
     const svgType = {
@@ -654,7 +649,9 @@ const global = {
 
     let result = '';
     if (days && days > 7) {
-      result = moment(date).locale('zh-cn').format('YYYY-MM-DD');
+      result = moment(date)
+        .locale('zh-cn')
+        .format('YYYY-MM-DD');
     } else if (days && days >= 1 && days < 7) {
       result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
