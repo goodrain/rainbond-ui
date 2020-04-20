@@ -152,7 +152,6 @@ export default class GlobalHeader extends PureComponent {
     const {
       currentUser,
       customHeader,
-      isPubCloud,
       rainbondInfo,
       collapsed,
       enterprise,
@@ -215,8 +214,6 @@ export default class GlobalHeader extends PureComponent {
             })}
 
           <div className={styles.uesrInfoTitle}>账号设置：</div>
-
-          {!isPubCloud && (
             <Menu.Item key="cpw">
               <div className={styles.userInfoContent}>
                 <Icon
@@ -228,7 +225,6 @@ export default class GlobalHeader extends PureComponent {
                 修改密码{' '}
               </div>
             </Menu.Item>
-          )}
           <Menu.Item key="logout">
             <div className={styles.userInfoContent}>
               <Icon

@@ -285,6 +285,7 @@ export default class SiderMenu extends PureComponent {
         collapsedWidth={300}
         className={styles.sider}
       >
+      <div className={styles.siderLeft}>
         <CollectionView
           title={formatMessage({ id: 'sidecar.collection.add' })}
           visible={collectionVisible}
@@ -396,6 +397,7 @@ export default class SiderMenu extends PureComponent {
               );
             })}
         </div>
+      </div>
       </Sider>
     );
   }

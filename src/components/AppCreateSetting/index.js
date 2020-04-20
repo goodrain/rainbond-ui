@@ -21,6 +21,7 @@ import globalUtil from "../../utils/global";
 import { Link } from "dva/router";
 import CodeBuildConfig from "../CodeBuildConfig";
 import styles from "./setting.less";
+import styless from "../../pages/Component/Index.less";
 import Port from "../../components/Port";
 import {
   getMnt,
@@ -864,7 +865,8 @@ class Env extends PureComponent {
       page: 1,
       page_size: 5,
       total: 0,
-      env_name: ""
+      env_name: "",
+      isAttrNameList: [],
     };
   }
   componentDidMount() {
@@ -883,12 +885,22 @@ class Env extends PureComponent {
         env_name
       },
       callback: res => {
-        if (res) {
-          this.setState({
-            innerEnvs: res.list || [],
-            total: res.bean.total
-          });
+        if (res && res._code == 200) {
+          const arr = [];
+          if (res.list && res.list.length > 0) {
+            res.list.map(item => {
+              const isHidden = globalUtil.confirmEnding(
+                `${item.attr_name}`,
+                '_PASS'
+              );
+              if (isHidden) {
+                arr.push(item.ID);
+              }
+            });
+          }
+          this.setState({ isAttrNameList: arr, total: res.bean.total , innerEnvs: res.list || [],});
         }
+
       }
     });
   };
@@ -969,9 +981,41 @@ class Env extends PureComponent {
       }
     );
   };
-
+  AfterPassword = (isHidden, ID) => {
+    const passwordShow = globalUtil.fetchSvg('passwordShow');
+    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
+    return (
+      <span
+        onClick={() => {
+          this.handlePassword(isHidden, ID);
+        }}
+      >
+        {isHidden ? passwordHidden : passwordShow}
+      </span>
+    );
+  };
+  handlePassword = (isHidden, ID) => {
+    const { isAttrNameList } = this.state;
+    const arr = isAttrNameList;
+    if (isHidden) {
+      const index = arr.indexOf(ID);
+      arr.splice(index, 1);
+    } else {
+      arr.push(ID);
+    }
+    this.setState({
+      isAttrNameList: arr,
+    });
+  };
+  shouldComponentUpdate(){
+    return true;
+  }
   render() {
-    const innerEnvs = this.state.innerEnvs;
+    const { innerEnvs,isAttrNameList} = this.state;
+    const wraps = {
+      wordBreak: 'break-all',
+      wordWrap: 'break-word',
+    };
     return (
       <Card
         title="环境变量"
@@ -987,29 +1031,28 @@ class Env extends PureComponent {
               key: "1",
               width: "30%",
               render: v =>
-                <div
-                  style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}
-                >
-                  {v}
-                </div>
+              <div style={wraps}>{v}</div>
             },
             {
               title: "变量值",
               dataIndex: "attr_value",
               key: "2",
               width: "30%",
-              render: v =>
-                <div
-                  style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}
-                >
-                  {v}
-                </div>
+              render: (v, item) => {
+                const isHidden = isAttrNameList.includes(item.ID);
+                return (
+                  <div style={wraps} key={v}>
+                    <Tooltip title={!isHidden && v}>
+                      <Input
+                        addonAfter={this.AfterPassword(isHidden, item.ID)}
+                        type={isHidden ? 'password' : 'text'}
+                        className={styless.hiddeninput}
+                        value={v}
+                      />
+                    </Tooltip>
+                  </div>
+                );
+              },
             },
             {
               title: "说明",
@@ -1017,14 +1060,7 @@ class Env extends PureComponent {
               key: "3",
               width: "25%",
               render: v =>
-                <div
-                  style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word"
-                  }}
-                >
-                  {v}
-                </div>
+              <div style={wraps}>{v}</div>
             },
             {
               title: "操作",
