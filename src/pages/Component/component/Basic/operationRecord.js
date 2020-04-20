@@ -1,13 +1,10 @@
-import React, { PureComponent } from "react";
-import { Icon, Form, Card, Row, Col, Tooltip, Modal } from "antd";
-import { connect } from "dva";
-import globalUtil from "../../../../utils/global";
-import dateUtil from "../../../../utils/date-util";
-import appAcionLogUtil from "../../../../utils/app-action-log-util";
-
-import LogShow from "../LogShow";
-import styles from "./operation.less";
-import { relative } from "path";
+import React, { PureComponent } from 'react';
+import { Icon, Form, Card, Row, Col, Tooltip, Modal } from 'antd';
+import { connect } from 'dva';
+import globalUtil from '../../../../utils/global';
+import moment from 'moment';
+import LogShow from '../LogShow';
+import styles from './operation.less';
 
 @connect()
 @Form.create()
@@ -16,10 +13,10 @@ class Index extends PureComponent {
     super(arg);
     this.state = {
       logVisible: false,
-      content: "",
-      showHighlighted: "",
-      selectEventID: "",
-      showSocket: false
+      content: '',
+      showHighlighted: '',
+      selectEventID: '',
+      showSocket: false,
     };
   }
   componentDidMount() {}
@@ -36,20 +33,20 @@ class Index extends PureComponent {
     this.setState({
       logVisible: true,
       selectEventID: EventID,
-      showSocket: showSocket
+      showSocket,
     });
   };
 
   handleCancel = e => {
     this.setState({
-      logVisible: false
+      logVisible: false,
     });
   };
 
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket } = this.state;
-    const logsvg = globalUtil.fetchSvg("logs", "#cccccc");
+    const logsvg = globalUtil.fetchSvg('logs', '#cccccc');
     return (
       <Card bordered={false} title="操作记录" loading={recordLoading}>
         <Row gutter={24}>
@@ -65,42 +62,49 @@ class Index extends PureComponent {
                   EndTime,
                   SynType,
                   EventID,
-                  create_time
+                  create_time,
                 } = item;
-                let UserNames =
-                  UserName == "system"
-                    ? "@系统"
+                const UserNames =
+                  UserName == 'system'
+                    ? '@系统'
                     : UserName
                     ? `@${UserName}`
-                    : "";
-                let Messages =
-                  Status !== "success" &&
+                    : '';
+                const Messages =
+                  Status !== 'success' &&
                   globalUtil.fetchAbnormalcolor(OptType) ===
-                    "rgba(0,0,0,0.65)" &&
+                    'rgba(0,0,0,0.65)' &&
                   Message;
                 return (
                   <div
                     key={EventID}
                     className={`${styles.loginfo} ${
-                      Status === "success"
+                      Status === 'success'
                         ? styles.logpassed
-                        : Status === "timeout"
+                        : Status === 'timeout'
                         ? styles.logcanceled
-                        : Status === "failure"
+                        : Status === 'failure'
                         ? styles.logfailed
                         : styles.logfored
                     }`}
                   >
-                    <div
-                      style={{ wordBreak: "break-word", lineHeight: "17px" }}
+                    <Tooltip
+                      title={moment(create_time)
+                        .locale('zh-cn')
+                        .format('YYYY-MM-DD HH:mm:ss')}
                     >
-                      {globalUtil.fetchdayTime(create_time)}
-                    </div>
+                      <div
+                        style={{ wordBreak: 'break-word', lineHeight: '17px' }}
+                      >
+                        {globalUtil.fetchdayTime(create_time)}
+                      </div>
+                    </Tooltip>
+
                     <div>
                       <Tooltip title={Messages}>
                         <span
                           style={{
-                            color: globalUtil.fetchAbnormalcolor(OptType)
+                            color: globalUtil.fetchAbnormalcolor(OptType),
                           }}
                         >
                           {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
@@ -116,52 +120,44 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div>
-                      <span
-                        className={styles.alcen}
-                      >
+                      <span className={styles.alcen}>
                         {EndTime &&
                           create_time &&
-                          globalUtil.fetchSvg("runTime")}
+                          globalUtil.fetchSvg('runTime')}
                         <span>
                           {EndTime && create_time
                             ? globalUtil.fetchTime(
                                 new Date(EndTime).getTime()
                                   ? new Date(EndTime).getTime() -
                                       new Date(create_time).getTime()
-                                  : ""
+                                  : ''
                               )
-                            : ""}
+                            : ''}
                         </span>
                       </span>
                     </div>
-                    <div style={{position:'relative'}}>
+                    <div style={{ position: 'relative' }}>
                       {isopenLog &&
-                        FinalStatus === "" &&
+                        FinalStatus === '' &&
                         OptType &&
-                        OptType.indexOf("build") > -1 &&
+                        OptType.indexOf('build') > -1 &&
                         EventID &&
-                        this.showLogModal(
-                          EventID,
-                          FinalStatus == "" ? true : false
-                        )}
+                        this.showLogModal(EventID, FinalStatus == '')}
                       {SynType == 0 && (
                         <Tooltip
-                          visible={FinalStatus == "" ? true : false}
+                          visible={FinalStatus == ''}
                           placement="top"
-                          arrowPointAtCenter={true}
+                          arrowPointAtCenter
                           autoAdjustOverflow={false}
                           title="查看日志"
-                          style={{position:"absolute",left:"0",top:"0"}}
+                          style={{ position: 'absolute', left: '0', top: '0' }}
                         >
                           <div
                             style={{
-                              width: "16px"
+                              width: '16px',
                             }}
                             onClick={() => {
-                              this.showLogModal(
-                                EventID,
-                                FinalStatus == "" ? true : false
-                              );
+                              this.showLogModal(EventID, FinalStatus == '');
                             }}
                           >
                             {logsvg}
@@ -177,9 +173,9 @@ class Index extends PureComponent {
               (logList && logList.length === 0 && (
                 <div
                   style={{
-                    background: "#fff",
-                    paddingBottom: "10px",
-                    textAlign: "center"
+                    background: '#fff',
+                    paddingBottom: '10px',
+                    textAlign: 'center',
                   }}
                 >
                   暂无操作记录
@@ -188,13 +184,13 @@ class Index extends PureComponent {
             {has_next && (
               <p
                 style={{
-                  textAlign: "center",
-                  fontSize: 30
+                  textAlign: 'center',
+                  fontSize: 30,
                 }}
               >
                 <Icon
                   style={{
-                    cursor: "pointer"
+                    cursor: 'pointer',
                   }}
                   onClick={this.props.handleNextPage}
                   type="down"
@@ -205,13 +201,13 @@ class Index extends PureComponent {
         </Row>
         {logVisible && (
           <Modal
-            title={"日志"}
+            title="日志"
             className={styles.logModal}
             onCancel={this.handleCancel}
-            visible={true}
+            visible
             maskClosable={false}
             width="1000px"
-            bodyStyle={{ background: "#222222", color: "#fff" }}
+            bodyStyle={{ background: '#222222', color: '#fff' }}
             footer={null}
           >
             <LogShow
