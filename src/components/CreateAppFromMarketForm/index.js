@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Form, Button, Select, Modal, Tooltip, Radio } from 'antd';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
+import styles from '../CreateTeam/index.less';
 
 const { Option } = Select;
 const formItemLayout = {
@@ -106,6 +107,7 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
+        className={styles.TelescopicModal}
         visible={showCreate}
         onCancel={onCancel}
         onOk={this.handleSubmit}
@@ -115,6 +117,7 @@ export default class Index extends PureComponent {
           <Button
             onClick={this.handleSubmit}
             type="primary"
+            style={{marginRight:'5px'}}
             disabled={this.props.disabled}
           >
             安装
@@ -180,6 +183,7 @@ export default class Index extends PureComponent {
               ],
             })(
               <Select
+                placeholder='请选择应用'
                 style={{
                   display: 'inline-block',
                   width: 220,
