@@ -95,7 +95,7 @@ export default class Index extends React.Component {
             res.list.map(item => {
               const isHidden = globalUtil.confirmEnding(
                 `${item.attr_name}`,
-                '_PASS'
+                'PASS'
               );
               if (isHidden) {
                 arr.push(item.ID);
@@ -270,15 +270,23 @@ export default class Index extends React.Component {
                   width: '30%',
                   render: (v, item) => {
                     const isHidden = isAttrNameList.includes(item.ID);
+                    const isInput = globalUtil.confirmEnding(
+                      `${item.attr_name}`,
+                      'PASS'
+                    );
                     return (
                       <div style={wraps} key={v}>
-                        <Tooltip title={!isHidden && v}>
-                          <Input
-                            addonAfter={this.AfterPassword(isHidden, item.ID)}
-                            type={isHidden ? 'password' : 'text'}
-                            className={styles.hiddeninput}
-                            value={v}
-                          />
+                        <Tooltip title={!isInput ? v : !isHidden && v}>
+                          {isInput ? (
+                            <Input
+                              addonAfter={this.AfterPassword(isHidden, item.ID)}
+                              type={isHidden ? 'password' : 'text'}
+                              className={styles.hiddeninput}
+                              value={v}
+                            />
+                          ) : (
+                            <div style={wraps}>{v}</div>
+                          )}
                         </Tooltip>
                       </div>
                     );
