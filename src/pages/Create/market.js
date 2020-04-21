@@ -25,6 +25,7 @@ import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import PluginStyles from '../Plugin/Index.less';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import styles from '../../components/CreateTeam/index.less';
 
 const Option = Select.Option;
 const { TabPane } = Tabs;
@@ -67,7 +68,7 @@ export default class Main extends PureComponent {
       cloudPageSize: 9,
       cloudTotal: 0,
       showCreate: null,
-      scope: '',
+      scope: this.props.scope || '',
       scopeMax:
         this.props.scopeMax ||
         (rainbondUtil.cloudMarketEnable(this.props.enterprise)
@@ -628,6 +629,29 @@ export default class Main extends PureComponent {
     console.log(key);
   };
 
+  handleTabs = (tabList,cardList) => {
+    return (
+      <Tabs
+        defaultActiveKey=""
+        onChange={this.handleTabChange}
+        style={{ background: '#fff', padding: '20px ' }}
+      >
+        {tabList.map(item => {
+          const { key, tab } = item;
+          return (
+            <TabPane tab={tab} key={key}>
+              <div
+                className={PluginStyles.cardList}
+                style={{ paddingBottom: '20px' }}
+              >
+                {cardList}
+              </div>
+            </TabPane>
+          );
+        })}
+      </Tabs>
+    );
+  };
   render() {
     const {
       form,
@@ -799,7 +823,7 @@ export default class Main extends PureComponent {
       </div>
     );
 
-    const tabList = [
+    const tabAllList = [
       {
         key: '',
         tab: '全部',
@@ -808,6 +832,8 @@ export default class Main extends PureComponent {
         key: 'goodrain',
         tab: '云端下载',
       },
+    ];
+    const tabComponentList = [
       {
         key: 'enterprise',
         tab: '公司分享',
@@ -817,7 +843,7 @@ export default class Main extends PureComponent {
         tab: '团队分享',
       },
     ];
-
+    const tabList = tabAllList.concat(tabComponentList);
     const tabListMax = [
       {
         key: 'localApplication',
@@ -840,6 +866,18 @@ export default class Main extends PureComponent {
       currentRegionName
     );
     breadcrumbList.push({ title: '创建组件' });
+
+    const SpinBox = (
+      <div
+        style={{
+          height: '300px',
+          lineHeight: '300px',
+          textAlign: 'center',
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
     return (
       <div>
         {this.state.showCreate && (
@@ -857,6 +895,14 @@ export default class Main extends PureComponent {
           />
         )}
 
+        {this.state.showMarketAppDetail && (
+          <MarketAppDetailShow
+            onOk={this.hideMarketAppDetail}
+            onCancel={this.hideMarketAppDetail}
+            app={this.state.showApp}
+          />
+        )}
+
         {handleType ? (
           <div>
             {!moreState && mainSearch}
@@ -867,7 +913,7 @@ export default class Main extends PureComponent {
               }}
               className={PluginStyles.cardList}
             >
-              {cardList}
+              {this.handleTabs(tabComponentList,cardList)}
             </div>
             {moreState && list && list.length > 0 && (
               <div
@@ -888,6 +934,7 @@ export default class Main extends PureComponent {
             {installBounced && (
               <Modal
                 title="确认要安装此应用作为你的组件么？"
+                className={styles.TelescopicModal}
                 visible={installBounced}
                 onOk={this.handleInstallBounced}
                 onCancel={() => {
@@ -965,13 +1012,6 @@ export default class Main extends PureComponent {
                 </Form>
               </Modal>
             )}
-            {this.state.showMarketAppDetail && (
-              <MarketAppDetailShow
-                onOk={this.hideMarketAppDetail}
-                onCancel={this.hideMarketAppDetail}
-                app={this.state.showApp}
-              />
-            )}
           </div>
         ) : (
           <div>
@@ -985,57 +1025,15 @@ export default class Main extends PureComponent {
               {scopeMax == 'localApplication' ? (
                 <div>
                   {isSpinList ? (
-                    <div
-                      style={{
-                        height: '300px',
-                        lineHeight: '300px',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Spin size="large" />
-                    </div>
+                    SpinBox
                   ) : (
-                    <Tabs
-                      defaultActiveKey=""
-                      onChange={this.handleTabChange}
-                      style={{ background: '#fff', padding: '20px ' }}
-                    >
-                      {tabList.map(item => {
-                        const { key, tab } = item;
-                        return (
-                          <TabPane tab={tab} key={key}>
-                            <div
-                              className={PluginStyles.cardList}
-                              style={{ paddingBottom: '20px' }}
-                            >
-                              {cardList}
-                            </div>
-
-                            {this.state.showMarketAppDetail && (
-                              <MarketAppDetailShow
-                                onOk={this.hideMarketAppDetail}
-                                onCancel={this.hideMarketAppDetail}
-                                app={this.state.showApp}
-                              />
-                            )}
-                          </TabPane>
-                        );
-                      })}
-                    </Tabs>
+                    this.handleTabs(tabList,cardList)
                   )}
                 </div>
               ) : (
                 <div>
                   {isSpincloudList && isSpincloudList !== -1 ? (
-                    <div
-                      style={{
-                        height: '300px',
-                        lineHeight: '300px',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Spin size="large" />
-                    </div>
+                    SpinBox
                   ) : (
                     <div>
                       <div
@@ -1051,13 +1049,6 @@ export default class Main extends PureComponent {
                           />
                         )}
                       </div>
-                      {this.state.showMarketAppDetail && (
-                        <MarketAppDetailShow
-                          onOk={this.hideMarketAppDetail}
-                          onCancel={this.hideMarketAppDetail}
-                          app={this.state.showApp}
-                        />
-                      )}
                     </div>
                   )}
                 </div>
