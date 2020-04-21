@@ -909,7 +909,6 @@ export default class Main extends PureComponent {
             <div
               style={{
                 marginBottom: !moreState ? '40px' : '0px',
-                marginTop: !moreState ? '20px' : '',
               }}
               className={PluginStyles.cardList}
             >
