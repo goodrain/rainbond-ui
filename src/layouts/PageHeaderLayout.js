@@ -10,11 +10,24 @@ export default ({ children, wrapperClassName, top, ...restProps }) => (
    <PageHeader key="pageheader" {...restProps} linkElement={Link} />
     {children ? <div className={styles.content}>{children}</div> : null}
    <DefaultFooter 
-      copyright="2020 北京好雨科技有限公司出品"
+      copyright="© 2020 北京好雨科技有限公司"
       links={[
         {
-          key: 'Rainbond Cloud',
-          title: 'Rainbond Cloud',
+          key: 'price',
+          href: 'https://goodrain.goodrain.com/page/price',
+          title: '价格',
+          blankTarget: true,
+        },
+        {
+          key: 'agreement',
+          href: 'https://goodrain.goodrain.com/page/agreement',
+          title: '服务条款',
+          blankTarget: true,
+        },
+        {
+          key: 'sla',
+          href: 'https://goodrain.goodrain.com/page/sla',
+          title: '服务SLA',
           blankTarget: true,
         },
       ]}

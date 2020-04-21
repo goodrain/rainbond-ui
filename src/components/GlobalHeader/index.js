@@ -1,28 +1,16 @@
-import React, { PureComponent } from 'react';
-import {
-  Layout,
-  Menu,
-  Icon,
-  Spin,
-  Button,
-  Dropdown,
-  Avatar,
-  Divider,
-  Tooltip,
-  Modal,
-} from 'antd';
+import { Avatar, Button, Dropdown, Icon, Layout, Menu, Spin, Tooltip } from 'antd';
 import { connect } from 'dva';
-import ChangePassword from '../ChangePassword';
-import moment from 'moment';
-import groupBy from 'lodash/groupBy';
+import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
-import { Link, routerRedux } from 'dva/router';
-import cookie from '../../utils/cookie';
-import styles from './index.less';
-import oauthUtil from '../../utils/oauth';
+import groupBy from 'lodash/groupBy';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
 import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
+import ChangePassword from '../ChangePassword';
+import styles from './index.less';
 
 const { Header } = Layout;
 
@@ -260,7 +248,7 @@ export default class GlobalHeader extends PureComponent {
                 target="_blank"
                 href={`${rainbondUtil.documentPlatform_url(
                   rainbondInfo
-                )}docs/user-manual/`}
+                )}docs/`}
                 rel="noopener noreferrer"
                 className={styles.action}
               >
