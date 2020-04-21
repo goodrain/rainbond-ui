@@ -368,6 +368,7 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
                 <Row>
                   <Market
+                    scope="enterprise"
                     handleType="Service"
                     scopeMax="localApplication"
                     refreshCurrent={() => {
