@@ -1,32 +1,17 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Dropdown, Empty, Icon, Input, Menu, notification, Pagination, Row, Spin, Tabs } from 'antd';
 import { connect } from 'dva';
-import {
-  Card,
-  Button,
-  Col,
-  Row,
-  Menu,
-  Dropdown,
-  Icon,
-  Spin,
-  Tabs,
-  Input,
-  notification,
-  Pagination,
-  Empty,
-} from 'antd';
 import { routerRedux } from 'dva/router';
-import DataCenterImg from '../../../public/images/dataCenter.png';
+import React, { PureComponent } from 'react';
 import WarningImg from '../../../public/images/warning.png';
-import userUtil from '../../utils/user';
-import roleUtil from '../../utils/role';
-
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CreateTeam from '../../components/CreateTeam';
 import ConfirmModal from '../../components/ConfirmModal';
+import CreateTeam from '../../components/CreateTeam';
 import JoinTeam from '../../components/JoinTeam';
-
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import roleUtil from '../../utils/role';
+import userUtil from '../../utils/user';
 import styles from './index.less';
+
+
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -639,7 +624,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Col span={12}>集群</Col>
           </Row>
         )}
-        {!userTeam && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+        {!userTeam && <Empty description="暂无团队，请点击创建团队进行创建" image={Empty.PRESENTED_IMAGE_SIMPLE} />}
         {userTeam &&
           userTeam.map(item => {
             const {

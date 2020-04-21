@@ -287,12 +287,12 @@ export default class EnterpriseClusters extends PureComponent {
               </li>
               <li>
                 <span>
-                  如果对接已存在的Kubernetes集群，我们会按需购买RDS(1个)，NAS(1个)，EIP(1个)，预计每小时费用0.5元
+                  如果对接已存在的Kubernetes集群，对集群已有业务不影响，另外会按需购买RDS(1个)，NAS(1个)，EIP(1个)，预计每小时费用<b>0.5</b>元
                 </span>
               </li>
               <li>
                 <span>
-                  如果新购买Kubernetes集群，我们会按需创建购买Kubernetes托管集群(1个)，RDS(1个)，NAS(1个)，EIP(1个)，预计每小时费用2.5元
+                  如果新购买Kubernetes集群，我们会按需创建购买Kubernetes托管集群(1个)，RDS(1个)，NAS(1个)，EIP(1个)，预计每小时费用<b>2.5</b>元
                 </span>
               </li>
             </ul>
@@ -571,8 +571,8 @@ export default class EnterpriseClusters extends PureComponent {
           )}
           {currentStep == 1 && !showBuyClusterConfig && (
             <Row style={{ marginTop: '32px' }}>
-              {k8sClusters.length > 0 && <h4>选择已有集群</h4>}
-              {k8sClusters.length > 0 ? (
+              {k8sClusters && k8sClusters.length > 0 && <h4>选择已有集群</h4>}
+              {k8sClusters && k8sClusters.length > 0 ? (
                 <KubernetesTableShow
                   eid={eid}
                   loadKubernetesCluster={this.loadKubernetesCluster}
