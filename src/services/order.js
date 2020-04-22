@@ -14,12 +14,9 @@ export async function queryEnterpriseService(body = {}) {
 /* 刷新企业服务信息 */
 export async function queryEnterpriseServiceRefresh(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/proxy/enterprise-server/enterprise/sync`,
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/api/v1/enterprises/${body.enterprise_id}/sync`,
     {
-      method: 'get',
-      params: {
-        eid: body.enterprise_id,
-      }
+      method: 'post',
     }
   );
 }
