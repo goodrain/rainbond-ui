@@ -4,6 +4,7 @@ import {
   queryEnterpriseOrderDetails,
   queryBankInfo,
   CreateOrder,
+  queryEnterpriseServiceRefresh,
 } from '../services/order';
 
 export default {
@@ -22,6 +23,12 @@ export default {
           payload: response.bean,
         });
         callback && callback(response);
+      }
+    },
+    *fetchEnterpriseServiceRefresh({ payload, callback, handleError }, { call }) {
+      const response = yield call(queryEnterpriseServiceRefresh, payload, handleError);
+      if (response && callback) {
+        callback(response);
       }
     },
     *createOrder({ payload, callback, handleError }, { call }) {
