@@ -9,7 +9,6 @@ import {
   Dropdown,
   Icon,
   Spin,
-  Popconfirm,
   notification,
   Tabs,
   Switch,
@@ -38,7 +37,7 @@ import OauthForm from '../../components/OauthForm';
 export default class EnterpriseSetting extends PureComponent {
   constructor(props) {
     super(props);
-    const { user, rainbondInfo,enterprise } = this.props;
+    const { user, rainbondInfo, enterprise } = this.props;
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -48,10 +47,6 @@ export default class EnterpriseSetting extends PureComponent {
       enterpriseAdminLoading: false,
       adminer,
       showDelTeam: false,
-      openOauth: false,
-      oauthInfo: false,
-      oauthTable: [],
-      isOpen: false,
       showDeleteDomain: false,
       israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise),
     };
@@ -61,72 +56,15 @@ export default class EnterpriseSetting extends PureComponent {
     const { adminer } = this.state;
     const { dispatch } = this.props;
     !adminer && dispatch(routerRedux.push(`/`));
-    adminer&&this.fetchEnterpriseInfo(true);
+    adminer && this.fetchEnterpriseInfo();
   }
   componentDidMount() {
-    const { dispatch, enterprise } = this.props;
+    const { dispatch } = this.props;
     this.getEnterpriseAdmins();
-
-    if (
-      // rainbondUtil.OauthbIsEnable(enterprise) ||
-      rainbondUtil.OauthEnterpriseEnable(enterprise)
-    ) {
-      this.handelOauthInfo();
-    }
-
     dispatch({
       type: 'global/getIsRegist',
     });
   }
-
-  handelOauthInfo = info => {
-    const {
-      dispatch,
-      enterprise,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
-
-    dispatch({
-      type: 'global/getOauthInfo',
-      payload: {
-        enterprise_id: eid,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          const judge = rainbondUtil.OauthEnterpriseEnable(info || enterprise);
-          const oauthEnable = rainbondUtil.OauthbIsEnableState(
-            info || enterprise
-          );
-          const lists = res.list && res.list.length > 0 && res.list;
-          this.setState({
-            oauthInfo: lists ? lists[0] : false,
-            oauthTable: lists || [],
-            isOpen: judge ? oauthEnable : false,
-          });
-        }
-      },
-    });
-  };
-
-  handleDeleteOauth = () => {
-    const { dispatch } = this.props;
-    const { oauthInfo } = this.state;
-    dispatch({
-      type: 'global/deleteOauthInfo',
-      payload: {
-        service_id: oauthInfo.service_id,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          notification.success({ message: '删除成功' });
-          window.location.reload();
-        }
-      },
-    });
-  };
-
   handleCreateAdmin = values => {
     const {
       dispatch,
@@ -211,8 +149,8 @@ export default class EnterpriseSetting extends PureComponent {
   };
 
   handlChooseeOpen = () => {
-    const { isOpen, israinbondTird } = this.state;
-    israinbondTird && isOpen ? this.handleOpenDomain() : this.handleOpen();
+    const { israinbondTird } = this.state;
+    israinbondTird ? this.handleOpenDomain() : this.handelIsOpen(true);
   };
 
   handleOpenDomain = () => {
@@ -221,87 +159,31 @@ export default class EnterpriseSetting extends PureComponent {
     });
   };
 
-  handleOpen = () => {
-    this.setState({
-      openOauth: true,
+  handelIsOpen = enable => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/editOauth',
+      payload: {
+        arr: { enable, value: null },
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          notification.success({
+            message: enable ? '开启Oauth2.0认证' : '关闭成功',
+          });
+          this.fetchEnterpriseInfo();
+        }
+      },
     });
   };
 
-  handleCreatOauth = values => {
-    let {
-      name,
-      client_id,
-      client_secret,
-      oauth_type,
-      home_url,
-      is_auto_login,
-      redirect_domain,
-    } = values;
-    oauth_type = oauth_type.toLowerCase();
-    if (oauth_type === 'github') {
-      home_url = 'https://github.com';
-    }
-    const obj = {
-      name,
-      client_id,
-      client_secret,
-      is_auto_login,
-      oauth_type,
-      redirect_uri: `${redirect_domain}/console/oauth/redirect`,
-      home_url,
-      is_console: true,
-    };
-    this.handelRequest(obj);
-  };
-
-  handelRequest = (obj = {}, isclone) => {
+  fetchEnterpriseInfo = () => {
     const {
       dispatch,
-      rainbondInfo,
       match: {
         params: { eid },
       },
     } = this.props;
-    const { oauthInfo } = this.state;
-    obj.eid = eid;
-    oauthInfo
-      ? (obj.service_id = oauthInfo.service_id)
-      : (obj.service_id = null);
-    isclone ? (obj.enable = false) : (obj.enable = true);
-
-    dispatch({
-      type: 'global/editOauth',
-      payload: {
-        arr: { enable: obj.enable, value: null },
-      },
-      callback: res => {
-        if (res && res._code === 200 && isclone) {
-          this.fetchEnterpriseInfo();
-        }
-      },
-    });
-
-    if (isclone) {
-      return null;
-    }
-    dispatch({
-      type: 'global/creatOauth',
-      payload: {
-        enterprise_id: eid,
-        arr: [obj],
-      },
-      callback: data => {
-        if (data && data._code === 200) {
-          this.fetchEnterpriseInfo();
-        }
-      },
-    });
-  };
-
-  fetchEnterpriseInfo = (isMeg) => {
-    const { dispatch,match: {
-      params: { eid },
-    }} = this.props;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -312,18 +194,15 @@ export default class EnterpriseSetting extends PureComponent {
           this.setState({
             israinbondTird: rainbondUtil.OauthEnterpriseEnable(info.bean),
           });
-          this.handelOauthInfo(info.bean);
         }
       },
     });
     dispatch({ type: 'user/fetchCurrent' });
-    !isMeg&&notification.success({ message: '成功' });
     this.handelClone();
   };
 
   handelClone = () => {
     this.setState({
-      openOauth: false,
       showDeleteDomain: false,
     });
   };
@@ -333,30 +212,18 @@ export default class EnterpriseSetting extends PureComponent {
       adminList,
       enterpriseAdminLoading,
       adminer,
-      oauthInfo,
-      isOpen,
-      openOauth,
       showDeleteDomain,
       israinbondTird,
-      oauthTable,
     } = this.state;
 
     const {
-      rainbondInfo,
       enterprise,
       oauthLongin,
-      isRegist,
       match: {
         params: { eid },
       },
     } = this.props;
-    // const oauth_services_is_sonsole = rainbondUtil.OauthbIsEnable(rainbondInfo);
-    const oauthEnable = rainbondUtil.OauthbIsEnableState(enterprise);
     const adminLists = adminList && adminList.length > 0 && adminList;
-
-
-
-
     const moreSvg = () => (
       <svg
         t="1581212425061"
@@ -437,7 +304,7 @@ export default class EnterpriseSetting extends PureComponent {
 
         {adminLists ? (
           adminLists.map(item => {
-            const { user_id, create_time, nick_name,real_name } = item;
+            const { user_id, create_time, nick_name, real_name } = item;
             return (
               <Card
                 key={user_id}
@@ -504,46 +371,12 @@ export default class EnterpriseSetting extends PureComponent {
           <Row type="flex" align="middle">
             <Col span={2}>Oauth互联</Col>
             <Col span={18}>
-              {oauthEnable && oauthInfo ? (
-                <span>
-                  已开通{oauthInfo.oauth_type}类型的第三方OAuth互联服务&nbsp;
-                  {oauthInfo.is_auto_login && ', 且已开启自动登录'}
-                </span>
-              ) : (
-                <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                  支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
-                </span>
-              )}
-              {/* {!oauth_services_is_sonsole && (
-                <span
-                  style={{
-                    color: 'rgba(0, 0, 0, 0.45)',
-                    marginLeft: '10px',
-                  }}
-                >
-                  管理后台配置了当前只能查看配置。
-                </span>
-              )} */}
+              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
+              </span>
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
-              {oauthInfo && (
-                <Popconfirm
-                  title="删除配置后已绑定的用户数据将清除，确认删除吗?"
-                  onConfirm={this.handleDeleteOauth}
-                  okText="确认"
-                  cancelText="我再想想"
-                >
-                  <a style={{ marginRight: '10px' }} href="#">
-                    移除配置
-                  </a>
-                </Popconfirm>
-              )}
-              {oauthEnable && israinbondTird  && (
-                <a onClick={this.handleOpen} style={{ marginRight: '10px' }}>
-                  编辑
-                </a>
-              )}
-              {/* {!oauth_services_is_sonsole && (
+              {israinbondTird && (
                 <a
                   onClick={() => {
                     this.setState({ showOauthTable: true });
@@ -552,14 +385,12 @@ export default class EnterpriseSetting extends PureComponent {
                 >
                   查看配置
                 </a>
-              )} */}
-              {/* {oauth_services_is_sonsole && ( */}
-                <Switch
-                  onChange={this.handlChooseeOpen}
-                  checked={israinbondTird && isOpen}
-                  className={styles.automaTictelescopingSwitch}
-                />
-              {/* )} */}
+              )}
+              <Switch
+                onChange={this.handlChooseeOpen}
+                checked={israinbondTird}
+                className={styles.automaTictelescopingSwitch}
+              />
             </Col>
           </Row>
         </Card>
@@ -573,7 +404,7 @@ export default class EnterpriseSetting extends PureComponent {
       >
         {this.state.showOauthTable && (
           <OauthTable
-            oauthTable={oauthTable}
+            eid={eid}
             onOk={() => {
               this.setState({ showOauthTable: false });
             }}
@@ -599,22 +430,13 @@ export default class EnterpriseSetting extends PureComponent {
           />
         )}
 
-        {openOauth && (
-          <OauthForm
-            loading={oauthLongin}
-            oauthInfo={oauthInfo}
-            onOk={this.handleCreatOauth}
-            onCancel={this.handelClone}
-          />
-        )}
-
         {showDeleteDomain && (
           <ConfirmModal
             loading={oauthLongin}
             title="关闭"
             desc="确定要关闭Oauth2.0认证？"
             onOk={() => {
-              this.handelRequest(oauthInfo, 'clone');
+              this.handelIsOpen(false);
             }}
             onCancel={this.handelClone}
           />
