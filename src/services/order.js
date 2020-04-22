@@ -11,6 +11,20 @@ export async function queryEnterpriseService(body = {}) {
   );
 }
 
+/* 刷新企业服务信息 */
+export async function queryEnterpriseServiceRefresh(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/proxy/enterprise-server/enterprise/sync`,
+    {
+      method: 'get',
+      params: {
+        eid: body.enterprise_id,
+      }
+    }
+  );
+}
+
+
 /* 创建订单 */
 export async function CreateOrder(body = {},handleError) {
   return request(

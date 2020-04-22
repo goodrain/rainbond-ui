@@ -8,7 +8,6 @@ import weChatimg from '../../../../../public/images/weChat.jpeg';
 import ordersUtil from '../../../../utils/orders';
 import styles from '../../index.less';
 
-
 @connect(({ order }) => ({
   enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
@@ -21,6 +20,20 @@ export default class ServiceOverview extends PureComponent {
   componentWillMount() {
     this.fetchEnterpriseService();
   }
+  handlRefresh = () => {
+    const { dispatch, eid } = this.props;
+    dispatch({
+      type: 'order/fetchEnterpriseServiceRefresh',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.fetchEnterpriseService();
+        }
+      },
+    });
+  };
   fetchEnterpriseService = () => {
     const { dispatch, eid } = this.props;
     dispatch({
@@ -74,11 +87,28 @@ export default class ServiceOverview extends PureComponent {
                   <Col span={12} className={styles.unit}>
                     <div>
                       <p>当前使用调度内存(GB)</p>
-                      <h6>
-                        {ordersUtil.handlUnit(
-                          enterpriseServiceInfo.used_memory
-                        ) || 0}
-                      </h6>
+                      <div
+                        style={{
+                          display: 'flex',
+                          border: 'none',
+                          alignItems: 'baseline',
+                        }}
+                      >
+                        <h6>
+                          {ordersUtil.handlUnit(
+                            enterpriseServiceInfo.used_memory
+                          ) || 0}
+                        </h6>
+                        <a
+                          style={{
+                            marginLeft:'5px',
+                            fontSize: '12px',
+                          }}
+                          onClick={this.handlRefresh}
+                        >
+                          刷新
+                        </a>
+                      </div>
                     </div>
                     <Button style={{ marginTop: '50px' }} type="primary">
                       <Link
