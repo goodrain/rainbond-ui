@@ -465,6 +465,12 @@ const cloud = {
       case 7006:
         notification.warning({ message: 'KubernetesAPI无法请求' })
         break
+      case 7008:
+          notification.warning({ message: '阿里云容器服务默认缺角未创建' })
+          break
+      case 7007:
+        notification.warning({ message: '阿里云API请求故障，请联系我们' })
+        break  
       case 400:
         notification.warning({ message: '请求参数错误' })
         break

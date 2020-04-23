@@ -40,8 +40,8 @@ export default {
 
   routes: routerConfig,
   proxy: {
-    '/enterprise-server/': {
-      target: 'http://127.0.0.1:8080',
+    '/console/proxy': {
+      target: 'http://zengqg.pre.goodrain.com',
       changeOrigin: true
     }
   }
