@@ -211,6 +211,8 @@ export async function editPluginVersionInfo(body = {
   return request(apiconfig.baseUrl + `/console/teams/${body.team_name}/plugins/${body.plugin_id}/version/${body.build_version}`, {
     method: 'put',
     data: {
+      username: body.username,
+      password: body.password,
       plugin_alias: body.plugin_alias,
       update_info: body.update_info,
       build_cmd: body.build_cmd,
