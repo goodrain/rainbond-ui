@@ -123,12 +123,7 @@ export default class EnterpriseClusters extends PureComponent {
 
   handlUnit = num => {
     if (num) {
-      let nums = num;
-      if (nums >= 1024) {
-        nums = num / 1024;
-        return nums.toFixed(2) / 1;
-      }
-      return num;
+      return (num/1024).toFixed(2) / 1;
     }
     return 0;
   };
