@@ -1,6 +1,18 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Button, Icon, Form, Radio, Select, Input } from 'antd';
+import {
+  Row,
+  Col,
+  Card,
+  Button,
+  Checkbox,
+  Form,
+  Radio,
+  Select,
+  Input,
+} from 'antd';
+import ShowRegionKey from '../ShowRegionKey';
+
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -19,8 +31,11 @@ const formItemLayout = {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
+    const { data } = this.props;
     this.state = {
-      showUsernameAndPass: false,
+      showUsernameAndPass: !!(data && data.username),
+      checkedList: data && data.username ? ['showUsernameAndPass'] : [],
+      subdirectories: false,
     };
   }
   componentDidMount = () => {
@@ -69,10 +84,51 @@ export default class Index extends PureComponent {
     }
     callback();
   };
+  onChange = checkedValues => {
+    this.setState({
+      checkedList: checkedValues,
+      showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
+      showKey: checkedValues.includes('showKey'),
+    });
+  };
+  fetchCheckboxGroup = isShow => {
+    const { checkedList, showKey } = this.state;
+    return (
+      <Checkbox.Group
+        style={{ width: '100%', marginBottom: '10px' }}
+        onChange={this.onChange}
+        value={checkedList}
+      >
+        <Row>
+          <Col span={24} style={{ textAlign: 'right' }}>
+            {isShow && (
+              <Checkbox value="showKey" checked={showKey}>
+                配置授权Key
+              </Checkbox>
+            )}
+            <Checkbox value="showUsernameAndPass">填写仓库账号密码</Checkbox>
+          </Col>
+        </Row>
+      </Checkbox.Group>
+    );
+  };
+
+  hideShowKey = () => {
+    this.handkeDeleteCheckedList('showKey');
+    this.setState({ showKey: false });
+  };
+  handkeDeleteCheckedList = type => {
+    const { checkedList } = this.state;
+    const arr = checkedList;
+    if (arr.indexOf(type) > -1) {
+      arr.splice(arr.indexOf(type), 1);
+      this.setState({ checkedList: arr });
+    }
+  };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const data = this.props.data || {};
-    const { showUsernameAndPass } = this.state;
+    const { showUsernameAndPass, showKey } = this.state;
     let type = getFieldValue('build_source');
     const defaultType = 'image';
     if (!type) {
@@ -132,12 +188,10 @@ export default class Index extends PureComponent {
             rules: [{ validator: this.checkCmd }],
           })(
             <Input
-              disabled={allDisabled || isEdit}
               placeholder="请输入镜像地址（名称:tag）如nginx:1.11"
             />
           )}
         </Form.Item>
-
         <Form.Item
           style={{ display: type === 'dockerfile' ? '' : 'none' }}
           {...formItemLayout}
@@ -148,22 +202,12 @@ export default class Index extends PureComponent {
             rules: [{ validator: this.checkCode }],
           })(
             <Input
-              disabled={allDisabled || isEdit}
               placeholder="请输入源码Git地址（必须包含Dockerfile文件）"
             />
           )}
         </Form.Item>
-        <div style={{ textAlign: 'right' }}>
-          这是一个私有仓库?{' '}
-          <a
-            onClick={() => {
-              this.setState({ showUsernameAndPass: !showUsernameAndPass });
-            }}
-            href="javascript:;"
-          >
-            填写仓库账号密码
-          </a>
-        </div>
+        {showKey && <ShowRegionKey onCancel={this.hideShowKey} />}
+        {this.fetchCheckboxGroup(type && type === 'dockerfile')}
         <Form.Item
           style={{ display: showUsernameAndPass ? '' : 'none' }}
           {...formItemLayout}
@@ -210,7 +254,6 @@ export default class Index extends PureComponent {
               data.image_tag || (data.image || '').split(':')[1] || '' || '',
           })(<Input disabled={allDisabled} placeholder="镜像版本" />)}
         </Form.Item>
-
         <Form.Item {...formItemLayout} label="最小内存">
           {getFieldDecorator('min_memory', {
             initialValue: data.min_memory || '64',
