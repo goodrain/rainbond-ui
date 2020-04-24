@@ -244,16 +244,6 @@ export default class Index extends PureComponent {
             rules: [{ validator: this.checkCodeVersion }],
           })(<Input disabled={allDisabled} placeholder="请输入代码版本" />)}
         </Form.Item>
-        <Form.Item
-          style={{ display: type === 'image' && isEdit ? '' : 'none' }}
-          {...formItemLayout}
-          label="镜像版本"
-        >
-          {getFieldDecorator('image_tag', {
-            initialValue:
-              data.image_tag || (data.image || '').split(':')[1] || '' || '',
-          })(<Input disabled={allDisabled} placeholder="镜像版本" />)}
-        </Form.Item>
         <Form.Item {...formItemLayout} label="最小内存">
           {getFieldDecorator('min_memory', {
             initialValue: data.min_memory || '64',
