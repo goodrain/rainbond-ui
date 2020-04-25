@@ -191,6 +191,9 @@ export default class EnterpriseClusters extends PureComponent {
                 if (item == "ack-manage") {
                   return <span style={{marginRight:"8px"}} key={item}>阿里云-托管集群</span>
                 }
+                if (item == "custom") {
+                  return <span style={{marginRight:"8px"}} key={item}>普通集群</span>
+                }
               }) : "普通集群"}
             </span>
           );

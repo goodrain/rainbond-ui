@@ -208,8 +208,7 @@ var initRainbondSteps = {
   },
   InitRainbondRegionPackage: {
     Title: '系统所需所有镜像本地化处理(预计10分钟)',
-    Description:
-      '将Rainbond需要的所有镜像获取完成并推送到本地镜像仓库',
+    Description: '将Rainbond需要的所有镜像获取完成并推送到本地镜像仓库',
     Status: ''
   },
   InitRainbondRegionRegionConfig: {
@@ -466,11 +465,11 @@ const cloud = {
         notification.warning({ message: 'KubernetesAPI无法请求' })
         break
       case 7008:
-          notification.warning({ message: '阿里云容器服务默认缺角未创建' })
-          break
+        notification.warning({ message: '阿里云容器服务默认缺角未创建' })
+        break
       case 7007:
         notification.warning({ message: '阿里云API请求故障，请联系我们' })
-        break  
+        break
       case 400:
         notification.warning({ message: '请求参数错误' })
         break
@@ -599,6 +598,33 @@ const cloud = {
       default:
         return '未开始'
     }
+  },
+  getAliyunCountDescribe () {
+    return [
+      {
+        key: 'default-role',
+        title: '创建容器服务默认角色',
+        href:
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22ReturnUrl%22:%22https://cs.console.aliyun.com/%22,%22Service%22:%22CS%22,%22Requests%22:%7B%22request1%22:%7B%22RoleName%22:%22AliyunCSManagedLogRole%22,%22TemplateId%22:%22AliyunCSManagedLogRole%22%7D,%22request2%22:%7B%22RoleName%22:%22AliyunCSManagedCmsRole%22,%22TemplateId%22:%22AliyunCSManagedCmsRole%22%7D,%22request3%22:%7B%22RoleName%22:%22AliyunCSManagedCsiRole%22,%22TemplateId%22:%22AliyunCSManagedCsiRole%22%7D,%22request4%22:%7B%22RoleName%22:%22AliyunCSManagedVKRole%22,%22TemplateId%22:%22AliyunCSManagedVKRole%22%7D,%22request5%22:%7B%22RoleName%22:%22AliyunCSClusterRole%22,%22TemplateId%22:%22Cluster%22%7D,%22request6%22:%7B%22RoleName%22:%22AliyunCSServerlessKubernetesRole%22,%22TemplateId%22:%22ServerlessKubernetes%22%7D,%22request7%22:%7B%22RoleName%22:%22AliyunCSKubernetesAuditRole%22,%22TemplateId%22:%22KubernetesAudit%22%7D,%22request8%22:%7B%22RoleName%22:%22AliyunCSManagedNetworkRole%22,%22TemplateId%22:%22AliyunCSManagedNetworkRole%22%7D,%22request9%22:%7B%22RoleName%22:%22AliyunCSDefaultRole%22,%22TemplateId%22:%22Default%22%7D,%22request10%22:%7B%22RoleName%22:%22AliyunCSManagedKubernetesRole%22,%22TemplateId%22:%22ManagedKubernetes%22%7D,%22request11%22:%7B%22RoleName%22:%22AliyunCSManagedArmsRole%22,%22TemplateId%22:%22AliyunCSManagedArmsRole%22%7D%7D%7D'
+      },
+      {
+        key: 'open-ess',
+        title: '开通ESS弹性伸缩服务',
+        href:
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D'
+      },
+      {
+        key: 'perm-ess',
+        title: '授权ESS弹性伸缩服务',
+        href:
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D'
+      },
+      {
+        key: 'open-nas',
+        title: '开通NAS服务',
+        href: 'https://common-buy.aliyun.com/?commodityCode=naspost'
+      }
+    ]
   }
 }
 export default cloud
