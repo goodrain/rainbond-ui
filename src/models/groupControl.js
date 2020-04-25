@@ -4,6 +4,8 @@ import {
   deleteGroup,
   editGroup,
   addGroup,
+  queryCopyComponent,
+  AddCopyTeamApps,
   recordShare,
   getShareRecords,
   getShareRecord,
@@ -31,12 +33,12 @@ import {
   startPluginShareEventInShareApp,
   getPluginShareEventInShareApp,
   queryAllBackup,
-  queryRestoreState
-} from "../services/group";
-import cookie from "../utils/cookie";
+  queryRestoreState,
+} from '../services/group';
+import cookie from '../utils/cookie';
 
 export default {
-  namespace: "groupControl",
+  namespace: 'groupControl',
   state: {
     // app detail
     groupDetail: {},
@@ -46,217 +48,230 @@ export default {
     plugins: [],
   },
   effects: {
-    * fetchBackupStatus({ payload, callback }, { call, put }) {
+    *fetchBackupStatus({ payload, callback }, { call, put }) {
       const response = yield call(getBackupStatus, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchBackup({ payload, callback }, { call, put }) {
+    *fetchBackup({ payload, callback }, { call, put }) {
       const response = yield call(getBackup, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    *queryAllBackup({ payload, callback }, { call }){
+    *queryAllBackup({ payload, callback }, { call }) {
       const response = yield call(queryAllBackup, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    *queryRestoreState({ payload, callback }, { call }){
+    *queryRestoreState({ payload, callback }, { call }) {
       const response = yield call(queryRestoreState, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * backup({ payload, callback,handleError }, { call, put }) {
-      const response = yield call(backup, payload,handleError);
+    *backup({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(backup, payload, handleError);
       if (response) {
         callback && callback(response);
       }
     },
-    * groupMonitorData({ payload, callback }, { call, put }) {
+    *groupMonitorData({ payload, callback }, { call, put }) {
       const response = yield call(groupMonitorData, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * editAppCreateCompose({ payload, callback }, { call, put }) {
+    *editAppCreateCompose({ payload, callback }, { call, put }) {
       const response = yield call(editAppCreateCompose, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
+    *fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getGroupDetail, payload, handleError);
       if (response) {
-        yield put({ type: "saveGroupDetail", payload: response.bean });
-        callback && callback(response)
-      }
-    },
-    * fetchApps({ payload, callback }, { call, put }) {
-      const response = yield call(getGroupApps, payload);
-      if (response) {
-        yield put({ type: "saveApps", payload: response.list });
+        yield put({ type: 'saveGroupDetail', payload: response.bean });
         callback && callback(response);
       }
     },
-    * delete({ payload, callback }, { call, put }) {
+    *fetchApps({ payload, callback }, { call, put }) {
+      const response = yield call(getGroupApps, payload);
+      if (response) {
+        yield put({ type: 'saveApps', payload: response.list });
+        callback && callback(response);
+      }
+    },
+    *delete({ payload, callback }, { call, put }) {
       const response = yield call(deleteGroup, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteCompose({ payload, callback }, { call, put }) {
+    *deleteCompose({ payload, callback }, { call, put }) {
       const response = yield call(deleteCompose, payload);
       if (response) {
         callback && callback();
       }
     },
-    * editGroup({ payload, callback }, { call, put }) {
+    *editGroup({ payload, callback }, { call, put }) {
       const response = yield call(editGroup, payload);
       if (response) {
         callback && callback();
       }
     },
-    * addGroup({ payload, callback }, { call, put }) {
+    *addGroup({ payload, callback }, { call, put }) {
       const response = yield call(addGroup, payload);
       if (response) {
         callback && callback(response.bean);
       }
     },
+    *fetchCopyComponent({ payload, callback }, { call, put }) {
+      const response = yield call(queryCopyComponent, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+    *addCopyTeamApps({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(AddCopyTeamApps, payload, handleError);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     // 查询未完成分享记录
-    * recordShare({ payload, callback }, { call, put }) {
+    *recordShare({ payload, callback }, { call, put }) {
       const response = yield call(recordShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchShareRecords({ payload, callback }, { call, put }) {
+    *fetchShareRecords({ payload, callback }, { call, put }) {
       const response = yield call(getShareRecords, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * fetchShareRecord({ payload, callback }, { call, put }) {
+    *fetchShareRecord({ payload, callback }, { call, put }) {
       const response = yield call(getShareRecord, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * deleteShareRecord({ payload, callback }, { call, put }) {
+    *deleteShareRecord({ payload, callback }, { call, put }) {
       const response = yield call(deleteShareRecord, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 创建分享记录
-    * ShareGroup({ payload, callback }, { call, put }) {
+    *ShareGroup({ payload, callback }, { call, put }) {
       const response = yield call(createShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 查询分享信息
-    * getShareInfo({ payload, callback }, { call, put }) {
+    *getShareInfo({ payload, callback }, { call, put }) {
       const response = yield call(getShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 提交分享信息
-    * subShareInfo({ payload, callback, handleError }, { call, put }) {
+    *subShareInfo({ payload, callback, handleError }, { call, put }) {
       const response = yield call(submitShare, payload, handleError);
       if (response) {
         callback && callback(response);
       }
     },
     // 放弃分享
-    * giveupShare({ payload, callback }, { call, put }) {
+    *giveupShare({ payload, callback }, { call, put }) {
       const response = yield call(giveupShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 构建compose应用
-    * buildCompose({ payload, callback }, { call, put }) {
+    *buildCompose({ payload, callback }, { call, put }) {
       const response = yield call(buildCompose, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getShareEventInfo({ payload, callback }, { call, put }) {
+    *getShareEventInfo({ payload, callback }, { call, put }) {
       const response = yield call(getShareEventInfo, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * startShareEvent({ payload, callback }, { call, put }) {
+    *startShareEvent({ payload, callback }, { call, put }) {
       const response = yield call(startShareEvent, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * startPluginShareEventInShareApp({ payload, callback }, { call, put }) {
+    *startPluginShareEventInShareApp({ payload, callback }, { call, put }) {
       const response = yield call(startPluginShareEventInShareApp, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getPluginShareEventInShareApp({ payload, callback }, { call, put }) {
+    *getPluginShareEventInShareApp({ payload, callback }, { call, put }) {
       const response = yield call(getPluginShareEventInShareApp, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * getShareStatus({ payload, callback }, { call, put }) {
+    *getShareStatus({ payload, callback }, { call, put }) {
       const response = yield call(getShareStatus, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * giveupShare({ payload, callback }, { call, put }) {
+    *giveupShare({ payload, callback }, { call, put }) {
       const response = yield call(giveupShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * completeShare({ payload, callback }, { call, put }) {
+    *completeShare({ payload, callback }, { call, put }) {
       const response = yield call(completeShare, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 应用备份迁移
-    * migrateApp({ payload, callback }, { call, put }) {
+    *migrateApp({ payload, callback }, { call, put }) {
       const response = yield call(migrateApp, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 应用备份迁移状态查询
-    * queryMigrateApp({ payload, callback }, { call, put }) {
+    *queryMigrateApp({ payload, callback }, { call, put }) {
       const response = yield call(queryMigrateApp, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 应用备份删除
-    * delRestore({ payload, callback }, { call, put }) {
+    *delRestore({ payload, callback }, { call, put }) {
       const response = yield call(delRestore, payload);
       if (response) {
         callback && callback(response);
       }
     },
-    * delBackup({ payload, callback }, { call, put }) {
+    *delBackup({ payload, callback }, { call, put }) {
       const response = yield call(delBackup, payload);
       if (response) {
         callback && callback(response);
       }
     },
     // 应用失败记录删除
-    * delFailureBackup({ payload, callback }, { call, put }) {
+    *delFailureBackup({ payload, callback }, { call, put }) {
       const response = yield call(delFailureBackup, payload);
       if (response) {
         callback && callback(response);
