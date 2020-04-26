@@ -58,7 +58,7 @@ export default class Index extends PureComponent {
       checkedList: [],
       inputValue: '',
       checkAllList: [],
-      indeterminate: true,
+      indeterminate: false,
       checkAll: true,
       errInput: '',
       addGroup: false,
@@ -89,7 +89,13 @@ export default class Index extends PureComponent {
           if (list && list.length > 0) {
             const arr = [];
             list.map((item, index) => {
-              arr.push(index);
+              const { build_source } = item;
+              const {
+                service_source,
+              } = build_source;
+
+              const isThirdParty = service_source === 'third_party';
+              !isThirdParty&&arr.push(index);
             });
             this.setState({
               checkAllList: arr,
@@ -179,12 +185,11 @@ export default class Index extends PureComponent {
       const versions = isCodeApp ? code_version : version;
       const objs = {
         service_id,
-        change: { build_source: { versions } },
+        change: { build_source: { version:versions } },
       };
       arr.push(objs);
     });
     obj.services = arr;
-
     dispatch({
       type: 'groupControl/addCopyTeamApps',
       payload: {
@@ -378,7 +383,7 @@ export default class Index extends PureComponent {
           </Button>,
         ]}
       >
-        <div className={styles.tdPadding}>
+        <div className={styles.copyBox}>
           {this.state.addGroup && (
             <AddGroup
               onCancel={this.cancelAddGroup}
@@ -463,12 +468,13 @@ export default class Index extends PureComponent {
                 组件名称
               </Checkbox>
             </div>
-            <div className={`${styles.w450} ${styles.over}`}>构建源信息</div>
+            <div className={`${styles.w500} ${styles.over}`}>构建源信息</div>
             <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
           </div>
           {loading ? (
-            <Spin />
-          ) : (
+              <p style={{ textAlign: "center" }}>
+                  <Spin />
+              </p> ) : (
             <Checkbox.Group
               style={{ width: '100%' }}
               value={checkedList}
@@ -508,7 +514,7 @@ export default class Index extends PureComponent {
                 let versionConetent = '';
                 const versionSelector = (
                   <Select
-                    style={{ width: 100 }}
+                    style={{ width: 70 }}
                     defaultValue={isImageApp ? 'Tag' : 'branch'}
                   >
                     {!isImageApp && <Option value="branch">分支</Option>}
@@ -556,12 +562,13 @@ export default class Index extends PureComponent {
                   <div className={styles.tabTr} key={service_id}>
                     <Tooltip title={service_cname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index}>{service_cname}</Checkbox>
+                        <Checkbox value={index} disabled={isThirdParty}>{!isThirdParty&&service_cname}</Checkbox>
+                        {isThirdParty&&<span style={{marginLeft:'-16px'}}>{service_cname}</span>}
                       </div>
                     </Tooltip>
 
                     <Tooltip title={tit}>
-                      <div className={`${styles.w450} ${styles.over}`}>
+                      <div className={`${styles.w500} ${styles.over}`}>
                         <div
                           style={{
                             paddingRight: '5px',
@@ -579,7 +586,7 @@ export default class Index extends PureComponent {
                             ? '第三方组件:'
                             : '-'}
                         </div>
-                        <div className={`${styles.w370} ${styles.over}`}>
+                        <div className={`${styles.w380} ${styles.over}`}>
                           {isImageApp
                             ? image
                             : isCodeApp

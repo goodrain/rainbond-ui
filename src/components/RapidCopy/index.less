@@ -1,50 +1,35 @@
-.editableCellValueWrap {
-  // padding: 6px 12px;
-  cursor    : pointer;
-  box-sizing: border-box;
-}
-
-#repidCopyTable {
-  :global {
-    .ant-table-tbody tr {
-      height: 73px;
-    }
-  }
-}
-
-.clearMb {}
-
-.tabTitle {
-  font-weight: 500;
-}
-
 .tabTitle,
 .tabTr {
   display           : flex;
   align-items       : center;
   color             : rgba(0, 0, 0, .65);
   text-align        : left;
-  background        : #fafafa;
   border-bottom     : 1px solid #e8e8e8;
   -webkit-transition: background .3s ease;
   transition        : background .3s ease;
   padding           : 16px;
+  &>div{height:40px}
 }
 
+.tabTitle {
+  background        : #fafafa;
+  font-weight: 500;
+  color             :rgba(0,0,0,.85)
+}
 .tabTr {
   height: 73px;
 }
 
-.w450 {
-  width: 450px;
+.w500 {
+  width: 500px;
 }
 
 .w300 {
   width: 300px;
 }
 
-.w370 {
-  width: 370px;
+.w380 {
+  width: 380px;
 }
 
 .over {
