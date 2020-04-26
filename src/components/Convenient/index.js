@@ -142,7 +142,7 @@ export default class Convenient extends PureComponent {
         enterprise_id: eid,
         user_id: user.user_id,
         page: 1,
-        app_page_size: 999,
+        page_size: 999,
       },
       callback: res => {
         if (res && res._code === 200) {
