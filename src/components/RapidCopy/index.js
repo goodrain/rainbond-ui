@@ -9,7 +9,7 @@ import {
   Col,
   Form,
   Select,
-  Table,
+  Spin,
   Modal,
   Input,
   Divider,
@@ -18,114 +18,18 @@ import {
   Icon,
   Cascader,
   notification,
+  Checkbox,
 } from 'antd';
 import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
 import styles from './index.less';
 import styless from '../CreateTeam/index.less';
+import AddGroup from '../AddOrEditGroup';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const EditableContext = React.createContext();
-const EditableRow = ({ form, index, ...props }) => (
-  <EditableContext.Provider value={form}>
-    <tr {...props} />
-  </EditableContext.Provider>
-);
-
-const EditableFormRow = Form.create()(EditableRow);
-
-class EditableCell extends React.Component {
-  state = {
-    editing: false,
-  };
-
-  toggleEdit = () => {
-    const editing = !this.state.editing;
-    this.setState({ editing }, () => {
-      if (editing) {
-        this.input.focus();
-      }
-    });
-  };
-
-  save = e => {
-    const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
-      if (error && error[e.currentTarget.id]) {
-        return;
-      }
-      this.toggleEdit();
-      handleSave({ ...record, ...values });
-    });
-  };
-
-  renderCell = form => {
-    this.form = form;
-    const { isCodeApp, children, dataIndex, record, title } = this.props;
-    const { editing } = this.state;
-    const versions = isCodeApp
-      ? record.build_source.code_version
-      : record[dataIndex];
-    return editing ? (
-      <Form.Item style={{ margin: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {isCodeApp && (
-            <span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>分支或Tag</span>
-          )}
-          {form.getFieldDecorator(dataIndex, {
-            rules: [
-              {
-                required: true,
-                message: `${title} is required.`,
-              },
-            ],
-            initialValue: versions,
-          })(
-            <Input
-              style={{
-                width: isCodeApp ? '195px' : '259px',
-                marginLeft: isCodeApp && '5px',
-              }}
-              ref={node => (this.input = node)}
-              onPressEnter={this.save}
-              onBlur={this.save}
-            />
-          )}
-        </div>
-      </Form.Item>
-    ) : (
-      <div className={styles.editableCellValueWrap} onClick={this.toggleEdit}>
-        {children}
-      </div>
-    );
-  };
-
-  render() {
-    const {
-      editable,
-      dataIndex,
-      title,
-      record,
-      index,
-      handleSave,
-      children,
-      isImageApp,
-      isCodeApp,
-      ...restProps
-    } = this.props;
-
-    return (
-      <td {...restProps}>
-        {isImageApp || isCodeApp ? (
-          <EditableContext.Consumer>{this.renderCell}</EditableContext.Consumer>
-        ) : (
-          children
-        )}
-      </td>
-    );
-  }
-}
+const plainOptions = ['Apple', 'Pear', 'Orange'];
+const CheckboxGroup = Checkbox.Group;
 
 @Form.create()
 @connect(({ user, enterprise, groupControl }) => ({
@@ -147,11 +51,17 @@ export default class Index extends PureComponent {
       total: '',
       bean: '',
       loading: true,
-      selectedRowKeys: [],
       app_page_size: 10,
       app_page: 1,
       apps: [],
       isAddApps: false,
+      checkedList: [],
+      inputValue: '',
+      checkAllList: [],
+      indeterminate: true,
+      checkAll: true,
+      errInput: '',
+      addGroup: false,
     };
   }
   componentDidMount() {
@@ -159,7 +69,12 @@ export default class Index extends PureComponent {
     this.getUserTeams();
     this.fetchTeamApps();
   }
-
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
   fetchCopyComponent = () => {
     const { dispatch, groupDetail } = this.props;
     dispatch({
@@ -177,7 +92,8 @@ export default class Index extends PureComponent {
               arr.push(index);
             });
             this.setState({
-              selectedRowKeys: arr,
+              checkAllList: arr,
+              checkedList: arr,
               dataSource: res.list,
               loading: false,
             });
@@ -187,23 +103,35 @@ export default class Index extends PureComponent {
     });
   };
 
-  addApps = () => {
-    this.setState(
-      {
-        app_page_size: this.state.app_page_size + 10,
+  handleAddGroup = vals => {
+    const { getFieldValue } = this.props.form;
+
+    const { userTeamList } = this.state;
+    const teamRegion = getFieldValue('teamRegion');
+    const arrs = userTeamList.filter(item => item.name === teamRegion);
+    const teamName = arrs && arrs[0].value[0];
+
+    this.props.dispatch({
+      type: 'groupControl/addGroup',
+      payload: {
+        team_name: teamName || globalUtil.getCurrTeamName(),
+        ...vals,
       },
-      () => {
-        this.fetchTeamApps();
-      }
-    );
+      callback: group => {
+        if (group) {
+          // 获取群组
+          this.fetchTeamApps(teamName, group.group_id);
+          this.cancelAddGroup();
+        }
+      },
+    });
   };
 
   // 应用
-  fetchTeamApps = teamName => {
-    const { dispatch, currentTeam, form } = this.props;
+  fetchTeamApps = (teamName, groupId) => {
+    const { dispatch, form } = this.props;
     const { app_page, app_page_size } = this.state;
     const { setFieldsValue } = form;
-
     dispatch({
       type: 'global/fetchGroups',
       payload: {
@@ -214,10 +142,10 @@ export default class Index extends PureComponent {
       },
       callback: data => {
         if (data) {
-          // const listNum = res.total_count || 0;
-          // const isAdd = !!(listNum && listNum > app_page_size);
           teamName &&
-            setFieldsValue({ apps: data.length > 0 ? data[0].group_id : '' });
+            setFieldsValue({
+              apps: groupId || (data.length > 0 ? data[0].group_id : ''),
+            });
           this.setState({ apps: data });
         }
       },
@@ -235,15 +163,16 @@ export default class Index extends PureComponent {
 
   AddCopyTeamApps = values => {
     const { dispatch, groupDetail, onCancel } = this.props;
-    const { dataSource, selectedRowKeys } = this.state;
+    const { dataSource, checkedList, userTeamList } = this.state;
     const obj = {};
     const { apps, teamRegion } = values;
     obj.tar_group_id = apps;
-    obj.tar_team_name = teamRegion && teamRegion[0];
-    obj.tar_region_name = teamRegion && teamRegion[1];
-    const arr = [];
+    const arrs = userTeamList.filter(item => item.name === teamRegion);
+    obj.tar_team_name = arrs && arrs[0].value[0];
+    obj.tar_region_name = arrs && arrs[0].value[1];
 
-    selectedRowKeys.map(item => {
+    const arr = [];
+    checkedList.map(item => {
       const { service_id, build_source } = dataSource[item];
       const { code_version, version } = build_source;
       const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
@@ -255,6 +184,7 @@ export default class Index extends PureComponent {
       arr.push(objs);
     });
     obj.services = arr;
+
     dispatch({
       type: 'groupControl/addCopyTeamApps',
       payload: {
@@ -287,9 +217,6 @@ export default class Index extends PureComponent {
   handleCloseLoading = () => {
     this.setState({ Loading: false });
   };
-  onSelectChange = selectedRowKeys => {
-    this.setState({ selectedRowKeys });
-  };
 
   handleSave = row => {
     const newData = [...this.state.dataSource];
@@ -299,7 +226,7 @@ export default class Index extends PureComponent {
       ...item,
       ...row,
     });
-    this.setState({ dataSource: newData });
+    this.setState({ inputValue: '', dataSource: newData });
   };
 
   // 团队
@@ -315,42 +242,44 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          const newData = [];
-          let obj = {};
           const { list } = res;
+          const arr = [];
+
           list &&
             list.length > 0 &&
-            list.map(item => {
-              obj = item;
-              obj.region_name = item.team_name;
-              obj.region_alias = item.team_alias;
-              delete obj.team_name;
-              delete obj.team_alias;
-              newData.push(obj);
+            list.map(team => {
+              team.region_list.map(region => {
+                const item = {
+                  name: `${team.team_alias} | ${region.region_alias}`,
+                  value: [team.team_name, region.region_name],
+                };
+                arr.push(item);
+              });
             });
           this.setState({
-            userTeamList: newData,
+            userTeamList: arr,
           });
         }
       },
     });
   };
 
-  onChange = value => {
+  onSelectChange = value => {
     const { form } = this.props;
+    const { userTeamList } = this.state;
     const { setFieldsValue } = form;
-
-    if (value) {
-      if (value.length > 1) {
-        this.fetchTeamApps(value[0]);
+    const arr = userTeamList.filter(item => item.name === value);
+    if (arr) {
+      if (arr.length > 0) {
+        this.fetchTeamApps(arr[0].value[0]);
       } else {
         setFieldsValue({ apps: '' });
       }
     }
   };
 
-  handleOverDiv = () => {
-    return <div />;
+  handleOverDiv = content => {
+    return <div>{content}</div>;
   };
 
   checkTeams = (rules, value, callback) => {
@@ -365,156 +294,58 @@ export default class Index extends PureComponent {
     callback();
   };
 
+  onGroupChange = checkedList => {
+    const { checkAllList } = this.state;
+    this.setState({
+      checkedList,
+      indeterminate:
+        !!checkedList.length && checkedList.length < checkAllList.length,
+      checkAll: checkedList.length === checkAllList.length,
+    });
+  };
+
+  onCheckAllChange = e => {
+    const { checkAllList } = this.state;
+    this.setState({
+      checkedList: e.target.checked ? checkAllList : [],
+      indeterminate: false,
+      checkAll: e.target.checked,
+    });
+  };
+
+  save = (item, isCodeApp) => {
+    const { inputValue } = this.state;
+    const names = isCodeApp ? 'code_version' : 'version';
+    const str = item;
+    str.build_source[names] = inputValue;
+    this.handleSave({ ...str });
+  };
+
   render() {
     const { title, onCancel, form, groupDetail } = this.props;
     const { getFieldDecorator } = form;
     const {
-      selectedRowKeys,
       userTeamList,
       dataSource,
-      isAddApps,
+      checkedList,
       apps,
       loading,
       Loading,
+      errInput,
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
+    let defaultTeamRegion = '';
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+    if (userTeams) {
+      userTeamList.map(item => {
+        if (item.value[0] === team_name && item.value[1] === region_name) {
+          defaultTeamRegion = item.name;
+        }
+      });
+    }
     const appList = apps && apps.length > 0 && apps;
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-      hideDefaultSelections: true,
-    };
-    const components = {
-      body: {
-        row: EditableFormRow,
-        cell: EditableCell,
-      },
-    };
-
-    const overDiv = (type, text) => {
-      return (
-        <div
-          style={{
-            width: 400,
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              paddingRight: '5px',
-              width: '80px',
-              color: 'rgba(0, 0, 0, 0.85)',
-            }}
-          >
-            {type}
-          </div>
-          <div>{text}</div>
-        </div>
-      );
-    };
-
-    const column = [
-      {
-        title: '组件名称',
-        dataIndex: 'service_cname',
-        width: '340px',
-        render: v => (
-          <Tooltip title={v}>
-            <div>{v}</div>
-          </Tooltip>
-        ),
-      },
-      {
-        title: '构建源信息',
-        dataIndex: 'build_source',
-        width: '450px',
-        render: item => {
-          const { image, git_url, rain_app_name, service_source } = item;
-          const isImageApp = appUtil.isImageAppByBuildSource(item);
-          const isMarketApp = appUtil.isMarketAppByBuildSource(item);
-          const isCodeApp = appUtil.isCodeAppByBuildSource(item);
-          const isThirdParty = service_source === 'third_party';
-
-          const tit = isImageApp
-            ? image
-            : isCodeApp
-            ? git_url
-            : isMarketApp
-            ? rain_app_name
-            : isThirdParty
-            ? '第三方组件: 暂不支持复制'
-            : '';
-          return (
-            <Tooltip title={tit}>
-              {isImageApp
-                ? overDiv('镜像:', `${image}`)
-                : isCodeApp
-                ? overDiv('源码:', `${git_url}`)
-                : isMarketApp
-                ? overDiv('组件库:', `${rain_app_name}`)
-                : isThirdParty
-                ? overDiv('第三方组件:', '暂不支持复制')
-                : '-'}
-            </Tooltip>
-          );
-        },
-      },
-      {
-        title: '版本修改',
-        dataIndex: 'version',
-        width: '300px',
-        editable: true,
-        render: (v, item) => {
-          const { build_source } = item;
-          const { code_version, version } = build_source;
-          const isImageApp = appUtil.isImageAppByBuildSource(build_source);
-          const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
-          const versions = isCodeApp ? code_version : version;
-
-          if (isImageApp || isCodeApp) {
-            return (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {isCodeApp && (
-                  <span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
-                    分支或Tag
-                  </span>
-                )}
-                <Input
-                  style={{
-                    width: isCodeApp ? '195px' : '259px',
-                    marginLeft: isCodeApp && '5px',
-                  }}
-                  value={versions}
-                />
-              </div>
-            );
-          }
-          return '暂不支持变更版本';
-        },
-      },
-    ];
-
-    const columns = column.map((col, index) => {
-      if (!col.editable) {
-        return col;
-      }
-      return {
-        ...col,
-        onCell: record => ({
-          isImageApp: appUtil.isImageAppByBuildSource(record.build_source),
-          isCodeApp: appUtil.isCodeAppByBuildSource(record.build_source),
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          handleSave: this.handleSave,
-        }),
-      };
-    });
+    const hasSelected = checkedList && checkedList.length > 0;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -525,9 +356,7 @@ export default class Index extends PureComponent {
         sm: { span: 17 },
       },
     };
-    const hasSelected = selectedRowKeys.length > 0;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
+
     return (
       <Modal
         className={styless.TelescopicModal}
@@ -550,6 +379,13 @@ export default class Index extends PureComponent {
         ]}
       >
         <div className={styles.tdPadding}>
+          {this.state.addGroup && (
+            <AddGroup
+              onCancel={this.cancelAddGroup}
+              onOk={this.handleAddGroup}
+            />
+          )}
+
           <Form
             onSubmit={this.handleSubmit}
             layout="horizontal"
@@ -560,7 +396,7 @@ export default class Index extends PureComponent {
                 <Col span={6}>
                   <FormItem {...formItemLayout} label="复制到">
                     {getFieldDecorator('teamRegion', {
-                      initialValue: [team_name, region_name],
+                      initialValue: defaultTeamRegion,
                       rules: [
                         {
                           required: true,
@@ -568,22 +404,23 @@ export default class Index extends PureComponent {
                         },
                       ],
                     })(
-                      <Cascader
-                        fieldNames={{
-                          label: 'region_alias',
-                          value: 'region_name',
-                          children: 'region_list',
-                        }}
-                        options={userTeams}
-                        onChange={this.onChange}
+                      <Select
+                        onChange={this.onSelectChange}
                         placeholder="团队/集群"
-                      />
+                      >
+                        {userTeams.map(item => {
+                          return <Option value={item.name}>{item.name}</Option>;
+                        })}
+                      </Select>
                     )}
                   </FormItem>
                 </Col>
               )}
               {appList && (
-                <Col span={6}>
+                <Col
+                  span={10}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
                   <FormItem {...formItemLayout} label="">
                     {getFieldDecorator('apps', {
                       initialValue: groupDetail.group_id,
@@ -595,28 +432,8 @@ export default class Index extends PureComponent {
                       ],
                     })(
                       <Select
-                        style={{ width: '100%' }}
+                        style={{ width: '180px' }}
                         placeholder="请选择应用"
-                        // dropdownRender={menu => (
-                        //   <div>
-                        //     {menu}
-                        //     {isAddApps && (
-                        //       <div>
-                        //         <Divider style={{ margin: '4px 0' }} />
-                        //         <div
-                        //           style={{
-                        //             padding: '4px 8px',
-                        //             cursor: 'pointer',
-                        //           }}
-                        //           onMouseDown={e => e.preventDefault()}
-                        //           onClick={this.addApps}
-                        //         >
-                        //           <Icon type="plus" /> 加载更多
-                        //         </div>
-                        //       </div>
-                        //     )}
-                        //   </div>
-                        // )}
                       >
                         {appList.map(item => (
                           <Option key={item.group_id} value={item.group_id}>
@@ -626,20 +443,163 @@ export default class Index extends PureComponent {
                       </Select>
                     )}
                   </FormItem>
+                  <Button
+                    style={{ margin: '0 0 24px 10px' }}
+                    onClick={this.onAddGroup}
+                  >
+                    新建应用
+                  </Button>
                 </Col>
               )}
             </Row>
           </Form>
+          <div className={styles.tabTitle}>
+            <div className={`${styles.w300} ${styles.over}`}>
+              <Checkbox
+                indeterminate={this.state.indeterminate}
+                onChange={this.onCheckAllChange}
+                checked={this.state.checkAll}
+              >
+                组件名称
+              </Checkbox>
+            </div>
+            <div className={`${styles.w450} ${styles.over}`}>构建源信息</div>
+            <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
+          </div>
+          {loading ? (
+            <Spin />
+          ) : (
+            <Checkbox.Group
+              style={{ width: '100%' }}
+              value={checkedList}
+              onChange={this.onGroupChange}
+            >
+              {dataSource.map((item, index) => {
+                const { service_cname, build_source, service_id } = item;
+                const {
+                  code_version,
+                  version,
+                  image,
+                  git_url,
+                  rain_app_name,
+                  service_source,
+                } = build_source;
 
-          <Table
-            id={styles.repidCopyTable}
-            pagination={false}
-            components={components}
-            rowSelection={rowSelection}
-            loading={loading}
-            dataSource={dataSource}
-            columns={columns}
-          />
+                const isImageApp = appUtil.isImageAppByBuildSource(
+                  build_source
+                );
+                const isMarketApp = appUtil.isMarketAppByBuildSource(
+                  build_source
+                );
+                const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
+                const versions = isCodeApp ? code_version : version;
+                const isThirdParty = service_source === 'third_party';
+
+                const tit = isImageApp
+                  ? image
+                  : isCodeApp
+                  ? git_url
+                  : isMarketApp
+                  ? rain_app_name
+                  : isThirdParty
+                  ? '第三方组件: 暂不支持复制'
+                  : '';
+
+                let versionConetent = '';
+                const versionSelector = (
+                  <Select
+                    style={{ width: 100 }}
+                    defaultValue={isImageApp ? 'Tag' : 'branch'}
+                  >
+                    {!isImageApp && <Option value="branch">分支</Option>}
+                    {isCodeApp && <Option value="Tag">Tag</Option>}
+                  </Select>
+                );
+                if (isImageApp || isCodeApp) {
+                  versionConetent = (
+                    <FormItem>
+                      {getFieldDecorator(service_id, {
+                        initialValue: versions || '',
+                        rules: [
+                          {
+                            required: true,
+                            message: '不能为空',
+                          },
+                        ],
+                      })(
+                        <Input
+                          addonBefore={versionSelector}
+                          onPressEnter={() => {
+                            this.save(item, isCodeApp);
+                          }}
+                          onBlur={() => {
+                            this.save(item, isCodeApp);
+                          }}
+                          style={{
+                            width: '268px',
+                          }}
+                          onChange={e => {
+                            this.setState({
+                              errInput: e.target.value,
+                              inputValue: e.target.value,
+                            });
+                          }}
+                        />
+                      )}
+                    </FormItem>
+                  );
+                } else {
+                  versionConetent = '暂不支持变更版本';
+                }
+
+                return (
+                  <div className={styles.tabTr} key={service_id}>
+                    <Tooltip title={service_cname}>
+                      <div className={`${styles.w300} ${styles.over}`}>
+                        <Checkbox value={index}>{service_cname}</Checkbox>
+                      </div>
+                    </Tooltip>
+
+                    <Tooltip title={tit}>
+                      <div className={`${styles.w450} ${styles.over}`}>
+                        <div
+                          style={{
+                            paddingRight: '5px',
+                            width: '80px',
+                            color: 'rgba(0, 0, 0, 0.85)',
+                          }}
+                        >
+                          {isImageApp
+                            ? '镜像:'
+                            : isCodeApp
+                            ? '源码:'
+                            : isMarketApp
+                            ? '组件库:'
+                            : isThirdParty
+                            ? '第三方组件:'
+                            : '-'}
+                        </div>
+                        <div className={`${styles.w370} ${styles.over}`}>
+                          {isImageApp
+                            ? image
+                            : isCodeApp
+                            ? git_url
+                            : isMarketApp
+                            ? rain_app_name
+                            : isThirdParty
+                            ? '暂不支持复制'
+                            : '-'}
+                        </div>
+                      </div>
+                    </Tooltip>
+                    <div className={`${styles.w300} ${styles.over}`}>
+                      {versionConetent}
+                    </div>
+                  </div>
+                );
+              })}
+            </Checkbox.Group>
+          )}
         </div>
       </Modal>
     );

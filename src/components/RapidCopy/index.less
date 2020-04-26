@@ -1,13 +1,62 @@
 .editableCellValueWrap {
   // padding: 6px 12px;
-  cursor : pointer;
+  cursor    : pointer;
   box-sizing: border-box;
 }
 
 #repidCopyTable {
   :global {
-    .ant-table-tbody tr{
+    .ant-table-tbody tr {
       height: 73px;
+    }
+  }
+}
+
+.clearMb {}
+
+.tabTitle {
+  font-weight: 500;
+}
+
+.tabTitle,
+.tabTr {
+  display           : flex;
+  align-items       : center;
+  color             : rgba(0, 0, 0, .65);
+  text-align        : left;
+  background        : #fafafa;
+  border-bottom     : 1px solid #e8e8e8;
+  -webkit-transition: background .3s ease;
+  transition        : background .3s ease;
+  padding           : 16px;
+}
+
+.tabTr {
+  height: 73px;
+}
+
+.w450 {
+  width: 450px;
+}
+
+.w300 {
+  width: 300px;
+}
+
+.w370 {
+  width: 370px;
+}
+
+.over {
+  text-overflow: ellipsis;
+  white-space  : nowrap;
+  overflow     : hidden;
+  display      : flex;
+  align-items  : center;
+
+  :global {
+    .ant-form-item {
+      margin-bottom: 0 !important;
     }
   }
 }
