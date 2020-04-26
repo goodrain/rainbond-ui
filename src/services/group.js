@@ -246,6 +246,38 @@ export async function addGroup(
 }
 
 /*
+  获取复制应用组件列表信息
+*/
+export async function queryCopyComponent(body = {}) {
+  const { tenantName, group_id } = body;
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${tenantName}/groupapp/${group_id}/copy`,
+    {
+      method: 'get',
+      data: {
+        tenantName,
+        group_id,
+      },
+    }
+  );
+}
+
+/*
+  添加复制应用
+*/
+export async function AddCopyTeamApps(body = {},handleError) {
+  const { tenantName, group_id } = body;
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${tenantName}/groupapp/${group_id}/copy`,
+    {
+      handleError,
+      method: 'post',
+      data: body,
+    }
+  );
+}
+
+/*
 	查询未完成分享记录
 */
 export async function recordShare(

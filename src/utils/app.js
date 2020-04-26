@@ -192,10 +192,12 @@ const appUtil = {
     return source === 'market';
   },
   isMarketAppByBuildSource(buildSource) {
-    return buildSource.service_source === 'market';
+    return buildSource && buildSource.service_source === 'market';
   },
   isOauthByBuildSource(buildSource) {
-    return !!(buildSource.code_from && buildSource.code_from.indexOf('oauth') > -1);
+    return !!(
+      buildSource.code_from && buildSource.code_from.indexOf('oauth') > -1
+    );
   },
 
   // 是否是镜像安装的应用
@@ -208,7 +210,7 @@ const appUtil = {
     );
   },
   isImageAppByBuildSource(buildSource) {
-    const source = buildSource.service_source;
+    const source = buildSource && buildSource.service_source;
     return (
       source === 'docker_compose' ||
       source === 'docker_run' ||
@@ -221,7 +223,7 @@ const appUtil = {
     return source === 'source_code';
   },
   isCodeAppByBuildSource(buildSource) {
-    const source = buildSource.service_source;
+    const source = buildSource && buildSource.service_source;
     return source === 'source_code';
   },
   // 是否是dockerfile类型的应用

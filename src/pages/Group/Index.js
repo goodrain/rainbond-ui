@@ -21,6 +21,7 @@ import EditorTopology from './EditorTopology';
 import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import VisterBtn from '../../components/visitBtnForAlllink';
+import RapidCopy from '../../components/RapidCopy';
 import styless from '../../components/CreateTeam/index.less';
 import styles from './Index.less';
 import globalUtil from '../../utils/global';
@@ -134,6 +135,7 @@ class Main extends PureComponent {
       size: 'large',
       currApp: {},
       loadingDetail: true,
+      rapidCopy: false,
     };
   }
   getGroupId() {
@@ -357,13 +359,13 @@ class Main extends PureComponent {
       },
     });
   };
-  handleUpDataHeader = () =>{
-    const {  dispatch } = this.props;
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/IsUpDataHeader',
-      payload: {isUpData: true,},
+      payload: { isUpData: true },
     });
-  }
+  };
   toAdd = () => {
     this.setState({ toAdd: true });
   };
@@ -401,6 +403,18 @@ class Main extends PureComponent {
     });
   };
 
+  handleOpenRapidCopy = () => {
+    this.setState({
+      rapidCopy: true,
+    });
+  };
+
+  handleCloseRapidCopy = () => {
+    this.setState({
+      rapidCopy: false,
+    });
+  };
+
   handlePromptModal_open = () => {
     const { code } = this.state;
     this.props.dispatch({
@@ -432,11 +446,19 @@ class Main extends PureComponent {
   };
 
   render() {
-    const { currUser, groupDetail, appID } = this.props;
 
+    const {
+      currUser, groupDetail, appID,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+    } = this.props;
+
+
+    const { loadingDetail, currApp, rapidCopy } = this.state;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
-    const { loadingDetail, currApp } = this.state;
+
     if (groupDetail.group_id != appID && !loadingDetail) {
       this.fetchAppDetail();
     }
@@ -523,13 +545,20 @@ class Main extends PureComponent {
         >
           构建
         </Button>
+        <Button
+          style={MR}
+          disabled={BtnDisabled}
+          onClick={this.handleOpenRapidCopy}
+        >
+          快速复制
+        </Button>
         {this.state.linkList.length > 0 && (
           <VisterBtn linkList={this.state.linkList} />
         )}
       </div>
     );
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -565,15 +594,15 @@ class Main extends PureComponent {
           <Col span={16} style={{ paddingleft: '12px' }}>
             <Link
               onClick={() => {
-                  this.changeType('shape');
-                }}
+                this.changeType('shape');
+              }}
               style={{
-                  marginLeft: '30px',
-                  color:
-                    this.state.type !== 'list'
-                      ? '#1890ff'
-                      : 'rgba(0, 0, 0, 0.65)',
-                }}
+                marginLeft: '30px',
+                color:
+                  this.state.type !== 'list'
+                    ? '#1890ff'
+                    : 'rgba(0, 0, 0, 0.65)',
+              }}
             >
               拓扑图
             </Link>
@@ -624,6 +653,14 @@ class Main extends PureComponent {
             />
           </Col>
         </Row>
+        {rapidCopy && (
+          <RapidCopy
+            on={this.handleCloseRapidCopy}
+            onCancel={this.handleCloseRapidCopy}
+            title="应用复制"
+          />
+        )}
+
         {this.state.type !== 'list' && (
           <Row
             style={{
@@ -708,14 +745,9 @@ class Main extends PureComponent {
   }
 }
 
-@connect(
-  ({ user }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  {
-    pure: false,
-  }
-)
+@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
+  pure: false,
+})
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);

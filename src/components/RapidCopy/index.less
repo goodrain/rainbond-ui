@@ -1,0 +1,47 @@
+.tabTitle,
+.tabTr {
+  display           : flex;
+  align-items       : center;
+  color             : rgba(0, 0, 0, .65);
+  text-align        : left;
+  border-bottom     : 1px solid #e8e8e8;
+  -webkit-transition: background .3s ease;
+  transition        : background .3s ease;
+  padding           : 16px;
+  &>div{height:40px}
+}
+
+.tabTitle {
+  background        : #fafafa;
+  font-weight: 500;
+  color             :rgba(0,0,0,.85)
+}
+.tabTr {
+  height: 73px;
+}
+
+.w500 {
+  width: 500px;
+}
+
+.w300 {
+  width: 300px;
+}
+
+.w380 {
+  width: 380px;
+}
+
+.over {
+  text-overflow: ellipsis;
+  white-space  : nowrap;
+  overflow     : hidden;
+  display      : flex;
+  align-items  : center;
+
+  :global {
+    .ant-form-item {
+      margin-bottom: 0 !important;
+    }
+  }
+}
