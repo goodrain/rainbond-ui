@@ -43,9 +43,15 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e && e.preventDefault();
-    const form = this.props.form;
+    const { form } = this.props;
+    const { checkedList } = this.state;
     form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
+      if (!checkedList.includes('showUsernameAndPass')) {
+        fieldsValue.password = undefined;
+        fieldsValue.username = undefined;
+      }
+
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
     });
   };
@@ -186,11 +192,7 @@ export default class Index extends PureComponent {
           {getFieldDecorator('image', {
             initialValue: data.image || '',
             rules: [{ validator: this.checkCmd }],
-          })(
-            <Input
-              placeholder="请输入镜像地址（名称:tag）如nginx:1.11"
-            />
-          )}
+          })(<Input placeholder="请输入镜像地址（名称:tag）如nginx:1.11" />)}
         </Form.Item>
         <Form.Item
           style={{ display: type === 'dockerfile' ? '' : 'none' }}
@@ -201,9 +203,7 @@ export default class Index extends PureComponent {
             initialValue: data.code_repo || '',
             rules: [{ validator: this.checkCode }],
           })(
-            <Input
-              placeholder="请输入源码Git地址（必须包含Dockerfile文件）"
-            />
+            <Input placeholder="请输入源码Git地址（必须包含Dockerfile文件）" />
           )}
         </Form.Item>
         {showKey && <ShowRegionKey onCancel={this.hideShowKey} />}
