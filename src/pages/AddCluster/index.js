@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Divider, Empty, Form, Input, Row, Steps, Table, Typography } from 'antd';
+import { Alert, Button, Card, Col, Divider, Empty, Form, Input, Modal, Row, Steps, Table, Typography } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -46,12 +46,21 @@ export default class EnterpriseClusters extends PureComponent {
       loading: false,
       runningInitLoading: true,
       initTask: {},
+      initShow: false,
       runningInitTasks: [],
     };
   }
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch } = this.props;
+    const {
+      location: {
+        query: { init },
+      },
+    } = this.props;
+    if (init) {
+      this.setState({ initShow: true });
+    }
     if (!adminer) {
       dispatch(routerRedux.push(`/`));
     }
@@ -60,7 +69,6 @@ export default class EnterpriseClusters extends PureComponent {
     this.getAccessKey();
     this.loadRunningInitTasks();
   }
-
 
   addClusterOK = () => {
     const { dispatch } = this.props;
@@ -271,26 +279,47 @@ export default class EnterpriseClusters extends PureComponent {
               <li>
                 <span>
                   确保以下服务已开通或授权已授予：
-                  {cloud.getAliyunCountDescribe().map(item=>{
-                    return <a style={{marginRight: "8px"}} href={item.href} target="_blank">{item.title}</a>
+                  {cloud.getAliyunCountDescribe().map(item => {
+                    return (
+                      <a
+                        style={{ marginRight: '8px' }}
+                        href={item.href}
+                        target="_blank"
+                      >
+                        {item.title}
+                      </a>
+                    );
                   })}
                 </span>
               </li>
-              <li><span>推荐在阿里云控制台企业RAM访问控制页面中创建独立的RAM用户，并创建用户AccessKey</span></li>
               <li>
                 <span>
-                  请为RAM用户赋予:<b>AliyunCSFullAccess</b>、<b>AliyunECSFullAccess</b>、<b>AliyunVPCFullAccess</b>、<b>AliyunRDSFullAccess</b>、<b>AliyunNASFullAccess</b>、<b>AliyunSLBFullAccess</b>权限
-                </span>
-              </li>
-              <li><span>我们将严格保护AccessKey安全，若你有安全顾虑，可以在集群对接完成后删除账号收回权限</span></li>
-              <li>
-                <span>
-                  如果对接已存在的Kubernetes集群，对集群已有业务不影响，另外会按需购买RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用<b>0.5</b>元
+                  推荐在阿里云控制台企业RAM访问控制页面中创建独立的RAM用户，并创建用户AccessKey
                 </span>
               </li>
               <li>
                 <span>
-                  如果新购买Kubernetes集群，我们会按需创建购买Kubernetes托管集群(1个)，RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用<b>2.5</b>元
+                  请为RAM用户赋予:<b>AliyunCSFullAccess</b>、
+                  <b>AliyunECSFullAccess</b>、<b>AliyunVPCFullAccess</b>、
+                  <b>AliyunRDSFullAccess</b>、<b>AliyunNASFullAccess</b>、
+                  <b>AliyunSLBFullAccess</b>权限
+                </span>
+              </li>
+              <li>
+                <span>
+                  我们将严格保护AccessKey安全，若你有安全顾虑，可以在集群对接完成后删除账号收回权限
+                </span>
+              </li>
+              <li>
+                <span>
+                  如果对接已存在的Kubernetes集群，对集群已有业务不影响，另外会按需购买RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用
+                  <b>0.5</b>元
+                </span>
+              </li>
+              <li>
+                <span>
+                  如果新购买Kubernetes集群，我们会按需创建购买Kubernetes托管集群(1个)，RDS(1个)，NAS(1个)，SLB(1个)，预计每小时费用
+                  <b>2.5</b>元
                 </span>
               </li>
             </ul>
@@ -389,7 +418,9 @@ export default class EnterpriseClusters extends PureComponent {
       <Table pagination={false} columns={columns} dataSource={tasks}></Table>
     );
   };
-
+  hideInitShow = () => {
+    this.setState({ initShow: false });
+  };
   render() {
     const {
       addClusterShow,
@@ -402,14 +433,12 @@ export default class EnterpriseClusters extends PureComponent {
       showInitTaskDetail,
       initTask,
       runningInitTasks,
+      initShow,
     } = this.state;
 
     const {
       match: {
         params: { eid },
-      },
-      location: {
-        query: { init },
       },
     } = this.props;
 
@@ -542,7 +571,7 @@ export default class EnterpriseClusters extends PureComponent {
                           </div>
                         )}
                         {item.disable && (
-                          <div className={styles.disable}>即将支持</div>
+                          <div className={styles.disable}>即将支持（需要请联系我们）</div>
                         )}
                       </Row>
                     </Col>
@@ -640,6 +669,22 @@ export default class EnterpriseClusters extends PureComponent {
             taskID={initTask.taskID}
             clusterID={initTask.clusterID}
           ></ShowInitRainbondDetail>
+        )}
+        {initShow && (
+          <Modal
+            width={600}
+            centered
+            maskClosable={false}
+            footer={false}
+            wrapClassName={styles.initModal}
+            onCancel={this.hideInitShow}
+            visible
+          >
+            <h2 className={styles.initTitle}>欢迎您成为尊贵的Rainbond Cloud用户</h2>
+            <p>稍后我们将委派专业的同事与您取得联系并为你答疑解惑</p>
+            <p>作为您体验 Rainbond Cloud 产品的第一步，我们为您准备了便捷的集群的资源方式，解除你的安装烦恼</p>
+            <p>若您对于Rainbond Cloud产品形态或资源对接有疑惑，请阅读 <a href="https://www.rainbond.com/docs/quick-start/rainbond-cloud/" target="_blank">Rainbond Cloud产品说明</a></p>
+          </Modal>
         )}
       </PageHeaderLayout>
     );
