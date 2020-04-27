@@ -25,7 +25,7 @@ export default class ErrorBoundary extends React.PureComponent {
       console.log('进来', hasError);
 
       // 你可以自定义降级后的 UI 并渲染
-      return <h1>Something went wrong.</h1>;
+      // return <h1>Something went wrong.</h1>;
     }
     console.log('hasError', hasError);
 

@@ -415,7 +415,7 @@ export default class Enterprise extends PureComponent {
       collectionList && collectionList.length > 0 && collectionList;
 
     const colors = { color: '#3D54C4', cursor: 'pointer' };
-    const memoryInfo = overviewMonitorInfo.el && overviewMonitorInfo.memory;
+    const memoryInfo = overviewMonitorInfo && overviewMonitorInfo.memory;
     const memoryUsed = memoryInfo && this.handlUnit(memoryInfo.used);
     const memoryUsedUnit = memoryInfo && this.handlUnit(memoryInfo.used, 'MB');
     const memoryTotal = memoryInfo && this.handlUnit(memoryInfo.total);
@@ -512,7 +512,7 @@ export default class Enterprise extends PureComponent {
               </div>
 
               {enterpriseInfo && (
-                <div className={styles.enterpriseName}>
+                <div className={styles.enterpriseName} onClick={()=>{enterpriseInfo.delefe()}}>
                   企业名称：{enterpriseInfo.enterprise_alias}
                 </div>
               )}
