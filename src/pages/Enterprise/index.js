@@ -415,7 +415,7 @@ export default class Enterprise extends PureComponent {
       collectionList && collectionList.length > 0 && collectionList;
 
     const colors = { color: '#3D54C4', cursor: 'pointer' };
-    const memoryInfo = overviewMonitorInfo && overviewMonitorInfo.memory;
+    const memoryInfo = overviewMonitorInfo.el && overviewMonitorInfo.memory;
     const memoryUsed = memoryInfo && this.handlUnit(memoryInfo.used);
     const memoryUsedUnit = memoryInfo && this.handlUnit(memoryInfo.used, 'MB');
     const memoryTotal = memoryInfo && this.handlUnit(memoryInfo.total);
