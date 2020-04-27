@@ -512,7 +512,7 @@ export default class Enterprise extends PureComponent {
               </div>
 
               {enterpriseInfo && (
-                <div className={styles.enterpriseName} onClick={()=>{enterpriseInfo.delefe()}}>
+                <div className={styles.enterpriseName}>
                   企业名称：{enterpriseInfo.enterprise_alias}
                 </div>
               )}

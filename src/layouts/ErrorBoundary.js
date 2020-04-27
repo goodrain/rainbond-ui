@@ -1,5 +1,7 @@
 import React from 'react';
-
+import { connect } from 'dva';
+import { notification } from 'antd';
+@connect()
 export default class ErrorBoundary extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -13,22 +15,29 @@ export default class ErrorBoundary extends React.PureComponent {
 
   componentDidCatch(error, errorInfo) {
     // 你同样可以将错误日志上报给服务器
-    console.log('err', error);
+    console.log('err', error.toString());
     console.log('errorInfo', errorInfo);
-    // logErrorToMyService(error, errorInfo);
+    this.saveLog(error);
   }
+
+  saveLog = error => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/saveLog',
+      payload: {
+        msg: error.toString(),
+      },
+    });
+  };
 
   render() {
     const { hasError } = this.state;
     const { children } = this.props;
     if (hasError) {
-      console.log('进来', hasError);
-
-      // 你可以自定义降级后的 UI 并渲染
-      // return <h1>Something went wrong.</h1>;
+      notification.info({
+        message: '捕获一个错误,马上修复请耐心等待',
+      });
     }
-    console.log('hasError', hasError);
-
     return children;
   }
 }
