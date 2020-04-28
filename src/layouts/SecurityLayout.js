@@ -5,6 +5,7 @@ import PageLoading from '../components/PageLoading';
 import { stringify } from 'querystring';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
+import ErrorBoundary from './ErrorBoundary';
 
 class SecurityLayout extends React.PureComponent {
   state = {
@@ -64,7 +65,8 @@ class SecurityLayout extends React.PureComponent {
     if (isReady && !isLogin && window.location.pathname !== '/user/login') {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-    return children;
+
+    return <ErrorBoundary children={children} />;
   }
 }
 
