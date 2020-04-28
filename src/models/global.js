@@ -40,6 +40,7 @@ import {
   deleteJoinTeam,
   setRegist,
   getRegist,
+  saveLog,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
   fetchEnterpriseUsers,
@@ -497,6 +498,13 @@ export default {
         callback && callback(response);
       }
     },
+    *saveLog({ payload, callback }, { put, call }) {
+      const response = yield call(saveLog, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchEnterpriseTeams({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseTeams, payload);
       if (response) {

@@ -118,6 +118,7 @@ export default [
             name: 'AddCluster',
             authority: ['admin', 'user'],
           },
+          {component:'404'}
         ],
       },
       // team view layout
@@ -395,6 +396,7 @@ export default [
             name: 'license',
             authority: ['admin', 'user'],
           },
+          {component:'404'}
         ],
       },
     ],

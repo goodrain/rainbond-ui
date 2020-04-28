@@ -39,7 +39,6 @@ export async function fetchEnterpriseApps(body = { enterprise_id }) {
   获取应用列表下组件
  */
 
-
 export async function fetchAppComponents(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/apps/${body.app_id}/components`,
@@ -53,8 +52,6 @@ export async function fetchAppComponents(body = {}) {
     }
   );
 }
-
-
 
 /*
   获取用户可加入团队列表
@@ -862,6 +859,17 @@ export async function fetchEnterpriseInfo(param) {
     }
   );
 }
+
+/* save log */
+export async function saveLog(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/errlog`,
+    {
+      method: 'post',
+      data: body,
+    }
+  );
+}
 /* 查询企业下所有团队 */
 export async function fetchEnterpriseTeams(param) {
   return request(
@@ -1162,7 +1170,7 @@ export async function toCeateSourceCode(params) {
 }
 
 /** 创建用户 */
-export async function toCreatUser(params,handleError) {
+export async function toCreatUser(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/users`,
     {
