@@ -1,7 +1,9 @@
 import React from 'react';
 import { connect } from 'dva';
 import { notification } from 'antd';
-@connect()
+@connect(({ user }) => ({
+  currentUser: user.currentUser,
+}))
 export default class ErrorBoundary extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -21,11 +23,13 @@ export default class ErrorBoundary extends React.PureComponent {
   }
 
   saveLog = error => {
-    const { dispatch } = this.props;
+    const { dispatch, currentUser } = this.props;
     dispatch({
       type: 'global/saveLog',
       payload: {
-        msg: error.toString(),
+        msg: `用户名称：${currentUser.user_name} 企业ID ${
+          currentUser.enterprise_id
+        } 地址 ${window.location.href} 错误：${error.toString()}`,
       },
     });
   };
@@ -35,7 +39,7 @@ export default class ErrorBoundary extends React.PureComponent {
     const { children } = this.props;
     if (hasError) {
       notification.info({
-        message: '捕获一个错误,马上修复请耐心等待',
+        message: '遇到故障,我们会尽快修复、请稍后重试',
       });
     }
     return children;
