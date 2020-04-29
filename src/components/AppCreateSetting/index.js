@@ -1,23 +1,22 @@
-import { Affix, Button, Card, Col, Form, Icon, Input, notification, Radio, Row, Table, Tooltip } from 'antd';
+import { Affix, Button, Card, Col, Form, Icon, notification, Radio, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import React, { Fragment, PureComponent } from 'react';
-import AddOrEditEnv from '../../components/AddOrEditEnv';
 import AddOrEditVolume from '../../components/AddOrEditVolume';
 import AddPort from '../../components/AddPort';
 import AddRelation from '../../components/AddRelation';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditPortAlias from '../../components/EditPortAlias';
+import EnvironmentVariable from '../../components/EnvironmentVariable';
 import Port from '../../components/Port';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
-import styless from '../../pages/Component/Index.less';
 import { addMnt, batchAddRelationedApp, getMnt, getRelationedApp, removeRelationedApp } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
+
 
 
 const RadioButton = Radio.Button;
@@ -824,313 +823,6 @@ class Relation extends PureComponent {
   }
 }
 
-// 环境变量
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true,
-})
-class Env extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {
-      showAddVar: false,
-      showEditVar: null,
-      deleteVar: null,
-      innerEnvs: [],
-      page: 1,
-      page_size: 5,
-      total: 0,
-      env_name: '',
-      isAttrNameList: [],
-    };
-  }
-  componentDidMount() {
-    this.fetchInnerEnvs();
-  }
-  fetchInnerEnvs = () => {
-    const { page, page_size, env_name } = this.state;
-
-    this.props.dispatch({
-      type: 'appControl/fetchInnerEnvs',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        page,
-        page_size,
-        env_name,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          const arr = [];
-          if (res.list && res.list.length > 0) {
-            res.list.map(item => {
-              const isHidden = globalUtil.confirmEnding(
-                `${item.attr_name}`,
-                'PASS'
-              );
-              if (isHidden) {
-                arr.push(item.ID);
-              }
-            });
-          }
-          this.setState({
-            isAttrNameList: arr,
-            total: res.bean.total,
-            innerEnvs: res.list || [],
-          });
-        }
-      },
-    });
-  };
-  handleAddVar = () => {
-    this.setState({ showAddVar: true });
-  };
-  handleCancelAddVar = () => {
-    this.setState({ showAddVar: false });
-  };
-  handleSubmitAddVar = vals => {
-    this.props.dispatch({
-      type: 'appControl/addInnerEnvs',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        attr_name: vals.attr_name,
-        attr_value: vals.attr_value,
-        name: vals.name,
-      },
-      callback: () => {
-        this.handleCancelAddVar();
-        this.fetchInnerEnvs();
-      },
-    });
-  };
-
-  onEditVar = data => {
-    this.setState({ showEditVar: data });
-  };
-  cancelEditVar = () => {
-    this.setState({ showEditVar: null });
-  };
-  handleEditVar = vals => {
-    const { showEditVar } = this.state;
-    this.props.dispatch({
-      type: 'appControl/editEvns',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        ID: showEditVar.ID,
-        attr_value: vals.attr_value,
-        name: vals.name,
-      },
-      callback: () => {
-        this.cancelEditVar();
-        this.fetchInnerEnvs();
-      },
-    });
-  };
-  onDeleteVar = data => {
-    this.setState({ deleteVar: data });
-  };
-  cancelDeleteVar = () => {
-    this.setState({ deleteVar: null });
-  };
-  handleDeleteVar = () => {
-    this.props.dispatch({
-      type: 'appControl/deleteEnvs',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        ID: this.state.deleteVar.ID,
-      },
-      callback: () => {
-        this.cancelDeleteVar();
-        this.fetchInnerEnvs();
-      },
-    });
-  };
-
-  onPageChange = page => {
-    this.setState(
-      {
-        page,
-      },
-      () => {
-        this.fetchInnerEnvs();
-      }
-    );
-  };
-  AfterPassword = (isHidden, ID) => {
-    const passwordShow = globalUtil.fetchSvg('passwordShow');
-    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
-    return (
-      <span
-        onClick={() => {
-          this.handlePassword(isHidden, ID);
-        }}
-      >
-        {isHidden ? passwordHidden : passwordShow}
-      </span>
-    );
-  };
-  handlePassword = (isHidden, ID) => {
-    const { isAttrNameList } = this.state;
-    const arr = isAttrNameList;
-    if (isHidden) {
-      const index = arr.indexOf(ID);
-      arr.splice(index, 1);
-    } else {
-      arr.push(ID);
-    }
-    this.setState({
-      isAttrNameList: arr,
-    });
-  };
-  shouldComponentUpdate() {
-    return true;
-  }
-  render() {
-    const { innerEnvs, isAttrNameList } = this.state;
-    const wraps = {
-      wordBreak: 'break-all',
-      wordWrap: 'break-word',
-    };
-    return (
-      <Card
-        title="环境变量"
-        style={{
-          marginBottom: 16,
-        }}
-      >
-        <Table
-          columns={[
-            {
-              title: '变量名',
-              dataIndex: 'attr_name',
-              key: '1',
-              width: '30%',
-              render: v => <div style={wraps}>{v}</div>,
-            },
-            {
-              title: '变量值',
-              dataIndex: 'attr_value',
-              key: '2',
-              width: '30%',
-              render: (v, item) => {
-                const isHidden = isAttrNameList.includes(item.ID);
-                const isInput = globalUtil.confirmEnding(
-                  `${item.attr_name}`,
-                  'PASS'
-                );
-                return (
-                  <div style={wraps} key={v}>
-                    <Tooltip title={!isInput ? v : !isHidden && v}>
-                      {isInput ? (
-                        <Input
-                          addonAfter={this.AfterPassword(isHidden, item.ID)}
-                          type={isHidden ? 'password' : 'text'}
-                          className={styless.hiddeninput}
-                          value={v}
-                        />
-                      ) : (
-                        <div style={wraps}>{v}</div>
-                      )}
-                    </Tooltip>
-                  </div>
-                );
-              },
-            },
-            {
-              title: '说明',
-              dataIndex: 'name',
-              key: '3',
-              width: '25%',
-              render: v => <div style={wraps}>{v}</div>,
-            },
-            {
-              title: '操作',
-              dataIndex: 'action',
-              key: '4',
-              width: '15%',
-              render: (val, data) => {
-                return (
-                  <Fragment>
-                    {data.is_change ? (
-                      <a
-                        href="javascript:;"
-                        style={{
-                          marginRight: 8,
-                        }}
-                        onClick={() => {
-                          this.onDeleteVar(data);
-                        }}
-                      >
-                        删除
-                      </a>
-                    ) : (
-                      ''
-                    )}
-                    {data.is_change ? (
-                      <a
-                        href="javascript:;"
-                        onClick={() => {
-                          this.onEditVar(data);
-                        }}
-                      >
-                        修改
-                      </a>
-                    ) : (
-                      ''
-                    )}
-                  </Fragment>
-                );
-              },
-            },
-          ]}
-          pagination={{
-            current: this.state.page,
-            pageSize: this.state.page_size,
-            total: this.state.total,
-            onChange: this.onPageChange,
-          }}
-          dataSource={innerEnvs}
-        />
-        <div
-          style={{
-            textAlign: 'right',
-            paddingTop: 20,
-          }}
-        >
-          <Button type="default" onClick={this.handleAddVar}>
-            <Icon type="plus" />
-            添加变量
-          </Button>
-        </div>
-        {this.state.showAddVar && (
-          <AddOrEditEnv
-            onCancel={this.handleCancelAddVar}
-            onSubmit={this.handleSubmitAddVar}
-          />
-        )}
-        {this.state.showEditVar && (
-          <AddOrEditEnv
-            onCancel={this.cancelEditVar}
-            onSubmit={this.handleEditVar}
-            data={this.state.showEditVar}
-          />
-        )}
-        {this.state.deleteVar && (
-          <ConfirmModal
-            onOk={this.handleDeleteVar}
-            onCancel={this.cancelDeleteVar}
-            title="删除变量"
-            desc="确定要删除此变量吗？"
-            subDesc="此操作不可恢复"
-          />
-        )}
-      </Card>
-    );
-  }
-}
-
 // 端口
 @connect(({ user, appControl, teamControl }) => ({}), null, null, {
   withRef: true,
@@ -1397,7 +1089,11 @@ class RenderProperty extends PureComponent {
         }}
       >
         <Ports appDetail={appDetail} />
-        <Env appDetail={appDetail} />
+        <EnvironmentVariable
+          title="环境变量"
+          type="Inner"
+          appAlias={appDetail.service.service_alias}
+        />
         <Mnt appDetail={appDetail} />
         <Relation appDetail={appDetail} />
       </div>
@@ -1442,11 +1138,9 @@ export default class Index extends PureComponent {
             <Affix offsetTop={0}>
               <div>
                 <span
-                  className={
-                    `${styles.typeBtn
-                    } ${
-                    type === 'property' ? styles.active : ''}`
-                  }
+                  className={`${styles.typeBtn} ${
+                    type === 'property' ? styles.active : ''
+                  }`}
                   onClick={() => {
                     this.handleType('property');
                   }}
@@ -1455,11 +1149,9 @@ export default class Index extends PureComponent {
                   <Icon type="right" />
                 </span>
                 <span
-                  className={
-                    `${styles.typeBtn
-                    } ${
-                    type === 'deploy' ? styles.active : ''}`
-                  }
+                  className={`${styles.typeBtn} ${
+                    type === 'deploy' ? styles.active : ''
+                  }`}
                   onClick={() => {
                     this.handleType('deploy');
                   }}
