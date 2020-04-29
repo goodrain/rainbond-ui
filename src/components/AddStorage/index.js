@@ -20,7 +20,6 @@ import BraftEditor from 'braft-editor';
 import 'braft-editor/dist/index.css';
 import 'braft-extensions/dist/code-highlighter.css';
 import CodeHighlighter from 'braft-extensions/dist/code-highlighter';
-
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 
@@ -88,9 +87,8 @@ export default class AddVolumes extends PureComponent {
     }
   };
 
-
   handleChanges = info => {
-    if (this.checkFile(info.file,false)) {
+    if (this.checkFile(info.file, false)) {
       let fileList = [...info.fileList];
       if (fileList.length > 0) {
         fileList = fileList.slice(-1);
@@ -99,27 +97,28 @@ export default class AddVolumes extends PureComponent {
     }
   };
   beforeUpload = file => {
-    return this.checkFile(file,true);
+    return this.checkFile(file, true);
   };
 
-    // 验证上传文件方式
-    checkFile = (file,isprompt) => {
-      const fileArr = file.name.split('.');
-      const length = fileArr.length;
-      const isRightType =
-        fileArr[length - 1] == 'txt' ||
-        fileArr[length - 1] == 'json' ||
-        fileArr[length - 1] == 'yaml' ||
-        fileArr[length - 1] == 'yml' ||
-        fileArr[length - 1] == 'xml';
-      if (!isRightType) {
-        isprompt&&notification.error({
+  // 验证上传文件方式
+  checkFile = (file, isprompt) => {
+    const fileArr = file.name.split('.');
+    const length = fileArr.length;
+    const isRightType =
+      fileArr[length - 1] == 'txt' ||
+      fileArr[length - 1] == 'json' ||
+      fileArr[length - 1] == 'yaml' ||
+      fileArr[length - 1] == 'yml' ||
+      fileArr[length - 1] == 'xml';
+    if (!isRightType) {
+      isprompt &&
+        notification.error({
           message: '请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件',
         });
-        return false;
-      }
-      return true;
-    };
+      return false;
+    }
+    return true;
+  };
 
   readFileContents = (fileList, name) => {
     const _th = this;
@@ -147,23 +146,16 @@ export default class AddVolumes extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { data, appBaseInfo } = this.props;
-    const controls = [
-      'bold',
-      'italic',
-      'underline',
-      'text-color',
-      'link',
-      'fullscreen',
-    ];
+    const controls = ['code', 'fullscreen'];
 
     const formItemLayout = {
       labelCol: {
-        xs: { span: 7 },
-        sm: { span: 7 },
+        xs: { span: 24 },
+        sm: { span: 24 },
       },
       wrapperCol: {
-        xs: { span: 17 },
-        sm: { span: 17 },
+        xs: { span: 24 },
+        sm: { span: 24 },
       },
     };
     const token = cookie.get('token');
@@ -183,7 +175,7 @@ export default class AddVolumes extends PureComponent {
           paddingBottom: 53,
         }}
       >
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} labelAlign="left">
           <FormItem {...formItemLayout} label="配置文件名称">
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
@@ -232,62 +224,55 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           </div>
-
-          <FormItem
-            {...formItemLayout}
-            label="配置文件内容"
-            style={{ textAlign: 'right' }}
-          >
-            {getFieldDecorator('file_content', {
-              initialValue: data.file_content || undefined,
-              validateTrigger: 'onBlur',
-              rules: [
-                {
-                  required: true,
-                  validator: (_, value, callback) => {
-                    if (value.isEmpty()) {
-                      callback('请编辑内容!');
-                    } else {
-                      callback();
-                    }
-                  },
-                },
-              ],
-            })(
-              // <div className="editor-container">
-              <BraftEditor
-                id="editor-with-code-highlighter"
-                className="my-editor editor-container"
-                style={{ border: '1px solid #e8e8e8' }}
-                contentStyle={{
-                  height: 400,
-                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
-                }}
-                controls={controls}
-                extendControls={[
+          <FormItem {...formItemLayout} label="配置文件内容">
+            <div className="editor-container">
+              {getFieldDecorator('file_content', {
+                initialValue: data.file_content || undefined,
+                validateTrigger: 'onBlur',
+                rules: [
                   {
-                    key: 'antd-uploader',
-                    type: 'component',
-                    component: (
-                      <Upload
-                        action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                        showUploadList={false}
-                        withCredentials
-                        headers={{ Authorization: `GRJWT ${token}` }}
-                        onChange={this.handleChanges}
-                        beforeUpload={this.beforeUpload}
-                      >
-                        <span style={{ cursor: 'pointer' }}>上传</span>
-                      </Upload>
-                    ),
+                    required: true,
+                    validator: (_, value, callback) => {
+                      if (value.isEmpty()) {
+                        callback('请编辑内容!');
+                      } else {
+                        callback();
+                      }
+                    },
                   },
-                ]}
-                placeholder="请编辑内容"
-              />
-              // </div>
-
-              // <TextArea rows={8} style={{ backgroundColor: "#02213f", color: "#fff" }} />
-            )}
+                ],
+              })(
+                <BraftEditor
+                  id="editor-with-code-highlighter"
+                  className="my-editor"
+                  style={{ border: '1px solid #e8e8e8' }}
+                  contentStyle={{
+                    height: 400,
+                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,.1)',
+                  }}
+                  controls={controls}
+                  extendControls={[
+                    {
+                      key: 'antd-uploader',
+                      type: 'component',
+                      component: (
+                        <Upload
+                          action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
+                          showUploadList={false}
+                          withCredentials
+                          headers={{ Authorization: `GRJWT ${token}` }}
+                          onChange={this.handleChanges}
+                          beforeUpload={this.beforeUpload}
+                        >
+                          <div style={{ cursor: 'pointer',width:'36px',marginTop:'12px',textAlign:'center' }}>上传</div>
+                        </Upload>
+                      ),
+                    },
+                  ]}
+                  placeholder="请编辑内容"
+                />
+              )}
+            </div>
           </FormItem>
           <Row>
             <Col style={{ marginTop: '-7%' }} span={4} offset={9} />
