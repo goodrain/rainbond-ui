@@ -14,7 +14,7 @@ export async function getProtocols(body = {
 }
 
 /** 创建集群 */
-export async function createEnterpriseCluster(params) {
+export async function createEnterpriseCluster(params, handleError=null) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/regions`,
     {
@@ -26,6 +26,7 @@ export async function createEnterpriseCluster(params) {
         desc: params.desc,
         token: params.token,
       },
+      handleError
     }
   );
 }

@@ -57,6 +57,9 @@ export default class SetRegionConfig extends PureComponent {
             });
           }
         },
+        handleError: () => {
+          this.setState({commitloading: false})
+        },
       });
     });
   };

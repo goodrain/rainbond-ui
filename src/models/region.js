@@ -1,11 +1,4 @@
-import { 
-  getProtocols,
-  upEnterpriseCluster,
-  createEnterpriseCluster,
-  fetchEnterpriseClusters,
-  fetchEnterpriseCluster,
-  deleteEnterpriseCluster
-} from '../services/region';
+import { createEnterpriseCluster, deleteEnterpriseCluster, fetchEnterpriseCluster, fetchEnterpriseClusters, getProtocols, upEnterpriseCluster } from '../services/region';
 
 export default {
   namespace: 'region',
@@ -26,8 +19,8 @@ export default {
         callback(response);
       }
     },
-    *createEnterpriseCluster({ payload, callback }, { put, call }) {
-      const response = yield call(createEnterpriseCluster, payload);
+    *createEnterpriseCluster({ payload, callback, handleError}, { put, call }) {
+      const response = yield call(createEnterpriseCluster, payload, handleError);
       if (response && callback) {
         callback(response);
       }
