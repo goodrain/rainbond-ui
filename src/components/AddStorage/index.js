@@ -67,7 +67,6 @@ export default class AddVolumes extends PureComponent {
       if (!err) {
         const obj = values.file_content.toRAW(true);
         // const obj = values.file_content.toHTML();
-        console.log('obj', obj);
         values.file_content =
           obj && obj.blocks && obj.blocks.length > 0 && obj.blocks[0].text;
         this.props.onSubmit && this.props.onSubmit(values);
