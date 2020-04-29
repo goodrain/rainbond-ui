@@ -127,16 +127,6 @@ export default class AddVarModal extends PureComponent {
                 disabled={data && data.attr_name ? true : false}
                 placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
               />
-
-              // <Select
-              //   placeholder="请输入变量名称 格式/^[A-Za-z].*$/"
-              //   showSearch
-              //   onSearch={(val) => { this.handleList(val, null) }}
-              // >
-              //   {list && list.map((item) => {
-              //     return <Option key={item} value={item}>{item}</Option>
-              //   })}
-              // </Select>
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="变量值">
@@ -149,15 +139,6 @@ export default class AddVarModal extends PureComponent {
                 }
               ]
             })(
-              // <Select
-              //   showSearch
-              //   onSearch={(val) => { this.handleList(null, val) }}
-              //   placeholder="请输入变量值"
-              // >
-              //   {list && list.map((item) => {
-              //     return <Option key={item} value={item}>{item}</Option>
-              //   })}
-              // </Select>
               <Input placeholder="请输入变量值" />
             )}
           </FormItem>

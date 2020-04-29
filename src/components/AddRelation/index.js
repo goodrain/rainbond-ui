@@ -80,7 +80,7 @@ export default class AddRelation extends PureComponent {
     return (
       <Modal
         title="添加依赖"
-        width={600}
+        width={1000}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
