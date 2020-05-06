@@ -15,6 +15,7 @@ import {
   Input,
 } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
+import EnvironmentVariable from '../../components/EnvironmentVariable';
 import AddVarModal from './setting/env';
 import { getMnt, addMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
@@ -537,149 +538,11 @@ export default class Index extends React.Component {
           </Col>
         </Row>
         <Row>
-          <Card
-            style={{
-              marginBottom: 24,
-            }}
+          <EnvironmentVariable
             title="自定义环境变量"
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '20px',
-              }}
-            >
-              <Search
-                style={{ width: '260px' }}
-                placeholder="请输入变量名进行搜索"
-                onSearch={this.handleSearch}
-              />
-              <Button onClick={this.handleAddVar}>
-                <Icon type="plus" />
-                添加变量
-              </Button>
-            </div>
-            <ScrollerX sm={600}>
-              <Table
-                columns={[
-                  {
-                    title: '变量名',
-                    dataIndex: 'attr_name',
-                    key: '1',
-                    width: '20%',
-                    render: v => (
-                      <Tooltip title={v}>
-                        <div style={wraps}>{v}</div>
-                      </Tooltip>
-                    ),
-                  },
-                  {
-                    title: '变量值',
-                    dataIndex: 'attr_value',
-                    key: '2',
-                    width: '40%',
-                    render: (v, item) => {
-                      const isHidden = isAttrNameList.includes(item.ID);
-                      const isInput = globalUtil.confirmEnding(
-                        `${item.attr_name}`,
-                        'PASS'
-                      );
-                      return (
-                        <div style={wraps} key={v}>
-                          <Tooltip title={!isInput ? v : !isHidden && v}>
-                            {isInput ? (
-                              <Input
-                                addonAfter={this.AfterPassword(
-                                  isHidden,
-                                  item.ID
-                                )}
-                                type={isHidden ? 'password' : 'text'}
-                                className={styles.hiddeninput}
-                                value={v}
-                              />
-                            ) : (
-                              <div style={wraps}>{v}</div>
-                            )}
-                          </Tooltip>
-                        </div>
-                      );
-                    },
-                  },
-                  {
-                    title: '说明',
-                    dataIndex: 'name',
-                    key: '3',
-                    width: '20%',
-                    render: v => (
-                      <Tooltip title={v}>
-                        <div style={wraps}>{v}</div>
-                      </Tooltip>
-                    ),
-                  },
-                  {
-                    title: '操作',
-                    dataIndex: 'action',
-                    key: '4',
-                    width: '20%',
-                    render: (v, data) => (
-                      <Fragment>
-                        <a
-                          href="javascript:;"
-                          onClick={() => {
-                            this.onDeleteVar(data);
-                          }}
-                          style={{ marginRight: '5px' }}
-                        >
-                          删除
-                        </a>
-                        <Tooltip
-                          title={
-                            <p>
-                              将此环境变量转换为
-                              <br />
-                              组件连接信息变量
-                            </p>
-                          }
-                        >
-                          <a
-                            href="javascript:;"
-                            onClick={() => {
-                              this.onTransfer(data);
-                            }}
-                            style={{ marginRight: '5px' }}
-                          >
-                            转移
-                          </a>
-                        </Tooltip>
-                        {data.is_change ? (
-                          <a
-                            href="javascript:;"
-                            onClick={() => {
-                              this.onEditVar(data);
-                            }}
-                            style={{ marginRight: '5px' }}
-                          >
-                            修改
-                          </a>
-                        ) : (
-                          ''
-                        )}
-                      </Fragment>
-                    ),
-                  },
-                ]}
-                dataSource={innerEnvs}
-                pagination={{
-                  current: this.state.page,
-                  pageSize: this.state.page_size,
-                  total: this.state.total,
-                  onChange: this.onPageChange,
-                }}
-              />
-            </ScrollerX>
-          </Card>
-
+            type="Inner"
+            appAlias={this.props.appAlias}
+          />
           <Col span={12}>
             <Alert
               showIcon

@@ -1096,7 +1096,8 @@ export async function getOuterEnvs(
     app_alias,
     env_type,
     page,
-    page_size
+    page_size,
+    env_name
   }
 ) {
   return request(
@@ -1108,6 +1109,7 @@ export async function getOuterEnvs(
       params: {
         env_type: "outer",
         page: body.page ? body.page : 1,
+        env_name: body.env_name ? body.env_name : "",
         page_size: body.page_size ? body.page_size : 5
       }
     }

@@ -1090,7 +1090,6 @@ export default class Enterprise extends PureComponent {
                     <div style={{ textAlign: 'right', marginTop: '8px' }}>
                       <Pagination
                         size="small"
-                        hideOnSinglePage
                         current={page}
                         pageSize={page_size}
                         total={Number(total)}
