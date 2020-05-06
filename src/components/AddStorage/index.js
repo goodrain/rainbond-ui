@@ -2,18 +2,14 @@ import React, { PureComponent } from 'react';
 import {
   Form,
   Input,
-  Modal,
   Radio,
   Tooltip,
   Drawer,
   Button,
   Row,
   Col,
-  Tabs,
   Upload,
-  Icon,
   notification,
-  message,
 } from 'antd';
 import BraftEditor from 'braft-editor';
 // 引入编辑器样式
@@ -25,8 +21,6 @@ import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const { TextArea } = Input;
-const TabPane = Tabs.TabPane;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
@@ -50,12 +44,11 @@ export default class AddVolumes extends PureComponent {
     );
     const { data, form } = this.props;
     // 异步设置编辑器内容
-    data &&
-      data.file_content &&
+
       setTimeout(() => {
         form.setFieldsValue({
           file_content: BraftEditor.createEditorState(
-            `<pre><code>${data.file_content}</code></pre>`
+            `<pre><code>${(data && data.file_content || '')}</code></pre>`
           ),
         });
       }, 1000);
@@ -88,37 +81,13 @@ export default class AddVolumes extends PureComponent {
   };
 
   handleChanges = info => {
-    if (this.checkFile(info.file, false)) {
       let fileList = [...info.fileList];
       if (fileList.length > 0) {
         fileList = fileList.slice(-1);
         this.readFileContents(fileList, 'file_content');
-      }
     }
-  };
-  beforeUpload = file => {
-    return this.checkFile(file, true);
   };
 
-  // 验证上传文件方式
-  checkFile = (file, isprompt) => {
-    const fileArr = file.name.split('.');
-    const length = fileArr.length;
-    const isRightType =
-      fileArr[length - 1] == 'txt' ||
-      fileArr[length - 1] == 'json' ||
-      fileArr[length - 1] == 'yaml' ||
-      fileArr[length - 1] == 'yml' ||
-      fileArr[length - 1] == 'xml';
-    if (!isRightType) {
-      isprompt &&
-        notification.error({
-          message: '请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件',
-        });
-      return false;
-    }
-    return true;
-  };
 
   readFileContents = (fileList, name) => {
     const _th = this;
@@ -140,13 +109,10 @@ export default class AddVolumes extends PureComponent {
     }
   };
 
-  callback = key => {
-    console.log(key);
-  };
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { data, appBaseInfo } = this.props;
-    const controls = ['code', 'fullscreen'];
+    const { data } = this.props;
+    const controls = ['fullscreen'];
 
     const formItemLayout = {
       labelCol: {
@@ -234,7 +200,7 @@ export default class AddVolumes extends PureComponent {
                     required: true,
                     validator: (_, value, callback) => {
                       if (value.isEmpty()) {
-                        callback('请编辑内容!');
+                        callback('请填写配置文件内容!');
                       } else {
                         callback();
                       }
@@ -262,14 +228,12 @@ export default class AddVolumes extends PureComponent {
                           withCredentials
                           headers={{ Authorization: `GRJWT ${token}` }}
                           onChange={this.handleChanges}
-                          beforeUpload={this.beforeUpload}
                         >
                           <div style={{ cursor: 'pointer',width:'36px',marginTop:'12px',textAlign:'center' }}>上传</div>
                         </Upload>
                       ),
                     },
                   ]}
-                  placeholder="请编辑内容"
                 />
               )}
             </div>
