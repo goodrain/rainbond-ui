@@ -1,10 +1,11 @@
 import { notification } from 'antd';
 import { connect } from 'dva';
-import React from 'react';
+import { PureComponent } from 'react';
+
 @connect(({ user }) => ({
   currentUser: user.currentUser,
 }))
-export default class ErrorBoundary extends React.PureComponent {
+export default class ErrorBoundary extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
@@ -38,6 +39,7 @@ export default class ErrorBoundary extends React.PureComponent {
     const { hasError } = this.state;
     const { children } = this.props;
     if (hasError) {
+      notification.destroy()
       notification.info({
         message: '遇到故障,我们会尽快修复、请稍后重试',
       });

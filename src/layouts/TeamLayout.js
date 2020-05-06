@@ -5,7 +5,7 @@ import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import memoizeOne from 'memoize-one';
 import PropTypes from 'prop-types';
-import { Fragment, React } from 'react';
+import React, {Fragment, PureComponent } from 'react';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -55,7 +55,7 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-class TeamLayout extends React.PureComponent {
+class TeamLayout extends PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
