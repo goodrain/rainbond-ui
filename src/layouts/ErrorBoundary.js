@@ -1,6 +1,6 @@
-import React from 'react';
-import { connect } from 'dva';
 import { notification } from 'antd';
+import { connect } from 'dva';
+import React from 'react';
 @connect(({ user }) => ({
   currentUser: user.currentUser,
 }))
@@ -27,8 +27,8 @@ export default class ErrorBoundary extends React.PureComponent {
     dispatch({
       type: 'global/saveLog',
       payload: {
-        msg: `用户名称：${currentUser.user_name} 企业ID ${
-          currentUser.enterprise_id
+        msg: `用户名称：${currentUser && currentUser.user_name} 企业ID ${
+          currentUser && currentUser.enterprise_id
         } 地址 ${window.location.href} 错误：${error.toString()}`,
       },
     });
