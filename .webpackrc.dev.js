@@ -11,6 +11,9 @@ export default {
       }
     ]
   ],
+  "resolve": {
+    "extensions": [".ts", ".tsx", ".js"],
+  },
   "outputPath" : path.resolve(__dirname, '../../dists'), //
   "env" : {
     "development": {

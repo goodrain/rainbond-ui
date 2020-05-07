@@ -231,7 +231,13 @@ export default [
             name: 'AppShareFinish',
             authority: ['admin', 'user'],
           },
-
+          {
+            path:
+              '/team/:teamName/region/:regionName/components/:appAlias/webconsole',
+            component: './Component/WebConsole',
+            name: 'WebConsole',
+            authority: ['admin', 'user'],
+          },
           {
             path:
               '/team/:teamName/region/:regionName/components/:appAlias/:type?',

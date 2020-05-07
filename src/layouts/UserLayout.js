@@ -1,10 +1,10 @@
-import React from 'react';
-import { Link } from 'dva/router';
 import { connect } from 'dva';
-import styles from './UserLayout.less';
+import { Link } from 'dva/router';
+import React from 'react';
 import globalUtil from '../utils/global';
-import rainbondUtil from '../utils/rainbond';
 import oauthUtil from '../utils/oauth';
+import rainbondUtil from '../utils/rainbond';
+import styles from './UserLayout.less';
 
 
 class UserLayout extends React.PureComponent {

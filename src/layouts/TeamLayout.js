@@ -1,31 +1,30 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { Layout, Icon, Tooltip } from 'antd';
-import DocumentTitle from 'react-document-title';
+import { Icon, Layout, Tooltip } from 'antd';
+import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
-import PageLoading from '../components/PageLoading';
-import memoizeOne from 'memoize-one';
-import { ContainerQuery } from 'react-container-query';
-import classNames from 'classnames';
 import { enquireScreen } from 'enquire-js';
-import GlobalHeader from '../components/GlobalHeader';
-import SiderMenu from '../components/SiderMenu';
-import userUtil from '../utils/user';
-import rainbondUtil from '../utils/rainbond';
-import globalUtil from '../utils/global';
-import cookie from '../utils/cookie';
-import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/teamMenu';
-import { getAppMenuData } from '../common/appMenu';
+import memoizeOne from 'memoize-one';
+import PropTypes from 'prop-types';
+import { Fragment, PureComponent, React } from 'react';
+import { ContainerQuery } from 'react-container-query';
+import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
-import GlobalRouter from '../components/GlobalRouter';
-import Context from './MenuContext';
-import { FormattedMessage } from 'umi-plugin-react/locale';
-import TeamHeader from './components/TeamHeader';
-import AppHeader from './components/AppHeader';
+import { getAppMenuData } from '../common/appMenu';
+import { getMenuData } from '../common/teamMenu';
 import AuthCompany from '../components/AuthCompany';
+import GlobalHeader from '../components/GlobalHeader';
+import GlobalRouter from '../components/GlobalRouter';
+import PageLoading from '../components/PageLoading';
 import ServiceOrder from '../components/ServiceOrder';
+import SiderMenu from '../components/SiderMenu';
+import Authorized from '../utils/Authorized';
+import cookie from '../utils/cookie';
+import globalUtil from '../utils/global';
+import rainbondUtil from '../utils/rainbond';
+import userUtil from '../utils/user';
+import AppHeader from './components/AppHeader';
+import TeamHeader from './components/TeamHeader';
+import Context from './MenuContext';
 
 const qs = require('query-string');
 
@@ -57,7 +56,7 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-class TeamLayout extends React.PureComponent {
+class TeamLayout extends PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
@@ -425,7 +424,7 @@ class TeamLayout extends React.PureComponent {
         }
 
         return (
-          <div>
+          <div style={{height:"100%"}}>
             <Authorized
               logined
               authority={['admin', 'user']}

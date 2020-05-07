@@ -1,69 +1,40 @@
-import React, { PureComponent, Fragment } from 'react';
-import PropTypes from 'prop-types';
+/* eslint-disable react/no-multi-comp */
+import { Alert, Badge, Button, Divider, Form, Icon, Input, Modal, notification, Radio, Select, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Modal,
-  Input,
-  Select,
-  Tooltip,
-  Radio,
-  Alert,
-  Badge,
-  Divider,
-} from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import Overview from './overview';
-import ConnectionInformation from './connectionInformation';
-import ThirdPartyServices from './ThirdPartyServices';
-import Monitor from './monitor';
-import Log from './log';
-import Expansion from './expansion';
-import EnvironmentConfiguration from './environmentConfiguration';
-import Relation from './relation';
-import Mnt from './mnt';
-import Port from './port';
-import Plugin from './plugin';
-import Setting from './setting';
-import Members from './members';
-import Resource from './resource';
+import PropTypes from 'prop-types';
+import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
-import appUtil from '../../utils/app';
-import appStatusUtil from '../../utils/appStatus-util';
-import VisitBtn from '../../components/VisitBtn';
-import httpResponseUtil from '../../utils/httpResponse';
-import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import regionUtil from '../../utils/region';
-import AppPubSubSocket from '../../utils/appPubSubSocket';
-import dateUtil from '../../utils/date-util';
-import {
-  createEnterprise,
-  createTeam,
-  createApp,
-  createComponent,
-} from '../../utils/breadcrumb';
-
-import {
-  deploy,
-  restart,
-  start,
-  stop,
-  rollback,
-  getDetail,
-  getStatus,
-  updateRolling,
-} from '../../services/app';
 import ManageAppGuide from '../../components/ManageAppGuide';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import VisitBtn from '../../components/VisitBtn';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { deploy, getStatus, restart, rollback, start, stop, updateRolling } from '../../services/app';
+import appUtil from '../../utils/app';
+import AppPubSubSocket from '../../utils/appPubSubSocket';
+import appStatusUtil from '../../utils/appStatus-util';
+import { createApp, createComponent, createEnterprise, createTeam } from '../../utils/breadcrumb';
+import dateUtil from '../../utils/date-util';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
+import regionUtil from '../../utils/region';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
+import ConnectionInformation from './connectionInformation';
+import EnvironmentConfiguration from './environmentConfiguration';
+import Expansion from './expansion';
+import styles from './Index.less';
+import Log from './log';
+import Members from './members';
+import Mnt from './mnt';
+import Monitor from './monitor';
+import Overview from './overview';
+import Plugin from './plugin';
+import Port from './port';
+import Relation from './relation';
+import Resource from './resource';
+import Setting from './setting';
+import ThirdPartyServices from './ThirdPartyServices';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -72,7 +43,12 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class MoveGroup extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -136,7 +112,12 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class EditName extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -179,96 +160,6 @@ class EditName extends PureComponent {
           </FormItem>
         </Form>
       </Modal>
-    );
-  }
-}
-
-/* 管理容器 */
-@Form.create()
-@connect(
-  ({ user, appControl, global }) => ({ pods: appControl.pods }),
-  null,
-  null,
-  { withRef: true }
-)
-class ManageContainer extends PureComponent {
-  componentDidMount() {}
-  fetchPods = () => {
-    const appAlias = this.props.app_alias;
-    this.props.dispatch({
-      type: 'appControl/fetchPods',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
-      },
-    });
-  };
-  handlePodClick = item => {
-    const { key } = item;
-    const podName = key.split('_')[0];
-    const manageName = key.split('_')[1];
-    const pod_status = key.split('_')[2];
-    if (pod_status != 'RUNNING') {
-      notification.warning({
-        message: '当前节点暂不支持运行容器管理',
-        duration: 5,
-      });
-      return;
-    }
-
-    const appAlias = this.props.app_alias;
-    if (podName && manageName) {
-      if (navigator.userAgent.indexOf('Firefox') > 0) {
-        var adPopup = window.open();
-      } else {
-        var adPopup = window.open('about:blank');
-      }
-      this.props.dispatch({
-        type: 'appControl/managePod',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: appAlias,
-          pod_name: podName,
-          manage_name: manageName,
-        },
-        callback: () => {
-          adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
-        },
-      });
-    }
-  };
-  handleVisibleChange = visible => {
-    if (visible) {
-      this.fetchPods();
-    }
-  };
-  render() {
-    const pods = this.props.pods
-      ? (this.props.pods.new_pods || []).concat(this.props.pods.old_pods || [])
-      : [];
-
-    const renderPods = (
-      <Menu onClick={this.handlePodClick}>
-        {pods &&
-          pods.length > 0 &&
-          pods.map((item, index) => {
-            const { pod_name, pod_status, manage_name } = item;
-            return (
-              <Menu.Item key={`${pod_name}_${manage_name}_${pod_status}`}>
-                实例{index + 1}
-              </Menu.Item>
-            );
-          })}
-      </Menu>
-    );
-    return (
-      <Dropdown
-        onVisibleChange={this.handleVisibleChange}
-        overlay={renderPods}
-        placement="bottomRight"
-      >
-        <Button>管理容器</Button>
-      </Dropdown>
     );
   }
 }
@@ -742,13 +633,13 @@ class Main extends PureComponent {
       },
     });
   };
-  handleUpDataHeader = () =>{
-    const {  dispatch } = this.props;
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/IsUpDataHeader',
-      payload: {isUpData: true,},
+      payload: { isUpData: true },
     });
-  }
+  };
   showMoveGroup = () => {
     this.setState({ showMoveGroup: true });
   };
@@ -1011,11 +902,21 @@ class Main extends PureComponent {
       ? this.handleRestart()
       : '';
   };
+  toWebConsole = () => {
+    const { appDetail } = this.props
+    this.props.dispatch(
+      routerRedux.replace(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+          appDetail.service.service_alias
+        }/webconsole`
+      )
+    );
+  };
   render() {
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     const { BuildList, componentTimer, isShowThirdParty, status } = this.state;
     const groups = this.props.groups || [];
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -1051,10 +952,8 @@ class Main extends PureComponent {
           </Button>
         ) : null}
 
-        {appUtil.canManageContainter(appDetail) &&
-        appStatusUtil.canManageDocker(status) &&
-        !isShowThirdParty ? (
-          <ManageContainer app_alias={appDetail.service.service_alias} />
+        {appUtil.canManageContainter(appDetail) && !isShowThirdParty ? (
+          <Button onClick={this.toWebConsole}>Web终端</Button>
         ) : null}
 
         {isShowThirdParty ? (
@@ -1263,38 +1162,38 @@ class Main extends PureComponent {
           footer={
             BuildList && BuildList.length > 0
               ? [
-                <Button
-                  onClick={() => {
+                  <Button
+                    onClick={() => {
                       this.handleCancelBuild();
                     }}
-                >
-                  取消
-                </Button>,
-                <Button
-                  type="primary"
-                  onClick={() => {
+                  >
+                    取消
+                  </Button>,
+                  <Button
+                    type="primary"
+                    onClick={() => {
                       this.handleOkBuild();
                     }}
-                >
-                  构建
-                </Button>,
+                  >
+                    构建
+                  </Button>,
                 ]
               : [
-                <Button
-                  onClick={() => {
+                  <Button
+                    onClick={() => {
                       this.handleCancelBuild();
                     }}
-                >
-                  取消
-                </Button>,
-                <Button
-                  type="primary"
-                  onClick={() => {
+                  >
+                    取消
+                  </Button>,
+                  <Button
+                    type="primary"
+                    onClick={() => {
                       this.handleOkBuild();
                     }}
-                >
-                  强制构建
-                </Button>,
+                  >
+                    强制构建
+                  </Button>,
                 ]
           }
         >
@@ -1397,10 +1296,15 @@ class Main extends PureComponent {
   }
 }
 @Form.create()
-@connect(({ user, groupControl }) => ({}), null, null, {
-  pure: false,
-  withRef: true,
-})
+@connect(
+  ({ user, groupControl }) => ({}),
+  null,
+  null,
+  {
+    pure: false,
+    withRef: true,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
