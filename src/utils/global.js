@@ -1,6 +1,7 @@
 import styles from './utils.less';
 import moment from 'moment';
 import cookie from './cookie';
+import axios from 'axios';
 
 const global = {
   removeCookie() {
