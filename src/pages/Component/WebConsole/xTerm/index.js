@@ -16,6 +16,15 @@ class App extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    const doSomethingAsync = () => {
+      return new Promise(res => {
+        this.EstablishConnection();
+      });
+    };
+    doSomethingAsync();
+  }
+
   EstablishConnection = () => {
     const {
       tenantID,
@@ -53,7 +62,7 @@ class App extends PureComponent {
     const xterm = new XTermCustom(term);
     xterm.removeMessage = this.clearMessage;
     xterm.setWindowTitle = title => {
-      updateTitle&&updateTitle(title)
+      updateTitle && updateTitle(title);
     };
     const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
     const closer = wt.open();
@@ -77,10 +86,9 @@ class App extends PureComponent {
   render() {
     const { message } = this.state;
     return (
-      <div style={{ height: '100vh', backgroundColor: '#000' }}>
+      <div style={{ height: '100vh' }}>
         <XTerm ref={this.inputRef} />
         {message && <div className="xterm-overlay">{message}</div>}
-        {message && this.EstablishConnection()}
       </div>
     );
   }

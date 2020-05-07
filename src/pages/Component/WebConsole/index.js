@@ -39,7 +39,6 @@ export default class WebConsole extends PureComponent {
     this.loadDetail();
     this.fetchPods(true);
   }
-  componentWillUnmount() {}
 
   onSelect = selectedKeys => {
     if (selectedKeys.length > 0) {
@@ -82,7 +81,7 @@ export default class WebConsole extends PureComponent {
       }
       newTabs.push(item);
     });
-    this.setState({ tabs: tabs });
+    this.setState({ tabs: newTabs });
   };
 
   fetchPods = isAssignment => {
@@ -102,7 +101,6 @@ export default class WebConsole extends PureComponent {
           pods = pods.concat(data.list.old_pods);
         }
         this.clearLoading();
-
         if (
           isAssignment &&
           pods &&
@@ -151,19 +149,6 @@ export default class WebConsole extends PureComponent {
     }
   };
 
-  closeConsole = key => {
-    const { tabs } = this.state;
-    let indexs = '';
-    tabs.forEach((item, index) => {
-      if (item.key === key) {
-        indexs = index;
-      }
-    });
-    tabs.splice(indexs, 1);
-    const activeKey = tabs.length > 0 ? tabs[0].key : '';
-    this.setState({ tabs, activeKey });
-  };
-
   onChange = key => {
     this.setState({ activeKey: key });
   };
@@ -198,7 +183,7 @@ export default class WebConsole extends PureComponent {
       <div className={styles.menus}>
         <div className={styles.header}>
           <span>实例列表</span>
-          <span className={styles.sync} onClick={this.fetchPods}>
+          <span className={styles.sync} onClick={()=>{this.fetchPods(false)}}>
             <svg
               t="1588475055820"
               viewBox="0 0 1024 1024"
