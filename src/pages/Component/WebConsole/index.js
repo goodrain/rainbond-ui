@@ -1,4 +1,4 @@
-import { Col, Row, Tabs, Tree } from 'antd';
+import { Col, Row, Tabs, Tree, Spin } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../utils/global';
@@ -27,15 +27,17 @@ export default class WebConsole extends PureComponent {
     super(arg);
     this.state = {
       podLoading: true,
+      loading: false,
       pods: [],
       tabs: [],
       leftWidth: 5,
       appDetail: {},
+      activeKey: '',
     };
   }
   componentDidMount() {
     this.loadDetail();
-    this.fetchPods();
+    this.fetchPods(true);
   }
   componentWillUnmount() {}
 
@@ -57,31 +59,34 @@ export default class WebConsole extends PureComponent {
     }
   };
   openConsole = (podName, containerName) => {
+    const activeKey = Math.random()
+      .toString(36)
+      .slice(-8);
     const tab = {
       podName,
       containerName,
       title: containerName,
-      key: Math.random()
-        .toString(36)
-        .slice(-8),
+      key: activeKey,
     };
-    this.setState({ tabs: [...this.state.tabs, tab] });
+    const { tabs } = this.state;
+    tabs.push(tab);
+    this.setState({ tabs, activeKey });
   };
 
   updateTitle = (key, title) => {
     const { tabs } = this.state;
     const newTabs = [];
     tabs.forEach(item => {
-      if (item.key === key) {
+      if (item.key == key) {
         item.title = title;
       }
       newTabs.push(item);
     });
-    this.setState({ tabs: newTabs });
+    this.setState({ tabs: tabs });
   };
 
-  fetchPods = () => {
-    this.setState({ podLoading: true });
+  fetchPods = isAssignment => {
+    this.setState({ podLoading: true, loading: true });
     this.props.dispatch({
       type: 'appControl/fetchPods',
       payload: {
@@ -96,6 +101,29 @@ export default class WebConsole extends PureComponent {
         if (data.list && data.list.old_pods) {
           pods = pods.concat(data.list.old_pods);
         }
+        this.clearLoading();
+
+        if (
+          isAssignment &&
+          pods &&
+          pods.length > 0 &&
+          pods[0].container &&
+          pods[0].container.length > 0
+        ) {
+          const container_name = pods[0].container[0].container_name;
+          const activeKey = Math.random()
+            .toString(36)
+            .slice(-8);
+
+          const tab = {
+            podName: pods[0].pod_name,
+            containerName: container_name,
+            title: container_name,
+            key: activeKey,
+          };
+          this.setState({ tabs: [tab], activeKey });
+        }
+
         this.setState({ pods, podLoading: false });
       },
     });
@@ -125,17 +153,38 @@ export default class WebConsole extends PureComponent {
 
   closeConsole = key => {
     const { tabs } = this.state;
-    const newTabs = [];
-    tabs.forEach(item => {
-      if (item.key !== key) {
-        newTabs.push(item);
+    let indexs = '';
+    tabs.forEach((item, index) => {
+      if (item.key === key) {
+        indexs = index;
       }
     });
-    this.setState({ tabs: newTabs });
+    tabs.splice(indexs, 1);
+    const activeKey = tabs.length > 0 ? tabs[0].key : '';
+    this.setState({ tabs, activeKey });
   };
 
-  leftRender() {
-    const { pods } = this.state;
+  onChange = key => {
+    this.setState({ activeKey: key });
+  };
+
+  clearLoading = () => {
+    this.setState({ loading: false });
+  };
+
+  onEdit = (targetKey, action) => {
+    this[action](targetKey);
+  };
+
+  remove = key => {
+    const { tabs } = this.state;
+    const tab = tabs.filter(item => item.key !== key);
+    const activeKey = tab.length > 0 ? tab[0].key : '';
+    this.setState({ tabs: tab, activeKey });
+  };
+
+  leftRender = () => {
+    const { pods, loading } = this.state;
     let defaultSelectedKeys = [];
     if (
       pods &&
@@ -167,38 +216,56 @@ export default class WebConsole extends PureComponent {
             </svg>
           </span>
         </div>
-        {pods && pods.length > 0 && (
-          <Tree
-            defaultExpandAll
-            onSelect={this.onSelect}
-            defaultSelectedKeys={defaultSelectedKeys}
-          >
-            {pods.map(pod => {
-              let title = pod.pod_name;
-              if (title.includes('deployment')) {
-                title = title.slice(title.indexOf('-') + 1);
-              }
-              return (
-                <TreeNode title={`实例/${title}`} key={pod.pod_name}>
-                  {pod.container.map(container => {
-                    return (
-                      <TreeNode
-                        isLeaf
-                        title={`容器/${container.container_name}`}
-                        key={`${pod.pod_name}.${container.container_name}`}
-                      />
-                    );
-                  })}
-                </TreeNode>
-              );
-            })}
-          </Tree>
-        )}
+
+        <Spin spinning={loading} tip="Loading...">
+          {pods && pods.length > 0 && (
+            <Tree
+              defaultExpandAll
+              onSelect={this.onSelect}
+              defaultSelectedKeys={defaultSelectedKeys}
+            >
+              {pods.map(pod => {
+                let title = pod.pod_name;
+                if (title.includes('deployment')) {
+                  title = title.slice(title.indexOf('-') + 1);
+                }
+                return (
+                  <TreeNode title={`实例/${title}`} key={pod.pod_name}>
+                    {pod.container.map(container => {
+                      return (
+                        <TreeNode
+                          isLeaf
+                          title={`容器/${container.container_name}`}
+                          key={`${pod.pod_name}.${container.container_name}`}
+                        />
+                      );
+                    })}
+                  </TreeNode>
+                );
+              })}
+            </Tree>
+          )}
+        </Spin>
       </div>
     );
-  }
+  };
+
+  tabContent = (podName, containerName, key) => {
+    const { appDetail } = this.state;
+    return (
+      <XTerm
+        tenantID={appDetail.service.tenant_id}
+        serviceID={appDetail.service.service_id}
+        WebsocketURL={appDetail.event_websocket_url}
+        updateTitle={title => this.updateTitle(key, title)}
+        podName={podName}
+        containerName={containerName}
+      />
+    );
+  };
+
   render() {
-    const { leftWidth, tabs, appDetail } = this.state;
+    const { leftWidth, tabs, appDetail, activeKey } = this.state;
     return (
       <Row className={styles.box}>
         <Col className={styles.col} span={leftWidth}>
@@ -241,55 +308,31 @@ export default class WebConsole extends PureComponent {
             )}
           </span>
           <div className={styles.tabs}>
-            {tabs.length > 0 && (
+            {tabs.length > 0 && appDetail && appDetail.service && (
               <Tabs
                 defaultActiveKey={`${tabs[tabs.length - 1].key}`}
-                type="card"
+                onChange={this.onChange}
+                activeKey={activeKey}
+                type="editable-card"
+                onEdit={this.onEdit}
+                hideAdd
               >
                 {tabs.map(item => {
+                  const { title, podName, key, containerName } = item;
                   return (
                     <TabPane
                       tab={
                         <div>
                           <span className={styles.titleTab}>
-                            {item.title || item.podName}
-                          </span>
-                          <span
-                            onClick={() => this.closeConsole(item.key)}
-                            className={styles.closeTab}
-                          >
-                            <svg
-                              t="1588610556840"
-                              viewBox="0 0 1024 1024"
-                              version="1.1"
-                              xmlns="http://www.w3.org/2000/svg"
-                              p-id="6284"
-                            >
-                              <path
-                                d="M583.168 523.776L958.464 148.48c18.944-18.944 18.944-50.176 0-69.12l-2.048-2.048c-18.944-18.944-50.176-18.944-69.12 0L512 453.12 136.704 77.312c-18.944-18.944-50.176-18.944-69.12 0l-2.048 2.048c-19.456 18.944-19.456 50.176 0 69.12l375.296 375.296L65.536 899.072c-18.944 18.944-18.944 50.176 0 69.12l2.048 2.048c18.944 18.944 50.176 18.944 69.12 0L512 594.944 887.296 970.24c18.944 18.944 50.176 18.944 69.12 0l2.048-2.048c18.944-18.944 18.944-50.176 0-69.12L583.168 523.776z"
-                                fill="#ffffff"
-                                p-id="6285"
-                              />
-                            </svg>
+                            {title || podName}
                           </span>
                         </div>
                       }
                       className={styles.consoleBox}
                       // eslint-disable-next-line react/no-array-index-key
-                      key={item.key}
+                      key={key}
                     >
-                      {appDetail && appDetail.service && (
-                        <XTerm
-                          tenantID={appDetail.service.tenant_id}
-                          serviceID={appDetail.service.service_id}
-                          WebsocketURL={appDetail.event_websocket_url}
-                          updateTitle={title =>
-                            this.updateTitle(item.key, title)
-                          }
-                          podName={item.podName}
-                          containerName={item.containerName}
-                        />
-                      )}
+                      {this.tabContent(podName, containerName, key)}
                     </TabPane>
                   );
                 })}
