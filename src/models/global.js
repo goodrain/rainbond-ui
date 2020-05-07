@@ -328,8 +328,8 @@ export default {
         callback(data);
       }
     },
-    *getTeamOverview({ payload, callback }, { call, put }) {
-      const data = yield call(getTeamOverview, payload);
+    *getTeamOverview({ payload, callback, handleError }, { call, put }) {
+      const data = yield call(getTeamOverview, payload, handleError);
       if (data && callback) {
         callback(data);
       }
