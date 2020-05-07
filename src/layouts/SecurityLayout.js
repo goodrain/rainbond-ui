@@ -19,7 +19,6 @@ class SecurityLayout extends React.PureComponent {
         type: 'global/fetchRainbondInfo',
         callback: info => {
           if (info) {
-            globalUtil.putLog(info);
             this.fetchUserInfo();
           }
         },

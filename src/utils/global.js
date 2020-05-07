@@ -21,15 +21,18 @@ const global = {
       const defaultOptions = {
         credentials: 'same-origin',
       };
+      const { title, version } = info;
       defaultOptions.url = 'https://log.rainbond.com/log';
       defaultOptions.method = 'post';
       defaultOptions.data = JSON.stringify({
         url: window.location.href,
-        eid: info.eid,
+        eid: info.enterprise_id,
         e_name: info.enterprise_name,
-        version: info.version,
-        title: info.title,
+        version: version.value,
+        title: title.value,
+        day:moment(new Date()).locale('zh-cn').format('YYYYMMDD')
       });
+      defaultOptions.data=JSON.parse(defaultOptions.data)
       axios(defaultOptions);
     } catch (e) {}
   },
