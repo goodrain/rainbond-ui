@@ -196,6 +196,7 @@ class EnterpriseLayout extends PureComponent {
         if (selectE == null) {
           selectE = enterpriseList[0];
         }
+        globalUtil.putLog(Object.assign(rainbondInfo,selectE));
         this.fetchEnterpriseInfo(selectE.enterprise_id);
         this.setState({ enterpriseInfo: selectE });
         dispatch(

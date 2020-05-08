@@ -14,7 +14,7 @@ const global = {
     cookie.remove('platform_url', { domain: '' });
   },
   putLog(info) {
-    if (!info) {
+    if (!info || info&&!info.enterprise_id) {
       return null;
     }
     try {
