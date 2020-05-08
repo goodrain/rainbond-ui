@@ -62,9 +62,6 @@
     "umi-request": "^1.0.7",
     "url-polyfill": "^1.0.10",
     "xterm": "3.14.5",
-    "xterm-addon-web-links": "^0.3.0",
-    "xterm-addon-fit": "^0.3.0",
-    "react-xterm": "^2.0.4",
     "yarn": "^1.19.2",
     "js-md5": "^0.7.3"
   },
