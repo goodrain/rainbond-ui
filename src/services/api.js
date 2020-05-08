@@ -379,12 +379,14 @@ export async function authEnterprise(
 export async function getTeamOverview(
   body = {
     team_name,
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
       method: 'get',
+      handleError,
     }
   );
 }
@@ -862,13 +864,10 @@ export async function fetchEnterpriseInfo(param) {
 
 /* save log */
 export async function saveLog(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/errlog`,
-    {
-      method: 'post',
-      data: body,
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/errlog`, {
+    method: 'post',
+    data: body,
+  });
 }
 /* 查询企业下所有团队 */
 export async function fetchEnterpriseTeams(param) {

@@ -28,9 +28,10 @@ export default class ErrorBoundary extends PureComponent {
     dispatch({
       type: 'global/saveLog',
       payload: {
-        msg: `用户名称：${currentUser && currentUser.user_name} 企业ID ${
-          currentUser && currentUser.enterprise_id
-        } 地址 ${window.location.href} 错误：${error.toString()}`,
+        username:currentUser && currentUser.user_name,
+        enterprise_id:currentUser && currentUser.enterprise_id,
+        address:window.location.href,
+        msg: `错误：${error.toString()}`,
       },
     });
   };
@@ -41,7 +42,7 @@ export default class ErrorBoundary extends PureComponent {
     if (hasError) {
       notification.destroy()
       notification.info({
-        message: '遇到故障,我们会尽快修复、请稍后重试',
+        message: '遇到故障,我们会尽快修复请稍后重试',
       });
     }
     return children;

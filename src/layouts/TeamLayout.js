@@ -1,11 +1,11 @@
-import { Icon, Layout, Tooltip } from 'antd';
+import { Icon, Layout, notification } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import memoizeOne from 'memoize-one';
 import PropTypes from 'prop-types';
-import { Fragment, PureComponent, React } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
@@ -108,17 +108,20 @@ class TeamLayout extends PureComponent {
       },
     });
   };
-  upData = () =>{
+  upData = () => {
     const { dispatch } = this.props;
     dispatch({ type: 'user/fetchCurrent' });
     this.getTeamOverview();
-  }
+  };
   getTeamOverview = () => {
     const { teamName, regionName } = this.props.match.params;
+    const { dispatch } = this.props;
+    const { enterpriseList } = this.state;
+
     if (teamName && regionName) {
       cookie.set('team_name', teamName);
       cookie.set('region_name', regionName);
-      this.props.dispatch({
+      dispatch({
         type: 'global/getTeamOverview',
         payload: {
           team_name: teamName,
@@ -133,6 +136,26 @@ class TeamLayout extends PureComponent {
                 this.load();
               }
             );
+          }
+        },
+        handleError: err => {
+          if (err && err.data && err.data.code) {
+            const errtext =
+              err.data.code === 10411
+                ? '当前集群不可用'
+                : err.data.code === 10412
+                ? '当前集群不存在'
+                : false;
+            if (errtext && enterpriseList.length > 0) {
+              notification.error({ message: errtext });
+              dispatch(
+                routerRedux.replace(
+                  `/enterprise/${enterpriseList[0].enterprise_id}/index`
+                )
+              );
+            } else {
+              notification.error({ message: '请求错误' });
+            }
           }
         },
       });
@@ -424,7 +447,7 @@ class TeamLayout extends PureComponent {
         }
 
         return (
-          <div style={{height:"100%"}}>
+          <div style={{ height: '100%' }}>
             <Authorized
               logined
               authority={['admin', 'user']}

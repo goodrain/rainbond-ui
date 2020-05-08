@@ -201,6 +201,7 @@ class EnterpriseLayout extends PureComponent {
     const {
       dispatch,
       currentUser,
+      rainbondInfo,
       match: {
         params: { eid },
       },
@@ -217,6 +218,7 @@ class EnterpriseLayout extends PureComponent {
         if (selectE == null) {
           selectE = enterpriseList[0];
         }
+        globalUtil.putLog(Object.assign(rainbondInfo,selectE));
         this.fetchEnterpriseInfo(selectE.enterprise_id);
         this.setState({ enterpriseInfo: selectE });
         dispatch(
@@ -229,6 +231,7 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
           this.fetchEnterpriseInfo(eid);
+          globalUtil.putLog(Object.assign(rainbondInfo,item));
           this.setState({ enterpriseInfo: item });
         }
       });

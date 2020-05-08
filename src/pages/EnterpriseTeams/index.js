@@ -304,15 +304,11 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState({ joinTeam: false });
   };
 
-  onJumpTeam = (team_name, region) => {
-    const { dispatch } = this.props;
-    dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
-  };
   showRegions = (team_name, regions) => {
     return regions.map(item => {
       return (
         <Button
-          key={item.region_name+'region'}
+          key={`${item.region_name}region`}
           className={styles.regionShow}
           onClick={() => {
             this.onJumpTeam(team_name, item.region_name);
@@ -322,8 +318,12 @@ export default class EnterpriseTeams extends PureComponent {
           <Icon type="right" />
         </Button>
       );
-    })
-  }
+    });
+  };
+  onJumpTeam = (team_name, region) => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
+  };
 
   render() {
     const {
@@ -341,12 +341,14 @@ export default class EnterpriseTeams extends PureComponent {
       userTeamsLoading,
     } = this.state;
 
-    const request_join_team = overviewTeamInfo && overviewTeamInfo.request_join_team.filter(item => {
-        if (item.is_pass===0){
-          return item
+    const request_join_team =
+      overviewTeamInfo &&
+      overviewTeamInfo.request_join_team.filter(item => {
+        if (item.is_pass === 0) {
+          return item;
         }
-    })
-    const haveNewJoinTeam = request_join_team.length>0
+      });
+    const haveNewJoinTeam = request_join_team.length > 0;
 
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
     const moreSvg = () => (
@@ -429,20 +431,20 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-        <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
-          {adminer && (
-            <Button
-              type="primary"
-              onClick={this.onAddTeam}
-              style={{ marginRight: '5px' }}
-            >
-              创建团队
-            </Button>
-          )}
-          <Button type="primary" onClick={this.onJoinTeam}>
-            加入团队
+      <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
+        {adminer && (
+          <Button
+            type="primary"
+            onClick={this.onAddTeam}
+            style={{ marginRight: '5px' }}
+          >
+            创建团队
           </Button>
-        </Col>
+        )}
+        <Button type="primary" onClick={this.onJoinTeam}>
+          加入团队
+        </Button>
+      </Col>
     );
 
     const managementTemas = (
@@ -492,15 +494,9 @@ export default class EnterpriseTeams extends PureComponent {
               bodyStyle={{ padding: 0 }}
             >
               <Row type="flex" align="middle" className={styles.pl24}>
-                <Col
-                  span={6}
-                >
-                  {team_alias}
-                </Col>
+                <Col span={6}>{team_alias}</Col>
                 <Col span={3}>{owner_name}</Col>
-                <Col span={14}>
-                  {this.showRegions(team_name, region_list)}
-                </Col>
+                <Col span={14}>{this.showRegions(team_name, region_list)}</Col>
                 <Col span={1} className={styles.bor}>
                   <Dropdown
                     overlay={managementMenu(team_name)}
@@ -520,7 +516,7 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-          {haveNewJoinTeam && ("最新加入团队")}
+            {haveNewJoinTeam && '最新加入团队'}
           </Col>
           {operation}
         </Row>
@@ -558,11 +554,7 @@ export default class EnterpriseTeams extends PureComponent {
                   align="middle"
                   key={team_id}
                 >
-                  <Col
-                    span={6}
-                  >
-                    {team_alias}
-                  </Col>
+                  <Col span={6}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>{roleUtil.actionMap(role)}</Col>
                   <Col
@@ -643,18 +635,20 @@ export default class EnterpriseTeams extends PureComponent {
                 bodyStyle={{ padding: 0 }}
               >
                 <Row type="flex" align="middle" className={styles.pl24}>
-                  <Col
-                    span={6}
-                    onClick={() => {
-                      if (region_list.length>0){
-                        this.onJumpTeam(team_name, region_list[0].region_name);
-                      }
-                    }}
-                  >
-                    {team_alias}
-                  </Col>
+                  <Col span={6}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
-                  <Col span={3}>{role.split(",").map(item=>{return <span style={{marginRight: "8px"}} key={"role"+item}>{roleUtil.actionMap(item)}</span>})}</Col>
+                  <Col span={3}>
+                    {role.split(',').map(item => {
+                      return (
+                        <span
+                          style={{ marginRight: '8px' }}
+                          key={`role${item}`}
+                        >
+                          {roleUtil.actionMap(item)}
+                        </span>
+                      );
+                    })}
+                  </Col>
                   <Col span={11}>
                     {this.showRegions(team_name, region_list)}
                   </Col>
@@ -680,7 +674,11 @@ export default class EnterpriseTeams extends PureComponent {
         content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示，企业管理员可见企业团队管理入口"
       >
         {this.state.joinTeam && (
-          <JoinTeam enterpriseID={eid} onOk={this.handleJoinTeam} onCancel={this.cancelJoinTeam} />
+          <JoinTeam
+            enterpriseID={eid}
+            onOk={this.handleJoinTeam}
+            onCancel={this.cancelJoinTeam}
+          />
         )}
 
         {this.state.showAddTeam && (
