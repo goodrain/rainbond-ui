@@ -68,7 +68,6 @@
     "url-polyfill": "^1.0.10",
     "node-pty": "0.9.0",
     "xterm": "3.14.5",
-    "react-xterm": "^2.0.4",
     "yarn": "^1.19.2",
     "js-md5": "^0.7.3",
     "draftjs-utils": "0.10.2",

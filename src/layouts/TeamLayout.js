@@ -1,4 +1,5 @@
-import { Icon, Layout, notification } from 'antd';
+/* eslint-disable no-nested-ternary */
+import { Icon, Layout, notification, Tooltip } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
