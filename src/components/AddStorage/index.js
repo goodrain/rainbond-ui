@@ -14,8 +14,6 @@ import {
 import BraftEditor from 'braft-editor';
 // 引入编辑器样式
 import 'braft-editor/dist/index.css';
-import 'braft-extensions/dist/code-highlighter.css';
-import CodeHighlighter from 'braft-extensions/dist/code-highlighter';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 
@@ -37,11 +35,6 @@ export default class AddVolumes extends PureComponent {
   }
 
   componentDidMount() {
-    BraftEditor.use(
-      CodeHighlighter({
-        includeEditors: ['editor-with-code-highlighter'],
-      })
-    );
     const { data, form } = this.props;
     // 异步设置编辑器内容
 
