@@ -30,6 +30,15 @@ export default {
       '支持') ||
     '不支持',
 
+  // 判断企业是否配置了自动签发证书
+  CertificateIssuedByEnable: (bean = {}) =>
+    (bean && bean.auto_ssl && bean.auto_ssl.enable) || false,
+
+  // 自动签发证书内容
+  CertificateIssuedByValue: (bean = {}) =>
+    (bean && bean.auto_ssl  && bean.auto_ssl.value) ||
+    false,
+
   // 判断平台是否配置了oautg 2.0
   OauthbEnable: (bean = {}) =>
     (bean &&

@@ -19,6 +19,7 @@ import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import AddAdmin from '../../components/AddAdmin';
+import CertificateForm from '../../components/CertificateForm';
 import OauthTable from './oauthTable';
 import ConfirmModal from '../../components/ConfirmModal';
 import styles from './index.less';
@@ -32,6 +33,7 @@ import OauthForm from '../../components/OauthForm';
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
+  certificateLongin: loading.effects['global/putCertificateType'],
   overviewInfo: index.overviewInfo,
 }))
 export default class EnterpriseSetting extends PureComponent {
@@ -48,6 +50,8 @@ export default class EnterpriseSetting extends PureComponent {
       adminer,
       showDelTeam: false,
       showDeleteDomain: false,
+      openCertificate: false,
+      closeCertificate: false,
       israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise),
     };
   }
@@ -184,19 +188,24 @@ export default class EnterpriseSetting extends PureComponent {
         params: { eid },
       },
     } = this.props;
+    const { openCertificate, closeCertificate } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid,
       },
       callback: info => {
-        if (info) {
+        if (info && !openCertificate && !closeCertificate) {
           this.setState({
             israinbondTird: rainbondUtil.OauthEnterpriseEnable(info.bean),
           });
         }
       },
     });
+    if (openCertificate || closeCertificate) {
+      this.handelCloseCertificate();
+      return null;
+    }
     dispatch({ type: 'user/fetchCurrent' });
     this.handelClone();
   };
@@ -206,23 +215,77 @@ export default class EnterpriseSetting extends PureComponent {
       showDeleteDomain: false,
     });
   };
+  handelOpenCertificate = () => {
+    this.setState({ openCertificate: true });
+  };
+  handelOpenCloseCertificate = () => {
+    this.setState({ closeCertificate: true });
+  };
+  handelCloseCertificate = () => {
+    this.setState({ closeCertificate: false, openCertificate: false });
+  };
+
+  createClusters = values => {
+    const {
+      onOk,
+      dispatch,
+      enterprise,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
+    const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
+      enterprise
+    );
+    const value = values && JSON.parse(values.auto_ssl_config);
+    dispatch({
+      type: 'global/putCertificateType',
+      payload: {
+        enterprise_id: eid,
+        auto_ssl: {
+          enable: !!values,
+          value,
+        },
+      },
+      callback: res => {
+        if (res && res._condition === 200) {
+          notification.success({
+            message: !values
+              ? '关闭成功'
+              : !AutomaticCertificate
+              ? '开通成功'
+              : '编辑成功',
+          });
+          this.fetchEnterpriseInfo();
+        }
+      },
+    });
+  };
 
   render() {
+    const {
+      enterprise,
+      oauthLongin,
+      certificateLongin,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+
     const {
       adminList,
       enterpriseAdminLoading,
       adminer,
       showDeleteDomain,
       israinbondTird,
+      openCertificate,
+      closeCertificate,
+      openOauthTable,
+      showAddAdmin,
+      showDelTeam,
     } = this.state;
 
-    const {
-      enterprise,
-      oauthLongin,
-      match: {
-        params: { eid },
-      },
-    } = this.props;
     const adminLists = adminList && adminList.length > 0 && adminList;
     const moreSvg = () => (
       <svg
@@ -301,7 +364,6 @@ export default class EnterpriseSetting extends PureComponent {
             <Col span={7}>时间</Col>
           </Row>
         )}
-
         {adminLists ? (
           adminLists.map(item => {
             const { user_id, create_time, nick_name, real_name } = item;
@@ -348,8 +410,14 @@ export default class EnterpriseSetting extends PureComponent {
         </Row>
         <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
           <Row type="flex" align="middle">
-            <Col span={12}>是否允许用户注册：</Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={3}>用户注册</Col>
+            <Col span={17}>
+              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                控制用户是否可以注册功能
+              </span>
+            </Col>
+
+            <Col span={4} style={{ textAlign: 'right' }}>
               <Switch
                 onChange={this.onRegistChange}
                 className={styles.automaTictelescopingSwitch}
@@ -364,13 +432,13 @@ export default class EnterpriseSetting extends PureComponent {
     const oauth = (
       <div>
         <Card
-          style={{ marginBottom: '10px', borderTop: '1px solid  #ccc' }}
+          style={{ borderTop: '1px solid  #ccc' }}
           hoverable
           bordered={false}
         >
           <Row type="flex" align="middle">
-            <Col span={2}>Oauth互联</Col>
-            <Col span={18}>
+            <Col span={3}>Oauth互联</Col>
+            <Col span={17}>
               <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
                 支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。
               </span>
@@ -379,7 +447,7 @@ export default class EnterpriseSetting extends PureComponent {
               {israinbondTird && (
                 <a
                   onClick={() => {
-                    this.setState({ showOauthTable: true });
+                    this.setState({ openOauthTable: true });
                   }}
                   style={{ marginRight: '10px' }}
                 >
@@ -396,31 +464,91 @@ export default class EnterpriseSetting extends PureComponent {
         </Card>
       </div>
     );
+    const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
+      enterprise
+    );
+
+    const AutomaticIssueCertificate = (
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+        <Row type="flex" align="middle">
+          <Col span={3}>自动签发证书</Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              这是一个外部扩充功能，实现网关策略所需证书的自动签发。
+            </span>
+          </Col>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            {AutomaticCertificate && (
+              <a
+                onClick={this.handelOpenCertificate}
+                style={{ marginRight: '10px' }}
+              >
+                查看配置
+              </a>
+            )}
+
+            <Switch
+              onChange={() => {
+                AutomaticCertificate
+                  ? this.handelOpenCloseCertificate()
+                  : this.handelOpenCertificate();
+              }}
+              checked={AutomaticCertificate}
+              className={styles.automaTictelescopingSwitch}
+            />
+          </Col>
+        </Row>
+      </Card>
+    );
 
     return (
       <PageHeaderLayout
         title="企业设置"
         content="支持用户注册、Oauth2.0集成等企业设置功能，更丰富的企业管理资源管理功能在企业资源管理平台提供"
       >
-        {this.state.showOauthTable && (
-          <OauthTable
+        {openCertificate && (
+          <CertificateForm
             eid={eid}
-            onOk={() => {
-              this.setState({ showOauthTable: false });
-            }}
-            onCancel={() => {
-              this.setState({ showOauthTable: false });
+            AutomaticCertificate={AutomaticCertificate}
+            loading={certificateLongin}
+            onCancel={this.handelCloseCertificate}
+            onOk={values => {
+              this.createClusters(values);
             }}
           />
         )}
-        {this.state.showAddAdmin && (
+
+        {closeCertificate && (
+          <ConfirmModal
+            loading={certificateLongin}
+            title="关闭"
+            desc="确定要关闭自动签发证书？"
+            onOk={() => {
+              this.createClusters(false);
+            }}
+            onCancel={this.handelCloseCertificate}
+          />
+        )}
+
+        {openOauthTable && (
+          <OauthTable
+            eid={eid}
+            onOk={() => {
+              this.setState({ openOauthTable: false });
+            }}
+            onCancel={() => {
+              this.setState({ openOauthTable: false });
+            }}
+          />
+        )}
+        {showAddAdmin && (
           <AddAdmin
             eid={eid}
             onOk={this.handleCreateAdmin}
             onCancel={this.cancelCreateAdmin}
           />
         )}
-        {this.state.showDelTeam && (
+        {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelAdmin}
             title="删除管理员"
@@ -448,7 +576,7 @@ export default class EnterpriseSetting extends PureComponent {
           </div>
         ) : (
           <div>
-            {userRegistered}
+            {AutomaticIssueCertificate}
             {oauth}
             {adminer && managementAdmin}
           </div>

@@ -663,11 +663,11 @@ export async function isPubCloud() {
 export function getAllRegion(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
-    { 
+    {
       method: 'get',
       params: {
         status: param.status,
-      }
+      },
     }
   );
 }
@@ -862,13 +862,10 @@ export async function fetchEnterpriseInfo(param) {
 
 /* save log */
 export async function saveLog(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/errlog`,
-    {
-      method: 'post',
-      data: body,
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/errlog`, {
+    method: 'post',
+    data: body,
+  });
 }
 /* 查询企业下所有团队 */
 export async function fetchEnterpriseTeams(param) {
@@ -1014,6 +1011,18 @@ export async function setRegist(body = { isRegist }) {
     method: 'put',
     data: { is_regist: body.isRegist },
   });
+}
+
+ /* 设置签发证书类型功能 */
+export async function setCertificateType(body = {}) {
+  const { enterprise_id } = body;
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/info?key=auto_ssl`,
+    {
+      method: 'put',
+      data: body,
+    }
+  );
 }
 
 /* 设置注册功能 */
