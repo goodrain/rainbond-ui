@@ -469,7 +469,7 @@ export default class EnterpriseSetting extends PureComponent {
     );
 
     const AutomaticIssueCertificate = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card hoverable bordered={false}>
         <Row type="flex" align="middle">
           <Col span={3}>自动签发证书</Col>
           <Col span={17}>
