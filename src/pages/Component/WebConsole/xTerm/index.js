@@ -87,7 +87,7 @@ class App extends PureComponent {
   render() {
     const { message } = this.state;
     return (
-      <div style={{ height: '100vh' }}>
+      <div style={{ height: '100vh', backgroundColor: 'rgb(0, 0, 0)' }}>
         <XTerm ref={this.inputRef} />
         {message && <div className="xterm-overlay">{message}</div>}
       </div>
