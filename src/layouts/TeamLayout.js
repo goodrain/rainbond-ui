@@ -1,5 +1,9 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable react/react-in-jsx-scope */
+/* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification, Tooltip } from 'antd';
+import { Icon, Layout, notification } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Redirect, routerRedux } from 'dva/router';
@@ -69,9 +73,6 @@ class TeamLayout extends PureComponent {
     this.getPageTitle = memoizeOne(this.getPageTitle);
     this.state = {
       isMobile,
-      isInit: false,
-      showWelcomeCreateTeam: false,
-      canCancelOpenRegion: true,
       market_info: '',
       showAuthCompany: false,
       enterpriseList: [],
@@ -127,7 +128,7 @@ class TeamLayout extends PureComponent {
           team_name: teamName,
         },
         callback: res => {
-          if (res && res._code == 200) {
+          if (res && res._code === 200) {
             this.setState(
               {
                 eid: res.bean.eid,
@@ -179,7 +180,7 @@ class TeamLayout extends PureComponent {
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
-      if (eid == item.enterprise_id) {
+      if (eid === item.enterprise_id) {
         dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: item });
         this.setState({
           currentEnterprise: item,
@@ -257,7 +258,7 @@ class TeamLayout extends PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  getPageTitle = pathname => {
+  getPageTitle = () => {
     const { rainbondInfo } = this.props;
     const title =
       (rainbondInfo &&
@@ -320,7 +321,7 @@ class TeamLayout extends PureComponent {
       return <PageLoading />;
     }
     if (
-      teamName !== (currentTeam && currentTeam.team_name) ||
+      teamName !== currentTeam.team_name ||
       regionName !== (currentRegion && currentRegion.team_region_name)
     ) {
       this.load();
@@ -372,9 +373,11 @@ class TeamLayout extends PureComponent {
       );
     };
     let menuData = getMenuData(teamName, regionName);
-    if (mode == 'app') {
+    if (mode === 'app') {
       menuData = getAppMenuData(teamName, regionName, appID);
     }
+    const fetchLogo =
+      rainbondUtil.exportAppEnable(rainbondInfo, enterprise) || logo;
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion =
@@ -497,8 +500,6 @@ class TeamLayout extends PureComponent {
         </Layout>
       );
     };
-    const fetchLogo =
-      rainbondUtil.exportAppEnable(rainbondInfo, enterprise) || logo;
 
     return (
       <Fragment>
