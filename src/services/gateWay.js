@@ -9,7 +9,7 @@ export async function queryHttpData(param) {
       method: "get",
       params: {
         page: param.page_num || 1,
-        page_size: param.page_size || 15, 
+        page_size: param.page_size || 15,
         search_conditions: param.search_conditions,
       }
     }
@@ -151,8 +151,10 @@ export async function addHttpStrategy(params) {
     {
       method: "post",
       data: {
+        auto_ssl: params.values.auto_ssl,
+        auto_ssl_config: params.values.auto_ssl_config,
         container_port: params.values.container_port,
-        certificate_id: params.values.certificate_id || "",
+        certificate_id: params.values.certificate_id,
         domain_cookie: params.values.domain_cookie,
         domain_heander: params.values.domain_heander,
         domain_name: params.values.domain_name,
@@ -206,8 +208,10 @@ export async function editHttpStrategy(params) {
     {
       method: "put",
       data: {
+        auto_ssl: params.values.auto_ssl,
+        auto_ssl_config: params.values.auto_ssl_config,
         container_port: params.values.container_port,
-        certificate_id: params.values.certificate_id || "",
+        certificate_id: params.values.certificate_id,
         domain_cookie:
           params.values.domain_cookie &&
           params.values.domain_cookie.slice(-1) == "="
