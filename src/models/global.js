@@ -40,6 +40,7 @@ import {
   deleteJoinTeam,
   setRegist,
   getRegist,
+  setCertificateType,
   saveLog,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
@@ -488,6 +489,13 @@ export default {
         });
       }
     },
+    *putCertificateType({ payload, callback }, { put, call }) {
+      const response = yield call(setCertificateType, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
