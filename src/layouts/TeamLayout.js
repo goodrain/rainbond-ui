@@ -5,7 +5,7 @@ import { Redirect, routerRedux } from 'dva/router';
 import { enquireScreen } from 'enquire-js';
 import memoizeOne from 'memoize-one';
 import PropTypes from 'prop-types';
-import React, { Fragment, PureComponent } from 'react';
+import { Fragment, PureComponent } from 'react';
 import { ContainerQuery } from 'react-container-query';
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo.png';
