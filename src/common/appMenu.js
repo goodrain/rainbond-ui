@@ -1,5 +1,5 @@
+import { formatMessage } from 'umi-plugin-locale';
 import { isUrl } from "../utils/utils";
-import { formatMessage } from 'umi-plugin-react/locale';
 
 const publishIcon = (
   <i className="anticon">

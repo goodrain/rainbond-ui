@@ -1,11 +1,11 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Dropdown, Icon, Input, notification } from 'antd';
 import { connect } from 'dva';
-import { Icon, Dropdown, Input, notification } from 'antd';
-import style from './index.less';
 import { Link } from 'dva/router';
-import CreateTeam from '../CreateTeam';
+import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import userUtil from '../../utils/user';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import CreateTeam from '../CreateTeam';
+import style from './index.less';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser,
@@ -135,24 +135,27 @@ export default class SelectTeam extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {items.map(item => {
-                return (
-                  <li key={item.name}>
-                    <Link to={item.link} title={item.name}>
-                      <span>{item.name}</span>
-                    </Link>
-                  </li>
-                );
+                if (item.link) {
+                  return (
+                    <li key={item.name}>
+                      <Link to={item.link} title={item.name}>
+                        <span>
+                          {item.name}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                }
               })}
             </ul>
-            {currentUser.is_user_enter_amdin && (
+            {currentUser.is_user_enter_amdin &&
               <div
                 className={style.dropBoxListCreate}
                 onClick={this.showCreateTeam}
               >
                 <Icon type="plus" />
                 <FormattedMessage id="header.team.create" />
-              </div>
-            )}
+              </div>}
           </div>
           <Link className={style.dropBoxAll} to={currentEnterpriseTeamPageLink}>
             <span>
@@ -172,7 +175,7 @@ export default class SelectTeam extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={showCreateTeam ? false : visible}>
           <div>
-            {active && (
+            {active &&
               <div className={style.selectButton}>
                 <div className={style.selectButtonName} style={showstyle}>
                   <span>
@@ -180,22 +183,19 @@ export default class SelectTeam extends PureComponent {
                   </span>
                   <Icon className={style.selectButtonArray} type="caret-down" />
                 </div>
-              </div>
-            )}
-            {!active && (
+              </div>}
+            {!active &&
               <Link className={style.selectButtonLink} to={currentTeamLink}>
                 {currentTeam.team_alias} | {currentRegion.team_region_alias}
-              </Link>
-            )}
+              </Link>}
           </div>
         </Dropdown>
-        {showCreateTeam && (
+        {showCreateTeam &&
           <CreateTeam
             enterprise_id={currentEnterprise.enterprise_id}
             onOk={this.handleCreateTeam}
             onCancel={this.cancelCreateTeam}
-          />
-        )}
+          />}
       </div>
     );
   }

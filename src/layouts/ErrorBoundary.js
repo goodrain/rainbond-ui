@@ -1,3 +1,4 @@
+import Loading from '@/components/Loading';
 import { notification } from 'antd';
 import { connect } from 'dva';
 import { PureComponent } from 'react';
@@ -42,8 +43,9 @@ export default class ErrorBoundary extends PureComponent {
     if (hasError) {
       notification.destroy()
       notification.info({
-        message: '遇到故障,我们会尽快修复请稍后重试',
+        message: 'UI遇到故障已记录,我们会尽快修复请稍后重试',
       });
+      return <Loading />
     }
     return children;
   }

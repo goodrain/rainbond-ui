@@ -1,40 +1,24 @@
-import React, { PureComponent } from 'react';
+import { Button, Col, Divider, Form, Icon, Input, Modal, notification, Row, Spin } from 'antd';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Form,
-  Button,
-  Input,
-  Icon,
-  Modal,
-  notification,
-  Spin,
-  Divider,
-} from 'antd';
-
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ComponentList from './ComponentList';
-import AppShape from './AppShape';
-import EditorTopology from './EditorTopology';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import NoPermTip from '../../components/NoPermTip';
-import VisterBtn from '../../components/visitBtnForAlllink';
-import RapidCopy from '../../components/RapidCopy';
 import styless from '../../components/CreateTeam/index.less';
-import styles from './Index.less';
+import NoPermTip from '../../components/NoPermTip';
+import RapidCopy from '../../components/RapidCopy';
+import VisterBtn from '../../components/visitBtnForAlllink';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createApp, createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
-import {
-  createEnterprise,
-  createTeam,
-  createApp,
-} from '../../utils/breadcrumb';
+import AppShape from './AppShape';
+import ComponentList from './ComponentList';
+import EditorTopology from './EditorTopology';
+import styles from './Index.less';
+
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
@@ -592,7 +576,7 @@ class Main extends PureComponent {
           }}
         >
           <Col span={16} style={{ paddingleft: '12px' }}>
-            <Link
+            <a
               onClick={() => {
                 this.changeType('shape');
               }}
@@ -605,8 +589,8 @@ class Main extends PureComponent {
               }}
             >
               拓扑图
-            </Link>
-            <Link
+            </a>
+            <a
               onClick={() => {
                 this.changeType('list');
               }}
@@ -619,7 +603,7 @@ class Main extends PureComponent {
               }}
             >
               列表
-            </Link>
+            </a>
           </Col>
 
           <Col span={4} style={{ textAlign: 'right' }}>
