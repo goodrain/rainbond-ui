@@ -3,7 +3,6 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import CodeCustomForm from '../../components/CodeCustomForm';
-import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
@@ -14,12 +13,7 @@ import styles from './Index.less';
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      codeType: 'Git',
-      showUsernameAndPass: false,
-      showKey: false,
-      addGroup: false,
-    };
+    this.state = {};
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });

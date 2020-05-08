@@ -1,4 +1,4 @@
-import { Col, Row, Tabs, Tree, Spin } from 'antd';
+import { Col, Row, Spin, Tabs, Tree } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '../../../utils/global';
@@ -26,7 +26,6 @@ export default class WebConsole extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      podLoading: true,
       loading: false,
       pods: [],
       tabs: [],
@@ -39,7 +38,12 @@ export default class WebConsole extends PureComponent {
     this.loadDetail();
     this.fetchPods(true);
   }
-
+  onEdit = (targetKey, action) => {
+    this[action](targetKey);
+  };
+  onChange = key => {
+    this.setState({ activeKey: key });
+  };
   onSelect = selectedKeys => {
     if (selectedKeys.length > 0) {
       const podNameAndContainerName = selectedKeys[0];
@@ -57,6 +61,7 @@ export default class WebConsole extends PureComponent {
       }
     }
   };
+
   openConsole = (podName, containerName) => {
     const activeKey = Math.random()
       .toString(36)
@@ -85,7 +90,7 @@ export default class WebConsole extends PureComponent {
   };
 
   fetchPods = isAssignment => {
-    this.setState({ podLoading: true, loading: true });
+    this.setState({ loading: true });
     this.props.dispatch({
       type: 'appControl/fetchPods',
       payload: {
@@ -125,10 +130,10 @@ export default class WebConsole extends PureComponent {
             title: container_name,
             key: activeKey,
           };
-          this.setState({ tabs: [tab], activeKey });
+          this.setState({ tabs: [tab], activeKey, pods });
+        } else {
+          this.setState({ pods });
         }
-
-        this.setState({ pods, podLoading: false });
       },
     });
   };
@@ -155,16 +160,8 @@ export default class WebConsole extends PureComponent {
     }
   };
 
-  onChange = key => {
-    this.setState({ activeKey: key });
-  };
-
   clearLoading = () => {
     this.setState({ loading: false });
-  };
-
-  onEdit = (targetKey, action) => {
-    this[action](targetKey);
   };
 
   remove = key => {
@@ -250,6 +247,7 @@ export default class WebConsole extends PureComponent {
     const { appDetail } = this.state;
     return (
       <XTerm
+        key={podName + containerName}
         tenantID={appDetail.service.tenant_id}
         serviceID={appDetail.service.service_id}
         WebsocketURL={appDetail.event_websocket_url}

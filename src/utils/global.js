@@ -27,7 +27,7 @@ const global = {
       defaultOptions.data = JSON.stringify({
         url: window.location.href,
         eid: info.enterprise_id,
-        e_name: info.enterprise_name,
+        e_name: info.enterprise_alias,
         version: version.value,
         title: title.value,
         day:moment(new Date()).locale('zh-cn').format('YYYYMMDD')
