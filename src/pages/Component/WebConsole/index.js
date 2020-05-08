@@ -108,12 +108,12 @@ export default class WebConsole extends PureComponent {
           pods[0].container &&
           pods[0].container.length > 0
         ) {
-          const plugins = pods[0].container.filter(item =>
-            !item.container_name.includes('plugin')
+          const noPlugContainers = pods[0].container.filter(
+            item => !item.container_name.includes('plugin')
           );
           const container_name =
-            plugins && plugins.length > 0
-              ? plugins[0].container_name
+            noPlugContainers && noPlugContainers.length > 0
+              ? noPlugContainers[0].container_name
               : pods[0].container[0].container_name;
           const activeKey = Math.random()
             .toString(36)
