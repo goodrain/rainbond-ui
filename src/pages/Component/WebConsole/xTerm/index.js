@@ -18,57 +18,60 @@ class App extends PureComponent {
   }
 
   componentDidMount() {
-    const doSomethingAsync = () => {
-      return new Promise(res => {
-        this.EstablishConnection();
-      });
-    };
-    doSomethingAsync();
+    this.EstablishConnection();
   }
 
   EstablishConnection = () => {
-    const {
-      tenantID,
-      serviceID,
-      podName,
-      containerName,
-      WebsocketURL,
-      updateTitle,
-    } = this.props;
-    if (!this.inputRef.current) {
-      return null;
-    }
-    const term = this.inputRef.current.getTerminal();
+    return new Promise(() => {
+      const {
+        tenantID,
+        serviceID,
+        podName,
+        containerName,
+        WebsocketURL,
+        updateTitle,
+      } = this.props;
+      if (!this.inputRef.current) {
+        return null;
+      }
+      const term = this.inputRef.current.getTerminal();
+      // The code below is very slow
+      // console.log(new Date());
+      // term.setOption(
+      //   'fontFamily',
+      //   '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols"'
+      // );
+      // term.setOption('fontSize', 16);
+      // console.log(new Date());
+      const consoleWebsocketURL = WebsocketURL.replace(
+        '/event_log',
+        '/docker_console'
+      );
 
-    const consoleWebsocketURL = WebsocketURL.replace(
-      '/event_log',
-      '/docker_console'
-    );
-
-    // Fit screen width
-    const fit = require(`xterm/dist/addons/fit/fit`);
-    this.inputRef.current.applyAddon(fit);
-    fit.fit(term);
-
-    const factory = new ConnectionFactory(consoleWebsocketURL, protocols);
-    const gottyAuthToken = '';
-    const hash = md5(`${tenantID}_${serviceID}_${podName}`);
-    const args = {
-      T_id: tenantID,
-      S_id: serviceID,
-      C_id: podName,
-      containerName: containerName,
-      Md5: hash,
-    };
-    const xterm = new XTermCustom(term);
-    xterm.removeMessage = this.clearMessage;
-    xterm.setWindowTitle = title => {
-      updateTitle && updateTitle(title);
-    };
-    const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
-    const closer = wt.open();
-    this.closer = closer;
-    this.clearMessage();
+      // Fit screen width
+      const fit = require(`xterm/dist/addons/fit/fit`);
+      this.inputRef.current.applyAddon(fit);
+      fit.fit(term);
+      const factory = new ConnectionFactory(consoleWebsocketURL, protocols);
+      const gottyAuthToken = '';
+      const hash = md5(`${tenantID}_${serviceID}_${podName}`);
+      const args = {
+        T_id: tenantID,
+        S_id: serviceID,
+        C_id: podName,
+        containerName: containerName,
+        Md5: hash,
+      };
+      const xterm = new XTermCustom(term);
+      xterm.removeMessage = this.clearMessage;
+      xterm.setWindowTitle = title => {
+        updateTitle && updateTitle(title);
+      };
+      const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
+      const closer = wt.open();
+      this.closer = closer;
+      this.clearMessage();
+    });
   };
 
   componentWillUnmount() {

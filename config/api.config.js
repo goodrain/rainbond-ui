@@ -1,11 +1,11 @@
-let baseUrl = "";
-let imageUploadUrl = "";
-if (process.env.NODE_ENV === "dev") {
+let baseUrl = '';
+let imageUploadUrl = '';
+if (process.env.NODE_ENV === 'dev') {
   // baseUrl = "http://gr-debug.goodrain.com/";
-} else if (process.env.NODE_ENV === "development") {
-  baseUrl = "https://cloud.goodrain.com/";
-} else if (process.env.NODE_ENV === "production") {
-  baseUrl = "";
+} else if (process.env.NODE_ENV === 'development') {
+  baseUrl = 'http://goodrain.pre.goodrain.com/';
+} else if (process.env.NODE_ENV === 'production') {
+  baseUrl = '';
 }
 imageUploadUrl = `${baseUrl}/console/files/upload`;
 const config = {
