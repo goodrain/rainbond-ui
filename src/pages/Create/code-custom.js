@@ -1,14 +1,13 @@
-import React, { PureComponent } from 'react';
+import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card } from 'antd';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
+import React, { PureComponent } from 'react';
 import CodeCustomForm from '../../components/CodeCustomForm';
 import TopUpHints from '../../components/TopUpHints';
-import { width } from 'window-size';
+import globalUtil from '../../utils/global';
+import styles from './Index.less';
 
-@connect(({ user, global, order }) => ({
+@connect(({ user, global }) => ({
   currUser: user.currentUser,
   groups: global.groups,
 }))
