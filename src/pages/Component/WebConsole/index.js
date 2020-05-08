@@ -108,7 +108,13 @@ export default class WebConsole extends PureComponent {
           pods[0].container &&
           pods[0].container.length > 0
         ) {
-          const container_name = pods[0].container[0].container_name;
+          const plugins = pods[0].container.filter(item =>
+            item.container_name.includes('plugin')
+          );
+          const container_name =
+            plugins && plugins.length > 0
+              ? plugins[0].container_name
+              : pods[0].container[0].container_name;
           const activeKey = Math.random()
             .toString(36)
             .slice(-8);
@@ -183,7 +189,12 @@ export default class WebConsole extends PureComponent {
       <div className={styles.menus}>
         <div className={styles.header}>
           <span>实例列表</span>
-          <span className={styles.sync} onClick={()=>{this.fetchPods(false)}}>
+          <span
+            className={styles.sync}
+            onClick={() => {
+              this.fetchPods(false);
+            }}
+          >
             <svg
               t="1588475055820"
               viewBox="0 0 1024 1024"
