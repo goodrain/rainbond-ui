@@ -1,13 +1,11 @@
+import { Icon } from 'antd';
 import Gitee from '../../public/images/gitee.png';
 import rainbondUtil from './rainbond';
-import { Icon } from 'antd';
 
 const oauthUtil = {
   getEnableGitOauthServer(enterprise) {
     const servers = [];
-    if (
-      rainbondUtil.OauthEnterpriseEnable(enterprise)
-    ) {
+    if (rainbondUtil.OauthEnterpriseEnable(enterprise)) {
       enterprise.oauth_services.value.map(item => {
         if (item.is_git && item.enable) {
           servers.push(item);

@@ -1,14 +1,16 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable react/sort-comp */
+/* eslint-disable no-unused-expressions */
+import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card } from 'antd';
-import rainbondUtil from '../../utils/rainbond';
+import React, { PureComponent } from 'react';
+import ThirdList from '../../components/ThirdList';
 import globalUtil from '../../utils/global';
 import oauthUtil from '../../utils/oauth';
-import ThirdList from '../../components/ThirdList';
+import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
 
-@connect(({ user, groupControl, global }) => ({
+@connect(({ user, global }) => ({
   rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
@@ -21,11 +23,12 @@ export default class Index extends PureComponent {
       is_auth: false,
       // oauth url
       auth_url: '',
-      // 代码分支及版本信息
-      codeList: [],
     };
   }
   componentDidMount() {
+    this.setInfo();
+  }
+  setInfo = () => {
     const { rainbondInfo, enterprise, type } = this.props;
     const git_type = this.setType();
     const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type, enterprise);
@@ -35,18 +38,10 @@ export default class Index extends PureComponent {
     if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
       this.getGitRepostoryInfo(rainbondInfo, type, enterprise);
     }
-  }
+  };
   componentWillUpdate(props) {
     this.props = props;
-    const { rainbondInfo, type, enterprise } = props;
-    const git_type = this.setType();
-    const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type, enterprise);
-    if (gitinfo) {
-      this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
-    }
-    if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
-      this.getGitRepostoryInfo(rainbondInfo, type, enterprise);
-    }
+    this.setInfo();
   }
   setType = () => {
     const { tabList, type, gitType } = this.props;
@@ -54,13 +49,14 @@ export default class Index extends PureComponent {
       return gitType;
     }
     let typs = '';
-    tabList &&
+    if (tabList) {
       tabList.map(item => {
         const { key, types } = item;
-        if (type == key) {
+        if (type === key) {
           typs = types;
         }
       });
+    }
     return typs;
   };
 
@@ -96,7 +92,6 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = value => {
-    const type = this.setType();
     const { type: service_id } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
@@ -148,25 +143,19 @@ export default class Index extends PureComponent {
               }}
             >
               尚未绑定{type}账号
-              {handleType && handleType === 'Service' && ButtonGroupState
-                ? handleServiceBotton(
-                  <a href={auth_url} target="_blank" type="primary">
-                    去认证
-                  </a>,
-                    null
-                  )
-                : !handleType && (
+              {handleType && handleType === 'Service' && ButtonGroupState && (
                 <a
                   href={auth_url}
                   target="_blank"
+                  rel="noopener noreferrer"
                   style={{
-                        marginLeft: 20,
-                      }}
+                    marginLeft: 20,
+                  }}
                   type="primary"
                 >
                   去认证
                 </a>
-                  )}
+              )}
             </div>
           ) : (
             <div>
