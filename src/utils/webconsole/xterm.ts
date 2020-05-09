@@ -1,15 +1,15 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
 import { lib } from 'libapps';
 import { Terminal } from 'xterm';
 
 export class Xterm {
-  elem: HTMLElement;
   term: Terminal;
   resizeListener: () => void;
   decoder: lib.UTF8Decoder;
-  message: HTMLElement;
   messageTimeout: number;
-  messageTimer: number;
 
   constructor(term: Terminal) {
     this.term = term;
@@ -40,14 +40,10 @@ export class Xterm {
 
   removeMessage(): void {}
 
-  setWindowTitle(title: string) {
-    document.title = title;
-  }
-
-  setPreferences(value: object) {}
+  setWindowTitle(title: string) {}
 
   onInput(callback: (input: string) => void) {
-    this.term.onData(data => {
+    this.term.onData((data, v) => {
       callback(data);
     });
   }
@@ -57,18 +53,20 @@ export class Xterm {
       callback(data.cols, data.rows);
     });
   }
-
+  setPreferences(value: object) {}
   deactivate(): void {
-    this.term.blur();
+    if (this.term) {
+      this.term.blur();
+    }
   }
 
   reset(): void {
     this.removeMessage();
-    this.term.clear();
+    this.term.reset();
   }
 
   close(): void {
     window.removeEventListener('resize', this.resizeListener);
-    this.term.destroy();
+    this.term.dispose();
   }
 }

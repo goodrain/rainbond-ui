@@ -1,10 +1,10 @@
-import React, { Fragment } from 'react';
 import { Spin } from 'antd';
-import SelectApp from '../../components/SelectApp';
-import SelectTeam from '../../components/SelectTeam';
-import SelectComponent from '../../components/SelectComponent';
-import headerStype from '../../components/GlobalHeader/index.less';
 import { Link } from 'dva/router';
+import React from 'react';
+import headerStype from '../../components/GlobalHeader/index.less';
+import SelectApp from '../../components/SelectApp';
+import SelectComponent from '../../components/SelectComponent';
+import SelectTeam from '../../components/SelectTeam';
 
 export default function AppHeader(props) {
   const {
@@ -15,7 +15,7 @@ export default function AppHeader(props) {
     appID,
     currentComponent,
     nobleIcon,
-    upDataHeader
+    upDataHeader,
   } = props;
 
   return (

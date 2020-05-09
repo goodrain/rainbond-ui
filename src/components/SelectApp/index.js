@@ -1,10 +1,10 @@
-import React, { PureComponent, Fragment } from "react";
+import { Dropdown, Icon, Input, notification } from "antd";
 import { connect } from "dva";
-import { Icon, Dropdown, notification, Input } from "antd";
-import style from "../SelectTeam/index.less";
-import EditGroupName from "../AddOrEditGroup";
 import { Link } from "dva/router";
-import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
+import React, { PureComponent } from "react";
+import { formatMessage, FormattedMessage } from "umi-plugin-locale";
+import EditGroupName from "../AddOrEditGroup";
+import style from "../SelectTeam/index.less";
 
 @connect(({ user }) => ({
   currentUser: user.currentUser

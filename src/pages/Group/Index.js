@@ -1,4 +1,15 @@
-import { Button, Col, Divider, Form, Icon, Input, Modal, notification, Row, Spin } from 'antd';
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  Icon,
+  Input,
+  Modal,
+  notification,
+  Row,
+  Spin,
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -8,7 +19,11 @@ import NoPermTip from '../../components/NoPermTip';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { createApp, createEnterprise, createTeam } from '../../utils/breadcrumb';
+import {
+  createApp,
+  createEnterprise,
+  createTeam,
+} from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';

@@ -71,11 +71,15 @@ export default class SelectComponent extends PureComponent {
     } = this.props;
     const groupId =
       appDetail && appDetail.service && appDetail.service.group_id;
-    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${groupId}`;
+    const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${
+      currentRegion.team_region_name
+    }/apps/${groupId}`;
     const { components, loading, visible } = this.state;
     const currentAPPLink =
       currentComponent &&
-      `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${currentComponent.service_alias}/overview`;
+      `/team/${currentTeam.team_name}/region/${
+        currentRegion.team_region_name
+      }/components/${currentComponent.service_alias}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div>
@@ -98,7 +102,9 @@ export default class SelectComponent extends PureComponent {
           <div className={style.dropBoxList}>
             <ul>
               {components.map(item => {
-                const link = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/components/${item.service_alias}/overview`;
+                const link = `/team/${currentTeam.team_name}/region/${
+                  currentRegion.team_region_name
+                }/components/${item.service_alias}/overview`;
                 return (
                   <li key={item.service_alias}>
                     <Link to={link} title={item.service_cname}>

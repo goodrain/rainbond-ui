@@ -207,7 +207,7 @@ export default class SiderMenu extends PureComponent {
 
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
 
-    const addSvg = () =>
+    const addSvg = () => (
       <svg
         t="1582773482475"
         viewBox="0 0 1024 1024"
@@ -230,8 +230,9 @@ export default class SiderMenu extends PureComponent {
           fill="#8C92A4"
           p-id="7260"
         />
-      </svg>;
-    const delSvg = () =>
+      </svg>
+    );
+    const delSvg = () => (
       <svg
         t="1582773213217"
         viewBox="0 0 1024 1024"
@@ -249,9 +250,10 @@ export default class SiderMenu extends PureComponent {
           fill="#8C92A4"
           p-id="6236"
         />
-      </svg>;
+      </svg>
+    );
 
-    const checkSvg = () =>
+    const checkSvg = () => (
       <svg
         t="1582797211494"
         viewBox="0 0 1024 1024"
@@ -269,7 +271,8 @@ export default class SiderMenu extends PureComponent {
           fill="#22d7bb"
           p-id="7632"
         />
-      </svg>;
+      </svg>
+    );
 
     return (
       <Sider
@@ -290,14 +293,15 @@ export default class SiderMenu extends PureComponent {
             onCancel={this.handleCloseCollectionVisible}
           />
 
-          {delcollectionVisible &&
+          {delcollectionVisible && (
             <ConfirmModal
               title="删除收藏视图"
               subDesc="此操作不可恢复"
               desc="确定要删除此视图吗？"
               onOk={this.deleteCollectionViewInfo}
               onCancel={this.handleCloseDelCollectionVisible}
-            />}
+            />
+          )}
           <div className={styles.logo}>
             <img src={logo} />
           </div>
@@ -346,14 +350,15 @@ export default class SiderMenu extends PureComponent {
                 >
                   <div className={styles.con}>
                     {item.enterprise_alias}
-                    {item.enterprise_id == currentEnterprise.enterprise_id &&
+                    {item.enterprise_id == currentEnterprise.enterprise_id && (
                       <Icon
                         title={formatMessage({
                           id: 'sidecar.currentEnterprise',
                         })}
                         className={styles.checkIcon}
                         component={checkSvg}
-                      />}
+                      />
+                    )}
                   </div>
                 </Link>
               );
@@ -363,31 +368,31 @@ export default class SiderMenu extends PureComponent {
               <FormattedMessage id="sidecar.team" />
               <Icon type="search" onClick={this.handleIsShowSearch} />
             </div>
-            {isSearch &&
+            {isSearch && (
               <Search
                 placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
                 onSearch={this.handleOnSearchTeam}
                 className={styles.searchTeam}
-              />}
+              />
+            )}
             {userTeam &&
               userTeam.map(item => {
-                ;
                 const { region, team_name, team_alias } = item;
                 return (
                   <Link
                     key={item.team_name}
-                    to={`/team/${team_name}/region/${region
-                    }/index`}
+                    to={`/team/${team_name}/region/${region}/index`}
                   >
                     <div className={styles.con}>
                       {team_alias}
                       {currentTeam &&
-                        item.team_name == currentTeam.team_name &&
-                        <Icon
-                          title={formatMessage({ id: 'sidecar.currentTeam' })}
-                          className={styles.checkIcon}
-                          component={checkSvg}
-                        />}
+                        item.team_name == currentTeam.team_name && (
+                          <Icon
+                            title={formatMessage({ id: 'sidecar.currentTeam' })}
+                            className={styles.checkIcon}
+                            component={checkSvg}
+                          />
+                        )}
                     </div>
                   </Link>
                 );

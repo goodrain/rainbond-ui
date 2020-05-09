@@ -1,34 +1,38 @@
+/* eslint-disable react/sort-comp */
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import { SearchAddon } from 'xterm-addon-search';
+import { WebLinksAddon } from 'xterm-addon-web-links';
+
 Object.defineProperty(exports, '__esModule', { value: true });
 const React = require('react');
-const xterm_1 = require('xterm');
-
-exports.Terminal = xterm_1.Terminal;
 const className = require('classnames');
 
 class XTerm extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.onInput = data => {
-      this.props.onInput && this.props.onInput(data);
+      if (this.props.onInput) {
+        this.props.onInput(data);
+      }
     };
     this.state = {
       isFocused: false,
     };
   }
-  applyAddon(addon) {
-    xterm_1.Terminal.applyAddon(addon);
-  }
   componentDidMount() {
-    if (this.props.addons) {
-      this.props.addons.forEach(s => {
-        const addon = require(`xterm/dist/addons/${s}/${s}`);
-        xterm_1.Terminal.applyAddon(addon);
-      });
-    }
-    this.xterm = new xterm_1.Terminal(this.props.options);
+    this.xterm = new Terminal(this.props.options);
+    const fit = new FitAddon();
+    this.xterm.loadAddon(fit);
+    this.xterm.loadAddon(new SearchAddon());
+    this.xterm.loadAddon(new WebLinksAddon());
+    this.xterm.setOption('fontSize', 16);
+    this.xterm.setOption(
+      'fontFamily',
+      '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols"'
+    );
     this.xterm.open(this.refs.container);
-    this.xterm.on('focus', this.focusChanged.bind(this, true));
-    this.xterm.on('blur', this.focusChanged.bind(this, false));
+    fit.fit();
     if (this.props.onContextMenu) {
       this.xterm.element.addEventListener(
         'contextmenu',
@@ -36,7 +40,7 @@ class XTerm extends React.Component {
       );
     }
     if (this.props.onInput) {
-      this.xterm.on('data', this.onInput);
+      this.xterm.onData(this.onInput);
     }
     if (this.props.value) {
       this.xterm.write(this.props.value);
@@ -44,7 +48,7 @@ class XTerm extends React.Component {
   }
   componentWillUnmount() {
     if (this.xterm) {
-      this.xterm.destroy();
+      this.xterm.dispose();
       this.xterm = null;
     }
   }
@@ -62,12 +66,6 @@ class XTerm extends React.Component {
       this.xterm.focus();
     }
   }
-  focusChanged(focused) {
-    this.setState({
-      isFocused: focused,
-    });
-    this.props.onFocusChange && this.props.onFocusChange(focused);
-  }
   resize(cols, rows) {
     this.xterm.resize(Math.round(cols), Math.round(rows));
   }
@@ -78,7 +76,9 @@ class XTerm extends React.Component {
     this.xterm.refresh(0, this.xterm.rows - 1);
   }
   onContextMenu(e) {
-    this.props.onContextMenu && this.props.onContextMenu(e);
+    if (this.props.onContextMenu) {
+      this.props.onContextMenu(e);
+    }
   }
   render() {
     const terminalClassName = className(

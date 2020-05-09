@@ -1,17 +1,4 @@
-export class ConnectionFactory {
-  url: string;
-  protocols: string[];
-
-  constructor(url: string, protocols: string[]) {
-    this.url = url;
-    this.protocols = protocols;
-  }
-
-  create(): Connection {
-    return new Connection(this.url, this.protocols);
-  }
-}
-
+/* eslint-disable class-methods-use-this */
 export class Connection {
   bare: WebSocket;
 
@@ -19,22 +6,26 @@ export class Connection {
     this.bare = new WebSocket(url, protocols);
   }
 
-  open() {
-    // nothing todo for websocket
-  }
+  open() {}
 
   close() {
     this.bare.close();
   }
 
   send(data: string) {
+    if (
+      this.bare.readyState === WebSocket.CLOSED ||
+      this.bare.readyState === WebSocket.CLOSING
+    ) {
+      return;
+    }
     this.bare.send(data);
   }
 
   isOpen(): boolean {
     if (
-      this.bare.readyState == WebSocket.CONNECTING ||
-      this.bare.readyState == WebSocket.OPEN
+      this.bare.readyState === WebSocket.CONNECTING ||
+      this.bare.readyState === WebSocket.OPEN
     ) {
       return true;
     }
@@ -42,7 +33,7 @@ export class Connection {
   }
 
   onOpen(callback: () => void) {
-    this.bare.onopen = event => {
+    this.bare.onopen = () => {
       callback();
     };
   }
@@ -54,8 +45,22 @@ export class Connection {
   }
 
   onClose(callback: () => void) {
-    this.bare.onclose = event => {
+    this.bare.onclose = () => {
       callback();
     };
+  }
+}
+
+export class ConnectionFactory {
+  url: string;
+  protocols: string[];
+
+  constructor(url: string, protocols: string[]) {
+    this.url = url;
+    this.protocols = protocols;
+  }
+
+  create(): Connection {
+    return new Connection(this.url, this.protocols);
   }
 }

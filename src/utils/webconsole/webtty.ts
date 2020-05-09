@@ -1,3 +1,5 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-undef */
 export const protocols = ['webtty'];
 
 export const msgInputUnknown = '0';
@@ -83,7 +85,10 @@ export class WebTTY {
         resizeHandler(termInfo.columns, termInfo.rows);
 
         this.term.onInput((input: string) => {
-          connection.send(msgInput + input);
+          for (let i = 0; i < input.length / 1000; i += 1) {
+            const sendMsg = input.substr(1000 * i, 1000);
+            connection.send(msgInput + sendMsg);
+          }
         });
 
         pingTimer = window.setInterval(() => {
@@ -108,8 +113,9 @@ export class WebTTY {
             break;
           case msgSetReconnect:
             const autoReconnect = JSON.parse(payload);
-            console.log(`Enabling reconnect: ${autoReconnect} seconds`);
             this.reconnect = autoReconnect;
+            break;
+          default:
             break;
         }
       });

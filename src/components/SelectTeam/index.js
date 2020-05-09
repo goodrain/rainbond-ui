@@ -99,13 +99,19 @@ export default class SelectTeam extends PureComponent {
       active,
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
+    const currentTeamLink = `/team/${currentTeam.team_name}/region/${
+      currentRegion.team_region_name
+    }/index`;
+    const currentEnterpriseTeamPageLink = `/enterprise/${
+      currentEnterprise.enterprise_id
+    }/teams`;
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
       teamInfo.region.map(region => {
-        const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
+        const link = `/team/${team.team_name}/region/${
+          region.team_region_name
+        }/index`;
         const item = {
           name: `${team.team_alias} | ${region.team_region_alias}`,
           link,

@@ -359,7 +359,7 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
 
-    const pagination = index.pagination;
+    const { pagination } = index;
     let searchKey = {
       searchKey: '',
       service_status: '',
