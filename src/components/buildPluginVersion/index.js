@@ -3,7 +3,6 @@
 */
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Link, Route } from "dva/router";
 import { Button, Modal, Tabs, message } from "antd";
 import globalUtil from "../../utils/global";
 import LogProcress from "../../components/LogProcress";

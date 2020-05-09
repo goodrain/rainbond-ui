@@ -1,6 +1,5 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -53,14 +52,14 @@ export default class Index extends PureComponent {
         page_size: this.state.pageSize,
         msg_type: '',
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({ list: data.list || [], total: data.total });
         }
       },
     });
   };
-  handlePageChange = (page) => {
+  handlePageChange = page => {
     this.state.page = page;
     this.getuserMessage();
   };
@@ -72,17 +71,13 @@ export default class Index extends PureComponent {
       pageSize: this.state.pageSize,
       total: this.state.total,
       current: this.state.page,
-      onChange: (pageSize) => {
+      onChange: pageSize => {
         this.handlePageChange(pageSize);
       },
     };
-    const ListContent = ({
-      data: {
-        owner, createdAt, percent, status,
-      },
-    }) => (
-        <div className={BasicListStyles.listContent} />
-      );
+    const ListContent = ({ data: { owner, createdAt, percent, status } }) => (
+      <div className={BasicListStyles.listContent} />
+    );
 
     return (
       <PageHeaderLayout

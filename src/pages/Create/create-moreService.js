@@ -5,7 +5,6 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
-import { Link } from 'dva/router';
 import httpResponseUtil from '../../utils/httpResponse';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -13,7 +12,7 @@ import appUtil from '../../utils/app';
 import { buildApp } from '../../services/createApp';
 import AppCreateMoreService from '../../components/AppCreateMoreService';
 
-@connect(({ user, appControl, teamControl, createApp }) => ({}), null, null, 
+@connect(({ user, appControl, teamControl, createApp }) => ({}), null, null,
 { withRef: true }
 )
 export default class Index extends PureComponent {

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button } from 'antd';
-import { Link } from 'dva/router';
 import Result from '../../components/Result';
 import styles from './RegisterResult.less';
 
 const actions = (
   <div className={styles.actions}>
-    <a href="/"><Button size="large">返回首页</Button></a>
+    <a href="/">
+      <Button size="large">返回首页</Button>
+    </a>
   </div>
 );
 

@@ -16,7 +16,7 @@ import ChangePassword from '../ChangePassword';
 import moment from 'moment';
 import groupBy from 'lodash/groupBy';
 import Debounce from 'lodash-decorators/debounce';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import cookie from '../../utils/cookie';
 import styles from './index.less';
 import oauthUtil from '../../utils/oauth';

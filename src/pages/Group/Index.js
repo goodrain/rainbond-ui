@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import {
   Row,
   Col,
@@ -106,12 +106,10 @@ class EditGroupName extends PureComponent {
   }
 }
 
-@connect(({ user, groupControl, global, teamControl, enterprise }) => ({
+@connect(({ user, groupControl, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
-  groups: global.groups || [],
-  rainbondInfo: global.rainbondInfo,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
@@ -273,7 +271,6 @@ class Main extends PureComponent {
       },
       () => {
         const { dispatch } = this.props;
-        const grid = this.getGroupId();
         dispatch({
           type: 'groupControl/delete',
           payload: {
@@ -446,14 +443,14 @@ class Main extends PureComponent {
   };
 
   render() {
-
     const {
-      currUser, groupDetail, appID,
+      currUser,
+      groupDetail,
+      appID,
       currentEnterprise,
       currentTeam,
       currentRegionName,
     } = this.props;
-
 
     const { loadingDetail, currApp, rapidCopy } = this.state;
     const team_name = globalUtil.getCurrTeamName();
@@ -592,7 +589,7 @@ class Main extends PureComponent {
           }}
         >
           <Col span={16} style={{ paddingleft: '12px' }}>
-            <Link
+            <a
               onClick={() => {
                 this.changeType('shape');
               }}
@@ -605,8 +602,8 @@ class Main extends PureComponent {
               }}
             >
               拓扑图
-            </Link>
-            <Link
+            </a>
+            <a
               onClick={() => {
                 this.changeType('list');
               }}
@@ -619,7 +616,7 @@ class Main extends PureComponent {
               }}
             >
               列表
-            </Link>
+            </a>
           </Col>
 
           <Col span={4} style={{ textAlign: 'right' }}>

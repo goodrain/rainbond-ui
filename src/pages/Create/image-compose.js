@@ -1,6 +1,6 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Link, Route, routerRedux } from "dva/router";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import {
   Row,
   Col,
@@ -13,36 +13,36 @@ import {
   notification,
   Select,
   Input,
-  Modal
-} from "antd";
-import styles from "./Index.less";
-import AddGroup from "../../components/AddOrEditGroup";
-import globalUtil from "../../utils/global";
-import ImageComposeForm from "../../components/ImageComposeForm";
+  Modal,
+} from 'antd';
+import styles from './Index.less';
+import AddGroup from '../../components/AddOrEditGroup';
+import globalUtil from '../../utils/global';
+import ImageComposeForm from '../../components/ImageComposeForm';
 
 const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 5
+    span: 5,
   },
   wrapperCol: {
-    span: 19
-  }
+    span: 19,
+  },
 };
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  groups: global.groups
+  groups: global.groups,
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      codeType: "Git",
+      codeType: 'Git',
       showUsernameAndPass: false,
       showKey: false,
-      addGroup: false
+      addGroup: false,
     };
   }
   onAddGroup = () => {
@@ -55,27 +55,27 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals
+        ...vals,
       },
       callback: group => {
         if (group) {
-          //获取群组
+          // 获取群组
           this.props.dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
+              region_name: globalUtil.getCurrRegionName(),
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            }
+            },
           });
         }
-      }
+      },
     });
   };
   hideShowKey = () => {
@@ -84,11 +84,11 @@ export default class Index extends PureComponent {
   handleSubmit = value => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "createApp/createAppByCompose",
+      type: 'createApp/createAppByCompose',
       payload: {
         team_name: teamName,
-        image_type: "docker_compose",
-        ...value
+        image_type: 'docker_compose',
+        ...value,
       },
       callback: data => {
         const group_id = data.bean.group_id;
@@ -98,7 +98,7 @@ export default class Index extends PureComponent {
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${group_id}/${compose_id}`
           )
         );
-      }
+      },
     });
   };
   render() {
