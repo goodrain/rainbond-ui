@@ -19,7 +19,6 @@ class SecurityLayout extends React.PureComponent {
         type: 'global/fetchRainbondInfo',
         callback: info => {
           if (info) {
-            globalUtil.putLog(info);
             this.fetchUserInfo();
           }
         },
@@ -37,7 +36,7 @@ class SecurityLayout extends React.PureComponent {
             isReady: true,
           });
         },
-        handleError: err => {
+        handleError: () => {
           this.setState({
             isReady: true,
           });
