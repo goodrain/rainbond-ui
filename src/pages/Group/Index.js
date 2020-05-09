@@ -1,40 +1,24 @@
-import React, { PureComponent } from 'react';
+import { Button, Col, Divider, Form, Icon, Input, Modal, notification, Row, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Form,
-  Button,
-  Input,
-  Icon,
-  Modal,
-  notification,
-  Spin,
-  Divider,
-} from 'antd';
-
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ComponentList from './ComponentList';
-import AppShape from './AppShape';
-import EditorTopology from './EditorTopology';
+import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import NoPermTip from '../../components/NoPermTip';
-import VisterBtn from '../../components/visitBtnForAlllink';
-import RapidCopy from '../../components/RapidCopy';
 import styless from '../../components/CreateTeam/index.less';
-import styles from './Index.less';
+import NoPermTip from '../../components/NoPermTip';
+import RapidCopy from '../../components/RapidCopy';
+import VisterBtn from '../../components/visitBtnForAlllink';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createApp, createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
-import {
-  createEnterprise,
-  createTeam,
-  createApp,
-} from '../../utils/breadcrumb';
+import AppShape from './AppShape';
+import ComponentList from './ComponentList';
+import EditorTopology from './EditorTopology';
+import styles from './Index.less';
+
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
@@ -170,7 +154,7 @@ class Main extends PureComponent {
             return;
           }
           const service_alias = [];
-          const json_data = data.json_data;
+          const { json_data } = data;
           this.setState({ running: false });
           this.setState({ json_data_length: Object.keys(json_data).length });
           Object.keys(json_data).map(key => {
@@ -742,9 +726,14 @@ class Main extends PureComponent {
   }
 }
 
-@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
-  pure: false,
-})
+@connect(
+  ({ user }) => ({ currUser: user.currentUser }),
+  null,
+  null,
+  {
+    pure: false,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -753,7 +742,7 @@ export default class Index extends PureComponent {
     };
   }
   getGroupId() {
-    const params = this.props.match.params;
+    const { params } = this.props.match;
     return params.appID;
   }
   render() {

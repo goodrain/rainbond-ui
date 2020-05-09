@@ -1,37 +1,23 @@
-import React, { PureComponent } from 'react';
-import moment from 'moment';
+import { Badge, Button, Card, Col, Form, Icon, List, Modal, notification, Pagination, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  List,
-  Modal,
-  Form,
-  Button,
-  Badge,
-  Pagination,
-  Icon,
-  Tooltip,
-  Table,
-  notification,
-} from 'antd';
-import cookie from '../../utils/cookie';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
-import { MiniArea, ChartCard } from '../../components/Charts';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import NumberInfo from '../../components/NumberInfo';
+import moment from 'moment';
 import numeral from 'numeral';
+import React, { PureComponent } from 'react';
+import { FormattedMessage } from 'umi-plugin-locale';
 import EditGroupName from '../../components/AddOrEditGroup';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
+import { ChartCard, MiniArea } from '../../components/Charts';
+import NumberInfo from '../../components/NumberInfo';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import configureGlobal from '../../utils/configureGlobal';
-import userUtil from '../../utils/user';
-import sourceUtil from '../../utils/source-unit';
+import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
 import guideutil from '../../utils/guide';
 import rainbondUtil from '../../utils/rainbond';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
+import styles from './Index.less';
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -373,7 +359,7 @@ export default class Index extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
 
-    const pagination = index.pagination;
+    const { pagination } = index;
     let searchKey = {
       searchKey: '',
       service_status: '',

@@ -1,11 +1,11 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Dropdown, Icon, Input, notification } from 'antd';
 import { connect } from 'dva';
-import { Icon, Dropdown, Input, notification } from 'antd';
-import style from './index.less';
 import { Link } from 'dva/router';
-import CreateTeam from '../CreateTeam';
+import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import userUtil from '../../utils/user';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import CreateTeam from '../CreateTeam';
+import style from './index.less';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser,
@@ -99,13 +99,19 @@ export default class SelectTeam extends PureComponent {
       active,
     } = this.props;
     const { userTeamList, loading, showCreateTeam, visible } = this.state;
-    const currentTeamLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/index`;
-    const currentEnterpriseTeamPageLink = `/enterprise/${currentEnterprise.enterprise_id}/teams`;
+    const currentTeamLink = `/team/${currentTeam.team_name}/region/${
+      currentRegion.team_region_name
+    }/index`;
+    const currentEnterpriseTeamPageLink = `/enterprise/${
+      currentEnterprise.enterprise_id
+    }/teams`;
     const items = [];
     userTeamList.map(team => {
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
       teamInfo.region.map(region => {
-        const link = `/team/${team.team_name}/region/${region.team_region_name}/index`;
+        const link = `/team/${team.team_name}/region/${
+          region.team_region_name
+        }/index`;
         const item = {
           name: `${team.team_alias} | ${region.team_region_alias}`,
           link,

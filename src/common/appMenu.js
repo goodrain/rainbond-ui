@@ -1,5 +1,5 @@
-import { isUrl } from "../utils/utils";
-import { formatMessage } from 'umi-plugin-react/locale';
+import { formatMessage } from 'umi-plugin-locale';
+import { isUrl } from '../utils/utils';
 
 const publishIcon = (
   <i className="anticon">
@@ -130,40 +130,40 @@ const upgradeIcon = (
 const menuData = function(teamName, regionName, appID) {
   const menuArr = [
     {
-      name: formatMessage({id:"menu.app.dashboard"}),
-      icon: "dashboard",
+      name: formatMessage({ id: 'menu.app.dashboard' }),
+      icon: 'dashboard',
       path: `team/${teamName}/region/${regionName}/apps/${appID}`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user'],
     },
     {
-      name: formatMessage({id:"menu.app.publish"}),
+      name: formatMessage({ id: 'menu.app.publish' }),
       icon: publishIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/publish`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user'],
     },
     {
-      name: formatMessage({id:"menu.app.backup"}),
+      name: formatMessage({ id: 'menu.app.backup' }),
       icon: backupIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/backup`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user'],
     },
     {
-      name: formatMessage({id:"menu.app.gateway"}),
-      icon: "gateway",
+      name: formatMessage({ id: 'menu.app.gateway' }),
+      icon: 'gateway',
       path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
-      authority: ["admin", "user"]
+      authority: ['admin', 'user'],
     },
     {
-      name: formatMessage({id:"menu.app.upgrade"}),
+      name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: upgradeIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
-      authority: ["admin", "user"]
-    }
+      authority: ['admin', 'user'],
+    },
   ];
   return menuArr;
 };
 
-function formatter(data, parentPath = "", parentAuthority) {
+function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
@@ -172,7 +172,7 @@ function formatter(data, parentPath = "", parentAuthority) {
     const result = {
       ...item,
       path,
-      authority: item.authority || parentAuthority
+      authority: item.authority || parentAuthority,
     };
     if (item.children) {
       result.children = formatter(

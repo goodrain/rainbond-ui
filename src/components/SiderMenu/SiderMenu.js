@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react';
-import { Layout, Menu, Icon, Modal, Input } from 'antd';
+import { Icon, Input, Layout } from 'antd';
 import { connect } from 'dva';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import { Link } from 'dva/router';
-import styles from './index.less';
-import CollectionView from './CollectionView';
+import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
 import ConfirmModal from '../ConfirmModal';
+import CollectionView from './CollectionView';
+import styles from './index.less';
 
 const { Sider } = Layout;
 const { Search } = Input;
@@ -285,109 +285,74 @@ export default class SiderMenu extends PureComponent {
         collapsedWidth={300}
         className={styles.sider}
       >
-      <div className={styles.siderLeft}>
-        <CollectionView
-          title={formatMessage({ id: 'sidecar.collection.add' })}
-          visible={collectionVisible}
-          onOk={this.handleCollectionView}
-          onCancel={this.handleCloseCollectionVisible}
-        />
-
-        {delcollectionVisible && (
-          <ConfirmModal
-            title="删除收藏视图"
-            subDesc="此操作不可恢复"
-            desc="确定要删除此视图吗？"
-            onOk={this.deleteCollectionViewInfo}
-            onCancel={this.handleCloseDelCollectionVisible}
+        <div className={styles.siderLeft}>
+          <CollectionView
+            title={formatMessage({ id: 'sidecar.collection.add' })}
+            visible={collectionVisible}
+            onOk={this.handleCollectionView}
+            onCancel={this.handleCloseCollectionVisible}
           />
-        )}
-        <div className={styles.logo}>
-          <img src={logo} />
-        </div>
-        <div className={styles.gtitle} key="gtitle">
-          <div className={styles.viewTit}>
-            <FormattedMessage id="sidecar.title" />
-          </div>
-        </div>
-        <div className={styles.viewContent}>
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.collection" />
-            <Icon
-              className={styles.addCollection}
-              component={addSvg}
-              onClick={this.handleOpenCollectionVisible}
-            />
-          </div>
-          {collectionList.map(item => {
-            return (
-              <Link key={item.url} to={item.url}>
-                <div className={styles.con}>
-                  {item.name}
-                  <Icon
-                    className={styles.addCollection}
-                    component={delSvg}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.handleOpenDelCollectionVisible(item);
-                    }}
-                  />
-                </div>
-              </Link>
-            );
-          })}
 
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.enterprise" />
-          </div>
-          {enterpriseList.map(item => {
-            return (
-              <Link
-                key={item.enterprise_id}
-                to={`/enterprise/${item.enterprise_id}/index`}
-              >
-                <div className={styles.con}>
-                  {item.enterprise_alias}
-                  {item.enterprise_id == currentEnterprise.enterprise_id && (
-                    <Icon
-                      title={formatMessage({ id: 'sidecar.currentEnterprise' })}
-                      className={styles.checkIcon}
-                      component={checkSvg}
-                    />
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-
-          <div className={styles.tit}>
-            <FormattedMessage id="sidecar.team" />
-            <Icon type="search" onClick={this.handleIsShowSearch} />
-          </div>
-          {isSearch && (
-            <Search
-              placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
-              onSearch={this.handleOnSearchTeam}
-              className={styles.searchTeam}
+          {delcollectionVisible && (
+            <ConfirmModal
+              title="删除收藏视图"
+              subDesc="此操作不可恢复"
+              desc="确定要删除此视图吗？"
+              onOk={this.deleteCollectionViewInfo}
+              onCancel={this.handleCloseDelCollectionVisible}
             />
           )}
-          {userTeam &&
-            userTeam.map(item => {
-              const currRegion = 'no-region';
-              const { region, team_name, team_alias } = item;
+          <div className={styles.logo}>
+            <img src={logo} />
+          </div>
+          <div className={styles.gtitle} key="gtitle">
+            <div className={styles.viewTit}>
+              <FormattedMessage id="sidecar.title" />
+            </div>
+          </div>
+          <div className={styles.viewContent}>
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.collection" />
+              <Icon
+                className={styles.addCollection}
+                component={addSvg}
+                onClick={this.handleOpenCollectionVisible}
+              />
+            </div>
+            {collectionList.map(item => {
+              return (
+                <Link key={item.url} to={item.url}>
+                  <div className={styles.con}>
+                    {item.name}
+                    <Icon
+                      className={styles.addCollection}
+                      component={delSvg}
+                      onClick={e => {
+                        e.preventDefault();
+                        this.handleOpenDelCollectionVisible(item);
+                      }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.enterprise" />
+            </div>
+            {enterpriseList.map(item => {
               return (
                 <Link
-                  key={item.team_name}
-                  to={`/team/${team_name}/region/${
-                    region
-                    // region.length > 0 ? region[0].team_region_name : currRegion
-                  }/index`}
+                  key={item.enterprise_id}
+                  to={`/enterprise/${item.enterprise_id}/index`}
                 >
                   <div className={styles.con}>
-                    {team_alias}
-                    {currentTeam && item.team_name == currentTeam.team_name && (
+                    {item.enterprise_alias}
+                    {item.enterprise_id == currentEnterprise.enterprise_id && (
                       <Icon
-                        title={formatMessage({ id: 'sidecar.currentTeam' })}
+                        title={formatMessage({
+                          id: 'sidecar.currentEnterprise',
+                        })}
                         className={styles.checkIcon}
                         component={checkSvg}
                       />
@@ -396,8 +361,46 @@ export default class SiderMenu extends PureComponent {
                 </Link>
               );
             })}
+
+            <div className={styles.tit}>
+              <FormattedMessage id="sidecar.team" />
+              <Icon type="search" onClick={this.handleIsShowSearch} />
+            </div>
+            {isSearch && (
+              <Search
+                placeholder={formatMessage({ id: 'sidecar.searchTeam' })}
+                onSearch={this.handleOnSearchTeam}
+                className={styles.searchTeam}
+              />
+            )}
+            {userTeam &&
+              userTeam.map(item => {
+                const currRegion = 'no-region';
+                const { region, team_name, team_alias } = item;
+                return (
+                  <Link
+                    key={item.team_name}
+                    to={`/team/${team_name}/region/${
+                      region
+                      // region.length > 0 ? region[0].team_region_name : currRegion
+                    }/index`}
+                  >
+                    <div className={styles.con}>
+                      {team_alias}
+                      {currentTeam &&
+                        item.team_name == currentTeam.team_name && (
+                          <Icon
+                            title={formatMessage({ id: 'sidecar.currentTeam' })}
+                            className={styles.checkIcon}
+                            component={checkSvg}
+                          />
+                        )}
+                    </div>
+                  </Link>
+                );
+              })}
+          </div>
         </div>
-      </div>
       </Sider>
     );
   }

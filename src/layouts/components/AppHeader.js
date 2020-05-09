@@ -1,11 +1,10 @@
-import React, { Fragment } from 'react';
-import { Icon, Button, Spin } from 'antd';
-import SelectApp from '../../components/SelectApp';
-import SelectTeam from '../../components/SelectTeam';
-import SelectComponent from '../../components/SelectComponent';
-import headerStype from '../../components/GlobalHeader/index.less';
-import { FormattedMessage } from 'umi-plugin-react/locale';
+import { Spin } from 'antd';
 import { Link } from 'dva/router';
+import React from 'react';
+import headerStype from '../../components/GlobalHeader/index.less';
+import SelectApp from '../../components/SelectApp';
+import SelectComponent from '../../components/SelectComponent';
+import SelectTeam from '../../components/SelectTeam';
 
 export default function AppHeader(props) {
   const {
