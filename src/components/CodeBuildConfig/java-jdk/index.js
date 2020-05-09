@@ -1,28 +1,24 @@
-import React, { PureComponent } from "react";
-import { Form, Radio, Switch, Input } from "antd";
-import { connect } from "dva";
-const RadioGroup = Radio.Group;
+import React, { PureComponent } from 'react';
+import { Form, Radio, Switch, Input } from 'antd';
 
-@connect(null, null, null, { withRef: true })
+const RadioGroup = Radio.Group;
 
 class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-        JDKType:
-        props.envs && props.envs.BUILD_RUNTIMES
-          ? "OpenJDK"
-          : props.envs && props.envs.BUILD_ENABLE_ORACLEJDK
-          ? "Jdk"
-          : props.form.getFieldValue("JDK_TYPE")
-          ? props.form.getFieldValue("JDK_TYPE")
-          : "OpenJDK",
+    const { envs } = this.props;
+    let initialJDKType = 'OpenJDK';
+    if (envs && envs.BUILD_ENABLE_ORACLEJDK) {
+      initialJDKType = 'Jdk';
     }
+    this.state = {
+      JDKType: initialJDKType,
+    };
   }
 
   onRadioGroupChange = e => {
     this.setState({
-      JDKType: e.target.value
+      JDKType: e.target.value,
     });
   };
 
@@ -30,54 +26,58 @@ class Index extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 4
-        }
+          span: 4,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 20
-        }
-      }
+          span: 20,
+        },
+      },
     };
-    const { envs } = this.props;
-    const { getFieldDecorator } = this.props.form;
-    const { JDKType } = this.state
+    const { envs, form } = this.props;
+    const { getFieldDecorator } = form;
+    const { JDKType } = this.state;
+    let initialJDKType = 'OpenJDK';
+    if (envs && envs.BUILD_ENABLE_ORACLEJDK) {
+      initialJDKType = 'Jdk';
+    }
     return (
-        <div>
-        <Form.Item {...formItemLayout} label="禁用缓存" help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库">
-          {getFieldDecorator("BUILD_NO_CACHE", {
-            initialValue: envs && envs.BUILD_NO_CACHE ? true : false
-          })(<Switch defaultChecked={envs && envs.BUILD_NO_CACHE ? true : false}  />)}
+      <div>
+        <Form.Item
+          {...formItemLayout}
+          label="禁用缓存"
+          help="开启后下一次构建将移除所有缓存文件，包括编译工具和依赖库"
+        >
+          {getFieldDecorator('BUILD_NO_CACHE', {
+            initialValue: !!(envs && envs.BUILD_NO_CACHE),
+          })(<Switch defaultChecked={!!(envs && envs.BUILD_NO_CACHE)} />)}
         </Form.Item>
-        <Form.Item {...formItemLayout} label="JDK类型" help="默认提供OpenJDK,若需要其他JDK,请选用自定义JDK">
-          {getFieldDecorator("JDK_TYPE", {
-            initialValue:
-              envs && envs.BUILD_RUNTIMES
-                ? "OpenJDK"
-                : envs && envs.BUILD_ENABLE_ORACLEJDK
-                ? "Jdk"
-                : "OpenJDK"
+        <Form.Item
+          {...formItemLayout}
+          label="JDK类型"
+          help="默认提供OpenJDK,若需要其他JDK,请选用自定义JDK"
+        >
+          {getFieldDecorator('JDK_TYPE', {
+            initialValue: initialJDKType,
           })(
-            <RadioGroup
-              onChange={this.onRadioGroupChange}
-            >
+            <RadioGroup onChange={this.onRadioGroupChange}>
               <Radio value="OpenJDK">内置OpenJDK</Radio>
               <Radio value="Jdk">自定义JDK</Radio>
             </RadioGroup>
           )}
         </Form.Item>
 
-        {JDKType == "OpenJDK" && (
+        {JDKType === 'OpenJDK' && (
           <Form.Item {...formItemLayout} label="OpenJDK版本">
-            {getFieldDecorator("BUILD_RUNTIMES", {
-              initialValue:
-                (envs && envs.BUILD_RUNTIMES) || "1.8"
+            {getFieldDecorator('BUILD_RUNTIMES', {
+              initialValue: (envs && envs.BUILD_RUNTIMES) || '1.8',
             })(
               <RadioGroup>
                 <Radio value="1.8">1.8(默认)</Radio>
@@ -93,11 +93,11 @@ class Index extends PureComponent {
           </Form.Item>
         )}
 
-        {JDKType == "Jdk" && (
+        {JDKType === 'Jdk' && (
           <Form.Item {...formItemLayout} label="自定义JDK下载路径">
-            {getFieldDecorator("BUILD_ORACLEJDK_URL", {
+            {getFieldDecorator('BUILD_ORACLEJDK_URL', {
               initialValue: envs && envs.BUILD_ORACLEJDK_URL,
-              rules: [{ validator: this.validCustomJDK }]
+              rules: [{ validator: this.validCustomJDK }],
             })(<Input placeholder="请提供自定义JDK的下载路径" />)}
           </Form.Item>
         )}
