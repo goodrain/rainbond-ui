@@ -1,7 +1,6 @@
 //查看连接信息
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
-import { Link, Route } from "dva/router";
 import {
   Row,
   Col,

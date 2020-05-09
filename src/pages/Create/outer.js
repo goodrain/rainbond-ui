@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
 import { connect } from "dva";
-import { Link, Route, routerRedux } from "dva/router";
+import { routerRedux } from "dva/router";
 import {
   Row,
   Col,
@@ -24,7 +24,7 @@ import {
 
 
 @connect(
-  ({ enterprise, teamControl, global }) => ({ 
+  ({ enterprise, teamControl, global }) => ({
     rainbondInfo: global.rainbondInfo,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,

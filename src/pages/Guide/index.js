@@ -1,7 +1,6 @@
 import React, { PureComponent } from "react";
-import moment from "moment";
 import { connect } from "dva";
-import { routerRedux, Link } from "dva/router";
+import { routerRedux } from "dva/router";
 import {
   Card,
   Row,
