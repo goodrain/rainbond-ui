@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Avatar, Button, Dropdown, Icon, Layout, Menu, Spin, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -172,7 +173,8 @@ export default class GlobalHeader extends PureComponent {
             <div className={styles.uesrInfoTitle}>Oauth认证：</div>
           )}
           {enterprise &&
-            isOauth && oauth_services &&
+            isOauth &&
+            oauth_services &&
             oauth_services.map(item => {
               const { service_name, is_authenticated, is_expired } = item;
               const authURL = oauthUtil.getAuthredictURL(item);
@@ -202,17 +204,17 @@ export default class GlobalHeader extends PureComponent {
             })}
 
           <div className={styles.uesrInfoTitle}>账号设置：</div>
-            <Menu.Item key="cpw">
-              <div className={styles.userInfoContent}>
-                <Icon
-                  component={handleEditSvg}
-                  style={{
-                    marginRight: 8,
-                  }}
-                />{' '}
-                修改密码{' '}
-              </div>
-            </Menu.Item>
+          <Menu.Item key="cpw">
+            <div className={styles.userInfoContent}>
+              <Icon
+                component={handleEditSvg}
+                style={{
+                  marginRight: 8,
+                }}
+              />{' '}
+              修改密码{' '}
+            </div>
+          </Menu.Item>
           <Menu.Item key="logout">
             <div className={styles.userInfoContent}>
               <Icon
@@ -246,9 +248,7 @@ export default class GlobalHeader extends PureComponent {
             <Tooltip title="平台使用手册">
               <a
                 target="_blank"
-                href={`${rainbondUtil.documentPlatform_url(
-                  rainbondInfo
-                )}docs/`}
+                href={`${rainbondUtil.documentPlatform_url(rainbondInfo)}docs/`}
                 rel="noopener noreferrer"
                 className={styles.action}
               >

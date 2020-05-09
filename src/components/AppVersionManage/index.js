@@ -4,7 +4,6 @@
 import React, { PureComponent, Fragment } from "react";
 import moment from "moment";
 import { connect } from "dva";
-import { Link, Route } from "dva/router";
 import {
   Row,
   Col,

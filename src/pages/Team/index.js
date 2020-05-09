@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import { List, Avatar, Button, Icon, notification } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -69,7 +69,7 @@ export default class Index extends PureComponent {
       payload: {
         team_name,
       },
-      callback: (res) => {
+      callback: res => {
         if (res && res._code === 200) {
           dispatch(routerRedux.push(teamsUrl));
         }
@@ -97,13 +97,13 @@ export default class Index extends PureComponent {
       },
     });
   };
-  handleUpDataHeader = () =>{
-    const {  dispatch } = this.props;
+  handleUpDataHeader = () => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/IsUpDataHeader',
-      payload: {isUpData: true,},
+      payload: { isUpData: true },
     });
-  }
+  };
   handleDelTeam = () => {
     const team_name = globalUtil.getCurrTeamName();
     const { teamsUrl } = this.state;
@@ -144,7 +144,12 @@ export default class Index extends PureComponent {
               <Icon onClick={this.showEditName} type="edit" />
             )}
           </div>
-          <div>创建于 {moment(team.create_time).locale('zh-cn').format('YYYY-MM-DD')}</div>
+          <div>
+            创建于{' '}
+            {moment(team.create_time)
+              .locale('zh-cn')
+              .format('YYYY-MM-DD')}
+          </div>
         </div>
       </div>
     );

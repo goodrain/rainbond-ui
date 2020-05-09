@@ -1,25 +1,12 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Link, Route, routerRedux } from "dva/router";
-import {
-  Card,
-  Select,
-} from "antd";
-import styles from "./Index.less";
-import globalUtil from "../../utils/global";
-import OuterCustomForm from "../../components/OuterCustomForm";
+/* eslint-disable no-unused-expressions */
+import { Card } from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import OuterCustomForm from '../../components/OuterCustomForm';
 import TopUpHints from '../../components/TopUpHints';
-
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    span: 5
-  },
-  wrapperCol: {
-    span: 19
-  }
-};
+import globalUtil from '../../utils/global';
+import styles from './Index.less';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -28,12 +15,7 @@ const formItemLayout = {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      codeType: "Git",
-      showUsernameAndPass: false,
-      showKey: false,
-      addGroup: false
-    };
+    this.state = {};
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -45,27 +27,27 @@ export default class Index extends PureComponent {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals
+        ...vals,
       },
       callback: group => {
         if (group) {
           // 获取群组
           this.props.dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName()
+              region_name: globalUtil.getCurrRegionName(),
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            }
+            },
           });
         }
-      }
+      },
     });
   };
   hideShowKey = () => {
@@ -74,9 +56,9 @@ export default class Index extends PureComponent {
   handleSubmit = value => {
     const teamName = globalUtil.getCurrTeamName();
     let endpoints = {};
-    if (value.endpoints_type == "static") {
+    if (value.endpoints_type == 'static') {
       endpoints = value.static;
-    } else if (value.endpoints_type == "api") {
+    } else if (value.endpoints_type == 'api') {
       endpoints = value.api;
     } else {
       endpoints.type = value.type;
@@ -86,18 +68,18 @@ export default class Index extends PureComponent {
       endpoints.password = value.password;
     }
     this.props.dispatch({
-      type: "createApp/createThirdPartyServices",
+      type: 'createApp/createThirdPartyServices',
       payload: {
         team_name: teamName,
         group_id: value.group_id,
         service_cname: value.service_cname,
         endpoints_type: value.endpoints_type,
-        endpoints: JSON.stringify(endpoints) == "{}" ? "" : endpoints
+        endpoints: JSON.stringify(endpoints) == '{}' ? '' : endpoints,
       },
       callback: data => {
         if (data) {
           const appAlias = data.bean.service_alias;
-          this.props.handleType && this.props.handleType === "Service"
+          this.props.handleType && this.props.handleType === 'Service'
             ? this.props.handleServiceGetData(appAlias)
             : this.props.dispatch(
                 routerRedux.push(
@@ -105,10 +87,10 @@ export default class Index extends PureComponent {
                 )
               );
           this.props.handleType &&
-            this.props.handleType === "Service" &&
+            this.props.handleType === 'Service' &&
             this.props.handleServiceBotton(null, null);
         }
-      }
+      },
     });
   };
   render() {

@@ -1,11 +1,10 @@
-import React, { Component } from "react";
-import { routerRedux, Link } from "dva/router";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import LicenseDrawer from "../../components/LicenseDrawer";
-import { Row, Col, Button, Table, Card, notification, Typography } from "antd";
-import { connect } from "dva";
-import { createEnterprise, createTeam } from "../../utils/breadcrumb";
-import globalUtil from "../../utils/global";
+import React, { Component } from 'react';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import LicenseDrawer from '../../components/LicenseDrawer';
+import { Row, Col, Button, Table, Card, notification, Typography } from 'antd';
+import { connect } from 'dva';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
 
 const { Paragraph } = Typography;
 
@@ -13,7 +12,7 @@ const { Paragraph } = Typography;
   currUser: user.currentUser,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
 }))
 class Control extends Component {
   constructor(props) {
@@ -24,9 +23,9 @@ class Control extends Component {
       licenseLoading: true,
       page_num: 1,
       page_size: 10,
-      total: "",
-      editData: "",
-      id: ""
+      total: '',
+      editData: '',
+      id: '',
     };
   }
   rowKey = (record, index) => index;
@@ -39,113 +38,113 @@ class Control extends Component {
     // }
     this.load();
   }
-  /**查询证书 */
+  /** 查询证书 */
   load = () => {
     const { page_num, page_size, total } = this.state;
     this.props.dispatch({
-      type: "gateWay/fetchAllLicense",
+      type: 'gateWay/fetchAllLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num,
-        page_size
+        page_size,
       },
       callback: data => {
         if (data && data._code == 200) {
           this.setState({
             licenseList: data.list,
             total: data.bean.nums,
-            editData: "",
-            licenseLoading: false
+            editData: '',
+            licenseLoading: false,
           });
         }
-      }
+      },
     });
   };
   handleCick = () => {
     this.setState({ visibleDrawer: true });
   };
   handleClose = () => {
-    this.setState({ visibleDrawer: false, editData: "" });
+    this.setState({ visibleDrawer: false, editData: '' });
   };
-  /**添加证书 */
+  /** 添加证书 */
   handleOk = values => {
     const { editData } = this.state;
     if (!editData) {
       this.props.dispatch({
-        type: "gateWay/addLicense",
-        payload: {
-          alias: values.alias,
-          private_key: values.private_key,
-          certificate: values.certificate,
-          certificate_type: values.certificate_type,
-          team_name: globalUtil.getCurrTeamName()
-        },
-        callback: data => {
-          if (data && data._code == 200) {
-            notification.success({ message: "添加成功" });
-            this.setState({ visibleDrawer: false }, () => {
-              this.load();
-            });
-          }
-        }
-      });
-    } else {
-      this.props.dispatch({
-        type: "gateWay/editLicense",
+        type: 'gateWay/addLicense',
         payload: {
           alias: values.alias,
           private_key: values.private_key,
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName(),
-          certifiate_id: this.state.id
         },
         callback: data => {
           if (data && data._code == 200) {
-            notification.success({ message: data ? "修改成功" : "修改失败" });
+            notification.success({ message: '添加成功' });
             this.setState({ visibleDrawer: false }, () => {
               this.load();
             });
           }
-        }
+        },
+      });
+    } else {
+      this.props.dispatch({
+        type: 'gateWay/editLicense',
+        payload: {
+          alias: values.alias,
+          private_key: values.private_key,
+          certificate: values.certificate,
+          certificate_type: values.certificate_type,
+          team_name: globalUtil.getCurrTeamName(),
+          certifiate_id: this.state.id,
+        },
+        callback: data => {
+          if (data && data._code == 200) {
+            notification.success({ message: data ? '修改成功' : '修改失败' });
+            this.setState({ visibleDrawer: false }, () => {
+              this.load();
+            });
+          }
+        },
       });
     }
   };
-  /**删除证书 */
+  /** 删除证书 */
   handleDelete = record => {
     this.props.dispatch({
-      type: "gateWay/deleteLicense",
+      type: 'gateWay/deleteLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        certifiate_id: record.id
+        certifiate_id: record.id,
       },
       callback: data => {
         if (data && data._code == 200) {
           notification.success({
-            message: (data && data.msg_show) || "删除成功"
+            message: (data && data.msg_show) || '删除成功',
           });
           this.load();
         }
-      }
+      },
     });
   };
-  /**编辑 */
+  /** 编辑 */
   handleEdit = record => {
     this.props.dispatch({
-      type: "gateWay/queryDetail",
+      type: 'gateWay/queryDetail',
       payload: {
         certifiate_id: record.id,
-        team_name: globalUtil.getCurrTeamName()
+        team_name: globalUtil.getCurrTeamName(),
       },
       callback: data => {
         if (data && data._code == 200) {
           this.setState({
             visibleDrawer: true,
             editData: data.bean,
-            id: data.bean.id
+            id: data.bean.id,
           });
         }
-      }
+      },
     });
   };
   saveForm = form => {
@@ -154,7 +153,7 @@ class Control extends Component {
       this.form.setFieldsValue(this.state.editData);
     }
   };
-  /**更新证书 */
+  /** 更新证书 */
   handleUpdate = record => {
     console.log(record);
   };
@@ -168,24 +167,24 @@ class Control extends Component {
   render() {
     const columns = [
       {
-        title: "证书名称",
-        dataIndex: "alias",
-        key: "alias",
-        align: "center",
-        width: "12%"
+        title: '证书名称',
+        dataIndex: 'alias',
+        key: 'alias',
+        align: 'center',
+        width: '12%',
       },
       {
-        title: "证书地址",
-        dataIndex: "issued_to",
-        key: "issued_to",
-        align: "center",
-        width: "25%",
+        title: '证书地址',
+        dataIndex: 'issued_to',
+        key: 'issued_to',
+        align: 'center',
+        width: '25%',
         render: issued_to => {
           return (
             <Paragraph
               ellipsis={{
                 rows: 2,
-                expandable: true
+                expandable: true,
               }}
             >
               {issued_to &&
@@ -198,60 +197,60 @@ class Control extends Component {
                 })}
             </Paragraph>
           );
-        }
+        },
       },
       {
-        title: "过期时间",
-        dataIndex: "end_data",
-        key: "end_data",
-        align: "center",
-        width: "20%",
+        title: '过期时间',
+        dataIndex: 'end_data',
+        key: 'end_data',
+        align: 'center',
+        width: '20%',
         render: (end_data, record) => {
           return (
             <div
               style={{
-                color: record.has_expired ? "red" : " rgba(0, 0, 0, 0.65)"
+                color: record.has_expired ? 'red' : ' rgba(0, 0, 0, 0.65)',
               }}
             >
               {end_data}
             </div>
           );
-        }
+        },
       },
       {
-        title: "证书类型",
-        dataIndex: "certificate_type",
-        key: "certificate_type",
-        align: "center",
-        width: "13%"
+        title: '证书类型',
+        dataIndex: 'certificate_type',
+        key: 'certificate_type',
+        align: 'center',
+        width: '13%',
       },
       {
-        title: "证书来源",
-        dataIndex: "issued_by",
-        key: "issued_by",
-        align: "center",
-        width: "15%"
+        title: '证书来源',
+        dataIndex: 'issued_by',
+        key: 'issued_by',
+        align: 'center',
+        width: '15%',
       },
       {
-        title: "操作",
-        dataIndex: "action",
-        key: "action",
-        align: "center",
-        width: "15%",
+        title: '操作',
+        dataIndex: 'action',
+        key: 'action',
+        align: 'center',
+        width: '15%',
         render: (text, record, index) => {
           return (
             <span>
               <a
-                style={{ marginRight: "10px" }}
+                style={{ marginRight: '10px' }}
                 onClick={this.handleEdit.bind(this, record)}
               >
                 编辑
               </a>
-              {record.issued_by.includes("第三方签发") ? (
-                ""
+              {record.issued_by.includes('第三方签发') ? (
+                ''
               ) : (
                 <a
-                  style={{ marginRight: "10px" }}
+                  style={{ marginRight: '10px' }}
                   onClick={this.handleUpdate.bind(this, record)}
                 >
                   更新
@@ -260,8 +259,8 @@ class Control extends Component {
               <a onClick={this.handleDelete.bind(this, record)}>删除</a>
             </span>
           );
-        }
-      }
+        },
+      },
     ];
     let breadcrumbList = [];
     const { currentEnterprise, currentTeam, currentRegionName } = this.props;
@@ -270,7 +269,7 @@ class Control extends Component {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: "网关管理" });
+    breadcrumbList.push({ title: '网关管理' });
     const { page_num, page_size, total, licenseList } = this.state;
     return (
       <PageHeaderLayout
@@ -282,20 +281,20 @@ class Control extends Component {
           <Button
             type="primary"
             icon="plus"
-            style={{ float: "right", marginBottom: "10px" }}
+            style={{ float: 'right', marginBottom: '10px' }}
             onClick={this.handleCick}
           >
             添加证书
           </Button>
         </Row>
-        <Card bodyStyle={{ padding: "0" }}>
+        <Card bodyStyle={{ padding: '0' }}>
           <Table
             pagination={{
-              total: total,
-              page_num: page_num,
+              total,
+              page_num,
               pageSize: page_size,
               onChange: this.onPageChange,
-              current: page_num
+              current: page_num,
             }}
             rowKey={this.rowKey}
             dataSource={licenseList}

@@ -1,7 +1,5 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -11,28 +9,18 @@ import {
   Input,
   Icon,
   Menu,
-  Dropdown,
-  Modal,
-  notification,
   Select,
   Radio,
-  Checkbox,
-  List,
-  Tabs,
-  Divider,
-  InputNumber,
-  Upload
+  Upload,
 } from 'antd';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ConfirmModal from '../../components/ConfirmModal';
-import Ellipsis from '../../components/Ellipsis';
 import FooterToolbar from '../../components/FooterToolbar';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
 import styles from '../../components/PageHeader/index.less';
+
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const ButtonGroup = Button.Group;
@@ -41,31 +29,31 @@ const { Option } = Select;
 const { SubMenu } = Menu;
 const formItemLayout = {
   labelCol: {
-    span: 8
+    span: 8,
   },
   wrapperCol: {
-    span: 16
-  }
+    span: 16,
+  },
 };
 const tailFormItemLayout = {
   wrapperCol: {
     xs: {
       span: 24,
-      offset: 0
+      offset: 0,
     },
     sm: {
       span: 14,
-      offset: 6
-    }
-  }
+      offset: 6,
+    },
+  },
 };
 
 const token = cookie.get('token');
-let myheaders = {}
+const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
-  myheaders['X_REGION_NAME'] = globalUtil.getCurrRegionName();
-  myheaders['X_TEAM_NAME'] = globalUtil.getCurrTeamName();
+  myheaders.X_REGION_NAME = globalUtil.getCurrRegionName();
+  myheaders.X_TEAM_NAME = globalUtil.getCurrTeamName();
 }
 
 const uploadButton = (
@@ -79,7 +67,7 @@ const uploadButton = (
   currUser: user.currentUser,
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
-  loading: loading
+  loading,
 }))
 @Form.create()
 export default class Main extends PureComponent {
@@ -93,11 +81,14 @@ export default class Main extends PureComponent {
       ID: 0,
       info: null,
       key: '',
-      fileList: []
-    }
+      fileList: [],
+    };
   }
   getParams() {
-    return { pluginId: this.props.match.params.pluginId, shareId: this.props.match.params.shareId }
+    return {
+      pluginId: this.props.match.params.pluginId,
+      shareId: this.props.match.params.shareId,
+    };
   }
   componentDidMount() {
     this.getShareInfo();
@@ -110,86 +101,99 @@ export default class Main extends PureComponent {
     dispatch({
       type: 'plugin/getPluginShareInfo',
       payload: {
-        team_name: team_name,
-        ...params
+        team_name,
+        ...params,
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
-          this.setState({ info: data.bean.share_plugin_info })
+          this.setState({ info: data.bean.share_plugin_info });
           if (data.bean.share_plugin_info.pic) {
             this.setState({
-              fileList: [{
-                uid: -1,
-                name: data.bean.share_plugin_info.pic,
-                status: 'done',
-                url: data.bean.share_plugin_info.pic
-              }]
-            })
+              fileList: [
+                {
+                  uid: -1,
+                  name: data.bean.share_plugin_info.pic,
+                  status: 'done',
+                  url: data.bean.share_plugin_info.pic,
+                },
+              ],
+            });
           }
         }
       },
-      handleError: (res) => {
+      handleError: res => {
         if (res && res.status === 404) {
-
         }
-      }
-    })
+      },
+    });
   }
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     const { dispatch } = this.props;
-    var newinfo = {}
-    this
-      .props
-      .form
-      .validateFields((err, values) => {
-
-
-        var url = (values.pic && values.pic.file && values.pic.file.response && values.pic.file.response.data && values.pic.file.response.data.bean) ? values.pic.file.response.data.bean.file_url : '';
-        const share_plugin_info = {
-          ...this.state.info,
-          ...values,
-          pic: url ? url : this.state.info.pic
-        };
-        if (!err) {
-          const { dispatch } = this.props;
-          const param = this.getParams();
-          dispatch({
-            type: 'plugin/submitSharePlugin',
-            payload: {
-              team_name: globalUtil.getCurrTeamName(),
-              shareId: param.shareId,
-              share_plugin_info
-            },
-            callback: (data) => {
-              dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/shareplugin/step-two/${param.pluginId}/${param.shareId}`))
-            }
-          })
-        }
-      });
-  }
+    const newinfo = {};
+    this.props.form.validateFields((err, values) => {
+      const url =
+        values.pic &&
+        values.pic.file &&
+        values.pic.file.response &&
+        values.pic.file.response.data &&
+        values.pic.file.response.data.bean
+          ? values.pic.file.response.data.bean.file_url
+          : '';
+      const share_plugin_info = {
+        ...this.state.info,
+        ...values,
+        pic: url || this.state.info.pic,
+      };
+      if (!err) {
+        const { dispatch } = this.props;
+        const param = this.getParams();
+        dispatch({
+          type: 'plugin/submitSharePlugin',
+          payload: {
+            team_name: globalUtil.getCurrTeamName(),
+            shareId: param.shareId,
+            share_plugin_info,
+          },
+          callback: data => {
+            dispatch(
+              routerRedux.push(
+                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/shareplugin/step-two/${
+                  param.pluginId
+                }/${param.shareId}`
+              )
+            );
+          },
+        });
+      }
+    });
+  };
 
   handleGiveup = () => {
-    var pluginId = this.props.match.params.pluginId;
+    const pluginId = this.props.match.params.pluginId;
     const { dispatch } = this.props;
     dispatch({
       type: 'plugin/giveupSharePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        share_id: this.props.match.params.shareId
+        share_id: this.props.match.params.shareId,
       },
-      callback: (data) => {
-        dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${pluginId}`))
-      }
-    })
-  }
+      callback: data => {
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${pluginId}`
+          )
+        );
+      },
+    });
+  };
   handleLogoChange = ({ fileList }) => {
-    this.setState({ fileList })
-  }
+    this.setState({ fileList });
+  };
   handleLogoRemove = () => {
-    this.setState({ fileList: [] })
-  }
-  componentWillUnmount() { }
+    this.setState({ fileList: [] });
+  };
+  componentWillUnmount() {}
   render() {
     const info = this.state.info;
     const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -201,85 +205,87 @@ export default class Main extends PureComponent {
         <div>
           <Card
             style={{
-              marginBottom: 24
+              marginBottom: 24,
             }}
             title="基本信息"
             bordered={false}
             bodyStyle={{
-              padding: 0
-            }}>
-            <div style={{
-              padding: "24px"
-            }}>
+              padding: 0,
+            }}
+          >
+            <div
+              style={{
+                padding: '24px',
+              }}
+            >
               <Form layout="horizontal" className={styles.stepForm}>
                 <Row gutter={24}>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label='插件名'>
+                    <Form.Item {...formItemLayout} label="插件名">
                       {getFieldDecorator('plugin_name', {
                         initialValue: info.plugin_name,
                         rules: [
                           {
                             required: true,
-                            message: '插件名不能为空'
-                          }
-                        ]
+                            message: '插件名不能为空',
+                          },
+                        ],
                       })(<Input placeholder="默认使用上次插件名" />)}
                     </Form.Item>
-
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label='版本'>
+                    <Form.Item {...formItemLayout} label="版本">
                       {getFieldDecorator('version', {
                         initialValue: info.version,
                         rules: [
                           {
                             required: true,
-                            message: '版本不能为空'
-                          }
-                        ]
+                            message: '版本不能为空',
+                          },
+                        ],
                       })(<Input placeholder="默认使用上次的版本" />)}
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label='分享范围'>
+                    <Form.Item {...formItemLayout} label="分享范围">
                       {getFieldDecorator('scope', {
                         initialValue: info.scope || 'team',
                         rules: [
                           {
-                            required: true
-                          }
-                        ]
+                            required: true,
+                          },
+                        ],
                       })(
                         <RadioGroup>
-                          <Radio value='team'>团队</Radio>
-                          <Radio value='enterprise'>公司</Radio>
-                          <Radio value='goodrain'>公有云应用市场</Radio>
+                          <Radio value="team">团队</Radio>
+                          <Radio value="enterprise">公司</Radio>
+                          <Radio value="goodrain">公有云应用市场</Radio>
                         </RadioGroup>
                       )}
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label='插件说明'>
+                    <Form.Item {...formItemLayout} label="插件说明">
                       {getFieldDecorator('desc', {
                         initialValue: info.desc,
                         rules: [
                           {
                             required: false,
-                            message: '请输入插件说明'
-                          }
-                        ]
+                            message: '请输入插件说明',
+                          },
+                        ],
                       })(<TextArea placeholder="请输入插件说明" />)}
                     </Form.Item>
                   </Col>
                   <Col span="12">
-                    <Form.Item {...formItemLayout} label='图标'>
+                    <Form.Item {...formItemLayout} label="图标">
                       {getFieldDecorator('pic', {
                         rules: [
                           {
                             required: false,
-                            message: '请上传图标'
-                          }
-                        ]
+                            message: '请上传图标',
+                          },
+                        ],
                       })(
                         <Upload
                           className="logo-uploader"
@@ -302,12 +308,20 @@ export default class Main extends PureComponent {
             </div>
           </Card>
           <FooterToolbar>
-            <Button type="primary" htmlType="submit" onClick={this.handleSubmit}>提交</Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              onClick={this.handleSubmit}
+            >
+              提交
+            </Button>
             <Button
               disabled={loading.effects['plugin/giveupSharePlugin']}
-              onClick={this.handleGiveup}>放弃发布</Button>
+              onClick={this.handleGiveup}
+            >
+              放弃发布
+            </Button>
           </FooterToolbar>
-
         </div>
       </PageHeaderLayout>
     );

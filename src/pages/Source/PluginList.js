@@ -1,25 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  List,
-  Avatar,
-  Button,
-  Icon,
-  Modal,
-  Form,
-  Input,
-  Spin,
-  Steps,
-  Radio,
-  notification,
-  Menu,
-  Dropdown,
-  Upload,
-} from 'antd';
+import { Card, List, Avatar, Button, Input, notification } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
 import BasicListStyles from '../List/BasicList.less';
 import CloudPlugin from './CloudPlugin';

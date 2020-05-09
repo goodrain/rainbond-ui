@@ -1,9 +1,7 @@
 module.exports = {
   parser: 'babel-eslint',
   extends: ['airbnb', 'prettier', 'plugin:compat/recommended'],
-  plugins: [
-    "eslint-plugin-prettier", "react", "import"
-  ],
+  plugins: [ "react", "import"],
   env: {
     browser: true,
     node: true,
@@ -13,7 +11,7 @@ module.exports = {
     jasmine: true,
   },
   rules: {
-    "prettier/prettier": ["error", {"trailingComma": true, "singleQuote": true}],
+    "prettier/prettier": ["error", {"trailingComma": "es5", "singleQuote": true}],
     'react/jsx-filename-extension': [
       1,
       { extensions: ['.js'

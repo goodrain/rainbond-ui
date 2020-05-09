@@ -111,9 +111,7 @@ export default class Index extends PureComponent {
             },
             () => {
               const isGuidevisible =
-                this.state.current == 7
-                  ? false
-                  : !cookie.get('newbie_guide');
+                this.state.current == 7 ? false : !cookie.get('newbie_guide');
               this.setState({
                 guidevisible: isGuidevisible,
               });
@@ -220,9 +218,9 @@ export default class Index extends PureComponent {
           if (visitDatas && visitDatas.length > 0) {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
-                x: moment(new Date(visitDatas[i][0] * 1000)).locale('zh-cn').format(
-                  'YYYY-MM-DD hh:mm'
-                ),
+                x: moment(new Date(visitDatas[i][0] * 1000))
+                  .locale('zh-cn')
+                  .format('YYYY-MM-DD hh:mm'),
                 y: Math.floor(visitDatas[i][1]),
               });
             }
@@ -777,7 +775,9 @@ export default class Index extends PureComponent {
             maskClosable={false}
           >
             <p style={{ fontSize: '17px' }}>
-              Rainbond 是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解 Rainbond 项目，我们特意为你准备了 Rainbond 基础功能流程的新手任务
+              Rainbond
+              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解
+              Rainbond 项目，我们特意为你准备了 Rainbond 基础功能流程的新手任务
             </p>
             <p>
               <div className={styles.stepsbox}>
@@ -957,7 +957,7 @@ export default class Index extends PureComponent {
                                 >
                                   <a>
                                     {run_service_num
-                                      ? `${run_service_num  }/`
+                                      ? `${run_service_num}/`
                                       : ''}
                                     {services_num}
                                   </a>

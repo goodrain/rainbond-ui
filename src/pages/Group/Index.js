@@ -19,9 +19,7 @@ import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
 
-
 const FormItem = Form.Item;
-const ButtonGroup = Button.Group;
 
 @Form.create()
 class EditGroupName extends PureComponent {
@@ -90,12 +88,10 @@ class EditGroupName extends PureComponent {
   }
 }
 
-@connect(({ user, groupControl, global, teamControl, enterprise }) => ({
+@connect(({ user, groupControl, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
   groupDetail: groupControl.groupDetail || {},
-  groups: global.groups || [],
-  rainbondInfo: global.rainbondInfo,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
@@ -156,7 +152,7 @@ class Main extends PureComponent {
             return;
           }
           const service_alias = [];
-          const json_data = data.json_data;
+          const { json_data } = data;
           this.setState({ running: false });
           this.setState({ json_data_length: Object.keys(json_data).length });
           Object.keys(json_data).map(key => {
@@ -257,7 +253,6 @@ class Main extends PureComponent {
       },
       () => {
         const { dispatch } = this.props;
-        const grid = this.getGroupId();
         dispatch({
           type: 'groupControl/delete',
           payload: {
@@ -430,14 +425,14 @@ class Main extends PureComponent {
   };
 
   render() {
-
     const {
-      currUser, groupDetail, appID,
+      currUser,
+      groupDetail,
+      appID,
       currentEnterprise,
       currentTeam,
       currentRegionName,
     } = this.props;
-
 
     const { loadingDetail, currApp, rapidCopy } = this.state;
     const team_name = globalUtil.getCurrTeamName();
@@ -729,9 +724,14 @@ class Main extends PureComponent {
   }
 }
 
-@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
-  pure: false,
-})
+@connect(
+  ({ user }) => ({ currUser: user.currentUser }),
+  null,
+  null,
+  {
+    pure: false,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -740,7 +740,7 @@ export default class Index extends PureComponent {
     };
   }
   getGroupId() {
-    const params = this.props.match.params;
+    const { params } = this.props.match;
     return params.appID;
   }
   render() {

@@ -1,7 +1,6 @@
 import React, { PureComponent, Fragment } from "react";
 import { Row, Col, Button, Modal, Dropdown, Menu, Table, Card, Alert, Tooltip } from "antd";
 import { connect } from "dva";
-import { Link } from "dva/router";
 import DescriptionList from "../../components/DescriptionList";
 import globalUtil from "../../utils/global";
 

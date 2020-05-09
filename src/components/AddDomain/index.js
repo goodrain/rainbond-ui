@@ -1,7 +1,7 @@
-import React, { PureComponent } from "react";
-import { Divider, Icon, Form, Select, Modal, Input, Alert } from "antd";
-import { Link } from "dva/router";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from 'react';
+import { Divider, Icon, Form, Select, Modal, Input, Alert } from 'antd';
+import { Link } from 'dva/router';
+import globalUtil from '../../utils/global';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -16,7 +16,7 @@ export default class AddDomain extends PureComponent {
     e.preventDefault();
     this.props.form.validateFields(
       {
-        force: true
+        force: true,
       },
       (err, values) => {
         if (!err) {
@@ -29,40 +29,40 @@ export default class AddDomain extends PureComponent {
     this.props.onCancel && this.props.onCancel();
   };
   checkKey = (rule, value, callback) => {
-    const visitType = this.props.form.getFieldValue("protocol");
-    if (visitType == "http") {
+    const visitType = this.props.form.getFieldValue('protocol');
+    if (visitType == 'http') {
       callback();
       return;
     }
 
-    if (visitType != "http" && value) {
+    if (visitType != 'http' && value) {
       callback();
       return;
     }
 
-    callback("请选择证书!");
+    callback('请选择证书!');
   };
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 5
-        }
+          span: 5,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 16
-        }
-      }
+          span: 16,
+        },
+      },
     };
-    const protocol = getFieldValue("protocol") || "http";
+    const protocol = getFieldValue('protocol') || 'http';
     const { isAddLicense, certificates, addLicense } = this.props;
     return (
       <Modal
@@ -72,20 +72,20 @@ export default class AddDomain extends PureComponent {
         onCancel={this.handleCancel}
       >
         <Alert
-          style={{ textAlign: "center", marginBottom: 16 }}
+          style={{ textAlign: 'center', marginBottom: 16 }}
           message="请确保将域名cname指向到本组件的对外服务访问地址"
           type="warning"
         />
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="协议">
-            {getFieldDecorator("protocol", {
-              initialValue: "http",
+            {getFieldDecorator('protocol', {
+              initialValue: 'http',
               rules: [
                 {
                   required: true,
-                  message: "请添加端口"
-                }
-              ]
+                  message: '请添加端口',
+                },
+              ],
             })(
               <Select>
                 <Option value="http">HTTP</Option>
@@ -96,31 +96,31 @@ export default class AddDomain extends PureComponent {
             )}
           </FormItem>
           <FormItem {...formItemLayout} label="域名">
-            {getFieldDecorator("domain", {
+            {getFieldDecorator('domain', {
               rules: [
                 {
                   required: true,
-                  message: "请添加域名"
+                  message: '请添加域名',
                 },
                 {
                   pattern: /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  message: "格式不正确"
-                }
-              ]
+                  message: '格式不正确',
+                },
+              ],
             })(<Input placeholder="请填写域名" />)}
           </FormItem>
-          {protocol == "http" ? (
-            ""
+          {protocol == 'http' ? (
+            ''
           ) : (
             <FormItem {...formItemLayout} label="选择证书">
-              {getFieldDecorator("certificate_id", {
-                initialValue: "",
+              {getFieldDecorator('certificate_id', {
+                initialValue: '',
                 rules: [
                   { required: true },
                   {
-                    validator: this.checkKey
-                  }
-                ]
+                    validator: this.checkKey,
+                  },
+                ],
               })(
                 <Select
                   placeholder="请选择证书"
@@ -129,11 +129,11 @@ export default class AddDomain extends PureComponent {
                       {menu}
                       {isAddLicense && (
                         <div>
-                          <Divider style={{ margin: "4px 0" }} />
+                          <Divider style={{ margin: '4px 0' }} />
                           <div
                             style={{
-                              padding: "4px 8px",
-                              cursor: "pointer"
+                              padding: '4px 8px',
+                              cursor: 'pointer',
                             }}
                             onMouseDown={e => e.preventDefault()}
                             onClick={() => {
@@ -174,9 +174,9 @@ export default class AddDomain extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/http/true`}
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                color: '#1890ff',
               }}
             >
               点击进入访问策略设置

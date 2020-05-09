@@ -15,7 +15,6 @@ import {
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import globalUtil from '../../utils/global';
-import {Link} from 'dva/router';
 import httpResponseUtil from '../../utils/httpResponse';
 import ConfirmModal from '../../components/ConfirmModal';
 
