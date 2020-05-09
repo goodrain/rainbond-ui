@@ -13,6 +13,12 @@ export class Connection {
   }
 
   send(data: string) {
+    if (
+      this.bare.readyState === WebSocket.CLOSED ||
+      this.bare.readyState === WebSocket.CLOSING
+    ) {
+      return;
+    }
     this.bare.send(data);
   }
 
