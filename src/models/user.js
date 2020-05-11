@@ -20,6 +20,10 @@ import {
   queryCollectionViewInfo,
   putCollectionViewInfo,
   deleteCollectionViewInfo,
+  fetchAccessToken,
+  addAccessToken,
+  putAccessToken,
+  deleteAccessToke,
 } from '../services/user';
 import { setAuthority } from '../utils/authority';
 import userUtil from '../utils/global';
@@ -38,6 +42,31 @@ export default {
   },
 
   effects: {
+    *fetchAccessToken({ payload, callback }, { call, put }) {
+      const data = yield call(fetchAccessToken, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+
+    *addAccessToken({ payload, callback }, { call, put }) {
+      const data = yield call(addAccessToken, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *putAccessToken({ payload, callback }, { call, put }) {
+      const data = yield call(putAccessToken, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *deleteAccessToke({ payload, callback }, { call, put }) {
+      const data = yield call(deleteAccessToke, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
     *getTeamByName({ payload, callback, fail }, { call, put, select }) {
       const response = yield call(getTeamByName, payload);
       if (response) {
@@ -63,7 +92,6 @@ export default {
         callback && callback(response);
       }
     },
-
 
     // 第三方认证
     *fetchThirdCertification(

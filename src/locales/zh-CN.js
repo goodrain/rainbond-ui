@@ -1,5 +1,6 @@
 import globalHeader from './zh-CN/globalHeader';
 import menu from './zh-CN/menu';
+import settings from './zh-CN/settings';
 import sidecar from './zh-CN/sidecar';
 import app from './zh-CN/app';
 import team from './zh-CN/team';
@@ -15,6 +16,7 @@ export default {
   'open.success': '开通成功',
   ...globalHeader,
   ...menu,
+  ...settings,
   ...sidecar,
   ...app,
   ...team,
