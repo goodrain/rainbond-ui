@@ -88,7 +88,7 @@ export default [
             name: 'EnterpriseImport',
             authority: ['admin', 'user'],
           },
-          {component:'404'}
+          { component: '404' },
         ],
       },
       // team view layout
@@ -372,7 +372,37 @@ export default [
             name: 'license',
             authority: ['admin', 'user'],
           },
-          {component:'404'}
+          { component: '404' },
+        ],
+      },
+      // account view layout
+      {
+        icon: 'user',
+        path: '/account',
+        component: '../layouts/AccountLayout',
+        name: 'AccountLayout',
+        authority: ['admin', 'user'],
+        routes: [
+          {
+            path: '/account/center',
+            name: 'UserCenter',
+            component: './Account/Center/Info',
+            routes: [
+              {
+                path: '/account/center',
+                redirect: '/account/center/binding',
+              },
+              {
+                path: '/account/center/binding',
+                component: './Account/Center/BindingView',
+              },
+              {
+                path: '/account/center/accesstoken',
+                component: './Account/Center/AccesstokenView',
+              },
+            ],
+          },
+          { component: '404' },
         ],
       },
     ],
