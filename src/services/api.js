@@ -51,51 +51,6 @@ export async function fetchAppComponents(body = {}) {
     }
   );
 }
-/*
-  获取访问令牌数据
- */
-
-export async function fetchAccessToken() {
-  return request(`${apiconfig.baseUrl}/console/users/access-token`, {
-    method: 'get',
-  });
-}
-
-/*
-  新增访问令牌数据
- */
-
-export async function addAccessToken(data) {
-  return request(`${apiconfig.baseUrl}/console/users/access-token`, {
-    method: 'post',
-    data,
-  });
-}
-/*
-  更新访问令牌数据
- */
-
-export async function putAccessToken(data) {
-  return request(
-    `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
-    {
-      method: 'put',
-    }
-  );
-}
-
-/*
-  删除访问令牌数据
- */
-
-export async function deleteAccessToke(data) {
-  return request(
-    `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
-    {
-      method: 'delete',
-    }
-  );
-}
 
 /*
   获取用户可加入团队列表

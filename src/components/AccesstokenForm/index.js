@@ -48,7 +48,7 @@ class AccesstokenForm extends PureComponent {
     const { dispatch, onOk } = this.props;
     this.setState({ loading: true });
     dispatch({
-      type: 'global/addAccessToken',
+      type: 'user/addAccessToken',
       payload: values,
       callback: res => {
         if (res && res._code === 200) {
@@ -62,7 +62,7 @@ class AccesstokenForm extends PureComponent {
     const { dispatch, onOk } = this.props;
     this.setState({ loading: true });
     dispatch({
-      type: 'global/putAccessToken',
+      type: 'user/putAccessToken',
       payload: {
         user_id: ID,
       },

@@ -85,7 +85,10 @@ export class WebTTY {
         resizeHandler(termInfo.columns, termInfo.rows);
 
         this.term.onInput((input: string) => {
-          connection.send(msgInput + input);
+          for (let i = 0; i < input.length / 1000; i += 1) {
+            const sendMsg = input.substr(1000 * i, 1000);
+            connection.send(msgInput + sendMsg);
+          }
         });
 
         pingTimer = window.setInterval(() => {

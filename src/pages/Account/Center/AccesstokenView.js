@@ -30,7 +30,7 @@ class BindingView extends Component {
   loadAccessTokenList = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'global/fetchAccessToken',
+      type: 'user/fetchAccessToken',
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
@@ -45,7 +45,7 @@ class BindingView extends Component {
     const { dispatch } = this.props;
     const { ID } = this.state;
     dispatch({
-      type: 'global/deleteAccessToke',
+      type: 'user/deleteAccessToke',
       payload: {
         user_id: ID,
       },

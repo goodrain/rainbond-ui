@@ -2,149 +2,172 @@
 @import "../../../utils/utils.less";
 
 .box {
-    margin: -24px;
-    height: 100vh;
+  margin: -24px;
+  height: calc(100vh - 64px);
 }
 
 .consoleBody {
-    background: black;
-    position: absolute;
-    height: 100vh;
-    width: 100vh;
-    margin: 0px;
+  background: black;
+  position  : absolute;
+  height    : 100%;
+  width     : 100%;
+  margin    : 0px;
 }
 
 .menus {
-    background: #2f2a2a;
-    height: 100vh;
+  background: #2f2a2a;
+  height: calc(100vh - 64px);
 
-    ul {
-        li {
-            span {
-                color: #d6cbcb !important;
-                background: #2f2a2a !important;
-            }
-        }
+
+  ul {
+    li {
+      span {
+        color     : #d6cbcb !important;
+        background: #2f2a2a !important;
+        overflow     : hidden;
+        text-overflow: ellipsis;
+        word-break   : break-all;
+        white-space  : nowrap;
+        display      : inline-block;
+        width: 95%;
+      }
     }
+  }
 
 }
 
 .col {
-    height: 100vh;
+  height: 100%;
 }
 
 .header {
-    height: 40px;
-    padding: 5px 10px;
-    background: #2f2a2a;
-    border-bottom: 1px solid rgb(24, 144, 255);
+  height       : 40px;
+  padding      : 5px 10px;
+  background   : #2f2a2a;
+  border-bottom: 1px solid rgb(24, 144, 255);
 
-    span {
-        line-height: 30px;
-        color: #fff;
+  span {
+    line-height: 30px;
+    color      : #fff;
+  }
+
+  .sync {
+    cursor       : pointer;
+    svg {
+      margin: 5px 0;
+      width : 20px;
+      height: 20px;
     }
 
-    .sync {
-        cursor: pointer;
-
-        svg {
-            margin: 5px 0;
-            width: 20px;
-            height: 20px;
-        }
-
-        float: right;
-        border:0;
-    }
+    float : right;
+    border:0;
+  }
 }
 
 .control {
-    padding: 5px 10px;
-    z-index: 10;
-    cursor: pointer;
-    position: absolute;
-    svg {
-        margin: 5px 0;
-        width: 20px;
-        height: 20px;
-    }
+  padding : 5px 10px;
+  z-index : 10;
+  cursor  : pointer;
+  position: absolute;
+
+  svg {
+    margin: 5px 0;
+    width : 20px;
+    height: 20px;
+  }
 }
 
 .tabs {
-    height: 100vh;
-    background: #3a3333;
-    :global {
-      .ant-tabs-tab-prev, .ant-tabs-tab-next{
-        color: #fff !important;
-      }
-        .ant-tabs.ant-tabs-card {
-            .ant-tabs-card-bar {
-                .ant-tabs-tab-active {
-                    box-sizing: border-box;
-                    border-bottom: 3px solid #19aa8d;
-                }
-                .ant-tabs-tab {
-                    padding: 0 4px;
-                    width: 150px;
-                    overflow: hidden;
-                    background: #a9a9a9;
-                    color: #fff;
-                }
-            }
-        }
-        .ant-tabs {
-            height: 100vh;
-            .ant-tabs-bar {
-                padding-left: 40px;
-                margin-bottom: 0px;
-            }
-            .ant-tabs-content {
-                height: 100vh;
-                .ant-tabs-tabpane.ant-tabs-tabpane-active {
-                    height: 100vh;
-                }
-                .ReactXTerm {
-                    height: calc(100vh - 104px);
-                    .terminal {
-                        overflow: 'hidden';
-                        position: 'relative';
-                        padding: 16px;
-                        font-family: "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
-                    }
-                }
-                .xterm-overlay {
-                    font-family: "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
-                    border-radius: 15px;
-                    font-size: xx-large;
-                    color: black;
-                    background: white;
-                    opacity: 0.75;
-                    padding: 0.2em 0.5em 0.2em 0.5em;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    user-select: none;
-                    transition: opacity 180ms ease-in;
-                }
-            }
-        }
+  height    : 100%;
+  background: #3a3333;
+
+  :global {
+
+    .ant-tabs-tab-prev,
+    .ant-tabs-tab-next {
+      color: #fff !important;
     }
+
+    .ant-tabs.ant-tabs-card {
+      .ant-tabs-card-bar {
+        .ant-tabs-tab-active {
+          box-sizing   : border-box;
+          border-bottom: 3px solid #19aa8d;
+        }
+
+        .ant-tabs-tab {
+          padding   : 0 4px;
+          width     : 150px;
+          overflow  : hidden;
+          background: #a9a9a9;
+          color     : #fff;
+        }
+      }
+    }
+
+    .ant-tabs {
+      height: 100%;
+
+      .ant-tabs-bar {
+        padding-left : 40px;
+        margin-bottom: 0px;
+      }
+
+      .ant-tabs-content {
+        height: 100%;
+
+        .ant-tabs-tabpane.ant-tabs-tabpane-active {
+          height: 100%;
+        }
+
+        .ReactXTerm {
+          height: 100%;
+          // height: calc(100%);
+
+          .terminal {
+            overflow   : 'hidden';
+            position   : 'relative';
+            padding    : 16px;
+            font-family: "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
+          }
+        }
+
+        .xterm-overlay {
+          font-family  : "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
+          border-radius: 15px;
+          font-size    : xx-large;
+          color        : black;
+          background   : white;
+          opacity      : 0.75;
+          padding      : 0.2em 0.5em 0.2em 0.5em;
+          position     : absolute;
+          top          : 50%;
+          left         : 50%;
+          transform    : translate(-50%, -50%);
+          user-select  : none;
+          transition   : opacity 180ms ease-in;
+        }
+      }
+    }
+  }
 
 }
 
 .consoleBox {
-    height: 100vh;
+  height: 100%;
 }
+
 .titleTab {
-    width: 80%;
-    overflow: hidden;
-    float: left;
+  width   : 80%;
+  overflow: hidden;
+  float   : left;
 }
+
 .closeTab {
-    float: right;
-    svg {
-        color: #fff;
-        width: 12px;
-    }
+  float: right;
+
+  svg {
+    color: #fff;
+    width: 12px;
+  }
 }

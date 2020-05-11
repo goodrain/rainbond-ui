@@ -81,10 +81,6 @@ import {
   getUpdateRollback,
   fetchEnterpriseApps,
   fetchAppComponents,
-  fetchAccessToken,
-  addAccessToken,
-  deleteAccessToke,
-  putAccessToken,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -126,30 +122,6 @@ export default {
         type: 'saveIsisNouse',
         payload: payload.isNouse,
       });
-    },
-    *fetchAccessToken({ payload, callback }, { call, put }) {
-      const data = yield call(fetchAccessToken, payload);
-      if (data && callback) {
-        callback(data);
-      }
-    },
-    *addAccessToken({ payload, callback }, { call, put }) {
-      const data = yield call(addAccessToken, payload);
-      if (data && callback) {
-        callback(data);
-      }
-    },
-    *putAccessToken({ payload, callback }, { call, put }) {
-      const data = yield call(putAccessToken, payload);
-      if (data && callback) {
-        callback(data);
-      }
-    },
-    *deleteAccessToke({ payload, callback }, { call, put }) {
-      const data = yield call(deleteAccessToke, payload);
-      if (data && callback) {
-        callback(data);
-      }
     },
     *getUserCanJoinTeams({ payload, callback }, { call, put }) {
       const data = yield call(getUserCanJoinTeams, payload);

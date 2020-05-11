@@ -2,7 +2,7 @@
 /* eslint-disable object-shorthand */
 import md5 from 'js-md5';
 import React, { PureComponent } from 'react';
-import 'xterm/dist/xterm.css';
+import 'xterm/css/xterm.css';
 import { ConnectionFactory } from '../../../../utils/webconsole/websocket';
 import { protocols, WebTTY } from '../../../../utils/webconsole/webtty';
 import { Xterm as XTermCustom } from '../../../../utils/webconsole/xterm';
@@ -35,23 +35,10 @@ class App extends PureComponent {
         return null;
       }
       const term = this.inputRef.current.getTerminal();
-      // The code below is very slow
-      // console.log(new Date());
-      // term.setOption(
-      //   'fontFamily',
-      //   '"DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols"'
-      // );
-      // term.setOption('fontSize', 16);
-      // console.log(new Date());
       const consoleWebsocketURL = WebsocketURL.replace(
         '/event_log',
         '/docker_console'
       );
-
-      // Fit screen width
-      const fit = require(`xterm/dist/addons/fit/fit`);
-      this.inputRef.current.applyAddon(fit);
-      fit.fit(term);
       const factory = new ConnectionFactory(consoleWebsocketURL, protocols);
       const gottyAuthToken = '';
       const hash = md5(`${tenantID}_${serviceID}_${podName}`);
@@ -90,7 +77,12 @@ class App extends PureComponent {
   render() {
     const { message } = this.state;
     return (
-      <div style={{ height: '100vh', backgroundColor: 'rgb(0, 0, 0)' }}>
+      <div
+        style={{
+          height: 'calc(100vh - 104px)',
+          backgroundColor: 'rgb(0, 0, 0)',
+        }}
+      >
         <XTerm ref={this.inputRef} />
         {message && <div className="xterm-overlay">{message}</div>}
       </div>

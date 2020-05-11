@@ -1,6 +1,6 @@
+import { Icon } from 'antd';
 import Gitee from '../../public/images/gitee.png';
 import rainbondUtil from './rainbond';
-import { Icon } from 'antd';
 
 const oauthUtil = {
   getEnableGitOauthServer(enterprise) {
