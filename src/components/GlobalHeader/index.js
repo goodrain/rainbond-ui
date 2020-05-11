@@ -1,57 +1,57 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable react/sort-comp */
 /* eslint-disable prettier/prettier */
-import { Avatar, Button, Dropdown, Icon, Layout, Menu, Spin, Tooltip } from 'antd';
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Icon,
+  Layout,
+  Menu,
+  notification,
+  Spin,
+  Tooltip,
+} from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
 import groupBy from 'lodash/groupBy';
 import moment from 'moment';
-import React, { PureComponent } from 'react';
+import { default as React, default as React, PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
 import globalUtil from '../../utils/global';
-import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
 
 const { Header } = Layout;
 
-@connect(({ global, appControl, order }) => ({
+@connect(({ user, global, appControl, order }) => ({
   rainbondInfo: global.rainbondInfo,
-  enterprise: global.enterprise,
   appDetail: appControl.appDetail,
+  currentUser: user.currentUser,
   enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      noticeCount: 0,
-      noticeList: [],
-      total: 0,
-      pageSize: 1000,
-      msg_type: '',
-      popupVisible: false,
-      msg_ids: '',
-      newNoticeList: {},
-      showDialogMessage: null,
       showChangePassword: false,
     };
   }
-  componentDidMount() {}
 
-  handleNoticeClear = type => {
-    message.success(`清空了${type}`);
+  handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
-    dispatch({ type: 'global/clearNotices', payload: type });
-  };
-
-  handleNoticeVisibleChange = visible => {
-    const { dispatch } = this.props;
-    if (visible) {
-      dispatch({ type: 'global/fetchNotices' });
+    if (key === 'userCenter') {
+      dispatch(routerRedux.replace(`/account/center`));
+    }
+    if (key === 'cpw') {
+      this.showChangePass();
+    }
+    if (key === 'logout') {
+      dispatch({ type: 'user/logout' });
     }
   };
-
   showChangePass = () => {
     this.setState({ showChangePassword: true });
   };
@@ -123,7 +123,6 @@ export default class GlobalHeader extends PureComponent {
   toggle = () => {
     const { collapsed, onCollapse } = this.props;
     onCollapse(!collapsed);
-    this.triggerResizeEvent();
   };
   @Debounce(600)
   triggerResizeEvent() {
@@ -150,6 +149,15 @@ export default class GlobalHeader extends PureComponent {
     if (!currentUser && !enterpriseServiceInfo) {
       return null;
     }
+    const handleUserSvg = () => (
+      <svg viewBox="0 0 1024 1024" width="13" height="13">
+        <path
+          d="M511.602218 541.281848a230.376271 230.376271 0 1 0 0-460.752543 230.376271 230.376271 0 0 0 0 460.752543zM511.960581 0a307.168362 307.168362 0 0 1 155.63197 572.049879c188.806153 56.826147 330.615547 215.939358 356.059326 413.551004 2.406152 18.788465-11.570008 35.836309-31.228783 38.140072-19.60758 2.303763-37.525735-11.006866-39.931887-29.795331-27.645153-214.505906-213.430817-376.025269-438.73881-376.02527-226.536667 0-414.728483 161.826532-442.322441 376.02527-2.406152 18.788465-20.324307 32.099094-39.931887 29.795331-19.658775-2.303763-33.634936-19.351607-31.228783-38.140072 25.392585-196.79253 167.969899-355.700963 357.08322-413.039057A307.168362 307.168362 0 0 1 511.960581 0z"
+          fill="#555555"
+          p-id="1138"
+        />
+      </svg>
+    );
 
     const handleEditSvg = () => (
       <svg width="15px" height="15px" viewBox="0 0 1024 1024">
@@ -161,71 +169,26 @@ export default class GlobalHeader extends PureComponent {
         <path d="M1024 445.44 828.414771 625.665331l0-116.73472L506.88 508.930611l0-126.98112 321.53472 0 0-116.73472L1024 445.44zM690.174771 41.985331 100.34944 41.985331l314.37056 133.12 0 630.78528 275.45472 0L690.17472 551.93472l46.08 0 0 296.96L414.72 848.89472 414.72 1024 0 848.894771 0 0l736.25472 0 0 339.97056-46.08 0L690.17472 41.98528 690.174771 41.985331zM690.174771 41.985331" />
       </svg>
     );
-    const isOauth = rainbondUtil.OauthEnterpriseEnable(enterprise);
-    const oauth_services =
-      currentUser.oauth_services &&
-      currentUser.oauth_services.length > 0 &&
-      currentUser.oauth_services;
+    const MenuItems = (key, component, text) => {
+      return (
+        <Menu.Item key={key}>
+          <Icon
+            component={component}
+            style={{
+              marginRight: 8,
+            }}
+          />
+          {text}
+        </Menu.Item>
+      );
+    };
+
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {isOauth && oauth_services && (
-            <div className={styles.uesrInfoTitle}>Oauth认证：</div>
-          )}
-          {enterprise &&
-            isOauth &&
-            oauth_services &&
-            oauth_services.map(item => {
-              const { service_name, is_authenticated, is_expired } = item;
-              const authURL = oauthUtil.getAuthredictURL(item);
-              return (
-                <Menu.Item key={service_name}>
-                  <div className={styles.userInfoContent}>
-                    <span className={styles.oneSpan} title={service_name}>
-                      {oauthUtil.getIcon(item, '16px')}
-                      {service_name}
-                    </span>
-                    <span>
-                      {is_authenticated ? (
-                        <span style={{ color: 'green' }}>已认证</span>
-                      ) : is_expired ? (
-                        <a href={authURL} target="_blank">
-                          已过期重新认证
-                        </a>
-                      ) : (
-                        <a href={authURL} target="_blank">
-                          去认证
-                        </a>
-                      )}
-                    </span>
-                  </div>
-                </Menu.Item>
-              );
-            })}
-
-          <div className={styles.uesrInfoTitle}>账号设置：</div>
-          <Menu.Item key="cpw">
-            <div className={styles.userInfoContent}>
-              <Icon
-                component={handleEditSvg}
-                style={{
-                  marginRight: 8,
-                }}
-              />{' '}
-              修改密码{' '}
-            </div>
-          </Menu.Item>
-          <Menu.Item key="logout">
-            <div className={styles.userInfoContent}>
-              <Icon
-                component={handleLogoutSvg}
-                style={{
-                  marginRight: 8,
-                }}
-              />
-              退出登录
-            </div>
-          </Menu.Item>
+          {MenuItems('userCenter', handleUserSvg, '个人中心')}
+          {MenuItems('cpw', handleEditSvg, '修改密码')}
+          {MenuItems('logout', handleLogoutSvg, '退出登录')}
         </Menu>
       </div>
     );

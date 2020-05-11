@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import { Layout, Tooltip } from 'antd';
 import classNames from 'classnames';
 import { connect } from 'dva';
@@ -126,11 +127,8 @@ class EnterpriseLayout extends PureComponent {
     });
   };
 
-  loadClusters = (eid) => {
-    const {
-      dispatch,
-      currentUser,
-    } = this.props;
+  loadClusters = eid => {
+    const { dispatch, currentUser } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
@@ -218,7 +216,7 @@ class EnterpriseLayout extends PureComponent {
         if (selectE == null) {
           selectE = enterpriseList[0];
         }
-        globalUtil.putLog(Object.assign(rainbondInfo,selectE));
+        globalUtil.putLog(Object.assign(rainbondInfo, selectE));
         this.fetchEnterpriseInfo(selectE.enterprise_id);
         this.setState({ enterpriseInfo: selectE });
         dispatch(
@@ -231,7 +229,7 @@ class EnterpriseLayout extends PureComponent {
       enterpriseList.map(item => {
         if (item.enterprise_id == eid) {
           this.fetchEnterpriseInfo(eid);
-          globalUtil.putLog(Object.assign(rainbondInfo,item));
+          globalUtil.putLog(Object.assign(rainbondInfo, item));
           this.setState({ enterpriseInfo: item });
         }
       });
@@ -244,7 +242,7 @@ class EnterpriseLayout extends PureComponent {
     }
     const { dispatch } = this.props;
     this.fetchEnterpriseService(eid);
-    this.loadClusters(eid)
+    this.loadClusters(eid);
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
@@ -376,7 +374,7 @@ class EnterpriseLayout extends PureComponent {
       );
     };
     const fetchLogo =
-      rainbondUtil.exportAppEnable(enterpriseInfo, enterprise) || logo;
+      rainbondUtil.fetchLogo(enterpriseInfo, enterprise) || logo;
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>

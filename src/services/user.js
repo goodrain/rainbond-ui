@@ -1,6 +1,42 @@
 import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
+/* Gets the access token data */
+export async function fetchAccessToken() {
+  return request(`${apiconfig.baseUrl}/console/users/access-token`, {
+    method: 'get',
+  });
+}
+/* New access to token data */
+
+export async function addAccessToken(data) {
+  return request(`${apiconfig.baseUrl}/console/users/access-token`, {
+    method: 'post',
+    data,
+  });
+}
+/* Update access token data */
+
+export async function putAccessToken(data) {
+  return request(
+    `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
+    {
+      method: 'put',
+    }
+  );
+}
+
+/* Deletes the access token data */
+
+export async function deleteAccessToke(data) {
+  return request(
+    `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
+    {
+      method: 'delete',
+    }
+  );
+}
+
 export async function getTeamByName(body = { team_name }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/detail`,

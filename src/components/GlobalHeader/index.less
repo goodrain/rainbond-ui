@@ -1,28 +1,30 @@
 @import "~antd/lib/style/themes/default.less";
 
 .header {
-  padding   : 0 12px 0 0;
+  padding: 0 12px 0 0;
   background: #374551;
   box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
-  position  : relative;
+  position: relative;
 }
 
 .enterprise {
   display: flex;
   align-items: center;
-  margin       : 0;
-  color        : #fff;
-  font-size    : 18px;
-  padding-left : 1.5em;
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  padding-left: 1.5em;
   padding-right: .5em;
-  line-height  : 64px;
-  float        : left;
-  svg{
-    margin-right:10px;
+  line-height: 64px;
+  float: left;
+
+  svg {
+    margin-right: 10px;
   }
+
   a {
-    color          : #fff;
-    font-size      : 18px;
+    color: #fff;
+    font-size: 18px;
     text-decoration: none;
   }
 }
@@ -31,28 +33,31 @@
   float: left;
   display: flex;
 }
+
 .itemBox {
   float: left;
   margin-left: 32px;
 }
+
 .item {
-    float: left;
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    color: #ffffff;
-    svg{
-      margin-right:10px;
-    }
+  float: left;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #ffffff;
+
+  svg {
+    margin-right: 10px;
+  }
 }
 
 .itemlink {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 .itemseparator {
-    margin: 0 8px;
-    color: rgba(255, 255, 255, 0.85);
+  margin: 0 8px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .select:first {
@@ -60,15 +65,15 @@
 }
 
 .uesrInfo {
-  width             : 200px;
-  background        : #fff;
-  border-radius     : 4px;
-  outline           : none;
+  width: 200px;
+  background: #fff;
+  border-radius: 4px;
+  outline: none;
   -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  box-shadow        : 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   -webkit-transition: background .3s, width .2s;
-  transition        : background .3s, width .2s;
-  zoom              : 1;
+  transition: background .3s, width .2s;
+  zoom: 1;
 
   :global {
 
@@ -80,11 +85,11 @@
   }
 
   li {
-    font-size  : 12px !important;
+    font-size: 12px !important;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
-    color      : rgba(51, 51, 51, 1);
-    height     : 17px !important;
+    color: rgba(51, 51, 51, 1);
+    height: 17px !important;
     line-height: 17px !important;
 
     i {
@@ -95,18 +100,21 @@
   padding: 10px 21px 10px 16px;
 
   .uesrInfoTitle {
-    width        : 100px;
-    height       : 17px;
-    font-size    : 12px;
-    font-family  : PingFangSC-Regular, PingFang SC;
-    font-weight  : 400;
-    color        : rgba(51, 51, 51, 1);
-    line-height  : 17px;
+    width: 100px;
+    height: 17px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+    line-height: 17px;
     margin-bottom: 6px;
   }
 
+
+
+
   .userInfoContent {
-    display    : flex;
+    display: flex;
     align-items: center;
 
     &:hover span,
@@ -115,29 +123,30 @@
     }
 
     span {
-      display    : inline-block;
-      width      : 63px;
-      height     : 17px;
-      font-size  : 12px;
+      display: inline-block;
+      width: 63px;
+      height: 17px;
+      font-size: 12px;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color      : rgba(51, 51, 51, 1);
+      color: rgba(51, 51, 51, 1) !important;
 
       i {
-        font-size   : 10px;
+        color: rgba(51, 51, 51, 1) !important;
+        font-size: 10px;
         margin-right: 5px;
       }
     }
 
     .oneSpan {
-      overflow     : hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
-      word-break   : break-all;
-      white-space  : nowrap;
-      line-height  : 16px;
+      word-break: break-all;
+      white-space: nowrap;
+      line-height: 16px;
 
       i {
-        font-size  : 12px;
+        font-size: 12px;
         margin-left: 5px;
       }
 
@@ -156,21 +165,21 @@
 :global {
   .ant-layout {
     /* overflow-x: hidden; */
-    overflow     : hidden;
+    overflow: hidden;
   }
 }
 
 .logo {
-  height        : 64px;
-  line-height   : 58px;
+  height: 64px;
+  line-height: 58px;
   vertical-align: top;
-  display       : inline-block;
-  padding       : 0 0 0 24px;
-  cursor        : pointer;
-  font-size     : 20px;
+  display: inline-block;
+  padding: 0 0 0 24px;
+  cursor: pointer;
+  font-size: 20px;
 
   img {
-    display       : inline-block;
+    display: inline-block;
     vertical-align: middle;
   }
 }
@@ -186,12 +195,12 @@
 }
 
 i.trigger {
-  font-size     : 20px;
-  line-height   : 64px;
-  cursor        : pointer;
-  transition    : all .3s, padding 0s;
+  font-size: 20px;
+  line-height: 64px;
+  cursor: pointer;
+  transition: all .3s, padding 0s;
   vertical-align: middle;
-  padding       : 0 24px;
+  padding: 0 24px;
 
   &:hover {
     // background: @primary-1;
@@ -199,18 +208,18 @@ i.trigger {
 }
 
 .teamregion {
-  display       : inline-block;
+  display: inline-block;
   vertical-align: middle;
-  overflow      : hidden;
-  padding       : 0 35px 0 35px;
+  overflow: hidden;
+  padding: 0 35px 0 35px;
 
   .tit {
     margin-right: 10px;
-    color       : #ffffff;
+    color: #ffffff;
   }
 
   .dropdown {
-    color : #fff;
+    color: #fff;
     cursor: pointer;
   }
 }
@@ -236,20 +245,20 @@ i.trigger {
 }
 
 .right {
-  float : right;
+  float: right;
   height: 100%;
 
   .action {
-    cursor     : pointer;
-    padding    : 0 12px;
-    display    : inline-block;
-    transition : all .3s;
+    cursor: pointer;
+    padding: 0 12px;
+    display: inline-block;
+    transition: all .3s;
     line-height: 64px;
 
     >i {
       font-size: 16px;
-      padding  : 4px;
-      color    : #fff;
+      padding: 4px;
+      color: #fff;
     }
 
     .name {
@@ -259,10 +268,10 @@ i.trigger {
     :global {
       .ant-avatar-image {
         img {
-          display       : inline-block;
+          display: inline-block;
           vertical-align: middle;
-          width         : auto;
-          height        : auto;
+          width: auto;
+          height: auto;
         }
       }
     }
@@ -270,7 +279,7 @@ i.trigger {
 
   .search {
     padding: 0;
-    margin : 0 12px;
+    margin: 0 12px;
 
     &:hover {
       background: transparent;
@@ -279,9 +288,9 @@ i.trigger {
 
   .account {
     .avatar {
-      margin        : 20px 8px 20px 0;
-      color         : @primary-color;
-      background    : rgba(255, 255, 255, .85);
+      margin: 20px 8px 20px 0;
+      color: @primary-color;
+      background: rgba(255, 255, 255, .85);
       vertical-align: middle;
     }
   }
@@ -305,13 +314,13 @@ i.trigger {
 
     .logo {
       padding-right: 12px;
-      position     : relative;
+      position: relative;
     }
 
     .right {
-      position  : absolute;
-      right     : 12px;
-      top       : 0;
+      position: absolute;
+      right: 12px;
+      top: 0;
       background: #fff;
 
       .account {

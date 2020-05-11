@@ -409,8 +409,7 @@ class TeamLayout extends PureComponent {
     if (mode === 'app') {
       menuData = getAppMenuData(teamName, regionName, appID);
     }
-    const fetchLogo =
-      rainbondUtil.exportAppEnable(rainbondInfo, enterprise) || logo;
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion =

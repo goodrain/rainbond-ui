@@ -126,7 +126,6 @@ export default {
         payload: payload.isNouse,
       });
     },
-
     *getUserCanJoinTeams({ payload, callback }, { call, put }) {
       const data = yield call(getUserCanJoinTeams, payload);
       if (data && callback) {
