@@ -15,11 +15,8 @@ import {
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import Debounce from 'lodash-decorators/debounce';
-import groupBy from 'lodash/groupBy';
-import moment from 'moment';
-import { default as React, default as React, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import userIcon from '../../../public/images/user-icon-small.png';
-import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import ChangePassword from '../ChangePassword';
 import styles from './index.less';
@@ -70,67 +67,12 @@ export default class GlobalHeader extends PureComponent {
     });
   };
 
-  handleMenuClick = ({ key }) => {
-    const { dispatch } = this.props;
-
-    if (key === 'cpw') {
-      this.showChangePass();
-    }
-    if (key === 'logout') {
-      dispatch({ type: 'user/logout' });
-    }
-  };
-  componentWillUnmount() {
-    this.triggerResizeEvent.cancel();
-  }
-  getNoticeData(notices) {
-    if (notices.length === 0) {
-      return {};
-    }
-    const newNotices = notices.map(notice => {
-      const newNotice = {
-        ...notice,
-      };
-      if (newNotice.create_time) {
-        newNotice.datetime = moment(notice.create_time).fromNow();
-      }
-      // transform id to item key
-      if (newNotice.ID) {
-        newNotice.key = newNotice.ID;
-      }
-      if (newNotice.content) {
-        newNotice.description = newNotice.content;
-      }
-      if (newNotice.msg_type) {
-        newNotice.msg_type = newNotice.msg_type;
-      }
-      return newNotice;
-    });
-    return groupBy(newNotices, 'msg_type');
-  }
-  handleVisibleChange = flag => {
-    this.setState({ popupVisible: flag, total: 0 }, () => {});
-  };
-  onClear = () => {
-    const { dispatch } = this.props;
-    dispatch(
-      routerRedux.replace(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/message`
-      )
-    );
-  };
-
   toggle = () => {
     const { collapsed, onCollapse } = this.props;
     onCollapse(!collapsed);
   };
   @Debounce(600)
-  triggerResizeEvent() {
-    // eslint-disable-line
-    const event = document.createEvent('HTMLEvents');
-    event.initEvent('resize', true, false);
-    window.dispatchEvent(event);
-  }
+
   handleVip = () => {
     const { dispatch, eid } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
@@ -142,9 +84,7 @@ export default class GlobalHeader extends PureComponent {
       customHeader,
       rainbondInfo,
       collapsed,
-      enterprise,
       enterpriseServiceInfo,
-      eid,
     } = this.props;
     if (!currentUser && !enterpriseServiceInfo) {
       return null;
