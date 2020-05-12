@@ -1,34 +1,31 @@
-import React, { PureComponent } from "react";
-import { Button, Icon, Card, Modal, Radio, Tooltip } from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import Result from "../../components/Result";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import ConfirmModal from "../../components/ConfirmModal";
+import React, { PureComponent } from 'react';
+import { Button, Icon, Card, Modal, Radio, Tooltip } from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import Result from '../../components/Result';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ConfirmModal from '../../components/ConfirmModal';
 import {
   getCreateCheckId,
   getCreateCheckResult,
   buildApp,
-  getCheckuuid
-} from "../../services/createApp";
-import globalUtil from "../../utils/global";
-import configureGlobal from "../../utils/configureGlobal";
-import LogProcress from "../../components/LogProcress";
-import userUtil from "../../utils/user";
-import regionUtil from "../../utils/region";
-import ShowRegionKey from "../../components/ShowRegionKey";
-import ModifyImageCmd from "./modify-image-cmd";
-import ModifyImageName from "./modify-image-name";
-import ModifyUrl from "./modify-url";
+  getCheckuuid,
+} from '../../services/createApp';
+import globalUtil from '../../utils/global';
+import LogProcress from '../../components/LogProcress';
+import userUtil from '../../utils/user';
+import regionUtil from '../../utils/region';
+import ShowRegionKey from '../../components/ShowRegionKey';
+import ModifyImageCmd from './modify-image-cmd';
+import ModifyImageName from './modify-image-name';
+import ModifyUrl from './modify-url';
 
-const RadioGroup = Radio.Group;
-const RadioButton = Radio.Button;
-
-@connect(({ user, appControl, global }) => ({
-  currUser: user.currentUser,
-  appDetail: appControl.appDetail,
-  rainbondInfo: global.rainbondInfo
-}),
+@connect(
+  ({ user, appControl, global }) => ({
+    currUser: user.currentUser,
+    appDetail: appControl.appDetail,
+    rainbondInfo: global.rainbondInfo,
+  }),
   null,
   null,
   { withRef: true }
@@ -38,12 +35,12 @@ export default class CreateCheck extends PureComponent {
     super(props);
     this.state = {
       // failure、checking、success
-      status: "",
-      check_uuid: "",
+      status: '',
+      check_uuid: '',
       errorInfo: [],
       serviceInfo: [],
       showEdit: false,
-      eventId: "",
+      eventId: '',
       appDetail: {},
       showDelete: false,
       modifyUrl: false,
@@ -53,10 +50,10 @@ export default class CreateCheck extends PureComponent {
       is_deploy: true,
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
       buildAppLoading: false,
-      is_multi: false
+      is_multi: false,
     };
     this.mount = false;
-    this.socketUrl = "";
+    this.socketUrl = '';
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const region = userUtil.hasTeamAndRegion(
@@ -75,17 +72,17 @@ export default class CreateCheck extends PureComponent {
   }
   getDetail = () => {
     this.props.dispatch({
-      type: "appControl/fetchDetail",
+      type: 'appControl/fetchDetail',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias()
+        app_alias: this.getAppAlias(),
       },
       callback: appDetail => {
         if (appDetail) {
           this.setState({ appDetail: appDetail.service });
           this.getCheckuuid();
         }
-      }
+      },
     });
   };
   getCheckuuid = () => {
@@ -108,7 +105,7 @@ export default class CreateCheck extends PureComponent {
   }
   getAppAlias() {
     const { ServiceGetData } = this.state;
-    return ServiceGetData ? ServiceGetData : this.props.match.params.appAlias;
+    return ServiceGetData || this.props.match.params.appAlias;
   }
   loopStatus = () => {
     if (!this.mount) return;
@@ -117,7 +114,7 @@ export default class CreateCheck extends PureComponent {
     getCreateCheckResult({
       team_name,
       app_alias: appAlias,
-      check_uuid: this.state.check_uuid
+      check_uuid: this.state.check_uuid,
     })
       .then(data => {
         if (data && this.mount) {
@@ -128,12 +125,12 @@ export default class CreateCheck extends PureComponent {
             status,
             errorInfo: error_infos,
             serviceInfo,
-            is_multi: data.bean.is_multi
+            is_multi: data.bean.is_multi,
           });
         }
       })
       .finally(() => {
-        if (this.mount && this.state.status === "checking") {
+        if (this.mount && this.state.status === 'checking') {
           setTimeout(() => {
             this.loopStatus();
           }, 5000);
@@ -146,7 +143,7 @@ export default class CreateCheck extends PureComponent {
     const p = getCreateCheckId(
       {
         team_name,
-        app_alias: appAlias
+        app_alias: appAlias,
       },
       res => {
         if (res.status === 404) {
@@ -162,7 +159,7 @@ export default class CreateCheck extends PureComponent {
         this.state.check_uuid = data.bean.check_uuid;
         this.setState({
           eventId: data.bean.check_event_id,
-          appDetail: data.bean
+          appDetail: data.bean,
         });
         if (loopStatus !== false) {
           this.loopStatus();
@@ -202,14 +199,14 @@ export default class CreateCheck extends PureComponent {
       if (data) {
         const appAlias = this.getAppAlias();
         this.props.dispatch({
-          type: "global/fetchGroups",
+          type: 'global/fetchGroups',
           payload: {
-            team_name
-          }
+            team_name,
+          },
         });
         ServiceGetData && is_deploy
           ? this.props.refreshCurrent()
-          : appDetail.service_source == "third_party"
+          : appDetail.service_source == 'third_party'
           ? this.props.dispatch(
               routerRedux.push(
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
@@ -227,7 +224,7 @@ export default class CreateCheck extends PureComponent {
   recheck = () => {
     this.setState(
       {
-        status: "checking"
+        status: 'checking',
       },
       () => {
         this.startCheck();
@@ -248,40 +245,40 @@ export default class CreateCheck extends PureComponent {
       if (parent === document.body) {
         return;
       }
-      const actionType = parent.getAttribute("action_type");
-      if (actionType === "modify_url" || actionType === "modify_repo") {
+      const actionType = parent.getAttribute('action_type');
+      if (actionType === 'modify_url' || actionType === 'modify_repo') {
         this.setState({ modifyUrl: actionType });
         return;
       }
 
-      if (actionType === "modify_userpass") {
+      if (actionType === 'modify_userpass') {
         this.setState({ modifyUserpass: true });
         return;
       }
 
-      if (actionType === "get_publickey") {
+      if (actionType === 'get_publickey') {
         this.setState({ showKey: true });
         return;
       }
 
-      if (actionType === "open_repo") {
-        if ((appDetail.git_url || "").indexOf("@") === -1) {
+      if (actionType === 'open_repo') {
+        if ((appDetail.git_url || '').indexOf('@') === -1) {
           window.open(appDetail.git_url);
         } else {
-          Modal.info({ title: "仓库地址", content: appDetail.git_url });
+          Modal.info({ title: '仓库地址', content: appDetail.git_url });
         }
       }
 
       // 修改镜像名称或dockerrun命令
-      if (actionType === "modify_image") {
+      if (actionType === 'modify_image') {
         // 指定镜像
-        if (appDetail.service_source === "docker_image") {
+        if (appDetail.service_source === 'docker_image') {
           this.startCheck(false);
           this.setState({ modifyImageName: true });
           return;
         }
         // docker_run命令
-        if (appDetail.service_source === "docker_run") {
+        if (appDetail.service_source === 'docker_run') {
           this.startCheck(false);
           this.setState({ modifyImageCmd: true });
           return;
@@ -295,18 +292,18 @@ export default class CreateCheck extends PureComponent {
     const appAlias = this.getAppAlias();
     const { ServiceGetData } = this.state;
     this.props.dispatch({
-      type: "appControl/deleteApp",
+      type: 'appControl/deleteApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
-        is_force: true
+        is_force: true,
       },
       callback: () => {
         this.props.dispatch({
-          type: "global/fetchGroups",
+          type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName()
-          }
+            team_name: globalUtil.getCurrTeamName(),
+          },
         });
 
         ServiceGetData
@@ -316,7 +313,7 @@ export default class CreateCheck extends PureComponent {
                 `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
               )
             );
-      }
+      },
     });
   };
   cancelModifyUrl = () => {
@@ -329,10 +326,10 @@ export default class CreateCheck extends PureComponent {
     this.setState({ showKey: false });
   };
   bindEvent = () => {
-    document.addEventListener("click", this.handleClick, false);
+    document.addEventListener('click', this.handleClick, false);
   };
   unbindEvent = () => {
-    document.removeEventListener("click", this.handleClick);
+    document.removeEventListener('click', this.handleClick);
   };
   cancelModifyUserpass = () => {
     this.setState({ modifyUserpass: false });
@@ -340,76 +337,76 @@ export default class CreateCheck extends PureComponent {
   handleModifyUserpass = values => {
     const appDetail = this.state.appDetail;
     this.props.dispatch({
-      type: "appControl/editAppCreateInfo",
+      type: 'appControl/editAppCreateInfo',
       payload: {
-        service_cname: values.service_cname ? values.service_cname : "",
-        git_url: values.git_url ? values.git_url : "",
+        service_cname: values.service_cname ? values.service_cname : '',
+        git_url: values.git_url ? values.git_url : '',
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         user_name: values.user_name,
-        password: values.password
+        password: values.password,
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyUserpass();
         }
-      }
+      },
     });
   };
   handleModifyUrl = values => {
     const appDetail = this.state.appDetail;
     this.props.dispatch({
-      type: "appControl/editAppCreateInfo",
+      type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
-        git_url: values.git_url
+        git_url: values.git_url,
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.handleCancelEdit();
         }
-      }
+      },
     });
   };
   handleModifyImageName = values => {
     const appDetail = this.state.appDetail;
     this.props.dispatch({
-      type: "appControl/editAppCreateInfo",
+      type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password
+        password: values.password,
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageName();
         }
-      }
+      },
     });
   };
   handleModifyImageCmd = values => {
     const appDetail = this.state.appDetail;
     this.props.dispatch({
-      type: "appControl/editAppCreateInfo",
+      type: 'appControl/editAppCreateInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service_alias,
         docker_cmd: values.docker_cmd,
         user_name: values.username,
-        password: values.password
+        password: values.password,
       },
       callback: data => {
         if (data) {
           this.startCheck(false);
           this.cancelModifyImageCmd();
         }
-      }
+      },
     });
   };
   handleImageSubmit = () => {};
@@ -423,20 +420,20 @@ export default class CreateCheck extends PureComponent {
         {errorInfo.map(item => (
           <div
             style={{
-              marginBottom: 16
+              marginBottom: 16,
             }}
           >
             <Icon
               style={{
-                color: "#f5222d",
-                marginRight: 8
+                color: '#f5222d',
+                marginRight: 8,
               }}
               type="close-circle-o"
             />
             <span
               dangerouslySetInnerHTML={{
-                __html: `<span>${item.error_info || ""} ${item.solve_advice ||
-                  ""}</span>`
+                __html: `<span>${item.error_info || ''} ${item.solve_advice ||
+                  ''}</span>`,
               }}
             />
           </div>
@@ -451,7 +448,7 @@ export default class CreateCheck extends PureComponent {
         <Button
           onClick={this.recheck}
           type="primary"
-          style={{ marginRight: "8px" }}
+          style={{ marginRight: '8px' }}
         >
           重新检测
         </Button>
@@ -473,24 +470,24 @@ export default class CreateCheck extends PureComponent {
         title="组件构建源检测未通过"
         description="请核对并修改以下信息后，再重新检测。"
         extra={extra}
-        actions={ServiceGetData ? "" : actions}
+        actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16
+          marginBottom: 16,
         }}
       />
     );
   };
 
   renderSuccessInfo = item => {
-    if (typeof item.value === "string") {
+    if (typeof item.value === 'string') {
       return (
         <div>
           <span
             style={{
-              verticalAlign: "top",
-              display: "inline-block",
-              fontWeight: "bold"
+              verticalAlign: 'top',
+              display: 'inline-block',
+              fontWeight: 'bold',
             }}
           >
             {item.key}：
@@ -503,22 +500,22 @@ export default class CreateCheck extends PureComponent {
       <div>
         <span
           style={{
-            verticalAlign: "top",
-            display: "inline-block",
-            fontWeight: "bold"
+            verticalAlign: 'top',
+            display: 'inline-block',
+            fontWeight: 'bold',
           }}
         >
           {item.key}：
         </span>
         <div
           style={{
-            display: "inline-block"
+            display: 'inline-block',
           }}
         >
           {(item.value || []).map(item => (
             <p
               style={{
-                marginBottom: 0
+                marginBottom: 0,
               }}
             >
               {item}
@@ -531,7 +528,7 @@ export default class CreateCheck extends PureComponent {
 
   renderSuccessOnChange = () => {
     this.setState({
-      is_deploy: !this.state.is_deploy
+      is_deploy: !this.state.is_deploy,
     });
   };
 
@@ -543,141 +540,141 @@ export default class CreateCheck extends PureComponent {
       serviceInfo && serviceInfo.length > 0
         ? serviceInfo.map(item => (
             <div
-              style={{
-                marginBottom: 16
+            style={{
+                marginBottom: 16,
               }}
-            >
-              {this.renderSuccessInfo(item)}
-            </div>
+          >
+            {this.renderSuccessInfo(item)}
+          </div>
           ))
-        : "";
+        : '';
 
     let actions = [];
     ServiceGetData
       ? (actions = [
-          <div style={{ display: "flex" }}>
-            <Button
+          <div style={{ display: 'flex' }}>
+          <Button
               onClick={this.showDelete}
               type="default"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: '8px' }}
             >
-              {" "}
-              放弃创建{" "}
+              {' '}
+              放弃创建{' '}
             </Button>
-            <Button
+          <Button
               type="default"
               onClick={this.handleSetting}
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: '8px' }}
             >
               高级设置
             </Button>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
               <Button
-                onClick={this.handleBuild}
-                type="primary"
-                style={{ marginRight: "8px" }}
-                loading={this.state.buildAppLoading}
-              >
-                {" "}
-                创建{" "}
-              </Button>
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              {' '}
+              创建{' '}
+            </Button>
               <Tooltip
-                placement="topLeft"
-                title={
+              placement="topLeft"
+              title={
                   <p>
-                    取消本选项你可以先对组件进行
+                  取消本选项你可以先对组件进行
                     <br />
-                    高级设置再构建启动。
+                  高级设置再构建启动。
                   </p>
                 }
-              >
-                <Radio
+            >
+              <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
                   checked={is_deploy}
                 >
                   并构建启动
                 </Radio>
-              </Tooltip>
+            </Tooltip>
             </div>
-          </div>
+        </div>,
         ])
-      : appDetail.service_source == "third_party"
+      : appDetail.service_source == 'third_party'
       ? (actions = [
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button
-                onClick={this.handleBuild}
-                type="primary"
-                style={{ marginRight: "8px" }}
-                loading={this.state.buildAppLoading}
-              >
-                {" "}
-                创建{" "}
-              </Button>
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              {' '}
+              创建{' '}
+            </Button>
             </div>
-          </div>
+        </div>,
         ])
       : (actions = [
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button onClick={this.showDelete} type="default">
-              {" "}
-              放弃创建{" "}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onClick={this.showDelete} type="default">
+              {' '}
+              放弃创建{' '}
             </Button>
-            <Button type="default" onClick={this.handleSetting}>
+          <Button type="default" onClick={this.handleSetting}>
               高级设置
             </Button>
-            <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button
-                onClick={this.handleBuild}
-                type="primary"
-                style={{ marginRight: "8px" }}
-                loading={this.state.buildAppLoading}
-              >
-                {" "}
-                创建{" "}
-              </Button>
-              {appDetail.service_source == "third_party"}
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              {' '}
+              创建{' '}
+            </Button>
+              {appDetail.service_source == 'third_party'}
               <Tooltip
-                placement="topLeft"
-                title={
+              placement="topLeft"
+              title={
                   <p>
-                    取消本选项你可以先对组件进行
+                  取消本选项你可以先对组件进行
                     <br />
-                    高级设置再构建启动。
+                  高级设置再构建启动。
                   </p>
                 }
-              >
-                <Radio
+            >
+              <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
                   checked={is_deploy}
                 >
                   并构建启动
                 </Radio>
-              </Tooltip>
+            </Tooltip>
             </div>
-          </div>
+        </div>,
         ]);
-    if (appDetail.service_source == "third_party") {
+    if (appDetail.service_source == 'third_party') {
       actions = [
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {" "}
-              创建{" "}
+              {' '}
+              创建{' '}
             </Button>
             <Button onClick={this.showDelete} type="default">
-              {" "}
-              放弃创建{" "}
+              {' '}
+              放弃创建{' '}
             </Button>
           </div>
-        </div>
+        </div>,
       ];
     }
 
@@ -705,31 +702,31 @@ export default class CreateCheck extends PureComponent {
       <Result
         type="success"
         title={
-          appDetail.service_source == "third_party"
-            ? "第三方组件检测通过"
-            : "组件构建源检测通过"
+          appDetail.service_source == 'third_party'
+            ? '第三方组件检测通过'
+            : '组件构建源检测通过'
         }
         description={
-          appDetail.service_source == "third_party" ? (
-            ""
+          appDetail.service_source == 'third_party' ? (
+            ''
           ) : (
             <div>
               <div>
                 组件构建源检测通过仅代表平台可以检测到代码语言类型和代码源。
               </div>
-              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
+              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
               >
                 Rainbond源码支持规范
-              </a>{" "}
+              </a>{' '}
               对代码进行调整。
             </div>
           )
         }
         extra={extra}
-        actions={ServiceGetData ? "" : actions}
+        actions={ServiceGetData ? '' : actions}
         style={{ marginTop: 48, marginBottom: 16 }}
       />
     );
@@ -743,54 +740,54 @@ export default class CreateCheck extends PureComponent {
       serviceInfo && serviceInfo.length > 0
         ? serviceInfo.map(item => (
             <div
-              style={{
-                marginBottom: 16
+            style={{
+                marginBottom: 16,
               }}
-            >
-              {this.renderSuccessInfo(item)}
-            </div>
+          >
+            {this.renderSuccessInfo(item)}
+          </div>
           ))
-        : "";
+        : '';
 
     let actions = [];
     ServiceGetData && is_multi
       ? (actions = [
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button onClick={this.showDelete} type="default">
-              {" "}
-              放弃创建{" "}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onClick={this.showDelete} type="default">
+              {' '}
+              放弃创建{' '}
             </Button>
-            <Button type="primary" onClick={this.handleMoreService}>
+          <Button type="primary" onClick={this.handleMoreService}>
               进入多组件构建
             </Button>
-          </div>
+        </div>,
         ])
       : ServiceGetData
       ? (actions = [
-          <div style={{ display: "flex" }}>
-            <Button
+          <div style={{ display: 'flex' }}>
+          <Button
               onClick={this.showDelete}
               type="default"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: '8px' }}
             >
-              {" "}
-              放弃创建{" "}
+              {' '}
+              放弃创建{' '}
             </Button>
-            <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button
-                onClick={this.handleBuild}
-                type="primary"
-                style={{ marginRight: "8px" }}
-                loading={this.state.buildAppLoading}
-              >
-                {" "}
-                创建{" "}
-              </Button>
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              {' '}
+              创建{' '}
+            </Button>
               <div>
-                <Tooltip
+              <Tooltip
                   placement="topLeft"
                   title={
-                    <p>
+                  <p>
                       取消本选项你可以先对组件进行
                       <br />
                       高级设置再构建启动。
@@ -798,62 +795,62 @@ export default class CreateCheck extends PureComponent {
                   }
                 >
                   <Radio
-                    size="small"
-                    onClick={this.renderSuccessOnChange}
-                    checked={is_deploy}
-                  >
+                  size="small"
+                  onClick={this.renderSuccessOnChange}
+                  checked={is_deploy}
+                >
                     并构建启动
-                  </Radio>
+                </Radio>
                 </Tooltip>
-              </div>
             </div>
-          </div>
+            </div>
+        </div>,
         ])
-      : appDetail.service_source == "third_party"
+      : appDetail.service_source == 'third_party'
       ? (actions = [
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button
-                onClick={this.handleBuild}
-                type="primary"
-                style={{ marginRight: "8px" }}
-                loading={this.state.buildAppLoading}
-              >
-                {" "}
-                放弃创建{" "}
-              </Button>
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              {' '}
+              放弃创建{' '}
+            </Button>
               <Button type="primary" onClick={this.handleMoreService}>
-                进入多组件构建
+              进入多组件构建
               </Button>
             </div>
-          </div>
+        </div>,
         ])
       : (actions = [
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button onClick={this.showDelete} type="default">
-              {" "}
-              放弃创建{" "}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onClick={this.showDelete} type="default">
+              {' '}
+              放弃创建{' '}
             </Button>
-            <Button type="primary" onClick={this.handleMoreService}>
+          <Button type="primary" onClick={this.handleMoreService}>
               进入多服务构建
             </Button>
-          </div>
+        </div>,
         ]);
-    if (appDetail.service_source == "third_party") {
+    if (appDetail.service_source == 'third_party') {
       actions = [
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={this.handleBuild}
               type="primary"
-              style={{ marginRight: "8px" }}
+              style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {" "}
-              创建{" "}
+              {' '}
+              创建{' '}
             </Button>
           </div>
-        </div>
+        </div>,
       ];
     }
 
@@ -871,29 +868,29 @@ export default class CreateCheck extends PureComponent {
       <Result
         type="success"
         title={
-          appDetail.service_source == "third_party"
-            ? "第三方组件检测通过"
-            : "组件构建源检测出多模块构建"
+          appDetail.service_source == 'third_party'
+            ? '第三方组件检测通过'
+            : '组件构建源检测出多模块构建'
         }
         description={
-          appDetail.service_source == "third_party" ? (
-            ""
+          appDetail.service_source == 'third_party' ? (
+            ''
           ) : (
             <div>
               <div>组件构建源检测通过仅代表平台可以检测到多模块构建。</div>
-              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{" "}
+              90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
               >
                 Rainbond源码支持规范
-              </a>{" "}
+              </a>{' '}
               对代码进行调整。
             </div>
           )
         }
-        extra={""}
-        actions={ServiceGetData ? "" : actions}
+        extra=""
+        actions={ServiceGetData ? '' : actions}
         style={{ marginTop: 48, marginBottom: 16 }}
       />
     );
@@ -914,7 +911,7 @@ export default class CreateCheck extends PureComponent {
       <div>
         {this.state.eventId && (
           <LogProcress
-            opened={true}
+            opened
             socketUrl={this.socketUrl}
             eventId={this.state.eventId}
           />
@@ -927,10 +924,10 @@ export default class CreateCheck extends PureComponent {
         title="组件构建源检测中..."
         extra={extra}
         description="此过程可能比较耗时，请耐心等待"
-        actions={ServiceGetData ? "" : actions}
+        actions={ServiceGetData ? '' : actions}
         style={{
           marginTop: 48,
-          marginBottom: 16
+          marginBottom: 16,
         }}
       />
     );
@@ -940,9 +937,9 @@ export default class CreateCheck extends PureComponent {
     // 判断应用创建方式
     const appDetail = this.state.appDetail;
     // 源码创建
-    if (appDetail.service_source === "source_code") {
+    if (appDetail.service_source === 'source_code') {
       // 指定源码
-      if (appDetail.code_from === "gitlab_manual") {
+      if (appDetail.code_from === 'gitlab_manual') {
         return (
           <EditCreateCodeCustom
             data={appDetail}
@@ -971,10 +968,10 @@ export default class CreateCheck extends PureComponent {
           title="组件构建源检测中..."
           extra={extra}
           description="此过程可能比较耗时，请耐心等待"
-          actions={ServiceGetData ? "" : actions}
+          actions={ServiceGetData ? '' : actions}
           style={{
             marginTop: 48,
-            marginBottom: 16
+            marginBottom: 16,
           }}
         />
       );
@@ -990,17 +987,17 @@ export default class CreateCheck extends PureComponent {
             <Card bordered={false}>
               <div
                 style={{
-                  minHeight: 400
+                  minHeight: 400,
                 }}
               >
-                {status === "checking" ? this.renderChecking() : null}
-                {status === "success" && is_multi != true
+                {status === 'checking' ? this.renderChecking() : null}
+                {status === 'success' && is_multi != true
                   ? this.renderSuccess()
                   : null}
-                {status === "success" && is_multi == true
+                {status === 'success' && is_multi == true
                   ? this.renderMoreService()
                   : null}
-                {status === "failure" ? this.renderError() : null}
+                {status === 'failure' ? this.renderError() : null}
               </div>
             </Card>
 
@@ -1055,17 +1052,17 @@ export default class CreateCheck extends PureComponent {
             <Card bordered={false}>
               <div
                 style={{
-                  minHeight: 400
+                  minHeight: 400,
                 }}
               >
-                {status === "checking" ? this.renderChecking() : null}
-                {status === "success" && is_multi != true
+                {status === 'checking' ? this.renderChecking() : null}
+                {status === 'success' && is_multi != true
                   ? this.renderSuccess()
                   : null}
-                {status === "success" && is_multi == true
+                {status === 'success' && is_multi == true
                   ? this.renderMoreService()
                   : null}
-                {status === "failure" ? this.renderError() : null}
+                {status === 'failure' ? this.renderError() : null}
               </div>
             </Card>
 

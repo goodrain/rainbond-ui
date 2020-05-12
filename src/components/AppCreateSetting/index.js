@@ -1,33 +1,45 @@
-import { Affix, Button, Card, Col, Form, Icon, notification, Radio, Row, Table, Tooltip } from 'antd';
+import React, { PureComponent, Fragment } from 'react';
+import {
+  Button,
+  Icon,
+  Card,
+  Row,
+  Col,
+  Table,
+  Radio,
+  Affix,
+  Form,
+  Tooltip,
+  notification,
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import AddOrEditVolume from '../../components/AddOrEditVolume';
-import AddPort from '../../components/AddPort';
-import AddRelation from '../../components/AddRelation';
-import AddRelationMnt from '../../components/AddRelationMnt';
-import ConfirmModal from '../../components/ConfirmModal';
-import EditPortAlias from '../../components/EditPortAlias';
-import EnvironmentVariable from '../../components/EnvironmentVariable';
-import Port from '../../components/Port';
-import ViewRelationInfo from '../../components/ViewRelationInfo';
-import { addMnt, batchAddRelationedApp, getMnt, getRelationedApp, removeRelationedApp } from '../../services/app';
-import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
-import { getVolumeTypeShowName } from '../../utils/utils';
 import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
-
-
+import Port from '../../components/Port';
+import {
+  getMnt,
+  addMnt,
+  getRelationedApp,
+  removeRelationedApp,
+  batchAddRelationedApp,
+} from '../../services/app';
+import EditPortAlias from '../../components/EditPortAlias';
+import ConfirmModal from '../../components/ConfirmModal';
+import AddPort from '../../components/AddPort';
+import AddOrEditVolume from '../../components/AddOrEditVolume';
+import AddRelationMnt from '../../components/AddRelationMnt';
+import AddRelation from '../../components/AddRelation';
+import ViewRelationInfo from '../../components/ViewRelationInfo';
+import EnvironmentVariable from '../../components/EnvironmentVariable';
+import appUtil from '../../utils/app';
+import { getVolumeTypeShowName } from '../../utils/utils';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-@connect(
-  ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
   constructor(props) {
@@ -74,7 +86,7 @@ class BaseInfo extends PureComponent {
     };
   }
   handleSubmit = e => {
-    const form = this.props.form;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       this.props.onSubmit && this.props.onSubmit(fieldsValue);
@@ -105,7 +117,7 @@ class BaseInfo extends PureComponent {
         },
       },
     };
-    const extend_method = this.props.appDetail.service.extend_method;
+    const { extend_method } = this.props.appDetail.service;
     const minMemory = this.props.appDetail.service.min_memory;
     const list = this.state.memoryList;
     return (
@@ -172,13 +184,7 @@ class BaseInfo extends PureComponent {
     );
   }
 }
-
-@connect(
-  ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class RenderDeploy extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -237,10 +243,10 @@ class RenderDeploy extends PureComponent {
   };
   render() {
     const language = appUtil.getLanguage(this.props.appDetail);
-    const runtimeInfo = this.state.runtimeInfo;
-    const visible = this.props.visible;
+    const { runtimeInfo } = this.state;
+    const { visible } = this.props;
     if (!this.state.runtimeInfo) return null;
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     return (
       <div
         style={{
@@ -261,14 +267,8 @@ class RenderDeploy extends PureComponent {
     );
   }
 }
-
 // 存储管理
-@connect(
-  ({ user, appControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class Mnt extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -673,10 +673,7 @@ class Mnt extends PureComponent {
     );
   }
 }
-
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true,
-})
+@connect(null, null, null, { withRef: true })
 class Relation extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -822,11 +819,8 @@ class Relation extends PureComponent {
     );
   }
 }
-
 // 端口
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true,
-})
+@connect(null, null, null, { withRef: true })
 class Ports extends PureComponent {
   constructor(props) {
     super(props);
@@ -1077,10 +1071,10 @@ class Ports extends PureComponent {
     );
   }
 }
-
+@connect(null, null, null, { withRef: true })
 class RenderProperty extends PureComponent {
   render() {
-    const visible = this.props.visible;
+    const { visible } = this.props;
     const { appDetail } = this.props;
     return (
       <div
@@ -1100,13 +1094,7 @@ class RenderProperty extends PureComponent {
     );
   }
 }
-
-@connect(
-  ({ user, appControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
@@ -1125,7 +1113,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const { appDetail } = this.props;
-    const type = this.state.type;
+    const { type } = this.state;
 
     return (
       <div>
