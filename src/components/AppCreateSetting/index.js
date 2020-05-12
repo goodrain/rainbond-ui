@@ -3,25 +3,20 @@ import {
   Button,
   Icon,
   Card,
-  Modal,
   Row,
   Col,
   Table,
   Radio,
-  Tabs,
   Affix,
-  Input,
   Form,
   Tooltip,
-  Checkbox,
   notification,
 } from 'antd';
 import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
+import { Link } from 'dva/router';
 import globalUtil from '../../utils/global';
 import CodeBuildConfig from '../CodeBuildConfig';
 import styles from './setting.less';
-import styless from '../../pages/Component/Index.less';
 import Port from '../../components/Port';
 import {
   getMnt,
@@ -45,12 +40,7 @@ import { getVolumeTypeShowName } from '../../utils/utils';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-@connect(
-  ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 @Form.create()
 class BaseInfo extends PureComponent {
   constructor(props) {
@@ -196,12 +186,7 @@ class BaseInfo extends PureComponent {
   }
 }
 
-@connect(
-  ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class RenderDeploy extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -286,12 +271,7 @@ class RenderDeploy extends PureComponent {
 }
 
 // 存储管理
-@connect(
-  ({ user, appControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class Mnt extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -697,9 +677,7 @@ class Mnt extends PureComponent {
   }
 }
 
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true,
-})
+@connect(null, null, null, { withRef: true })
 class Relation extends PureComponent {
   constructor(arg) {
     super(arg);
@@ -847,9 +825,7 @@ class Relation extends PureComponent {
 }
 
 // 端口
-@connect(({ user, appControl, teamControl }) => ({}), null, null, {
-  withRef: true,
-})
+@connect(null, null, null, { withRef: true })
 class Ports extends PureComponent {
   constructor(props) {
     super(props);
@@ -1101,6 +1077,7 @@ class Ports extends PureComponent {
   }
 }
 
+@connect(null, null, null, { withRef: true })
 class RenderProperty extends PureComponent {
   render() {
     const visible = this.props.visible;
@@ -1124,12 +1101,7 @@ class RenderProperty extends PureComponent {
   }
 }
 
-@connect(
-  ({ user, appControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
