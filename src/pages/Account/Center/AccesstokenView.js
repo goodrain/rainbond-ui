@@ -191,7 +191,7 @@ class BindingView extends Component {
     return (
       <Fragment>
         <Alert
-          message="访问今牌用于访问 Rainbond Cloud API, 访问今牌的权限与你的账号权限一致"
+          message="访问令牌用于访问 Rainbond Cloud API, 访问令牌的权限与你的账号权限一致"
           type="info"
           showIcon
           style={{ margin: '20px' }}
@@ -215,7 +215,7 @@ class BindingView extends Component {
         )}
         {openDeleteAccessToken && (
           <ConfirmModal
-            title="删除今牌"
+            title="删除令牌"
             desc="确定要删除访问令牌?"
             onCancel={this.onCanceAccessToken}
             onOk={this.handleDeleteAccessToken}
