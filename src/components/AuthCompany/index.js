@@ -14,7 +14,6 @@ import {
 import cookie from '../../utils/cookie';
 
 const { Step } = Steps;
-const { TextArea } = Input;
 @Form.create()
 class AuthForm extends PureComponent {
   handleSubmit = e => {

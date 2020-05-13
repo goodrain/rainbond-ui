@@ -1,12 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Card, Form, Button, Input } from 'antd';
-import CodeMirror from 'react-codemirror';
-
-require('codemirror/mode/yaml/yaml');
-require('codemirror/lib/codemirror.css');
-require('../../styles/codemirror.less');
-
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 @connect(
   ({ global, loading }) => ({
     groups: global.groups,
@@ -28,8 +23,9 @@ export default class Index extends PureComponent {
     e.preventDefault();
     const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      onSubmit && onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   render() {
@@ -41,17 +37,10 @@ export default class Index extends PureComponent {
         span: 19,
       },
     };
-    const { form, data = {} } = this.props;
-    const { getFieldDecorator } = form;
+    const { form, data = {}, createAppByCompose } = this.props;
+    const { getFieldDecorator, setFieldsValue } = form;
     const showSubmitBtn =
       this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const { createAppByCompose } = this.props;
-    const options = {
-      lineNumbers: true,
-      theme: 'monokai',
-      mode: 'yaml',
-    };
-
     return (
       <Fragment>
         <Card style={{ width: '800px', margin: '0 auto' }} bordered={false}>
@@ -66,14 +55,18 @@ export default class Index extends PureComponent {
                 rules: [{ required: true, message: '应用名称' }],
               })(<Input style={{ maxWidth: 300 }} placeholder="应用名称" />)}
             </Form.Item>
-            <Form.Item {...formItemLayout} label="DockerCompose配置">
-              {getFieldDecorator('yaml_content', {
-                initialValue: data.yaml_content || '',
-                rules: [
-                  { required: true, message: '请输入DockerCompose配置内容' },
-                ],
-              })(<CodeMirror options={options} placeholder="" />)}
-            </Form.Item>
+            <CodeMirrorForm
+              setFieldsValue={setFieldsValue}
+              formItemLayout={formItemLayout}
+              Form={Form}
+              width="594px"
+              getFieldDecorator={getFieldDecorator}
+              name="yaml_content"
+              label="DockerCompose配置"
+              message="请输入DockerCompose配置内容"
+              mode="yaml"
+              data={data.yaml_content || ''}
+            />
 
             <Form.Item {...formItemLayout} label="注意">
               Rainbond 将解析 DockerCompose
