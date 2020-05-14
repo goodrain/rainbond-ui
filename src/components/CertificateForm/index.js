@@ -4,7 +4,6 @@ import {
   Form,
   Input,
   Modal,
-  notification,
   Col,
   Row,
   Upload,
@@ -27,8 +26,8 @@ export default class CertificateForm extends PureComponent {
     const { form, onOk } = this.props;
     const { validateFields } = form;
     validateFields((err, values) => {
-      if (!err) {
-        onOk && onOk(values);
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
@@ -81,7 +80,7 @@ export default class CertificateForm extends PureComponent {
     return (
       <Modal
         visible
-        loading
+        confirmLoading={loading}
         title={AutomaticCertificate ? '自动签发证书' : '开通自动签发证书'}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}

@@ -26,7 +26,7 @@ import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const {Option} = Select;
 const RadioGroup = Radio.Group;
 
 @connect(({ user, loading, global }) => ({
@@ -50,7 +50,7 @@ class DrawerForm extends PureComponent {
       group_name: '',
       descriptionVisible: false,
       rule_extensions_visible: false,
-      automaticCertificate_visible: (editInfo && editInfo.auto_ssl) || false,
+      automaticCertificateVisible: (editInfo && editInfo.auto_ssl) || false,
       isPerform: true,
       routingConfiguration: !!(
         props.editInfo &&
@@ -214,7 +214,7 @@ class DrawerForm extends PureComponent {
     if (value) {
       this.setState({
         rule_extensions_visible: true,
-        automaticCertificate_visible: value === 'auto_ssl',
+        automaticCertificateVisible: value === 'auto_ssl',
       });
     }
   };
@@ -245,7 +245,7 @@ class DrawerForm extends PureComponent {
       },
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
-    let rule_http, rule_round;
+    let rule_http; let rule_round;
     if (editInfo && editInfo.rule_extensions) {
       editInfo.rule_extensions.split(',').map(item => {
         if (item.includes('httptohttps')) {
@@ -277,7 +277,7 @@ class DrawerForm extends PureComponent {
       routingConfiguration,
       licenseList,
       isAddLicense,
-      automaticCertificate_visible,
+      automaticCertificateVisible,
     } = this.state;
     const dividers = <Divider style={{ margin: '4px 0' }} />;
     return (
@@ -290,7 +290,6 @@ class DrawerForm extends PureComponent {
           onClose={onClose}
           visible={this.props.visible}
           maskClosable={false}
-          closable
           style={{
             overflow: 'auto',
           }}
@@ -436,7 +435,7 @@ class DrawerForm extends PureComponent {
                     )}
                   </FormItem>
                 )}
-                {AutomaticCertificate && automaticCertificate_visible && (
+                {AutomaticCertificate && automaticCertificateVisible && (
                   <FormItem {...formItemLayout} label="扩展配置">
                     {getFieldDecorator('auto_ssl_config', {
                       initialValue: editInfo.auto_ssl_config,
