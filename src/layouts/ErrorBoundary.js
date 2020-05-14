@@ -19,7 +19,7 @@ export default class ErrorBoundary extends PureComponent {
 
   componentDidCatch(error, errorInfo) {
     // 你同样可以将错误日志上报给服务器
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'production') {
       this.saveLog(error);
     } else {
       console.log('err', error.toString());
