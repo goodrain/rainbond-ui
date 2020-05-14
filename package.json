@@ -72,7 +72,8 @@
     "xterm-addon-search": "0.6.0",
     "xterm-addon-unicode11": "0.1.1",
     "xterm-addon-web-links": "0.3.0",
-    "yarn": "^1.19.2"
+    "yarn": "^1.19.2",
+    "react-codemirror": "1.0.0"
   },
   "devDependencies": {
     "axios": "^0.17.1",
