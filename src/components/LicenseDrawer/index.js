@@ -1,27 +1,18 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Table,
   Button,
   Drawer,
   Form,
   Input,
   Radio,
-  Upload,
-  Icon,
   message,
 } from 'antd';
 
-import globalUtil from '../../utils/global';
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const { TextArea } = Input;
 
 @connect(({ loading }) => ({
   editLicenseLoading: loading.effects['gateWay/editLicense'],
@@ -36,71 +27,24 @@ class LicenseDrawer extends PureComponent {
     e.preventDefault();
     const { onOk } = this.props;
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        onOk && onOk(values);
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
-  // 验证上传文件方式
-  checkFile_public = (rules, value, callback) => {
-    if (value) {
-      if (
-        value.fileList.length > 0 &&
-        (value.file.name.endsWith('.pem') ||
-          value.file.name.endsWith('.cer') ||
-          value.file.name.endsWith('.crt') ||
-          value.file.name.endsWith('.key'))
-      ) {
-        const fileList = value.fileList.splice(-1);
-        this.readFileContents(fileList, 'certificate');
-        callback();
-        return;
-      }
-    }
-    callback();
-  };
-  // 验证上传文件方式
-  checkFile_private = (rules, value, callback) => {
-    if (value) {
-      if (
-        value.fileList.length > 0 &&
-        (value.file.name.endsWith('.pem') ||
-          value.file.name.endsWith('.cer') ||
-          value.file.name.endsWith('.crt') ||
-          value.file.name.endsWith('.key'))
-      ) {
-        const fileList = value.fileList.splice(-1);
-        this.readFileContents(fileList, 'private_key');
-        callback();
-        return;
-      }
-    }
-    callback();
-  };
-  readFileContents = (fileList, name) => {
-    const _th = this;
-    let fileString = '';
-    for (let i = 0; i < fileList.length; i++) {
-      const reader = new FileReader(); // 新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
-      reader.onload = function ss(evt) {
-        // 读取完文件之后会回来这里
-        fileString += evt.target.result; // 读取文件内容
-        _th.props.form.setFieldsValue({ [name]: fileString });
-      };
-    }
-  };
-  beforeUpload = file => {
-    // console.log(file)
+
+  beforeUpload = (file, isMessage) => {
     const fileArr = file.name.split('.');
-    const length = fileArr.length;
+    const { length } = fileArr;
     const isRightType =
-      fileArr[length - 1] == 'pem' ||
-      fileArr[length - 1] == 'crt' ||
-      fileArr[length - 1] == 'cer' ||
-      fileArr[length - 1] == 'key';
+      fileArr[length - 1] === 'pem' ||
+      fileArr[length - 1] === 'crt' ||
+      fileArr[length - 1] === 'cer' ||
+      fileArr[length - 1] === 'key';
     if (!isRightType) {
-      message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
+      if (isMessage) {
+        message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
+      }
       return false;
     }
     return true;
@@ -108,11 +52,13 @@ class LicenseDrawer extends PureComponent {
   render() {
     const {
       onClose,
-      editData,
+      editData = {},
       addLicenseLoading,
       editLicenseLoading,
+      form,
     } = this.props;
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, setFieldsValue } = form;
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -123,15 +69,39 @@ class LicenseDrawer extends PureComponent {
         sm: { span: 18 },
       },
     };
-    const token = cookie.get('token');
 
+    const codeMirrorConfiguration = {
+      setFieldsValue,
+      formItemLayout,
+      Form,
+      width: '338px',
+      getFieldDecorator,
+    };
+    const certificateList = [
+      {
+        value: editData.certificate,
+        name: 'certificate',
+        label: '公钥证书',
+        messages: '请输入证书名称',
+        uploadName: 'public_key_btn',
+        mode: 'javascript',
+      },
+      {
+        value: editData.private_key,
+        name: 'private_key',
+        label: '私钥',
+        messages: '请输入私钥',
+        uploadName: 'private_key_btn',
+        mode: 'javascript',
+      },
+    ];
     return (
       <div>
         <Drawer
           title={editData ? '编辑证书' : '添加证书'}
           placement="right"
           width={500}
-          closable
+          closable={false}
           onClose={onClose}
           visible={this.props.visible}
           maskClosable={false}
@@ -140,11 +110,7 @@ class LicenseDrawer extends PureComponent {
           }}
         >
           <Form onSubmit={this.handleSubmit}>
-            <FormItem
-              {...formItemLayout}
-              label="证书名称"
-              style={{ textAlign: 'right' }}
-            >
+            <FormItem {...formItemLayout} label="证书名称">
               {getFieldDecorator('alias', {
                 rules: [{ required: true, message: '请输入证书名称!' }],
               })(<Input placeholder="请输入证书名称" />)}
@@ -156,76 +122,26 @@ class LicenseDrawer extends PureComponent {
               })(
                 <RadioGroup>
                   <Radio value="服务端证书">服务端证书</Radio>
-                  {/* <Radio value="客户端证书">客户端证书</Radio> */}
                 </RadioGroup>
               )}
             </FormItem>
-            <FormItem
-              {...formItemLayout}
-              style={{ textAlign: 'right' }}
-              label="公钥证书"
-            >
-              {getFieldDecorator('certificate', {
-                rules: [{ required: true, message: '请输入证书名称!' }],
-              })(
-                <TextArea
-                  rows={8}
-                  style={{ backgroundColor: '#02213f', color: '#fff' }}
-                />
-              )}
-            </FormItem>
-            <Row>
-              <Col style={{ marginTop: '-6%' }} span={4} offset={4}>
-                <FormItem>
-                  {getFieldDecorator('public_key_btn', {
-                    rules: [{ validator: this.checkFile_public }],
-                  })(
-                    <Upload
-                      action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                      showUploadList={false}
-                      withCredentials
-                      headers={{ Authorization: `GRJWT ${token}` }}
-                      beforeUpload={this.beforeUpload}
-                    >
-                      <Button size="small">上传</Button>
-                    </Upload>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
-            <FormItem
-              {...formItemLayout}
-              style={{ textAlign: 'right' }}
-              label="私钥"
-            >
-              {getFieldDecorator('private_key', {
-                rules: [{ required: true, message: '请输入私钥!' }],
-              })(
-                <TextArea
-                  rows={8}
-                  style={{ backgroundColor: '#02213f', color: '#fff' }}
-                />
-              )}
-            </FormItem>
-            <Row>
-              <Col style={{ marginTop: '-6%' }} span={4} offset={4}>
-                <FormItem>
-                  {getFieldDecorator('private_key_btn', {
-                    rules: [{ validator: this.checkFile_private }],
-                  })(
-                    <Upload
-                      action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                      showUploadList={false}
-                      withCredentials
-                      headers={{ Authorization: `GRJWT ${token}` }}
-                      beforeUpload={this.beforeUpload}
-                    >
-                      <Button size="small">上传</Button>
-                    </Upload>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
+
+            {certificateList.map(item => {
+              const { value, name, label, messages, mode } = item;
+              return (
+                <Fragment key={name}>
+                  <CodeMirrorForm
+                    {...codeMirrorConfiguration}
+                    data={value}
+                    name={name}
+                    label={label}
+                    message={messages}
+                    mode={mode}
+                    beforeUpload={this.beforeUpload}
+                  />
+                </Fragment>
+              );
+            })}
             <div
               style={{
                 position: 'absolute',
@@ -237,7 +153,7 @@ class LicenseDrawer extends PureComponent {
                 left: 0,
                 background: '#fff',
                 borderRadius: '0 0 4px 4px',
-                zIndex: 99999,
+                zIndex: 1,
               }}
             >
               <Button
