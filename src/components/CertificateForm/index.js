@@ -51,9 +51,6 @@ export default class CertificateForm extends PureComponent {
     const AutomaticCertificateValue = rainbondUtil.CertificateIssuedByValue(
       enterprise
     );
-    const initialAutomaticCertificateValue = AutomaticCertificateValue
-      ? JSON.stringify(AutomaticCertificateValue)
-      : '';
 
     const { getFieldDecorator, setFieldsValue } = form;
     const formItemLayout = {
@@ -84,7 +81,7 @@ export default class CertificateForm extends PureComponent {
             label="扩展配置"
             message="扩展配置是必须的"
             width="752px"
-            data={initialAutomaticCertificateValue || ''}
+            data={AutomaticCertificateValue || ''}
           />
         </Form>
       </Modal>
