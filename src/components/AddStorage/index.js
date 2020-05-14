@@ -1,27 +1,29 @@
+import React, { PureComponent } from 'react';
 import {
   Button,
-  Col,
   Drawer,
   Form,
   Input,
   Radio,
-  Row,
   Tooltip,
-  Upload,
 } from 'antd';
-import React, { PureComponent } from 'react';
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const { TextArea } = Input;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      configurationShow: !!(
+        this.props.data &&
+        this.props.data.volume_type &&
+        this.props.data.volume_type == 'config-file'
+      ),
+      configuration_content: '',
+    };
   }
 
   handleSubmit = e => {
@@ -33,41 +35,23 @@ export default class AddVolumes extends PureComponent {
     });
   };
   handleCancel = () => {
-    if (this.props.onCancel) {
-      this.props.onCancel();
-    }
+    this.props.onCancel && this.props.onCancel();
   };
-  handleChange = e => {};
-
-  handleChangeUpload = info => {
-    let fileList = [...info.fileList];
-    if (fileList.length > 0) {
-      fileList = fileList.slice(-1);
-      this.readFileContents(fileList, 'file_content');
-    }
-  };
-
-  readFileContents = (fileList, name) => {
-    const _th = this;
-    let fileString = '';
-    for (let i = 0; i < fileList.length; i++) {
-      const reader = new FileReader(); // 新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
-      reader.onload = function ss(evt) {
-        // 读取完文件之后会回来这里
-        fileString += evt.target.result; // 读取文件内容
-        // _th.props.form.setFieldsValue({ [name]: fileString });
-
-        _th.props.form.setFieldsValue({
-          file_content: fileString,
-        });
-      };
+  handleChange = e => {
+    if (e.target.value == 'config-file') {
+      this.setState({
+        configurationShow: true,
+      });
+    } else {
+      this.setState({
+        configurationShow: false,
+      });
     }
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { data } = this.props;
+    const { data, editor, form } = this.props;
+    const { getFieldDecorator, setFieldsValue } = form;
 
     const formItemLayout = {
       labelCol: {
@@ -79,17 +63,16 @@ export default class AddVolumes extends PureComponent {
         sm: { span: 24 },
       },
     };
-    const token = cookie.get('token');
+
     return (
       <Drawer
-        title={this.props.editor ? '编辑配置文件' : '添加配置文件'}
+        title={editor ? '编辑配置文件' : '添加配置文件'}
         placement="right"
         width={500}
         closable={false}
         onClose={this.handleCancel}
         visible
         maskClosable={false}
-        closable
         style={{
           height: 'calc(100% - 55px)',
           overflow: 'auto',
@@ -146,40 +129,17 @@ export default class AddVolumes extends PureComponent {
             </FormItem>
           </div>
 
-          <FormItem
-            {...formItemLayout}
+          <CodeMirrorForm
+            setFieldsValue={setFieldsValue}
+            formItemLayout={formItemLayout}
+            Form={Form}
+            getFieldDecorator={getFieldDecorator}
+            name="file_content"
             label="配置文件内容"
-            style={{ textAlign: 'right' }}
-          >
-            {getFieldDecorator('file_content', {
-              initialValue: data.file_content || undefined,
-              rules: [{ required: true, message: '请编辑内容!' }],
-            })(
-              <TextArea
-                rows={20}
-                style={{ backgroundColor: '#02213f', color: '#fff' }}
-              />
-            )}
-          </FormItem>
-          <Row>
-            <Col style={{ marginTop: '-7%' }} span={24}>
-              <FormItem>
-                {getFieldDecorator('configuration_check', {})(
-                  <Upload
-                    action={`${
-                      apiconfig.baseUrl
-                    }/console/enterprise/team/certificate`}
-                    showUploadList={false}
-                    withCredentials
-                    headers={{ Authorization: `GRJWT ${token}` }}
-                    onChange={this.handleChangeUpload}
-                  >
-                    <Button size="small">上传</Button>
-                  </Upload>
-                )}
-              </FormItem>
-            </Col>
-          </Row>
+            message="请编辑内容"
+            width="452px"
+            data={data.file_content || ''}
+          />
         </Form>
         <div
           style={{
