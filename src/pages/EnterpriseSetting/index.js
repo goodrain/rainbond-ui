@@ -250,7 +250,7 @@ export default class EnterpriseSetting extends PureComponent {
         enterprise_id: eid,
         auto_ssl: {
           enable: !!values,
-          value: values.auto_ssl_config,
+          value: values ? values.auto_ssl_config : false,
         },
       },
       callback: res => {
@@ -495,7 +495,6 @@ export default class EnterpriseSetting extends PureComponent {
     const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
       enterprise
     );
-
     const AutomaticIssueCertificate = (
       <Card hoverable bordered={false}>
         <Row type="flex" align="middle">
