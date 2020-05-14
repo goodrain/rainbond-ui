@@ -19,10 +19,10 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // 是否绑定了github仓库
-      is_auth: false,
+      // 是否绑定了oauth仓库
+      isAuth: false,
       // oauth url
-      auth_url: '',
+      authUrl: '',
     };
   }
   componentDidMount() {
@@ -30,12 +30,12 @@ export default class Index extends PureComponent {
   }
   setInfo = () => {
     const { rainbondInfo, enterprise, type } = this.props;
-    const git_type = this.setType();
+    const oauthType = this.setType();
     const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, type, enterprise);
     if (gitinfo) {
-      this.setState({ auth_url: oauthUtil.getAuthredictURL(gitinfo) });
+      this.setState({ authUrl: oauthUtil.getAuthredictURL(gitinfo) });
     }
-    if (rainbondUtil.OauthbTypes(enterprise, git_type)) {
+    if (rainbondUtil.OauthbTypes(enterprise, oauthType)) {
       this.getGitRepostoryInfo(rainbondInfo, type, enterprise);
     }
   };
@@ -45,26 +45,26 @@ export default class Index extends PureComponent {
   }
   setType = () => {
     const { tabList, type, gitType } = this.props;
+
     if (gitType) {
       return gitType;
     }
-    let typs = '';
+
+    let typeList = [];
     if (tabList) {
-      tabList.map(item => {
-        const { key, types } = item;
-        if (type === key) {
-          typs = types;
-        }
+      typeList = tabList.filter(item => {
+        return type === `${item.key}`;
       });
     }
-    return typs;
+
+    return typeList && typeList.length > 0 ? typeList[0].types : '';
   };
 
   getGitRepostoryInfo = (rainbondInfo, key, enterprise) => {
     const gitinfo = oauthUtil.getGitOauthServer(rainbondInfo, key, enterprise);
     const { currentUser } = this.props;
     this.setState({
-      is_auth: gitinfo && oauthUtil.userbondOAuth(currentUser, key),
+      isAuth: gitinfo && oauthUtil.userbondOAuth(currentUser, key),
     });
   };
 
@@ -127,14 +127,13 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { is_auth, auth_url } = this.state;
+    const { isAuth, authUrl } = this.state;
     const { handleType, ButtonGroupState, handleServiceBotton } = this.props;
     const type = this.setType();
-
     return (
       <Card bordered={false} className={styles.ClearCard}>
         <div>
-          {!is_auth ? (
+          {!isAuth ? (
             <div
               style={{
                 textAlign: 'center',
@@ -145,7 +144,7 @@ export default class Index extends PureComponent {
               尚未绑定{type}账号
               {handleType && handleType === 'Service' && ButtonGroupState && (
                 <a
-                  href={auth_url}
+                  href={authUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
