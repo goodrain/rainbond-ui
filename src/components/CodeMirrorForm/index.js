@@ -5,16 +5,17 @@ import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/seti.css';
-import 'codemirror/addon/display/fullscreen.css';
-import '../../styles/codemirror.less';
+require('codemirror/lib/codemirror.css');
+require('codemirror/theme/seti.css');
+require('codemirror/addon/display/fullscreen.css');
+require('../../styles/codemirror.less');
 
-import 'codemirror/addon/display/panel';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/yaml/yaml';
-import 'codemirror/addon/display/fullscreen';
-import 'codemirror/addon/edit/matchbrackets';
+require('codemirror/addon/display/panel');
+require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/yaml/yaml');
+require('codemirror/addon/display/fullscreen');
+require('codemirror/addon/edit/matchbrackets');
+
 
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
