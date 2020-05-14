@@ -14,7 +14,7 @@ const global = {
     cookie.remove('platform_url', { domain: '' });
   },
   putLog(info) {
-    if (!info || info&&!info.enterprise_id) {
+    if (!info || (info && !info.enterprise_id)) {
       return null;
     }
     try {
@@ -30,9 +30,11 @@ const global = {
         e_name: info.enterprise_alias,
         version: version.value,
         title: title.value,
-        day:moment(new Date()).locale('zh-cn').format('YYYYMMDD')
+        day: moment(new Date())
+          .locale('zh-cn')
+          .format('YYYYMMDD'),
       });
-      defaultOptions.data=JSON.parse(defaultOptions.data)
+      defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
     } catch (e) {}
   },
@@ -127,6 +129,29 @@ const global = {
   },
   fetchSvg(type, color) {
     const svgType = {
+      uploads: (
+        <svg viewBox="0 0 1024 1024" width="20" height="20">
+          <path
+            d="M983.679573 673.706667a26.88 26.88 0 0 0-27.093333 26.88v269.226666H67.412907V700.586667a26.666667 26.666667 0 0 0-26.88-26.88A27.093333 27.093333 0 0 0 13.439573 700.586667v296.32A27.093333 27.093333 0 0 0 40.532907 1024h942.933333a27.093333 27.093333 0 0 0 27.093333-27.093333V700.586667a26.666667 26.666667 0 0 0-26.88-26.88z"
+            fill="#ffffff"
+            p-id="2272"
+          />
+          <path
+            d="M235.94624 342.826667L487.46624 91.306667v690.133333a27.093333 27.093333 0 0 0 53.973333 0V91.52l251.306667 251.306667a26.24 26.24 0 1 0 37.12-37.12L537.599573 13.226667a29.44 29.44 0 0 0-4.266666-5.333334 26.026667 26.026667 0 0 0-8.533334-5.76 29.653333 29.653333 0 0 0-10.666666-2.133333 28.586667 28.586667 0 0 0-10.453334 2.133333 26.026667 26.026667 0 0 0-8.746666 5.76 46.72 46.72 0 0 0-4.266667 5.333334L198.82624 305.706667a25.813333 25.813333 0 0 0 0 37.12 26.24 26.24 0 0 0 37.12 0z"
+            fill="#ffffff"
+            p-id="2273"
+          />
+        </svg>
+      ),
+      amplifications: (
+        <svg viewBox="0 0 1024 1024" width="20" height="20">
+          <path
+            d="M537.7 420.2l277.8-287.9H557.9V64H928v377.1h-65.9V180.6l-277.8 288-46.6-48.4z m0 0M161.9 582.9v260.5l277.8-287.9 46.6 48.3-277.8 287.9h257.6V960H96V582.9h65.9z m0 0"
+            fill="#ffffff"
+            p-id="3232"
+          />
+        </svg>
+      ),
       passwordShow: (
         <svg
           viewBox="64 64 896 896"

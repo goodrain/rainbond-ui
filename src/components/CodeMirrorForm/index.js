@@ -3,8 +3,7 @@ import CodeMirror from 'react-codemirror';
 import { Upload } from 'antd';
 import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
-import AmplificationImg from '../../../public/images/amplification.png';
-import UploadImg from '../../../public/images/upload.png';
+import globalUtil from '../../utils/global';
 
 require('codemirror/lib/codemirror.css');
 require('codemirror/theme/seti.css');
@@ -86,26 +85,30 @@ class CodeMirrorForm extends PureComponent {
       beforeUpload,
     } = this.props;
     const { fullScreen } = this.state;
-    const defaultFullScreenStyle = fullScreen
-      ? {
-          position: 'fixed',
-          top: 0,
-          right: '5px',
-          width: '100%',
-          cursor: 'pointer',
-          textAlign: 'right',
-          zIndex: 99,
-          background: '#333',
-        }
-      : {
-          position: 'absolute',
-          top: 0,
-          width,
-          textAlign: 'right',
-          cursor: 'pointer',
-          zIndex: 4,
-          background: '#333',
-        };
+    let defaultFullScreenStyle = {
+      cursor: 'pointer',
+      top: 0,
+      textAlign: 'right',
+      background: '#333',
+      lineHeight: '1px',
+      padding: '9px 0 6px 0',
+    };
+
+    if (fullScreen) {
+      defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
+        position: 'fixed',
+        right: '5px',
+        width: '100%',
+        zIndex: 99,
+      });
+    } else {
+      defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
+        position: 'absolute',
+        width,
+        zIndex: 4,
+      });
+    }
+
     const options = {
       mode: mode || 'javascript',
       lineNumbers: true,
@@ -134,16 +137,16 @@ class CodeMirrorForm extends PureComponent {
             beforeUpload={beforeUpload || false}
             onChange={this.handleChangeUpload}
           >
-            <img src={UploadImg} alt="" />
+            {globalUtil.fetchSvg('uploads')}
           </Upload>
-          <img
+          <span
             style={{ margin: '0 20px' }}
             onClick={() => {
               this.setState({ fullScreen: !this.state.fullScreen });
             }}
-            src={AmplificationImg}
-            alt="放大"
-          />
+          >
+            {globalUtil.fetchSvg('amplifications')}
+          </span>
         </div>
       </Form.Item>
     );

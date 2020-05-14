@@ -71,6 +71,7 @@ class CreateUserForm extends PureComponent {
     return (
       <Modal
         visible
+        maskClosable={false}
         title={title || '添加用户'}
         className={styles.TelescopicModal}
         onOk={this.handleSubmit}
