@@ -19,14 +19,18 @@ export default class ErrorBoundary extends PureComponent {
 
   componentDidCatch(error, errorInfo) {
     // 你同样可以将错误日志上报给服务器
-    if (process.env.NODE_ENV === 'production') {
-      this.saveLog(error);
-    } else {
-      console.log('err', error.toString());
-      console.log('errorInfo', errorInfo);
+    console.log('err', error.toString());
+    console.log('errorInfo', errorInfo);
+    if (
+      process &&
+      process.env &&
+      process.env.NODE_ENV &&
+      process.env.NODE_ENV === 'development'
+    ) {
+      return null;
     }
+    return this.saveLog(error);
   }
-
   saveLog = error => {
     const { dispatch, currentUser } = this.props;
     dispatch({
