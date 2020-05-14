@@ -110,11 +110,12 @@ class CodeMirrorForm extends PureComponent {
     }
 
     const options = {
-      mode: mode || 'javascript',
+      mode: { name: mode || 'javascript', json: true },
       lineNumbers: true,
       theme: 'seti',
       fullScreen,
       matchBrackets: true,
+      scrollbarStyle: null,
     };
 
     const token = cookie.get('token');

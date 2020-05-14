@@ -1,84 +1,29 @@
 import React, { PureComponent } from 'react';
-import {
-  Form,
-  Input,
-  Radio,
-  Tooltip,
-  Drawer,
-  Button,
-  Row,
-  Col,
-  Upload,
-} from 'antd';
+import { Form, Input, Radio, Tooltip, Drawer, Button } from 'antd';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      configurationShow: !!(
-        this.props.data &&
-        this.props.data.volume_type &&
-        this.props.data.volume_type == 'config-file'
-      ),
-      configuration_content: '',
-    };
-  }
-
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onSubmit && this.props.onSubmit(values);
+    const { form, onSubmit } = this.props;
+    const { validateFields } = form;
+
+    validateFields((err, values) => {
+      if (!err && onSubmit) {
+        onSubmit(values);
       }
     });
   };
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
-  };
-  handleChange = e => {
-    if (e.target.value == 'config-file') {
-      this.setState({
-        configurationShow: true,
-      });
-    } else {
-      this.setState({
-        configurationShow: false,
-      });
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
     }
   };
-
-  handleChangeUpload = info => {
-    let fileList = [...info.fileList];
-    if (fileList.length > 0) {
-      fileList = fileList.slice(-1);
-      this.readFileContents(fileList, 'file_content');
-    }
-  };
-
-  readFileContents = fileList => {
-    const th = this;
-    let fileString = '';
-    for (let i = 0; i < fileList.length; i++) {
-      const reader = new FileReader(); // 新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
-      reader.onload = function ss(evt) {
-        // 读取完文件之后会回来这里
-        fileString += evt.target.result; // 读取文件内容
-        th.props.form.setFieldsValue({
-          file_content: fileString,
-        });
-      };
-    }
-  };
-
   render() {
     const { data, editor, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -94,7 +39,6 @@ export default class AddVolumes extends PureComponent {
       },
     };
 
-    const token = cookie.get('token');
     return (
       <Drawer
         title={editor ? '编辑配置文件' : '添加配置文件'}
@@ -168,30 +112,9 @@ export default class AddVolumes extends PureComponent {
             name="file_content"
             label="配置文件内容"
             message="请编辑内容"
-            width="428px"
+            width="452px"
             data={data.file_content || ''}
           />
-
-          <Row>
-            <Col style={{ marginTop: '-7%' }} span={4} offset={20}>
-              <FormItem>
-                {getFieldDecorator(
-                  'configuration_check',
-                  {}
-                )(
-                  <Upload
-                    action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                    showUploadList={false}
-                    withCredentials
-                    headers={{ Authorization: `GRJWT ${token}` }}
-                    onChange={this.handleChangeUpload}
-                  >
-                    <Button size="small">上传</Button>
-                  </Upload>
-                )}
-              </FormItem>
-            </Col>
-          </Row>
         </Form>
         <div
           style={{
