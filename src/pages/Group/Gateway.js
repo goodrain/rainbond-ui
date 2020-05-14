@@ -1,14 +1,14 @@
-import React, { PureComponent } from "react";
-import { routerRedux } from "dva/router";
-import HttpTable from "../../components/HttpTable";
-import TcpTable from "../../components/TcpTable";
-import { connect } from "dva";
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import HttpTable from '../../components/HttpTable';
+import TcpTable from '../../components/TcpTable';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
+  createApp,
   createEnterprise,
   createTeam,
-  createApp
-} from "../../utils/breadcrumb";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+} from '../../utils/breadcrumb';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -18,7 +18,7 @@ import PageHeaderLayout from "../../layouts/PageHeaderLayout";
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   groups: global.groups || [],
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
 }))
 export default class AppGatewayList extends PureComponent {
   constructor(props) {
@@ -34,21 +34,21 @@ export default class AppGatewayList extends PureComponent {
         props.match.params.types &&
         props.match.params.types
           ? props.match.params.types
-          : "http",
+          : 'http',
       open:
         this.props.match &&
         this.props.match.params &&
         this.props.match.params.types &&
         this.props.match.params.types
           ? this.props.match.params.types
-          : false
+          : false,
     };
   }
   componentDidMount() {
     this.fetchAppDetail();
   }
   getGroupId = () => {
-    const params = this.props.match.params;
+    const { params } = this.props.match;
     return params.appID;
   };
   fetchAppDetail = () => {
@@ -56,17 +56,17 @@ export default class AppGatewayList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: 'groupControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
-        group_id: appID
+        group_id: appID,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             appDetail: res.bean,
-            loadingDetail: false
+            loadingDetail: false,
           });
         }
       },
@@ -78,14 +78,14 @@ export default class AppGatewayList extends PureComponent {
             )
           );
         }
-      }
+      },
     });
   };
   renderContent = () => {
     const { tabKey } = this.state;
-    if (tabKey == "http") {
+    if (tabKey == 'http') {
       return <HttpTable open={this.state.open} />;
-    } else if (tabKey == "tcp") {
+    } else if (tabKey == 'tcp') {
       return <TcpTable />;
     }
   };
@@ -99,11 +99,11 @@ export default class AppGatewayList extends PureComponent {
     const { open } = this.state;
     const renderContent = () => {
       const { tabKey } = this.state;
-      if (tabKey == "http") {
+      if (tabKey === 'http') {
         return (
           <HttpTable currentTeam={currentTeam} appID={appID} open={open} />
         );
-      } else if (tabKey == "tcp") {
+      } else if (tabKey === 'tcp') {
         return <TcpTable currentTeam={currentTeam} appID={appID} open={open} />;
       }
     };
@@ -127,13 +127,13 @@ export default class AppGatewayList extends PureComponent {
         content="访问策略是指从集群外访问组件的方式，包括使用HTTP域名访问或IP+Port(TCP/UDP)访问，这里仅管理当前应用下的所有组件的访问策略"
         tabList={[
           {
-            key: "http",
-            tab: "HTTP"
+            key: 'http',
+            tab: 'HTTP',
           },
           {
-            key: "tcp",
-            tab: "TCP/UDP"
-          }
+            key: 'tcp',
+            tab: 'TCP/UDP',
+          },
         ]}
         onTabChange={this.handleTabChange}
       >

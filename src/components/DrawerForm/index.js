@@ -1,33 +1,28 @@
-import React, { PureComponent } from 'react';
-import Search from '../Search';
-import DAinput from '../DAinput';
-import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Divider,
   Button,
+  Checkbox,
+  Col,
+  Divider,
   Drawer,
   Form,
-  Input,
-  Select,
-  Radio,
-  InputNumber,
-  Checkbox,
   Icon,
+  Input,
+  InputNumber,
   Modal,
+  Row,
+  Select,
 } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
 import rainbondUtil from '../../utils/rainbond';
-
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
+import DAinput from '../DAinput';
 import styles from './index.less';
 
 const FormItem = Form.Item;
-const {Option} = Select;
-const RadioGroup = Radio.Group;
+const { Option, OptGroup } = Select;
 
 @connect(({ user, loading, global }) => ({
   currUser: user.currentUser,
@@ -245,7 +240,8 @@ class DrawerForm extends PureComponent {
       },
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
-    let rule_http; let rule_round;
+    let rule_http;
+    let rule_round;
     if (editInfo && editInfo.rule_extensions) {
       editInfo.rule_extensions.split(',').map(item => {
         if (item.includes('httptohttps')) {
@@ -314,10 +310,6 @@ class DrawerForm extends PureComponent {
                     required: true,
                     message: '请添加域名',
                   },
-                  // {
-                  //     pattern: /(\.)(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  //     message: "格式不正确",
-                  // },
                 ],
                 initialValue: editInfo.domain_name,
               })(<Input placeholder="请输入域名" />)}
@@ -409,44 +401,43 @@ class DrawerForm extends PureComponent {
                           </div>
                         )}
                       >
-                        {AutomaticCertificate && (
-                          <Option value="auto_ssl" key="auto_ssl">
-                            自动签发证书
-                            {dividers}
-                          </Option>
-                        )}
-                        {licenseList && licenseList.length > 0 && (
-                          <Option value="" key={99}>
-                            不绑定
-                            {dividers}
-                          </Option>
-                        )}
-                        {licenseList.map((license, index) => {
-                          return (
-                            <Option value={license.id} key={index}>
-                              {license.alias}
+                        <OptGroup label="功能选择">
+                          {licenseList && licenseList.length > 0 && (
+                            <Option value="" key={99}>
+                              移除证书绑定
                             </Option>
-                          );
-                        })}
-                        {/* {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
-                                        return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
-                                    }) : <Option value={editInfo.certificate_id} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>} */}
+                          )}
+                          {AutomaticCertificate && (
+                            <Option value="auto_ssl" key="auto_ssl">
+                              自动签发证书（由控制器自动完成证书签发和匹配）
+                            </Option>
+                          )}
+                        </OptGroup>
+                        <OptGroup label="已有证书选择">
+                          {licenseList.map((license, index) => {
+                            return (
+                              <Option value={license.id} key={index}>
+                                {license.alias}
+                              </Option>
+                            );
+                          })}
+                        </OptGroup>
                       </Select>
                     )}
                   </FormItem>
                 )}
                 {AutomaticCertificate && automaticCertificateVisible && (
-                  <FormItem {...formItemLayout} label="扩展配置">
+                  <FormItem {...formItemLayout} label="认证配置">
                     {getFieldDecorator('auto_ssl_config', {
                       initialValue: editInfo.auto_ssl_config,
                       rules: [
                         {
                           required: true,
-                          message: '请选择扩展配置',
+                          message: '请选择签发证书认证配置',
                         },
                       ],
                     })(
-                      <Select placeholder="请选择扩展配置">
+                      <Select placeholder="请选择签发证书认证配置">
                         {Object.keys(AutomaticCertificateValue).map(item => {
                           return <Option value={item}>{item}</Option>;
                         })}
