@@ -5,16 +5,17 @@ import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
-require('codemirror/lib/codemirror.css');
-require('codemirror/theme/seti.css');
-require('codemirror/addon/display/fullscreen.css');
+require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
+
+require('react-codemirror/node_modules/codemirror/theme/seti.css');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
-require('codemirror/addon/display/panel');
-require('codemirror/mode/javascript/javascript');
-require('codemirror/mode/yaml/yaml');
-require('codemirror/addon/display/fullscreen');
-require('codemirror/addon/edit/matchbrackets');
+require('react-codemirror/node_modules/codemirror/addon/display/panel');
+require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
+require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
+require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
 
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
@@ -114,8 +115,11 @@ class CodeMirrorForm extends PureComponent {
       lineNumbers: true,
       theme: 'seti',
       fullScreen,
+      lineWrapping: true,
+      smartIndent: true,
       matchBrackets: true,
       scrollbarStyle: null,
+      showCursorWhenSelecting: true,
     };
 
     const token = cookie.get('token');
