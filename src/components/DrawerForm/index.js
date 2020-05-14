@@ -1,3 +1,5 @@
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import {
   Button,
   Checkbox,
@@ -7,13 +9,12 @@ import {
   Form,
   Icon,
   Input,
+  Select,
   InputNumber,
   Modal,
   Row,
-  Select,
 } from 'antd';
-import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
