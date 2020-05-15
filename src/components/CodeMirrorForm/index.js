@@ -5,17 +5,17 @@ import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
-require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
+require('codemirror/lib/codemirror.css');
 
-require('react-codemirror/node_modules/codemirror/theme/seti.css');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
+require('codemirror/theme/seti.css');
+require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
-require('react-codemirror/node_modules/codemirror/addon/display/panel');
-require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
-require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
-require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
+require('codemirror/addon/display/panel');
+require('codemirror/mode/jsx/jsx');
+require('codemirror/mode/yaml/yaml');
+require('codemirror/addon/display/fullscreen');
+require('codemirror/addon/edit/matchbrackets');
 
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
