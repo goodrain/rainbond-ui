@@ -243,7 +243,7 @@ class Main extends PureComponent {
     this.loadDetail();
     setTimeout(() => {
       this.getStatus(true);
-    }, 10000);
+    }, 5000);
   }
   componentWillUnmount() {
     this.closeTimer();
@@ -375,18 +375,48 @@ class Main extends PureComponent {
     getStatus({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.getAppAlias(),
-    }).then(res => {
-      if (res && res._code === 200) {
-        this.setState({ status: res.bean }, () => {
-          if (isCycle) {
-            this.timer = setTimeout(() => {
-              this.getStatus(true);
-            }, 10000);
-          }
-        });
-      }
-    });
+    })
+      .then(res => {
+        if (res && res._code === 200) {
+          this.setState({ status: res.bean }, () => {
+            if (isCycle) {
+              this.handleTimers(
+                'timer',
+                () => {
+                  this.getStatus(true);
+                },
+                5000
+              );
+            }
+          });
+        }
+      })
+      .catch(err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.getStatus(true);
+          },
+          10000
+        );
+      });
   };
+
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+
   handleTabChange = key => {
     const { dispatch, match } = this.props;
     const { appAlias } = this.props.match.params;

@@ -498,15 +498,43 @@ export default class Index extends PureComponent {
             },
             () => {
               if (isCycle) {
-                this.fetchOperationLogTimer = setTimeout(() => {
-                  this.fetchOperationLog(true);
-                }, 10000);
+                this.handleTimers(
+                  'fetchOperationLogTimer',
+                  () => {
+                    this.fetchOperationLog(true);
+                  },
+                  5000
+                );
               }
             }
           );
         }
       },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'fetchOperationLogTimer',
+          () => {
+            this.fetchOperationLog(true);
+          },
+          10000
+        );
+      },
     });
+  };
+
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
   };
 
   handleNextPage = () => {
@@ -628,13 +656,27 @@ export default class Index extends PureComponent {
             },
             () => {
               if (isCycle) {
-                this.fetchPodsTimer = setTimeout(() => {
-                  this.fetchPods(true);
-                }, 10000);
+                this.handleTimers(
+                  'fetchPodsTimer',
+                  () => {
+                    this.fetchPods(true);
+                  },
+                  5000
+                );
               }
             }
           );
         }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'fetchPodsTimer',
+          () => {
+            this.fetchPods(true);
+          },
+          10000
+        );
       },
     });
   };

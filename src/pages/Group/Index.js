@@ -204,16 +204,43 @@ class Main extends PureComponent {
             },
             () => {
               if (isCycle) {
-                this.timer = setTimeout(() => {
-                  this.loadTopology(true);
-                }, 10000);
+                this.handleTimers(
+                  'timer',
+                  () => {
+                    this.loadTopology(true);
+                  },
+                  10000
+                );
               }
             }
           );
         }
       },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.loadTopology(true);
+          },
+          20000
+        );
+      },
     });
   }
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
 
   fetchAppDetail = () => {
     const { dispatch } = this.props;

@@ -185,12 +185,26 @@ export default class Index extends PureComponent {
               visitData: arr,
             },
             () => {
-              this.getDomainTimer = setTimeout(() => {
-                this.getDomain();
-              }, 10000);
+              this.handleTimers(
+                'getDomainTimer',
+                () => {
+                  this.getDomain();
+                },
+                10000
+              );
             }
           );
         }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'getDomainTimer',
+          () => {
+            this.getDomain();
+          },
+          20000
+        );
       },
     });
   };
@@ -216,12 +230,26 @@ export default class Index extends PureComponent {
               num: res.bean && res.bean.total_traffic,
             },
             () => {
-              this.getDomainNameTimer = setTimeout(() => {
-                this.getDomainName();
-              }, 10000);
+              this.handleTimers(
+                'getDomainNameTimer',
+                () => {
+                  this.getDomainName();
+                },
+                10000
+              );
             }
           );
         }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'getDomainNameTimer',
+          () => {
+            this.getDomainName();
+          },
+          20000
+        );
       },
     });
   };
@@ -304,6 +332,22 @@ export default class Index extends PureComponent {
       },
     });
   };
+
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+
   isPublicRegion() {
     const region = userUtil.hasTeamAndRegion(
       this.props.currUser,
@@ -336,13 +380,17 @@ export default class Index extends PureComponent {
               isNouse: false,
             },
           });
-          this.loadOverviewTimer = setTimeout(() => {
-            this.loadOverview();
-          }, 10000);
+          this.handleTimers(
+            'loadOverviewTimer',
+            () => {
+              this.loadOverview();
+            },
+            10000
+          );
         }
       },
-      handleError: res => {
-        if (res && res.code === 10400) {
+      handleError: err => {
+        if (err && err.code === 10400) {
           dispatch({
             type: 'global/setNouse',
             payload: {
@@ -350,6 +398,14 @@ export default class Index extends PureComponent {
             },
           });
         }
+        this.handleError(err);
+        this.handleTimers(
+          'loadOverviewTimer',
+          () => {
+            this.loadOverview();
+          },
+          20000
+        );
       },
     });
   };
@@ -392,10 +448,24 @@ export default class Index extends PureComponent {
       payload,
       callback: res => {
         if (res && res._code === 200) {
-          this.loadAppsTimer = setTimeout(() => {
-            this.loadApps();
-          }, 10000);
+          this.handleTimers(
+            'loadAppsTimer',
+            () => {
+              this.loadApps();
+            },
+            10000
+          );
         }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'loadAppsTimer',
+          () => {
+            this.loadApps();
+          },
+          20000
+        );
       },
     });
   };

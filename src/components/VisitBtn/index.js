@@ -89,14 +89,40 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res._code == 200) {
-          this.timer = setTimeout(() => {
-            this.fetchVisitInfo();
-          }, 10000);
+          this.handleTimers(
+            'timer',
+            () => {
+              this.fetchVisitInfo();
+            },
+            5000
+          );
         }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.fetchVisitInfo();
+          },
+          10000
+        );
       },
     });
   };
-
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);

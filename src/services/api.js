@@ -259,9 +259,7 @@ export async function getGuideState(
 }
 
 /* 获取热门域名访问模块 */
-export async function getDomainName(
-  body = { team_name, region_name, page, page_size, id, start, step, end }
-) {
+export async function getDomainName(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/regions/${body.region_name}/sort_domain/query?repo=${body.id}`,
     {
@@ -276,6 +274,7 @@ export async function getDomainName(
         page: body.page,
         page_size: body.page_size,
       },
+      handleError,
     }
   );
 }
@@ -1237,11 +1236,12 @@ export async function toQueryTopology(params) {
 }
 
 /** 获取所有可访问的link */
-export async function toQueryLinks(params) {
+export async function toQueryLinks(params, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/group/service/visit?service_alias=${params.service_alias}`,
     {
       method: 'get',
+      handleError,
     }
   );
 }

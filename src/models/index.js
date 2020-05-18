@@ -66,8 +66,8 @@ export default {
         });
       }
     },
-    *fetchApps({ payload, callback }, { put, call }) {
-      const response = yield call(getTeamRegionApps, payload);
+    *fetchApps({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(getTeamRegionApps, payload, handleError);
       if (response) {
         if (callback) {
           callback(response);

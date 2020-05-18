@@ -182,8 +182,8 @@ export default {
     build_upgrade: '',
   },
   effects: {
-    *fetchOperationLog({ payload, callback }, { call, put }) {
-      const response = yield call(fetchOperationLog, payload);
+    *fetchOperationLog({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(fetchOperationLog, payload, handleError);
       if (response) {
         callback && callback(response);
       }
@@ -382,8 +382,8 @@ export default {
       }
     },
 
-    *fetchVisitInfo({ payload, callback }, { call, put }) {
-      const response = yield call(getVisitInfo, payload);
+    *fetchVisitInfo({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getVisitInfo, payload, handleError);
       if (response) {
         if (callback) {
           callback(response);
@@ -391,8 +391,8 @@ export default {
         yield put({ type: 'saveVisitInfo', payload: response.bean });
       }
     },
-    *fetchPods({ payload, callback }, { call, put }) {
-      const response = yield call(getPods, payload);
+    *fetchPods({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getPods, payload, handleError);
       if (response) {
         yield put({ type: 'savePods', payload: response.list });
         callback && callback(response);
