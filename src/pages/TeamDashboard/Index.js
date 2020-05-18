@@ -1,14 +1,28 @@
-import { Badge, Button, Card, Col, Form, Icon, List, Modal, notification, Pagination, Row, Table, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import { FormattedMessage } from 'umi-plugin-locale';
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  List,
+  Modal,
+  notification,
+  Pagination,
+  Row,
+  Table,
+  Tooltip,
+} from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
-import React, { PureComponent } from 'react';
-import { FormattedMessage } from 'umi-plugin-locale';
-import EditGroupName from '../../components/AddOrEditGroup';
-import { ChartCard, MiniArea } from '../../components/Charts';
-import NumberInfo from '../../components/NumberInfo';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import EditGroupName from '../../components/AddOrEditGroup';
+import NumberInfo from '../../components/NumberInfo';
+import { ChartCard, MiniArea } from '../../components/Charts';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import configureGlobal from '../../utils/configureGlobal';
 import cookie from '../../utils/cookie';
@@ -38,9 +52,6 @@ export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      disk: {},
-      memory: {},
-      companyInfo: {},
       addApplication: false,
       teamAppList: [],
       page: 1,
@@ -48,12 +59,11 @@ export default class Index extends PureComponent {
       total: 0,
       domainList: [],
       domainPage: 1,
-      domainPage_size: 5,
+      domainPageSize: 5,
       domainTotal: 0,
       serviceList: [],
       servicePage: 1,
-      servicePage_size: 5,
-      serviceTotal: 0,
+      servicePageSize: 5,
       num: '',
       visitData: [],
       current: null,
@@ -61,145 +71,90 @@ export default class Index extends PureComponent {
       GuideList: [],
     };
   }
-  componentDidMount() {
+
+  componentWillMount() {
     this.getTeamAppList();
-    this.getDomainName();
-    this.getDomain();
-    this.getService();
-    this.loadOverview();
+    const { enterprise } = this.props;
+    if (rainbondUtil.newbieGuideEnable(enterprise)) {
+      this.getGuideState();
+    }
+  }
+
+  componentDidMount() {
     this.loadApps();
+    this.loadOverview();
+    this.getDomain();
+    this.getDomainName();
+    this.getTeamAppList();
+    this.getService();
     this.loadEvents();
-    this.timer = setInterval(() => {
-      this.loadApps();
-      this.loadOverview();
-      this.getDomain();
-      this.getDomainName();
-    }, 10000);
     if (this.isPublicRegion()) {
       this.getCompanyInfo();
       this.getRegionResource();
     }
   }
-
-  getGuideState = () => {
-    this.props.dispatch({
-      type: 'global/getGuideState',
-      payload: {
-        enterprise_id: this.props.currUser.enterprise_id,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState(
-            {
-              GuideList: res.list,
-              current:
-                res.list && res.list.length > 0 && !res.list[0].status
-                  ? 0
-                  : !res.list[1].status
-                  ? 1
-                  : !res.list[2].status
-                  ? 2
-                  : !res.list[3].status
-                  ? 3
-                  : !res.list[4].status
-                  ? 4
-                  : !res.list[5].status
-                  ? 5
-                  : !res.list[6].status
-                  ? 6
-                  : 7,
-            },
-            () => {
-              const isGuidevisible =
-                this.state.current == 7 ? false : !cookie.get('newbie_guide');
-              this.setState({
-                guidevisible: isGuidevisible,
-              });
-              this.state.current == 7
-                ? false
-                : cookie.get('newbie_guide')
-                ? false
-                : cookie.setGuide('newbie_guide', 'true');
-            }
-          );
-        }
-      },
-    });
-  };
-
-  componentWillMount() {
-    this.getTeamAppList();
-    const { enterprise } = this.props;
-    rainbondUtil.newbieGuideEnable(enterprise) && this.getGuideState();
+  componentWillUnmount() {
+    this.handleClearTimeout(this.loadAppsTimer);
+    this.handleClearTimeout(this.loadOverviewTimer);
+    this.handleClearTimeout(this.getDomainTimer);
+    this.handleClearTimeout(this.getDomainNameTimer);
   }
 
-  getTeamAppList = () => {
-    const { page, page_size } = this.state;
-    this.props.dispatch({
-      type: 'global/getTeamAppList',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region: globalUtil.getCurrRegionName(),
-        page,
-        page_size,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState({
-            teamAppList: res.list,
-            total: res.bean && res.bean.total,
-          });
-        }
-      },
-    });
-  };
-
   onPageChange = (page, pageSize) => {
-    this.setState({ page, pageSize }, () => {
+    this.setState({ page, page_size: pageSize }, () => {
       this.getTeamAppList();
     });
   };
 
-  // 热门访问域名
-  getDomainName = () => {
-    const { domainPage, domainPage_size } = this.state;
+  onDomainPageChange = domainPage => {
+    this.setState({ domainPage }, () => {
+      this.getDomainName();
+    });
+  };
+
+  onServicePageChange = servicePage => {
+    this.setState({ servicePage }, () => {
+      this.getService();
+    });
+  };
+
+  // 热门访问服务
+  getService = () => {
+    const { servicePage, servicePageSize } = this.state;
     this.props.dispatch({
-      type: 'global/getDomainName',
+      type: 'global/getService',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
-        page: domainPage,
-        page_size: domainPage_size,
-        id: 1,
+        page: servicePage,
+        page_size: servicePageSize,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            domainTotal: res.bean && res.bean.total,
-            domainList: res.list,
-            num: res.bean && res.bean.total_traffic,
+            serviceList: res.list,
           });
         }
       },
     });
   };
 
-  getStartTime() {
+  getStartTime = () => {
     return new Date().getTime() / 1000 - 60 * 60;
-  }
-  getStep() {
+  };
+  getStep = () => {
     return 60;
-  }
+  };
 
   getDomain = () => {
-    const { domainPage, domainPage_size } = this.state;
+    const { domainPage, domainPageSize } = this.state;
     this.props.dispatch({
       type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
         page: domainPage,
-        page_size: domainPage_size,
+        page_size: domainPageSize,
         id: 0,
         start: this.getStartTime(),
         step: this.getStep(),
@@ -225,60 +180,111 @@ export default class Index extends PureComponent {
               });
             }
           }
-          this.setState({
-            visitData: arr,
-          });
+          this.setState(
+            {
+              visitData: arr,
+            },
+            () => {
+              this.getDomainTimer = setTimeout(() => {
+                this.getDomain();
+              }, 10000);
+            }
+          );
         }
       },
     });
   };
 
-  onDomainPageChange = domainPage => {
-    this.setState({ domainPage }, () => {
-      this.getDomainName();
-    });
-  };
-
-  // 热门访问服务
-  getService = () => {
-    const { servicePage, servicePage_size } = this.state;
+  // 热门访问域名
+  getDomainName = () => {
+    const { domainPage, domainPageSize } = this.state;
     this.props.dispatch({
-      type: 'global/getService',
+      type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
-        page: servicePage,
-        page_size: servicePage_size,
+        page: domainPage,
+        page_size: domainPageSize,
+        id: 1,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState(
+            {
+              domainTotal: res.bean && res.bean.total,
+              domainList: res.list,
+              num: res.bean && res.bean.total_traffic,
+            },
+            () => {
+              this.getDomainNameTimer = setTimeout(() => {
+                this.getDomainName();
+              }, 10000);
+            }
+          );
+        }
+      },
+    });
+  };
+
+  getTeamAppList = () => {
+    const { page, page_size } = this.state;
+    this.props.dispatch({
+      type: 'global/getTeamAppList',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region: globalUtil.getCurrRegionName(),
+        page,
+        page_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            serviceTotal: res.bean && res.bean.total,
-            serviceList: res.list,
+            teamAppList: res.list,
+            total: res.bean && res.bean.total,
           });
         }
       },
     });
   };
 
-  onServicePageChange = servicePage => {
-    this.setState({ servicePage }, () => {
-      this.getService();
+  getGuideState = () => {
+    this.props.dispatch({
+      type: 'global/getGuideState',
+      payload: {
+        enterprise_id: this.props.currUser.enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          const { list } = res;
+          let current = 7;
+          list.filter((item, index) => {
+            if (!item.status) {
+              current = index;
+            }
+            return !item.status;
+          });
+
+          this.setState(
+            {
+              GuideList: res.list,
+              current,
+            },
+            () => {
+              const isGuidevisible =
+                this.state.current === 7 ? false : !cookie.get('newbie_guide');
+              if (this.state.current !== 7 && !cookie.get('newbie_guide')) {
+                cookie.setGuide('newbie_guide', 'true');
+              }
+              this.setState({
+                guidevisible: isGuidevisible,
+              });
+            }
+          );
+        }
+      },
     });
   };
-  isPublicRegion() {
-    const region_name = globalUtil.getCurrRegionName();
-    const team_name = globalUtil.getCurrTeamName();
-    const region = userUtil.hasTeamAndRegion(
-      this.props.currUser,
-      team_name,
-      region_name
-    );
-    if (region) {
-      return region.region_scope === 'public';
-    }
-    return false;
-  }
+
   getRegionResource() {
     this.props.dispatch({
       type: 'global/getRegionSource',
@@ -286,14 +292,6 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
         region: globalUtil.getCurrRegionName(),
-      },
-      callback: data => {
-        if (data) {
-          this.setState({
-            memory: data.bean.memory || {},
-            disk: data.bean.disk,
-          });
-        }
       },
     });
   }
@@ -304,22 +302,31 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
       },
-      callback: data => {
-        if (data) {
-          this.setState({ companyInfo: data.bean });
-        }
-      },
     });
   };
+  isPublicRegion() {
+    const region = userUtil.hasTeamAndRegion(
+      this.props.currUser,
+      globalUtil.getCurrTeamName(),
+      globalUtil.getCurrRegionName()
+    );
+    if (region) {
+      return region.region_scope === 'public';
+    }
+    return false;
+  }
+  handleClearTimeout = timer => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  };
   loadOverview = () => {
-    const { dispatch, index } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
+    const { dispatch } = this.props;
     dispatch({
       type: 'index/fetchOverview',
       payload: {
-        team_name,
-        region_name,
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
       },
       callback: res => {
         if (res) {
@@ -329,6 +336,9 @@ export default class Index extends PureComponent {
               isNouse: false,
             },
           });
+          this.loadOverviewTimer = setTimeout(() => {
+            this.loadOverview();
+          }, 10000);
         }
       },
       handleError: res => {
@@ -344,21 +354,19 @@ export default class Index extends PureComponent {
     });
   };
   loadEvents = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'index/fetchEvents',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         page: 1,
         page_size: 5,
       },
     });
   };
+
   loadApps = () => {
     const { dispatch, form, index } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-
     const { pagination } = index;
     let searchKey = {
       searchKey: '',
@@ -370,48 +378,25 @@ export default class Index extends PureComponent {
     });
 
     const payload = {
-      team_name,
-      region_name,
-      page: index.pagination.currentPage,
-      page_size: index.pagination.pageSize,
-      order: (index.pagination.order || '').replace('end', ''),
-      fields: index.pagination.fields,
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      page: pagination.currentPage,
+      page_size: pagination.pageSize,
+      order: (pagination.order || '').replace('end', ''),
+      fields: pagination.fields,
       ...searchKey,
     };
 
-    dispatch({ type: 'index/fetchApps', payload });
-  };
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
-
-  handleSearch = e => {
-    e.preventDefault();
-    this.loadApps();
-    const { dispatch } = this.props;
     dispatch({
-      type: 'index/savePage',
-      payload: {
-        currentPage: 1,
+      type: 'index/fetchApps',
+      payload,
+      callback: res => {
+        if (res && res._code === 200) {
+          this.loadAppsTimer = setTimeout(() => {
+            this.loadApps();
+          }, 10000);
+        }
       },
-    });
-    setTimeout(() => {
-      this.loadApps();
-    });
-  };
-  handleListChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/savePage',
-      payload: {
-        currentPage: pagination.current,
-        pageSize: pagination.pageSize,
-        order: sorter.field ? sorter.order : '',
-        fields: sorter.field ? sorter.field : '',
-      },
-    });
-    setTimeout(() => {
-      this.loadApps();
     });
   };
 
@@ -1054,7 +1039,7 @@ export default class Index extends PureComponent {
                       pagination={{
                         style: { marginBottom: 0 },
                         current: this.state.domainPage,
-                        pageSize: this.state.domainPage_size,
+                        pageSize: this.state.domainPageSize,
                         total: this.state.domainTotal,
                         onChange: this.onDomainPageChange,
                       }}

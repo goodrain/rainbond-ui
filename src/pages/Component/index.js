@@ -1,25 +1,36 @@
 /* eslint-disable react/no-multi-comp */
-import { Alert, Badge, Button, Divider, Form, Icon, Input, Modal, notification, Radio, Select, Tooltip } from 'antd';
+import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import {
+  Alert,
+  Badge,
+  Button,
+  Divider,
+  Form,
+  Icon,
+  Input,
+  Modal,
+  notification,
+  Radio,
+  Select,
+  Tooltip,
+} from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PropTypes from 'prop-types';
-import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import ManageAppGuide from '../../components/ManageAppGuide';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import VisitBtn from '../../components/VisitBtn';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { deploy, getStatus, restart, rollback, start, stop, updateRolling } from '../../services/app';
-import appUtil from '../../utils/app';
-import AppPubSubSocket from '../../utils/appPubSubSocket';
-import appStatusUtil from '../../utils/appStatus-util';
-import { createApp, createComponent, createEnterprise, createTeam } from '../../utils/breadcrumb';
-import dateUtil from '../../utils/date-util';
-import globalUtil from '../../utils/global';
-import httpResponseUtil from '../../utils/httpResponse';
-import regionUtil from '../../utils/region';
-import teamUtil from '../../utils/team';
-import userUtil from '../../utils/user';
+import {
+  deploy,
+  getStatus,
+  restart,
+  rollback,
+  start,
+  stop,
+  updateRolling,
+} from '../../services/app';
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
@@ -36,6 +47,22 @@ import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
 
+import appUtil from '../../utils/app';
+import AppPubSubSocket from '../../utils/appPubSubSocket';
+import appStatusUtil from '../../utils/appStatus-util';
+import {
+  createApp,
+  createComponent,
+  createEnterprise,
+  createTeam,
+} from '../../utils/breadcrumb';
+import dateUtil from '../../utils/date-util';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
+import regionUtil from '../../utils/region';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const ButtonGroup = Button.Group;
@@ -43,12 +70,7 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class MoveGroup extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -112,12 +134,7 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class EditName extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
@@ -205,7 +222,6 @@ class Main extends PureComponent {
       promptModal: null,
       websocketURL: '',
       componentTimer: true,
-      timer: false,
     };
     this.socket = null;
   }
@@ -225,6 +241,9 @@ class Main extends PureComponent {
   }
   componentDidMount() {
     this.loadDetail();
+    setTimeout(() => {
+      this.getStatus(true);
+    }, 10000);
   }
   componentWillUnmount() {
     this.closeTimer();
@@ -236,36 +255,10 @@ class Main extends PureComponent {
     }
   }
 
-  setTimer = () => {
-    const { componentTimer } = this.state;
-    if (componentTimer) {
-      this.openTimer();
-    } else {
-      this.closeTimer();
-    }
-  };
-
-  openTimer = () => {
-    if (this.interval || this.state.timer) {
-      return null;
-    }
-    this.setState(
-      {
-        timer: true,
-      },
-      () => {
-        this.getStatus();
-        this.interval = setInterval(() => {
-          this.getStatus();
-        }, 5000);
-      }
-    );
-  };
-
   closeTimer = () => {
-    clearInterval(this.interval);
-    this.setState({ timer: false });
-    this.interval = null;
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   };
 
   loadBuildState = appDetail => {
@@ -314,7 +307,7 @@ class Main extends PureComponent {
             appDetail.service &&
             appDetail.service.create_status == 'complete'
           ) {
-            this.setTimer();
+            this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
             this.props.dispatch(
               routerRedux.replace(
@@ -333,7 +326,7 @@ class Main extends PureComponent {
             );
           }
         } else {
-          this.setTimer();
+          this.getStatus(false);
         }
         // get websocket url and create client
         this.getWebSocketUrl(appDetail.service.service_id);
@@ -378,13 +371,19 @@ class Main extends PureComponent {
       }
     }
   }
-  getStatus = () => {
+  getStatus = isCycle => {
     getStatus({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.getAppAlias(),
-    }).then(data => {
-      if (data) {
-        this.setState({ status: data.bean });
+    }).then(res => {
+      if (res && res._code === 200) {
+        this.setState({ status: res.bean }, () => {
+          if (isCycle) {
+            this.timer = setTimeout(() => {
+              this.getStatus(true);
+            }, 10000);
+          }
+        });
       }
     });
   };
@@ -903,7 +902,7 @@ class Main extends PureComponent {
       : '';
   };
   toWebConsole = () => {
-    const { appDetail } = this.props
+    const { appDetail } = this.props;
     this.props.dispatch(
       routerRedux.replace(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -1122,7 +1121,6 @@ class Main extends PureComponent {
         componentID: appDetail.service.service_alias,
       }
     );
-    this.setTimer();
     return (
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
@@ -1163,37 +1161,37 @@ class Main extends PureComponent {
             BuildList && BuildList.length > 0
               ? [
                   <Button
-                    onClick={() => {
+                  onClick={() => {
                       this.handleCancelBuild();
                     }}
-                  >
+                >
                     取消
-                  </Button>,
+                </Button>,
                   <Button
-                    type="primary"
-                    onClick={() => {
+                  type="primary"
+                  onClick={() => {
                       this.handleOkBuild();
                     }}
-                  >
+                >
                     构建
-                  </Button>,
+                </Button>,
                 ]
               : [
                   <Button
-                    onClick={() => {
+                  onClick={() => {
                       this.handleCancelBuild();
                     }}
-                  >
+                >
                     取消
-                  </Button>,
+                </Button>,
                   <Button
-                    type="primary"
-                    onClick={() => {
+                  type="primary"
+                  onClick={() => {
                       this.handleOkBuild();
                     }}
-                  >
+                >
                     强制构建
-                  </Button>,
+                </Button>,
                 ]
           }
         >
@@ -1296,15 +1294,10 @@ class Main extends PureComponent {
   }
 }
 @Form.create()
-@connect(
-  ({ user, groupControl }) => ({}),
-  null,
-  null,
-  {
-    pure: false,
-    withRef: true,
-  }
-)
+@connect(({ user, groupControl }) => ({}), null, null, {
+  pure: false,
+  withRef: true,
+})
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
