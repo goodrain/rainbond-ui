@@ -6,12 +6,13 @@ import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
 require('codemirror/lib/codemirror.css');
+
 require('codemirror/theme/seti.css');
 require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
 require('codemirror/addon/display/panel');
-require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/jsx/jsx');
 require('codemirror/mode/yaml/yaml');
 require('codemirror/addon/display/fullscreen');
 require('codemirror/addon/edit/matchbrackets');
@@ -110,11 +111,15 @@ class CodeMirrorForm extends PureComponent {
     }
 
     const options = {
-      mode: mode || 'javascript',
+      mode: { name: mode || 'javascript', json: true },
       lineNumbers: true,
       theme: 'seti',
       fullScreen,
+      lineWrapping: true,
+      smartIndent: true,
       matchBrackets: true,
+      scrollbarStyle: null,
+      showCursorWhenSelecting: true,
     };
 
     const token = cookie.get('token');
