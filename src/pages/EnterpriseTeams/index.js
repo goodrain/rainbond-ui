@@ -40,7 +40,7 @@ export default class EnterpriseTeams extends PureComponent {
       adminer,
       showDelTeam: false,
       page: 1,
-      page_size: 5,
+      page_size: 10,
       name: '',
       total: 1,
       joinTeam: false,
@@ -77,11 +77,7 @@ export default class EnterpriseTeams extends PureComponent {
       current={this.state.page}
       pageSize={this.state.page_size}
       total={Number(this.state.total)}
-      onChange={
-        isPages === 'userTeam'
-          ? this.onPageChangeUserTeam
-          : this.onPageChangeTeam
-      }
+      onChange={this.onPageChangeTeam}
     />
   );
 
@@ -140,6 +136,7 @@ export default class EnterpriseTeams extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
+            total: (res.bean && res.bean.total_count) || 1,
             teamList: (res.bean && res.bean.list) || [],
             enterpriseTeamsLoading: false,
           });
@@ -239,11 +236,21 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState({ showDelApply: false, ApplyInfo: false });
   };
 
-  handleActiveTabs = () => {
-    this.setState({
-      name: '',
-      page: 1,
-    });
+  handleActiveTabs = key => {
+    this.setState(
+      {
+        name: '',
+        page: 1,
+      },
+      () => {
+        if (key === 'team') {
+          this.getOverviewTeam();
+          this.getUserTeams();
+        } else {
+          this.getEnterpriseTeams();
+        }
+      }
+    );
   };
 
   showDelTeam = exitTeamName => {
@@ -509,6 +516,9 @@ export default class EnterpriseTeams extends PureComponent {
             </Card>
           );
         })}
+        <div style={{ textAlign: 'right', margin: '15px' }}>
+          {this.handlePaginations()}
+        </div>
       </div>
     );
 
@@ -661,10 +671,6 @@ export default class EnterpriseTeams extends PureComponent {
               </Card>
             );
           })}
-
-        <div style={{ textAlign: 'right', margin: '15px' }}>
-          {this.handlePaginations('userTeam')}
-        </div>
       </div>
     );
 
@@ -723,11 +729,11 @@ export default class EnterpriseTeams extends PureComponent {
         ) : (
           <div>
             {adminer ? (
-              <Tabs defaultActiveKey="1" onChange={this.handleActiveTabs}>
-                <TabPane tab="团队" key="1">
+              <Tabs defaultActiveKey="team" onChange={this.handleActiveTabs}>
+                <TabPane tab="团队" key="team">
                   {teamInfo}
                 </TabPane>
-                <TabPane tab="管理" key="2">
+                <TabPane tab="管理" key="management">
                   {managementTemas}
                 </TabPane>
               </Tabs>
