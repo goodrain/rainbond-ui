@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'dva';
@@ -32,7 +33,6 @@ class LogItem extends PureComponent {
       opened: false,
       logType: 'info',
       logs: [],
-      actioning: false,
     };
   }
   static contextTypes = {
@@ -67,7 +67,7 @@ class LogItem extends PureComponent {
           this.onTimeout(data);
         }
         if (appAcionLogUtil.isActioning(data)) {
-          this.setState({ status: 'ing', actioning: true });
+          this.setState({ status: 'ing' });
           this.ref.querySelector('.actionresultcn').innerHTML = '进行中';
           this.context.isActionIng(true);
         }
@@ -355,6 +355,7 @@ class LogItem extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 class LogList extends PureComponent {
   render() {
     const list = this.props.list;
@@ -373,6 +374,7 @@ class LogList extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
@@ -391,17 +393,13 @@ export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      actionIng: false,
       logList: [],
       recordLoading: true,
       page: 1,
       page_size: 6,
-      hasNext: false,
       // 安装的性能分析插件
-      anaPlugins: [],
       disk: 0,
       memory: 0,
-      showVersionManage: false,
       showUpgrade: false,
       beanData: null,
       dataList: [],
@@ -427,8 +425,8 @@ export default class Index extends PureComponent {
     this.loadBuildSourceInfo();
     this.fetchAppDiskAndMemory();
     this.getVersionList();
-    this.fetchPods();
-    this.setTimer();
+    this.fetchPods(true);
+    this.fetchOperationLog(true);
   }
   componentWillUnmount() {
     this.mounted = false;
@@ -448,30 +446,13 @@ export default class Index extends PureComponent {
     return null;
   }
 
-  setTimer = () => {
-    const { componentTimers } = this.state;
-    if (componentTimers) {
-      this.openTimer();
-    } else {
-      this.closeTimer();
-    }
-  };
-
-  openTimer = () => {
-    if (this.interval) {
-      return null;
-    }
-    this.fetchPods();
-    this.fetchOperationLog();
-    this.interval = setInterval(() => {
-      this.fetchPods();
-      this.fetchOperationLog();
-    }, 5000);
-  };
-
   closeTimer = () => {
-    clearInterval(this.interval);
-    this.interval = null;
+    if (this.fetchOperationLogTimer) {
+      clearInterval(this.fetchOperationLogTimer);
+    }
+    if (this.fetchPodsTimer) {
+      clearInterval(this.fetchPodsTimer);
+    }
   };
 
   fetchAppDiskAndMemory() {
@@ -492,7 +473,7 @@ export default class Index extends PureComponent {
     });
   }
 
-  fetchOperationLog = () => {
+  fetchOperationLog = isCycle => {
     this.props.dispatch({
       type: 'appControl/fetchOperationLog',
       payload: {
@@ -503,22 +484,57 @@ export default class Index extends PureComponent {
         page_size: this.state.page_size,
       },
       callback: res => {
-        if (res) {
-          this.setState({
-            has_next: res.has_next || false,
-            logList: res.list || [],
-            total: res.bean.total
-              ? res.bean.total
-              : res.list
-              ? res.list.length
-              : 0,
-          });
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              has_next: res.has_next || false,
+              logList: res.list || [],
+              recordLoading: false,
+              total: res.bean.total
+                ? res.bean.total
+                : res.list
+                ? res.list.length
+                : 0,
+            },
+            () => {
+              if (isCycle) {
+                this.handleTimers(
+                  'fetchOperationLogTimer',
+                  () => {
+                    this.fetchOperationLog(true);
+                  },
+                  5000
+                );
+              }
+            }
+          );
         }
-        this.setState({
-          recordLoading: false,
-        });
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'fetchOperationLogTimer',
+          () => {
+            this.fetchOperationLog(true);
+          },
+          10000
+        );
       },
     });
+  };
+
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
   };
 
   handleNextPage = () => {
@@ -538,12 +554,7 @@ export default class Index extends PureComponent {
   getStep() {
     return 60;
   }
-  showVersionManage = () => {
-    this.setState({ showVersionManage: true });
-  };
-  hideVersionManage = () => {
-    this.setState({ showVersionManage: false });
-  };
+
   handleRollback = data => {
     this.context.appRolback(data);
   };
@@ -627,7 +638,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchPods = () => {
+  fetchPods = isCycle => {
     const { appAlias, dispatch } = this.props;
     dispatch({
       type: 'appControl/fetchPods',
@@ -635,16 +646,37 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
       },
-      callback: data => {
-        if (data && data.list) {
-          this.setState({
-            new_pods: data.list.new_pods,
-            old_pods: data.list.old_pods,
-          });
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState(
+            {
+              new_pods: res.list.new_pods,
+              old_pods: res.list.old_pods,
+              runLoading: false,
+            },
+            () => {
+              if (isCycle) {
+                this.handleTimers(
+                  'fetchPodsTimer',
+                  () => {
+                    this.fetchPods(true);
+                  },
+                  5000
+                );
+              }
+            }
+          );
         }
-        this.setState({
-          runLoading: false,
-        });
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'fetchPodsTimer',
+          () => {
+            this.fetchPods(true);
+          },
+          10000
+        );
       },
     });
   };
@@ -673,7 +705,6 @@ export default class Index extends PureComponent {
       current_version,
       componentTimers,
     } = this.state;
-    this.setTimer();
     const { status } = this.props;
     return (
       <Fragment>

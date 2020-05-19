@@ -1,27 +1,40 @@
-import { Button, Col, Divider, Form, Icon, Input, Modal, notification, Row, Spin } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  Icon,
+  Input,
+  Modal,
+  notification,
+  Row,
+  Spin,
+} from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import styless from '../../components/CreateTeam/index.less';
 import NoPermTip from '../../components/NoPermTip';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { createApp, createEnterprise, createTeam } from '../../utils/breadcrumb';
-import globalUtil from '../../utils/global';
-import teamUtil from '../../utils/team';
-import userUtil from '../../utils/user';
 import AddServiceComponent from './AddServiceComponent';
 import AddThirdParty from './AddThirdParty';
 import AppShape from './AppShape';
 import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
+import {
+  createApp,
+  createEnterprise,
+  createTeam,
+} from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
 import styles from './Index.less';
 
-
 const FormItem = Form.Item;
-const ButtonGroup = Button.Group;
 
 @Form.create()
 class EditGroupName extends PureComponent {
@@ -90,6 +103,7 @@ class EditGroupName extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(({ user, groupControl, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
@@ -108,59 +122,57 @@ class Main extends PureComponent {
       toAdd: false,
       service_alias: [],
       linkList: [],
-      running: false,
       secondJustify: '',
       json_data_length: 0,
       promptModal: false,
       code: '',
-      clearTime: false,
       size: 'large',
       currApp: {},
       loadingDetail: true,
       rapidCopy: false,
     };
   }
-  getGroupId() {
-    return this.props.appID;
-  }
+
   componentDidMount() {
     this.loading();
   }
 
+  componentWillUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    const { dispatch } = this.props;
+    dispatch({ type: 'groupControl/clearGroupDetail' });
+  }
+
+  getGroupId() {
+    return this.props.appID;
+  }
+
   loading = () => {
     this.fetchAppDetail();
-    this.loadTopology();
-    this.timer = setInterval(() => {
-      this.loadTopology();
-    }, 10000);
+    this.loadTopology(true);
   };
 
-  loadTopology() {
+  loadTopology(isCycle) {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-    const groupId = this.getGroupId();
     dispatch({
       type: 'global/fetAllTopology',
       payload: {
-        region_name,
-        team_name,
-        groupId,
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName(),
+        groupId: this.getGroupId(),
       },
       callback: res => {
         if (res && res._code == 200) {
           const data = res.bean;
-          if (JSON.stringify(data) == '{}') {
+          if (JSON.stringify(data) === '{}') {
             return;
           }
           const service_alias = [];
           const { json_data } = data;
-          this.setState({ running: false });
           this.setState({ json_data_length: Object.keys(json_data).length });
           Object.keys(json_data).map(key => {
-            if (json_data[key].cur_status == 'running') {
-              this.setState({ running: true });
-            }
             if (
               json_data[key].cur_status == 'running' &&
               json_data[key].is_internet == true
@@ -169,31 +181,66 @@ class Main extends PureComponent {
             }
           });
           this.setState({ service_alias }, () => {
-            // if(service_alias.length>0){
-            this.loadLinks(service_alias.join('-'));
-            // }
+            this.loadLinks(service_alias.join('-'), isCycle);
           });
         }
       },
     });
   }
 
-  loadLinks(service_alias) {
+  loadLinks(service_alias, isCycle) {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
     dispatch({
       type: 'global/queryLinks',
       payload: {
         service_alias,
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
       },
-      callback: data => {
-        this.setState({
-          linkList: (data && data.list) || [],
-        });
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              linkList: res.list || [],
+            },
+            () => {
+              if (isCycle) {
+                this.handleTimers(
+                  'timer',
+                  () => {
+                    this.loadTopology(true);
+                  },
+                  10000
+                );
+              }
+            }
+          );
+        }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.loadTopology(true);
+          },
+          20000
+        );
       },
     });
   }
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
 
   fetchAppDetail = () => {
     const { dispatch } = this.props;
@@ -226,10 +273,6 @@ class Main extends PureComponent {
     });
   };
 
-  componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
-    this.props.dispatch({ type: 'groupControl/clearGroupDetail' });
-  }
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
@@ -249,36 +292,25 @@ class Main extends PureComponent {
     this.setState({ toDelete: false });
   };
   handleDelete = () => {
-    this.setState(
-      {
-        clearTime: true,
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'groupControl/delete',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
       },
-      () => {
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'groupControl/delete',
-          payload: {
-            team_name: globalUtil.getCurrTeamName(),
-            group_id: this.getGroupId(),
-          },
-          callback: res => {
-            if (res && res._code == 200) {
-              notification.success({ message: '删除成功' });
-              this.cancelDelete();
-              this.props.dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
-                )
-              );
-            } else {
-              this.setState({
-                clearTime: false,
-              });
-            }
-          },
-        });
-      }
-    );
+      callback: res => {
+        if (res && res._code == 200) {
+          notification.success({ message: '删除成功' });
+          this.cancelDelete();
+          this.props.dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
+            )
+          );
+        }
+      },
+    });
   };
 
   newAddress = grid => {
@@ -396,7 +428,7 @@ class Main extends PureComponent {
     });
   };
 
-  handlePromptModal_open = () => {
+  handlePromptModalOpen = () => {
     const { code } = this.state;
     this.props.dispatch({
       type: 'global/buildShape',
@@ -410,13 +442,13 @@ class Main extends PureComponent {
           message: data.msg_show || '构建成功',
           duration: '3',
         });
-        this.handlePromptModal_close();
-        this.loadTopology();
+        this.handlePromptModalClose();
+        this.loadTopology(false);
       },
     });
   };
 
-  handlePromptModal_close = () => {
+  handlePromptModalClose = () => {
     this.setState({
       promptModal: false,
       code: '',
@@ -715,8 +747,8 @@ class Main extends PureComponent {
           <Modal
             title="友情提示"
             visible={this.state.promptModal}
-            onOk={this.handlePromptModal_open}
-            onCancel={this.handlePromptModal_close}
+            onOk={this.handlePromptModalOpen}
+            onCancel={this.handlePromptModalClose}
           >
             <p>{codeObj[this.state.code]}当前应用下的全部组件？</p>
           </Modal>
@@ -726,14 +758,9 @@ class Main extends PureComponent {
   }
 }
 
-@connect(
-  ({ user }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  {
-    pure: false,
-  }
-)
+@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
+  pure: false,
+})
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);

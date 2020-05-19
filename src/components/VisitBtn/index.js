@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from "react";
+import React, { PureComponent, Fragment } from 'react';
 import {
   Row,
   Col,
@@ -11,16 +11,16 @@ import {
   Alert,
   Tooltip,
   Icon,
-  notification
-} from "antd";
-import { connect } from "dva";
-import { Link } from "dva/router";
-import DescriptionList from "../../components/DescriptionList";
-import globalUtil from "../../utils/global";
-import { openInNewTab } from "../../utils/utils";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import { link } from "fs";
-import styles from "./index.less";
+  notification,
+} from 'antd';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import DescriptionList from '../../components/DescriptionList';
+import globalUtil from '../../utils/global';
+import { openInNewTab } from '../../utils/utils';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { link } from 'fs';
+import styles from './index.less';
 
 const { Description } = DescriptionList;
 
@@ -35,7 +35,7 @@ const { Description } = DescriptionList;
 
 @connect(({ user, appControl, global }) => ({
   visitInfo: appControl.visitInfo,
-  currUser: user.currentUser
+  currUser: user.currentUser,
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -48,16 +48,15 @@ export default class Index extends PureComponent {
   }
   componentDidMount() {
     this.mount = true;
-    this.setTimer();
+    this.fetchVisitInfo();
   }
   componentWillUnmount() {
+    this.closeTimer();
     this.mount = false;
-    this.props.dispatch({ type: "appControl/clearVisitInfo" });
+    this.props.dispatch({ type: 'appControl/clearVisitInfo' });
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (
-      nextProps.timers !== prevState.timers
-    ) {
+    if (nextProps.timers !== prevState.timers) {
       return {
         componentTimers: nextProps.timers,
       };
@@ -65,42 +64,12 @@ export default class Index extends PureComponent {
     return null;
   }
 
-  setTimer = () => {
-    const { componentTimers } = this.state;
-    if (componentTimers) {
-      this.openTimer();
-    } else {
-      this.closeTimer();
+  getHttpLinks = accessInfo => {
+    let res = [];
+    for (let i = 0; i < accessInfo.length; i++) {
+      res = res.concat(accessInfo[i].access_urls || []);
     }
-  };
-
-  openTimer = () => {
-    if (this.interval) {
-      return null;
-    }
-    this.fetchVisitInfo();
-    this.interval = setInterval(() => {
-      this.fetchVisitInfo();
-    }, 5000);
-  };
-
-  closeTimer = () => {
-    clearInterval(this.interval);
-    this.interval = null;
-  };
-
-
-
-  fetchVisitInfo = () => {
-    if (!this.mount) return;
-    const appAlias = this.props.app_alias;
-    this.props.dispatch({
-      type: "appControl/fetchVisitInfo",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias
-      }
-    });
+    return res;
   };
 
   showModal = () => {
@@ -109,13 +78,57 @@ export default class Index extends PureComponent {
   hiddenModal = () => {
     this.setState({ showModal: false });
   };
-  getHttpLinks = accessInfo => {
-    let res = [];
-    for (let i = 0; i < accessInfo.length; i++) {
-      res = res.concat(accessInfo[i].access_urls || []);
-    }
-    return res;
+  fetchVisitInfo = () => {
+    if (!this.mount) return;
+    const appAlias = this.props.app_alias;
+    this.props.dispatch({
+      type: 'appControl/fetchVisitInfo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          this.handleTimers(
+            'timer',
+            () => {
+              this.fetchVisitInfo();
+            },
+            5000
+          );
+        }
+      },
+      handleError: err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.fetchVisitInfo();
+          },
+          10000
+        );
+      },
+    });
   };
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
+
   handleClickLink = item => {
     // window.open(item.key);
     openInNewTab(item.key);
@@ -124,7 +137,7 @@ export default class Index extends PureComponent {
     <div>
       <span
         style={{
-          marginRight: 16
+          marginRight: 16,
         }}
       >
         访问地址：{item.access_urls[0]}
@@ -155,8 +168,8 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: "center",
-                fontSize: 16
+                textAlign: 'center',
+                fontSize: 16,
               }}
             >
               如需要提供访问服务, 请
@@ -181,23 +194,23 @@ export default class Index extends PureComponent {
         bordered
         columns={[
           {
-            title: "变量名",
-            dataIndex: "attr_name",
-            key: "attr_name",
-            align: "center"
+            title: '变量名',
+            dataIndex: 'attr_name',
+            key: 'attr_name',
+            align: 'center',
           },
           {
-            title: "变量值",
-            dataIndex: "attr_value",
-            key: "attr_value",
-            align: "center"
+            title: '变量值',
+            dataIndex: 'attr_value',
+            key: 'attr_value',
+            align: 'center',
           },
           {
-            title: "说明",
-            dataIndex: "name",
-            key: "name",
-            align: "center"
-          }
+            title: '说明',
+            dataIndex: 'name',
+            key: 'name',
+            align: 'center',
+          },
         ]}
         pagination={false}
         dataSource={infoArr}
@@ -244,8 +257,8 @@ export default class Index extends PureComponent {
             >
               <div
                 style={{
-                  textAlign: "center",
-                  fontSize: 16
+                  textAlign: 'center',
+                  fontSize: 16,
                 }}
               >
                 http协议端口需打开外部访问服务, 去
@@ -305,8 +318,8 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: "center",
-                fontSize: 16
+                textAlign: 'center',
+                fontSize: 16,
               }}
             >
               需要配置端口信息, 去
@@ -353,13 +366,13 @@ export default class Index extends PureComponent {
             footer={btns}
           >
             {res.map((item, i) => {
-              let connect_info = item.connect_info || [];
+              const connect_info = item.connect_info || [];
               // connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
               return (
                 <Card
                   type="inner"
                   style={{
-                    marginBottom: 24
+                    marginBottom: 24,
                   }}
                   // title={this.renderNoHttpOuterTitle(item)}
                 >
@@ -368,12 +381,12 @@ export default class Index extends PureComponent {
                   ) : ( */}
                   <Fragment>
                     <ul className={styles.ul}>
-                      {item.protocol == "tcp" || item.protocol == "udp" ? (
-                        <li style={{ fontWeight: "bold" }}>
+                      {item.protocol == 'tcp' || item.protocol == 'udp' ? (
+                        <li style={{ fontWeight: 'bold' }}>
                           您当前的访问协议是{item.protocol}
                         </li>
                       ) : (
-                        <li style={{ fontWeight: "bold" }}>
+                        <li style={{ fontWeight: 'bold' }}>
                           您当前的访问协议是{item.protocol},打开MySQL客户端访问
                         </li>
                       )}
@@ -381,30 +394,30 @@ export default class Index extends PureComponent {
                         推荐访问地址&nbsp;
                         <a
                           href="javascript:void(0)"
-                          style={{ marginRight: "10px" }}
+                          style={{ marginRight: '10px' }}
                         >
-                          {item.access_urls[0].indexOf("0.0.0.0") > -1 &&
+                          {item.access_urls[0].indexOf('0.0.0.0') > -1 &&
                           currentRegion &&
                           currentRegion.length > 0
                             ? item.access_urls[0].replace(
                                 /0.0.0.0/g,
                                 currentRegion[0].tcpdomain
                               )
-                            : item.access_urls[0].replace(/\s+/g, "")}
+                            : item.access_urls[0].replace(/\s+/g, '')}
                         </a>
                         <CopyToClipboard
                           text={
-                            item.access_urls[0].indexOf("0.0.0.0") > -1 &&
+                            item.access_urls[0].indexOf('0.0.0.0') > -1 &&
                             currentRegion &&
                             currentRegion.length > 0
                               ? item.access_urls[0].replace(
                                   /0.0.0.0/g,
                                   currentRegion[0].tcpdomain
                                 )
-                              : item.access_urls[0].replace(/\s+/g, "")
+                              : item.access_urls[0].replace(/\s+/g, '')
                           }
                           onCopy={() => {
-                            notification.success({ message: "复制成功" });
+                            notification.success({ message: '复制成功' });
                           }}
                         >
                           <Button size="small" type="primary">
@@ -490,31 +503,31 @@ export default class Index extends PureComponent {
         <Card
           type="inner"
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           title={renderTitle(item)}
         >
           {!item.connect_info.length ? (
-            "-"
+            '-'
           ) : (
             <Fragment>
               <table
                 style={{
-                  width: "100%"
+                  width: '100%',
                 }}
               >
                 <thead>
                   <tr>
                     <th
                       style={{
-                        width: "33%"
+                        width: '33%',
                       }}
                     >
                       变量名
                     </th>
                     <th
                       style={{
-                        width: "33%"
+                        width: '33%',
                       }}
                     >
                       变量值
@@ -535,7 +548,7 @@ export default class Index extends PureComponent {
                       <td
                         colSpan="3"
                         style={{
-                          textAlign: "center"
+                          textAlign: 'center',
                         }}
                       >
                         暂无数据
@@ -570,11 +583,11 @@ export default class Index extends PureComponent {
           >
             <Alert
               style={{
-                marginBottom: 16
+                marginBottom: 16,
               }}
               message="其他组件依赖此组件后来访问"
               type="info"
-            />{" "}
+            />{' '}
             {res.map((item, i) => renderCard(item, i))}
           </Modal>
         )}
@@ -586,21 +599,20 @@ export default class Index extends PureComponent {
     if (!visitInfo) {
       return null;
     }
-    this.setTimer()
-    if (visitInfo.access_type == "no_port") {
+    if (visitInfo.access_type == 'no_port') {
       return this.renderNoPort(visitInfo);
     }
 
-    if (visitInfo.access_type === "http_port") {
+    if (visitInfo.access_type === 'http_port') {
       return this.renderHttpPort(visitInfo);
     }
 
-    if (visitInfo.access_type === "not_http_outer") {
+    if (visitInfo.access_type === 'not_http_outer') {
       return this.renderNofHttpOuter(visitInfo);
     }
     if (
-      visitInfo.access_type === "not_http_inner" ||
-      visitInfo.access_type === "http_inner"
+      visitInfo.access_type === 'not_http_inner' ||
+      visitInfo.access_type === 'http_inner'
     ) {
       return this.renderNotHttpInner(visitInfo);
     }
