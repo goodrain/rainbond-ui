@@ -259,8 +259,8 @@ export default {
         callback(data);
       }
     },
-    *getDomainName({ payload, callback }, { call, put }) {
-      const data = yield call(getDomainName, payload);
+    *getDomainName({ payload, callback, handleError }, { call, put }) {
+      const data = yield call(getDomainName, payload, handleError);
       if (data && callback) {
         callback(data);
       }
@@ -697,8 +697,8 @@ export default {
         callback(response);
       }
     },
-    *queryLinks({ payload, callback }, { call }) {
-      const response = yield call(toQueryLinks, payload);
+    *queryLinks({ payload, callback, handleError }, { call }) {
+      const response = yield call(toQueryLinks, payload, handleError);
       if (callback) {
         callback(response);
       }

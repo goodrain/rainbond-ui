@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, Drawer, Form, Input, Radio, Tooltip } from 'antd';
+import { Form, Input, Radio, Tooltip, Drawer, Button } from 'antd';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -24,7 +24,6 @@ export default class AddVolumes extends PureComponent {
       onCancel();
     }
   };
-
   render() {
     const { data, editor, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;

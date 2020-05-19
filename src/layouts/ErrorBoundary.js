@@ -31,7 +31,6 @@ export default class ErrorBoundary extends PureComponent {
     }
     return this.saveLog(error);
   }
-
   saveLog = error => {
     const { dispatch, currentUser } = this.props;
     dispatch({
