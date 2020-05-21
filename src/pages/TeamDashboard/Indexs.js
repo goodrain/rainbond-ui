@@ -1,7 +1,7 @@
-import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
-import { connect } from "dva";
-import { Link } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import moment from 'moment';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
   Row,
   Col,
@@ -12,22 +12,20 @@ import {
   Input,
   Select,
   Button,
-  Icon,
-  Tooltip
-} from "antd";
-import IndexTable from "../../components/IndexTable";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import EditableLinkGroup from "../../components/EditableLinkGroup";
-import ScrollerX from "../../components/ScrollerX";
-import rainbondUtil from "../../utils/rainbond";
-import styles from "./Index.less";
-import globalUtil from "../../utils/global";
-import userUtil from "../../utils/user";
-import sourceUtil from "../../utils/source-unit";
-import { link } from "fs";
+  Tooltip,
+} from 'antd';
+import IndexTable from '../../components/IndexTable';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import EditableLinkGroup from '../../components/EditableLinkGroup';
+import ScrollerX from '../../components/ScrollerX';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './Index.less';
+import globalUtil from '../../utils/global';
+import userUtil from '../../utils/user';
+import sourceUtil from '../../utils/source-unit';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @connect(({ user, index, loading, global }) => ({
   currUser: user.currentUser,
@@ -36,9 +34,9 @@ const Option = Select.Option;
   pagination: index.pagination,
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
-  projectLoading: loading.effects["project/fetchNotice"],
-  activitiesLoading: loading.effects["activities/fetchList"],
-  loading
+  projectLoading: loading.effects['project/fetchNotice'],
+  activitiesLoading: loading.effects['activities/fetchList'],
+  loading,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -47,7 +45,7 @@ export default class Index extends PureComponent {
     this.state = {
       disk: {},
       memory: {},
-      companyInfo: {}
+      companyInfo: {},
     };
   }
   componentDidMount() {
@@ -64,151 +62,152 @@ export default class Index extends PureComponent {
       this.getRegionResource();
     }
   }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
   getLinks() {
     const codelinks = [
       {
-        title: "自定义源码",
-        icontype: "code",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`
-      }
+        title: '自定义源码',
+        icontype: 'code',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/custom`,
+      },
     ];
     const imagelinks = [
       {
-        title: "指定镜像",
-        icontype: "laptop",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`
+        title: '指定镜像',
+        icontype: 'laptop',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/custom`,
       },
       {
-        title: "DockerRun命令",
-        icontype: "laptop",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`
+        title: 'DockerRun命令',
+        icontype: 'laptop',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/dockerrun`,
       },
       {
-        title: "Dockercompose",
-        icontype: "laptop",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`
+        title: 'Dockercompose',
+        icontype: 'laptop',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/Dockercompose`,
       },
       {
-        title: "从应用市场安装",
-        icontype: "appstore-o",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`
-      }
+        title: '从应用市场安装',
+        icontype: 'appstore-o',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/market`,
+      },
     ];
-    const {enterprise} = this.props;
-    if (rainbondUtil.OauthbTypes(enterprise, "github")) {
+    const { enterprise } = this.props;
+    if (rainbondUtil.OauthbTypes(enterprise, 'github')) {
       codelinks.push({
-        title: "Github项目",
-        icontype: "github",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`
+        title: 'Github项目',
+        icontype: 'github',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/github`,
       });
     }
-    if (rainbondUtil.OauthbTypes(enterprise, "gitlab")) {
+    if (rainbondUtil.OauthbTypes(enterprise, 'gitlab')) {
       codelinks.push({
-        title: "Gitlab仓库",
-        icontype: "gitlab",
-        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`
+        title: 'Gitlab仓库',
+        icontype: 'gitlab',
+        href: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/goodrain`,
       });
     }
     codelinks.push(...imagelinks);
     return codelinks;
   }
-  isPublicRegion() {
-    const region_name = globalUtil.getCurrRegionName();
-    const team_name = globalUtil.getCurrTeamName();
-    const region = userUtil.hasTeamAndRegion(
-      this.props.currUser,
-      team_name,
-      region_name
-    );
-    if (region) {
-      return region.region_scope === "public";
-    }
-    return false;
-  }
+
   getRegionResource() {
     this.props.dispatch({
-      type: "global/getRegionSource",
+      type: 'global/getRegionSource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
-        region: globalUtil.getCurrRegionName()
+        region: globalUtil.getCurrRegionName(),
       },
       callback: data => {
         if (data) {
           this.setState({
             memory: data.bean.memory || {},
-            disk: data.bean.disk
+            disk: data.bean.disk,
           });
         }
-      }
+      },
     });
   }
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: "global/getCompanyInfo",
+      type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        enterprise_id: this.props.currUser.enterprise_id
+        enterprise_id: this.props.currUser.enterprise_id,
       },
       callback: data => {
         if (data) {
           this.setState({ companyInfo: data.bean });
         }
-      }
+      },
     });
   };
+
+  isPublicRegion() {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const region = userUtil.hasTeamAndRegion(
+      this.props.currUser,
+      teamName,
+      regionName
+    );
+    if (region) {
+      return region.region_scope === 'public';
+    }
+    return false;
+  }
+
   loadOverview = () => {
-    const { dispatch, index } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
+    const { dispatch } = this.props;
     dispatch({
-      type: "index/fetchOverview",
+      type: 'index/fetchOverview',
       payload: {
-        team_name,
-        region_name
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
       },
       callback: res => {
         if (res) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
-              isNouse: false
-            }
+              isNouse: false,
+            },
           });
         }
       },
       handleError: res => {
         if (res && res.code === 10400) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
-              isNouse: true
-            }
+              isNouse: true,
+            },
           });
         }
-      }
+      },
     });
   };
+
   loadEvents = () => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "index/fetchEvents",
+      type: 'index/fetchEvents',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         page: 1,
-        page_size: 6
-      }
+        page_size: 6,
+      },
     });
   };
   loadApps = () => {
     const { dispatch, form, index } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-
-    const pagination = index.pagination;
+    const { pagination } = index;
     let searchKey = {
-      searchKey: "",
-      service_status: ""
+      searchKey: '',
+      service_status: '',
     };
     // 获取搜索信息
     form.validateFields((err, fieldsValue) => {
@@ -216,63 +215,66 @@ export default class Index extends PureComponent {
     });
 
     const payload = {
-      team_name,
-      region_name,
-      page: index.pagination.currentPage,
-      page_size: index.pagination.pageSize,
-      order: (index.pagination.order || "").replace("end", ""),
-      fields: index.pagination.fields,
-      ...searchKey
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      page: pagination.currentPage,
+      page_size: pagination.pageSize,
+      order: (pagination.order || '').replace('end', ''),
+      fields: pagination.fields,
+      ...searchKey,
     };
-
-    dispatch({ type: "index/fetchApps", payload });
+    dispatch({
+      type: 'index/fetchApps',
+      payload,
+      callback: res => {
+        console.log('res', res);
+      },
+    });
   };
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
+
   renderSimpleForm() {
     const { getFieldDecorator } = this.props.form;
     const status = [
       {
-        value: "all",
-        text: "全部"
+        value: 'all',
+        text: '全部',
       },
       {
-        value: "running",
-        text: "运行中"
+        value: 'running',
+        text: '运行中',
       },
       {
-        value: "closed",
-        text: "已关闭"
+        value: 'closed',
+        text: '已关闭',
       },
       {
-        value: "abnormal",
-        text: "运行异常"
-      }
+        value: 'abnormal',
+        text: '运行异常',
+      },
     ];
     return (
       <Form
         onSubmit={this.handleSearch}
         layout="inline"
         style={{
-          paddingBottom: 8
+          paddingBottom: 8,
         }}
       >
         <Row
           gutter={{
             md: 8,
             lg: 24,
-            xl: 48
+            xl: 48,
           }}
         >
           <Col md={8} sm={24}>
             <FormItem label="组件名称">
-              {getFieldDecorator("query_key")(<Input placeholder="请输入" />)}
+              {getFieldDecorator('query_key')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="组件状态">
-              {getFieldDecorator("service_status", { initialValue: "all" })(
+              {getFieldDecorator('service_status', { initialValue: 'all' })(
                 <Select placeholder="请选择">
                   {status.map(item => (
                     <Option key={item.value} value={item.value}>
@@ -290,7 +292,7 @@ export default class Index extends PureComponent {
               </Button>
               <Button
                 style={{
-                  marginLeft: 8
+                  marginLeft: 8,
                 }}
                 onClick={this.handleFormReset}
               >
@@ -306,10 +308,10 @@ export default class Index extends PureComponent {
     const { form, dispatch } = this.props;
     form.resetFields();
     dispatch({
-      type: "index/savePage",
+      type: 'index/savePage',
       payload: {
-        currentPage: 1
-      }
+        currentPage: 1,
+      },
     });
     setTimeout(() => {
       this.loadApps();
@@ -320,10 +322,10 @@ export default class Index extends PureComponent {
     this.loadApps();
     const { dispatch } = this.props;
     dispatch({
-      type: "index/savePage",
+      type: 'index/savePage',
       payload: {
-        currentPage: 1
-      }
+        currentPage: 1,
+      },
     });
     setTimeout(() => {
       this.loadApps();
@@ -332,13 +334,13 @@ export default class Index extends PureComponent {
   handleListChange = (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "index/savePage",
+      type: 'index/savePage',
       payload: {
         currentPage: pagination.current,
         pageSize: pagination.pageSize,
-        order: sorter.field ? sorter.order : "",
-        fields: sorter.field ? sorter.field : ""
-      }
+        order: sorter.field ? sorter.order : '',
+        fields: sorter.field ? sorter.field : '',
+      },
     });
     setTimeout(() => {
       this.loadApps();
@@ -351,9 +353,9 @@ export default class Index extends PureComponent {
       return (
         <p
           style={{
-            textAlign: "center",
-            color: "ccc",
-            paddingTop: 20
+            textAlign: 'center',
+            color: 'ccc',
+            paddingTop: 20,
           }}
         >
           暂无动态
@@ -362,10 +364,10 @@ export default class Index extends PureComponent {
     }
 
     const statusCNMap = {
-      "": "进行中",
-      complete: "完成",
-      failure: "失败",
-      timeout: "超时"
+      '': '进行中',
+      complete: '完成',
+      failure: '失败',
+      timeout: '超时',
     };
 
     return list.map(item => {
@@ -386,7 +388,7 @@ export default class Index extends PureComponent {
                   应用
                   {statusCNMap[item.final_status]
                     ? `${statusCNMap[item.final_status]}`
-                    : ""}
+                    : ''}
                 </span>
               </span>
             }
@@ -406,7 +408,7 @@ export default class Index extends PureComponent {
       projectLoading,
       activitiesLoading,
       currUser,
-      pagination
+      pagination,
     } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const team = userUtil.getTeamByTeamName(currUser, team_name);
@@ -416,12 +418,17 @@ export default class Index extends PureComponent {
         <div className={styles.avatar}>
           <Avatar
             size="large"
-            src={require("../../../public/images/team-icon.png")}
+            src={require('../../../public/images/team-icon.png')}
           />
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>{team.team_alias}</div>
-          <div>创建于 {moment(team.create_time).locale('zh-cn').format("YYYY-MM-DD")}</div>
+          <div>
+            创建于{' '}
+            {moment(team.create_time)
+              .locale('zh-cn')
+              .format('YYYY-MM-DD')}
+          </div>
         </div>
       </div>
     );
@@ -454,12 +461,12 @@ export default class Index extends PureComponent {
               <p>已使用内存</p>
               <Tooltip
                 title={`总计：${this.state.memory.limit || 0} 过期时间：${this
-                  .state.memory.expire_date || "-"}`}
+                  .state.memory.expire_date || '-'}`}
               >
                 <p>
                   {`${sourceUtil.unit(
                     index.overviewInfo.team_service_memory_count || 0,
-                    "MB"
+                    'MB'
                   )}`}
                 </p>
               </Tooltip>
@@ -468,12 +475,14 @@ export default class Index extends PureComponent {
               <p>已使用磁盘</p>
               <Tooltip
                 title={`总计：${this.state.disk.limit || 0} 过期时间：${this
-                  .state.disk.expire_date || "-"}`}
+                  .state.disk.expire_date || '-'}`}
               >
-                <p>{`${sourceUtil.unit(
-                  index.overviewInfo.team_service_total_disk || 0,
-                  "MB"
-                )}`}</p>
+                <p>
+                  {`${sourceUtil.unit(
+                    index.overviewInfo.team_service_total_disk || 0,
+                    'MB'
+                  )}`}
+                </p>
               </Tooltip>
             </div>
           </Fragment>
@@ -481,17 +490,21 @@ export default class Index extends PureComponent {
           <Fragment>
             <div className={styles.statItem}>
               <p>已使用内存</p>
-              <p>{`${sourceUtil.unit(
-                index.overviewInfo.team_service_memory_count || 0,
-                "MB"
-              )}`}</p>
+              <p>
+                {`${sourceUtil.unit(
+                  index.overviewInfo.team_service_memory_count || 0,
+                  'MB'
+                )}`}
+              </p>
             </div>
             <div className={styles.statItem}>
               <p>已使用磁盘</p>
-              <p>{`${sourceUtil.unit(
-                index.overviewInfo.team_service_total_disk || 0,
-                "MB"
-              )}`}</p>
+              <p>
+                {`${sourceUtil.unit(
+                  index.overviewInfo.team_service_total_disk || 0,
+                  'MB'
+                )}`}
+              </p>
             </div>
           </Fragment>
         )}
@@ -502,9 +515,9 @@ export default class Index extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={[
           {
-            title: "首页",
-            href: "/"
-          }
+            title: '首页',
+            href: '/',
+          },
         ]}
         content={pageHeaderContent}
         extraContent={extraContent}
@@ -514,7 +527,7 @@ export default class Index extends PureComponent {
             <Card
               bordered={false}
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             >
               <div className={styles.tableList}>
@@ -534,12 +547,12 @@ export default class Index extends PureComponent {
           <Col xl={8} lg={24} md={24} sm={24} xs={24}>
             <Card
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
               title="快速创建应用"
               bordered={false}
               bodyStyle={{
-                padding: 0
+                padding: 0,
               }}
             >
               <EditableLinkGroup
@@ -551,7 +564,7 @@ export default class Index extends PureComponent {
 
             <Card
               bodyStyle={{
-                padding: 0
+                padding: 0,
               }}
               bordered={false}
               className={styles.activeCard}

@@ -1,3 +1,5 @@
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import {
   Button,
   Checkbox,
@@ -7,13 +9,12 @@ import {
   Form,
   Icon,
   Input,
+  Select,
   InputNumber,
   Modal,
   Row,
-  Select,
 } from 'antd';
-import { connect } from 'dva';
-import React, { PureComponent } from 'react';
+
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
@@ -209,9 +210,11 @@ class DrawerForm extends PureComponent {
     if (value) {
       this.setState({
         rule_extensions_visible: true,
-        automaticCertificateVisible: value === 'auto_ssl',
       });
     }
+    this.setState({
+      automaticCertificateVisible: value === 'auto_ssl',
+    });
   };
 
   handleRoutingConfiguration = () => {
@@ -269,6 +272,9 @@ class DrawerForm extends PureComponent {
     const AutomaticCertificateValue = rainbondUtil.CertificateIssuedByValue(
       enterprise
     );
+    const AutomaticCertificateDeleteValue =
+      JSON.parse(AutomaticCertificateValue) || false;
+
     const {
       routingConfiguration,
       licenseList,
@@ -426,25 +432,29 @@ class DrawerForm extends PureComponent {
                     )}
                   </FormItem>
                 )}
-                {AutomaticCertificate && automaticCertificateVisible && (
-                  <FormItem {...formItemLayout} label="认证配置">
-                    {getFieldDecorator('auto_ssl_config', {
-                      initialValue: editInfo.auto_ssl_config,
-                      rules: [
-                        {
-                          required: true,
-                          message: '请选择签发证书认证配置',
-                        },
-                      ],
-                    })(
-                      <Select placeholder="请选择签发证书认证配置">
-                        {Object.keys(AutomaticCertificateValue).map(item => {
-                          return <Option value={item}>{item}</Option>;
-                        })}
-                      </Select>
-                    )}
-                  </FormItem>
-                )}
+                {AutomaticCertificate &&
+                  automaticCertificateVisible &&
+                  AutomaticCertificateDeleteValue && (
+                    <FormItem {...formItemLayout} label="认证配置">
+                      {getFieldDecorator('auto_ssl_config', {
+                        initialValue: editInfo.auto_ssl_config,
+                        rules: [
+                          {
+                            required: true,
+                            message: '请选择签发证书认证配置',
+                          },
+                        ],
+                      })(
+                        <Select placeholder="请选择签发证书认证配置">
+                          {Object.keys(AutomaticCertificateDeleteValue).map(
+                            item => {
+                              return <Option value={item}>{item}</Option>;
+                            }
+                          )}
+                        </Select>
+                      )}
+                    </FormItem>
+                  )}
 
                 <FormItem {...formItemLayout} label="扩展功能">
                   {(this.state.rule_extensions_visible ||

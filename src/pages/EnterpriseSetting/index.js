@@ -238,14 +238,19 @@ export default class EnterpriseSetting extends PureComponent {
     const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
       enterprise
     );
-    const value = values && JSON.parse(values.auto_ssl_config);
+    if (values && values.auto_ssl_config) {
+      if (!this.isJSON(values.auto_ssl_config)) {
+        return null;
+      }
+    }
+
     dispatch({
       type: 'global/putCertificateType',
       payload: {
         enterprise_id: eid,
         auto_ssl: {
           enable: !!values,
-          value,
+          value: values ? values.auto_ssl_config : false,
         },
       },
       callback: res => {
@@ -261,6 +266,29 @@ export default class EnterpriseSetting extends PureComponent {
         }
       },
     });
+  };
+
+  isJSON = str => {
+    const clues = () => {
+      notification.warning({
+        message: '格式错误、请输入正确的JSON格式',
+      });
+    };
+    if (typeof str === 'string') {
+      try {
+        const obj = JSON.parse(str);
+        if (typeof obj === 'object' && obj) {
+          return true;
+        }
+        clues();
+        return false;
+      } catch (e) {
+        clues();
+        return false;
+      }
+    }
+    clues();
+    return false;
   };
 
   render() {
@@ -467,7 +495,6 @@ export default class EnterpriseSetting extends PureComponent {
     const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
       enterprise
     );
-
     const AutomaticIssueCertificate = (
       <Card hoverable bordered={false}>
         <Row type="flex" align="middle">

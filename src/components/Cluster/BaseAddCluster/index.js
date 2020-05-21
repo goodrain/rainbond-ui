@@ -1,11 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Input, Modal, notification, Col, Row, Upload, Button } from 'antd';
+import { Form, Input, Modal, notification, Col } from 'antd';
+import CodeMirrorForm from '../../CodeMirrorForm';
 import styles from '../../CreateTeam/index.less';
-import apiconfig from "../../../../config/api.config";
 
-
-const { TextArea } = Input;
 const FormItem = Form.Item;
 
 @connect()
@@ -15,57 +13,71 @@ class EditClusterInfo extends PureComponent {
     const { validateFields } = form;
     validateFields((err, values) => {
       if (!err) {
-        this.createClusters(values)
+        this.createClusters(values);
       }
     });
   };
+
+  beforeUpload = (file, isMessage) => {
+    const fileArr = file.name.split('.');
+    const { length } = fileArr;
+    const isRightType =
+      fileArr[length - 1] === 'yaml' || fileArr[length - 1] === 'yml';
+    if (!isRightType) {
+      if (isMessage) {
+        notification.error({
+          message: '请上传以.yaml、.yml结尾的 Region Config 文件',
+        });
+      }
+      return false;
+    }
+    return true;
+  };
+
   checkConfigFile = (rules, value, callback) => {
     if (value) {
-        if (!value.file.name.endsWith(".yaml") && !value.file.name.endsWith(".yml")){
-          callback("请上传以yaml、yml结尾的 Region Config 文件")
-          return
-        }
-        if (value.fileList.length > 0) {
-            const fileList =  value.fileList.splice(-1);
-            this.readFileContents(fileList, 'token');
-            callback();
-            return;
-        }
-        callback("上传的 Region Config 文件非法")
-        return
+      if (
+        !value.file.name.endsWith('.yaml') &&
+        !value.file.name.endsWith('.yml')
+      ) {
+        callback('请上传以yaml、yml结尾的 Region Config 文件');
+        return;
+      }
+      if (value.fileList.length > 0) {
+        const fileList = value.fileList.splice(-1);
+        this.readFileContents(fileList, 'token');
+        callback();
+        return;
+      }
+      callback('上传的 Region Config 文件非法');
+      return;
     }
     callback();
-  }
-  readFileContents = (fileList, name) => {
-    const reader = new FileReader();
-    reader.onload = (evt)=> {
-        this.props.form.setFieldsValue({ [name]: evt.target.result })
-    }
-    reader.readAsText(fileList[0].originFileObj, "UTF-8");
-  }
+  };
+
   createClusters = values => {
     const { onOk } = this.props;
     const { dispatch, eid } = this.props;
     dispatch({
-      type: "region/createEnterpriseCluster",
+      type: 'region/createEnterpriseCluster',
       payload: {
         ...values,
-        region_type: ["custom"],
-        enterprise_id: eid
+        region_type: ['custom'],
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._condition === 200) {
-          notification.success({ message: "添加成功" });
+          notification.success({ message: '添加成功' });
           if (onOk) {
-            onOk()
+            onOk();
           }
         }
-      }
+      },
     });
   };
   render() {
     const { form, onCancel } = this.props;
-    const { getFieldDecorator } = form;
+    const { getFieldDecorator, setFieldsValue } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -84,26 +96,25 @@ class EditClusterInfo extends PureComponent {
         onCancel={onCancel}
       >
         <Form labelAlign="left" onSubmit={this.handleSubmit}>
-          <Col style={{display: "flex"}}>
+          <Col style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
               label="集群ID"
               style={{
                 width: '50%',
-                padding: '0 16px'
+                padding: '0 16px',
               }}
             >
               {getFieldDecorator('region_name', {
                 initialValue: '',
                 rules: [
-                    { required: true, message: '集群ID是必填项，不可修改' },
-                    { pattern: /^[a-z0-9A-Z-_]+$/, message: '只支持字母、数字和-_组合' }
+                  { required: true, message: '集群ID是必填项，不可修改' },
+                  {
+                    pattern: /^[a-z0-9A-Z-_]+$/,
+                    message: '只支持字母、数字和-_组合',
+                  },
                 ],
-              })(
-                <Input
-                  placeholder="请填写集群ID，添加后不可修改"
-                />
-              )}
+              })(<Input placeholder="请填写集群ID，添加后不可修改" />)}
             </FormItem>
 
             <FormItem
@@ -111,79 +122,42 @@ class EditClusterInfo extends PureComponent {
               label="集群名称"
               style={{
                 width: '50%',
-                padding: '0 16px'
+                padding: '0 16px',
               }}
             >
               {getFieldDecorator('region_alias', {
                 initialValue: '',
                 rules: [{ required: true, message: '请填写集群名称!' }],
-              })(
-                <Input
-                  placeholder="请填写集群名称"
-                />
-              )}
+              })(<Input placeholder="请填写集群名称" />)}
             </FormItem>
           </Col>
-          <Col style={{display: "flex"}}>
+          <Col style={{ display: 'flex' }}>
             <FormItem
               {...formItemLayout}
               label="备注"
               style={{
                 width: '100%',
-                padding: '0 16px'
+                padding: '0 16px',
               }}
             >
               {getFieldDecorator('desc', {
                 initialValue: '',
-              })(
-                <Input
-                  placeholder="备注信息"
-                />
-              )}
+              })(<Input placeholder="备注信息" />)}
             </FormItem>
           </Col>
-          <Col>
-            <FormItem
-              {...formItemLayout}
-              label="Region Config"
-              style={{
-                width: '100%',
-                padding: '0 16px',
-                margin: 0
-              }}
-            >
-              {getFieldDecorator("token", {
-            rules: [{ required: true, message: "Region Config是必须的" }]
-          })(
-            <TextArea
-              rows={8}
-              style={{ backgroundColor: "#02213f", color: "#fff" }}
-            />
-          )}
-            </FormItem>
-            <Row>
-              <Col style={{marginTop: "0", padding: '0 16px'}}>
-                <FormItem>
-                  {getFieldDecorator("token_btn", {
-                      rules: [{ validator: this.checkConfigFile }],
-                  })(
-                    <Upload
-                      action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                      showUploadList={false}
-                      withCredentials
-                      headers={{
-                    Authorization: `GRJWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxOTcsImVtYWlsIjoiMTUzMTA3NzIyMEAxNjMuY29tIiwiZXhwIjoxNTQzOTc3NzkzLCJ1c2VybmFtZSI6IndhbmdjIn0.RTCZIJI8Fsl2rs8a7grhuo_F9DWM77nomMg8dyq8lU8`
-                  }}
-                    >
-                      <Button type="link" size="small">上传 Region-Config 文件</Button>
-
-                    </Upload>
-              )}
-                  <span style={{fontSize: "12px"}}>Region-Config 文件内容可通过执行`grctl config`命令获得</span>
-                </FormItem>
-              </Col>
-            </Row>
-          </Col>
+          <CodeMirrorForm
+            titles="Region-Config 文件内容可通过执行`grctl config`命令获得"
+            setFieldsValue={setFieldsValue}
+            formItemLayout={formItemLayout}
+            Form={Form}
+            getFieldDecorator={getFieldDecorator}
+            beforeUpload={this.beforeUpload}
+            mode="yaml"
+            name="token"
+            label="Region Config"
+            message="Region Config是必须的"
+            width="752px"
+          />
         </Form>
       </Modal>
     );

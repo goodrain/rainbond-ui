@@ -1,12 +1,5 @@
 import React, { PureComponent } from 'react';
-import {
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Radio,
-  Tooltip,
-} from 'antd';
+import { Form, Input, Radio, Tooltip, Drawer, Button } from 'antd';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
@@ -14,41 +7,23 @@ const RadioGroup = Radio.Group;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      configurationShow: !!(
-        this.props.data &&
-        this.props.data.volume_type &&
-        this.props.data.volume_type == 'config-file'
-      ),
-      configuration_content: '',
-    };
-  }
-
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (!err && this.props.onSubmit) {
-        this.props.onSubmit(values);
+    const { form, onSubmit } = this.props;
+    const { validateFields } = form;
+
+    validateFields((err, values) => {
+      if (!err && onSubmit) {
+        onSubmit(values);
       }
     });
   };
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
-  };
-  handleChange = e => {
-    if (e.target.value == 'config-file') {
-      this.setState({
-        configurationShow: true,
-      });
-    } else {
-      this.setState({
-        configurationShow: false,
-      });
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
     }
   };
-
   render() {
     const { data, editor, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
@@ -118,7 +93,7 @@ export default class AddVolumes extends PureComponent {
                   },
                 ],
               })(
-                <RadioGroup onChange={this.handleChange}>
+                <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
                     <Tooltip title="编辑或上传您的配置文件内容">
                       配置文件

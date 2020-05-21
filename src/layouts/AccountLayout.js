@@ -29,7 +29,7 @@ class AccountLayout extends PureComponent {
     super(props);
     this.state = {
       ready: false,
-      isMobile,
+      isMobiles: isMobile,
       enterpriseList: [],
     };
   }
@@ -87,7 +87,8 @@ class AccountLayout extends PureComponent {
 
   fetchEnterpriseInfo = () => {
     const { dispatch, currentUser } = this.props;
-    if (currentUser) {
+    if (currentUser && currentUser.enterprise_id) {
+      this.fetchEnterpriseService(currentUser.enterprise_id);
       dispatch({
         type: 'global/fetchEnterpriseInfo',
         payload: {
@@ -95,6 +96,15 @@ class AccountLayout extends PureComponent {
         },
       });
     }
+  };
+  fetchEnterpriseService = eid => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/fetchEnterpriseService',
+      payload: {
+        enterprise_id: eid,
+      },
+    });
   };
 
   render() {
@@ -104,12 +114,14 @@ class AccountLayout extends PureComponent {
       rainbondInfo,
       collapsed,
       enterprise,
+      location,
       location: { pathname },
+      enterpriseServiceInfo,
     } = this.props;
 
-    const { enterpriseList, isMobile, ready } = this.state;
+    const { enterpriseList, isMobiles, ready } = this.state;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
-    if (!ready || !enterprise) {
+    if (!ready || !enterprise || !enterpriseServiceInfo) {
       return <PageLoading />;
     }
     const queryString = stringify({
@@ -161,7 +173,7 @@ class AccountLayout extends PureComponent {
             Authorized={Authorized}
             collapsed={collapsed}
             location={location}
-            isMobile={isMobile}
+            isMobile={isMobiles}
             onCollapse={this.handleMenuCollapse}
           />
           <Layout>
@@ -175,7 +187,7 @@ class AccountLayout extends PureComponent {
               currentUser={currentUser}
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
-              isMobile={isMobile}
+              isMobile={isMobiles}
               customHeader={customHeader}
             />
             <Content
@@ -215,9 +227,10 @@ class AccountLayout extends PureComponent {
   }
 }
 
-export default connect(({ user, global }) => ({
+export default connect(({ user, global, order }) => ({
   currentUser: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   collapsed: global.collapsed,
   enterprise: global.enterprise,
+  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))(AccountLayout);

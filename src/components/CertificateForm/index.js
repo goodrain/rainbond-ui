@@ -1,21 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import {
-  Form,
-  Input,
-  Modal,
-  Col,
-  Row,
-  Upload,
-  Button,
-} from 'antd';
-import styles from '../CreateTeam/index.less';
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
+import { Form, Modal } from 'antd';
+import CodeMirrorForm from '../../components/CodeMirrorForm';
 import rainbondUtil from '../../utils/rainbond';
-
-const { TextArea } = Input;
-const FormItem = Form.Item;
+import styles from '../CreateTeam/index.less';
 
 @connect(({ global }) => ({
   enterprise: global.enterprise,
@@ -63,12 +51,8 @@ export default class CertificateForm extends PureComponent {
     const AutomaticCertificateValue = rainbondUtil.CertificateIssuedByValue(
       enterprise
     );
-    const initialAutomaticCertificateValue = AutomaticCertificateValue
-      ? JSON.stringify(AutomaticCertificateValue)
-      : '';
 
-    const { getFieldDecorator } = form;
-    const token = cookie.get('token');
+    const { getFieldDecorator, setFieldsValue } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -88,47 +72,17 @@ export default class CertificateForm extends PureComponent {
         onCancel={onCancel}
       >
         <Form labelAlign="left" onSubmit={this.handleSubmit}>
-          <Col>
-            <FormItem
-              {...formItemLayout}
-              label="扩展配置"
-              style={{
-                width: '100%',
-                padding: '0 16px',
-                margin: 0,
-              }}
-            >
-              {getFieldDecorator('auto_ssl_config', {
-                initialValue: initialAutomaticCertificateValue,
-                rules: [{ required: true, message: '扩展配置是必须的' }],
-              })(
-                <TextArea
-                  rows={8}
-                  style={{ backgroundColor: '#02213f', color: '#fff' }}
-                />
-              )}
-            </FormItem>
-            <Row>
-              <Col style={{ marginTop: '0', padding: '0 16px' }}>
-                <FormItem>
-                  {getFieldDecorator('auto_ssl_config_btn', {
-                    rules: [{ validator: this.checkConfigFile }],
-                  })(
-                    <Upload
-                      action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
-                      showUploadList={false}
-                      withCredentials
-                      headers={{ Authorization: `GRJWT ${token}` }}
-                    >
-                      <Button type="link" size="small">
-                        上传文件
-                      </Button>
-                    </Upload>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
-          </Col>
+          <CodeMirrorForm
+            setFieldsValue={setFieldsValue}
+            formItemLayout={formItemLayout}
+            Form={Form}
+            getFieldDecorator={getFieldDecorator}
+            name="auto_ssl_config"
+            label="扩展配置"
+            message="扩展配置是必须的"
+            width="752px"
+            data={AutomaticCertificateValue || ''}
+          />
         </Form>
       </Modal>
     );
