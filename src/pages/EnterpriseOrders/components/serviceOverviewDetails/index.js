@@ -426,9 +426,9 @@ export default class ServiceOverview extends PureComponent {
     });
   };
 
-  setObj = minCapacity => {
+  setObj = maxValue => {
     const obj = {};
-    const totalNumber = (minCapacity + 200) / 5;
+    const totalNumber = maxValue / 5;
     for (let i = 0; i <= totalNumber; i++) {
       const interval = i * 5;
       obj[`${interval}`] =
@@ -489,13 +489,18 @@ export default class ServiceOverview extends PureComponent {
       computingMonth,
       computingNewOrder,
       discountText,
+      maxSlider,
     } = this.state;
 
     const free = info && info.type === 'free';
     const minCapacity = ordersUtil.handlUnitMemory(info && info.memory_limit);
     const usedMemory = ordersUtil.handlUnitMemory(info && info.used_memory);
     const minSlider = usedMemory > minCapacity ? usedMemory : minCapacity;
-    const marks = this.setObj(minSlider);
+    let maxValue = minSlider + 200;
+    if (maxSlider) {
+      maxValue = capacity;
+    }
+    const marks = this.setObj(maxValue);
     const totalCalculate =
       selected === 1 ? discount : selected === 2 ? monthPay : extended;
     const totalPrice = this.toThousands(totalCalculate);
@@ -505,7 +510,6 @@ export default class ServiceOverview extends PureComponent {
         : selected === 2
         ? computingMonth
         : computingNewOrder;
-
     return (
       <div className={styles.serviceBox}>
         {loading ? (
@@ -567,27 +571,46 @@ export default class ServiceOverview extends PureComponent {
                 }}
               />
             )}
-
-            <Slider
-              className={styles.zslSlider}
-              tooltipVisible
-              style={{ margin: '70px 0 50px 0 ' }}
-              marks={marks}
-              step={null}
-              onAfterChange={value => {
-                const values = value >= minCapacity ? value : minCapacity;
-                this.setState({ capacity: values }, () => {
-                  this.calculatePrice();
-                });
-              }}
-              onChange={value => {
-                this.setState({ capacity: value });
-              }}
-              value={capacity}
-              min={minSlider}
-              max={minSlider + 200}
-            />
-
+            <Row>
+              <Col span={22} style={{ overflow: 'hidden' }}>
+                <Slider
+                  className={styles.zslSlider}
+                  tooltipVisible
+                  style={{ margin: '70px 0 50px 0 ' }}
+                  marks={marks}
+                  step={null}
+                  onAfterChange={value => {
+                    const values = value >= minCapacity ? value : minCapacity;
+                    this.setState({ capacity: values }, () => {
+                      this.calculatePrice();
+                    });
+                  }}
+                  onChange={value => {
+                    this.setState({ capacity: value, maxSlider: false });
+                  }}
+                  value={capacity}
+                  min={minSlider}
+                  max={maxValue}
+                />
+              </Col>
+              <Col span={1}>
+                <InputNumber
+                  min={minSlider}
+                  style={{ margin: '70px 16px 50px' }}
+                  value={capacity}
+                  onChange={value => {
+                    if (value % 5 > 0) {
+                      this.setState({
+                        capacity: value + (5 - (value % 5)),
+                        maxSlider: true,
+                      });
+                    } else {
+                      this.setState({ capacity: value, maxSlider: true });
+                    }
+                  }}
+                />
+              </Col>
+            </Row>
             <div className={styles.capacityBox}>
               <span>{free ? '时长选择' : '延长周期选择'}</span>
             </div>
