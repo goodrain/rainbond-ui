@@ -1,20 +1,22 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
+/* eslint-disable react/sort-comp */
+/* eslint-disable no-nested-ternary */
 import {
-  Button,
-  Row,
-  Col,
-  Card,
-  Slider,
   Alert,
+  Button,
+  Card,
+  Col,
   InputNumber,
   notification,
+  Row,
+  Slider,
   Spin,
 } from 'antd';
-import styles from '../../index.less';
-import ordersUtil from '../../../../utils/orders';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
+import React, { PureComponent } from 'react';
+import ordersUtil from '../../../../utils/orders';
+import styles from '../../index.less';
 
 @connect(({ order }) => ({
   enterpriseServiceInfo: order.enterpriseServiceInfo,
@@ -40,8 +42,6 @@ export default class ServiceOverview extends PureComponent {
       originalMonthPay: (1 * 49 * 30).toFixed(2) / 1,
       extended: 0,
       noDiscountExtended: 0,
-
-      months: '',
       computingYears: '',
       computingMonth: '',
       computingNewOrder: '',
@@ -60,6 +60,12 @@ export default class ServiceOverview extends PureComponent {
       {
         loading: false,
         info: enterpriseServiceInfo,
+        discountMoney: enterpriseServiceInfo.discount
+          ? enterpriseServiceInfo.discount
+          : 0.8,
+        discountText: enterpriseServiceInfo.discount
+          ? `${enterpriseServiceInfo.discount * 10}折优惠`
+          : '8.0折优惠',
         capacity: ordersUtil.handlUnitMemory(
           enterpriseServiceInfo.memory_limit
         ),
@@ -98,17 +104,17 @@ export default class ServiceOverview extends PureComponent {
     } = this.state;
     const timeDelay = selected === 3;
     const isRenewal = info && info.type === 'vip';
-    const memory_limit = ordersUtil.handlUnitMemory(info && info.memory_limit);
-    const billing = capacity - memory_limit <= 0;
-    const expired_time = info && info.expired_time;
-    const MonthNum = isRenewal && ordersUtil.fetchHowManyMonths(expired_time);
+    const memoryLimit = ordersUtil.handlUnitMemory(info && info.memory_limit);
+    const billing = capacity - memoryLimit <= 0;
+    const expiredTime = info && info.expired_time;
+    const MonthNum = isRenewal && ordersUtil.fetchHowManyMonths(expiredTime);
     const DayNum = isRenewal
       ? MonthNum && MonthNum === 12
         ? 0
-        : ordersUtil.fetchHowManyDays(expired_time)
-      : ordersUtil.fetchHowManyDays(expired_time);
+        : ordersUtil.fetchHowManyDays(expiredTime)
+      : ordersUtil.fetchHowManyDays(expiredTime);
 
-    const newCapacity = capacity - memory_limit;
+    const newCapacity = capacity - memoryLimit;
     const supplementarys = this.calculateDifference(
       price,
       MonthNum,
@@ -141,7 +147,7 @@ export default class ServiceOverview extends PureComponent {
           : ''
       } `;
 
-    this.fetchmonths(selected, monthNumber, expired_time, isRenewal);
+    this.fetchmonths(selected, monthNumber, expiredTime, isRenewal);
     this.calculateExtended(
       timeDelay,
       isRenewal,
@@ -281,8 +287,7 @@ export default class ServiceOverview extends PureComponent {
     billing,
     supplementarys,
     Filling,
-    noDiscountSupplementarys,
-    discountMoney
+    noDiscountSupplementarys
   ) => {
     if (timeDelay && isRenewal) {
       this.setState({
@@ -332,7 +337,7 @@ export default class ServiceOverview extends PureComponent {
   };
 
   toThousands = num => {
-    return (num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+    return num.toFixed(2);
   };
 
   onChangeMonthNumber = monthNumber => {
@@ -384,7 +389,9 @@ export default class ServiceOverview extends PureComponent {
         if (res && res._code === 200 && res.bean) {
           dispatch(
             routerRedux.push(
-              `/enterprise/${eid}/orders/orderManagement/orderDetails/${res.bean.order_id}`
+              `/enterprise/${eid}/orders/orderManagement/orderDetails/${
+                res.bean.order_id
+              }`
             )
           );
         }
@@ -409,6 +416,10 @@ export default class ServiceOverview extends PureComponent {
               });
             case 6006:
               return notification.warning({ message: '还有未支付的订单' });
+            default:
+              return notification.warning({
+                message: '未知错误',
+              });
           }
         }
       },
@@ -417,7 +428,7 @@ export default class ServiceOverview extends PureComponent {
 
   setObj = minCapacity => {
     const obj = {};
-    const totalNumber = (minCapacity + 200)/5;
+    const totalNumber = (minCapacity + 200) / 5;
     for (let i = 0; i <= totalNumber; i++) {
       const interval = i * 5;
       obj[`${interval}`] =
