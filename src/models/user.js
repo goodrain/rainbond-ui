@@ -276,7 +276,7 @@ export default {
       if (response) {
         yield put({ type: 'saveCurrentUser', payload: response.bean });
       }
-      callback && callback();
+      callback && callback(response);
     },
     *gitlabRegister({ payload, callback }, { call, put }) {
       const response = yield call(gitlabRegister, payload);

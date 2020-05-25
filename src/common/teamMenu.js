@@ -1,9 +1,11 @@
 import { formatMessage } from 'umi-plugin-locale';
 import cookie from '../utils/cookie';
 import { isUrl } from '../utils/utils';
+import roleUtil from '../utils/role';
 
-const newbie_guide = cookie.get('newbie_guide');
-const menuData = function(teamName, regionName) {
+const newbieGuide = cookie.get('newbie_guide');
+
+function menuData(teamName, regionName, permissionsInfo) {
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.team.dashboard' }),
@@ -11,87 +13,129 @@ const menuData = function(teamName, regionName) {
       path: `team/${teamName}/region/${regionName}/index`,
       authority: ['admin', 'user'],
     },
-    {
-      name: formatMessage({ id: 'menu.team.app' }),
-      icon: 'appstore-o',
-      path: `team/${teamName}/region/${regionName}/apps`,
-      authority: ['admin', 'user'],
-    },
-    {
-      name: formatMessage({ id: 'menu.team.create' }),
-      icon: 'plus',
-      path: `team/${teamName}/region/${regionName}/create`,
-      authority: ['admin', 'user'],
-      children: [
-        {
-          name: formatMessage({ id: 'menu.team.create.code' }),
-          path: 'code',
-          path: `/code`,
-          authority: ['admin', 'user'],
-        },
-        {
-          name: formatMessage({ id: 'menu.team.create.image' }),
-          path: 'image',
-          path: `/image`,
-          authority: ['admin', 'user'],
-        },
-        {
-          name: formatMessage({ id: 'menu.team.create.market' }),
-          path: 'market',
-          path: `/market`,
-          authority: ['admin', 'user'],
-        },
-        {
-          name: formatMessage({ id: 'menu.team.create.third' }),
-          path: 'outer',
-          path: `/outer`,
-          authority: ['admin', 'user'],
-        },
-      ],
-    },
-    {
-      name: formatMessage({ id: 'menu.team.gateway' }),
-      icon: 'gateway',
-      path: `team/${teamName}/region/${regionName}/gateway`,
-      authority: ['admin', 'user'],
-      children: [
-        {
+  ];
+  function results(moduleName, targets) {
+    return roleUtil.queryTeamUserPermissionsInfo(
+      permissionsInfo,
+      moduleName,
+      targets
+    );
+  }
+  function addMenuArr(obj) {
+    menuArr.push(obj);
+  }
+  if (permissionsInfo) {
+    const appView = results('app', 'describe');
+    const appCreateView = results('app', 'create');
+    const componentCreateView = results('component', 'create');
+    const control = results('gatewayRule', 'describe');
+    const certificate = results('certificate', 'describe');
+    const pluginView = results('plugin', 'describe');
+    // 动态
+    const dynamic = results('teamBasicInfo', 'dynamic_describe');
+    // 成员
+    const members = results('teamMember', 'describe');
+    // 集群
+    const clusters = results('teamRegion', 'describe');
+    // 角色
+    const roles = results('teamRole', 'describe');
+
+    if (appView) {
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.app' }),
+        icon: 'appstore-o',
+        path: `team/${teamName}/region/${regionName}/apps`,
+        authority: ['admin', 'user'],
+      });
+    }
+    if (appCreateView || componentCreateView) {
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.create' }),
+        icon: 'plus',
+        path: `team/${teamName}/region/${regionName}/create`,
+        authority: ['admin', 'user'],
+        children: [
+          {
+            name: formatMessage({ id: 'menu.team.create.code' }),
+            path: `/code`,
+            authority: ['admin', 'user'],
+          },
+          {
+            name: formatMessage({ id: 'menu.team.create.image' }),
+            path: `/image`,
+            authority: ['admin', 'user'],
+          },
+          {
+            name: formatMessage({ id: 'menu.team.create.market' }),
+            path: `/market`,
+            authority: ['admin', 'user'],
+          },
+          {
+            name: formatMessage({ id: 'menu.team.create.third' }),
+            path: `/outer`,
+            authority: ['admin', 'user'],
+          },
+        ],
+      });
+    }
+
+    if (control || certificate) {
+      const children = [];
+      if (control) {
+        children.push({
           name: formatMessage({ id: 'menu.team.gateway.control' }),
           path: 'control',
           authority: ['admin', 'user'],
-        },
-        {
+        });
+      }
+
+      if (certificate) {
+        children.push({
           name: formatMessage({ id: 'menu.team.gateway.certificate' }),
           path: 'license',
           authority: ['admin', 'user'],
-        },
-      ],
-    },
-    {
-      name: formatMessage({ id: 'menu.team.plugin' }),
-      icon: 'api',
-      path: `team/${teamName}/region/${regionName}/myplugns`,
-      authority: ['admin', 'user'],
-    },
-    {
-      name: formatMessage({ id: 'menu.team.setting' }),
-      icon: 'setting',
-      path: `team/${teamName}/region/${regionName}/team`,
-      authority: ['admin', 'user'],
-    },
-  ];
-  if (newbie_guide == 'false') {
-    return menuArr;
-  } else if (newbie_guide !== undefined) {
-    menuArr.push({
-      name: '任务',
-      icon: 'exclamation-circle',
-      path: `team/${teamName}/region/${regionName}/guide`,
-      authority: ['admin', 'user'],
-    });
+        });
+      }
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.gateway' }),
+        icon: 'gateway',
+        path: `team/${teamName}/region/${regionName}/gateway`,
+        authority: ['admin', 'user'],
+        children,
+      });
+    }
+
+    if (pluginView) {
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.plugin' }),
+        icon: 'api',
+        path: `team/${teamName}/region/${regionName}/myplugns`,
+        authority: ['admin', 'user'],
+      });
+    }
+
+    if (dynamic || members || clusters || roles) {
+      addMenuArr({
+        name: formatMessage({ id: 'menu.team.setting' }),
+        icon: 'setting',
+        path: `team/${teamName}/region/${regionName}/team`,
+        authority: ['admin', 'user'],
+      });
+    }
+    if (newbieGuide === 'false') {
+      return menuArr;
+    } else if (newbieGuide !== undefined) {
+      addMenuArr({
+        name: '任务',
+        icon: 'exclamation-circle',
+        path: `team/${teamName}/region/${regionName}/guide`,
+        authority: ['admin', 'user'],
+      });
+    }
   }
+
   return menuArr;
-};
+}
 
 function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
@@ -114,8 +158,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     return result;
   });
 }
-
-export const getMenuData = (teamName, regionName) => {
-  const menus = formatter(menuData(teamName, regionName));
+export const getMenuData = (teamName, regionName, permissionsInfo) => {
+  const menus = formatter(menuData(teamName, regionName, permissionsInfo));
   return menus;
 };

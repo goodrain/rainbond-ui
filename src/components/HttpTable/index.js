@@ -1,16 +1,13 @@
-/* eslint-disable camelcase */
-/* eslint-disable react/jsx-no-bind */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable react/sort-comp */
-import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
-import globalUtil from '../../utils/global';
-import DrawerForm from '../DrawerForm';
-import InfoConnectModal from '../InfoConnectModal';
-import ParameterForm from '../ParameterForm';
+import { Row, Card, Table, Button, notification, Tooltip, Modal } from 'antd';
 import Search from '../Search';
+import DrawerForm from '../DrawerForm';
+import ParameterForm from '../ParameterForm';
+import InfoConnectModal from '../InfoConnectModal';
+import globalUtil from '../../utils/global';
+import styles from './index.less';
 
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -24,7 +21,7 @@ export default class HttpTable extends PureComponent {
     super(props);
     this.state = {
       drawerVisible: this.props.open ? this.props.open : false,
-      information_connect: false,
+      informationConnect: false,
       outerEnvs: [],
       dataList: [],
       loading: true,
@@ -33,7 +30,8 @@ export default class HttpTable extends PureComponent {
       total: '',
       http_search: '',
       editInfo: '',
-      whether_open_form: false,
+      whetherOpenForm: false,
+      service_id: '',
       values: '',
       group_name: '',
       appStatusVisable: false,
@@ -45,7 +43,11 @@ export default class HttpTable extends PureComponent {
   componentWillMount() {
     this.load();
   }
-
+  onPageChange = page_num => {
+    this.setState({ page_num, loading: true }, () => {
+      this.load();
+    });
+  };
   load = () => {
     const { appID } = this.props;
     if (appID) {
@@ -110,11 +112,7 @@ export default class HttpTable extends PureComponent {
       }
     );
   }
-  onPageChange = page_num => {
-    this.setState({ page_num, loading: true }, () => {
-      this.load();
-    });
-  };
+
   handleParameterVisibleClick = values => {
     const { dispatch } = this.props;
     dispatch({
@@ -124,14 +122,14 @@ export default class HttpTable extends PureComponent {
         rule_id: values.http_rule_id,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code == 200) {
           const arr = [];
           if (res.bean && res.bean.value) {
             if (
               res.bean.value.set_headers &&
               res.bean.value.set_headers.length > 1
             ) {
-              let haveUpgrade;
+              let haveUpgrade = false;
               let haveConnection = false;
               res.bean.value.set_headers.map(item => {
                 if (item.key != 'Connection' && item.key != 'Upgrade') {
@@ -228,13 +226,13 @@ export default class HttpTable extends PureComponent {
   };
   whether_open = () => {
     this.setState({
-      whether_open_form: true,
+      whetherOpenForm: true,
     });
   };
   resolveOk = () => {
     this.setState(
       {
-        whether_open_form: false,
+        whetherOpenForm: false,
       },
       () => {
         const { values, group_name } = this.state;
@@ -242,8 +240,8 @@ export default class HttpTable extends PureComponent {
       }
     );
   };
-  handleCancel_second = () => {
-    this.setState({ whether_open_form: false });
+  handleCancelSecond = () => {
+    this.setState({ whetherOpenForm: false });
   };
   handleOkParameter = values => {
     const { dispatch } = this.props;
@@ -296,18 +294,17 @@ export default class HttpTable extends PureComponent {
         if (data) {
           this.setState({
             outerEnvs: data.list || [],
-            information_connect: true,
+            informationConnect: true,
           });
         }
       },
     });
-    this.setState({ InfoConnectModal: true });
   };
 
   handleParameterInfo = () => {};
 
   handleCancel = () => {
-    this.setState({ information_connect: false });
+    this.setState({ informationConnect: false });
   };
   handleEdit = values => {
     const { dispatch } = this.props;
@@ -410,7 +407,7 @@ export default class HttpTable extends PureComponent {
       },
     });
   };
-  justify_appStatus = record => {
+  justifyAppStatus = record => {
     const winHandler = window.open('', '_blank');
     const that = this;
     this.props.dispatch({
@@ -461,7 +458,7 @@ export default class HttpTable extends PureComponent {
       },
     });
   };
-  handleAppStatus_closed = () => {
+  handleAppStatusClosed = () => {
     this.setState({
       appStatusVisable: false,
     });
@@ -475,32 +472,41 @@ export default class HttpTable extends PureComponent {
   };
   render() {
     const {
+      addHttpLoading,
+      appID,
+      operationPermissions: { isCreate, isEdit, isDelete },
+    } = this.props;
+    const {
       dataList,
       loading,
       drawerVisible,
       parameterVisible,
-      information_connect,
+      informationConnect,
       outerEnvs,
       total,
       page_num,
       page_size,
-      whether_open_form,
+      whetherOpenForm,
       appStatusVisable,
       parameterList,
     } = this.state;
-    const { addHttpLoading, appID } = this.props;
+
     const columns = [
       {
         title: '域名',
         dataIndex: 'domain_name',
         key: 'domain_name',
         align: 'left',
-        width: 200,
-        textWrap: 'word-break',
-        ellipsis: true,
+        width: '200px',
         render: (text, record) => {
-          return record.is_outer_service === 1 ? (
-            <a onClick={this.justify_appStatus.bind(this, record)}>{text}</a>
+          return record.is_outer_service == 1 ? (
+            <a
+              onClick={() => {
+                this.justifyAppStatus(record);
+              }}
+            >
+              {text}
+            </a>
           ) : (
             <a href={text} disabled target="blank">
               {text}
@@ -513,8 +519,9 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'type',
         key: 'type',
         align: 'center',
-        render: (text, record, index) => {
-          return text === '0' ? <span>默认</span> : <span>自定义</span>;
+        width: '30px',
+        render: text => {
+          return text == '0' ? <span>默认</span> : <span>自定义</span>;
         },
       },
       {
@@ -522,9 +529,9 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'is_senior',
         key: 'is_senior',
         align: 'center',
-        width: 100,
+        width: '100px',
         render: (text, record) => {
-          return text === '0' ? <span>无</span> : this.seeHighRoute(record);
+          return text == '0' ? <span>无</span> : this.seeHighRoute(record);
         },
       },
       {
@@ -532,12 +539,9 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'certificate_alias',
         key: 'certificate_alias',
         align: 'center',
-        width: 40,
-        render: (text, record, index) => {
-          if (text) {
-            return <span>{text}</span>;
-          }
-          return <span>无</span>;
+        width: '40px',
+        render: text => {
+          return text ? <span>{text}</span> : <span>无</span>;
         },
       },
       {
@@ -545,8 +549,9 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'group_name',
         key: 'group_name',
         align: 'center',
+        width: '100px',
         render: (text, record) => {
-          return record.is_outer_service === 0 ? (
+          return record.is_outer_service == 0 ? (
             <a href="" disabled>
               {text}
             </a>
@@ -566,6 +571,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'service_cname',
         key: 'service_cname',
         align: 'center',
+        width: '100px',
         render: (text, record) => {
           return record.is_outer_service == 0 ? (
             <a href="" disabled>
@@ -587,15 +593,38 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'action',
         key: 'action',
         align: 'center',
-        render: (data, record, index) => {
-          return record.is_outer_service === 1 ? (
+        width: '100px',
+        render: (data, record) => {
+          return record.is_outer_service == 1 ? (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <a onClick={this.handleParameterVisibleClick.bind(this, record)}>
-                参数配置
-              </a>
+              {isEdit && (
+                <a
+                  onClick={() => {
+                    this.handleParameterVisibleClick(record);
+                  }}
+                >
+                  参数配置
+                </a>
+              )}
               {/* <a onClick={this.handleConectInfo.bind(this, record)}>连接信息</a> */}
-              <a onClick={this.handleEdit.bind(this, record)}>编辑</a>
-              <a onClick={this.handleDelete.bind(this, record)}>删除</a>
+              {isEdit && (
+                <a
+                  onClick={() => {
+                    this.handleEdit(record);
+                  }}
+                >
+                  编辑
+                </a>
+              )}
+              {isDelete && (
+                <a
+                  onClick={() => {
+                    this.handleDelete(record);
+                  }}
+                >
+                  删除
+                </a>
+              )}
             </div>
           ) : (
             <Tooltip
@@ -604,8 +633,24 @@ export default class HttpTable extends PureComponent {
               arrowPointAtCenter
             >
               <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                <a onClick={this.handleDelete.bind(this, record)}>删除</a>
-                <a onClick={this.openService.bind(this, record)}>开启</a>
+                {isDelete && (
+                  <a
+                    onClick={() => {
+                      this.handleDelete(record);
+                    }}
+                  >
+                    删除
+                  </a>
+                )}
+                {isEdit && (
+                  <a
+                    onClick={() => {
+                      this.openService(record);
+                    }}
+                  >
+                    开启
+                  </a>
+                )}
               </div>
             </Tooltip>
           );
@@ -623,15 +668,17 @@ export default class HttpTable extends PureComponent {
           }}
         >
           <Search onSearch={this.handleSearch} />
-          <Button
-            type="primary"
-            icon="plus"
-            style={{ position: 'absolute', right: '0' }}
-            onClick={this.handleClick}
-            loading={addHttpLoading}
-          >
-            添加策略
-          </Button>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              style={{ position: 'absolute', right: '0' }}
+              onClick={this.handleClick}
+              loading={addHttpLoading}
+            >
+              添加策略
+            </Button>
+          )}
         </Row>
         <Card bodyStyle={{ padding: '0' }}>
           <Table
@@ -668,19 +715,19 @@ export default class HttpTable extends PureComponent {
             editInfo={parameterList}
           />
         )}
-        {information_connect && (
+        {informationConnect && (
           <InfoConnectModal
-            visible={information_connect}
+            visible={informationConnect}
             dataSource={outerEnvs}
             onCancel={this.handleCancel}
           />
         )}
-        {whether_open_form && (
+        {whetherOpenForm && (
           <Modal
             title="确认要添加吗？"
-            visible={this.state.whether_open_form}
+            visible={this.state.whetherOpenForm}
             onOk={this.handleOk}
-            onCancel={this.handleCancel_second}
+            onCancel={this.handleCancelSecond}
             footer={[
               <Button type="primary" size="small" onClick={this.resolveOk}>
                 确定
@@ -696,7 +743,7 @@ export default class HttpTable extends PureComponent {
             title="友情提示"
             visible={appStatusVisable}
             onOk={this.handleAppStatus}
-            onCancel={this.handleAppStatus_closed}
+            onCancel={this.handleAppStatusClosed}
           >
             <p>当前组件处于关闭状态，启动后方可访问，是否启动组件？</p>
           </Modal>

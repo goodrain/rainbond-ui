@@ -3,6 +3,17 @@ import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 import cookie from '../utils/cookie';
 
+// fetch Permissions
+export async function getPermissions() {
+  return request(
+    `${apiconfig.customUrl}/console/perms`,
+    // `https://doc.goodrain.org/mock/18/console/perms`,
+    {
+      method: 'get',
+    }
+  );
+}
+
 /*
   获取企业所有集群的每小时按需消费明细
  */
@@ -1080,15 +1091,6 @@ export async function deleteOauth(body = { service_id }) {
   );
 }
 
-/** 获取权限 */
-export async function queryAuthority(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.selectedTeam}/role-list`,
-    {
-      method: 'get',
-    }
-  );
-}
 /** 获取代码仓库信息 */
 export async function queryCodeWarehouseInfo(params) {
   return request(
@@ -1194,7 +1196,7 @@ export async function toCreatUser(params, handleError) {
         email: params.email,
         password: params.password,
         re_password: params.password,
-        role_ids: params.role_ids ? params.role_ids.join(',') : [],
+        role_ids: params.role_ids,
       },
     }
   );
@@ -1214,7 +1216,7 @@ export async function upEnterpriseUsers(params) {
         email: params.email,
         password: params.password,
         re_password: params.password,
-        role_ids: params.role_ids ? params.role_ids.join(',') : [],
+        role_ids: params.role_ids,
       },
     }
   );

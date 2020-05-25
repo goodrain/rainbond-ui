@@ -1,44 +1,23 @@
+/* eslint-disable react/no-multi-comp */
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Select,
-  Button,
-  Icon,
-  Input,
-  Table,
-  Modal,
-  notification,
-  Tooltip,
-} from 'antd';
+import { Card, Button, Icon, Table, Modal, notification } from 'antd';
 import {
   getRelationedApp,
   removeRelationedApp,
   batchAddRelationedApp,
 } from '../../services/app';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
-import ConfirmModal from '../../components/ConfirmModal';
+import NoPermTip from '../../components/NoPermTip';
 import AddRelation from '../../components/AddRelation';
 import ScrollerX from '../../components/ScrollerX';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-
-const FormItem = Form.Item;
-const Option = Select.Option;
+import globalUtil from '../../utils/global';
 
 // 查看连接信息
 class ViewRelationInfo extends PureComponent {
-
   render() {
     const { appAlias, onCancel } = this.props;
-    const wraps = {
-      wordBreak: 'break-all',
-      wordWrap: 'break-word',
-    };
     return (
       <Modal
         title="依赖信息查看"
@@ -57,34 +36,33 @@ class ViewRelationInfo extends PureComponent {
     );
   }
 }
-
-@connect(
-  ({ user, appControl }) => ({
-    currUser: user.currentUser,
-  }),
-  null,
-  null,
-  { withRef: true }
-)
+// eslint-disable-next-line react/no-redundant-should-component-update
+@connect(null, null, null, { withRef: true })
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
       showAddRelation: false,
-      linkList: [],
       relationList: [],
       viewRelationInfo: null,
       showText: null,
-      transfer: null,
     };
   }
-
+  componentDidMount() {
+    this.loadRelationedApp();
+  }
   shouldComponentUpdate() {
     return true;
   }
-  componentDidMount() {
-    const { dispatch } = this.props;
-    this.loadRelationedApp();
+
+  onViewRelationInfo = data => {
+    this.setState({ viewRelationInfo: data });
+  };
+  canView() {
+    const {
+      componentPermissions: { isRely },
+    } = this.props;
+    return isRely;
   }
   loadRelationedApp = () => {
     getRelationedApp({
@@ -106,11 +84,9 @@ export default class Index extends PureComponent {
   };
   isRepeat = arr => {
     const hash = {};
-
     for (const i in arr) {
       if (hash[arr[i]])
         // hash 哈希
-
         return true;
       hash[arr[i]] = true;
     }
@@ -148,16 +124,15 @@ export default class Index extends PureComponent {
     });
   };
 
-  onViewRelationInfo = data => {
-    this.setState({ viewRelationInfo: data });
-  };
-  cancelViewRelationInfo = data => {
+  cancelViewRelationInfo = () => {
     this.setState({ viewRelationInfo: null });
   };
 
   render() {
     const { showText, relationList } = this.state;
     const { appAlias } = this.props;
+    if (!this.canView()) return <NoPermTip />;
+
     return (
       <Fragment>
         <EnvironmentVariable

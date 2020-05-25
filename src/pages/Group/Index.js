@@ -16,7 +16,6 @@ import {
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import styless from '../../components/CreateTeam/index.less';
-import NoPermTip from '../../components/NoPermTip';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import AddServiceComponent from './AddServiceComponent';
@@ -30,8 +29,7 @@ import {
   createTeam,
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
-import teamUtil from '../../utils/team';
-import userUtil from '../../utils/user';
+import roleUtil from '../../utils/role';
 import styles from './Index.less';
 
 const FormItem = Form.Item;
@@ -40,13 +38,15 @@ const FormItem = Form.Item;
 class EditGroupName extends PureComponent {
   onOk = e => {
     e.preventDefault();
-    this.props.form.validateFields(
+    const { form, onOk } = this.props;
+
+    form.validateFields(
       {
         force: true,
       },
       (err, vals) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(vals);
+        if (!err && onOk) {
+          onOk(vals);
         }
       }
     );
@@ -122,8 +122,7 @@ class Main extends PureComponent {
       toAdd: false,
       service_alias: [],
       linkList: [],
-      secondJustify: '',
-      json_data_length: 0,
+      jsonDataLength: 0,
       promptModal: false,
       code: '',
       size: 'large',
@@ -171,7 +170,7 @@ class Main extends PureComponent {
           }
           const service_alias = [];
           const { json_data } = data;
-          this.setState({ json_data_length: Object.keys(json_data).length });
+          this.setState({ jsonDataLength: Object.keys(json_data).length });
           Object.keys(json_data).map(key => {
             if (
               json_data[key].cur_status == 'running' &&
@@ -460,18 +459,34 @@ class Main extends PureComponent {
 
   render() {
     const {
-      currUser,
       groupDetail,
       appID,
       currentEnterprise,
       currentTeam,
       currentRegionName,
+      appPermissions: {
+        isCreate,
+        isEdit,
+        isDelete,
+        isStart,
+        isStop,
+        isUpdate,
+        isConstruct,
+        isCopy,
+      },
+      componentPermissions,
+      componentPermissions: {
+        isAccess: isComponentDescribe,
+        isCreate: isComponentCreate,
+      },
     } = this.props;
-
-    const { loadingDetail, currApp, rapidCopy } = this.state;
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, team_name);
-
+    const {
+      loadingDetail,
+      currApp,
+      rapidCopy,
+      jsonDataLength,
+      linkList,
+    } = this.state;
     if (groupDetail.group_id != appID && !loadingDetail) {
       this.fetchAppDetail();
     }
@@ -492,7 +507,7 @@ class Main extends PureComponent {
           <div className={styles.content}>
             <div className={styles.contentTitle}>
               {currApp.group_name || '-'}
-              {teamUtil.canManageGroup(team) && (
+              {isEdit && (
                 <Icon
                   style={{
                     cursor: 'pointer',
@@ -503,10 +518,12 @@ class Main extends PureComponent {
               )}
             </div>
             <div className={styles.content_Box}>
-              <a onClick={this.toAdd} href="javascript:;">
-                新增
-              </a>
-              {teamUtil.canManageGroup(team) && (
+              {isCreate && (
+                <a onClick={this.toAdd} href="javascript:;">
+                  新增
+                </a>
+              )}
+              {isDelete && (
                 <span>
                   <Divider type="vertical" />
 
@@ -515,11 +532,13 @@ class Main extends PureComponent {
                   </a>
                 </span>
               )}
-              {teamUtil.canManageGroup(team) && (
+              {isStop && (
                 <span>
                   <Divider type="vertical" />
                   <a
-                    onClick={this.handleTopology.bind(this, 'stop')}
+                    onClick={() => {
+                      this.handleTopology('stop');
+                    }}
                     href="javascript:;"
                   >
                     停用
@@ -532,42 +551,54 @@ class Main extends PureComponent {
       </div>
     );
 
-    const BtnDisabled = !(this.state.json_data_length > 0);
+    const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
     const extraContent = (
       <div className={styles.extraContent}>
-        <Button
-          style={MR}
-          onClick={this.handleTopology.bind(this, 'start')}
-          disabled={BtnDisabled}
-        >
-          启动
-        </Button>
-
-        <Button
-          style={MR}
-          onClick={this.handleTopology.bind(this, 'upgrade')}
-          disabled={BtnDisabled}
-        >
-          更新
-        </Button>
-        <Button
-          style={MR}
-          disabled={BtnDisabled}
-          onClick={this.handleTopology.bind(this, 'deploy')}
-        >
-          构建
-        </Button>
-        <Button
-          style={MR}
-          disabled={BtnDisabled}
-          onClick={this.handleOpenRapidCopy}
-        >
-          快速复制
-        </Button>
-        {this.state.linkList.length > 0 && (
-          <VisterBtn linkList={this.state.linkList} />
+        {isStart && (
+          <Button
+            style={MR}
+            onClick={() => {
+              this.handleTopology('start');
+            }}
+            disabled={BtnDisabled}
+          >
+            启动
+          </Button>
         )}
+
+        {isUpdate && (
+          <Button
+            style={MR}
+            onClick={() => {
+              this.handleTopology('upgrade');
+            }}
+            disabled={BtnDisabled}
+          >
+            更新
+          </Button>
+        )}
+        {isConstruct && (
+          <Button
+            style={MR}
+            disabled={BtnDisabled}
+            onClick={() => {
+              this.handleTopology('deploy');
+            }}
+          >
+            构建
+          </Button>
+        )}
+        {isCopy && (
+          <Button
+            style={MR}
+            disabled={BtnDisabled}
+            onClick={this.handleOpenRapidCopy}
+          >
+            快速复制
+          </Button>
+        )}
+        {linkList.length > 0 && <VisterBtn linkList={linkList} />}
       </div>
     );
     let breadcrumbList = [];
@@ -619,51 +650,57 @@ class Main extends PureComponent {
             >
               拓扑图
             </a>
-            <a
-              onClick={() => {
-                this.changeType('list');
-              }}
-              style={{
-                marginLeft: '30px',
-                color:
-                  this.state.type === 'list'
-                    ? '#1890ff'
-                    : 'rgba(0, 0, 0, 0.65)',
-              }}
-            >
-              列表
-            </a>
+            {isComponentDescribe && (
+              <a
+                onClick={() => {
+                  this.changeType('list');
+                }}
+                style={{
+                  marginLeft: '30px',
+                  color:
+                    this.state.type === 'list'
+                      ? '#1890ff'
+                      : 'rgba(0, 0, 0, 0.65)',
+                }}
+              >
+                列表
+              </a>
+            )}
           </Col>
 
           <Col span={4} style={{ textAlign: 'right' }}>
-            <AddThirdParty
-              groupId={this.getGroupId()}
-              refreshCurrent={() => {
-                this.loading();
-              }}
-              onload={() => {
-                this.setState({ type: 'spin' }, () => {
-                  this.setState({
-                    type: this.state.size == 'large' ? 'shape' : 'list',
+            {isComponentCreate && (
+              <AddThirdParty
+                groupId={this.getGroupId()}
+                refreshCurrent={() => {
+                  this.loading();
+                }}
+                onload={() => {
+                  this.setState({ type: 'spin' }, () => {
+                    this.setState({
+                      type: this.state.size == 'large' ? 'shape' : 'list',
+                    });
                   });
-                });
-              }}
-            />
+                }}
+              />
+            )}
           </Col>
           <Col span={4} style={{ textAlign: 'center' }}>
-            <AddServiceComponent
-              groupId={this.getGroupId()}
-              refreshCurrent={() => {
-                this.loading();
-              }}
-              onload={() => {
-                this.setState({ type: 'spin' }, () => {
-                  this.setState({
-                    type: this.state.size == 'large' ? 'shape' : 'list',
+            {isComponentCreate && (
+              <AddServiceComponent
+                groupId={this.getGroupId()}
+                refreshCurrent={() => {
+                  this.loading();
+                }}
+                onload={() => {
+                  this.setState({ type: 'spin' }, () => {
+                    this.setState({
+                      type: this.state.size == 'large' ? 'shape' : 'list',
+                    });
                   });
-                });
-              }}
-            />
+                }}
+              />
+            )}
           </Col>
         </Row>
         {rapidCopy && (
@@ -674,7 +711,7 @@ class Main extends PureComponent {
           />
         )}
 
-        {this.state.type !== 'list' && (
+        {this.state.type !== 'list' && isComponentCreate && (
           <Row
             style={{
               textAlign: 'right',
@@ -703,8 +740,11 @@ class Main extends PureComponent {
           </Row>
         )}
 
-        {this.state.type === 'list' && (
-          <ComponentList groupId={this.getGroupId()} />
+        {this.state.type === 'list' && isComponentCreate && (
+          <ComponentList
+            componentPermissions={componentPermissions}
+            groupId={this.getGroupId()}
+          />
         )}
         {this.state.type === 'shape' && (
           <AppShape group_id={this.getGroupId()} />
@@ -758,27 +798,55 @@ class Main extends PureComponent {
   }
 }
 
-@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
-  pure: false,
-})
+// eslint-disable-next-line react/no-multi-comp
+@connect(
+  ({ user, teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currUser: user.currentUser,
+  }),
+  null,
+  null,
+  {
+    pure: false,
+  }
+)
 export default class Index extends PureComponent {
-  constructor(arg) {
-    super(arg);
+  constructor(props) {
+    super(props);
     this.state = {
-      show: true,
+      appPermissions: this.handlePermissions('queryAppInfo'),
+      componentPermissions: this.handlePermissions('queryComponentInfo'),
     };
+  }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      appPermissions: { isAccess },
+    } = this.state;
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    }
   }
   getGroupId() {
     const { params } = this.props.match;
     return params.appID;
   }
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
+
   render() {
-    const { currUser } = this.props;
-    const { teamName } = this.props.match.params;
-    const team = userUtil.getTeamByTeamName(currUser, teamName);
-    if (!teamUtil.canViewApp(team)) return <NoPermTip />;
     return (
-      <Main key={this.getGroupId()} {...this.props} appID={this.getGroupId()} />
+      <Main
+        key={this.getGroupId()}
+        appID={this.getGroupId()}
+        {...this.props}
+        {...this.state}
+      />
     );
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-multi-comp */
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
@@ -16,8 +18,8 @@ import {
   Select,
   Tooltip,
 } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import PropTypes from 'prop-types';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ConfirmModal from '../../components/ConfirmModal';
 import ManageAppGuide from '../../components/ManageAppGuide';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
@@ -34,7 +36,6 @@ import {
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
-import styles from './Index.less';
 import Log from './log';
 import Members from './members';
 import Mnt from './mnt';
@@ -46,7 +47,6 @@ import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
-
 import appUtil from '../../utils/app';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
 import appStatusUtil from '../../utils/appStatus-util';
@@ -62,16 +62,20 @@ import httpResponseUtil from '../../utils/httpResponse';
 import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
+import roleUtil from '../../utils/role';
+import styles from './Index.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
-const ButtonGroup = Button.Group;
+const { Option } = Select;
 const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
 @connect(null, null, null, { withRef: true })
 class MoveGroup extends PureComponent {
+  onCancel = () => {
+    this.props.onCancel();
+  };
   handleSubmit = e => {
     e.preventDefault();
     const { form, currGroup } = this.props;
@@ -81,17 +85,14 @@ class MoveGroup extends PureComponent {
         notification.warning({ message: '不能选择当前所在组' });
         return;
       }
-
       this.props.onOk(fieldsValue);
     });
   };
-  onCancel = () => {
-    this.props.onCancel();
-  };
+
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const initValue = this.props.currGroup.toString();
-    const groups = this.props.groups || [];
+    const { groups = [], currGroup, form } = this.props;
+    const { getFieldDecorator } = form;
+    const initValue = currGroup.toString();
     return (
       <Modal
         title="修改应用所属组"
@@ -136,6 +137,9 @@ class MoveGroup extends PureComponent {
 @Form.create()
 @connect(null, null, null, { withRef: true })
 class EditName extends PureComponent {
+  onCancel = () => {
+    this.props.onCancel();
+  };
   handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
@@ -144,9 +148,7 @@ class EditName extends PureComponent {
       this.props.onOk(fieldsValue);
     });
   };
-  onCancel = () => {
-    this.props.onCancel();
-  };
+
   render() {
     const { title, name } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -198,6 +200,10 @@ class EditName extends PureComponent {
   { withRef: true }
 )
 class Main extends PureComponent {
+  static childContextTypes = {
+    isActionIng: PropTypes.func,
+    appRolback: PropTypes.func,
+  };
   constructor(arg) {
     super(arg);
     this.state = {
@@ -205,7 +211,6 @@ class Main extends PureComponent {
       appDetail: {},
       status: {},
       showDeleteApp: false,
-      pageStatus: '',
       showEditName: false,
       showMoveGroup: false,
       showDeployTips: false,
@@ -225,10 +230,7 @@ class Main extends PureComponent {
     };
     this.socket = null;
   }
-  static childContextTypes = {
-    isActionIng: PropTypes.func,
-    appRolback: PropTypes.func,
-  };
+
   getChildContext() {
     return {
       isActionIng: res => {
@@ -343,14 +345,6 @@ class Main extends PureComponent {
               )
             );
           }
-
-          // 访问的应用不在当前的集群里
-          if (code === 10404) {
-          }
-
-          // 访问的应用不在当前团队里
-          if (code === 10403) {
-          }
         }
       },
     });
@@ -438,7 +432,7 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
-  handleDeploy = (group_version, is_upgrate) => {
+  handleDeploy = (groupVersion, is_upgrate) => {
     this.setState({
       showDeployTips: false,
       showreStartTips: false,
@@ -452,7 +446,7 @@ class Main extends PureComponent {
     deploy({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.getAppAlias(),
-      group_version: group_version || '',
+      group_version: groupVersion || '',
       is_upgrate: build_upgrade,
     }).then(data => {
       this.setState({ deployCanClick: false });
@@ -599,7 +593,7 @@ class Main extends PureComponent {
     this.setState({ showDeleteApp: false });
   };
   createSocket() {
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     const { websocketURL } = this.state;
     if (websocketURL) {
       const isThrough = dateUtil.isWebSocketOpen(websocketURL);
@@ -701,8 +695,13 @@ class Main extends PureComponent {
     });
   };
   renderTitle(name) {
-    const { appDetail, groups } = this.props;
+    const {
+      appDetail,
+      groups,
+      componentPermissions: { isRestart, isStop, isDelete, isEdit },
+    } = this.props;
     const { status, isShowThirdParty } = this.state;
+
     return (
       <Fragment>
         <div style={{ display: 'flex' }}>
@@ -725,17 +724,14 @@ class Main extends PureComponent {
               {!appDetail.is_third && (
                 <a
                   onClick={() => {
-                    !(
-                      !appUtil.canRestartApp(appDetail) ||
-                      !appStatusUtil.canRestart(status)
-                    ) && this.handleDropClick('restart');
+                    isRestart &&
+                      appStatusUtil.canRestart(status) &&
+                      this.handleDropClick('restart');
                   }}
                   style={{
-                    cursor:
-                      !appUtil.canRestartApp(appDetail) ||
-                      !appStatusUtil.canRestart(status)
-                        ? 'no-drop'
-                        : 'pointer',
+                    cursor: !appStatusUtil.canRestart(status)
+                      ? 'no-drop'
+                      : 'pointer',
                   }}
                 >
                   重启
@@ -743,7 +739,7 @@ class Main extends PureComponent {
               )}
               {!appDetail.is_third && <Divider type="vertical" />}
 
-              {appUtil.canStopApp(appDetail) &&
+              {isStop &&
               !appStatusUtil.canStart(status) &&
               !isShowThirdParty ? (
                 <span>
@@ -754,15 +750,17 @@ class Main extends PureComponent {
                         : 'pointer',
                     }}
                     onClick={() => {
-                      appStatusUtil.canStop(status) &&
-                        this.handleOpenHelpfulHints('stop');
+                      this.handleOpenHelpfulHints('stop');
                     }}
                   >
                     关闭
                   </a>
                   <Divider type="vertical" />
                 </span>
-              ) : status && status.status && status.status == 'upgrade' ? (
+              ) : isStop &&
+                status &&
+                status.status &&
+                status.status == 'upgrade' ? (
                 <span>
                   <a
                     onClick={() => {
@@ -775,40 +773,33 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {!appDetail.is_third ? (
-                appUtil.canMoveGroup(appDetail) && (
-                  <a
-                    onClick={() => {
-                      this.handleDropClick('moveGroup');
-                    }}
-                    style={{
-                      cursor: 'pointer',
-                    }}
-                  >
-                    修改所属应用
-                  </a>
-                )
-              ) : (
+              {isEdit && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
+                  }}
+                  style={{
+                    cursor: 'pointer',
                   }}
                 >
                   修改所属应用
                 </a>
               )}
               <Divider type="vertical" />
-              <a
-                onClick={() => {
-                  appUtil.canDelete(appDetail) &&
+              {isDelete && (
+                <a
+                  onClick={() => {
                     this.handleDropClick('deleteApp');
-                }}
-                style={{
-                  cursor: !appUtil.canDelete(appDetail) ? 'no-drop' : 'pointer',
-                }}
-              >
-                删除
-              </a>
+                  }}
+                  style={{
+                    cursor: !appUtil.canDelete(appDetail)
+                      ? 'no-drop'
+                      : 'pointer',
+                  }}
+                >
+                  删除
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -942,10 +933,35 @@ class Main extends PureComponent {
     );
   };
   render() {
-    const { appDetail } = this.props;
+    const {
+      appDetail,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      componentPermissions: {
+        isAccess,
+        isStart,
+        isStop,
+        isVisitWebTerminal,
+        isConstruct,
+        isUpdate,
+        isTelescopic,
+        isEnv,
+        isRely,
+        isStorage,
+        isPort,
+        isPlugin,
+        isSource,
+        isDeploytype,
+        isCharacteristic,
+        isHealth,
+      },
+      componentPermissions,
+      groups = [],
+      form,
+    } = this.props;
     const { BuildList, componentTimer, isShowThirdParty, status } = this.state;
-    const groups = this.props.groups || [];
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator } = form;
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -970,24 +986,22 @@ class Main extends PureComponent {
     }
     const action = (
       <div>
-        {appUtil.canStartApp(appDetail) &&
-        !appStatusUtil.canStop(status) &&
-        !isShowThirdParty ? (
+        {isStart && !isShowThirdParty && !appStatusUtil.canStop(status) && (
           <Button
             disabled={!appStatusUtil.canStart(status)}
             onClick={this.handleStart}
           >
             启动
           </Button>
-        ) : null}
+        )}
 
-        {appUtil.canManageContainter(appDetail) && !isShowThirdParty ? (
+        {isVisitWebTerminal && !isShowThirdParty && (
           <Button onClick={this.toWebConsole}>Web终端</Button>
-        ) : null}
+        )}
 
         {isShowThirdParty ? (
           ''
-        ) : this.state.BuildState ? (
+        ) : this.state.BuildState && isConstruct ? (
           <Tooltip title="有新版本">
             <Button onClick={this.handleOpenBuild}>
               <Badge
@@ -1000,38 +1014,112 @@ class Main extends PureComponent {
               构建
             </Button>
           </Tooltip>
-        ) : status && status.status == 'undeploy' ? (
+        ) : status && status.status == 'undeploy' && isConstruct ? (
           <Button onClick={this.handleOpenBuild}>构建</Button>
         ) : (
-          <Button onClick={this.handleOpenBuild}>构建</Button>
+          isConstruct && <Button onClick={this.handleOpenBuild}>构建</Button>
         )}
+
         {status.status == 'undeploy' ||
         status.status == 'closed' ||
         status.status == 'stopping' ||
-        isShowThirdParty ? (
-          ''
-        ) : (
-          <Button
-            onClick={this.handleUpdateRolling}
-            loading={this.state.rollingCanClick}
-          >
-            更新(滚动)
-          </Button>
-        )}
+        isShowThirdParty
+          ? ''
+          : isUpdate && (
+              <Button
+                onClick={this.handleUpdateRolling}
+                loading={this.state.rollingCanClick}
+              >
+                更新(滚动)
+              </Button>
+            )}
 
         {appDetail.service.service_source == 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
+          isAccess &&
           visitBtns}
         {appDetail.service.service_source != 'market' &&
           appStatusUtil.canVisit(status) &&
           !isShowThirdParty &&
+          isAccess &&
           visitBtns}
-        {isShowThirdParty && visitBtns}
+        {isShowThirdParty && isAccess && visitBtns}
 
         {/* {(appDetail.service.service_source == "market" && appStatusUtil.canVisit(status)) && (<VisitBtn btntype="primary" app_alias={appAlias} />)} */}
       </div>
     );
+    const tabs = [
+      {
+        key: 'overview',
+        tab: '总览',
+      },
+      {
+        key: 'monitor',
+        tab: '监控',
+      },
+      {
+        key: 'log',
+        tab: '日志',
+      },
+    ];
+
+    if (isTelescopic) {
+      tabs.push({
+        key: 'expansion',
+        tab: '伸缩',
+      });
+    }
+
+    if (isEnv) {
+      tabs.push({
+        key: 'environmentConfiguration',
+        tab: '环境配置',
+      });
+    }
+
+    if (isRely) {
+      tabs.push({
+        key: 'relation',
+        tab: '依赖',
+      });
+    }
+
+    if (isStorage) {
+      tabs.push({
+        key: 'mnt',
+        tab: '存储',
+      });
+    }
+
+    if (isPort) {
+      tabs.push({
+        key: 'port',
+        tab: '端口',
+      });
+    }
+
+    if (isPlugin) {
+      tabs.push({
+        key: 'plugin',
+        tab: '插件',
+      });
+    }
+
+    if (isSource) {
+      tabs.push({
+        key: 'resource',
+        tab: '构建源',
+      });
+    }
+
+    if (isDeploytype || isCharacteristic || isHealth) {
+      tabs.push({
+        key: 'setting',
+        tab: '其他设置',
+      });
+    }
+
     const tabList = isShowThirdParty
       ? [
           {
@@ -1051,52 +1139,7 @@ class Main extends PureComponent {
             tab: '更多设置',
           },
         ]
-      : [
-          {
-            key: 'overview',
-            tab: '总览',
-          },
-          {
-            key: 'monitor',
-            tab: '监控',
-          },
-          {
-            key: 'log',
-            tab: '日志',
-          },
-          {
-            key: 'expansion',
-            tab: '伸缩',
-          },
-          {
-            key: 'environmentConfiguration',
-            tab: '环境配置',
-          },
-          {
-            key: 'relation',
-            tab: '依赖',
-          },
-          {
-            key: 'mnt',
-            tab: '存储',
-          },
-          {
-            key: 'port',
-            tab: '端口',
-          },
-          {
-            key: 'plugin',
-            tab: '插件',
-          },
-          {
-            key: 'resource',
-            tab: '构建源',
-          },
-          {
-            key: 'setting',
-            tab: '其他设置',
-          },
-        ];
+      : tabs;
     // const { service_source, language } = this.state;
     const map = {
       thirdPartyServices: ThirdPartyServices,
@@ -1111,10 +1154,10 @@ class Main extends PureComponent {
       mnt: Mnt,
       port: Port,
       plugin: Plugin,
-      setting: Setting,
       resource: Resource,
+      setting: Setting,
     };
-    let type = this.props.match.params.type;
+    let { type } = this.props.match.params;
 
     if (!type) {
       type = isShowThirdParty ? 'thirdPartyServices' : 'overview';
@@ -1129,7 +1172,6 @@ class Main extends PureComponent {
       },
     };
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createComponent(
       createApp(
         createTeam(
@@ -1188,45 +1230,45 @@ class Main extends PureComponent {
             this.setState({ BuildList: [] });
           }}
           footer={
-            BuildList && BuildList.length > 0
+            BuildList && BuildList.length > 0 && isConstruct
               ? [
                   <Button
-                  onClick={() => {
+                    onClick={() => {
                       this.handleCancelBuild();
                     }}
-                >
+                  >
                     取消
-                </Button>,
+                  </Button>,
                   <Button
-                  type="primary"
-                  onClick={() => {
+                    type="primary"
+                    onClick={() => {
                       this.handleOkBuild();
                     }}
-                >
+                  >
                     构建
-                </Button>,
+                  </Button>,
                 ]
-              : [
+              : isConstruct && [
                   <Button
-                  onClick={() => {
+                    onClick={() => {
                       this.handleCancelBuild();
                     }}
-                >
+                  >
                     取消
-                </Button>,
+                  </Button>,
                   <Button
-                  type="primary"
-                  onClick={() => {
+                    type="primary"
+                    onClick={() => {
                       this.handleOkBuild();
                     }}
-                >
+                  >
                     强制构建
-                </Button>,
+                  </Button>,
                 ]
           }
         >
           <div>
-            {BuildList && BuildList.length > 0 ? (
+            {BuildList && BuildList.length > 0 && isUpdate ? (
               <Form onSubmit={this.handleOkBuild}>
                 <Alert
                   message={[
@@ -1275,6 +1317,7 @@ class Main extends PureComponent {
 
         {Com ? (
           <Com
+            componentPermissions={componentPermissions}
             timers={componentTimer}
             status={this.state.status}
             ref={this.saveRef}
@@ -1324,18 +1367,42 @@ class Main extends PureComponent {
   }
 }
 @Form.create()
-@connect(({ user, groupControl }) => ({}), null, null, {
-  pure: false,
-  withRef: true,
-})
+@connect(
+  ({ teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  }),
+  null,
+  null,
+  {
+    pure: false,
+    withRef: true,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.id = '';
     this.state = {
       show: true,
+      componentPermissions: this.handlePermissions('queryComponentInfo'),
     };
   }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      componentPermissions: { isAccess },
+    } = this.state;
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    }
+  }
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
   getAlias = () => {
     return this.props.match.params.appAlias;
   };
@@ -1359,6 +1426,6 @@ export default class Index extends PureComponent {
     if (!this.state.show) {
       return null;
     }
-    return <Main {...this.props} />;
+    return <Main {...this.props} {...this.state} />;
   }
 }

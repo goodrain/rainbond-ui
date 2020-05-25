@@ -6,7 +6,6 @@ import oauthUtil from '../utils/oauth';
 import rainbondUtil from '../utils/rainbond';
 import styles from './UserLayout.less';
 
-
 class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -25,10 +24,11 @@ class UserLayout extends React.PureComponent {
           globalUtil.putLog(info);
           // check auto login
           const isOauth = rainbondUtil.OauthbEnable(info);
-          const oauthInfo = info.enterprise_center_oauth && info.enterprise_center_oauth.value;
+          const oauthInfo =
+            info.enterprise_center_oauth && info.enterprise_center_oauth.value;
           if (isOauth && oauthInfo) {
             if (oauthInfo.is_auto_login) {
-              window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
+              // window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
             }
             this.isRender(!oauthInfo.is_auto_login);
           } else {
@@ -57,7 +57,9 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <h1 className={styles.titles}>
-                    {rainbondInfo && rainbondInfo.title&&rainbondInfo.title.enable
+                    {rainbondInfo &&
+                    rainbondInfo.title &&
+                    rainbondInfo.title.enable
                       ? rainbondInfo.title.value
                       : 'Rainbond'}
                   </h1>

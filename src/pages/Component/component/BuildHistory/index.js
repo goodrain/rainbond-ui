@@ -1,7 +1,8 @@
-import React, { PureComponent } from "react";
+/* eslint-disable no-nested-ternary */
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import moment from 'moment';
 import {
-  Button,
-  Icon,
   Modal,
   Form,
   Divider,
@@ -9,14 +10,11 @@ import {
   Card,
   Row,
   Col,
-  Tooltip
-} from "antd";
-import LogShow from "../LogShow";
-import { connect } from "dva";
-import styles from "../../Index.less";
-import globalUtil from "../../../../utils/global";
-
-import moment from "moment";
+  Tooltip,
+} from 'antd';
+import LogShow from '../LogShow';
+import styles from '../../Index.less';
+import globalUtil from '../../../../utils/global';
 
 @connect()
 @Form.create()
@@ -26,8 +24,8 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       LogHistoryList: [],
-      showHighlighted: "",
-      EventID: ""
+      showHighlighted: '',
+      EventID: '',
     };
   }
   componentDidMount() {}
@@ -35,19 +33,19 @@ class Index extends PureComponent {
   showModal = EventID => {
     this.setState({
       EventID,
-      logVisible: true
+      logVisible: true,
     });
   };
 
   handleOk = () => {
     this.setState({
-      logVisible: false
+      logVisible: false,
     });
   };
 
   handleCancel = () => {
     this.setState({
-      logVisible: false
+      logVisible: false,
     });
   };
 
@@ -62,7 +60,12 @@ class Index extends PureComponent {
   };
 
   render() {
-    const { dataList, beanData, current_version } = this.props;
+    const {
+      dataList,
+      beanData,
+      current_version,
+      componentPermissions: { isRollback, isDelete },
+    } = this.props;
     const { LogHistoryList, showHighlighted, EventID, logVisible } = this.state;
     return (
       <Row gutter={24}>
@@ -74,7 +77,7 @@ class Index extends PureComponent {
             onOk={this.handleOk}
             onCancel={this.handleCancel}
             width="1200px"
-            bodyStyle={{ background: "#222222", color: "#fff" }}
+            bodyStyle={{ background: '#222222', color: '#fff' }}
             footer={null}
           >
             <LogShow EventID={EventID} />
@@ -84,7 +87,7 @@ class Index extends PureComponent {
           <Card
             bordered={false}
             title="构建版本历史"
-            style={{ margin: "20px 0" }}
+            style={{ margin: '20px 0' }}
           >
             <div className={styles.buildHistoryBox}>
               <ul className={styles.buildHistoryList}>
@@ -105,16 +108,16 @@ class Index extends PureComponent {
                       image_repo,
                       code_branch,
                       image_tag,
-                      kind
+                      kind,
                     } = item;
 
                     return (
                       <li
                         key={build_version}
                         className={`${styles.rowLi} ${styles.prRow} ${
-                          status === "success"
+                          status === 'success'
                             ? styles.passed
-                            : status === "failure"
+                            : status === 'failure'
                             ? styles.failed
                             : styles.canceled
                         } `}
@@ -124,44 +127,40 @@ class Index extends PureComponent {
                             className={`${styles.rowRtem} ${styles.buildInfo}`}
                           >
                             <div
-                              className={` ${styles.alcen}  ${
-                                styles.rowBranch
-                              }`}
+                              className={` ${styles.alcen}  ${styles.rowBranch}`}
                             >
                               <span className={`${styles.statusIcon} `}>
-                                {status === "success" ? (
-                                  globalUtil.fetchSvg("success")
-                                ) : status === "failure" ? (
+                                {status === 'success' ? (
+                                  globalUtil.fetchSvg('success')
+                                ) : status === 'failure' ? (
                                   <span
                                     className={styles.icon}
                                     style={{
-                                      textAlign: "center",
-                                      color: "#db4545",
-                                      display: "inline-block",
-                                      lineHeight: 1
+                                      textAlign: 'center',
+                                      color: '#db4545',
+                                      display: 'inline-block',
+                                      lineHeight: 1,
                                     }}
                                   >
                                     !
                                   </span>
                                 ) : (
-                                  globalUtil.fetchSvg("close")
+                                  globalUtil.fetchSvg('close')
                                 )}
                               </span>
                               <a
-                                className={` ${styles.alcen} ${
-                                  styles.passeda
-                                } `}
+                                className={` ${styles.alcen} ${styles.passeda} `}
                               >
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: "100%",
+                                    width: '100%',
                                     color:
-                                      status === "success"
-                                        ? "#39aa56"
-                                        : status === "failure"
-                                        ? "#db4545"
-                                        : "#9d9d9d"
+                                      status === 'success'
+                                        ? '#39aa56'
+                                        : status === 'failure'
+                                        ? '#db4545'
+                                        : '#9d9d9d',
                                   }}
                                 >
                                   {build_version}
@@ -169,33 +168,31 @@ class Index extends PureComponent {
                                     build_version &&
                                     current_version &&
                                     build_version == current_version &&
-                                    "(当前版本)"}
+                                    '(当前版本)'}
                                 </font>
                               </a>
                             </div>
                             <div
-                              className={` ${styles.alcen} ${
-                                styles.rowMessage
-                              } `}
+                              className={` ${styles.alcen} ${styles.rowMessage} `}
                             >
                               <Tooltip
                                 title={
                                   kind &&
-                                  (kind === "源码构建"
-                                    ? "提交信息"
-                                    : "源镜像仓库地址")
+                                  (kind === '源码构建'
+                                    ? '提交信息'
+                                    : '源镜像仓库地址')
                                 }
                               >
                                 {kind &&
-                                  (kind === "源码构建"
-                                    ? globalUtil.fetchSvg("basicInfo")
-                                    : globalUtil.fetchSvg("warehouse"))}
+                                  (kind === '源码构建'
+                                    ? globalUtil.fetchSvg('basicInfo')
+                                    : globalUtil.fetchSvg('warehouse'))}
                               </Tooltip>
 
                               <Tooltip
                                 title={
                                   kind &&
-                                  (kind === "源码构建"
+                                  (kind === '源码构建'
                                     ? code_commit_msg && code_commit_msg
                                     : image_domain && image_domain)
                                 }
@@ -203,11 +200,11 @@ class Index extends PureComponent {
                                 <span
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: "90%"
+                                    width: '90%',
                                   }}
                                 >
                                   {kind &&
-                                    (kind === "源码构建"
+                                    (kind === '源码构建'
                                       ? code_commit_msg && code_commit_msg
                                       : image_domain && image_domain)}
                                 </span>
@@ -216,25 +213,23 @@ class Index extends PureComponent {
                           </div>
 
                           <div
-                            className={`${styles.rowRtem} ${
-                              styles.buildCommitter
-                            } ${styles.alcen}`}
+                            className={`${styles.rowRtem} ${styles.buildCommitter} ${styles.alcen}`}
                           >
                             <div
                               style={{
-                                width: "210px"
+                                width: '210px',
                               }}
                             >
                               <a
                                 style={{
-                                  width: "100%",
-                                  cursor: "auto"
+                                  width: '100%',
+                                  cursor: 'auto',
                                 }}
                               >
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: "90%"
+                                    width: '90%',
                                   }}
                                 >
                                   {build_user && ` @&nbsp;${build_user}`}
@@ -247,28 +242,28 @@ class Index extends PureComponent {
                               <a
                                 className={`${styles.alcen}`}
                                 style={{
-                                  width: "50%",
-                                  cursor: "auto"
+                                  width: '50%',
+                                  cursor: 'auto',
                                 }}
                               >
                                 <Tooltip
                                   title={
                                     kind &&
-                                    (kind === "源码构建"
-                                      ? "代码分支"
-                                      : "源镜像名称")
+                                    (kind === '源码构建'
+                                      ? '代码分支'
+                                      : '源镜像名称')
                                   }
                                 >
                                   {kind &&
-                                    (kind === "源码构建"
-                                      ? globalUtil.fetchSvg("branch")
-                                      : globalUtil.fetchSvg("basicInfo"))}
+                                    (kind === '源码构建'
+                                      ? globalUtil.fetchSvg('branch')
+                                      : globalUtil.fetchSvg('basicInfo'))}
                                 </Tooltip>
 
                                 <Tooltip
                                   title={
                                     kind &&
-                                    (kind === "源码构建"
+                                    (kind === '源码构建'
                                       ? code_branch && code_branch
                                       : image_repo && image_repo)
                                   }
@@ -276,11 +271,11 @@ class Index extends PureComponent {
                                   <span
                                     className={styles.nowarpCorolText}
                                     style={{
-                                      width: "90%"
+                                      width: '90%',
                                     }}
                                   >
                                     {kind &&
-                                      (kind === "源码构建"
+                                      (kind === '源码构建'
                                         ? code_branch && code_branch
                                         : image_repo && image_repo)}
                                   </span>
@@ -289,52 +284,48 @@ class Index extends PureComponent {
                               <a
                                 className={` ${styles.alcen} `}
                                 style={{
-                                  width: "50%",
-                                  cursor: "auto"
+                                  width: '50%',
+                                  cursor: 'auto',
                                 }}
                               >
                                 <Tooltip
                                   title={
                                     kind &&
-                                    (kind === "源码构建"
-                                      ? "代码版本"
-                                      : "源镜像TAG")
+                                    (kind === '源码构建'
+                                      ? '代码版本'
+                                      : '源镜像TAG')
                                   }
                                 >
                                   <span
-                                    className={` ${styles.alcen} ${
-                                      styles.buildwidth
-                                    } `}
-                                    style={{ color: "rgba(0, 0, 0, 0.65)" }}
+                                    className={` ${styles.alcen} ${styles.buildwidth} `}
+                                    style={{ color: 'rgba(0, 0, 0, 0.65)' }}
                                   >
                                     {kind &&
-                                      (kind === "源码构建"
-                                        ? globalUtil.fetchSvg("warehouse")
-                                        : globalUtil.fetchSvg("branch"))}
+                                      (kind === '源码构建'
+                                        ? globalUtil.fetchSvg('warehouse')
+                                        : globalUtil.fetchSvg('branch'))}
                                   </span>
                                 </Tooltip>
 
                                 <Tooltip
                                   title={
                                     kind &&
-                                    (kind === "源码构建"
-                                      ? code_version && ""
+                                    (kind === '源码构建'
+                                      ? code_version && ''
                                       : image_tag && image_tag)
                                   }
                                 >
                                   <font
                                     className={styles.nowarpCorolText}
                                     style={{
-                                      width: "90%"
+                                      width: '90%',
                                     }}
                                   >
                                     {kind &&
-                                      (kind === "源码构建"
+                                      (kind === '源码构建'
                                         ? code_version &&
                                           code_version.substr(0, 8)
-                                        : image_tag
-                                        ? image_tag
-                                        : "")}
+                                        : image_tag || '')}
                                   </font>
                                 </Tooltip>
                               </a>
@@ -345,25 +336,27 @@ class Index extends PureComponent {
                           <div className={`${styles.rowRtem} ${styles.alcen}`}>
                             <a
                               className={
-                                status === "success"
+                                status === 'success'
                                   ? styles.passeda
-                                  : status === "failure"
+                                  : status === 'failure'
                                   ? styles.faileda
                                   : styles.canceleda
                               }
                             >
                               {globalUtil.fetchSvg(
-                                "logState",
-                                status === "success" ? "#39AA56" : "#db4545"
+                                'logState',
+                                status === 'success' ? '#39AA56' : '#db4545'
                               )}
                               <font
                                 style={{
-                                  fontSize: "14px",
+                                  fontSize: '14px',
                                   color:
-                                    status === "success" ? "#39AA56" : "#db4545"
+                                    status === 'success'
+                                      ? '#39AA56'
+                                      : '#db4545',
                                 }}
                               >
-                                {status === "success" ? "成功" : "失败"}
+                                {status === 'success' ? '成功' : '失败'}
                               </font>
                             </a>
                           </div>
@@ -371,20 +364,18 @@ class Index extends PureComponent {
                         </div>
                         <div className={`${styles.linestree}`}>
                           <div
-                            className={`${styles.rowRtem} ${
-                              styles.rowDuration
-                            }`}
+                            className={`${styles.rowRtem} ${styles.rowDuration}`}
                           >
                             <div className={styles.alcen}>
                               <Tooltip title="运行时间">
-                                {globalUtil.fetchSvg("runTime")}
+                                {globalUtil.fetchSvg('runTime')}
                               </Tooltip>
 
                               <time className={styles.labelAlign}>
                                 <font
                                   style={{
-                                    display: "inline-block",
-                                    color: "rgba(0,0,0,0.45)"
+                                    display: 'inline-block',
+                                    color: 'rgba(0,0,0,0.45)',
                                   }}
                                 >
                                   {globalUtil.fetchTime(
@@ -399,26 +390,24 @@ class Index extends PureComponent {
                             </div>
                           </div>
                           <div
-                            className={`${styles.rowRtem} ${
-                              styles.rowCalendar
-                            } ${styles.alcen}`}
+                            className={`${styles.rowRtem} ${styles.rowCalendar} ${styles.alcen}`}
                           >
                             <div className={styles.alcen}>
                               <Tooltip title="创建时间">
-                                {globalUtil.fetchSvg("createTime")}
+                                {globalUtil.fetchSvg('createTime')}
                               </Tooltip>
 
                               <time className={styles.labelAlign}>
                                 <font
                                   style={{
-                                    display: "inline-block",
-                                    color: "rgba(0,0,0,0.45)"
+                                    display: 'inline-block',
+                                    color: 'rgba(0,0,0,0.45)',
                                   }}
                                 >
                                   {create_time &&
-                                    moment(create_time).locale('zh-cn').format(
-                                      "YYYY-MM-DD hh:mm:ss"
-                                    )}
+                                    moment(create_time)
+                                      .locale('zh-cn')
+                                      .format('YYYY-MM-DD hh:mm:ss')}
                                 </font>
                               </time>
                             </div>
@@ -427,7 +416,7 @@ class Index extends PureComponent {
                         <div className={`${styles.linefour}`}>
                           <span>
                             <a
-                              style={{ fontSize: "12px" }}
+                              style={{ fontSize: '12px' }}
                               onClick={() => {
                                 this.showModal(event_id);
                               }}
@@ -435,7 +424,7 @@ class Index extends PureComponent {
                               日志
                             </a>
                           </span>
-                          {upgrade_or_rollback == 1 ? (
+                          {upgrade_or_rollback == 1 && isRollback ? (
                             <Popconfirm
                               title="确定要升级到此版本吗?"
                               onConfirm={() => {
@@ -444,26 +433,27 @@ class Index extends PureComponent {
                             >
                               <span>
                                 <Divider type="vertical" />
-                                <a style={{ fontSize: "12px" }}>升级</a>
+                                <a style={{ fontSize: '12px' }}>升级</a>
                               </span>
                             </Popconfirm>
                           ) : upgrade_or_rollback == -1 &&
-                            status == "success" &&
+                            status == 'success' &&
                             build_version != current_version &&
+                            isRollback &&
                             current_version ? (
                             <Popconfirm
-                              title="确定要回滚到此版本吗?"
-                              onConfirm={() => {
+                                title="确定要回滚到此版本吗?"
+                                onConfirm={() => {
                                 this.handleRolback(item);
                               }}
-                            >
-                              <span>
+                              >
+                                <span>
                                 <Divider type="vertical" />
-                                <a style={{ fontSize: "12px" }}>回滚</a>
+                                <a style={{ fontSize: '12px' }}>回滚</a>
                               </span>
-                            </Popconfirm>
+                              </Popconfirm>
                           ) : (
-                            ""
+                            ''
                           )}
 
                           <Popconfirm
@@ -473,10 +463,11 @@ class Index extends PureComponent {
                             }}
                           >
                             {build_version != current_version &&
+                              isDelete &&
                               current_version && (
                                 <span>
                                   <Divider type="vertical" />
-                                  <a style={{ fontSize: "12px" }}>删除</a>
+                                  <a style={{ fontSize: '12px' }}>删除</a>
                                 </span>
                               )}
                           </Popconfirm>

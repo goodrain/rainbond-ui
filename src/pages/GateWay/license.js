@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Row, Button, Table, Card, notification, Typography } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import LicenseDrawer from '../../components/LicenseDrawer';
-import { Row, Col, Button, Table, Card, notification, Typography } from 'antd';
-import { connect } from 'dva';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 
 const { Paragraph } = Typography;
 
@@ -13,6 +14,7 @@ const { Paragraph } = Typography;
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 class Control extends Component {
   constructor(props) {
@@ -21,32 +23,45 @@ class Control extends Component {
       visibleDrawer: false,
       licenseList: [],
       licenseLoading: true,
-      page_num: 1,
-      page_size: 10,
+      page: 1,
+      pageSize: 10,
       total: '',
       editData: '',
       id: '',
+      operationPermissions: this.handlePermissions('queryCertificateInfo'),
     };
   }
-  rowKey = (record, index) => index;
+
   componentWillMount() {
-    const { currUser, dispatch } = this.props;
-    // 不是系统管理员
-    // if (!userUtil.isSystemAdmin(currUser) && !userUtil.isCompanyAdmin(currUser)) {
-    //   this.props.dispatch(routerRedux.replace(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/Exception/403`));
-    //   return null;
-    // }
-    this.load();
+    const { dispatch } = this.props;
+    const {
+      operationPermissions: { isAccess },
+    } = this.state;
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    } else {
+      this.load();
+    }
   }
+
+  onPageChange = pageNumber => {
+    this.setState({ licenseLoading: true });
+    this.setState({ page: pageNumber }, () => {
+      this.load();
+    });
+  };
+
+  rowKey = (record, index) => index;
+
   /** 查询证书 */
   load = () => {
-    const { page_num, page_size, total } = this.state;
+    const { page, pageSize } = this.state;
     this.props.dispatch({
       type: 'gateWay/fetchAllLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        page_num,
-        page_size,
+        page_num: page,
+        page_size: pageSize,
       },
       callback: data => {
         if (data && data._code == 200) {
@@ -157,14 +172,23 @@ class Control extends Component {
   handleUpdate = record => {
     console.log(record);
   };
-  onPageChange = pageNumber => {
-    this.setState({ licenseLoading: true });
-    this.setState({ page_num: pageNumber }, () => {
-      this.load();
-    });
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
   };
 
   render() {
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const {
+      page,
+      pageSize,
+      total,
+      licenseList,
+      operationPermissions: { isCreate, isEdit, isDelete },
+    } = this.state;
     const columns = [
       {
         title: '证书名称',
@@ -179,7 +203,7 @@ class Control extends Component {
         key: 'issued_to',
         align: 'center',
         width: '25%',
-        render: issued_to => {
+        render: data => {
           return (
             <Paragraph
               ellipsis={{
@@ -187,8 +211,8 @@ class Control extends Component {
                 expandable: true,
               }}
             >
-              {issued_to &&
-                issued_to.map(item => {
+              {data &&
+                data.map(item => {
                   return (
                     <Row key={item}>
                       <Paragraph copyable>{item}</Paragraph>
@@ -205,14 +229,14 @@ class Control extends Component {
         key: 'end_data',
         align: 'center',
         width: '20%',
-        render: (end_data, record) => {
+        render: (data, record) => {
           return (
             <div
               style={{
                 color: record.has_expired ? 'red' : ' rgba(0, 0, 0, 0.65)',
               }}
             >
-              {end_data}
+              {data}
             </div>
           );
         },
@@ -237,40 +261,52 @@ class Control extends Component {
         key: 'action',
         align: 'center',
         width: '15%',
-        render: (text, record, index) => {
+        render: (_, record) => {
           return (
             <span>
-              <a
-                style={{ marginRight: '10px' }}
-                onClick={this.handleEdit.bind(this, record)}
-              >
-                编辑
-              </a>
-              {record.issued_by.includes('第三方签发') ? (
-                ''
-              ) : (
+              {isEdit && (
                 <a
                   style={{ marginRight: '10px' }}
-                  onClick={this.handleUpdate.bind(this, record)}
+                  onClick={() => {
+                    this.handleEdit(record);
+                  }}
+                >
+                  编辑
+                </a>
+              )}
+
+              {!record.issued_by.includes('第三方签发') && isEdit && (
+                <a
+                  style={{ marginRight: '10px' }}
+                  onClick={() => {
+                    this.handleUpdate(record);
+                  }}
                 >
                   更新
                 </a>
               )}
-              <a onClick={this.handleDelete.bind(this, record)}>删除</a>
+
+              {isDelete && (
+                <a
+                  onClick={() => {
+                    this.handleDelete(record);
+                  }}
+                >
+                  删除
+                </a>
+              )}
             </span>
           );
         },
       },
     ];
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
       currentRegionName
     );
     breadcrumbList.push({ title: '网关管理' });
-    const { page_num, page_size, total, licenseList } = this.state;
     return (
       <PageHeaderLayout
         title="证书管理"
@@ -278,23 +314,25 @@ class Control extends Component {
         content="TLS证书管理，支持服务端证书，支持展示证书过期时间"
       >
         <Row>
-          <Button
-            type="primary"
-            icon="plus"
-            style={{ float: 'right', marginBottom: '10px' }}
-            onClick={this.handleCick}
-          >
-            添加证书
-          </Button>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              style={{ float: 'right', marginBottom: '10px' }}
+              onClick={this.handleCick}
+            >
+              添加证书
+            </Button>
+          )}
         </Row>
         <Card bodyStyle={{ padding: '0' }}>
           <Table
             pagination={{
               total,
-              page_num,
-              pageSize: page_size,
+              page_num: page,
+              pageSize,
               onChange: this.onPageChange,
-              current: page_num,
+              current: page,
             }}
             rowKey={this.rowKey}
             dataSource={licenseList}
