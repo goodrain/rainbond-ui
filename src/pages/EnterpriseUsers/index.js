@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Table, Tabs, Row, Col, notification } from 'antd';
 import { routerRedux } from 'dva/router';
-import userUtil from '../../utils/user';
-import CreatUser from '../../components/CreatUserForm';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ConfirmModal from '../../components/ConfirmModal';
+import { Card, Button, Table, Row, Col, notification } from 'antd';
 import moment from 'moment';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import CreatUser from '../../components/CreatUserForm';
+import ConfirmModal from '../../components/ConfirmModal';
+import userUtil from '../../utils/user';
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -26,7 +26,7 @@ export default class EnterpriseUsers extends PureComponent {
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       page: 1,
-      page_size: 10,
+      pageSize: 10,
       adminer,
       adminList: [],
       total: 0,
@@ -39,12 +39,24 @@ export default class EnterpriseUsers extends PureComponent {
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch } = this.props;
-    !adminer && dispatch(routerRedux.push(`/`));
+    if (!adminer) {
+      dispatch(routerRedux.push(`/`));
+    }
   }
   componentDidMount() {
     this.loadUser();
   }
-
+  onPageChange = (page, pageSize) => {
+    this.setState(
+      {
+        page,
+        pageSize,
+      },
+      () => {
+        this.loadUser();
+      }
+    );
+  };
   handleCreatUser = values => {
     const {
       dispatch,
@@ -64,7 +76,7 @@ export default class EnterpriseUsers extends PureComponent {
         ...values,
       },
       callback: data => {
-        if (data && data._condition == 200) {
+        if (data && data._condition === 200) {
           this.loadUser();
           this.cancelCreatUser();
           notification.success({ message: data.msg_show || '' });
@@ -72,6 +84,7 @@ export default class EnterpriseUsers extends PureComponent {
       },
       handleError: res => {
         if (res && res.data && res.data.code) {
+          // eslint-disable-next-line default-case
           switch (res.data.code) {
             case 3000:
               notification.warning({ message: '用户已存在' });
@@ -107,7 +120,7 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._condition == 200) {
+        if (res && res._condition === 200) {
           this.cancelCreatUser();
           this.loadUser();
           notification.success({ message: '编辑成功' });
@@ -131,25 +144,13 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._condition == 200) {
+        if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
           notification.success({ message: '删除成功' });
         }
       },
     });
-  };
-
-  onPageChange = (page, page_size) => {
-    this.setState(
-      {
-        page,
-        page_size,
-      },
-      () => {
-        this.loadUser();
-      }
-    );
   };
 
   loadUser = name => {
@@ -159,13 +160,13 @@ export default class EnterpriseUsers extends PureComponent {
         params: { eid },
       },
     } = this.props;
-    const { page, page_size } = this.state;
+    const { page, pageSize } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
         enterprise_id: eid,
         page,
-        page_size,
+        page_size: pageSize,
         name,
       },
       callback: res => {
@@ -214,7 +215,17 @@ export default class EnterpriseUsers extends PureComponent {
   };
 
   render() {
-    const { adminList, adminer, text, userInfo, delVisible } = this.state;
+    const {
+      adminList,
+      adminer,
+      text,
+      userInfo,
+      delVisible,
+      userVisible,
+      page,
+      pageSize,
+      total,
+    } = this.state;
 
     const {
       match: {
@@ -306,7 +317,7 @@ export default class EnterpriseUsers extends PureComponent {
             />
           )}
 
-          {this.state.userVisible && (
+          {userVisible && (
             <CreatUser
               eid={eid}
               userInfo={userInfo}
@@ -319,9 +330,9 @@ export default class EnterpriseUsers extends PureComponent {
           <Table
             size="middle"
             pagination={{
-              current: this.state.page,
-              pageSize: this.state.page_size,
-              total: this.state.total,
+              current: page,
+              pageSize,
+              total,
               onChange: this.onPageChange,
             }}
             dataSource={adminList}

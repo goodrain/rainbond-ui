@@ -1,31 +1,32 @@
 import React, { PureComponent } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { List, Avatar, Button, Icon, notification } from 'antd';
-import ConfirmModal from '../../components/ConfirmModal';
+import moment from 'moment';
+import { Avatar, Button, Icon } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from './index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import cookie from '../../utils/cookie';
 import MoveTeam from './move_team';
+import ConfirmModal from '../../components/ConfirmModal';
 import TeamDataCenterList from '../../components/Team/TeamDataCenterList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
 import TeamRoleList from '../../components/Team/TeamRoleList';
 import TeamEventList from '../../components/Team/TeamEventList';
+import globalUtil from '../../utils/global';
+import teamUtil from '../../utils/team';
+import roleUtil from '../../utils/role';
+
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import TeamImg from '../../../public/images/team-icon.png';
+import styles from './index.less';
 
 @connect(({ user, teamControl, loading, enterprise }) => ({
   currUser: user.currentUser,
   teamControl,
   projectLoading: loading.effects['project/fetchNotice'],
   activitiesLoading: loading.effects['activities/fetchList'],
-  regions: teamControl.regions,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class Index extends PureComponent {
   constructor(arg) {
@@ -35,19 +36,65 @@ export default class Index extends PureComponent {
       showEditName: false,
       showDelTeam: false,
       showExitTeam: false,
-      scope: params.type || 'event',
+      scope: '',
       teamsUrl: this.props.currentEnterprise
         ? `/enterprise/${this.props.currentEnterprise.enterprise_id}/teams`
         : '/',
+      eventPermissions: this.handleEventPermissions('dynamic_describe'),
+      memberPermissions: this.handlePermissions('queryTeamMemberInfo'),
+      datecenterPermissions: this.handlePermissions('queryTeamRegionInfo'),
+      rolePermissions: this.handlePermissions('queryTeamRolesInfo'),
     };
+  }
+
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      eventPermissions,
+      memberPermissions: { isAccess: memberAccess },
+      datecenterPermissions: { isAccess: datecenterAccess },
+      rolePermissions: { isAccess: roleAccess },
+    } = this.state;
+    if (
+      !eventPermissions &&
+      !memberAccess &&
+      !datecenterAccess &&
+      !roleAccess
+    ) {
+      globalUtil.withoutPermission(dispatch);
+    }
+
+    let scopes = '';
+    if (eventPermissions) {
+      scopes = 'event';
+    } else if (memberAccess) {
+      scopes = 'member';
+    } else if (datecenterAccess) {
+      scopes = 'datecenter';
+    } else {
+      scopes = 'role';
+    }
+    this.setState({ scope: scopes });
+  }
+
+  componentDidMount() {
+    this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
   }
   getParam() {
     return this.props.match.params;
   }
-  componentDidMount() {
-    this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
-  }
-  componentWillUnmount() {}
+  handleEventPermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.queryTeamBasicInfo(currentTeamPermissionsInfo, type);
+  };
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
+
   showEditName = () => {
     this.setState({ showEditName: true });
   };
@@ -61,13 +108,12 @@ export default class Index extends PureComponent {
     this.setState({ showExitTeam: false });
   };
   handleExitTeam = () => {
-    const team_name = globalUtil.getCurrTeamName();
     const { dispatch } = this.props;
     const { teamsUrl } = this.state;
     dispatch({
       type: 'teamControl/exitTeam',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -83,11 +129,10 @@ export default class Index extends PureComponent {
     this.setState({ showDelTeam: false });
   };
   handleEditName = data => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: 'teamControl/editTeamAlias',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         ...data,
       },
       callback: () => {
@@ -105,13 +150,12 @@ export default class Index extends PureComponent {
     });
   };
   handleDelTeam = () => {
-    const team_name = globalUtil.getCurrTeamName();
     const { teamsUrl } = this.state;
     const { dispatch } = this.props;
     dispatch({
       type: 'teamControl/delTeam',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -124,29 +168,38 @@ export default class Index extends PureComponent {
     this.setState({ scope: key });
   };
   render() {
-    const { currUser } = this.props;
-
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, team_name);
+    const {
+      currUser,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+    } = this.props;
+    const {
+      scope,
+      showEditName,
+      showDelTeam,
+      showExitTeam,
+      eventPermissions,
+      memberPermissions,
+      datecenterPermissions,
+      rolePermissions,
+    } = this.state;
 
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
         <div className={styles.avatar}>
-          <Avatar
-            size="large"
-            src={require('../../../public/images/team-icon.png')}
-          />
+          <Avatar size="large" src={TeamImg} />
         </div>
         <div className={styles.content}>
           <div className={styles.contentTitle}>
-            {team.team_alias}{' '}
-            {teamUtil.canEditTeamName(team) && (
+            {currentTeam.team_alias}{' '}
+            {teamUtil.canEditTeamName(currentTeam) && (
               <Icon onClick={this.showEditName} type="edit" />
             )}
           </div>
           <div>
-            创建于{' '}
-            {moment(team.create_time)
+            创建于
+            {moment(currentTeam.create_time)
               .locale('zh-cn')
               .format('YYYY-MM-DD')}
           </div>
@@ -160,37 +213,43 @@ export default class Index extends PureComponent {
             退出团队
           </Button>
           <Button
-            disabled={!teamUtil.canDeleteTeam(team)}
+            disabled={!teamUtil.canDeleteTeam(currUser)}
             onClick={this.showDelTeam}
             type="dashed"
           >
-            {' '}
-            删除团队{' '}
+            删除团队
           </Button>
         </div>
       </div>
     );
-    const eventCar = <TeamEventList />;
-    const tabList = [
-      {
+
+    const tabList = [];
+    if (eventPermissions) {
+      tabList.push({
         key: 'event',
         tab: '动态',
-      },
-      {
+      });
+    }
+    if (memberPermissions) {
+      tabList.push({
         key: 'member',
         tab: '成员',
-      },
-      {
+      });
+    }
+    if (datecenterPermissions) {
+      tabList.push({
         key: 'datecenter',
         tab: '集群',
-      },
-      {
+      });
+    }
+    if (rolePermissions) {
+      tabList.push({
         key: 'role',
         tab: '角色',
-      },
-    ];
+      });
+    }
+
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
@@ -205,19 +264,25 @@ export default class Index extends PureComponent {
         content={pageHeaderContent}
         extraContent={extraContent}
       >
-        {this.state.scope === 'datecenter' && <TeamDataCenterList />}
-        {this.state.scope === 'member' && <TeamMemberList />}
-        {this.state.scope === 'role' && <TeamRoleList />}
-        {this.state.scope === 'event' && eventCar}
+        {scope === 'datecenter' && (
+          <TeamDataCenterList datecenterPermissions={datecenterPermissions} />
+        )}
+        {scope === 'member' && (
+          <TeamMemberList memberPermissions={memberPermissions} />
+        )}
+        {scope === 'role' && <TeamRoleList rolePermissions={rolePermissions} />}
+        {scope === 'event' && eventPermissions && (
+          <TeamEventList memberPermissions={memberPermissions} />
+        )}
 
-        {this.state.showEditName && (
+        {showEditName && (
           <MoveTeam
-            teamAlias={team.team_alias}
+            teamAlias={currentTeam.team_alias}
             onSubmit={this.handleEditName}
             onCancel={this.hideEditName}
           />
         )}
-        {this.state.showDelTeam && (
+        {showDelTeam && (
           <ConfirmModal
             onOk={this.handleDelTeam}
             title="删除团队"
@@ -226,7 +291,7 @@ export default class Index extends PureComponent {
             onCancel={this.hideDelTeam}
           />
         )}
-        {this.state.showExitTeam && (
+        {showExitTeam && (
           <ConfirmModal
             onOk={this.handleExitTeam}
             title="退出团队"

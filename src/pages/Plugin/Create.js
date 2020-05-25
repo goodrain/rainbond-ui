@@ -1,22 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Icon, List } from 'antd';
+import { Card } from 'antd';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 import CreatePluginForm from '../../components/CreatePluginForm';
 
-@connect(({ list, loading }) => ({}))
+@connect()
 export default class Index extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {
-      list: [],
-    };
-    this.timer = null;
-  }
-  componentDidMount() {}
   handleSubmit = val => {
     this.props.dispatch({
       type: 'plugin/createPlugin',
@@ -35,8 +27,6 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const list = this.state.list;
-
     const content = <div className={styles.pageHeaderContent} />;
 
     const extraContent = <div className={styles.extraImg} />;
@@ -54,7 +44,7 @@ export default class Index extends PureComponent {
               margin: '20px auto',
             }}
           >
-            <CreatePluginForm onSubmit={this.handleSubmit} />
+            <CreatePluginForm isCreate onSubmit={this.handleSubmit} />
           </div>
         </Card>
       </PageHeaderLayout>

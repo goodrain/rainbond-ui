@@ -1,21 +1,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import {
-  Row,
-  Col,
-  Card,
-  Button,
-  Checkbox,
-  Form,
-  Radio,
-  Select,
-  Input,
-} from 'antd';
+import { Row, Col, Button, Checkbox, Form, Radio, Select, Input } from 'antd';
 import ShowRegionKey from '../ShowRegionKey';
 
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-const Option = Select.Option;
+const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
@@ -35,15 +24,19 @@ export default class Index extends PureComponent {
     this.state = {
       showUsernameAndPass: !!(data && data.username),
       checkedList: data && data.username ? ['showUsernameAndPass'] : [],
-      subdirectories: false,
     };
   }
-  componentDidMount = () => {
-    this.props.getCom && this.props.getCom;
+
+  onChange = checkedValues => {
+    this.setState({
+      checkedList: checkedValues,
+      showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
+      showKey: checkedValues.includes('showKey'),
+    });
   };
   handleSubmit = e => {
-    e && e.preventDefault();
-    const { form } = this.props;
+    e.preventDefault();
+    const { form, onSubmit } = this.props;
     const { checkedList } = this.state;
     form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
@@ -51,14 +44,15 @@ export default class Index extends PureComponent {
         fieldsValue.password = undefined;
         fieldsValue.username = undefined;
       }
-
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   checkCmd = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const build_source = getFieldValue('build_source');
-    if (build_source === 'image') {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'image') {
       if (!value) {
         callback('请输入镜像地址（名称:tag）如nginx:1.11');
       } else {
@@ -70,8 +64,8 @@ export default class Index extends PureComponent {
   };
   checkCode = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const build_source = getFieldValue('build_source');
-    if (build_source === 'dockerfile') {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'dockerfile') {
       if (!value) {
         callback('请输入源码Git地址（必须包含Dockerfile文件)');
         return;
@@ -81,8 +75,8 @@ export default class Index extends PureComponent {
   };
   checkCodeVersion = (rule, value, callback) => {
     const { getFieldValue } = this.props.form;
-    const build_source = getFieldValue('build_source');
-    if (build_source === 'dockerfile') {
+    const buildSource = getFieldValue('build_source');
+    if (buildSource === 'dockerfile') {
       if (!value) {
         callback('请输入代码版本');
         return;
@@ -90,13 +84,7 @@ export default class Index extends PureComponent {
     }
     callback();
   };
-  onChange = checkedValues => {
-    this.setState({
-      checkedList: checkedValues,
-      showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
-      showKey: checkedValues.includes('showKey'),
-    });
-  };
+
   fetchCheckboxGroup = isShow => {
     const { checkedList, showKey } = this.state;
     return (
@@ -132,18 +120,21 @@ export default class Index extends PureComponent {
     }
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const data = this.props.data || {};
+    const {
+      data = {},
+      form,
+      isEdit = false,
+      allDisabled = false,
+      submitText = '创建插件',
+      isCreate,
+    } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
     const { showUsernameAndPass, showKey } = this.state;
     let type = getFieldValue('build_source');
     const defaultType = 'image';
     if (!type) {
       type = data.build_source || defaultType;
     }
-
-    const isEdit = this.props.isEdit === void 0 ? false : this.props.isEdit;
-    const allDisabled =
-      this.props.allDisabled === void 0 ? false : this.props.allDisabled;
 
     return (
       <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
@@ -290,11 +281,12 @@ export default class Index extends PureComponent {
         </Form.Item>
         {!allDisabled ? (
           <Row>
-            <Col span="5" />
-            <Col span="19">
-              <Button onClick={this.handleSubmit} type="primary">
-                {this.props.submitText || '创建插件'}
-              </Button>
+            <Col offset={5} span={19}>
+              {(isEdit || isCreate) && (
+                <Button onClick={this.handleSubmit} type="primary">
+                  {submitText}
+                </Button>
+              )}
             </Col>
           </Row>
         ) : null}

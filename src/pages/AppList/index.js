@@ -2,10 +2,12 @@ import React, { PureComponent } from 'react';
 import { routerRedux, Link } from 'dva/router';
 import { connect } from 'dva';
 import { Card, Table, Button, Row, notification, Form, Input } from 'antd';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ScrollerX from '../../components/ScrollerX';
 import AddGroup from '../../components/AddOrEditGroup';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
@@ -16,6 +18,7 @@ const FormItem = Form.Item;
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class AppList extends PureComponent {
   constructor(props) {
@@ -25,26 +28,76 @@ export default class AppList extends PureComponent {
       loading: true,
       page: 1,
       query: '',
-      page_size: 10,
+      pageSize: 10,
+      operationPermissions: this.handlePermissions('queryAppInfo'),
     };
+  }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      operationPermissions: { isAccess },
+    } = this.state;
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    }
   }
   componentDidMount() {
     this.getTeamAppList();
   }
-  handleSearch = e => {
-    this.getTeamAppList();
-  };
-  handelChange = (e) => {
-		this.setState({ query: e.target.value})
-	}
-	handleEnter=()=>{
-		this.handleSearch()
-	}
   onPageChange = page => {
     this.setState({ page }, () => {
       this.getTeamAppList();
     });
   };
+
+  onAddGroup = () => {
+    this.setState({ addGroup: true });
+  };
+
+  getTeamAppList = () => {
+    const { teamName, regionName } = this.props.match.params;
+    const { page, pageSize, query } = this.state;
+    this.props.dispatch({
+      type: 'global/getTeamAppList',
+      payload: {
+        team_name: teamName,
+        region: regionName,
+        query,
+        page,
+        page_size: pageSize,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            loading: false,
+            apps: res.list,
+            total: res.bean && res.bean.total,
+          });
+        }
+      },
+    });
+  };
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
+
+  handleSearch = () => {
+    this.getTeamAppList();
+  };
+  handelChange = e => {
+    this.setState({ query: e.target.value });
+  };
+  handleEnter = () => {
+    this.handleSearch();
+  };
+
   handleAddGroup = vals => {
     const { teamName } = this.props.match.params;
     this.props.dispatch({
@@ -63,46 +116,32 @@ export default class AppList extends PureComponent {
     });
   };
 
-  getTeamAppList = () => {
-    const { teamName, regionName } = this.props.match.params;
-    const { page, page_size, query } = this.state;
-    this.props.dispatch({
-      type: 'global/getTeamAppList',
-      payload: {
-        team_name: teamName,
-        region: regionName,
-        query: query,
-        page,
-        page_size,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState({
-            loading: false,
-            apps: res.list,
-            total: res.bean && res.bean.total,
-          });
-        }
-      },
-    });
-  };
   jumpToAllbackup = () => {
     const { teamName, regionName } = this.props.match.params;
     this.props.dispatch(
       routerRedux.push(`/team/${teamName}/region/${regionName}/allbackup`)
     );
   };
-  onAddGroup = () => {
-    this.setState({ addGroup: true });
-  };
-  cancelAddGroup = () => {
-    this.setState({ addGroup: false });
-  };
+
   render() {
-    const { teamName, regionName } = this.props.match.params;
-    const { apps, loading, page, page_size, total, addGroup } = this.state;
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      match,
+    } = this.props;
+    const { teamName, regionName } = match.params;
+    const {
+      apps,
+      loading,
+      page,
+      pageSize,
+      total,
+      addGroup,
+      operationPermissions: { isCreate },
+    } = this.state;
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
@@ -116,9 +155,14 @@ export default class AppList extends PureComponent {
         content="应用可以是一个工程，一个架构，一个业务系统的管理单元，其由多个组件和应用配置构成"
       >
         <Row>
-          <Form layout="inline" style={{ display: 'inline-block'}}>
+          <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
-                <Input placeholder="搜索应用"  onChange={this.handelChange.bind(this)} onPressEnter={this.handleEnter} style={{width:250}} />
+              <Input
+                placeholder="搜索应用"
+                onChange={this.handelChange}
+                onPressEnter={this.handleEnter}
+                style={{ width: 250 }}
+              />
             </FormItem>
             <FormItem>
               <Button type="primary" onClick={this.handleSearch} icon="search">
@@ -126,14 +170,16 @@ export default class AppList extends PureComponent {
               </Button>
             </FormItem>
           </Form>
-          <Button
-            type="primary"
-            icon="plus"
-            style={{ float: 'right', marginBottom: '20px' }}
-            onClick={this.onAddGroup}
-          >
-            新建应用
-          </Button>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              style={{ float: 'right', marginBottom: '20px' }}
+              onClick={this.onAddGroup}
+            >
+              新建应用
+            </Button>
+          )}
         </Row>
 
         <Card loading={loading}>
@@ -147,9 +193,9 @@ export default class AppList extends PureComponent {
             <Table
               size="default"
               pagination={{
-                size: "default",
+                size: 'default',
                 current: page,
-                pageSize: page_size,
+                pageSize,
                 total,
                 onChange: this.onPageChange,
               }}
@@ -230,9 +276,7 @@ export default class AppList extends PureComponent {
                   dataIndex: 'group_note',
                   render: val => {
                     return (
-                      <p style={{ marginBottom: 0, color: '#999999' }}>
-                        {val}
-                      </p>
+                      <p style={{ marginBottom: 0, color: '#999999' }}>{val}</p>
                     );
                   },
                 },

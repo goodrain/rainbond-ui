@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import TenantSelect from '../../components/TenantSelect';
 import { Form, Input, Select, Modal } from 'antd';
+import TenantSelect from '../../components/TenantSelect';
 import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @connect()
 class CreateUserForm extends PureComponent {
@@ -13,27 +13,31 @@ class CreateUserForm extends PureComponent {
     super(props);
     this.state = {
       authorityList: [],
-      tenant_name: '',
     };
   }
   /**
    * 表单
    */
-  handleChange = tenant_name => {
-    this.setState({ tenant_name });
-  };
+
   handleSelect = selectedTeam => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
+    const { setFieldsValue } = form;
+
     dispatch({
-      type: 'global/requestAuthority',
+      type: 'teamControl/fetchTeamRoles',
       payload: {
-        selectedTeam,
+        team_name: selectedTeam,
       },
       callback: data => {
         if (data) {
-          this.setState({
-            authorityList: data.list,
-          });
+          this.setState(
+            {
+              authorityList: data.list,
+            },
+            () => {
+              setFieldsValue({ role_ids: [] });
+            }
+          );
         }
       },
     });
@@ -48,15 +52,16 @@ class CreateUserForm extends PureComponent {
     }
   };
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(values);
+    const { form, onOk } = this.props;
+    form.validateFields((err, values) => {
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { eid, onCancel, title, userInfo } = this.props;
+    const { eid, onCancel, title, userInfo, form } = this.props;
+    const { getFieldDecorator } = form;
     const { authorityList } = this.state;
     const formItemLayout = {
       labelCol: {
@@ -120,7 +125,6 @@ class CreateUserForm extends PureComponent {
                   <TenantSelect
                     placeholder="请输入团队名称进行查询"
                     eid={eid}
-                    onChange={this.handleChange}
                     onSelect={this.handleSelect}
                   />
                 )}
@@ -136,10 +140,11 @@ class CreateUserForm extends PureComponent {
                     style={{ width: '100%' }}
                     placeholder="请选择用户角色"
                   >
-                    {authorityList.map((item, index) => {
+                    {authorityList.map(item => {
+                      const { ID, name } = item;
                       return (
-                        <Option key={index} value={item.role_id}>
-                          {item.role_name}
+                        <Option key={ID} value={ID}>
+                          {name}
                         </Option>
                       );
                     })}

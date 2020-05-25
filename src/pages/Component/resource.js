@@ -1,13 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import globalUtil from '../../utils/global';
-import ChangeBuildSource from './setting/edit-buildsource';
-import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import appUtil from '../../utils/app';
-import CodeBuildConfig from '../../components/CodeBuildConfig';
-import { languageObj } from '../../utils/utils';
-import rainbondUtil from '../../utils/rainbond';
 import {
   Button,
   Icon,
@@ -20,11 +13,18 @@ import {
   Select,
   notification,
 } from 'antd';
+import AutoDeploy from './setting/auto-deploy';
+import ChangeBuildSource from './setting/edit-buildsource';
+import CodeBuildConfig from '../../components/CodeBuildConfig';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import NoPermTip from '../../components/NoPermTip';
+import appUtil from '../../utils/app';
+import { languageObj } from '../../utils/utils';
+import rainbondUtil from '../../utils/rainbond';
+import globalUtil from '../../utils/global';
 import styles from './resource.less';
 
-import AutoDeploy from './setting/auto-deploy';
-
-const TabPane = Tabs.TabPane;
+const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option, OptGroup } = Select;
 
@@ -64,7 +64,7 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
-    const { rainbondInfo,enterprise} = this.props;
+    const { rainbondInfo, enterprise } = this.props;
     const tabList = [];
     if (
       rainbondUtil.OauthbEnable(rainbondInfo) &&
@@ -85,6 +85,30 @@ export default class Index extends PureComponent {
     this.getRuntimeInfo();
     this.loadBuildSourceInfo();
   }
+  getParams() {
+    return {
+      group_id: this.props.match.params.appID,
+      compose_id: this.props.match.params.composeId,
+    };
+  }
+  onChangeBuildSource = () => {
+    this.hideBuildSource();
+    this.loadBuildSourceInfo();
+  };
+  getRuntimeInfo = () => {
+    this.props.dispatch({
+      type: 'appControl/getRuntimeBuildInfo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
+        }
+      },
+    });
+  };
   handleEditRuntime = build_env_dict => {
     this.props.dispatch({
       type: 'appControl/editRuntimeBuildInfo',
@@ -116,20 +140,7 @@ export default class Index extends PureComponent {
       },
     });
   };
-  getRuntimeInfo = () => {
-    this.props.dispatch({
-      type: 'appControl/getRuntimeBuildInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
-        }
-      },
-    });
-  };
+
   changeBuildSource = () => {
     this.setState({ changeBuildSource: true });
   };
@@ -146,10 +157,6 @@ export default class Index extends PureComponent {
     this.setState({ editOauth: false });
   };
 
-  onChangeBuildSource = () => {
-    this.hideBuildSource();
-    this.loadBuildSourceInfo();
-  };
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
@@ -195,12 +202,7 @@ export default class Index extends PureComponent {
       },
     });
   };
-  getParams() {
-    return {
-      group_id: this.props.match.params.appID,
-      compose_id: this.props.match.params.composeId,
-    };
-  }
+
   handleToDetect = () => {
     this.setState({ languageBox: true });
   };
@@ -390,10 +392,27 @@ export default class Index extends PureComponent {
       });
     });
   };
-
+  // 是否可以浏览当前界面
+  canView() {
+    const {
+      componentPermissions: { isSource },
+    } = this.props;
+    return isSource;
+  }
   render() {
-    const language = appUtil.getLanguage(this.props.appDetail);
-    const runtimeInfo = this.state.runtimeInfo;
+    if (!this.canView()) return <NoPermTip />;
+
+    const { form, match, appDetail } = this.props;
+    const {
+      runtimeInfo,
+      thirdInfo,
+      buildSource,
+      tags,
+      tagsLoading,
+      fullList,
+      tabList,
+    } = this.state;
+    const language = appUtil.getLanguage(appDetail);
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -432,15 +451,6 @@ export default class Index extends PureComponent {
       },
     };
 
-    const {
-      thirdInfo,
-      buildSource,
-      tags,
-      tagsLoading,
-      fullList,
-      tabList,
-    } = this.state;
-    const { form, match } = this.props;
     const { teamName, regionName } = match.params;
     const { getFieldDecorator } = form;
     const versionLanguage = buildSource ? buildSource.language : '';
@@ -659,28 +669,28 @@ export default class Index extends PureComponent {
               !this.state.create_status
                 ? [
                   <Button key="back" onClick={this.handlelanguageBox}>
-                    关闭
-                  </Button>,
+                      关闭
+                    </Button>,
                   <Button
-                    key="submit"
-                    type="primary"
-                    onClick={this.handleDetectPutLanguage}
-                  >
-                    检测
-                  </Button>,
+                      key="submit"
+                      type="primary"
+                      onClick={this.handleDetectPutLanguage}
+                    >
+                      检测
+                    </Button>,
                   ]
                 : this.state.create_status == 'success'
                 ? [
                   <Button key="back" onClick={this.handlelanguageBox}>
-                    关闭
-                  </Button>,
+                      关闭
+                    </Button>,
                   <Button
-                    key="submit"
-                    type="primary"
-                    onClick={this.handlelanguageBox}
-                  >
-                    确认
-                  </Button>,
+                      key="submit"
+                      type="primary"
+                      onClick={this.handlelanguageBox}
+                    >
+                      确认
+                    </Button>,
                   ]
                 : [<Button key="back">关闭</Button>]
             }

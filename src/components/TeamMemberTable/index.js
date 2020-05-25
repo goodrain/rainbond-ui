@@ -1,18 +1,9 @@
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
-import { Table, Alert, Badge, Divider } from 'antd';
+import React, { PureComponent } from 'react';
+import { Table } from 'antd';
 import teamUtil from '../../utils/team';
 import roleUtil from '../../utils/role';
 
-const statusMap = ['default', 'processing', 'success', 'error'];
 class TeamMemberTable extends PureComponent {
-  state = {
-    selectedRowKeys: [],
-    totalCallNo: 0
-  };
-
-  componentWillReceiveProps(nextProps) {}
-
   handleTableChange = (pagination, filters, sorter) => {
     this.props.onChange(pagination, filters, sorter);
   };
@@ -24,48 +15,46 @@ class TeamMemberTable extends PureComponent {
       onDelete,
       onEditAction,
       onMoveTeam,
-      team
+      memberPermissions: { isEdit, isDelete },
+      team,
     } = this.props;
 
     const columns = [
       {
         title: '用户名',
-        dataIndex: 'user_name'
+        dataIndex: 'nick_name',
       },
       {
         title: '邮箱',
-        dataIndex: 'email'
+        dataIndex: 'email',
       },
       {
         title: '角色',
-        dataIndex: 'role_info',
+        dataIndex: 'roles',
         render(val) {
           return (
             <span>
               {(val || []).map(item => {
                 return (
-                  <span style={{ marginRight: '8px' }} key={'role' + item.role_id}>
+                  <span
+                    style={{ marginRight: '8px' }}
+                    key={`role${item.role_id}`}
+                  >
                     {roleUtil.actionMap(item.role_name)}
                   </span>
                 );
               })}
             </span>
           );
-        }
+        },
       },
       {
         title: '操作',
         dataIndex: 'action',
-        render(val, data) {
-          const roles = data.role_info || [];
-          const creater = roles.filter(item => item.role_name === 'owner')[0];
-          if (creater) {
-            return null;
-          }
-
+        render(_, data) {
           return (
             <div>
-              {teamUtil.canDeleteMember(team) &&
+              {isDelete && (
                 <a
                   href="javascript:;"
                   onClick={() => {
@@ -73,12 +62,12 @@ class TeamMemberTable extends PureComponent {
                   }}
                 >
                   删除
-                </a>}
-
-              {teamUtil.canEditMemberRole(team) &&
+                </a>
+              )}
+              {isEdit && (
                 <a
                   style={{
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                   onClick={() => {
                     onEditAction(data);
@@ -86,12 +75,12 @@ class TeamMemberTable extends PureComponent {
                   href="javascript:;"
                 >
                   修改角色
-                </a>}
-
-              {teamUtil.canChangeOwner(team) &&
+                </a>
+              )}
+              {teamUtil.canChangeOwner(team) && (
                 <a
                   style={{
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                   onClick={() => {
                     onMoveTeam(data);
@@ -99,11 +88,12 @@ class TeamMemberTable extends PureComponent {
                   href="javascript:;"
                 >
                   移交团队
-                </a>}
+                </a>
+              )}
             </div>
           );
-        }
-      }
+        },
+      },
     ];
 
     return (

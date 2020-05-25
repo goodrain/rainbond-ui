@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { notification } from 'antd';
-// import { routerRedux } from "dva/router";
+// import { routerRedux } from 'dva/router';
 // import store from "../index";
 // import store from '@/index'
 // const { dispatch } = store;
@@ -87,12 +87,16 @@ export default function request(url, options) {
   };
 
   const token = cookie.get('token');
+  const teamName = cookie.get('team_name');
+  const regionName = cookie.get('region_name');
+
   if (token && newOptions.passAuthorization) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
   }
-  newOptions.headers.X_REGION_NAME = globalUtil.getCurrRegionName();
+  newOptions.headers.X_REGION_NAME =
+    globalUtil.getCurrRegionName() || regionName;
   // newOptions.headers.X_REGION_NAME = "rainbond";
-  newOptions.headers.X_TEAM_NAME = globalUtil.getCurrTeamName();
+  newOptions.headers.X_TEAM_NAME = globalUtil.getCurrTeamName() || teamName;
 
   // newOptions.headers.Authorization = 'GRJWT '+
   // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxpY2hhbyIsImV4cCI6MTU
@@ -195,6 +199,13 @@ export default function request(url, options) {
           });
           return;
         }
+
+        if (resData.code === 10402) {
+          const regionName = globalUtil.getCurrRegionName();
+          const teamName = globalUtil.getCurrTeamName();
+          push(`/team/${teamName}/region/${regionName}/exception/403`);
+        }
+
         if (resData.code === 10400) {
           window.g_app._store.dispatch({
             type: 'global/setNouse',

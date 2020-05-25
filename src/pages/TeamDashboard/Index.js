@@ -31,6 +31,7 @@ import guideutil from '../../utils/guide';
 import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
 import userUtil from '../../utils/user';
+import roleUtil from '../../utils/role';
 import styles from './Index.less';
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
@@ -43,9 +44,8 @@ import styles from './Index.less';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  projectLoading: loading.effects['project/fetchNotice'],
-  activitiesLoading: loading.effects['activities/fetchList'],
   loading,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -579,7 +579,6 @@ export default class Index extends PureComponent {
     });
   };
   render() {
-    const handleHost = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`;
     const columns = [
       {
         title: '域名',
@@ -682,16 +681,21 @@ export default class Index extends PureComponent {
         align: 'right',
       },
     ];
-
     const {
       index,
-      projectLoading,
-      activitiesLoading,
-      currUser,
-      pagination,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      currentTeamPermissionsInfo,
     } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, team_name);
+
+    const { teamAppList, GuideList, domainList, serviceList } = this.state;
+
+    const isCreate = roleUtil.queryAppInfo(
+      currentTeamPermissionsInfo,
+      'create'
+    );
+
     const extraContent = (
       <div className={styles.extraContent}>
         <div className={styles.statItem}>
@@ -794,13 +798,12 @@ export default class Index extends PureComponent {
       </div>
     );
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
       currentRegionName
     );
-    const { teamAppList, GuideList, domainList, serviceList } = this.state;
+
     const steps = guideutil.getStep(GuideList);
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
@@ -951,14 +954,16 @@ export default class Index extends PureComponent {
                       }}
                     >
                       <span>应用</span>
-                      <a
-                        style={{ fontSize: '14px', fontWeight: 400 }}
-                        onClick={() => {
-                          this.setState({ addApplication: true });
-                        }}
-                      >
-                        增加应用
-                      </a>
+                      {isCreate && (
+                        <a
+                          style={{ fontSize: '14px', fontWeight: 400 }}
+                          onClick={() => {
+                            this.setState({ addApplication: true });
+                          }}
+                        >
+                          增加应用
+                        </a>
+                      )}
                     </div>
                   }
                   bordered={false}

@@ -38,6 +38,7 @@ export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
+    console.log('user', user);
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -650,7 +651,7 @@ export default class EnterpriseTeams extends PureComponent {
               team_name,
               region_list,
               owner_name,
-              role,
+              roles,
             } = item;
             return (
               <Card
@@ -663,7 +664,7 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col span={6}>{team_alias}</Col>
                   <Col span={3}>{owner_name}</Col>
                   <Col span={3}>
-                    {role.split(',').map(item => {
+                    {roles.map(item => {
                       return (
                         <span
                           style={{ marginRight: '8px' }}
