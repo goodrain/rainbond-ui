@@ -4,7 +4,7 @@ import apiconfig from '../../config/api.config';
 // edit role
 export async function editRole(body = {}) {
   return request(
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
     {
       method: 'put',
       data: {
@@ -18,7 +18,7 @@ export async function editRole(body = {}) {
 export async function putRolePermissions(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
     {
       method: 'put',
       data: {
@@ -32,7 +32,7 @@ export async function putRolePermissions(body = {}) {
 export async function removeRole(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
     {
       method: 'delete',
     }
@@ -42,7 +42,7 @@ export async function removeRole(body = {}) {
 export async function createRole(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles`,{
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
       method: 'post',
       data: {
@@ -56,7 +56,7 @@ export async function createRole(body = {}) {
 export async function getTeamRoles(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
       method: 'get',
     }
@@ -66,7 +66,7 @@ export async function getTeamRoles(body = {}) {
 export async function getTeamRolesPermissions(body = {}) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}/perms`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
     {
       method: 'get',
     }
@@ -77,7 +77,7 @@ export async function getTeamRolesPermissions(body = {}) {
 export async function getTeamUserPermissions(body = {}, handleError) {
   return request(
     // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/users/{user_id}/perms`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
     {
       method: 'get',
       handleError,
@@ -136,7 +136,7 @@ export async function getTeamPermissions() {
 */
 export async function editMember(body = {}) {
   return request(
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
     {
       method: 'put',
       data: {
@@ -174,16 +174,13 @@ export async function getMembers(
     pageSize,
   }
 ) {
-  return request(
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/users`,
-    {
-      method: 'get',
-      params: {
-        page: body.page,
-        page_size: body.pageSize,
-      },
-    }
-  );
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/users`, {
+    method: 'get',
+    params: {
+      page: body.page,
+      page_size: body.pageSize,
+    },
+  });
 }
 
 /*
@@ -191,7 +188,7 @@ export async function getMembers(
 */
 export async function getTeamMembers(body = {}) {
   return request(
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/users/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/roles`,
     {
       method: 'get',
     }
@@ -210,7 +207,7 @@ export async function addMember(
 ) {
   return request(
     // `http://5000.gradb2e2.2c9v614j.17f4cc.grapps.cn/console/teams/${body.team_name}/add_team_user`,
-    `${apiconfig.customUrl}/console/teams/${body.team_name}/add_team_user`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/add_team_user`,
     {
       method: 'post',
       data: {

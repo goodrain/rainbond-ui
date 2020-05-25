@@ -5,7 +5,7 @@ import apiconfig from '../../config/api.config';
 // fetch Permissions
 export async function getPermissions() {
   return request(
-    `${apiconfig.customUrl}/console/perms`,
+    `${apiconfig.baseUrl}/console/perms`,
     // `https://doc.goodrain.org/mock/18/console/perms`,
     {
       method: 'get',
