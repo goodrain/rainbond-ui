@@ -6,7 +6,7 @@ import cookie from '../utils/cookie';
 // fetch Permissions
 export async function getPermissions() {
   return request(
-    `${apiconfig.customUrl}/console/perms`,
+    `${apiconfig.baseUrl}/console/perms`,
     // `https://doc.goodrain.org/mock/18/console/perms`,
     {
       method: 'get',
