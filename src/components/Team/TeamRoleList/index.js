@@ -4,6 +4,7 @@ import { Tabs, Icon, Menu, Button, Spin, Empty } from 'antd';
 import PermissionsForm from './permissionsForm';
 import ConfirmModal from '../../ConfirmModal';
 import globalUtil from '../../../utils/global';
+import roleUtil from '../../../utils/role';
 import styles from './index.less';
 
 const { Item } = Menu;
@@ -135,7 +136,7 @@ export default class RoleList extends PureComponent {
                       const { ID, name } = item;
                       return (
                         <Item key={ID} className={styles.roleName}>
-                          <div> {name}</div>
+                          <div> {roleUtil.actionMap(name)}</div>
                           {isDelete && (
                             <Icon
                               type="delete"

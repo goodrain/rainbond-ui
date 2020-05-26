@@ -37,6 +37,7 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
       text: '',
       delVisible: false,
+      name: '',
     };
   }
   componentWillMount() {
@@ -150,13 +151,14 @@ export default class EnterpriseUsers extends PureComponent {
         params: { eid },
       },
     } = this.props;
-    const { page, pageSize } = this.state;
+    const { page, pageSize, name } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
         enterprise_id: eid,
         page,
         page_size: pageSize,
+        name,
       },
       callback: res => {
         if (res) {
@@ -202,7 +204,12 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
     });
   };
-
+  handleSearch = e => {
+    this.loadUser();
+  };
+  handelChange = e => {
+    this.setState({ name: e.target.value });
+  };
   render() {
     const {
       adminList,
