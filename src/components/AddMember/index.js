@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Modal, Form, Checkbox, Select, Input } from 'antd';
 import { connect } from 'dva';
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 import UserSelect from '../UserSelect';
 
 const { Option } = Select;
@@ -120,7 +121,7 @@ class ConfirmModal extends PureComponent {
                   const { ID, name } = item;
                   return (
                     <Option key={ID} value={ID}>
-                      {name}
+                      {roleUtil.actionMap(name)}
                     </Option>
                   );
                 })}

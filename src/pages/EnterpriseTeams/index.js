@@ -1,7 +1,8 @@
-import { Button, Card, Col, Dropdown, Empty, Icon, Input, Menu, notification, Pagination, Row, Spin, Tabs } from 'antd';
+
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Dropdown, Empty, Icon, Input, Menu, notification, Pagination, Row, Spin, Tabs } from 'antd';
 import WarningImg from '../../../public/images/warning.png';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreateTeam from '../../components/CreateTeam';
@@ -16,14 +17,13 @@ import styles from './index.less';
 const { TabPane } = Tabs;
 const { Search } = Input;
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ user }) => ({
   user: user.currentUser,
 }))
 export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    console.log('user', user);
     const adminer =
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
@@ -54,34 +54,6 @@ export default class EnterpriseTeams extends PureComponent {
     }
   }
 
-  handleCreateTeam = values => {
-    this.props.dispatch({
-      type: 'teamControl/createTeam',
-      payload: values,
-      callback: () => {
-        notification.success({ message: '添加成功' });
-        // 添加完查询企业团队列表
-        this.load();
-        this.cancelCreateTeam();
-      },
-    });
-  };
-
-  load = () => {
-    this.state.adminer && this.getEnterpriseTeams();
-    this.getOverviewTeam();
-    this.getUserTeams();
-  };
-
-  handlePaginations = isPages => (
-    <Pagination
-      current={this.state.page}
-      pageSize={this.state.page_size}
-      total={Number(this.state.total)}
-      onChange={this.onPageChangeTeam}
-    />
-  );
-
   onPageChangeUserTeam = (page, pageSize) => {
     this.setState({ page, pageSize }, () => {
       this.getUserTeams();
@@ -92,30 +64,6 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState({ page, pageSize }, () => {
       this.getEnterpriseTeams();
     });
-  };
-
-  handleSearchTeam = name => {
-    this.setState(
-      {
-        page: 1,
-        name,
-      },
-      () => {
-        this.getEnterpriseTeams();
-      }
-    );
-  };
-
-  handleSearchUserTeam = name => {
-    this.setState(
-      {
-        page: 1,
-        name,
-      },
-      () => {
-        this.getUserTeams();
-      }
-    );
   };
 
   getEnterpriseTeams = () => {
@@ -170,6 +118,56 @@ export default class EnterpriseTeams extends PureComponent {
             userTeamsLoading: false,
           });
         }
+      },
+    });
+  };
+
+  load = () => {
+    this.state.adminer && this.getEnterpriseTeams();
+    this.getOverviewTeam();
+    this.getUserTeams();
+  };
+  handleSearchTeam = name => {
+    this.setState(
+      {
+        page: 1,
+        name,
+      },
+      () => {
+        this.getEnterpriseTeams();
+      }
+    );
+  };
+
+  handlePaginations = isPages => (
+    <Pagination
+      current={this.state.page}
+      pageSize={this.state.page_size}
+      total={Number(this.state.total)}
+      onChange={this.onPageChangeTeam}
+    />
+  );
+  handleSearchUserTeam = name => {
+    this.setState(
+      {
+        page: 1,
+        name,
+      },
+      () => {
+        this.getUserTeams();
+      }
+    );
+  };
+
+  handleCreateTeam = values => {
+    this.props.dispatch({
+      type: 'teamControl/createTeam',
+      payload: values,
+      callback: () => {
+        notification.success({ message: '添加成功' });
+        // 添加完查询企业团队列表
+        this.load();
+        this.cancelCreateTeam();
       },
     });
   };
