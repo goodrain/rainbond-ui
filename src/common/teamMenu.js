@@ -48,7 +48,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         authority: ['admin', 'user'],
       });
     }
-    if (appCreateView || componentCreateView) {
+    if (appCreateView && componentCreateView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
         icon: 'plus',
