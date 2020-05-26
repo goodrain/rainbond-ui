@@ -232,7 +232,7 @@ export async function removeMember(
     {
       method: 'delete',
       data: {
-        user_ids: body.user_ids,
+        user_ids: [body.user_ids],
       },
     }
   );
