@@ -183,6 +183,9 @@ export default class Index extends PureComponent {
       memberPermissions,
       datecenterPermissions,
       rolePermissions,
+      memberPermissions: { isAccess: memberAccess },
+      datecenterPermissions: { isAccess: datecenterAccess },
+      rolePermissions: { isAccess: roleAccess },
     } = this.state;
 
     const pageHeaderContent = (
@@ -230,19 +233,19 @@ export default class Index extends PureComponent {
         tab: '动态',
       });
     }
-    if (memberPermissions) {
+    if (memberAccess) {
       tabList.push({
         key: 'member',
         tab: '成员',
       });
     }
-    if (datecenterPermissions) {
+    if (datecenterAccess) {
       tabList.push({
         key: 'datecenter',
         tab: '集群',
       });
     }
-    if (rolePermissions) {
+    if (roleAccess) {
       tabList.push({
         key: 'role',
         tab: '角色',
