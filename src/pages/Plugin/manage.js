@@ -413,7 +413,8 @@ export default class Index extends PureComponent {
           >
             <CreatePluginForm
               allDisabled={false}
-              isEdit
+              Modifys
+              isEdit={isEdit}
               onSubmit={this.hanldeEditSubmit}
               data={currInfo}
               submitText="确认修改"

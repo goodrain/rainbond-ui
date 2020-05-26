@@ -1,20 +1,18 @@
 /* eslint-disable react/no-multi-comp */
-
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Card, Button, Icon, List, notification } from 'antd';
 import { Link, routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import Manage from './manage';
-import Ellipsis from '../../components/Ellipsis';
-import ConfirmModal from '../../components/ConfirmModal';
-import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
-
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
+import Ellipsis from '../../components/Ellipsis';
+import Manage from './manage';
+import ConfirmModal from '../../components/ConfirmModal';
+import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 class MarketPlugin extends PureComponent {
   constructor(props) {
@@ -175,10 +173,24 @@ class PluginList extends PureComponent {
     super(arg);
     this.state = {
       list: [],
+      filebeat_log_plugin: null,
+      logtail_log_plugin: null,
       deletePlugin: null,
       downstream_net_plugin: null,
       perf_analyze_plugin: null,
       inandout_net_plugin: null,
+      filebeat_log_pluginData: {
+        category: 'filebeat_log_plugin',
+        desc: '通过filebeat日志收集器，对接ELK集群，完成日志收集',
+        plugin_alias: 'fileBeat日志收集插件',
+        hasInstall: false,
+      },
+      ali_logtail_log_pluginData: {
+        category: 'logtail_log_plugin',
+        desc: '通过logtail日志收集器，对接阿里云日志收集服务，完成日志收集',
+        plugin_alias: '阿里云logtail日志收集插件',
+        hasInstall: false,
+      },
       downstream_net_pluginData: {
         category: 'downstream_net_plugin',
         desc: '实现智能路由、A/B测试、灰度发布、端口复用等微治理功能',
@@ -284,10 +296,21 @@ class PluginList extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
+          const {
+            bean: {
+              downstream_net_plugin,
+              perf_analyze_plugin,
+              inandout_net_plugin,
+              logtail_log_plugin,
+              filebeat_log_plugin,
+            },
+          } = data;
           this.setState({
-            downstream_net_plugin: data.bean.downstream_net_plugin,
-            perf_analyze_plugin: data.bean.perf_analyze_plugin,
-            inandout_net_plugin: data.bean.inandout_net_plugin,
+            filebeat_log_plugin,
+            logtail_log_plugin,
+            downstream_net_plugin,
+            perf_analyze_plugin,
+            inandout_net_plugin,
           });
           this.fetchPlugins();
         }
@@ -304,6 +327,10 @@ class PluginList extends PureComponent {
         if (data) {
           const list = data.list || [];
           const {
+            filebeat_log_plugin,
+            filebeat_log_pluginData,
+            logtail_log_plugin,
+            ali_logtail_log_pluginData,
             downstream_net_plugin,
             downstream_net_pluginData,
             perf_analyze_plugin,
@@ -311,7 +338,12 @@ class PluginList extends PureComponent {
             inandout_net_plugin,
             inandout_net_pluginData,
           } = this.state;
-
+          if (filebeat_log_plugin === false) {
+            list.unshift(filebeat_log_pluginData);
+          }
+          if (logtail_log_plugin === false) {
+            list.unshift(ali_logtail_log_pluginData);
+          }
           if (downstream_net_plugin === false) {
             list.unshift(downstream_net_pluginData);
           }
@@ -352,7 +384,6 @@ class PluginList extends PureComponent {
   cancelDeletePlugin = () => {
     this.setState({ deletePlugin: null });
   };
-
   render() {
     const {
       currentEnterprise,
@@ -361,7 +392,7 @@ class PluginList extends PureComponent {
       operationPermissions,
     } = this.props;
     const { list } = this.state;
-
+    console.log('list', list);
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>
@@ -395,6 +426,7 @@ class PluginList extends PureComponent {
             }}
             dataSource={['', ...list]}
             renderItem={item =>
+              // eslint-disable-next-line no-nested-ternary
               item ? (
                 <List.Item key={item.id}>
                   <Card
@@ -430,19 +462,19 @@ class PluginList extends PureComponent {
                     />
                   </Card>
                 </List.Item>
+              ) : operationPermissions.isCreate ? (
+                <List.Item key={item.id}>
+                  <Button
+                    type="dashed"
+                    onClick={this.handleCreate}
+                    className={styles.newButton}
+                  >
+                    <Icon type="plus" />
+                    新建插件
+                  </Button>
+                </List.Item>
               ) : (
-                operationPermissions.isCreate && (
-                  <List.Item key={item.id}>
-                    <Button
-                      type="dashed"
-                      onClick={this.handleCreate}
-                      className={styles.newButton}
-                    >
-                      <Icon type="plus" />
-                      新建插件
-                    </Button>
-                  </List.Item>
-                )
+                <div />
               )
             }
           />

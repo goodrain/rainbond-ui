@@ -123,6 +123,7 @@ export default class Index extends PureComponent {
     const {
       data = {},
       form,
+      Modifys = false,
       isEdit = false,
       allDisabled = false,
       submitText = '创建插件',
@@ -282,10 +283,20 @@ export default class Index extends PureComponent {
         {!allDisabled ? (
           <Row>
             <Col offset={5} span={19}>
-              {(isEdit || isCreate) && (
-                <Button onClick={this.handleSubmit} type="primary">
-                  {submitText}
-                </Button>
+              {Modifys ? (
+                <div>
+                  {isEdit && (
+                    <Button onClick={this.handleSubmit} type="primary">
+                      {submitText}
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                isCreate && (
+                  <Button onClick={this.handleSubmit} type="primary">
+                    {submitText}
+                  </Button>
+                )
               )}
             </Col>
           </Row>
