@@ -1,9 +1,20 @@
-import styles from './utils.less';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import cookie from './cookie';
 import axios from 'axios';
+import cookie from './cookie';
+import styles from './utils.less';
 
 const global = {
+  withoutPermission(dispatch) {
+    if (!dispatch) {
+      return null;
+    }
+    return dispatch(
+      routerRedux.replace(
+        `/team/${this.getCurrTeamName()}/region/${this.getCurrRegionName()}/Exception/403`
+      )
+    );
+  },
   removeCookie() {
     cookie.remove('team_name', { domain: '' });
     cookie.remove('region_name', { domain: '' });
@@ -734,6 +745,19 @@ const global = {
       case 'failure':
         return <span style={{ color: '#F5212D' }}>失败</span>;
     }
+  },
+  fetchAccessText(text) {
+    const AccessText = {
+      component: '组件管理',
+      app: '应用管理',
+      gatewayRule: '网关访问策略',
+      certificate: '证书管理',
+      plugin: '插件管理',
+      teamMember: '团队成员管理',
+      teamRole: '团队角色管理',
+      teamRegion: '团队集群管理',
+    };
+    return AccessText[text] || text;
   },
   fetchAbnormalcolor(type) {
     const abnormalcolor = {

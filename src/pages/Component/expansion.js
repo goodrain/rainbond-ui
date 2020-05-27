@@ -1,8 +1,8 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { routerRedux, Link } from "dva/router";
-import { CopyToClipboard } from "react-copy-to-clipboard";
-import moment from "moment";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux, Link } from 'dva/router';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import moment from 'moment';
 import {
   Row,
   Col,
@@ -17,18 +17,17 @@ import {
   Table,
   Alert,
   Icon,
-  Switch
-} from "antd";
-import sourceUtil from "../../utils/source";
-import { horizontal, vertical } from "../../services/app";
-import globalUtil from "../../utils/global";
-import appUtil from "../../utils/app";
-import NoPermTip from "../../components/NoPermTip";
-import InstanceList from "../../components/AppInstanceList";
-import AddScaling from "./component/AddScaling";
-import Deleteimg from "../../../public/images/delete.png";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "./Index.less";
+  Switch,
+} from 'antd';
+import sourceUtil from '../../utils/source';
+import { horizontal, vertical } from '../../services/app';
+import globalUtil from '../../utils/global';
+import NoPermTip from '../../components/NoPermTip';
+import InstanceList from '../../components/AppInstanceList';
+import AddScaling from './component/AddScaling';
+import Deleteimg from '../../../public/images/delete.png';
+import ConfirmModal from '../../components/ConfirmModal';
+import styles from './Index.less';
 
 const { Option } = Select;
 
@@ -38,7 +37,7 @@ const { Option } = Select;
     baseInfo: appControl.baseInfo,
     extendInfo: appControl.extendInfo,
     instances: appControl.pods,
-    scaling: appControl.scalingRules
+    scaling: appControl.scalingRules,
   }),
   null,
   null,
@@ -73,15 +72,15 @@ export default class Index extends PureComponent {
       automaticTelescopic: false,
       addindicators: false,
       toDeleteMnt: false,
-      deleteType: "",
-      errorDesc: "",
-      errorType: "",
+      deleteType: '',
+      errorDesc: '',
+      errorType: '',
       editInfo: false,
       automaLoading: true,
-      errorMinNum: "",
-      errorMaxNum: "",
-      errorCpuValue: "",
-      errorMemoryValue: "",
+      errorMinNum: '',
+      errorMaxNum: '',
+      errorCpuValue: '',
+      errorMemoryValue: '',
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -92,13 +91,14 @@ export default class Index extends PureComponent {
       this.setState({
         new_pods: nextProps.instances.new_pods || [],
         old_pods: nextProps.instances.old_pods || [],
-        instances: (nextProps.instances.new_pods || [])
-          .concat(nextProps.instances.old_pods || []),
-        loading: false
+        instances: (nextProps.instances.new_pods || []).concat(
+          nextProps.instances.old_pods || []
+        ),
+        loading: false,
       });
     } else {
       this.setState({
-        loading: false
+        loading: false,
       });
     }
   }
@@ -114,57 +114,60 @@ export default class Index extends PureComponent {
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
-    dispatch({ type: "appControl/clearExtendInfo" });
+    dispatch({ type: 'appControl/clearExtendInfo' });
     this.timeClick && clearInterval(this.timeClick);
   }
   // 是否可以浏览当前界面
   canView() {
-    return appUtil.canManageAppExtend(this.props.appDetail);
+    const {
+      componentPermissions: { isTelescopic },
+    } = this.props;
+    return isTelescopic;
   }
   handleVertical = () => {
-    const memory = this.props.form.getFieldValue("memory");
+    const memory = this.props.form.getFieldValue('memory');
     vertical({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      new_memory: memory
+      new_memory: memory,
     }).then(data => {
       if (data && !data.status) {
-        notification.success({ message: "操作成功，执行中" });
+        notification.success({ message: '操作成功，执行中' });
       }
     });
   };
   handleHorizontal = () => {
-    const node = this.props.form.getFieldValue("node");
+    const node = this.props.form.getFieldValue('node');
     horizontal({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: this.props.appAlias,
-      new_node: node
+      new_node: node,
     }).then(data => {
       if (data && !data.status) {
-        notification.success({ message: "操作成功，执行中" });
+        notification.success({ message: '操作成功，执行中' });
       }
     });
   };
 
   openEditModal = type => {
     const { dispatch, appDetail } = this.props;
-    if (type === "add") {
+    if (type === 'add') {
       this.setState({ showEditAutoScaling: true });
     } else {
       const { id } = this.state;
       dispatch({
-        type: "appControl/telescopic",
+        type: 'appControl/telescopic',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           rule_id: id,
-          service_alias: appDetail.service.service_alias
+          service_alias: appDetail.service.service_alias,
         },
         callback: res => {
           if (res) {
-            if (type === "close") {
+            if (type === 'close') {
               this.setState(
                 {
-                  rulesInfo: res.bean
+                  rulesInfo: res.bean,
                 },
                 () => {
                   this.shutDownAutoScaling();
@@ -173,7 +176,7 @@ export default class Index extends PureComponent {
             } else {
               this.setState(
                 {
-                  rulesInfo: res.bean
+                  rulesInfo: res.bean,
                 },
                 () => {
                   this.changeAutoScaling(this.state.rulesInfo);
@@ -181,7 +184,7 @@ export default class Index extends PureComponent {
               );
             }
           }
-        }
+        },
       });
     }
   };
@@ -190,65 +193,66 @@ export default class Index extends PureComponent {
     this.setState({
       showEditAutoScaling: false,
       addindicators: false,
-      rulesInfo: false
+      rulesInfo: false,
     });
   };
 
   handlePodClick = (podName, manageName) => {
-    let adPopup = window.open("about:blank");
+    const adPopup = window.open('about:blank');
     const appAlias = this.props.appAlias;
     if (podName && manageName) {
       this.props.dispatch({
-        type: "appControl/managePod",
+        type: 'appControl/managePod',
         payload: {
           team_name: globalUtil.getCurrTeamName(),
           app_alias: appAlias,
           pod_name: podName,
-          manage_name: manageName
+          manage_name: manageName,
         },
         callback: () => {
           adPopup.location.href = `/console/teams/${globalUtil.getCurrTeamName()}/apps/${appAlias}/docker_console/`;
-        }
+        },
       });
     }
   };
   fetchExtendInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchExtendInfo",
+      type: 'appControl/fetchExtendInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       handleError: res => {
         if (res && res.status === 403) {
-          this.props.dispatch(routerRedux.push("/exception/403"));
+          this.props.dispatch(routerRedux.push('/exception/403'));
         }
-      }
+      },
     });
   };
   fetchInstanceInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchPods",
+      type: 'appControl/fetchPods',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            //接口变化
-            instances: (res.list.new_pods || [])
-              .concat(res.list.old_pods || []),
-            loading: false
+            // 接口变化
+            instances: (res.list.new_pods || []).concat(
+              res.list.old_pods || []
+            ),
+            loading: false,
           });
         } else {
           this.setState({
-            loading: false
+            loading: false,
           });
         }
-      }
+      },
     });
   };
 
@@ -258,82 +262,82 @@ export default class Index extends PureComponent {
   changeAutoScaling = values => {
     this.changeScalingRules(values);
   };
-  /**关闭伸缩 */
+  /** 关闭伸缩 */
 
   shutDownAutoScaling = () => {
     this.setState({
-      automaLoading: true
+      automaLoading: true,
     });
     const { dispatch, appDetail } = this.props;
     const { rulesInfo, id } = this.state;
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
     dispatch({
-      type: "appControl/changeScalingRules",
+      type: 'appControl/changeScalingRules',
       payload: {
-        xpa_type: "hpa",
+        xpa_type: 'hpa',
         metrics: rulesInfo.metrics,
         maxNum: rulesInfo.max_replicas,
         minNum: rulesInfo.min_replicas,
         tenant_name: user,
         service_alias: alias,
         enable: false,
-        rule_id: id
+        rule_id: id,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "关闭成功" });
+          notification.success({ message: '关闭成功' });
           this.setState(
             {
               showEditAutoScaling: false,
               addindicators: false,
-              id: "",
-              enable: false
+              id: '',
+              enable: false,
             },
             () => {
               this.getScalingRules();
             }
           );
         } else {
-          notification.success({ message: "关闭失败" });
+          notification.success({ message: '关闭失败' });
         }
-      }
+      },
     });
   };
 
-  /**添加伸缩 */
+  /** 添加伸缩 */
   addScalingRules = values => {
     this.setState({
-      automaLoading: true
+      automaLoading: true,
     });
     const { dispatch, appDetail } = this.props;
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
 
-    let metrics = [
+    const metrics = [
       {
-        metric_type: "resource_metrics",
-        metric_name: values.selectMemory.indexOf("cpu") > -1 ? "cpu" : "memory",
+        metric_type: 'resource_metrics',
+        metric_name: values.selectMemory.indexOf('cpu') > -1 ? 'cpu' : 'memory',
         metric_target_type:
-          values.selectMemory.indexOf("utilization") > -1
-            ? "utilization"
-            : "average_value",
-        metric_target_value: values.value ? parseInt(values.value) : 0
-      }
+          values.selectMemory.indexOf('utilization') > -1
+            ? 'utilization'
+            : 'average_value',
+        metric_target_value: values.value ? parseInt(values.value) : 0,
+      },
     ];
     dispatch({
-      type: "appControl/addScalingRules",
+      type: 'appControl/addScalingRules',
       payload: {
         enable: true,
         metrics,
         maxNum: parseInt(values.maxNum),
         minNum: parseInt(values.minNum),
         tenant_name: user,
-        service_alias: alias
+        service_alias: alias,
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "开启成功" });
+          notification.success({ message: '开启成功' });
           this.setState(
             { showEditAutoScaling: false, addindicators: false },
             () => {
@@ -344,16 +348,16 @@ export default class Index extends PureComponent {
           this.setState({
             showEditAutoScaling: false,
             addindicators: false,
-            loading: false
+            loading: false,
           });
         }
-      }
+      },
     });
   };
-  /*编辑伸缩规则 */
+  /* 编辑伸缩规则 */
   changeScalingRules = values => {
     this.setState({
-      automaLoading: true
+      automaLoading: true,
     });
     const { dispatch, appDetail } = this.props;
     const {
@@ -361,30 +365,30 @@ export default class Index extends PureComponent {
       addindicators,
       rulesInfo,
       toDeleteMnt,
-      automaticTelescopic
+      automaticTelescopic,
     } = this.state;
     const user = globalUtil.getCurrTeamName();
     const alias = appDetail.service.service_alias;
-    let arr = rulesInfo && rulesInfo.metrics;
+    const arr = rulesInfo && rulesInfo.metrics;
 
     if (addindicators) {
       arr.push({
-        metric_type: "resource_metrics",
-        metric_name: values.selectMemory.indexOf("cpu") > -1 ? "cpu" : "memory",
+        metric_type: 'resource_metrics',
+        metric_name: values.selectMemory.indexOf('cpu') > -1 ? 'cpu' : 'memory',
         metric_target_type:
-          values.selectMemory.indexOf("utilization") > -1
-            ? "utilization"
-            : "average_value",
-        metric_target_value: values.value ? parseInt(values.value) : 0
+          values.selectMemory.indexOf('utilization') > -1
+            ? 'utilization'
+            : 'average_value',
+        metric_target_value: values.value ? parseInt(values.value) : 0,
       });
     }
 
     const _th = this;
     if (id) {
       dispatch({
-        type: "appControl/changeScalingRules",
+        type: 'appControl/changeScalingRules',
         payload: {
-          xpa_type: "hpa",
+          xpa_type: 'hpa',
           enable: true,
           maxNum: values.max_replicas
             ? Number(values.max_replicas)
@@ -395,16 +399,18 @@ export default class Index extends PureComponent {
           metrics: addindicators ? arr : values.metrics,
           tenant_name: user,
           service_alias: alias,
-          rule_id: id
+          rule_id: id,
         },
         callback: res => {
           if (res && res._code === 200) {
             notification.success({
               message: toDeleteMnt
-                ? "删除成功"
+                ? '删除成功'
                 : !automaticTelescopic
-                  ? "开启成功"
-                  : addindicators ? "添加成功" : "编辑成功"
+                ? '开启成功'
+                : addindicators
+                ? '添加成功'
+                : '编辑成功',
             });
 
             _th.setState(
@@ -412,50 +418,50 @@ export default class Index extends PureComponent {
                 showEditAutoScaling: false,
                 addindicators: false,
                 toDeleteMnt: false,
-                id: res.bean.id
+                id: res.bean.id,
               },
               () => {
                 _th.getScalingRules();
               }
             );
           } else {
-            notification.success({ message: "失败！" });
+            notification.success({ message: '失败！' });
             _th.setState({ showEditAutoScaling: false, addindicators: false });
           }
-        }
+        },
       });
     }
   };
 
-  /*获取伸缩规则 */
+  /* 获取伸缩规则 */
   getScalingRules = () => {
     const { dispatch, appDetail } = this.props;
     dispatch({
-      type: "appControl/getScalingRules",
+      type: 'appControl/getScalingRules',
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
-        service_alias: appDetail.service.service_alias
+        service_alias: appDetail.service.service_alias,
       },
       callback: res => {
         if (res && res._code == 200) {
           const { list } = res;
-          let datavalue = list && list.length > 0 ? true : false;
+          const datavalue = !!(list && list.length > 0);
           this.setState({
             enable: datavalue,
             rulesList: datavalue ? list : [],
-            id: list && datavalue ? list[0].rule_id : "",
-            editRules: datavalue && list[0].enable ? true : false,
-            automaticTelescopic: datavalue && list[0].enable ? true : false,
+            id: list && datavalue ? list[0].rule_id : '',
+            editRules: !!(datavalue && list[0].enable),
+            automaticTelescopic: !!(datavalue && list[0].enable),
             loading: false,
-            automaLoading: false
+            automaLoading: false,
           });
         } else {
           this.setState({
             loading: false,
-            automaLoading: false
+            automaLoading: false,
           });
         }
-      }
+      },
     });
   };
   onPageChange = page_num => {
@@ -463,26 +469,26 @@ export default class Index extends PureComponent {
       this.getScalingRecord();
     });
   };
-  /*获取伸缩记录 */
+  /* 获取伸缩记录 */
   getScalingRecord = () => {
     const { dispatch, appDetail } = this.props;
     const { page_num, page_size } = this.state;
     dispatch({
-      type: "appControl/getScalingRecord",
+      type: 'appControl/getScalingRecord',
       payload: {
         tenant_name: globalUtil.getCurrTeamName(),
         service_alias: appDetail.service.service_alias,
         page: page_num,
-        page_size: page_size
+        page_size,
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
             total: res.bean.total,
-            sclaingRecord: res.bean.data
+            sclaingRecord: res.bean.data,
           });
         }
-      }
+      },
     });
   };
 
@@ -523,7 +529,7 @@ export default class Index extends PureComponent {
 
   onChangeAutomaticTelescopic = () => {
     const { enable, automaticTelescopic } = this.state;
-    this.openEditModal(automaticTelescopic ? "close" : enable ? "edit" : "add");
+    this.openEditModal(automaticTelescopic ? 'close' : enable ? 'edit' : 'add');
   };
 
   handleSubmit = e => {
@@ -541,35 +547,35 @@ export default class Index extends PureComponent {
     const { id, deleteType, editInfo } = this.state;
 
     dispatch({
-      type: "appControl/telescopic",
+      type: 'appControl/telescopic',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         rule_id: id,
-        service_alias: appDetail.service.service_alias
+        service_alias: appDetail.service.service_alias,
       },
       callback: res => {
         if (res) {
-          if (type === "add") {
+          if (type === 'add') {
             this.setState({
               rulesInfo: res.bean,
               showEditAutoScaling: true,
-              addindicators: true
+              addindicators: true,
             });
-          } else if (type === "delete") {
-            let obj = res.bean;
+          } else if (type === 'delete') {
+            const obj = res.bean;
             obj.metrics.splice(
               obj.metrics.findIndex(item => item.metric_name === deleteType),
               1
             );
             this.changeScalingRules(obj);
           } else if (editInfo) {
-            let obj = res.bean;
+            const obj = res.bean;
             obj.max_replicas = Number(editInfo.maxNum);
             obj.min_replicas = Number(editInfo.minNum);
-            let arr = res.bean.metrics;
+            const arr = res.bean.metrics;
             if (editInfo.cpuValue) {
               arr.map((item, index) => {
-                if (item.metric_name == "cpu") {
+                if (item.metric_name == 'cpu') {
                   obj.metrics[index].metric_target_value = Number(
                     editInfo.cpuValue
                   );
@@ -579,7 +585,7 @@ export default class Index extends PureComponent {
 
             if (editInfo.memoryValue) {
               arr.map((item, index) => {
-                if (item.metric_name == "memory") {
+                if (item.metric_name == 'memory') {
                   obj.metrics[index].metric_target_value = Number(
                     editInfo.memoryValue
                   );
@@ -589,17 +595,17 @@ export default class Index extends PureComponent {
             this.changeScalingRules(obj);
           }
         }
-      }
+      },
     });
   };
   cancelDeleteMnt = () => {
-    this.setState({ toDeleteMnt: null, deleteType: "" });
+    this.setState({ toDeleteMnt: null, deleteType: '' });
   };
 
   handleDeleteMnt = deleteType => {
     this.setState({
       deleteType,
-      toDeleteMnt: true
+      toDeleteMnt: true,
     });
   };
 
@@ -608,12 +614,12 @@ export default class Index extends PureComponent {
     const { rulesList } = this.state;
 
     const { getFieldValue, validateFields } = form;
-    let rulesInfo = rulesList && rulesList.length > 0 && rulesList[0];
+    const rulesInfo = rulesList && rulesList.length > 0 && rulesList[0];
     let num = getFieldValue(type);
-    const maxNum = Number(getFieldValue("maxNum"));
-    const minNum = Number(getFieldValue("minNum"));
-    const cpuValue = Number(getFieldValue("cpuValue"));
-    const memoryValue = Number(getFieldValue("memoryValue"));
+    const maxNum = Number(getFieldValue('maxNum'));
+    const minNum = Number(getFieldValue('minNum'));
+    const cpuValue = Number(getFieldValue('cpuValue'));
+    const memoryValue = Number(getFieldValue('memoryValue'));
 
     const max_replicas = rulesInfo && Number(rulesInfo.max_replicas);
     const min_replicas = rulesInfo && Number(rulesInfo.min_replicas);
@@ -621,37 +627,39 @@ export default class Index extends PureComponent {
     let rulesInfomemoryValue = 1;
     if (rulesInfo && rulesInfo.metrics && rulesInfo.metrics.length > 0) {
       rulesInfo.metrics.map(item => {
-        if (item.metric_name == "cpu") {
+        if (item.metric_name == 'cpu') {
           rulesInfocpuValue = Number(item.metric_target_value);
         }
-        if (item.metric_name == "memory") {
+        if (item.metric_name == 'memory') {
           rulesInfomemoryValue = Number(item.metric_target_value);
         }
       });
     }
-    let errorDesc = "";
+    let errorDesc = '';
 
-    let errorTypeDesc =
-      type === "maxNum"
-        ? "errorMaxNum"
-        : type === "minNum"
-          ? "errorMinNum"
-          : type === "cpuValue" ? "errorCpuValue" : "errorMemoryValue";
+    const errorTypeDesc =
+      type === 'maxNum'
+        ? 'errorMaxNum'
+        : type === 'minNum'
+        ? 'errorMinNum'
+        : type === 'cpuValue'
+        ? 'errorCpuValue'
+        : 'errorMemoryValue';
 
-    if (num == "" || num == null) {
+    if (num == '' || num == null) {
       this.setState({
-        errorDesc: "不能为空",
+        errorDesc: '不能为空',
         [errorTypeDesc]: errorDesc,
-        errorType: type
+        errorType: type,
       });
       return false;
     }
 
     num = Number(num);
-    let cpuUse =
-      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "cpu");
-    let memoryUse =
-      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, "memory");
+    const cpuUse =
+      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, 'cpu');
+    const memoryUse =
+      rulesInfo && this.setMetric_target_show(rulesInfo.metrics, 'memory');
     let repeat = true;
     if (
       maxNum === max_replicas &&
@@ -661,43 +669,43 @@ export default class Index extends PureComponent {
     ) {
       repeat = false;
     }
-    let re = /^[0-9]+.?[0-9]*/;
+    const re = /^[0-9]+.?[0-9]*/;
     if (!re.test(num)) {
-      errorDesc = "请输入数字";
+      errorDesc = '请输入数字';
     } else if (num <= 0 || num > 65535) {
-      errorDesc = "输入范围1-65535";
-    } else if (type === "minNum" && num > Number(maxNum)) {
-      errorDesc = "不能大于最大实例数";
-    } else if (type === "maxNum" && num < Number(minNum)) {
-      errorDesc = "不能小于最小实例数";
+      errorDesc = '输入范围1-65535';
+    } else if (type === 'minNum' && num > Number(maxNum)) {
+      errorDesc = '不能大于最大实例数';
+    } else if (type === 'maxNum' && num < Number(minNum)) {
+      errorDesc = '不能小于最小实例数';
     } else {
       this.setState(
         {
-          [errorTypeDesc]: "",
-          errorType: type
+          [errorTypeDesc]: '',
+          errorType: type,
         },
         () => {
           const {
             errorMinNum,
             errorMaxNum,
             errorCpuValue,
-            errorMemoryValue
+            errorMemoryValue,
           } = this.state;
 
           if (
             repeat &&
-            errorMinNum === "" &&
-            errorMaxNum === "" &&
-            errorCpuValue === "" &&
-            errorMemoryValue === ""
+            errorMinNum === '' &&
+            errorMaxNum === '' &&
+            errorCpuValue === '' &&
+            errorMemoryValue === ''
           ) {
             validateFields((_, values) => {
               this.setState(
                 {
-                  editInfo: values
+                  editInfo: values,
                 },
                 () => {
-                  this.handleAddIndicators("edit");
+                  this.handleAddIndicators('edit');
                 }
               );
             });
@@ -709,17 +717,17 @@ export default class Index extends PureComponent {
 
     this.setState({
       [errorTypeDesc]: errorDesc,
-      errorType: type
+      errorType: type,
     });
   };
 
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo, appAlias, form, appDetail } = this.props;
-    let notAllowScaling = false
+    let notAllowScaling = false;
     if (appDetail) {
-      if (globalUtil.isSingletonComponent(appDetail.service.extend_method)){
-        notAllowScaling = true
+      if (globalUtil.isSingletonComponent(appDetail.service.extend_method)) {
+        notAllowScaling = true;
       }
     }
     const { teamName, regionName } = this.props.match.params;
@@ -740,35 +748,34 @@ export default class Index extends PureComponent {
       errorMinNum,
       errorMaxNum,
       errorCpuValue,
-      errorMemoryValue
+      errorMemoryValue,
     } = this.state;
     if (!extendInfo) {
       return null;
     }
-    const minNumber = getFieldValue("minNum") || 0;
+    const minNumber = getFieldValue('minNum') || 0;
 
-    const grctlCmd =
-      "grctl service get " + appAlias + " -t " + globalUtil.getCurrTeamName();
-    let MemoryList = [];
-    let cpuUse =
+    const grctlCmd = `grctl service get ${appAlias} -t ${globalUtil.getCurrTeamName()}`;
+    const MemoryList = [];
+    const cpuUse =
       rulesList &&
       rulesList.length > 0 &&
-      this.setMetric_target_show(rulesList[0].metrics, "cpu");
-    let memoryUse =
+      this.setMetric_target_show(rulesList[0].metrics, 'cpu');
+    const memoryUse =
       rulesList &&
       rulesList.length > 0 &&
-      this.setMetric_target_show(rulesList[0].metrics, "memory");
+      this.setMetric_target_show(rulesList[0].metrics, 'memory');
 
     if (!cpuUse) {
       MemoryList.push(
-        { value: "cpuaverage_value", name: "CPU使用量" },
-        { value: "cpuutilization", name: "CPU使用率" }
+        { value: 'cpuaverage_value', name: 'CPU使用量' },
+        { value: 'cpuutilization', name: 'CPU使用率' }
       );
     }
     if (!memoryUse) {
       MemoryList.push(
-        { value: "memoryaverage_value", name: "内存使用量" },
-        { value: "memoryutilization", name: "内存使用率" }
+        { value: 'memoryaverage_value', name: '内存使用量' },
+        { value: 'memoryutilization', name: '内存使用率' }
       );
     }
 
@@ -779,11 +786,11 @@ export default class Index extends PureComponent {
           title="实例情况"
           extra={
             <a
-              style={{ marginRight: "22px", color: "#1790FF" }}
+              style={{ marginRight: '22px', color: '#1790FF' }}
               onClick={() => {
                 this.setState(
                   {
-                    loading: true
+                    loading: true,
                   },
                   () => {
                     this.fetchInstanceInfo();
@@ -796,52 +803,54 @@ export default class Index extends PureComponent {
             </a>
           }
         >
-          {loading
-            ? <Spin tip="Loading...">
-                <div style={{ minHeight: "190px" }} />
-              </Spin>
-            : <div>
-                <InstanceList
-                  handlePodClick={this.handlePodClick}
-                  list={this.state.instances}
-                />
-                <Divider />
-                <div>
-                  <Row>
-                    <Col span={24} style={{ display: "flex" }}>
-                      <span className={styles.commandText}>查询命令：</span>
-                      <div className={styles.commandWidth}>
-                        <Input
-                          value={grctlCmd}
-                          style={{ background: "#F9FAFC", textAlign: "center" }}
-                        />
-                        <div className={styles.remindDesc}>
-                          查询详细的组件实例信息，请复制查询命令到Rainbond管理节点查询
-                        </div>
+          {loading ? (
+            <Spin tip="Loading...">
+              <div style={{ minHeight: '190px' }} />
+            </Spin>
+          ) : (
+            <div>
+              <InstanceList
+                handlePodClick={this.handlePodClick}
+                list={this.state.instances}
+              />
+              <Divider />
+              <div>
+                <Row>
+                  <Col span={24} style={{ display: 'flex' }}>
+                    <span className={styles.commandText}>查询命令：</span>
+                    <div className={styles.commandWidth}>
+                      <Input
+                        value={grctlCmd}
+                        style={{ background: '#F9FAFC', textAlign: 'center' }}
+                      />
+                      <div className={styles.remindDesc}>
+                        查询详细的组件实例信息，请复制查询命令到Rainbond管理节点查询
                       </div>
+                    </div>
 
-                      <CopyToClipboard
-                        text={grctlCmd}
-                        onCopy={() => {
-                          notification.success({ message: "复制成功" });
-                        }}
-                      >
-                        <Button type="primary" style={{ marginLeft: 19 }}>
-                          复制
-                        </Button>
-                      </CopyToClipboard>
-                    </Col>
-                  </Row>
-                </div>
-              </div>}
+                    <CopyToClipboard
+                      text={grctlCmd}
+                      onCopy={() => {
+                        notification.success({ message: '复制成功' });
+                      }}
+                    >
+                      <Button type="primary" style={{ marginLeft: 19 }}>
+                        复制
+                      </Button>
+                    </CopyToClipboard>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          )}
         </Card>
 
-        {notAllowScaling &&
+        {notAllowScaling && (
           <Alert
-            style={{ marginTop: "16px" }}
+            style={{ marginTop: '16px' }}
             message={
               <p style={{ marginBottom: 0 }}>
-                单实例类型组件不能进行水平伸缩，若需要请修改为相应的多实例组件类型。{" "}
+                单实例类型组件不能进行水平伸缩，若需要请修改为相应的多实例组件类型。{' '}
                 <Link
                   to={`/team/${teamName}/region/${regionName}/components/${appAlias}/setting`}
                 >
@@ -850,7 +859,8 @@ export default class Index extends PureComponent {
               </p>
             }
             type="warning"
-          />}
+          />
+        )}
         <Card className={styles.clerBorder} border={false} title="手动伸缩">
           <Row gutter={16}>
             <Col lg={12} md={12} sm={24}>
@@ -863,32 +873,32 @@ export default class Index extends PureComponent {
                   labelCol={{ span: 3 }}
                   wrapperCol={{ span: 19 }}
                   label="内存"
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                 >
-                  {getFieldDecorator("memory", {
-                    initialValue: `${extendInfo.current_memory}`
+                  {getFieldDecorator('memory', {
+                    initialValue: `${extendInfo.current_memory}`,
                   })(
                     <Select className={styles.memorySelect}>
-                      {(extendInfo.memory_list || []).map(item =>
+                      {(extendInfo.memory_list || []).map(item => (
                         <Option key={item} value={item}>
                           {sourceUtil.getMemoryAndUnit(item)}
                         </Option>
-                      )}
+                      ))}
                     </Select>
-                  )}{" "}
+                  )}{' '}
                   <Button
                     onClick={this.handleVertical}
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: "14px"
+                      marginLeft: '14px',
                     }}
                   >
                     设置
                   </Button>
                   <div
                     style={{
-                      marginLeft: "5px"
+                      marginLeft: '5px',
                     }}
                     className={styles.remindDesc}
                   >
@@ -907,26 +917,26 @@ export default class Index extends PureComponent {
                   label="实例数量"
                   labelCol={{ span: 4 }}
                   wrapperCol={{ span: 20 }}
-                  style={{ width: "100%" }}
+                  style={{ width: '100%' }}
                 >
-                  {getFieldDecorator("node", {
-                    initialValue: extendInfo.current_node
+                  {getFieldDecorator('node', {
+                    initialValue: extendInfo.current_node,
                   })(
                     <Select className={styles.nodeSelect}>
-                      {(extendInfo.node_list || []).map(item =>
+                      {(extendInfo.node_list || []).map(item => (
                         <Option key={item} value={item}>
                           {item}
                         </Option>
-                      )}
+                      ))}
                     </Select>
-                  )}{" "}
+                  )}{' '}
                   <Button
                     disabled={notAllowScaling}
                     onClick={this.handleHorizontal}
                     size="default"
                     type="primary"
                     style={{
-                      marginLeft: "14px"
+                      marginLeft: '14px',
                     }}
                   >
                     设置
@@ -941,7 +951,7 @@ export default class Index extends PureComponent {
         </Card>
 
         <Card
-          style={{ marginTop: 16, border: "none" }}
+          style={{ marginTop: 16, border: 'none' }}
           className={styles.clearCard}
           title="自动伸缩"
         >
@@ -952,222 +962,221 @@ export default class Index extends PureComponent {
               <div>最大实例数</div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
-              {cpuUse &&
+              {cpuUse && (
                 <div>
                   CPU使用
                   {this.setMetric_target_value(
                     rulesList[0].metrics,
-                    "cpu",
+                    'cpu',
                     true
-                  ) === "utilization"
-                    ? "率"
-                    : "量(m)"}
-                  {memoryUse &&
+                  ) === 'utilization'
+                    ? '率'
+                    : '量(m)'}
+                  {memoryUse && (
                     <img
                       src={Deleteimg}
                       alt=""
                       onClick={() => {
-                        this.handleDeleteMnt("cpu");
+                        this.handleDeleteMnt('cpu');
                       }}
-                    />}
-                </div>}
-              {memoryUse &&
+                    />
+                  )}
+                </div>
+              )}
+              {memoryUse && (
                 <div>
                   内存使用
                   {this.setMetric_target_value(
                     rulesList[0].metrics,
-                    "memory",
+                    'memory',
                     true
-                  ) === "utilization"
-                    ? "率"
-                    : "量(Mi)"}
-                  {cpuUse &&
+                  ) === 'utilization'
+                    ? '率'
+                    : '量(Mi)'}
+                  {cpuUse && (
                     <img
                       src={Deleteimg}
                       alt=""
                       onClick={() => {
-                        this.handleDeleteMnt("memory");
+                        this.handleDeleteMnt('memory');
                       }}
-                    />}
-                </div>}
+                    />
+                  )}
+                </div>
+              )}
             </Col>
           </Row>
-          {
-            <Spin spinning={this.state.automaLoading}>
-              <Form
-                layout="inline"
-                hideRequiredMark
-                className={styles.fromItem}
-                onSubmit={this.handleSubmit}
-              >
-                <Row gutter={24} className={styles.automaTictelescoping}>
-                  <Col span={12}>
-                    <div className={styles.automaTictelescopingContent}>
-                      <Switch
-                        disabled={notAllowScaling}
-                        className={styles.automaTictelescopingSwitch}
-                        checked={automaticTelescopic}
-                        onClick={() => {
-                          this.onChangeAutomaticTelescopic();
+          <Spin spinning={this.state.automaLoading}>
+            <Form
+              layout="inline"
+              hideRequiredMark
+              className={styles.fromItem}
+              onSubmit={this.handleSubmit}
+            >
+              <Row gutter={24} className={styles.automaTictelescoping}>
+                <Col span={12}>
+                  <div className={styles.automaTictelescopingContent}>
+                    <Switch
+                      disabled={notAllowScaling}
+                      className={styles.automaTictelescopingSwitch}
+                      checked={automaticTelescopic}
+                      onClick={() => {
+                        this.onChangeAutomaticTelescopic();
+                      }}
+                    />
+                  </div>
+
+                  <div className={styles.automaTictelescopingContent}>
+                    {getFieldDecorator('minNum', {
+                      initialValue:
+                        (rulesList &&
+                          rulesList.length > 0 &&
+                          rulesList[0].min_replicas) ||
+                        0,
+                    })(
+                      <Input
+                        disabled={!automaticTelescopic}
+                        onBlur={e => {
+                          this.handlerules('minNum');
                         }}
                       />
-                    </div>
+                    )}
+                  </div>
 
+                  <div className={styles.automaTictelescopingContent}>
+                    {getFieldDecorator('maxNum', {
+                      initialValue:
+                        (rulesList &&
+                          rulesList.length > 0 &&
+                          rulesList[0].max_replicas) ||
+                        1,
+                      rules: [
+                        {
+                          pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                          message: '请输入数字',
+                        },
+                        { required: true, message: '请输入最大数量' },
+                        { validator: this.checkContent },
+                      ],
+                    })(
+                      <Input
+                        disabled={!automaticTelescopic}
+                        min={minNumber}
+                        onBlur={e => {
+                          this.handlerules('maxNum');
+                        }}
+                      />
+                    )}
+                  </div>
+                </Col>
+                <Col span={12}>
+                  {cpuUse && (
                     <div className={styles.automaTictelescopingContent}>
-                      {getFieldDecorator("minNum", {
+                      {getFieldDecorator('cpuValue', {
                         initialValue:
-                          (rulesList &&
-                            rulesList.length > 0 &&
-                            rulesList[0].min_replicas) ||
-                          0
-                      })(
-                        <Input
-                          disabled={!automaticTelescopic}
-                          onBlur={e => {
-                            this.handlerules("minNum");
-                          }}
-                        />
-                      )}
-                    </div>
-
-                    <div className={styles.automaTictelescopingContent}>
-                      {getFieldDecorator("maxNum", {
-                        initialValue:
-                          (rulesList &&
-                            rulesList.length > 0 &&
-                            rulesList[0].max_replicas) ||
-                          1,
+                          this.setMetric_target_value(
+                            rulesList[0].metrics,
+                            'cpu'
+                          ) || 1,
                         rules: [
                           {
-                            pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                            message: "请输入数字"
+                            pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                            message: '请输入数字',
                           },
-                          { required: true, message: "请输入最大数量" },
-                          { validator: this.checkContent }
-                        ]
+                          { required: true, message: '请输入CPU' },
+                          { validator: this.checkContent },
+                        ],
                       })(
                         <Input
                           disabled={!automaticTelescopic}
-                          min={minNumber}
                           onBlur={e => {
-                            this.handlerules("maxNum");
+                            this.handlerules('cpuValue');
                           }}
                         />
                       )}
                     </div>
-                  </Col>
-                  <Col span={12}>
-                    {cpuUse &&
-                      <div className={styles.automaTictelescopingContent}>
-                        {getFieldDecorator("cpuValue", {
-                          initialValue:
-                            this.setMetric_target_value(
-                              rulesList[0].metrics,
-                              "cpu"
-                            ) || 1,
-                          rules: [
-                            {
-                              pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                              message: "请输入数字"
-                            },
-                            { required: true, message: "请输入CPU" },
-                            { validator: this.checkContent }
-                          ]
-                        })(
-                          <Input
-                            disabled={!automaticTelescopic}
-                            onBlur={e => {
-                              this.handlerules("cpuValue");
-                            }}
-                          />
-                        )}
-                      </div>}
+                  )}
 
-                    {memoryUse &&
-                      <div className={styles.automaTictelescopingContent}>
-                        {getFieldDecorator("memoryValue", {
-                          initialValue:
-                            this.setMetric_target_value(
-                              rulesList[0].metrics,
-                              "memory"
-                            ) || 1,
-                          rules: [
-                            {
-                              pattern: new RegExp(/^[0-9]\d*$/, "g"),
-                              message: "请输入数字"
-                            },
-                            { required: true, message: "请输入内存" },
-                            { validator: this.checkContent }
-                          ]
-                        })(
-                          <Input
-                            disabled={!automaticTelescopic}
-                            onBlur={e => {
-                              this.handlerules("memoryValue");
-                            }}
-                          />
-                        )}
-                      </div>}
-                    {!cpuUse && <div style={{ height: "56px" }} />}
-                    {!memoryUse && <div style={{ height: "56px" }} />}
-
+                  {memoryUse && (
                     <div className={styles.automaTictelescopingContent}>
-                      <Icon
-                        type="plus"
-                        style={{ fontSize: "23px" }}
-                        onClick={() => {
-                          MemoryList.length > 0 &&
-                            automaticTelescopic &&
-                            this.handleAddIndicators("add");
-                        }}
-                      />
+                      {getFieldDecorator('memoryValue', {
+                        initialValue:
+                          this.setMetric_target_value(
+                            rulesList[0].metrics,
+                            'memory'
+                          ) || 1,
+                        rules: [
+                          {
+                            pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                            message: '请输入数字',
+                          },
+                          { required: true, message: '请输入内存' },
+                          { validator: this.checkContent },
+                        ],
+                      })(
+                        <Input
+                          disabled={!automaticTelescopic}
+                          onBlur={e => {
+                            this.handlerules('memoryValue');
+                          }}
+                        />
+                      )}
                     </div>
-                  </Col>
-                </Row>
-              </Form>
-            </Spin>
-          }
+                  )}
+                  {!cpuUse && <div style={{ height: '56px' }} />}
+                  {!memoryUse && <div style={{ height: '56px' }} />}
+
+                  <div className={styles.automaTictelescopingContent}>
+                    <Icon
+                      type="plus"
+                      style={{ fontSize: '23px' }}
+                      onClick={() => {
+                        MemoryList.length > 0 &&
+                          automaticTelescopic &&
+                          this.handleAddIndicators('add');
+                      }}
+                    />
+                  </div>
+                </Col>
+              </Row>
+            </Form>
+          </Spin>
 
           <Row gutter={24} className={styles.errorDescBox}>
             <Col span={12} className={styles.automaTictelescopingTitle}>
               <div />
               <div>
-                <span className={styles.errorDesc}>
-                  {errorMinNum}
-                </span>
+                <span className={styles.errorDesc}>{errorMinNum}</span>
               </div>
               <div>
-                <span className={styles.errorDesc}>
-                  {" "}{errorMaxNum}
-                </span>
+                <span className={styles.errorDesc}> {errorMaxNum}</span>
               </div>
             </Col>
             <Col span={12} className={styles.automaTictelescopingTitle}>
-              {cpuUse &&
+              {cpuUse && (
                 <div>
-                  <span className={styles.errorDesc}>
-                    {errorCpuValue}
-                  </span>
-                </div>}
-              {memoryUse &&
+                  <span className={styles.errorDesc}>{errorCpuValue}</span>
+                </div>
+              )}
+              {memoryUse && (
                 <div>
-                  <span className={styles.errorDesc}>
-                    {errorMemoryValue}
-                  </span>
-                </div>}
+                  <span className={styles.errorDesc}>{errorMemoryValue}</span>
+                </div>
+              )}
             </Col>
           </Row>
         </Card>
-        {this.state.toDeleteMnt &&
+        {this.state.toDeleteMnt && (
           <ConfirmModal
             title="删除指标"
             desc="是否删除该指标?"
             onCancel={this.cancelDeleteMnt}
             onOk={() => {
-              this.handleAddIndicators("delete");
+              this.handleAddIndicators('delete');
             }}
-          />}
-        {showEditAutoScaling &&
+          />
+        )}
+        {showEditAutoScaling && (
           <AddScaling
             data={rulesInfo}
             ref={this.saveForm}
@@ -1181,7 +1190,8 @@ export default class Index extends PureComponent {
                 : this.openAutoScaling(values);
             }}
             editRules={editRules}
-          />}
+          />
+        )}
 
         <Card
           className={styles.clearCard}
@@ -1194,74 +1204,77 @@ export default class Index extends PureComponent {
             pagination={{
               current: page_num,
               pageSize: page_size,
-              total: total,
-              onChange: this.onPageChange
+              total,
+              onChange: this.onPageChange,
             }}
             columns={[
               {
-                title: "时间",
-                dataIndex: "last_time",
-                key: "last_time",
-                align: "center",
-                width: "18%",
-                render: val =>
+                title: '时间',
+                dataIndex: 'last_time',
+                key: 'last_time',
+                align: 'center',
+                width: '18%',
+                render: val => (
                   <div
-                    style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+                    style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
                   >
-                    {moment(val).locale('zh-cn').format("YYYY-MM-DD HH:mm:ss")}
+                    {moment(val)
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD HH:mm:ss')}
                   </div>
+                ),
               },
               {
-                title: "伸缩详情",
-                dataIndex: "description",
-                key: "description",
-                align: "center",
-                width: "43%",
-                render: description =>
+                title: '伸缩详情',
+                dataIndex: 'description',
+                key: 'description',
+                align: 'center',
+                width: '43%',
+                render: description => (
                   <div
                     style={{
-                      textAlign: "left",
-                      wordWrap: "break-word",
-                      wordBreak: "break-word"
+                      textAlign: 'left',
+                      wordWrap: 'break-word',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {description}
                   </div>
+                ),
               },
               {
-                title: "类型",
-                dataIndex: "record_type",
-                key: "record_type",
-                align: "center",
-                width: "13%",
-                render: record_type =>
+                title: '类型',
+                dataIndex: 'record_type',
+                key: 'record_type',
+                align: 'center',
+                width: '13%',
+                render: record_type => (
                   <div>
-                    {record_type === "hpa"
-                      ? "水平自动伸缩"
-                      : record_type === "manual" ? "手动伸缩" : "垂直自动伸缩"}
+                    {record_type === 'hpa'
+                      ? '水平自动伸缩'
+                      : record_type === 'manual'
+                      ? '手动伸缩'
+                      : '垂直自动伸缩'}
                   </div>
+                ),
               },
               {
-                title: "操作人",
-                dataIndex: "operator",
-                key: "operator",
-                align: "center",
-                width: "13%",
+                title: '操作人',
+                dataIndex: 'operator',
+                key: 'operator',
+                align: 'center',
+                width: '13%',
                 render: operator => {
-                  return (
-                    <span>
-                      {" "}{operator || "-"}{" "}
-                    </span>
-                  );
-                }
+                  return <span> {operator || '-'} </span>;
+                },
               },
               {
-                title: "原因",
-                dataIndex: "reason",
-                align: "center",
-                key: "reason",
-                width: "13%"
-              }
+                title: '原因',
+                dataIndex: 'reason',
+                align: 'center',
+                key: 'reason',
+                width: '13%',
+              },
             ]}
           />
         </Card>

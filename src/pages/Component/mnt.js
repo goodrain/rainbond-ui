@@ -20,6 +20,7 @@ import { getVolumeTypeShowName } from '../../utils/utils';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import ScrollerX from '../../components/ScrollerX';
 import AddVolumes from '../../components/AddOrEditVolume';
+import NoPermTip from '../../components/NoPermTip';
 
 @connect(
   ({ user, appControl }) => ({
@@ -37,7 +38,6 @@ export default class Index extends PureComponent {
     this.state = {
       showAddVar: null,
       showAddRelation: false,
-      selfPathList: [],
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
@@ -54,6 +54,22 @@ export default class Index extends PureComponent {
     this.fetchVolumes();
     this.fetchBaseInfo();
   }
+  onDeleteMnt = mnt => {
+    this.setState({ toDeleteMnt: mnt });
+  };
+  onDeleteVolume = data => {
+    this.setState({ toDeleteVolume: data });
+  };
+  onEditVolume = data => {
+    this.setState({ showAddVar: data, editor: data });
+  };
+  onCancelDeleteVolume = () => {
+    this.setState({ toDeleteVolume: null });
+  };
+  getVolumeTypeShowName = volume_type => {
+    const { volumeOpts } = this.state;
+    return getVolumeTypeShowName(volumeOpts, volume_type);
+  };
   handleOpenRelyComponent = relyComponentList => {
     this.setState({
       relyComponent: true,
@@ -207,18 +223,7 @@ export default class Index extends PureComponent {
       }
     });
   };
-  onDeleteMnt = mnt => {
-    this.setState({ toDeleteMnt: mnt });
-  };
-  onDeleteVolume = data => {
-    this.setState({ toDeleteVolume: data });
-  };
-  onEditVolume = data => {
-    this.setState({ showAddVar: data, editor: data });
-  };
-  onCancelDeleteVolume = () => {
-    this.setState({ toDeleteVolume: null });
-  };
+
   handleDeleteVolume = () => {
     this.props.dispatch({
       type: 'appControl/deleteVolume',
@@ -254,13 +259,17 @@ export default class Index extends PureComponent {
   cancelDeleteMnt = () => {
     this.setState({ toDeleteMnt: null });
   };
-  getVolumeTypeShowName = volume_type => {
-    const { volumeOpts } = this.state;
-    return getVolumeTypeShowName(volumeOpts, volume_type);
-  };
+  // 是否可以浏览当前界面
+  canView() {
+    const {
+      componentPermissions: { isStorage },
+    } = this.props;
+    return isStorage;
+  }
   render() {
     const { mntList, relyComponent, relyComponentList } = this.state;
     const { volumes } = this.props;
+    if (!this.canView()) return <NoPermTip />;
 
     return (
       <Fragment>
@@ -297,8 +306,9 @@ export default class Index extends PureComponent {
                           color: item.dep_services && '#1890ff',
                         }}
                         onClick={() => {
-                          item.dep_services &&
+                          if (item.dep_services) {
                             this.handleOpenRelyComponent(item.dep_services);
+                          }
                         }}
                       >
                         {text}
@@ -313,14 +323,14 @@ export default class Index extends PureComponent {
                 {
                   title: '存储类型',
                   dataIndex: 'volume_type',
-                  render: (text, record) => {
+                  render: text => {
                     return <span>{this.getVolumeTypeShowName(text)}</span>;
                   },
                 },
                 {
                   title: '存储容量',
                   dataIndex: 'volume_capacity',
-                  render: (text, record) => {
+                  render: text => {
                     if (text == 0) {
                       return <span>不限制</span>;
                     }
@@ -330,7 +340,7 @@ export default class Index extends PureComponent {
                 {
                   title: '状态',
                   dataIndex: 'status',
-                  render: (text, record) => {
+                  render: text => {
                     if (text == 'not_bound') {
                       return <span style={{ color: 'red' }}>未挂载</span>;
                     }
@@ -387,7 +397,7 @@ export default class Index extends PureComponent {
                   dataIndex: 'local_vol_path',
                   key: '1',
                   width: '20%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span
                         style={{
@@ -405,7 +415,7 @@ export default class Index extends PureComponent {
                   dataIndex: 'dep_vol_name',
                   key: '2',
                   width: '15%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span
                         style={{
@@ -423,7 +433,7 @@ export default class Index extends PureComponent {
                   dataIndex: 'dep_vol_path',
                   key: '3',
                   width: '15%',
-                  render: (data, index) => (
+                  render: data => (
                     <Tooltip title={data}>
                       <span
                         style={{
@@ -441,7 +451,7 @@ export default class Index extends PureComponent {
                   dataIndex: 'dep_vol_type',
                   key: '4',
                   width: '10%',
-                  render: (text, record) => {
+                  render: text => {
                     return <span>{this.getVolumeTypeShowName(text)}</span>;
                   },
                 },

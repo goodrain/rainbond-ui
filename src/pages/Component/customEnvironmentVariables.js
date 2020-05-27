@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import {
@@ -12,19 +12,17 @@ import {
   Row,
   Col,
   Alert,
-  Input,
 } from 'antd';
+import AddVarModal from './setting/env';
 import ConfirmModal from '../../components/ConfirmModal';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-import AddVarModal from './setting/env';
 import { getMnt, addMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
 import RelationMnt from '../../components/AddStorage/relationMnt';
 import ScrollerX from '../../components/ScrollerX';
 import AddStorage from '../../components/AddStorage';
-import styles from './Index.less';
+import NoPermTip from '../../components/NoPermTip';
 
-const { Search } = Input;
 @connect(
   ({ user, appControl, teamControl }) => ({
     currUser: user.currentUser,
@@ -33,7 +31,6 @@ const { Search } = Input;
     runningProbe: appControl.runningProbe,
     ports: appControl.ports,
     baseInfo: appControl.baseInfo,
-    // tags: appControl.tags,
     appDetail: appControl.appDetail,
     teamControl,
     appControl,
@@ -50,36 +47,19 @@ export default class Index extends React.Component {
   constructor(arg) {
     super(arg);
     this.state = {
-      isShow: false,
       showAddVar: false,
       showEditVar: null,
       deleteVar: null,
-      viewStartHealth: null,
-      editStartHealth: null,
-      viewRunHealth: null,
-      editRunHealth: null,
-      addTag: false,
-      tabData: [],
-      showAddMember: false,
-      toEditAction: null,
       toDeleteMember: null,
       memberslist: null,
       members: null,
-      buildSource: null,
-      changeBuildSource: false,
-      showMarketAppDetail: false,
-      showApp: {},
       // appStatus: null,
-      visibleAppSetting: false,
-      tags: [],
-      isInput: false,
       page: 1,
       page_size: 5,
       total: 0,
       env_name: '',
       showAddVars: null,
       showAddRelation: false,
-      selfPathList: [],
       mntList: [],
       toDeleteMnt: null,
       toDeleteVolume: null,
@@ -107,9 +87,63 @@ export default class Index extends React.Component {
     dispatch({ type: 'appControl/clearRunningProbe' });
     dispatch({ type: 'appControl/clearMembers' });
   }
+
   onDeleteVar = data => {
     this.setState({ deleteVar: data });
   };
+  onCancelDeleteVolume = () => {
+    this.setState({ toDeleteVolume: null });
+  };
+  onEditVolume = data => {
+    this.setState({ showAddVars: data, editor: data });
+  };
+
+  onDeleteMnt = mnt => {
+    this.setState({ toDeleteMnt: mnt });
+  };
+  onDeleteVolume = data => {
+    this.setState({ toDeleteVolume: data });
+  };
+  onPageChange = page => {
+    this.setState(
+      {
+        page,
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
+  };
+
+  onEditVar = data => {
+    this.setState({ showEditVar: data });
+  };
+
+  onTransfer = data => {
+    this.setState({ transfer: data });
+  };
+  // 是否可以浏览当前界面
+  canView() {
+    const {
+      componentPermissions: { isEnv },
+    } = this.props;
+    return isEnv;
+  }
+  cancelEditVar = () => {
+    this.setState({ showEditVar: null });
+  };
+  handleSearch = env_name => {
+    this.setState(
+      {
+        page: 1,
+        env_name,
+      },
+      () => {
+        this.fetchInnerEnvs();
+      }
+    );
+  };
+
   // 变量信息
   fetchInnerEnvs = () => {
     const { page, page_size, env_name } = this.state;
@@ -246,12 +280,6 @@ export default class Index extends React.Component {
     });
   };
 
-  onEditVar = data => {
-    this.setState({ showEditVar: data });
-  };
-  cancelEditVar = () => {
-    this.setState({ showEditVar: null });
-  };
   handleEditVar = vals => {
     const { showEditVar } = this.state;
     this.props.dispatch({
@@ -271,13 +299,6 @@ export default class Index extends React.Component {
         }
       },
     });
-  };
-
-  onCancelEditStartProbe = () => {
-    this.setState({ editStartHealth: null });
-  };
-  onCancelEditRunProbe = () => {
-    this.setState({ editRunHealth: null });
   };
 
   hideDelMember = () => {
@@ -302,33 +323,6 @@ export default class Index extends React.Component {
         }
       },
     });
-  };
-
-  onPageChange = page => {
-    this.setState(
-      {
-        page,
-      },
-      () => {
-        this.fetchInnerEnvs();
-      }
-    );
-  };
-
-  handleSearch = env_name => {
-    this.setState(
-      {
-        page: 1,
-        env_name,
-      },
-      () => {
-        this.fetchInnerEnvs();
-      }
-    );
-  };
-
-  onTransfer = data => {
-    this.setState({ transfer: data });
   };
 
   fetchVolumes = () => {
@@ -436,18 +430,7 @@ export default class Index extends React.Component {
       }
     });
   };
-  onDeleteMnt = mnt => {
-    this.setState({ toDeleteMnt: mnt });
-  };
-  onDeleteVolume = data => {
-    this.setState({ toDeleteVolume: data });
-  };
-  onEditVolume = data => {
-    this.setState({ showAddVars: data, editor: data });
-  };
-  onCancelDeleteVolume = () => {
-    this.setState({ toDeleteVolume: null });
-  };
+
   handleDeleteVolume = () => {
     this.props.dispatch({
       type: 'appControl/deleteVolume',
@@ -514,6 +497,7 @@ export default class Index extends React.Component {
   };
 
   render() {
+    if (!this.canView()) return <NoPermTip />;
     const { mntList, isAttrNameList } = this.state;
     const { innerEnvs, baseInfo, volumes } = this.props;
     const wraps = {

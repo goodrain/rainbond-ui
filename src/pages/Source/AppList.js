@@ -176,7 +176,7 @@ class ExportBtn extends PureComponent {
   };
   render() {
     const app = this.props.app || {};
-    const { rainbondInfo,enterprise } = this.props;
+    const { rainbondInfo, enterprise } = this.props;
     return (
       <Fragment>
         {rainbondUtil.exportAppEnable(enterprise) && (
@@ -538,7 +538,7 @@ export default class AppList extends PureComponent {
 
   render() {
     const { group_version } = this.state;
-    const { form ,enterprise} = this.props;
+    const { form, enterprise } = this.props;
 
     const extraContent = (
       <div className={BasicListStyles.extraContent}>
@@ -686,9 +686,7 @@ export default class AppList extends PureComponent {
                             <Fragment>
                               <ExportBtn app={item} />
                               {item.source === 'market' &&
-                                rainbondUtil.cloudMarketEnable(
-                                  enterprise
-                                ) && (
+                                rainbondUtil.cloudMarketEnable(enterprise) && (
                                   <a
                                     style={{ marginRight: 8 }}
                                     href="javascript:;"
@@ -824,7 +822,7 @@ export default class AppList extends PureComponent {
               <Form onSubmit={this.handleOkBounced}>
                 <FormItem
                   {...formItemLayout}
-                  label={group_version && `${group_version.group_name  }版本`}
+                  label={group_version && `${group_version.group_name}版本`}
                 >
                   {getFieldDecorator('chooseVersion', {
                     initialValue: group_version && [

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Select } from 'antd';
+import cookie from '../../utils/cookie';
 
-const Option = Select.Option;
+const { Option } = Select;
 
-@connect(({}) => ({}))
+@connect()
 class TenantSelect extends Component {
   constructor(props) {
     super(props);
@@ -15,6 +16,9 @@ class TenantSelect extends Component {
   }
   componentDidMount() {
     this.handleSearch();
+  }
+  componentWillUnmount() {
+    this.setState({ data: [], tenant: '' });
   }
 
   handleSearch = value => {
@@ -34,40 +38,51 @@ class TenantSelect extends Component {
   };
 
   handleChange = value => {
+    const { onChange } = this.props;
     this.setState({ tenant: value }, () => {
-      this.props.onChange && this.props.onChange(value);
+      if (onChange) {
+        onChange(value);
+      }
     });
   };
 
   handleSelect = value => {
     const { onSelect } = this.props;
-    onSelect && onSelect(value);
+    const { data } = this.state;
+    if (onSelect) {
+      const info = data.filter(item => item.team_name === value);
+      if (info && info.length > 0) {
+        cookie.set('region_name', info[0].region);
+        cookie.set('team_name', value);
+      }
+
+      onSelect(value);
+    }
   };
-  componentWillUnmount() {
-    this.setState({ data: [], tenant: '' });
-  }
 
   render() {
-    const options = this.state.data.map((d, index) => (
-      <Option value={d.team_name} key={index}>
-        {d.team_alias}
-      </Option>
-    ));
+    const { placeholder, style } = this.props;
+    const { data, tenant } = this.state;
+
     return (
       <Select
         showSearch
-        placeholder={this.props.placeholder}
-        value={this.state.tenant}
+        placeholder={placeholder}
+        value={tenant}
         defaultActiveFirstOption={false}
         showArrow={false}
         filterOption={false}
         onChange={this.handleChange}
         notFoundContent={null}
         onSearch={this.handleSearch}
-        style={this.props.style}
+        style={style}
         onSelect={this.handleSelect}
       >
-        {options}
+        {data.map(d => (
+          <Option value={d.team_name} key={d.team_alias}>
+            {d.team_alias}
+          </Option>
+        ))}
       </Select>
     );
   }

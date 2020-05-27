@@ -97,6 +97,7 @@ export default [
         component: '../layouts/TeamLayout',
         name: 'TeamBasicLayout',
         authority: ['admin', 'user'],
+        Routes: ['./src/layouts/TeamPermissions.js'],
         routes: [
           // 总览
           {
@@ -243,6 +244,7 @@ export default [
             path: '/team/:teamName/region/:regionName/myplugns/:pluginId?',
             component: './Plugin',
             name: 'Plugin',
+            targetAuthority: ['plugns'],
             authority: ['admin', 'user'],
           },
 

@@ -125,7 +125,11 @@ class CodeMirrorForm extends PureComponent {
     const token = cookie.get('token');
 
     return (
-      <Form.Item {...formItemLayout} label={label}>
+      <Form.Item
+        {...formItemLayout}
+        label={label}
+        style={{ overflow: 'hidden' }}
+      >
         {getFieldDecorator(name, {
           initialValue: data || '',
           rules: [{ required: true, message }],

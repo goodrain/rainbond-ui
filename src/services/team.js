@@ -1,82 +1,86 @@
 import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
-/*
-获取所有的权限
-*/
-export async function getAllPerms(body = {}) {
-  return request(`${apiconfig.baseUrl}/console/teams/operate_options`, {
-    method: 'get',
-  });
-}
-
-/*
-修改角色
- */
-export async function editRole(
-  body = {
-    team_name,
-    role_id,
-    role_name,
-    options_ids,
-  }
-) {
+// edit role
+export async function editRole(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/update_role_perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
     {
-      method: 'post',
+      method: 'put',
       data: {
-        role_id: body.role_id,
-        new_role_name: body.role_name,
-        new_options_id_list: body.options_ids,
+        name: body.name,
       },
     }
   );
 }
 
-/*
-删除角色
- */
-export async function removeRole(body = { team_name, role_id }) {
+// putRolePermissions
+export async function putRolePermissions(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/del-role`,
+    // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    {
+      method: 'put',
+      data: {
+        permissions: body.permissions,
+      },
+    }
+  );
+}
+
+// delete role
+export async function removeRole(body = {}) {
+  return request(
+    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}`,
     {
       method: 'delete',
-      data: {
-        role_id: body.role_id,
-      },
     }
   );
 }
-
-/*
-创建角色
- */
-export async function createRole(body = { team_name, role_name, options_ids }) {
+// create role
+export async function createRole(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/add-role`,
+    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles`,{
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
       method: 'post',
       data: {
-        role_name: body.role_name,
-        options_id_list: body.options_ids,
+        name: body.name,
       },
     }
   );
 }
 
-/*
-获取团队下所有角色
- */
-export async function getRoles(body = { team_name, page, page_size }) {
+/* fetch teams Role list */
+export async function getTeamRoles(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/role-list`,
+    // `https://doc.goodrain.org/mock/18/console/teams/${body.team_name}/roles`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles`,
     {
       method: 'get',
-      params: {
-        page: body.page,
-        page_size: body.page_size,
-      },
+    }
+  );
+}
+/* fetch teams Role Permissions list */
+export async function getTeamRolesPermissions(body = {}) {
+  return request(
+    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/roles/{role_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/roles/${body.role_id}/perms`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/* fetch team user Permissions */
+export async function getTeamUserPermissions(body = {}, handleError) {
+  return request(
+    // `https://doc.goodrain.org/mock/18/console/teams/{team_name}/users/{user_id}/perms`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/perms`,
+    {
+      method: 'get',
+      handleError,
     }
   );
 }
@@ -130,19 +134,13 @@ export async function getTeamPermissions() {
 /*
 	修改成员角色
 */
-export async function editMember(
-  body = {
-    team_name,
-    user_id,
-    role_ids,
-  }
-) {
+export async function editMember(body = {}) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/${body.user_id}/mod-role`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/${body.user_id}/roles`,
     {
-      method: 'post',
+      method: 'put',
       data: {
-        role_ids: body.role_ids,
+        roles: body.role_ids,
       },
     }
   );
@@ -186,6 +184,18 @@ export async function getMembers(
 }
 
 /*
+	获取团队下的所有成员
+*/
+export async function getTeamMembers(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/users/roles`,
+    {
+      method: 'get',
+    }
+  );
+}
+
+/*
 	添加成员
 */
 export async function addMember(
@@ -196,6 +206,7 @@ export async function addMember(
   }
 ) {
   return request(
+    // `http://5000.gradb2e2.2c9v614j.17f4cc.grapps.cn/console/teams/${body.team_name}/add_team_user`,
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/add_team_user`,
     {
       method: 'post',
@@ -221,7 +232,7 @@ export async function removeMember(
     {
       method: 'delete',
       data: {
-        user_ids: body.user_ids,
+        user_ids: [body.user_ids],
       },
     }
   );

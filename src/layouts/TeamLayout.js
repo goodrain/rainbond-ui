@@ -26,6 +26,7 @@ import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
 import userUtil from '../utils/user';
+import roleUtil from '../utils/role';
 import AppHeader from './components/AppHeader';
 import TeamHeader from './components/TeamHeader';
 import Context from './MenuContext';
@@ -81,18 +82,18 @@ class TeamLayout extends PureComponent {
       currentEnterprise: false,
       currentComponent: null,
       eid: '',
+      teamView: true,
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.getEnterpriseList();
   }
 
   // get enterprise list
   getEnterpriseList = () => {
-    const { dispatch } = this.props;
-    // 获取最新的用户信息
-    dispatch({ type: 'user/fetchCurrent' });
+    const { dispatch, currentUser } = this.props;
+
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -102,7 +103,11 @@ class TeamLayout extends PureComponent {
               enterpriseList: res.list,
             },
             () => {
-              this.getTeamOverview();
+              if (currentUser) {
+                return this.getTeamOverview(currentUser.user_id);
+              }
+              // 获取最新的用户信息
+              this.fetchUserInfo();
             }
           );
         }
@@ -110,53 +115,18 @@ class TeamLayout extends PureComponent {
     });
   };
   upData = () => {
-    const { dispatch } = this.props;
-    dispatch({ type: 'user/fetchCurrent' });
-    this.getTeamOverview();
+    this.fetchUserInfo();
   };
-  getTeamOverview = () => {
-    const { teamName, regionName } = this.props.match.params;
-    const { dispatch } = this.props;
-    const { enterpriseList } = this.state;
 
+  fetchUserInfo = () => {
+    const { dispatch } = this.props;
+    const { teamName, regionName } = this.props.match.params;
     if (teamName && regionName) {
-      cookie.set('team_name', teamName);
-      cookie.set('region_name', regionName);
       dispatch({
-        type: 'global/getTeamOverview',
-        payload: {
-          team_name: teamName,
-        },
+        type: 'user/fetchCurrent',
         callback: res => {
           if (res && res._code === 200) {
-            this.setState(
-              {
-                eid: res.bean.eid,
-              },
-              () => {
-                this.load();
-              }
-            );
-          }
-        },
-        handleError: err => {
-          if (err && err.data && err.data.code) {
-            const errtext =
-              err.data.code === 10411
-                ? '当前集群不可用'
-                : err.data.code === 10412
-                ? '当前集群不存在'
-                : false;
-            if (errtext && enterpriseList.length > 0) {
-              notification.error({ message: errtext });
-              dispatch(
-                routerRedux.replace(
-                  `/enterprise/${enterpriseList[0].enterprise_id}/index`
-                )
-              );
-            } else {
-              notification.error({ message: '请求错误' });
-            }
+            this.getTeamOverview(res.bean.user_id);
           }
         },
       });
@@ -164,12 +134,89 @@ class TeamLayout extends PureComponent {
     return null;
   };
 
+  getTeamOverview = () => {
+    const { dispatch } = this.props;
+    const { enterpriseList } = this.state;
+    const { teamName, regionName } = this.props.match.params;
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
+    dispatch({
+      type: 'global/getTeamOverview',
+      payload: {
+        team_name: teamName,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState(
+            {
+              eid: res.bean.eid,
+            },
+            () => {
+              this.load();
+            }
+          );
+        }
+      },
+      handleError: err => {
+        if (err && err.data && err.data.code) {
+          const errtext =
+            err.data.code === 10411
+              ? '当前集群不可用'
+              : err.data.code === 10412
+              ? '当前集群不存在'
+              : false;
+          if (errtext && enterpriseList.length > 0) {
+            notification.error({ message: errtext });
+            dispatch(
+              routerRedux.replace(
+                `/enterprise/${enterpriseList[0].enterprise_id}/index`
+              )
+            );
+          } else {
+            notification.error({ message: '请求错误' });
+          }
+        }
+      },
+    });
+  };
+
+  loadPermissions = (ID, teamName, regionName) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/fetchTeamUserPermissions',
+      payload: { user_id: ID, team_name: teamName },
+      callback: res => {
+        if (res && res._code === 200) {
+          const results = roleUtil.queryTeamUserPermissionsInfo(
+            res.bean,
+            'teamBasicInfo',
+            'describe'
+          );
+          this.setState({ teamView: results });
+          if (!results) {
+            dispatch(
+              routerRedux.replace(
+                `/team/${teamName}/region/${regionName}/exception/403`
+              )
+            );
+          }
+        }
+      },
+    });
+  };
+
   load = () => {
     const { enterpriseList, eid } = this.state;
     const { currentUser, dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
+
     dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
+    dispatch({
+      type: 'teamControl/fetchCurrentTeamPermissions',
+      payload: team && team.tenant_actions,
+    });
+
     dispatch({
       type: 'teamControl/fetchCurrentRegionName',
       payload: { currentRegionName: regionName },
@@ -301,6 +348,7 @@ class TeamLayout extends PureComponent {
       rainbondInfo,
       enterprise,
       upDataHeader,
+      currentTeamPermissionsInfo,
     } = this.props;
     const {
       enterpriseList,
@@ -309,7 +357,9 @@ class TeamLayout extends PureComponent {
       currentTeam,
       currentRegion,
       currentComponent,
+      teamView,
     } = this.state;
+
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     // Parameters of the abnormal
@@ -317,7 +367,12 @@ class TeamLayout extends PureComponent {
       return <Redirect to="/" />;
     }
     // The necessary data is loaded
-    if (!ready || !currentEnterprise || !currentTeam) {
+    if (
+      !ready ||
+      !currentEnterprise ||
+      !currentTeam ||
+      !currentTeamPermissionsInfo
+    ) {
       return <PageLoading />;
     }
     if (
@@ -372,9 +427,18 @@ class TeamLayout extends PureComponent {
         />
       );
     };
-    let menuData = getMenuData(teamName, regionName);
+    let menuData = getMenuData(
+      teamName,
+      regionName,
+      currentTeam.tenant_actions
+    );
     if (mode === 'app') {
-      menuData = getAppMenuData(teamName, regionName, appID);
+      menuData = getAppMenuData(
+        teamName,
+        regionName,
+        appID,
+        currentTeam.tenant_actions
+      );
     }
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const layout = () => {
@@ -464,27 +528,29 @@ class TeamLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
-              customHeader={customHeader}
+              customHeader={teamView && customHeader}
             />
             <Layout style={{ flexDirection: 'row' }}>
-              <GlobalRouter
-                enterpriseList={enterpriseList}
-                title={
-                  rainbondInfo &&
-                  rainbondInfo.title &&
-                  rainbondInfo.title.enable &&
-                  rainbondInfo.title.value
-                }
-                currentUser={currentUser}
-                Authorized={Authorized}
-                collapsed={collapsed}
-                location={location}
-                isMobile={this.state.isMobile}
-                onCollapse={this.handleMenuCollapse}
-                menuData={menuData}
-                pathname={pathname}
-                showMenu={!componentID}
-              />
+              {teamView && (
+                <GlobalRouter
+                  enterpriseList={enterpriseList}
+                  title={
+                    rainbondInfo &&
+                    rainbondInfo.title &&
+                    rainbondInfo.title.enable &&
+                    rainbondInfo.title.value
+                  }
+                  currentUser={currentUser}
+                  Authorized={Authorized}
+                  collapsed={collapsed}
+                  location={location}
+                  isMobile={this.state.isMobile}
+                  onCollapse={this.handleMenuCollapse}
+                  menuData={menuData}
+                  pathname={pathname}
+                  showMenu={!componentID}
+                />
+              )}
               <Content
                 style={{
                   margin: '24px 24px 0',
@@ -533,7 +599,7 @@ class TeamLayout extends PureComponent {
   }
 }
 
-export default connect(({ user, global, index, loading }) => ({
+export default connect(({ user, global, index, loading, teamControl }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,
@@ -549,4 +615,5 @@ export default connect(({ user, global, index, loading }) => ({
   nouse: global.nouse,
   enterprise: global.enterprise,
   upDataHeader: global.upDataHeader,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))(TeamLayout);

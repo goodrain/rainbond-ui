@@ -23,9 +23,8 @@ import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import appPluginUtil from '../../utils/appPlugin';
 import NoPermTip from '../../components/NoPermTip';
-import appUtil from '../../utils/app';
 
-const Option = Select.Option;
+const { Option } = Select;
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -39,7 +38,10 @@ class UpdateMemory extends PureComponent {
     };
   }
   handleOk = () => {
-    this.props.onOk && this.props.onOk(this.state.memory);
+    const { onOk } = this.props;
+    if (onOk) {
+      onOk(this.state.memory);
+    }
   };
   handleChange = value => {
     this.setState({ memory: value });
@@ -71,6 +73,7 @@ class UpdateMemory extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @Form.create()
 class ConfigItems extends PureComponent {
   componentWillReceiveProps() {}
@@ -200,6 +203,7 @@ class ConfigItems extends PureComponent {
 }
 
 // 下游应用端口类配置组
+// eslint-disable-next-line react/no-multi-comp
 class ConfigDownstreamPort extends PureComponent {
   constructor(props) {
     super(props);
@@ -330,6 +334,7 @@ class ConfigDownstreamPort extends PureComponent {
 }
 
 // 应用端口类配置组
+// eslint-disable-next-line react/no-multi-comp
 class ConfigUpstreamPort extends PureComponent {
   constructor(props) {
     super(props);
@@ -399,6 +404,7 @@ class ConfigUpstreamPort extends PureComponent {
 }
 
 // 不依赖的配置组
+// eslint-disable-next-line react/no-multi-comp
 class ConfigUnDefine extends PureComponent {
   render() {
     const data = this.props.data || [];
@@ -416,7 +422,7 @@ class ConfigUnDefine extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 class PluginConfigs extends PureComponent {
   renderConfig = (configs, type) => {
     if (type === 'upstream_port') {
@@ -458,7 +464,7 @@ class PluginConfigs extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(
   ({ user, loading }) => ({
     currUser: user.currentUser,
@@ -488,7 +494,10 @@ export default class Index extends PureComponent {
   }
   // 是否可以浏览当前界面
   canView() {
-    return appUtil.canManageAppPlugin(this.props.appDetail);
+    const {
+      componentPermissions: { isPlugin },
+    } = this.props;
+    return isPlugin;
   }
   getPlugins = () => {
     const team_name = globalUtil.getCurrTeamName();

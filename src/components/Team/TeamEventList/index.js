@@ -1,15 +1,14 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Link } from "dva/router";
-import { Card, Row, Col, List, Table, Popconfirm } from "antd";
-import moment from "moment";
-import globalUtil from "../../../utils/global";
-import styles from "./index.less";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import { Card, Row, Col, List, Table, Popconfirm } from 'antd';
+import globalUtil from '../../../utils/global';
+import styles from './index.less';
 
 @connect(({ teamControl, loading, user }) => ({
   regions: teamControl.regions,
   currUser: user.currentUser,
-  activitiesLoading: loading.effects["activities/fetchList"]
+  activitiesLoading: loading.effects['activities/fetchList'],
 }))
 export default class EventList extends PureComponent {
   constructor(props) {
@@ -19,7 +18,7 @@ export default class EventList extends PureComponent {
       pageSize: 8,
       total: 0,
       events: [],
-      joinUsers: []
+      joinUsers: [],
     };
   }
   componentDidMount() {
@@ -29,36 +28,36 @@ export default class EventList extends PureComponent {
   loadEvents = () => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "index/fetchEvents",
+      type: 'index/fetchEvents',
       payload: {
         team_name: teamName,
         page_size: this.state.pageSize,
-        page: this.state.page
+        page: this.state.page,
       },
       callback: data => {
         if (data) {
           this.setState({
             events: data.list || [],
-            total: data.total || data.list.length
+            total: data.total || data.list.length,
           });
         }
-      }
+      },
     });
   };
   loadJoinUsers = () => {
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/getJoinTeamUsers",
+      type: 'teamControl/getJoinTeamUsers',
       payload: {
-        team_name: teamName
+        team_name: teamName,
       },
       callback: data => {
         if (data) {
           this.setState({
-            joinUsers: data.list || []
+            joinUsers: data.list || [],
           });
         }
-      }
+      },
     });
   };
   hanldePageChange = page => {
@@ -67,31 +66,29 @@ export default class EventList extends PureComponent {
     });
   };
   handleRefused = data => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/setJoinTeamUsers",
+      type: 'teamControl/setJoinTeamUsers',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         user_id: data.user_id,
-        action: false
+        action: false,
       },
       callback: () => {
         this.loadJoinUsers();
-      }
+      },
     });
   };
   handleJoin = data => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/setJoinTeamUsers",
+      type: 'teamControl/setJoinTeamUsers',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         user_id: data.user_id,
-        action: true
+        action: true,
       },
       callback: () => {
         this.loadJoinUsers();
-      }
+      },
     });
   };
 
@@ -102,22 +99,15 @@ export default class EventList extends PureComponent {
       return (
         <p
           style={{
-            textAlign: "center",
-            color: "ccc",
-            paddingTop: 20
+            textAlign: 'center',
+            color: 'ccc',
+            paddingTop: 20,
           }}
         >
           暂无动态
         </p>
       );
     }
-
-    const statusCNMap = {
-      "": "进行中",
-      complete: "完成",
-      failure: "失败",
-      timeout: "超时"
-    };
 
     return list.map(item => {
       const {
@@ -126,7 +116,7 @@ export default class EventList extends PureComponent {
         FinalStatus,
         Status,
         create_time,
-        Target
+        Target,
       } = item;
 
       const linkTo = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -139,11 +129,11 @@ export default class EventList extends PureComponent {
               <span>
                 <a className={styles.username}>{UserName}</a>
                 <span className={styles.event}>
-                  {" "}
+                  {' '}
                   {globalUtil.fetchStateOptTypeText(OptType)}
                 </span>
                 &nbsp;
-                {Target && Target === "service" && (
+                {Target && Target === 'service' && (
                   <Link to={linkTo} className={styles.event}>
                     {item.service_name}
                   </Link>
@@ -151,7 +141,7 @@ export default class EventList extends PureComponent {
                 <span>应用</span>
                 <span
                   style={{
-                    color: globalUtil.fetchAbnormalcolor(OptType)
+                    color: globalUtil.fetchAbnormalcolor(OptType),
                   }}
                 >
                   {globalUtil.fetchOperation(FinalStatus, Status)}
@@ -169,21 +159,24 @@ export default class EventList extends PureComponent {
     });
   }
   render() {
-    const { activitiesLoading } = this.props;
+    const {
+      activitiesLoading,
+      memberPermissions: { isCreate },
+    } = this.props;
     const pagination = {
       current: this.state.page,
       pageSize: this.state.pageSize,
       total: this.state.total,
       onChange: v => {
         this.hanldePageChange(v);
-      }
+      },
     };
     return (
       <Row gutter={24}>
         <Col md={12} sm={24}>
           <Card
             bodyStyle={{
-              paddingTop: 12
+              paddingTop: 12,
             }}
             bordered={false}
             title="动态"
@@ -203,7 +196,7 @@ export default class EventList extends PureComponent {
         <Col md={12} sm={24}>
           <Card
             bodyStyle={{
-              paddingTop: 12
+              paddingTop: 12,
             }}
             bordered={false}
             title="以下用户申请加入团队"
@@ -213,18 +206,19 @@ export default class EventList extends PureComponent {
               dataSource={this.state.joinUsers || []}
               columns={[
                 {
-                  title: "用户",
-                  dataIndex: "user_name"
+                  title: '用户',
+                  dataIndex: 'user_name',
                 },
                 {
-                  title: "申请时间",
-                  dataIndex: "apply_time"
+                  title: '申请时间',
+                  dataIndex: 'apply_time',
                 },
                 {
-                  title: "操作",
-                  dataIndex: "",
+                  title: '操作',
+                  dataIndex: '',
                   render: (v, data) =>
-                    data.is_pass == 0 && (
+                    data.is_pass == 0 &&
+                    isCreate && (
                       <Fragment>
                         <Popconfirm
                           title="确定要通过用户加入么?"
@@ -245,8 +239,8 @@ export default class EventList extends PureComponent {
                           </a>
                         </Popconfirm>
                       </Fragment>
-                    )
-                }
+                    ),
+                },
               ]}
             />
           </Card>

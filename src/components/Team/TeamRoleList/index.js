@@ -1,185 +1,199 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Card } from "antd";
-import ScrollerX from "../../ScrollerX";
-import teamUtil from "../../../utils/team";
-import globalUtil from "../../../utils/global";
-import userUtil from "../../../utils/user";
-import TeamRoleTable from "../../TeamRoleTable";
-import AddRole from "../../AddRole";
-import ConfirmModal from "../../ConfirmModal";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Tabs, Icon, Menu, Button, Spin, Empty } from 'antd';
+import PermissionsForm from './permissionsForm';
+import ConfirmModal from '../../ConfirmModal';
+import globalUtil from '../../../utils/global';
+import roleUtil from '../../../utils/role';
+import styles from './index.less';
 
-@connect(({ teamControl, loading, user }) => ({
+const { Item } = Menu;
+const { TabPane } = Tabs;
+
+@connect(({ teamControl, loading }) => ({
   teamControl,
-  currUser: user.currentUser,
-  activitiesLoading: loading.effects["activities/fetchList"],
+  activitiesLoading: loading.effects['activities/fetchList'],
 }))
 export default class RoleList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       showAddRole: false,
-      page: 1,
-      pageSize: 8,
-      total: 0,
-      roles: [],
+      roleList: [],
+      rolesID: null,
+      rolesLoading: true,
+      permissions: null,
+      permissionsLoading: true,
     };
   }
   componentDidMount() {
-    this.loadRoles();
+    this.loadTeamRoles();
+    this.loadPermissions();
   }
-  onDelRole = (item) => {
+  onDelRole = item => {
     this.setState({ deleteRole: item });
   };
-  onEditRole = (item) => {
-    this.setState({ editRole: item });
-  };
+
   showAddRole = () => {
     this.setState({ showAddRole: true });
   };
-  hideAddRole = () => {
+  hideAddRole = ID => {
     this.setState({ showAddRole: false });
+    if (ID && typeof ID === 'number') {
+      return this.loadTeamRoles(ID);
+    }
   };
-  handleAddRole = (values) => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: "teamControl/createRole",
-      payload: {
-        team_name,
-        ...values,
-      },
-      callback: () => {
-        this.loadRoles();
-        this.hideAddRole();
-      },
-    });
-  };
+
   handleDelRole = () => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/removeRole",
+      type: 'teamControl/removeRole',
       payload: {
-        team_name,
-        role_id: this.state.deleteRole.role_id,
+        team_name: globalUtil.getCurrTeamName(),
+        role_id: this.state.deleteRole.ID,
       },
       callback: () => {
         this.hideDelRole();
-        this.loadRoles();
+        this.loadTeamRoles();
       },
     });
   };
   hideDelRole = () => {
     this.setState({ deleteRole: null });
   };
-  handleEditRole = (values) => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
-      type: "teamControl/editRole",
-      payload: {
-        team_name,
-        role_id: this.state.editRole.role_id,
-        ...values,
-      },
-      callback: () => {
-        this.hideEditRole();
-        this.loadRoles();
-      },
-    });
-  };
-  hideEditRole = () => {
-    this.setState({ editRole: null });
-  };
-  loadRoles = () => {
+
+  loadTeamRoles = (rolesID = false) => {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
     dispatch({
-      type: "teamControl/getRoles",
+      type: 'teamControl/fetchTeamRoles',
       payload: {
-        team_name,
-        page_size: this.state.pageSize,
-        page: this.state.page,
+        team_name: globalUtil.getCurrTeamName(),
       },
-      callback: (data) => {
-        if (data) {
+      callback: res => {
+        if (res && res._code === 200) {
+          let ID = null;
+          if (res.list && res.list.length > 0) {
+            ID = res.list[0].ID;
+          }
           this.setState({
-            roles: data.list || [],
-            total: data.total,
+            roleList: res.list,
+            rolesID: rolesID || ID,
+            rolesLoading: false,
           });
         }
       },
     });
   };
-  hanldePageChange = (page) => {
-    this.setState({ page }, () => {
-      this.loadRoles();
+
+  loadPermissions = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchPermissions',
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            permissions: res.bean || [],
+            permissionsLoading: false,
+          });
+        }
+      },
     });
   };
+
+  selectKey = ({ key }) => {
+    this.setState({
+      rolesID: key,
+    });
+  };
+
   render() {
-    const { currUser, teamControl } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, teamName);
-    const pagination = {
-      current: this.state.page,
-      pageSize: this.state.pageSize,
-      total: this.state.total,
-      onChange: (v) => {
-        this.hanldePageChange(v);
-      },
-    };
+    const {
+      rolePermissions: { isCreate, isEdit, isDelete },
+    } = this.props;
+    const {
+      roleList,
+      rolesLoading,
+      permissions,
+      permissionsLoading,
+      showAddRole,
+      rolesID,
+      deleteRole,
+    } = this.state;
+    const roles = roleList && roleList.length > 0;
     return (
-      <div>
-        <Card
-          bodyStyle={{
-            paddingTop: 12,
-          }}
-          bordered={false}
-          title="角色管理 "
-          extra={
-            teamUtil.canAddRole(team) && (
-              <a href="javascript:;" onClick={this.showAddRole}>
-                添加角色
-              </a>
-            )
-          }
-        >
-          <ScrollerX sm={600}>
-            <TeamRoleTable
-              pagination={pagination}
-              team={team}
-              onDelete={this.onDelRole}
-              onEdit={this.onEditRole}
-              list={this.state.roles}
-            />
-          </ScrollerX>
-        </Card>
-        {this.state.showAddRole && (
-          <AddRole
-            actions={teamControl.actions}
-            onOk={this.handleAddRole}
-            onCancel={this.hideAddRole}
-          />
-        )}
+      <Fragment>
+        <div className={styles.systemRoleWrapper}>
+          <div className={styles.systemRole}>
+            <div className={styles.systemRoleTitle}>角色列表</div>
+            <Spin spinning={rolesLoading}>
+              <div className={styles.systemRoleList}>
+                {roles && (
+                  <Menu
+                    mode="inline"
+                    selectedKeys={[`${rolesID}`]}
+                    onClick={this.selectKey}
+                  >
+                    {roleList.map(item => {
+                      const { ID, name } = item;
+                      return (
+                        <Item key={ID} className={styles.roleName}>
+                          <div> {roleUtil.actionMap(name)}</div>
+                          {isDelete && (
+                            <Icon
+                              type="delete"
+                              onClick={() => {
+                                this.onDelRole(item);
+                              }}
+                            />
+                          )}
+                        </Item>
+                      );
+                    })}
+                  </Menu>
+                )}
+              </div>
+            </Spin>
+            <div className={styles.systemRoleBtn}>
+              {!showAddRole && isCreate && (
+                <Button type="primary" onClick={this.showAddRole}>
+                  添加角色
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className={styles.authSettingBody}>
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="权限设置" key="1">
+                {!roles && !permissionsLoading && !showAddRole ? (
+                  <div className={styles.noRole}>
+                    <Empty description={<span>暂无角色、请先添加角色</span>} />
+                  </div>
+                ) : (
+                  <PermissionsForm
+                    isEdit={isEdit}
+                    isCreate={isCreate}
+                    isAddRole={showAddRole}
+                    onCancelAddRole={this.hideAddRole}
+                    rolesID={rolesID}
+                    roleList={roleList}
+                    permissions={permissions}
+                    permissionsLoading={permissionsLoading}
+                  />
+                )}
+              </TabPane>
+            </Tabs>
+          </div>
+        </div>
 
-        {this.state.editRole && (
-          <AddRole
-            title="修改角色"
-            data={this.state.editRole}
-            actions={teamControl.actions}
-            onOk={this.handleEditRole}
-            onCancel={this.hideEditRole}
-          />
-        )}
-
-        {this.state.deleteRole && (
+        {deleteRole && (
           <ConfirmModal
             onOk={this.handleDelRole}
             title="删除角色"
             subDesc="此操作不可恢复"
-            desc={`确定要删除角色 （${this.state.deleteRole.role_name}） 吗？`}
+            desc={`确定要删除角色 （${deleteRole.name}） 吗？`}
             onCancel={this.hideDelRole}
           />
         )}
-      </div>
+      </Fragment>
     );
   }
 }

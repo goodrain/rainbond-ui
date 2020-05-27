@@ -688,6 +688,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
+    const { status, componentPermissions } = this.props;
     const {
       logList,
       memory,
@@ -705,7 +706,6 @@ export default class Index extends PureComponent {
       current_version,
       componentTimers,
     } = this.state;
-    const { status } = this.props;
     return (
       <Fragment>
         <Basic
@@ -721,6 +721,7 @@ export default class Index extends PureComponent {
         />
         {more && (
           <BuildHistory
+            componentPermissions={componentPermissions}
             beanData={beanData}
             current_version={current_version}
             dataList={dataList}
