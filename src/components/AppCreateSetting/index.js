@@ -1122,7 +1122,16 @@ class RenderProperty extends PureComponent {
   }
 }
 // eslint-disable-next-line react/no-multi-comp
-@connect(null, null, null, { withRef: true })
+@connect(
+  ({ teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  }),
+  null,
+  null,
+  {
+    withRef: true,
+  }
+)
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
