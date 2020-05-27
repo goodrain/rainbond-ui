@@ -6,13 +6,11 @@ import { Link, routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
-import userUtil from '../../utils/user';
-import TeamUtil from '../../utils/team';
+import roleUtil from '../../utils/role';
 import styles from './Index.less';
 import Ellipsis from '../../components/Ellipsis';
 import Manage from './manage';
 import ConfirmModal from '../../components/ConfirmModal';
-import NoPermTip from '../../components/NoPermTip';
 import MarketPluginDetailShow from '../../components/MarketPluginDetailShow';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
@@ -217,6 +215,79 @@ class PluginList extends PureComponent {
   componentDidMount() {
     this.fetchDefaultPlugin();
   }
+
+  onDeletePlugin = plugin => {
+    this.setState({ deletePlugin: plugin });
+  };
+  onInstallPlugin = item => {
+    this.props.dispatch({
+      type: 'plugin/installDefaultPlugin',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        plugin_type: item.category,
+      },
+      callback: data => {
+        this.fetchDefaultPlugin();
+      },
+    });
+  };
+
+  getAction = (item, operationPermissions) => {
+    const { isCreate, isDelete } = operationPermissions;
+    if (item.hasInstall !== false) {
+      const arr = [];
+      if (isDelete) {
+        arr.push(
+          <span
+            onClick={() => {
+              this.onDeletePlugin(item);
+            }}
+          >
+            删除
+          </span>
+        );
+      }
+      arr.push(
+        <Link
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
+            item.plugin_id
+          }`}
+        >
+          管理
+        </Link>
+      );
+
+      return arr;
+    }
+    if (isCreate) {
+      return [
+        <span
+          onClick={() => {
+            this.onInstallPlugin(item);
+          }}
+        >
+          安装
+        </span>,
+      ];
+    }
+    return [];
+  };
+  getItemTitle = item => {
+    if (item.hasInstall !== false) {
+      return (
+        <Link
+          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
+            item.plugin_id
+          }`}
+        >
+          {' '}
+          {item.plugin_alias}{' '}
+        </Link>
+      );
+    }
+    return item.plugin_alias;
+  };
+
   fetchDefaultPlugin = () => {
     this.props.dispatch({
       type: 'plugin/getDefaultPlugin',
@@ -309,71 +380,18 @@ class PluginList extends PureComponent {
       },
     });
   };
-  onDeletePlugin = plugin => {
-    this.setState({ deletePlugin: plugin });
-  };
+
   cancelDeletePlugin = () => {
     this.setState({ deletePlugin: null });
   };
-  onInstallPlugin = item => {
-    this.props.dispatch({
-      type: 'plugin/installDefaultPlugin',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        plugin_type: item.category,
-      },
-      callback: data => {
-        this.fetchDefaultPlugin();
-      },
-    });
-  };
-  getItemTitle = item => {
-    if (item.hasInstall !== false) {
-      return (
-        <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
-            item.plugin_id
-          }`}
-        >
-          {' '}
-          {item.plugin_alias}{' '}
-        </Link>
-      );
-    }
-    return item.plugin_alias;
-  };
-  getAction = item => {
-    if (item.hasInstall !== false) {
-      return [
-        <span
-          onClick={() => {
-            this.onDeletePlugin(item);
-          }}
-        >
-          删除
-        </span>,
-        <Link
-          to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
-            item.plugin_id
-          }`}
-        >
-          管理
-        </Link>,
-      ];
-    }
-    return [
-      <span
-        onClick={() => {
-          this.onInstallPlugin(item);
-        }}
-      >
-        安装
-      </span>,
-    ];
-  };
   render() {
-    const list = this.state.list;
-
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      operationPermissions,
+    } = this.props;
+    const { list } = this.state;
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>
@@ -382,7 +400,6 @@ class PluginList extends PureComponent {
 
     const extraContent = <div className={styles.extraImg} />;
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
@@ -408,9 +425,13 @@ class PluginList extends PureComponent {
             }}
             dataSource={['', ...list]}
             renderItem={item =>
+              // eslint-disable-next-line no-nested-ternary
               item ? (
                 <List.Item key={item.id}>
-                  <Card className={styles.card} actions={this.getAction(item)}>
+                  <Card
+                    className={styles.card}
+                    actions={this.getAction(item, operationPermissions)}
+                  >
                     <Card.Meta
                       style={{ height: 100, overflow: 'auto' }}
                       avatar={
@@ -440,7 +461,7 @@ class PluginList extends PureComponent {
                     />
                   </Card>
                 </List.Item>
-              ) : (
+              ) : operationPermissions.isCreate ? (
                 <List.Item key={item.id}>
                   <Button
                     type="dashed"
@@ -451,6 +472,8 @@ class PluginList extends PureComponent {
                     新建插件
                   </Button>
                 </List.Item>
+              ) : (
+                <div />
               )
             }
           />
@@ -463,17 +486,6 @@ class PluginList extends PureComponent {
             />
           )}
         </div>
-        <dl style={{ paddingTop: 32, marginTop: 32 }}>
-          <dt style={{ marginBottom: '16px', fontSize: '18px' }}>
-            从内部市场安装
-          </dt>
-          <dd>
-            <MarketPlugin
-              dispatch={this.props.dispatch}
-              onInstallSuccess={this.fetchPlugins}
-            />
-          </dd>
-        </dl>
       </PageHeaderLayout>
     );
   }
@@ -484,20 +496,40 @@ class PluginList extends PureComponent {
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 class Index extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      operationPermissions: this.handlePermissions('queryPluginInfo'),
+    };
+  }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      operationPermissions: { isAccess },
+    } = this.state;
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    }
+  }
+
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
+
   render() {
-    const currUser = this.props.currUser;
-    const team_name = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, team_name);
-    if (!TeamUtil.canManagePlugin(team)) {
-      return <NoPermTip />;
-    }
-    const pluginId = this.props.match.params.pluginId;
+    const { match } = this.props;
+    const { pluginId } = match.params;
     if (pluginId) {
-      return <Manage {...this.props} />;
+      return <Manage {...this.props} {...this.state} />;
     }
-    return <PluginList {...this.props} />;
+    return <PluginList {...this.props} {...this.state} />;
   }
 }
 

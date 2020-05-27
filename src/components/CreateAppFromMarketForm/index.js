@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Form, Button, Select, Modal, Tooltip, Radio } from 'antd';
+import { Form, Button, Select, Modal, Radio } from 'antd';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
@@ -15,7 +15,7 @@ const formItemLayout = {
   },
 };
 
-@connect(({ user, global }) => ({ groups: global.groups }), null, null, {
+@connect(({ global }) => ({ groups: global.groups }), null, null, {
   withRef: true,
 })
 @Form.create()
@@ -25,7 +25,6 @@ export default class Index extends PureComponent {
     this.state = {
       addGroup: false,
       is_deploy: true,
-      group_version: '',
     };
   }
   onAddGroup = () => {
@@ -74,11 +73,12 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { is_deploy } = this.state;
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue, is_deploy);
-      this.props.onSubmit && this.setState({ is_deploy: true });
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue, is_deploy);
+        this.setState({ is_deploy: true });
+      }
     });
   };
 
@@ -89,17 +89,17 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     const { groups, onCancel, showCreate } = this.props;
     const data = this.props.data || {};
 
-    const versions_info =
+    const versionsInfo =
       showCreate &&
       showCreate.versions_info &&
       showCreate.versions_info.length > 0 &&
       showCreate.versions_info;
 
-    const app_versions =
+    const appVersions =
       showCreate &&
       showCreate.app_versions &&
       showCreate.app_versions.length > 0 &&
@@ -117,12 +117,11 @@ export default class Index extends PureComponent {
           <Button
             onClick={this.handleSubmit}
             type="primary"
-            style={{marginRight:'5px'}}
+            style={{ marginRight: '5px' }}
             disabled={this.props.disabled}
           >
             安装
           </Button>,
-          // <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} >
           <Radio
             size="small"
             onClick={this.renderSuccessOnChange}
@@ -130,16 +129,15 @@ export default class Index extends PureComponent {
           >
             并构建启动
           </Radio>,
-          // </Tooltip>
         ]}
       >
         <Form onSubmit={this.handleOk} layout="horizontal" hideRequiredMark>
           <Form.Item {...formItemLayout} label="安装版本">
             {getFieldDecorator('group_version', {
-              initialValue: versions_info
-                ? versions_info[0].version
-                : app_versions
-                ? app_versions[0].app_version
+              initialValue: versionsInfo
+                ? versionsInfo[0].version
+                : appVersions
+                ? appVersions[0].app_version
                 : '',
               rules: [
                 {
@@ -152,16 +150,16 @@ export default class Index extends PureComponent {
                 onChange={this.handleChangeVersion}
                 style={{ width: '220px' }}
               >
-                {versions_info
-                  ? versions_info.map((item, index) => {
+                {versionsInfo
+                  ? versionsInfo.map((item, index) => {
                       return (
                         <Option key={index} value={item.version}>
                           {item.version}
                         </Option>
                       );
                     })
-                  : app_versions &&
-                    app_versions.map((item, index) => {
+                  : appVersions &&
+                    appVersions.map((item, index) => {
                       return (
                         <Option key={index} value={item.app_version}>
                           {item.app_version}
@@ -183,7 +181,7 @@ export default class Index extends PureComponent {
               ],
             })(
               <Select
-                placeholder='请选择应用'
+                placeholder="请选择应用"
                 style={{
                   display: 'inline-block',
                   width: 220,

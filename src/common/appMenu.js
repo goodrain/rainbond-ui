@@ -1,5 +1,7 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { formatMessage } from 'umi-plugin-locale';
 import { isUrl } from '../utils/utils';
+import roleUtil from '../utils/role';
 
 const publishIcon = (
   <i className="anticon">
@@ -127,7 +129,16 @@ const upgradeIcon = (
   </i>
 );
 
-const menuData = function(teamName, regionName, appID) {
+function menuData(teamName, regionName, appID, permissionsInfo) {
+  const appPermissions = roleUtil.querySpecifiedPermissionsInfo(
+    permissionsInfo,
+    'queryAppInfo'
+  );
+
+  const control = roleUtil.queryControlInfo(permissionsInfo, 'describe');
+
+  const { isShare, isBackup, isUpgrade } = appPermissions;
+
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
@@ -135,33 +146,49 @@ const menuData = function(teamName, regionName, appID) {
       path: `team/${teamName}/region/${regionName}/apps/${appID}`,
       authority: ['admin', 'user'],
     },
-    {
+  ];
+
+  function addMenuArr(obj) {
+    menuArr.push(obj);
+  }
+
+  if (isShare) {
+    addMenuArr({
       name: formatMessage({ id: 'menu.app.publish' }),
       icon: publishIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/publish`,
       authority: ['admin', 'user'],
-    },
-    {
+    });
+  }
+
+  if (isBackup) {
+    addMenuArr({
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: backupIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/backup`,
       authority: ['admin', 'user'],
-    },
-    {
+    });
+  }
+  if (control) {
+    addMenuArr({
       name: formatMessage({ id: 'menu.app.gateway' }),
       icon: 'gateway',
       path: `team/${teamName}/region/${regionName}/apps/${appID}/gateway`,
       authority: ['admin', 'user'],
-    },
-    {
+    });
+  }
+
+  if (isUpgrade) {
+    addMenuArr({
       name: formatMessage({ id: 'menu.app.upgrade' }),
       icon: upgradeIcon,
       path: `team/${teamName}/region/${regionName}/apps/${appID}/upgrade`,
       authority: ['admin', 'user'],
-    },
-  ];
+    });
+  }
+
   return menuArr;
-};
+}
 
 function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
@@ -185,7 +212,14 @@ function formatter(data, parentPath = '', parentAuthority) {
   });
 }
 
-export const getAppMenuData = (teamName, regionName, appID) => {
-  const menus = formatter(menuData(teamName, regionName, appID));
+export const getAppMenuData = (
+  teamName,
+  regionName,
+  appID,
+  permissionsInfo
+) => {
+  const menus = formatter(
+    menuData(teamName, regionName, appID, permissionsInfo)
+  );
   return menus;
 };

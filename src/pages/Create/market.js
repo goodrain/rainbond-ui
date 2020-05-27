@@ -16,29 +16,29 @@ import {
   Alert,
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import globalUtil from '../../utils/global';
-import rainbondUtil from '../../utils/rainbond';
-import sourceUtil from '../../utils/source-unit';
 import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
 import Ellipsis from '../../components/Ellipsis';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import PluginStyles from '../Plugin/Index.less';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
+import rainbondUtil from '../../utils/rainbond';
+import sourceUtil from '../../utils/source-unit';
+import PluginStyles from '../Plugin/Index.less';
 import styles from '../../components/CreateTeam/index.less';
 
-const Option = Select.Option;
+const { Option } = Select;
 const { TabPane } = Tabs;
 
 @connect(
-  ({ global, loading, appControl, teamControl, enterprise }) => ({
-    rainbondInfo: global.rainbondInfo,
+  ({ global, loading, teamControl, enterprise }) => ({
     loading,
-    appDetail: appControl.appDetail,
     enterprise: global.enterprise,
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
   }),
   null,
   null,
@@ -74,16 +74,18 @@ export default class Main extends PureComponent {
         (rainbondUtil.cloudMarketEnable(this.props.enterprise)
           ? 'cloudApplication'
           : 'localApplication'),
-      target: 'searchWrap',
       showApp: {},
       showMarketAppDetail: false,
-      group_version: '',
       installBounced: false,
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
       is_deploy: true,
     };
     this.mount = false;
+  }
+  componentWillMount() {
+    const { currentTeamPermissionsInfo, dispatch } = this.props;
+    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
   componentDidMount() {
     this.mount = true;
@@ -94,68 +96,10 @@ export default class Main extends PureComponent {
     this.mount = false;
     this.mountquery = false;
   }
-  renderSuccessOnChange = () => {
-    this.setState({
-      is_deploy: !this.state.is_deploy,
-    });
-  };
-  handleChange = v => {};
-  handleSearch = v => {
-    const { scopeMax } = this.state;
-    if (scopeMax == 'localApplication') {
-      this.setState(
-        {
-          app_name: v,
-          page: 1,
-        },
-        () => {
-          this.getApps();
-        }
-      );
-    } else {
-      this.setState(
-        {
-          cloudApp_name: v,
-          cloudPage: 1,
-        },
-        () => {
-          this.getCloudRecommendApps();
-        }
-      );
-    }
-  };
-  getApps = v => {
-    const { currentEnterprise } = this.props;
-    this.props.dispatch({
-      type: 'market/fetchAppModels',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        app_name: v ? '' : this.state.app_name || '',
-        scope: v ? '' : this.state.scope,
-        page_size: v ? 9 : this.state.pageSize,
-        page: v ? 1 : this.state.page,
-        is_complete: 1,
-      },
-      callback: data => {
-        if (data) {
-          this.setState(
-            {
-              list: data.list || [],
-              total: data.total,
-            },
-            () => {
-              this.setState({
-                isSpinList: false,
-              });
-            }
-          );
-        } else {
-          this.setState({ isSpinList: false });
-        }
-      },
-    });
-  };
 
+  onCancelCreate = () => {
+    this.setState({ showCreate: null });
+  };
   getCloudRecommendApps = v => {
     const { currentEnterprise } = this.props;
     this.props.dispatch({
@@ -197,6 +141,62 @@ export default class Main extends PureComponent {
       },
     });
   };
+  getApps = v => {
+    const { currentEnterprise } = this.props;
+    this.props.dispatch({
+      type: 'market/fetchAppModels',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_name: v ? '' : this.state.app_name || '',
+        scope: v ? '' : this.state.scope,
+        page_size: v ? 9 : this.state.pageSize,
+        page: v ? 1 : this.state.page,
+        is_complete: 1,
+      },
+      callback: data => {
+        if (data) {
+          this.setState(
+            {
+              list: data.list || [],
+              total: data.total,
+            },
+            () => {
+              this.setState({
+                isSpinList: false,
+              });
+            }
+          );
+        } else {
+          this.setState({ isSpinList: false });
+        }
+      },
+    });
+  };
+
+  handleSearch = v => {
+    const { scopeMax } = this.state;
+    if (scopeMax == 'localApplication') {
+      this.setState(
+        {
+          app_name: v,
+          page: 1,
+        },
+        () => {
+          this.getApps();
+        }
+      );
+    } else {
+      this.setState(
+        {
+          cloudApp_name: v,
+          cloudPage: 1,
+        },
+        () => {
+          this.getCloudRecommendApps();
+        }
+      );
+    }
+  };
 
   hanldePageChange = page => {
     this.setState(
@@ -220,7 +220,6 @@ export default class Main extends PureComponent {
     );
   };
 
-  getDefaulType = () => '';
   handleTabChange = key => {
     this.setState(
       {
@@ -252,9 +251,6 @@ export default class Main extends PureComponent {
     );
   };
 
-  onCancelCreate = () => {
-    this.setState({ showCreate: null });
-  };
   showCreate = app => {
     const { handleType } = this.state;
     if (handleType) {
@@ -265,17 +261,17 @@ export default class Main extends PureComponent {
   };
   handleInstallBounced = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, dispatch, groupId, refreshCurrent } = this.props;
+    const { installBounced, is_deploy, scopeMax, handleType } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
-      const { installBounced, is_deploy, scopeMax } = this.state;
-
-      this.props.dispatch({
+      dispatch({
         type: 'createApp/installApp',
         payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          group_id: this.props.groupId ? this.props.groupId : 0,
+          team_name: teamName,
+          group_id: groupId || 0,
           app_id: installBounced.app_id,
           is_deploy,
           group_key: installBounced.group_key,
@@ -284,21 +280,22 @@ export default class Main extends PureComponent {
         },
         callback: () => {
           // 刷新左侧按钮
-          this.props.dispatch({
+          dispatch({
             type: 'global/fetchGroups',
             payload: {
-              team_name: globalUtil.getCurrTeamName(),
+              team_name: teamName,
             },
           });
 
           // 关闭弹框
           this.setState({ installBounced: false, is_deploy: true });
-          this.state.handleType && this.props.refreshCurrent();
-          this.props.dispatch(
+          if (handleType && refreshCurrent) {
+            refreshCurrent();
+          }
+          dispatch(
             routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                this.props.groupId ? this.props.groupId : 0
-              }`
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
+                0}`
             )
           );
         },
@@ -306,12 +303,13 @@ export default class Main extends PureComponent {
     });
   };
   handleCreate = (vals, is_deploy) => {
-    const { group_version } = this.state;
-    const app = this.state.showCreate;
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { showCreate: app } = this.state.showCreate;
+    const teamName = globalUtil.getCurrTeamName();
+    dispatch({
       type: 'createApp/installApp',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         ...vals,
         app_id: app.app_id,
         is_deploy,
@@ -320,15 +318,15 @@ export default class Main extends PureComponent {
       },
       callback: () => {
         // 刷新左侧按钮
-        this.props.dispatch({
+        dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
+            team_name: teamName,
           },
           callback: () => {
-            this.props.dispatch(
+            dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
                   vals.group_id
                 }`
               )
@@ -340,7 +338,7 @@ export default class Main extends PureComponent {
   };
 
   handleCloudCreate = (vals, is_deploy) => {
-    const { group_version, scopeMax } = this.state;
+    const { scopeMax } = this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
       type: 'createApp/installApp',
@@ -380,7 +378,7 @@ export default class Main extends PureComponent {
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
-    const ID = item.ID;
+    const { ID } = item;
     newvisible[ID] = flag;
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
@@ -406,6 +404,29 @@ export default class Main extends PureComponent {
     this.props.handleServiceComponent();
   };
 
+  handleTabs = (tabList, cardList) => {
+    return (
+      <Tabs
+        defaultActiveKey=""
+        onChange={this.handleTabChange}
+        style={{ background: '#fff', padding: '20px ' }}
+      >
+        {tabList.map(item => {
+          const { key, tab } = item;
+          return (
+            <TabPane tab={tab} key={key}>
+              <div
+                className={PluginStyles.cardList}
+                style={{ paddingBottom: '20px' }}
+              >
+                {cardList}
+              </div>
+            </TabPane>
+          );
+        })}
+      </Tabs>
+    );
+  };
   renderApp = item => {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
@@ -618,46 +639,16 @@ export default class Main extends PureComponent {
       </Fragment>
     );
   };
-
-  handleChangeVersion = value => {
+  renderSuccessOnChange = () => {
     this.setState({
-      group_version: value,
+      is_deploy: !this.state.is_deploy,
     });
-  };
-
-  handleTabsCallback = key => {
-    console.log(key);
-  };
-
-  handleTabs = (tabList,cardList) => {
-    return (
-      <Tabs
-        defaultActiveKey=""
-        onChange={this.handleTabChange}
-        style={{ background: '#fff', padding: '20px ' }}
-      >
-        {tabList.map(item => {
-          const { key, tab } = item;
-          return (
-            <TabPane tab={tab} key={key}>
-              <div
-                className={PluginStyles.cardList}
-                style={{ paddingBottom: '20px' }}
-              >
-                {cardList}
-              </div>
-            </TabPane>
-          );
-        })}
-      </Tabs>
-    );
   };
   render() {
     const {
       form,
-      appDetail,
+      loading,
       enterprise,
-      rainbondInfo,
       currentEnterprise,
       currentTeam,
       currentRegionName,
@@ -670,15 +661,16 @@ export default class Main extends PureComponent {
       installBounced,
       list,
       scopeMax,
-      scope,
       cloudList,
-      cloudApp_name,
       cloudPage,
       cloudPageSize,
       cloudTotal,
       isSpinList,
       isSpincloudList,
       networkText,
+      page,
+      pageSize,
+      total,
     } = this.state;
 
     const formItemLayout = {
@@ -690,9 +682,9 @@ export default class Main extends PureComponent {
       },
     };
     const paginationProps = {
-      current: this.state.moreState ? 1 : this.state.page,
-      pageSize: this.state.moreState ? 3 : this.state.pageSize,
-      total: this.state.moreState ? 1 : this.state.total,
+      current: moreState ? 1 : page,
+      pageSize: moreState ? 3 : pageSize,
+      total: moreState ? 1 : total,
       onChange: v => {
         this.hanldePageChange(v);
       },
@@ -858,7 +850,6 @@ export default class Main extends PureComponent {
       });
     }
 
-    const loading = this.props.loading;
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
@@ -912,7 +903,7 @@ export default class Main extends PureComponent {
               }}
               className={PluginStyles.cardList}
             >
-              {this.handleTabs(tabComponentList,cardList)}
+              {this.handleTabs(tabComponentList, cardList)}
             </div>
             {moreState && list && list.length > 0 && (
               <div
@@ -959,7 +950,6 @@ export default class Main extends PureComponent {
                     >
                       安装
                     </Button>
-                    {/* <Tooltip placement="topLeft" title={<p>取消本选项你可以先对组件进行<br />高级设置再构建启动。</p>} > */}
                     <Radio
                       size="small"
                       onClick={this.renderSuccessOnChange}
@@ -967,7 +957,6 @@ export default class Main extends PureComponent {
                     >
                       并构建启动
                     </Radio>
-                    {/* </Tooltip> */}
                   </div>
                 }
               >
@@ -990,10 +979,7 @@ export default class Main extends PureComponent {
                         },
                       ],
                     })(
-                      <Select
-                        onChange={this.handleChangeVersion}
-                        style={{ width: '220px' }}
-                      >
+                      <Select style={{ width: '220px' }}>
                         {this.state.installBounced &&
                           this.state.installBounced.versions_info &&
                           this.state.installBounced.versions_info.map(
@@ -1023,11 +1009,7 @@ export default class Main extends PureComponent {
             >
               {scopeMax == 'localApplication' ? (
                 <div>
-                  {isSpinList ? (
-                    SpinBox
-                  ) : (
-                    this.handleTabs(tabList,cardList)
-                  )}
+                  {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>
               ) : (
                 <div>

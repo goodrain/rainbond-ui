@@ -2,9 +2,14 @@ import React, { PureComponent } from 'react';
 import { Button, Icon, Card, Modal, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import Result from '../../components/Result';
+import ModifyImageCmd from './modify-image-cmd';
+import ModifyImageName from './modify-image-name';
+import ModifyUrl from './modify-url';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ShowRegionKey from '../../components/ShowRegionKey';
 import ConfirmModal from '../../components/ConfirmModal';
+import LogProcress from '../../components/LogProcress';
+import Result from '../../components/Result';
 import {
   getCreateCheckId,
   getCreateCheckResult,
@@ -12,19 +17,13 @@ import {
   getCheckuuid,
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
-import LogProcress from '../../components/LogProcress';
 import userUtil from '../../utils/user';
 import regionUtil from '../../utils/region';
-import ShowRegionKey from '../../components/ShowRegionKey';
-import ModifyImageCmd from './modify-image-cmd';
-import ModifyImageName from './modify-image-name';
-import ModifyUrl from './modify-url';
 
 @connect(
-  ({ user, appControl, global }) => ({
+  ({ user, appControl }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
-    rainbondInfo: global.rainbondInfo,
   }),
   null,
   null,
@@ -36,10 +35,9 @@ export default class CreateCheck extends PureComponent {
     this.state = {
       // failure、checking、success
       status: '',
-      check_uuid: '',
+      checkUuid: '',
       errorInfo: [],
       serviceInfo: [],
-      showEdit: false,
       eventId: '',
       appDetail: {},
       showDelete: false,
@@ -47,10 +45,10 @@ export default class CreateCheck extends PureComponent {
       modifyUserpass: false,
       modifyImageName: false,
       modifyImageCmd: false,
-      is_deploy: true,
+      isDeploy: true,
       ServiceGetData: props.ServiceGetData ? props.ServiceGetData : null,
       buildAppLoading: false,
-      is_multi: false,
+      isMulti: false,
     };
     this.mount = false;
     this.socketUrl = '';
@@ -70,6 +68,10 @@ export default class CreateCheck extends PureComponent {
     this.getDetail();
     this.bindEvent();
   }
+  componentWillUnmount() {
+    this.mount = false;
+    this.unbindEvent();
+  }
   getDetail = () => {
     this.props.dispatch({
       type: 'appControl/fetchDetail',
@@ -87,22 +89,25 @@ export default class CreateCheck extends PureComponent {
   };
   getCheckuuid = () => {
     const appAlias = this.getAppAlias();
-    const team_name = globalUtil.getCurrTeamName();
-    getCheckuuid({ team_name, app_alias: appAlias }).then(data => {
+    const teamName = globalUtil.getCurrTeamName();
+    getCheckuuid({ team_name: teamName, app_alias: appAlias }).then(data => {
       if (data) {
         if (!data.bean.check_uuid) {
           this.startCheck();
         } else {
-          this.state.check_uuid = data.bean.check_uuid;
-          this.loopStatus();
+          this.setState(
+            {
+              checkUuid: data.bean.check_uuid,
+            },
+            () => {
+              this.loopStatus();
+            }
+          );
         }
       }
     });
   };
-  componentWillUnmount() {
-    this.mount = false;
-    this.unbindEvent();
-  }
+
   getAppAlias() {
     const { ServiceGetData } = this.state;
     return ServiceGetData || this.props.match.params.appAlias;
@@ -110,22 +115,22 @@ export default class CreateCheck extends PureComponent {
   loopStatus = () => {
     if (!this.mount) return;
     const appAlias = this.getAppAlias();
-    const team_name = globalUtil.getCurrTeamName();
+    const teamName = globalUtil.getCurrTeamName();
     getCreateCheckResult({
-      team_name,
+      team_name: teamName,
       app_alias: appAlias,
-      check_uuid: this.state.check_uuid,
+      check_uuid: this.state.checkUuid,
     })
       .then(data => {
         if (data && this.mount) {
           const status = data.bean.check_status;
-          const error_infos = data.bean.error_infos || [];
+          const errorInfos = data.bean.error_infos || [];
           const serviceInfo = data.bean.service_info || [];
           this.setState({
             status,
-            errorInfo: error_infos,
+            errorInfo: errorInfos,
             serviceInfo,
-            is_multi: data.bean.is_multi,
+            isMulti: data.bean.is_multi,
           });
         }
       })
@@ -139,10 +144,10 @@ export default class CreateCheck extends PureComponent {
   };
   startCheck = loopStatus => {
     const appAlias = this.getAppAlias();
-    const team_name = globalUtil.getCurrTeamName();
+    const teamName = globalUtil.getCurrTeamName();
     const p = getCreateCheckId(
       {
-        team_name,
+        team_name: teamName,
         app_alias: appAlias,
       },
       res => {
@@ -156,8 +161,8 @@ export default class CreateCheck extends PureComponent {
       }
     ).then(data => {
       if (data) {
-        this.state.check_uuid = data.bean.check_uuid;
         this.setState({
+          checkUuid: data.bean.check_uuid,
           eventId: data.bean.check_event_id,
           appDetail: data.bean,
         });
@@ -178,45 +183,55 @@ export default class CreateCheck extends PureComponent {
   };
   // 进入多模块构建
   handleMoreService = () => {
-    const { ServiceGetData, check_uuid, is_multi } = this.state;
+    const { handleServiceDataState, dispatch } = this.props;
+
+    const { ServiceGetData, checkUuid, isMulti } = this.state;
     const appAlias = this.getAppAlias();
-    ServiceGetData && !is_multi
-      ? this.props.handleServiceDataState(true, null, null, null)
-      : this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${check_uuid}`
-          )
-        );
+    if (ServiceGetData && !isMulti) {
+      handleServiceDataState(true, null, null, null);
+    } else {
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-moreService/${appAlias}/${checkUuid}`
+        )
+      );
+    }
   };
 
   handleBuild = () => {
     const appAlias = this.getAppAlias();
-    const team_name = globalUtil.getCurrTeamName();
-    const { is_deploy, ServiceGetData, appDetail } = this.state;
+    const teamName = globalUtil.getCurrTeamName();
+    const { refreshCurrent, dispatch } = this.props;
+    const { isDeploy, ServiceGetData, appDetail } = this.state;
     this.setState({ buildAppLoading: true });
-    buildApp({ team_name, app_alias: appAlias, is_deploy }).then(data => {
+    buildApp({
+      team_name: teamName,
+      app_alias: appAlias,
+      is_deploy: isDeploy,
+    }).then(data => {
       this.setState({ buildAppLoading: false });
       if (data) {
-        const appAlias = this.getAppAlias();
-        this.props.dispatch({
+        dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name,
+            team_name: teamName,
           },
         });
-        ServiceGetData && is_deploy
-          ? this.props.refreshCurrent()
-          : appDetail.service_source == 'third_party'
-          ? this.props.dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
-              )
+        if (ServiceGetData && isDeploy) {
+          refreshCurrent();
+        } else if (appDetail.service_source == 'third_party') {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
             )
-          : this.props.dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
-              )
-            );
+          );
+        } else {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/overview`
+            )
+          );
+        }
       }
     });
   };
@@ -239,7 +254,7 @@ export default class CreateCheck extends PureComponent {
   };
   handleClick = e => {
     let parent = e.target;
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
 
     while (parent) {
       if (parent === document.body) {
@@ -290,8 +305,9 @@ export default class CreateCheck extends PureComponent {
   };
   handleDelete = () => {
     const appAlias = this.getAppAlias();
+    const { handleServiceDataState, dispatch } = this.props;
     const { ServiceGetData } = this.state;
-    this.props.dispatch({
+    dispatch({
       type: 'appControl/deleteApp',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -299,20 +315,21 @@ export default class CreateCheck extends PureComponent {
         is_force: true,
       },
       callback: () => {
-        this.props.dispatch({
+        dispatch({
           type: 'global/fetchGroups',
           payload: {
             team_name: globalUtil.getCurrTeamName(),
           },
         });
-
-        ServiceGetData
-          ? this.props.handleServiceDataState(true, null, null, null)
-          : this.props.dispatch(
-              routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-              )
-            );
+        if (ServiceGetData) {
+          handleServiceDataState(true, null, null, null);
+        } else {
+          dispatch(
+            routerRedux.replace(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+            )
+          );
+        }
       },
     });
   };
@@ -320,7 +337,7 @@ export default class CreateCheck extends PureComponent {
     this.setState({ modifyUrl: false });
   };
   handleCancelEdit = () => {
-    this.setState({ showEdit: false, modifyUrl: false });
+    this.setState({ modifyUrl: false });
   };
   handleCancelShowKey = () => {
     this.setState({ showKey: false });
@@ -335,7 +352,7 @@ export default class CreateCheck extends PureComponent {
     this.setState({ modifyUserpass: false });
   };
   handleModifyUserpass = values => {
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
@@ -355,7 +372,7 @@ export default class CreateCheck extends PureComponent {
     });
   };
   handleModifyUrl = values => {
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
@@ -372,7 +389,7 @@ export default class CreateCheck extends PureComponent {
     });
   };
   handleModifyImageName = values => {
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
@@ -391,7 +408,7 @@ export default class CreateCheck extends PureComponent {
     });
   };
   handleModifyImageCmd = values => {
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     this.props.dispatch({
       type: 'appControl/editAppCreateInfo',
       payload: {
@@ -414,7 +431,7 @@ export default class CreateCheck extends PureComponent {
     this.setState({ showDelete: true });
   };
   renderError = () => {
-    const errorInfo = this.state.errorInfo;
+    const { errorInfo } = this.state;
     const extra = (
       <div>
         {errorInfo.map(item => (
@@ -512,13 +529,13 @@ export default class CreateCheck extends PureComponent {
             display: 'inline-block',
           }}
         >
-          {(item.value || []).map(item => (
+          {(item.value || []).map(items => (
             <p
               style={{
                 marginBottom: 0,
               }}
             >
-              {item}
+              {items}
             </p>
           ))}
         </div>
@@ -528,134 +545,130 @@ export default class CreateCheck extends PureComponent {
 
   renderSuccessOnChange = () => {
     this.setState({
-      is_deploy: !this.state.is_deploy,
+      isDeploy: !this.state.isDeploy,
     });
   };
 
   renderSuccess = () => {
-    const { rainbondInfo } = this.props;
-    const { ServiceGetData, is_deploy, appDetail } = this.state;
-    const serviceInfo = this.state.serviceInfo;
-    const extra =
-      serviceInfo && serviceInfo.length > 0
-        ? serviceInfo.map(item => (
-            <div
-            style={{
-                marginBottom: 16,
-              }}
-          >
-            {this.renderSuccessInfo(item)}
-          </div>
-          ))
-        : '';
-
+    const { ServiceGetData, isDeploy, appDetail, serviceInfo } = this.state;
+    const { ButtonGroupState, ErrState, handleServiceBotton } = this.props;
+    let extra = '';
+    if (serviceInfo && serviceInfo.length > 0) {
+      extra = serviceInfo.map(item => (
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          {this.renderSuccessInfo(item)}
+        </div>
+      ));
+    }
     let actions = [];
-    ServiceGetData
-      ? (actions = [
-          <div style={{ display: 'flex' }}>
+    if (ServiceGetData) {
+      actions = [
+        <div style={{ display: 'flex' }}>
           <Button
-              onClick={this.showDelete}
-              type="default"
-              style={{ marginRight: '8px' }}
-            >
-              {' '}
-              放弃创建{' '}
-            </Button>
+            onClick={this.showDelete}
+            type="default"
+            style={{ marginRight: '8px' }}
+          >
+            放弃创建
+          </Button>
           <Button
-              type="default"
-              onClick={this.handleSetting}
-              style={{ marginRight: '8px' }}
-            >
-              高级设置
-            </Button>
+            type="default"
+            onClick={this.handleSetting}
+            style={{ marginRight: '8px' }}
+          >
+            高级设置
+          </Button>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
+            <Button
               onClick={this.handleBuild}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
-              <Tooltip
+            <Tooltip
               placement="topLeft"
               title={
-                  <p>
+                <p>
                   取消本选项你可以先对组件进行
-                    <br />
+                  <br />
                   高级设置再构建启动。
-                  </p>
-                }
+                </p>
+              }
             >
               <Radio
-                  size="small"
-                  onClick={this.renderSuccessOnChange}
-                  checked={is_deploy}
-                >
-                  并构建启动
-                </Radio>
+                size="small"
+                onClick={this.renderSuccessOnChange}
+                checked={isDeploy}
+              >
+                并构建启动
+              </Radio>
             </Tooltip>
-            </div>
+          </div>
         </div>,
-        ])
-      : appDetail.service_source == 'third_party'
-      ? (actions = [
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+      ];
+    } else if (appDetail.service_source == 'third_party') {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button
+            <Button
               onClick={this.handleBuild}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
-            </div>
+          </div>
         </div>,
-        ])
-      : (actions = [
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+      ];
+    } else {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button onClick={this.showDelete} type="default">
-              {' '}
-              放弃创建{' '}
-            </Button>
+            放弃创建
+          </Button>
           <Button type="default" onClick={this.handleSetting}>
-              高级设置
-            </Button>
+            高级设置
+          </Button>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button
+            <Button
               onClick={this.handleBuild}
               type="primary"
               style={{ marginRight: '8px' }}
               loading={this.state.buildAppLoading}
             >
-              {' '}
-              创建{' '}
+              创建
             </Button>
-              {appDetail.service_source == 'third_party'}
-              <Tooltip
+            {appDetail.service_source == 'third_party'}
+            <Tooltip
               placement="topLeft"
               title={
-                  <p>
+                <p>
                   取消本选项你可以先对组件进行
-                    <br />
+                  <br />
                   高级设置再构建启动。
-                  </p>
-                }
+                </p>
+              }
             >
               <Radio
-                  size="small"
-                  onClick={this.renderSuccessOnChange}
-                  checked={is_deploy}
-                >
-                  并构建启动
-                </Radio>
+                size="small"
+                onClick={this.renderSuccessOnChange}
+                checked={isDeploy}
+              >
+                并构建启动
+              </Radio>
             </Tooltip>
-            </div>
+          </div>
         </div>,
-        ]);
+      ];
+    }
+
     if (appDetail.service_source == 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -678,24 +691,12 @@ export default class CreateCheck extends PureComponent {
       ];
     }
 
-    if (is_deploy) {
-      // ServiceGetData && (!this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, true)
-
-      if (
-        ServiceGetData &&
-        (!this.props.ButtonGroupState || !this.props.ErrState)
-      ) {
-        this.props.handleServiceBotton(actions, true, true);
+    if (isDeploy) {
+      if (ServiceGetData && (!ButtonGroupState || !ErrState)) {
+        handleServiceBotton(actions, true, true);
       }
-    } else {
-      // ServiceGetData && (this.props.ButtonGroupState) && this.props.handleServiceBotton(actions, false)
-
-      if (
-        ServiceGetData &&
-        (this.props.ButtonGroupState || this.props.ErrState)
-      ) {
-        this.props.handleServiceBotton(actions, false, false);
-      }
+    } else if (ServiceGetData && (ButtonGroupState || ErrState)) {
+      handleServiceBotton(actions, false, false);
     }
 
     return (
@@ -733,112 +734,50 @@ export default class CreateCheck extends PureComponent {
   };
 
   renderMoreService = () => {
-    const { ServiceGetData, is_deploy, appDetail, is_multi } = this.state;
-    const serviceInfo = this.state.serviceInfo;
-    const { rainbondInfo } = this.props;
-    const extra =
-      serviceInfo && serviceInfo.length > 0
-        ? serviceInfo.map(item => (
-            <div
-            style={{
-                marginBottom: 16,
-              }}
-          >
-            {this.renderSuccessInfo(item)}
-          </div>
-          ))
-        : '';
+    const {
+      ServiceGetData,
+      isDeploy,
+      appDetail,
+      isMulti,
+      serviceInfo,
+    } = this.state;
+    let extra = '';
+    if (serviceInfo && serviceInfo.length > 0) {
+      extra = serviceInfo.map(item => (
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          {this.renderSuccessInfo(item)}
+        </div>
+      ));
+    }
 
     let actions = [];
-    ServiceGetData && is_multi
-      ? (actions = [
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-              {' '}
-              放弃创建{' '}
-            </Button>
-          <Button type="primary" onClick={this.handleMoreService}>
-              进入多组件构建
-            </Button>
-        </div>,
-        ])
-      : ServiceGetData
-      ? (actions = [
-          <div style={{ display: 'flex' }}>
-          <Button
-              onClick={this.showDelete}
-              type="default"
-              style={{ marginRight: '8px' }}
-            >
-              {' '}
-              放弃创建{' '}
-            </Button>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button
-              onClick={this.handleBuild}
-              type="primary"
-              style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
-            >
-              {' '}
-              创建{' '}
-            </Button>
-              <div>
-              <Tooltip
-                  placement="topLeft"
-                  title={
-                  <p>
-                      取消本选项你可以先对组件进行
-                      <br />
-                      高级设置再构建启动。
-                    </p>
-                  }
-                >
-                  <Radio
-                  size="small"
-                  onClick={this.renderSuccessOnChange}
-                  checked={is_deploy}
-                >
-                    并构建启动
-                </Radio>
-                </Tooltip>
-            </div>
-            </div>
-        </div>,
-        ])
-      : appDetail.service_source == 'third_party'
-      ? (actions = [
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button
-              onClick={this.handleBuild}
-              type="primary"
-              style={{ marginRight: '8px' }}
-              loading={this.state.buildAppLoading}
-            >
-              {' '}
-              放弃创建{' '}
-            </Button>
-              <Button type="primary" onClick={this.handleMoreService}>
-              进入多组件构建
-              </Button>
-            </div>
-        </div>,
-        ])
-      : (actions = [
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={this.showDelete} type="default">
-              {' '}
-              放弃创建{' '}
-            </Button>
-          <Button type="primary" onClick={this.handleMoreService}>
-              进入多服务构建
-            </Button>
-        </div>,
-        ]);
-    if (appDetail.service_source == 'third_party') {
+    if (ServiceGetData && isMulti) {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onClick={this.showDelete} type="default">
+            {' '}
+            放弃创建{' '}
+          </Button>
+          <Button type="primary" onClick={this.handleMoreService}>
+            进入多组件构建
+          </Button>
+        </div>,
+      ];
+    } else if (ServiceGetData) {
+      actions = [
+        <div style={{ display: 'flex' }}>
+          <Button
+            onClick={this.showDelete}
+            type="default"
+            style={{ marginRight: '8px' }}
+          >
+            {' '}
+            放弃创建{' '}
+          </Button>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Button
               onClick={this.handleBuild}
@@ -849,19 +788,83 @@ export default class CreateCheck extends PureComponent {
               {' '}
               创建{' '}
             </Button>
+            <div>
+              <Tooltip
+                placement="topLeft"
+                title={
+                  <p>
+                    取消本选项你可以先对组件进行
+                    <br />
+                    高级设置再构建启动。
+                  </p>
+                }
+              >
+                <Radio
+                  size="small"
+                  onClick={this.renderSuccessOnChange}
+                  checked={isDeploy}
+                >
+                  并构建启动
+                </Radio>
+              </Tooltip>
+            </div>
+          </div>
+        </div>,
+      ];
+    } else if (appDetail.service_source == 'third_party') {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              放弃创建
+            </Button>
+            <Button type="primary" onClick={this.handleMoreService}>
+              进入多组件构建
+            </Button>
+          </div>
+        </div>,
+      ];
+    } else {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onClick={this.showDelete} type="default">
+            放弃创建
+          </Button>
+          <Button type="primary" onClick={this.handleMoreService}>
+            进入多服务构建
+          </Button>
+        </div>,
+      ];
+    }
+
+    if (appDetail.service_source == 'third_party') {
+      actions = [
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              onClick={this.handleBuild}
+              type="primary"
+              style={{ marginRight: '8px' }}
+              loading={this.state.buildAppLoading}
+            >
+              创建
+            </Button>
           </div>
         </div>,
       ];
     }
 
-    if (is_deploy) {
-      ServiceGetData &&
-        !this.props.ButtonGroupState &&
-        this.props.handleServiceBotton(actions, true);
-    } else {
-      ServiceGetData &&
-        this.props.ButtonGroupState &&
-        this.props.handleServiceBotton(actions, false);
+    const { ButtonGroupState = false, handleServiceBotton } = this.props;
+
+    if (isDeploy && ServiceGetData && !ButtonGroupState) {
+      handleServiceBotton(actions, true);
+    } else if (ServiceGetData && ButtonGroupState) {
+      this.props.handleServiceBotton(actions, false);
     }
 
     return (
@@ -898,14 +901,15 @@ export default class CreateCheck extends PureComponent {
 
   renderChecking = () => {
     const { ServiceGetData } = this.state;
+    const { ButtonGroupState = false, handleServiceBotton } = this.props;
     const actions = (
       <Button onClick={this.showDelete} type="default">
         放弃创建
       </Button>
     );
-    ServiceGetData &&
-      this.props.ButtonGroupState &&
-      this.props.handleServiceBotton(actions, false);
+    if (ServiceGetData && ButtonGroupState) {
+      handleServiceBotton(actions, false);
+    }
 
     const extra = (
       <div>
@@ -935,7 +939,7 @@ export default class CreateCheck extends PureComponent {
 
   renderEdit = () => {
     // 判断应用创建方式
-    const appDetail = this.state.appDetail;
+    const { appDetail } = this.state;
     // 源码创建
     if (appDetail.service_source === 'source_code') {
       // 指定源码
@@ -978,7 +982,7 @@ export default class CreateCheck extends PureComponent {
     }
   };
   render() {
-    const { status, is_multi, appDetail } = this.state;
+    const { status, isMulti, appDetail } = this.state;
     const { ServiceGetData } = this.state;
     return (
       <div>
@@ -991,10 +995,10 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && is_multi != true
+                {status === 'success' && isMulti != true
                   ? this.renderSuccess()
                   : null}
-                {status === 'success' && is_multi == true
+                {status === 'success' && isMulti == true
                   ? this.renderMoreService()
                   : null}
                 {status === 'failure' ? this.renderError() : null}
@@ -1056,10 +1060,10 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && is_multi != true
+                {status === 'success' && isMulti != true
                   ? this.renderSuccess()
                   : null}
-                {status === 'success' && is_multi == true
+                {status === 'success' && isMulti == true
                   ? this.renderMoreService()
                   : null}
                 {status === 'failure' ? this.renderError() : null}

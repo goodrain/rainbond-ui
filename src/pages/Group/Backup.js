@@ -1,7 +1,6 @@
-import React, { PureComponent, Fragment } from "react";
-import moment from "moment";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import {
   Card,
   Button,
@@ -14,50 +13,64 @@ import {
   Form,
   Tooltip,
   Icon,
-  Alert
-} from "antd";
-import globalUtil from "../../utils/global";
-import sourceUtil from "../../utils/source-unit";
-import ScrollerX from "../../components/ScrollerX";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import userUtil from "../../utils/user";
-import logSocket from "../../utils/logSocket";
-import ConfirmModal from "../../components/ConfirmModal";
-import styles from "../../components/CreateTeam/index.less";
-import MigrationBackup from "../../components/MigrationBackup";
-import RestoreBackup from "../../components/RestoreBackup";
-import ImportBackup from "../../components/ImportBackup";
-import apiconfig from "../../../config/api.config";
+  Alert,
+} from 'antd';
+
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ConfirmModal from '../../components/ConfirmModal';
+import styles from '../../components/CreateTeam/index.less';
+import MigrationBackup from '../../components/MigrationBackup';
+import RestoreBackup from '../../components/RestoreBackup';
+import ImportBackup from '../../components/ImportBackup';
+import apiconfig from '../../../config/api.config';
+import ScrollerX from '../../components/ScrollerX';
+
+import userUtil from '../../utils/user';
+import logSocket from '../../utils/logSocket';
+import globalUtil from '../../utils/global';
+import sourceUtil from '../../utils/source-unit';
+import roleUtil from '../../utils/role';
 import {
   createEnterprise,
   createTeam,
-  createApp
-} from "../../utils/breadcrumb";
+  createApp,
+} from '../../utils/breadcrumb';
 
 const { TextArea } = Input;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-@connect(({ user, appControl }) => ({ currUser: user.currentUser }))
+@connect(({ user }) => ({ currUser: user.currentUser }))
 class BackupStatus extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       map: {
-        starting: "备份中",
-        success: "备份成功",
-        failed: "备份失败"
-      }
+        starting: '备份中',
+        success: '备份成功',
+        failed: '备份失败',
+      },
     };
     this.timer = null;
   }
   componentDidMount() {
-    const data = this.props.data;
-    if (data.status === "starting") {
+    const { data } = this.props;
+    if (data.status === 'starting') {
       this.createSocket();
       this.startLoopStatus();
     }
   }
+  componentWillUnmount() {
+    this.stopLoopStatus();
+    if (this.logSocket) {
+      this.logSocket.destroy();
+    }
+    this.logSocket = null;
+  }
+
+  getSocketUrl = () => {
+    return userUtil.getCurrRegionSoketUrl(this.props.currUser);
+  };
 
   createSocket() {
     this.logSocket = new logSocket({
@@ -65,37 +78,30 @@ class BackupStatus extends PureComponent {
       eventId: this.props.data.event_id,
       onMessage: msg => {
         // console.log(msg);
-      }
+      },
     });
   }
-  componentWillUnmount() {
-    this.stopLoopStatus();
-    this.logSocket && this.logSocket.destroy();
-    this.logSocket = null;
-  }
-  getSocketUrl = () => {
-    return userUtil.getCurrRegionSoketUrl(this.props.currUser);
-  };
+
   startLoopStatus() {
     this.props.dispatch({
-      type: "groupControl/fetchBackupStatus",
+      type: 'groupControl/fetchBackupStatus',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         backup_id: this.props.data.backup_id,
-        group_id: this.props.group_id
+        group_id: this.props.group_id,
       },
       callback: data => {
         if (data) {
-          const bean = data.bean;
-          if (bean.status === "starting") {
+          const { bean } = data;
+          if (bean.status === 'starting') {
             this.timer = setTimeout(() => {
               this.startLoopStatus();
             }, 10000);
-          } else {
-            this.props.onEnd && this.props.onEnd();
+          } else if (this.props.onEnd) {
+            this.props.onEnd();
           }
         }
-      }
+      },
     });
   }
   stopLoopStatus() {
@@ -105,8 +111,8 @@ class BackupStatus extends PureComponent {
     const data = this.props.data || {};
     return (
       <span>
-        {this.state.map[data.status]}{" "}
-        {data.status === "starting" && (
+        {this.state.map[data.status]}{' '}
+        {data.status === 'starting' && (
           <Icon style={{ marginLeft: 8 }} type="loading" spin />
         )}
       </span>
@@ -114,60 +120,66 @@ class BackupStatus extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @Form.create()
 class Backup extends PureComponent {
-  componentDidMount() {}
   state = {};
   onOk = e => {
     e.preventDefault();
-    const form = this.props.form;
-    const { onOk, warningText } = this.props;
+    const { form, onOk, warningText } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      let obj = fieldsValue;
+      const obj = fieldsValue;
       if (warningText) {
         obj.force = true;
       }
-      onOk && onOk(obj);
+      if (onOk) {
+        onOk(obj);
+      }
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const data = this.props.data || {};
-    const is_configed = this.props.is_configed;
-    const { componentList, warningText, onCancel } = this.props;
+    const {
+      data = {},
+      form,
+      is_configed,
+      componentList,
+      warningText,
+      onCancel,
+    } = this.props;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
-        span: 5
+        span: 5,
       },
       wrapperCol: {
-        span: 19
-      }
+        span: 19,
+      },
     };
     const cloudBackupTip = is_configed
-      ? "备份到云端存储上，可实现跨集群迁移"
-      : "请在Rainbond管理后台开启此功能";
+      ? '备份到云端存储上，可实现跨集群迁移'
+      : '请在Rainbond管理后台开启此功能';
     return (
       <Modal
-        title={"新增备份"}
-        visible={true}
+        title="新增备份"
+        visible
         className={styles.TelescopicModal}
         onOk={this.onOk}
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" onClick={this.onOk}>
-            {warningText ? "强制备份" : "确定"}
-          </Button>
+            {warningText ? '强制备份' : '确定'}
+          </Button>,
         ]}
       >
         <Form layout="horizontal">
           <Form.Item {...formItemLayout} label={<span>备份方式</span>}>
-            {getFieldDecorator("mode", {
+            {getFieldDecorator('mode', {
               initialValue: is_configed
-                ? data.mode || "full-online"
-                : "full-offline",
-              rules: [{ required: true, message: "要创建的应用还没有名字" }]
+                ? data.mode || 'full-online'
+                : 'full-offline',
+              rules: [{ required: true, message: '要创建的应用还没有名字' }],
             })(
               <RadioGroup>
                 <Tooltip title={cloudBackupTip}>
@@ -182,9 +194,9 @@ class Backup extends PureComponent {
             )}
           </Form.Item>
           <Form.Item {...formItemLayout} label="备份说明">
-            {getFieldDecorator("note", {
-              initialValue: data.note || "",
-              rules: [{ required: true, message: "请写入备份说明" }]
+            {getFieldDecorator('note', {
+              initialValue: data.note || '',
+              rules: [{ required: true, message: '请写入备份说明' }],
             })(<TextArea placeholder="请写入备份说明" />)}
           </Form.Item>
 
@@ -193,9 +205,9 @@ class Backup extends PureComponent {
               <Alert message={warningText} type="warning" />
               <List
                 size="small"
-                style={{ margin: "10px 0" }}
+                style={{ margin: '10px 0' }}
                 header={
-                  <h6 style={{ marginBottom: "0", fontSize: "15px" }}>
+                  <h6 style={{ marginBottom: '0', fontSize: '15px' }}>
                     组件名称
                   </h6>
                 }
@@ -212,20 +224,20 @@ class Backup extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(({ user, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
   groups: global.groups || [],
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRowKeys: [],
       list: [],
-      teamAction: {},
       page: 1,
       total: 0,
       pageSize: 6,
@@ -233,58 +245,76 @@ export default class AppList extends PureComponent {
       showMove: false,
       showDel: false,
       showRecovery: false,
-      showExport: false,
       showImport: false,
-      backup_id: "",
+      backup_id: '',
       appDetail: {},
       is_configed: null,
-      group_uuid: "",
-      event_id: "",
-      warningText: "",
-      componentList: []
+      group_uuid: '',
+      warningText: '',
+      componentList: [],
+      operationPermissions: this.handlePermissions('queryAppInfo'),
     };
+  }
+
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      operationPermissions: { isBackup },
+    } = this.state;
+    if (!isBackup) {
+      globalUtil.withoutPermission(dispatch);
+    }
   }
   componentDidMount() {
     this.fetchAppDetail();
     this.fetchBackup();
   }
-
-  componentWillUnmount() {}
+  onBackup = () => {
+    this.setState({ showBackup: true });
+  };
+  getGroupId = () => {
+    const { params } = this.props.match;
+    return params.appID;
+  };
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
   fetchBackup = () => {
     const { teamName, appID } = this.props.match.params;
     this.props.dispatch({
-      type: "groupControl/fetchBackup",
+      type: 'groupControl/fetchBackup',
       payload: {
         team_name: teamName,
         group_id: appID,
         page: this.state.page,
-        page_size: this.state.pageSize
+        page_size: this.state.pageSize,
       },
       callback: data => {
         if (data) {
           this.setState({
             list: data.list || [],
             total: data.total,
-            is_configed: data.bean.is_configed
+            is_configed: data.bean.is_configed,
           });
         }
-      }
+      },
     });
   };
-  onBackup = () => {
-    this.setState({ showBackup: true });
-  };
+
   cancelBackup = () => {
-    this.setState({ showBackup: false, warningText: "", componentList: [] });
+    this.setState({ showBackup: false, warningText: '', componentList: [] });
   };
   handleBackup = data => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "groupControl/backup",
+      type: 'groupControl/backup',
       payload: {
-        team_name: team_name,
+        team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
-        ...data
+        ...data,
       },
       callback: () => {
         this.cancelBackup();
@@ -295,19 +325,19 @@ export default class AppList extends PureComponent {
           if (res.data && res.data.code) {
             if (res.data.code === 4122) {
               this.setState({
-                warningText: "备份有异常 ：组件使用了自定义存储，是否强制备份",
-                componentList: res.data.data.list || []
+                warningText: '备份有异常 ：组件使用了自定义存储，是否强制备份',
+                componentList: res.data.data.list || [],
               });
             }
             if (res.data.code === 4121) {
               this.setState({
-                warningText: "备份有异常 ：有状态组件未停止，是否强制备份",
-                componentList: res.data.data.list || []
+                warningText: '备份有异常 ：有状态组件未停止，是否强制备份',
+                componentList: res.data.data.list || [],
               });
             }
           }
         }
-      }
+      },
     });
   };
 
@@ -316,17 +346,17 @@ export default class AppList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: 'groupControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
-        group_id: appID
+        group_id: appID,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             appDetail: res.bean,
-            loadingDetail: false
+            loadingDetail: false,
           });
         }
       },
@@ -338,7 +368,7 @@ export default class AppList extends PureComponent {
             )
           );
         }
-      }
+      },
     });
   };
   // 倒入备份
@@ -347,8 +377,8 @@ export default class AppList extends PureComponent {
   };
   handleImportBackup = e => {
     notification.success({
-      message: "备份已导入",
-      duration: 2
+      message: '备份已导入',
+      duration: 2,
     });
     this.setState({ showImport: false });
     this.fetchBackup();
@@ -362,15 +392,15 @@ export default class AppList extends PureComponent {
     this.setState({
       showRecovery: true,
       backup_id: data.backup_id,
-      group_uuid: data.group_uuid
+      group_uuid: data.group_uuid,
     });
   };
   handleRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: "" });
+    this.setState({ showRecovery: false, backup_id: '' });
     this.fetchBackup();
   };
   cancelRecoveryBackup = () => {
-    this.setState({ showRecovery: false, backup_id: "" });
+    this.setState({ showRecovery: false, backup_id: '' });
     this.fetchBackup();
   };
   // 迁移应用备份
@@ -378,33 +408,27 @@ export default class AppList extends PureComponent {
     this.setState({
       showMove: true,
       backup_id: data.backup_id,
-      group_uuid: data.group_uuid
+      group_uuid: data.group_uuid,
     });
   };
   handleMoveBackup = () => {
     this.setState({ showMove: false });
   };
   cancelMoveBackup = () => {
-    this.setState({ showMove: false, backup_id: "" });
+    this.setState({ showMove: false, backup_id: '' });
   };
   // 导出应用备份
 
-  handleExport = (data, e) => {
-    var backup_id = data.backup_id;
-    var team_name = globalUtil.getCurrTeamName();
-    var group_id = this.getGroupId();
-    var exportURl =
-      apiconfig.baseUrl +
-      "/console/teams/" +
-      team_name +
-      "/groupapp/" +
-      group_id +
-      "/backup/export?backup_id=" +
-      backup_id;
+  handleExport = data => {
+    const exportURl = `${
+      apiconfig.baseUrl
+    }/console/teams/${globalUtil.getCurrTeamName()}/groupapp/${this.getGroupId()}/backup/export?backup_id=${
+      data.backup_id
+    }`;
     window.open(exportURl);
     notification.success({
-      message: "备份导出中",
-      duration: 2
+      message: '备份导出中',
+      duration: 2,
     });
   };
   // 删除应用备份
@@ -412,28 +436,27 @@ export default class AppList extends PureComponent {
     this.setState({ showDel: true, backup_id: data.backup_id });
   };
   handleDelete = e => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "groupControl/delBackup",
+      type: 'groupControl/delBackup',
       payload: {
-        team_name: team_name,
+        team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
-        backup_id: this.state.backup_id
+        backup_id: this.state.backup_id,
       },
       callback: data => {
         if (data) {
           notification.success({
-            message: "删除成功",
-            duration: 2
+            message: '删除成功',
+            duration: 2,
           });
           this.cancelDelete();
           this.fetchBackup();
         }
-      }
+      },
     });
   };
   cancelDelete = e => {
-    this.setState({ showDel: false, backup_id: "" }, () => {
+    this.setState({ showDel: false, backup_id: '' }, () => {
       this.fetchBackup();
     });
   };
@@ -445,41 +468,44 @@ export default class AppList extends PureComponent {
     );
   };
 
-  getGroupId = () => {
-    const params = this.props.match.params;
-    return params.appID;
-  };
   render() {
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+    const {
+      appDetail,
+      loadingDetail,
+      list = [],
+      operationPermissions: { isMigrate, isRestore, isImport, isExport },
+    } = this.state;
     const columns = [
       {
-        title: "备份时间",
-        dataIndex: "create_time"
+        title: '备份时间',
+        dataIndex: 'create_time',
       },
       {
-        title: "备份人",
-        dataIndex: "user"
+        title: '备份人',
+        dataIndex: 'user',
       },
       {
-        title: "备份模式",
-        dataIndex: "mode",
+        title: '备份模式',
+        dataIndex: 'mode',
         render: (val, data) => {
-          var map = {
-            "full-online": "云端备份",
-            "full-offline": "本地备份"
+          const map = {
+            'full-online': '云端备份',
+            'full-offline': '本地备份',
           };
-          return map[val] || "";
-        }
+          return map[val] || '';
+        },
       },
       {
-        title: "包大小",
-        dataIndex: "backup_size",
+        title: '包大小',
+        dataIndex: 'backup_size',
         render: (val, data) => {
-          return sourceUtil.unit(val, "Byte");
-        }
+          return sourceUtil.unit(val, 'Byte');
+        },
       },
       {
-        title: "状态",
-        dataIndex: "status",
+        title: '状态',
+        dataIndex: 'status',
         render: (val, data) => {
           return (
             <BackupStatus
@@ -488,38 +514,42 @@ export default class AppList extends PureComponent {
               data={data}
             />
           );
-        }
+        },
       },
       {
-        title: "备注",
-        dataIndex: "note"
+        title: '备注',
+        dataIndex: 'note',
       },
       {
-        title: "操作",
-        dataIndex: "action",
+        title: '操作',
+        dataIndex: 'action',
         render: (val, data) => {
           return (
             <div>
-              {data.status == "success" ? (
+              {data.status == 'success' ? (
                 <Fragment>
-                  <a
-                    href="javascript:;"
-                    style={{ marginRight: "5px" }}
-                    onClick={this.handleRecovery.bind(this, data)}
-                  >
-                    恢复
-                  </a>
-                  <a
-                    href="javascript:;"
-                    style={{ marginRight: "5px" }}
-                    onClick={this.handleMove.bind(this, data)}
-                  >
-                    迁移
-                  </a>
-                  {data.mode == "full-online" && (
+                  {isRestore && (
                     <a
                       href="javascript:;"
-                      style={{ marginRight: "5px" }}
+                      style={{ marginRight: '5px' }}
+                      onClick={this.handleRecovery.bind(this, data)}
+                    >
+                      恢复
+                    </a>
+                  )}
+                  {isMigrate && (
+                    <a
+                      href="javascript:;"
+                      style={{ marginRight: '5px' }}
+                      onClick={this.handleMove.bind(this, data)}
+                    >
+                      迁移
+                    </a>
+                  )}
+                  {data.mode == 'full-online' && isExport && (
+                    <a
+                      href="javascript:;"
+                      style={{ marginRight: '5px' }}
                       onClick={this.handleExport.bind(this, data)}
                     >
                       导出
@@ -533,9 +563,9 @@ export default class AppList extends PureComponent {
                   </a>
                 </Fragment>
               ) : (
-                ""
+                ''
               )}
-              {data.status == "failed" ? (
+              {data.status == 'failed' ? (
                 <Fragment>
                   <a
                     href="javascript:;"
@@ -545,18 +575,16 @@ export default class AppList extends PureComponent {
                   </a>
                 </Fragment>
               ) : (
-                ""
+                ''
               )}
             </div>
           );
-        }
-      }
+        },
+      },
     ];
 
-    const list = this.state.list || [];
     let breadcrumbList = [];
-    const { appDetail, loadingDetail } = this.state;
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -586,9 +614,11 @@ export default class AppList extends PureComponent {
             >
               新增备份
             </Button>
-            <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
-              导入备份
-            </Button>
+            {isImport && (
+              <Button style={{ marginRight: 8 }} onClick={this.toAdd}>
+                导入备份
+              </Button>
+            )}
             <Button onClick={this.jumpToAllbackup} href="javascript:;">
               全部备份
             </Button>
@@ -606,10 +636,10 @@ export default class AppList extends PureComponent {
                 total: this.state.total,
                 pageSize: this.state.pageSize,
                 onChange: page => {
-                  this.setState({ page: page }, () => {
+                  this.setState({ page }, () => {
                     this.fetchBackup();
                   });
-                }
+                },
               }}
               columns={columns}
               dataSource={list}

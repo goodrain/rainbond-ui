@@ -1,18 +1,19 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Card } from "antd";
-import ScrollerX from "../../ScrollerX";
-import teamUtil from "../../../utils/team";
-import globalUtil from "../../../utils/global";
-import userUtil from "../../../utils/user";
-import TeamMemberTable from "../../TeamMemberTable";
-import AddMember from "../../AddMember";
-import ConfirmModal from "../../ConfirmModal";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Card } from 'antd';
+import ScrollerX from '../../ScrollerX';
+import teamUtil from '../../../utils/team';
+import globalUtil from '../../../utils/global';
+import userUtil from '../../../utils/user';
+import TeamMemberTable from '../../TeamMemberTable';
+import AddMember from '../../AddMember';
+import ConfirmModal from '../../ConfirmModal';
 
 @connect(({ teamControl, loading, user }) => ({
   regions: teamControl.regions,
   currUser: user.currentUser,
-  activitiesLoading: loading.effects["activities/fetchList"],
+  currentTeam: teamControl.currentTeam,
+  activitiesLoading: loading.effects['activities/fetchList'],
 }))
 export default class MemberList extends PureComponent {
   constructor(props) {
@@ -30,28 +31,27 @@ export default class MemberList extends PureComponent {
   componentDidMount() {
     this.loadMembers();
   }
-  onMoveTeam = (member) => {
+  onMoveTeam = member => {
     this.setState({ toMoveTeam: member });
   };
-  onDelMember = (member) => {
+  onDelMember = member => {
     this.setState({ toDeleteMember: member });
   };
-  onEditAction = (member) => {
+  onEditAction = member => {
     this.setState({ toEditAction: member });
   };
   hideMoveTeam = () => {
     this.setState({ toMoveTeam: null });
   };
-  handleMoveTeam = ({ identity }) => {
-    const team_name = globalUtil.getCurrTeamName();
+  handleMoveTeam = () => {
     this.props.dispatch({
-      type: "teamControl/moveTeam",
+      type: 'teamControl/moveTeam',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         user_name: this.state.toMoveTeam.user_name,
       },
       callback: () => {
-        this.updateCurrentUser()
+        this.updateCurrentUser();
         this.loadMembers();
         this.hideMoveTeam();
       },
@@ -60,21 +60,20 @@ export default class MemberList extends PureComponent {
 
   updateCurrentUser = () => {
     this.props.dispatch({
-      type: "user/fetchCurrent",
-    })
-  }
+      type: 'user/fetchCurrent',
+    });
+  };
   hideEditAction = () => {
     this.setState({ toEditAction: null });
   };
-  handleEditAction = (data) => {
-    const team_name = globalUtil.getCurrTeamName();
+  handleEditAction = data => {
     const toEditMember = this.state.toEditAction;
     this.props.dispatch({
-      type: "teamControl/editMember",
+      type: 'teamControl/editMember',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         user_id: toEditMember.user_id,
-        role_ids: data.role_ids.join(","),
+        role_ids: data.role_ids,
       },
       callback: () => {
         this.loadMembers();
@@ -88,13 +87,13 @@ export default class MemberList extends PureComponent {
   hideAddMember = () => {
     this.setState({ showAddMember: false });
   };
-  handleAddMember = (values) => {
+  handleAddMember = values => {
     this.props.dispatch({
-      type: "teamControl/addMember",
+      type: 'teamControl/addMember',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        user_ids: values.user_ids.map(item => item.key).join(","),
-        role_ids: values.role_ids.join(","),
+        user_ids: values.user_ids.map(item => item.key).join(','),
+        role_ids: values.role_ids.join(','),
       },
       callback: () => {
         this.loadMembers();
@@ -106,11 +105,10 @@ export default class MemberList extends PureComponent {
     this.setState({ toDeleteMember: null });
   };
   handleDelMember = () => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/delMember",
+      type: 'teamControl/delMember',
       payload: {
-        team_name,
+        team_name: globalUtil.getCurrTeamName(),
         user_ids: this.state.toDeleteMember.user_id,
       },
       callback: () => {
@@ -124,14 +122,14 @@ export default class MemberList extends PureComponent {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     dispatch({
-      type: "teamControl/fetchMember",
+      type: 'teamControl/fetchTeamMember',
       payload: {
         team_name: teamName,
         region_name: regionName,
         page_size: this.state.pageSize,
         page: this.state.page,
       },
-      callback: (data) => {
+      callback: data => {
         if (data) {
           this.setState({
             members: data.list || [],
@@ -141,20 +139,23 @@ export default class MemberList extends PureComponent {
       },
     });
   };
-  hanldePageChange = (page) => {
+  hanldePageChange = page => {
     this.setState({ page }, () => {
       this.loadMembers();
     });
   };
   render() {
-    const { currUser } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, teamName);
+    const {
+      currUser,
+      currentTeam,
+      memberPermissions,
+      memberPermissions: { isCreate },
+    } = this.props;
     const pagination = {
       current: this.state.page,
       pageSize: this.state.pageSize,
       total: this.state.total,
-      onChange: (v) => {
+      onChange: v => {
         this.hanldePageChange(v);
       },
     };
@@ -170,17 +171,18 @@ export default class MemberList extends PureComponent {
           bordered={false}
           title="团队成员"
           extra={
-            teamUtil.canAddMember(team) ? (
+            isCreate && (
               <a href="javascript:;" onClick={this.showAddMember}>
                 添加成员
               </a>
-            ) : null
+            )
           }
         >
           <ScrollerX sm={600}>
             <TeamMemberTable
+              memberPermissions={memberPermissions}
               pagination={pagination}
-              team={team}
+              team={currentTeam}
               onMoveTeam={this.onMoveTeam}
               onDelete={this.onDelMember}
               onEditAction={this.onEditAction}

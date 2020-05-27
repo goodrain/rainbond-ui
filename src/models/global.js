@@ -58,7 +58,6 @@ import {
   fetchEnterpriseList,
   queryOauthInfo,
   deleteOauth,
-  queryAuthority,
   queryTestCode,
   queryDetectionTestCode,
   queryCodeWarehouseInfo,
@@ -83,6 +82,7 @@ import {
   getUpdateRollback,
   fetchEnterpriseApps,
   fetchAppComponents,
+  getPermissions,
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
@@ -120,6 +120,15 @@ export default {
   },
 
   effects: {
+    *fetchPermissions({ payload, callback }, { call }) {
+      const response = yield call(getPermissions, payload);
+      if (response) {
+        if (callback) {
+          callback(response);
+        }
+      }
+    },
+
     *setNouse({ payload }, { call, put }) {
       yield put({
         type: 'saveIsisNouse',
@@ -617,13 +626,6 @@ export default {
         callback(response);
       }
     },
-
-    *requestAuthority({ callback, payload }, { call }) {
-      const response = yield call(queryAuthority, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
     *testCode({ callback, payload }, { call }) {
       const response = yield call(queryTestCode, payload);
       if (callback) {
@@ -790,6 +792,7 @@ export default {
         groups: payload,
       };
     },
+
     saveCurrTeamAndRegion(state, { payload }) {
       return {
         ...state,

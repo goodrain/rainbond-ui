@@ -1,26 +1,24 @@
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Card, Avatar } from "antd";
-import moment from "moment";
-import styles from "./index.less";
-import teamUtil from "../../../utils/team";
-import rainbondUtil from "../../../utils/rainbond";
-import globalUtil from "../../../utils/global";
-import userUtil from "../../../utils/user";
-import OpenRegion from "../../OpenRegion";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Card, Avatar } from 'antd';
+import moment from 'moment';
+import OpenRegion from '../../OpenRegion';
+import teamUtil from '../../../utils/team';
+import globalUtil from '../../../utils/global';
+import userUtil from '../../../utils/user';
+import styles from './index.less';
 
-@connect(({ teamControl, loading, user, global }) => ({
+@connect(({ teamControl, loading, user }) => ({
   regions: teamControl.regions,
   currUser: user.currentUser,
-  projectLoading: loading.effects["project/fetchNotice"],
-  activitiesLoading: loading.effects["activities/fetchList"],
-  rainbondInfo: global.rainbondInfo
+  projectLoading: loading.effects['project/fetchNotice'],
+  activitiesLoading: loading.effects['activities/fetchList'],
 }))
 export default class DatacenterList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      openRegion: false
+      openRegion: false,
     };
   }
   componentDidMount() {
@@ -33,61 +31,63 @@ export default class DatacenterList extends PureComponent {
     this.setState({ openRegion: false });
   };
   handleOpenRegion = regions => {
-    const team_name = globalUtil.getCurrTeamName();
     this.props.dispatch({
-      type: "teamControl/openRegion",
+      type: 'teamControl/openRegion',
       payload: {
-        team_name,
-        region_names: regions.join(",")
+        team_name: globalUtil.getCurrTeamName(),
+        region_names: regions.join(','),
       },
       callback: () => {
         this.fetchRegions();
-        this.props.dispatch({ type: "user/fetchCurrent" });
-        this.cancelOpenRegion()
-      }
+        this.props.dispatch({ type: 'user/fetchCurrent' });
+        this.cancelOpenRegion();
+      },
     });
   };
   fetchRegions = () => {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     dispatch({
-      type: "teamControl/fetchRegions",
+      type: 'teamControl/fetchRegions',
       payload: {
-        team_name: teamName
-      }
+        team_name: teamName,
+      },
     });
   };
   render() {
-    const { regions, currUser, projectLoading, rainbondInfo } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const team = userUtil.getTeamByTeamName(currUser, teamName);
+    const {
+      regions,
+      currUser,
+      projectLoading,
+      datecenterPermissions: { isCreate, isEdit, isDelete },
+    } = this.props;
+    console.log('regions', regions);
     return (
       <div>
         <Card
           className={styles.projectList}
           style={{
-            marginBottom: 24
+            marginBottom: 24,
           }}
           title="已开通集群"
           bordered={false}
           extra={
-            teamUtil.canAddRegion(team) && (
+            isCreate && (
               <a href="javascript:;" onClick={this.onOpenRegion}>
-                {" "}
-                开通集群{" "}
+                开通集群
               </a>
             )
           }
           loading={projectLoading}
           bodyStyle={{
-            padding: 0
+            padding: 0,
           }}
         >
           {(regions || []).map(item => (
             <Card.Grid className={styles.projectGrid} key={item.ID}>
               <Card
                 bodyStyle={{
-                  padding: 0
+                  padding: 0,
                 }}
                 bordered={false}
               >
@@ -98,11 +98,14 @@ export default class DatacenterList extends PureComponent {
                       <a href="javascript:;">{item.region_alisa}</a>
                     </div>
                   }
-                  description={item.desc || "-"}
+                  description={item.desc || '-'}
                 />
                 <div className={styles.projectItemContent}>
                   <span className={styles.datetime}>
-                    开通于 {moment(item.create_time).locale('zh-cn').format("YYYY年-MM月-DD日")}
+                    开通于{' '}
+                    {moment(item.create_time)
+                      .locale('zh-cn')
+                      .format('YYYY年-MM月-DD日')}
                   </span>
                 </div>
               </Card>
@@ -111,14 +114,14 @@ export default class DatacenterList extends PureComponent {
           {!regions || !regions.length ? (
             <p
               style={{
-                textAlign: "center",
-                paddingTop: 20
+                textAlign: 'center',
+                paddingTop: 20,
               }}
             >
               暂无集群
             </p>
           ) : (
-            ""
+            ''
           )}
         </Card>
         {this.state.openRegion && (

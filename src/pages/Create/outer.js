@@ -1,49 +1,30 @@
-import React, { PureComponent } from "react";
-import moment from "moment";
-import PropTypes from "prop-types";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import globalUtil from "../../utils/global";
-import OuterCustom from "./outer-custom";
-import {
-  createEnterprise,
-  createTeam
-} from "../../utils/breadcrumb";
-
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import OuterCustom from './outer-custom';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(
-  ({ enterprise, teamControl, global }) => ({
-    rainbondInfo: global.rainbondInfo,
+  ({ enterprise, teamControl }) => ({
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
-    currentEnterprise: enterprise.currentEnterprise
+    currentEnterprise: enterprise.currentEnterprise,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
   }),
   null,
   null,
   { pure: false }
 )
 export default class Main extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {};
+  componentWillMount() {
+    const { currentTeamPermissionsInfo, dispatch } = this.props;
+    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
-  componentDidMount() {}
-  componentWillUnmount() {}
   handleTabChange = key => {
-    const { dispatch, match } = this.props;
-    const { appAlias } = this.props.match.params;
+    const { dispatch } = this.props;
     dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/outer/${key}`
@@ -51,22 +32,27 @@ export default class Main extends PureComponent {
     );
   };
   render() {
-    const rainbondInfo = this.props.rainbondInfo;
+    const {
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+      match,
+    } = this.props;
+    let { type } = match.params;
+
     const map = {
-      outer: OuterCustom
+      outer: OuterCustom,
     };
 
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
-        createEnterprise(breadcrumbList, currentEnterprise),
-        currentTeam,
-        currentRegionName
-      );
-    breadcrumbList.push({title: "创建组件"})
-    let type = this.props.match.params.type;
+      createEnterprise(breadcrumbList, currentEnterprise),
+      currentTeam,
+      currentRegionName
+    );
+    breadcrumbList.push({ title: '创建组件' });
     if (!type) {
-      type = "outer";
+      type = 'outer';
     }
     const Com = map[type];
 
@@ -81,10 +67,8 @@ export default class Main extends PureComponent {
             各类组件进行统一的监控和管理的需要
           </p>
         }
-        // tabActiveKey={type}
-        // tabList={tabList}
       >
-        {Com ? <Com {...this.props} /> : "参数错误"}
+        {Com ? <Com {...this.props} /> : '参数错误'}
       </PageHeaderLayout>
     );
   }

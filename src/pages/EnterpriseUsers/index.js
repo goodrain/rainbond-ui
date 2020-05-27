@@ -1,8 +1,8 @@
-import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreatUser from '../../components/CreatUserForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -29,7 +29,7 @@ export default class EnterpriseUsers extends PureComponent {
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       page: 1,
-      page_size: 10,
+      pageSize: 10,
       adminer,
       adminList: [],
       total: 0,
@@ -37,17 +37,30 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
       text: '',
       delVisible: false,
+      name: '',
     };
   }
   componentWillMount() {
     const { adminer } = this.state;
     const { dispatch } = this.props;
-    !adminer && dispatch(routerRedux.push(`/`));
+    if (!adminer) {
+      dispatch(routerRedux.push(`/`));
+    }
   }
   componentDidMount() {
     this.loadUser();
   }
-
+  onPageChange = (page, pageSize) => {
+    this.setState(
+      {
+        page,
+        pageSize,
+      },
+      () => {
+        this.loadUser();
+      }
+    );
+  };
   handleCreatUser = values => {
     const {
       dispatch,
@@ -67,7 +80,7 @@ export default class EnterpriseUsers extends PureComponent {
         ...values,
       },
       callback: data => {
-        if (data && data._condition == 200) {
+        if (data && data._condition === 200) {
           this.loadUser();
           this.cancelCreatUser();
           notification.success({ message: data.msg_show || '' });
@@ -98,7 +111,7 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._condition == 200) {
+        if (res && res._condition === 200) {
           this.cancelCreatUser();
           this.loadUser();
           notification.success({ message: '编辑成功' });
@@ -122,39 +135,13 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._condition == 200) {
+        if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
           notification.success({ message: '删除成功' });
         }
       },
     });
-  };
-
-  onPageChange = (page, page_size) => {
-    this.setState(
-      {
-        page,
-        page_size,
-      },
-      () => {
-        this.loadUser();
-      }
-    );
-  };
-
-  handleSearch = e => {
-    this.setState(
-      {
-        page: 1,
-      },
-      () => {
-        this.loadUser();
-      }
-    );
-  };
-  handelChange = e => {
-    this.setState({ name: e.target.value });
   };
 
   loadUser = () => {
@@ -164,13 +151,13 @@ export default class EnterpriseUsers extends PureComponent {
         params: { eid },
       },
     } = this.props;
-    const { page, page_size, name } = this.state;
+    const { page, pageSize, name } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
         enterprise_id: eid,
         page,
-        page_size,
+        page_size: pageSize,
         name,
       },
       callback: res => {
@@ -217,9 +204,24 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
     });
   };
-
+  handleSearch = e => {
+    this.loadUser();
+  };
+  handelChange = e => {
+    this.setState({ name: e.target.value });
+  };
   render() {
-    const { adminList, adminer, text, userInfo, delVisible } = this.state;
+    const {
+      adminList,
+      adminer,
+      text,
+      userInfo,
+      delVisible,
+      userVisible,
+      page,
+      pageSize,
+      total,
+    } = this.state;
 
     const {
       match: {
@@ -345,7 +347,7 @@ export default class EnterpriseUsers extends PureComponent {
             />
           )}
 
-          {this.state.userVisible && (
+          {userVisible && (
             <CreatUser
               eid={eid}
               userInfo={userInfo}
@@ -358,9 +360,9 @@ export default class EnterpriseUsers extends PureComponent {
           <Table
             size="middle"
             pagination={{
-              current: this.state.page,
-              pageSize: this.state.page_size,
-              total: this.state.total,
+              current: page,
+              pageSize,
+              total,
               onChange: this.onPageChange,
             }}
             dataSource={adminList}

@@ -467,8 +467,7 @@ export default class EnterpriseShared extends PureComponent {
       );
       const exportOperation = appInfo &&
         appInfo.versions_info &&
-        appInfo.versions_info.length > 0 &&
-        rainbondUtil.exportAppEnable(enterprise) && (
+        appInfo.versions_info.length > 0 && (
           <Menu.Item>
             <ExportOperation app={appInfo} eid={eid} />
           </Menu.Item>
@@ -782,7 +781,7 @@ export default class EnterpriseShared extends PureComponent {
             overflow: 'hidden',
           }}
         >
-         {sharedList}
+          {sharedList}
         </div>
       </PageHeaderLayout>
     );

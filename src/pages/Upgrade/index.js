@@ -1,31 +1,32 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { List, Table, Tag, Avatar, Tabs } from "antd";
-import globalUtil from "../../utils/global";
-import infoUtil from "./info-util";
-import styles from "./index.less";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import { List, Table, Tag, Avatar, Tabs } from 'antd';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+
+import Info from './info';
+import infoUtil from './info-util';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import sourceUtil from '../../utils/source-unit';
+import globalUtil from '../../utils/global';
 import {
-    createEnterprise,
-    createTeam,
-    createApp
-} from "../../utils/breadcrumb";
+  createEnterprise,
+  createTeam,
+  createApp,
+} from '../../utils/breadcrumb';
+import roleUtil from '../../utils/role';
+import styles from './index.less';
 
-import MarketAppDetailShow from "../../components/MarketAppDetailShow";
+const { TabPane } = Tabs;
 
-import Info from "./info";
-
-import sourceUtil from "../../utils/source-unit";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-
-const TabPane = Tabs.TabPane;
-
-@connect(({ user, global, groupControl, teamControl, enterprise  }) => ({
+@connect(({ user, global, groupControl, teamControl, enterprise }) => ({
   groupDetail: groupControl.groupDetail || {},
   currUser: user.pageUser,
   groups: global.groups || [],
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class AppList extends PureComponent {
   constructor(props) {
@@ -37,15 +38,26 @@ export default class AppList extends PureComponent {
       infoShow: false,
       infoData: null,
       list: [],
-      activeKey: "1",
+      activeKey: '1',
       page: 1,
       pageSize: 5,
       total: 0,
-      page: 1,
       dataList: [],
-      appDetail:{}
+      appDetail: {},
     };
   }
+
+  componentWillMount() {
+    const { currentTeamPermissionsInfo, dispatch } = this.props;
+    const isUpgrade = roleUtil.queryAppInfo(
+      currentTeamPermissionsInfo,
+      'upgrade'
+    );
+    if (!isUpgrade) {
+      globalUtil.withoutPermission(dispatch);
+    }
+  }
+
   componentDidMount() {
     this.fetchAppDetail();
     this.getApplication();
@@ -53,113 +65,108 @@ export default class AppList extends PureComponent {
 
   // 查询当前组下的云市应用
   getApplication = () => {
-    const group_id = this.getGroupId();
     this.props.dispatch({
-      type: "global/application",
+      type: 'global/application',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        group_id
+        group_id: this.getGroupId(),
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState({
-            list: res.list
+            list: res.list,
           });
         }
-      }
+      },
     });
   };
   getGroupId = () => {
-    const params = this.props.match.params;
+    const { params } = this.props.match;
     return params.appID;
   };
-
+  // 查询某应用的更新记录列表
+  getUpgradeRecordsList = () => {
+    const { page, pageSize } = this.state;
+    this.props.dispatch({
+      type: 'global/CloudAppUpdateRecordsList',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: this.getGroupId(),
+        page,
+        pageSize,
+        status__gt: 1,
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          if (res.list && res.list.length > 0) {
+            this.setState({
+              dataList: res.list,
+            });
+          }
+        }
+      },
+    });
+  };
   fetchAppDetail = () => {
     const { dispatch } = this.props;
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: 'groupControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
-        group_id: appID
+        group_id: appID,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             appDetail: res.bean,
-            loadingDetail: false
+            loadingDetail: false,
           });
         }
       },
       handleError: res => {
         if (res && res.code === 404) {
-          this.props.dispatch(
+          dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
           );
         }
-      }
+      },
     });
   };
-  
 
   showMarketAppDetail = app => {
     this.setState({
       showApp: app,
-      showMarketAppDetail: true
+      showMarketAppDetail: true,
     });
   };
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
-      showMarketAppDetail: false
+      showMarketAppDetail: false,
     });
   };
 
   callback = key => {
     this.setState(
       {
-        activeKey: key
+        activeKey: key,
       },
       () => {
-        key == "2" ? this.getUpgradeRecordsList() : this.getApplication();
+        key == '2' ? this.getUpgradeRecordsList() : this.getApplication();
       }
     );
   };
 
-  // 查询某应用的更新记录列表
-  getUpgradeRecordsList = () => {
-    const group_id = this.getGroupId();
-    const { page, pageSize } = this.state;
-    this.props.dispatch({
-      type: "global/CloudAppUpdateRecordsList",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id,
-        page,
-        pageSize,
-        status__gt: 1
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          const { indexs } = this.state;
-          if (res.list && res.list.length > 0) {
-            this.setState({
-              dataList: res.list
-            });
-          }
-        }
-      }
-    });
-  };
   handleTableChange = (page, pageSize) => {
     this.setState(
       {
         page,
-        pageSize: pageSize
+        pageSize,
       },
       () => {
         this.getUpgradeRecordsList();
@@ -167,8 +174,8 @@ export default class AppList extends PureComponent {
     );
   };
   render() {
+    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     const {
-      groupName,
       loading,
       list,
       showMarketAppDetail,
@@ -179,36 +186,37 @@ export default class AppList extends PureComponent {
       page,
       total,
       pageSize,
-      dataList
+      dataList,
+      appDetail,
+      loadingDetail,
     } = this.state;
 
     const paginationProps = {
       onChange: this.handleTableChange,
       pageSize,
       total,
-      page
+      page,
     };
 
     const ListContent = ({
-      data: { upgrade_versions, current_version, min_memory }
-    }) =>
+      data: { upgrade_versions, current_version, min_memory },
+    }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
           <span>当前版本</span>
           <p>
-            {
-              <Tag
-                style={{
-                  height: "17px",
-                  lineHeight: "16px",
-                  marginBottom: "3px"
-                }}
-                color="green"
-                size="small"
-              >
-                {" "}{current_version}
-              </Tag>
-            }
+            <Tag
+              style={{
+                height: '17px',
+                lineHeight: '16px',
+                marginBottom: '3px',
+              }}
+              color="green"
+              size="small"
+            >
+              {' '}
+              {current_version}
+            </Tag>
           </p>
         </div>
         <div className={styles.listContentItem}>
@@ -219,99 +227,94 @@ export default class AppList extends PureComponent {
                   return (
                     <Tag
                       style={{
-                        height: "17px",
-                        lineHeight: "16px",
-                        marginBottom: "3px"
+                        height: '17px',
+                        lineHeight: '16px',
+                        marginBottom: '3px',
                       }}
                       color="green"
                       size="small"
                       key={index}
                     >
-                      {" "}{item}
+                      {' '}
+                      {item}
                     </Tag>
                   );
                 })
-              : "暂无升级"}
+              : '暂无升级'}
           </p>
         </div>
         <div className={styles.listContentItem}>
           <span>内存</span>
-          <p>
-            {sourceUtil.unit(min_memory || 128, "MB")}
-          </p>
+          <p>{sourceUtil.unit(min_memory || 128, 'MB')}</p>
         </div>
-      </div>;
+      </div>
+    );
 
     const columns = [
       {
-        title: "创建时间",
-        dataIndex: "create_time",
-        key: "1",
-        width: "20%",
-        render: text =>
-          <span>
-            {text}
-          </span>
+        title: '创建时间',
+        dataIndex: 'create_time',
+        key: '1',
+        width: '20%',
+        render: text => <span>{text}</span>,
       },
       {
-        title: "名字",
-        dataIndex: "group_name",
-        key: "2",
-        width: "20%",
-        render: text =>
-          <span>
-            {text}
-          </span>
+        title: '名字',
+        dataIndex: 'group_name',
+        key: '2',
+        width: '20%',
+        render: text => <span>{text}</span>,
       },
       {
-        title: "版本",
-        dataIndex: "version",
-        key: "3",
-        width: "30%",
-        render: (text, data) =>
+        title: '版本',
+        dataIndex: 'version',
+        key: '3',
+        width: '30%',
+        render: (text, data) => (
           <span>
-            {data.old_version && data.version
-              ? <span>
-                  <a href="javascript:;">{data.old_version}</a>升级到<a href="javascript:;">{data.version}</a>
-                </span>
-              : "-"}
+            {data.old_version && data.version ? (
+              <span>
+                <a href="javascript:;">{data.old_version}</a>升级到
+                <a href="javascript:;">{data.version}</a>
+              </span>
+            ) : (
+              '-'
+            )}
           </span>
+        ),
       },
       {
-        title: "状态",
-        dataIndex: "status",
-        key: "4",
-        width: "15%",
-        render: status =>
-          <span>
-            {infoUtil.getStatusCN(status)}
-          </span>
+        title: '状态',
+        dataIndex: 'status',
+        key: '4',
+        width: '15%',
+        render: status => <span>{infoUtil.getStatusCN(status)}</span>,
       },
       {
-        title: "组件详情",
-        dataIndex: "tenant_id",
-        key: "5",
-        width: "15%",
-        render: (text, item) =>
+        title: '组件详情',
+        dataIndex: 'tenant_id',
+        key: '5',
+        width: '15%',
+        render: (text, item) => (
           <a
             onClick={e => {
               e.preventDefault();
               item.status != 1 &&
                 this.setState({
                   infoData: item,
-                  infoShow: true
+                  infoShow: true,
                 });
             }}
-            style={{ color: item.status == 1 ? "#000" : "#1890ff" }}
+            style={{ color: item.status == 1 ? '#000' : '#1890ff' }}
             href="javascript:;"
           >
-            {item.status == 1 ? "-" : "详情"}
+            {item.status == 1 ? '-' : '详情'}
           </a>
-      }
+        ),
+      },
     ];
     let breadcrumbList = [];
-    const { appDetail, loadingDetail } = this.state;
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
+
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -331,7 +334,7 @@ export default class AppList extends PureComponent {
         content="当前应用内具有从共享库或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作"
         extraContent={null}
       >
-        {!infoShow &&
+        {!infoShow && (
           <Tabs
             defaultActiveKey={activeKey}
             onChange={this.callback}
@@ -345,7 +348,7 @@ export default class AppList extends PureComponent {
                   loading={loading}
                   dataSource={[...list]}
                   // pagination={paginationProps}
-                  renderItem={item =>
+                  renderItem={item => (
                     <List.Item
                       actions={[
                         <a
@@ -354,30 +357,32 @@ export default class AppList extends PureComponent {
                             if (item.can_upgrade) {
                               this.setState(
                                 {
-                                  infoData: item
+                                  infoData: item,
                                 },
                                 () => {
                                   this.setState({
                                     infoShow: item.not_upgrade_record_id
                                       ? true
-                                      : !item.can_upgrade ? false : true
+                                      : !!item.can_upgrade,
                                   });
                                 }
                               );
                             }
                           }}
                           style={{
-                            display: "block",
-                            marginTop: "15px",
-                            color: item.can_upgrade ? "#1890ff" : "#bfbfbf"
+                            display: 'block',
+                            marginTop: '15px',
+                            color: item.can_upgrade ? '#1890ff' : '#bfbfbf',
                           }}
                         >
                           {item.not_upgrade_record_status != 1
                             ? infoUtil.getStatusCN(
                                 item.not_upgrade_record_status
                               )
-                            : item.can_upgrade ? "升级" : "无可升级的变更"}
-                        </a>
+                            : item.can_upgrade
+                            ? '升级'
+                            : '无可升级的变更'}
+                        </a>,
                       ]}
                     >
                       <List.Item.Meta
@@ -385,7 +390,7 @@ export default class AppList extends PureComponent {
                           <Avatar
                             src={
                               item.pic ||
-                              require("../../../public/images/app_icon.jpg")
+                              require('../../../public/images/app_icon.jpg')
                             }
                             shape="square"
                             size="large"
@@ -403,7 +408,8 @@ export default class AppList extends PureComponent {
                         description={item.describe}
                       />
                       <ListContent data={item} />
-                    </List.Item>}
+                    </List.Item>
+                  )}
                 />
               </div>
             </TabPane>
@@ -414,28 +420,31 @@ export default class AppList extends PureComponent {
                 pagination={paginationProps}
               />
             </TabPane>
-          </Tabs>}
+          </Tabs>
+        )}
 
-        {showMarketAppDetail &&
+        {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
             app={showApp}
-          />}
+          />
+        )}
 
-        {infoShow &&
+        {infoShow && (
           <Info
             data={infoData}
             activeKey={this.state.activeKey}
             group_id={this.getGroupId()}
             setInfoShow={() => {
               this.setState({ infoShow: false }, () => {
-                this.state.activeKey == "2"
+                this.state.activeKey == '2'
                   ? this.getUpgradeRecordsList()
                   : this.getApplication();
               });
             }}
-          />}
+          />
+        )}
       </PageHeaderLayout>
     );
   }

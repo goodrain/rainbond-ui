@@ -4,14 +4,16 @@ import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
   createTeam,
 } from '../../utils/breadcrumb';
+import roleUtil from '../../utils/role';
+import globalUtil from '../../utils/global';
 
 @connect(({ list, loading, teamControl, enterprise }) => ({
   list,
@@ -19,24 +21,44 @@ import {
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class AppPublishList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      apps: [],
       loading: true,
       appDetail: {},
       page: 1,
-      page_size: 10,
+      pageSize: 10,
       total: 0,
       selectStoreShow: false,
     };
   }
+  componentWillMount() {
+    const { currentTeamPermissionsInfo, dispatch } = this.props;
+    const isShare = roleUtil.queryAppInfo(currentTeamPermissionsInfo, 'share');
+    if (!isShare) {
+      globalUtil.withoutPermission(dispatch);
+    }
+  }
+
   componentDidMount() {
     this.fetchAppDetail();
     this.fetchPublishRecoder();
   }
+  onPublishStore = () => {
+    this.setState({ selectStoreShow: true });
+  };
+  onPublishLocal = () => {
+    this.handleShare('', {});
+  };
+
+  onPageChange = page => {
+    this.setState({ page }, () => {
+      this.fetchPublishRecoder();
+    });
+  };
 
   fetchAppDetail = () => {
     const { dispatch } = this.props;
@@ -69,24 +91,18 @@ export default class AppPublishList extends PureComponent {
     });
   };
 
-  onPageChange = page => {
-    this.setState({ page }, () => {
-      this.fetchPublishRecoder();
-    });
-  };
-
   fetchPublishRecoder = () => {
     this.setState({ loading: true });
     const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
-    const { page, page_size } = this.state;
+    const { page, pageSize } = this.state;
     dispatch({
       type: 'groupControl/fetchShareRecords',
       payload: {
         team_name: teamName,
         app_id: appID,
         page,
-        page_size,
+        page_size: pageSize,
       },
       callback: data => {
         if (data) {
@@ -97,7 +113,7 @@ export default class AppPublishList extends PureComponent {
   };
 
   handleShare = (scope, target) => {
-    const { teamName, regionName, appID } = this.props.match.params;
+    const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
       type: 'groupControl/ShareGroup',
@@ -111,14 +127,6 @@ export default class AppPublishList extends PureComponent {
         this.continuePublish(data.bean.ID, data.bean.step);
       },
     });
-  };
-
-  onPublishLocal = () => {
-    this.handleShare('', {});
-  };
-
-  onPublishStore = () => {
-    this.setState({ selectStoreShow: true });
   };
 
   hideSelectStoreShow = () => {
@@ -193,7 +201,7 @@ export default class AppPublishList extends PureComponent {
       loading,
       loadingDetail,
       page,
-      page_size,
+      pageSize,
       total,
       selectStoreShow,
       recoders,
@@ -240,7 +248,7 @@ export default class AppPublishList extends PureComponent {
             <Table
               pagination={{
                 current: page,
-                pageSize: page_size,
+                pageSize,
                 total,
                 onChange: this.onPageChange,
               }}
@@ -280,9 +288,7 @@ export default class AppPublishList extends PureComponent {
                       case '':
                         return (
                           <Link
-                            to={`/enterprise/${
-                              currentEnterprise.enterprise_id
-                            }/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
                             共享库
                           </Link>
@@ -290,9 +296,7 @@ export default class AppPublishList extends PureComponent {
                       case 'team':
                         return (
                           <Link
-                            to={`/enterprise/${
-                              currentEnterprise.enterprise_id
-                            }/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
                             共享库(团队)
                           </Link>
@@ -300,9 +304,7 @@ export default class AppPublishList extends PureComponent {
                       case 'enterprise':
                         return (
                           <Link
-                            to={`/enterprise/${
-                              currentEnterprise.enterprise_id
-                            }/shared`}
+                            to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
                             共享库(企业)
                           </Link>
@@ -337,7 +339,8 @@ export default class AppPublishList extends PureComponent {
                   title: '状态',
                   align: 'center',
                   dataIndex: 'status',
-                  render: (val, data) => {
+                  render: val => {
+                    // eslint-disable-next-line default-case
                     switch (val) {
                       case 0:
                         return '发布中';

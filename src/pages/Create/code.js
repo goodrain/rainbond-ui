@@ -2,12 +2,13 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import globalUtil from '../../utils/global';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
 import CodeGitRepostory from '../../components/GitRepostory';
 import rainbondUtil from '../../utils/rainbond';
 import oauthUtil from '../../utils/oauth';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(
@@ -17,21 +18,19 @@ import { createEnterprise, createTeam } from '../../utils/breadcrumb';
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
     enterprise: global.enterprise,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
   }),
   null,
   null,
   { pure: false }
 )
 export default class Main extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {};
+  componentWillMount() {
+    const { currentTeamPermissionsInfo, dispatch } = this.props;
+    roleUtil.canCreateComponent(currentTeamPermissionsInfo, dispatch);
   }
-  componentDidMount() {}
-  componentWillUnmount() {}
   handleTabChange = key => {
-    const { dispatch, match } = this.props;
-    const { appAlias } = this.props.match.params;
+    const { dispatch } = this.props;
     dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/code/${key}`
@@ -39,7 +38,15 @@ export default class Main extends PureComponent {
     );
   };
   render() {
-    const { rainbondInfo, enterprise } = this.props;
+    const {
+      rainbondInfo,
+      enterprise,
+      match,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName,
+    } = this.props;
+
     const map = {
       custom: CodeCustom,
       demo: CodeDemo,
@@ -58,29 +65,29 @@ export default class Main extends PureComponent {
     if (servers && servers.length > 0) {
       servers.map(item => {
         const { name, service_id, oauth_type } = item;
+        let tabName = `${name}项目`;
+        if (oauth_type === 'github') {
+          tabName = 'Github项目';
+        } else if (oauth_type === 'gitlab') {
+          tabName = 'Gitlab项目';
+        } else if (oauth_type === 'gitee') {
+          tabName = 'Gitee项目';
+        }
         map[service_id] = CodeGitRepostory;
         tabList.push({
           key: service_id,
           types: oauth_type,
-          tab:
-            oauth_type === 'github'
-              ? 'Github项目'
-              : oauth_type === 'gitlab'
-              ? 'Gitlab项目'
-              : oauth_type === 'gitee'
-              ? 'Gitee项目'
-              : `${name}项目`,
+          tab: tabName,
         });
         return tabList;
       });
     }
-    let type = this.props.match.params.type;
+    let { type } = match.params;
     if (!type) {
       type = 'custom';
     }
     const Com = map[type];
     let breadcrumbList = [];
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,

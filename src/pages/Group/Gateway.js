@@ -1,33 +1,30 @@
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import HttpTable from '../../components/HttpTable';
 import TcpTable from '../../components/TcpTable';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
   createTeam,
 } from '../../utils/breadcrumb';
+import roleUtil from '../../utils/role';
+import globalUtil from '../../utils/global';
 
 /* eslint react/no-array-index-key: 0 */
 
-@connect(({ list, loading, teamControl, enterprise, global }) => ({
-  list,
-  loading: loading.models.list,
+@connect(({ teamControl, enterprise }) => ({
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  groups: global.groups || [],
   currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class AppGatewayList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      apps: [],
-      loading: true,
       appDetail: {},
-      createOpen: false,
       tabKey:
         props.match &&
         props.match.params &&
@@ -42,19 +39,38 @@ export default class AppGatewayList extends PureComponent {
         this.props.match.params.types
           ? this.props.match.params.types
           : false,
+      operationPermissions: this.handlePermissions('queryControlInfo'),
     };
   }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      operationPermissions: { isAccess },
+    } = this.state;
+
+    if (!isAccess) {
+      globalUtil.withoutPermission(dispatch);
+    }
+  }
+
   componentDidMount() {
     this.fetchAppDetail();
   }
+
   getGroupId = () => {
     const { params } = this.props.match;
     return params.appID;
   };
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
   fetchAppDetail = () => {
-    const { dispatch } = this.props;
-    const { teamName, regionName, appID } = this.props.match.params;
-    this.setState({ loadingDetail: true });
+    const { dispatch, match } = this.props;
+    const { teamName, regionName, appID } = match.params;
     dispatch({
       type: 'groupControl/fetchGroupDetail',
       payload: {
@@ -66,7 +82,6 @@ export default class AppGatewayList extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             appDetail: res.bean,
-            loadingDetail: false,
           });
         }
       },
@@ -81,35 +96,31 @@ export default class AppGatewayList extends PureComponent {
       },
     });
   };
-  renderContent = () => {
-    const { tabKey } = this.state;
-    if (tabKey == 'http') {
-      return <HttpTable open={this.state.open} />;
-    } else if (tabKey == 'tcp') {
-      return <TcpTable />;
-    }
-  };
   handleTabChange = key => {
     this.setState({ tabKey: key, open: false });
   };
 
-  render() {
-    const { currentTeam } = this.props;
+  renderContent = () => {
     const { appID } = this.props.match.params;
-    const { open } = this.state;
-    const renderContent = () => {
-      const { tabKey } = this.state;
-      if (tabKey === 'http') {
-        return (
-          <HttpTable currentTeam={currentTeam} appID={appID} open={open} />
-        );
-      } else if (tabKey === 'tcp') {
-        return <TcpTable currentTeam={currentTeam} appID={appID} open={open} />;
-      }
-    };
-    let breadcrumbList = [];
+    const { open, tabKey, operationPermissions } = this.state;
+    if (tabKey === 'http') {
+      return (
+        <HttpTable
+          operationPermissions={operationPermissions}
+          appID={appID}
+          open={open}
+        />
+      );
+    }
+    return (
+      <TcpTable operationPermissions={operationPermissions} appID={appID} />
+    );
+  };
+
+  render() {
+    const { currentTeam, currentEnterprise, currentRegionName } = this.props;
     const { appDetail } = this.state;
-    const { currentEnterprise, currentRegionName } = this.props;
+    let breadcrumbList = [];
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -137,7 +148,7 @@ export default class AppGatewayList extends PureComponent {
         ]}
         onTabChange={this.handleTabChange}
       >
-        {renderContent()}
+        {this.renderContent()}
       </PageHeaderLayout>
     );
   }

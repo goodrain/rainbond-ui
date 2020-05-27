@@ -1,5 +1,5 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
 import {
   Row,
   Col,
@@ -10,17 +10,18 @@ import {
   Alert,
   Modal,
   Input,
-  notification
-} from "antd";
-import appUtil from "../../utils/app";
-import ConfirmModal from "../../components/ConfirmModal";
-import Port from "../../components/Port";
-import AddDomain from "../../components/AddDomain";
-import SubDomain from "../../components/SubDomain";
-import SubPort from "../../components/SubPort";
-import ScrollerX from "../../components/ScrollerX";
-import AddPort from "../../components/AddPort";
-import globalUtil from "../../utils/global";
+  notification,
+} from 'antd';
+import NoPermTip from '../../components/NoPermTip';
+import Port from '../../components/Port';
+import ConfirmModal from '../../components/ConfirmModal';
+import AddDomain from '../../components/AddDomain';
+import SubDomain from '../../components/SubDomain';
+import SubPort from '../../components/SubPort';
+import ScrollerX from '../../components/ScrollerX';
+import AddPort from '../../components/AddPort';
+import globalUtil from '../../utils/global';
+import appUtil from '../../utils/app';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -33,39 +34,43 @@ class EditAlias extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields(
+    const { onOk, form } = this.props;
+    form.validateFields(
       {
-        force: true
+        force: true,
       },
       (err, values) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(values);
+        if (!err && onOk) {
+          onOk(values);
         }
       }
     );
   };
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
+    }
   };
   render() {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 5
-        }
+          span: 5,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 16
-        }
-      }
+          span: 16,
+        },
+      },
     };
     const port = this.props.port || {};
     return (
@@ -78,14 +83,14 @@ class EditAlias extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="别名">
-            {getFieldDecorator("alias", {
+            {getFieldDecorator('alias', {
               initialValue: port.port_alias,
               rules: [
                 {
                   required: true,
-                  message: "请填写端口别名"
-                }
-              ]
+                  message: '请填写端口别名',
+                },
+              ],
             })(<Input placeholder="请填写端口别名" />)}
           </FormItem>
         </Form>
@@ -94,6 +99,7 @@ class EditAlias extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @Form.create()
 class AddKey extends PureComponent {
   constructor(props) {
@@ -102,39 +108,45 @@ class AddKey extends PureComponent {
   }
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields(
+    const { onOk, form } = this.props;
+
+    form.validateFields(
       {
-        force: true
+        force: true,
       },
       (err, values) => {
-        if (!err) {
-          this.props.onOk && this.props.onOk(values);
+        if (!err && onOk) {
+          onOk(values);
         }
       }
     );
   };
+
   handleCancel = () => {
-    this.props.onCancel && this.props.onCancel();
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel();
+    }
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 5
-        }
+          span: 5,
+        },
       },
       wrapperCol: {
         xs: {
-          span: 24
+          span: 24,
         },
         sm: {
-          span: 16
-        }
-      }
+          span: 16,
+        },
+      },
     };
     return (
       <Modal
@@ -145,34 +157,34 @@ class AddKey extends PureComponent {
       >
         <Form onSubmit={this.handleSubmit}>
           <FormItem {...formItemLayout} label="证书名称">
-            {getFieldDecorator("alias", {
-              initialValue: "",
+            {getFieldDecorator('alias', {
+              initialValue: '',
               rules: [
                 {
                   required: true,
-                  message: "请填写证书名称"
-                }
-              ]
+                  message: '请填写证书名称',
+                },
+              ],
             })(<Input placeholder="请填写证书名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="key">
-            {getFieldDecorator("private_key", {
+            {getFieldDecorator('private_key', {
               rules: [
                 {
                   required: true,
-                  message: "请添加key"
-                }
-              ]
+                  message: '请添加key',
+                },
+              ],
             })(<TextArea placeholder="请添加key" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="证书">
-            {getFieldDecorator("certificate", {
+            {getFieldDecorator('certificate', {
               rules: [
                 {
                   required: true,
-                  message: "请添加证书"
-                }
-              ]
+                  message: '请添加证书',
+                },
+              ],
             })(<TextArea placeholder="请添加证书" />)}
           </FormItem>
         </Form>
@@ -180,12 +192,12 @@ class AddKey extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(
   ({ user, appControl }) => ({
     currUser: user.currentUser,
     ports: appControl.ports,
-    certificates: appControl.certificates
+    certificates: appControl.certificates,
   }),
   null,
   null,
@@ -203,27 +215,68 @@ export default class Index extends PureComponent {
       showEditAlias: null,
       showSubDomain: false,
       showSubPort: false,
-      sld_suffix: "",
+      sld_suffix: '',
       single_port: null,
       tcp_ports: [],
-      single_service_id: "",
-      subPort: "",
+      subPort: '',
       page: 1,
       page_size: 10,
-      isAddLicense: false
+      isAddLicense: false,
     };
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
     this.fetchPorts();
     this.fetchCertificates();
   }
+  onCloseInner = port => {
+    this.props.dispatch({
+      type: 'appControl/closePortInner',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        port,
+      },
+      callback: () => {
+        this.fetchPorts();
+        this.props.appDetail && this.props.appDetail.is_third
+          ? ''
+          : notification.success({ message: '操作成功' });
+        this.props.onshowRestartTips(true);
+      },
+    });
+  };
 
+  onCloseOuter = port => {
+    this.props.dispatch({
+      type: 'appControl/closePortOuter',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appAlias,
+        port,
+      },
+      callback: () => {
+        this.fetchPorts();
+        this.props.appDetail && this.props.appDetail.is_third
+          ? ''
+          : notification.success({ message: '操作成功' });
+        this.props.onshowRestartTips(true);
+      },
+    });
+  };
+  onCancelAddDomain = () => {
+    this.setState({ showAddDomain: null });
+  };
+  onAddDomain = val => {
+    this.setState({ showAddDomain: val });
+  };
+  onCancelAddPort = () => {
+    this.setState({ showAddPort: false });
+  };
   addLicense = () => {
     this.setState(
       {
-        page_size: this.state.page_size + 10
+        page_size: this.state.page_size + 10,
       },
       () => {
         this.fetchCertificates();
@@ -236,46 +289,46 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { page, page_size } = this.state;
     dispatch({
-      type: "appControl/fetchCertificates",
+      type: 'appControl/fetchCertificates',
       payload: {
         page,
         page_size,
-        team_name: globalUtil.getCurrTeamName()
+        team_name: globalUtil.getCurrTeamName(),
       },
       callback: data => {
         if (data && data.list) {
-          let listNum = (data.bean && data.bean.nums) || 0;
-          let isAdd = listNum && listNum > page_size ? true : false;
+          const listNum = (data.bean && data.bean.nums) || 0;
+          const isAdd = !!(listNum && listNum > page_size);
           this.setState({ isAddLicense: isAdd });
         }
-      }
+      },
     });
   }
 
   fetchPorts = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/fetchPorts",
+      type: 'appControl/fetchPorts',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
-      }
+        app_alias: this.props.appAlias,
+      },
     });
   };
   handleSubmitProtocol = (protocol, port, callback) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appControl/changeProtocol",
+      type: 'appControl/changeProtocol',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         port,
-        protocol
+        protocol,
       },
       callback: () => {
         this.fetchPorts();
         callback();
-      }
+      },
     });
   };
   handleDeletePort = port => {
@@ -286,20 +339,20 @@ export default class Index extends PureComponent {
   };
   handleSubmitDeletePort = () => {
     this.props.dispatch({
-      type: "appControl/deletePort",
+      type: 'appControl/deletePort',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port: this.state.showDeletePort
+        port: this.state.showDeletePort,
       },
       callback: () => {
         this.cancalDeletePort();
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
 
@@ -311,21 +364,21 @@ export default class Index extends PureComponent {
   };
   handleSubmitDeleteDomain = () => {
     this.props.dispatch({
-      type: "appControl/unbindDomain",
+      type: 'appControl/unbindDomain',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         port: this.state.showDeleteDomain.port,
-        domain: this.state.showDeleteDomain.domain
+        domain: this.state.showDeleteDomain.domain,
       },
       callback: () => {
         this.cancalDeleteDomain();
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
   showAddPort = () => {
@@ -334,43 +387,42 @@ export default class Index extends PureComponent {
 
   showSubPort = port => {
     this.props.dispatch({
-      type: "appControl/getSubPort",
+      type: 'appControl/getSubPort',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
-        port: port.container_port
+        port: port.container_port,
       },
       callback: data => {
         const portlist = data && data.list;
         if (portlist && portlist.length == 0) {
-          notification.info({ message: "端口不能修改" });
+          notification.info({ message: '端口不能修改' });
         } else {
           this.setState({
             showSubPort: true,
             tcp_ports: portlist,
-            single_service_id: port.service_id,
-            subPort: port.container_port
+            subPort: port.container_port,
           });
         }
-      }
+      },
     });
   };
   handleSubPort = values => {
-    const valList = values.port.split("||");
+    const valList = values.port.split('||');
     this.props.dispatch({
-      type: "appControl/SubPort",
+      type: 'appControl/SubPort',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
         port: this.state.subPort,
         lb_mapping_port: valList[1],
-        service_id: valList[0]
+        service_id: valList[0],
       },
       callback: data => {
         this.setState({ showSubPort: false });
-        notification.success({ message: "端口修改成功" });
+        notification.success({ message: '端口修改成功' });
         this.fetchPorts();
-      }
+      },
     });
   };
   hideSubPort = () => {
@@ -379,16 +431,16 @@ export default class Index extends PureComponent {
   showSubDomain = port => {
     this.setState({ showSubDomain: true, single_port: port.mapping_port });
     this.props.dispatch({
-      type: "appControl/getSubDomain",
+      type: 'appControl/getSubDomain',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias
+        service_alias: this.props.appAlias,
       },
       callback: data => {
         if (data) {
           this.setState({ sld_suffix: data.bean.sld_suffix });
         }
-      }
+      },
     });
   };
   hideSubDomain = () => {
@@ -397,48 +449,41 @@ export default class Index extends PureComponent {
   handleSubDomain = values => {
     const newdomain = `${values.domain}.${this.state.sld_suffix}`;
     this.props.dispatch({
-      type: "appControl/SubDomain",
+      type: 'appControl/SubDomain',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
         domain_name: newdomain,
-        container_port: this.state.single_port
+        container_port: this.state.single_port,
       },
       callback: data => {
         this.setState({ sld_suffix: null, showSubDomain: false });
-        notification.success({ message: "二级域名添加成功" });
+        notification.success({ message: '二级域名添加成功' });
         this.fetchPorts();
-      }
+      },
     });
   };
-  onCancelAddPort = () => {
-    this.setState({ showAddPort: false });
-  };
+
   handleAddPort = val => {
     this.props.dispatch({
-      type: "appControl/addPort",
+      type: 'appControl/addPort',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         protocol: val.protocol,
-        port: val.port
+        port: val.port,
       },
       callback: () => {
         this.onCancelAddPort();
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
-  onAddDomain = val => {
-    this.setState({ showAddDomain: val });
-  };
-  onCancelAddDomain = () => {
-    this.setState({ showAddDomain: null });
-  };
+
   // 创建证书
   handleCreateKey = () => {
     this.setState({ showAddDomain: null, showAddKey: true });
@@ -448,100 +493,68 @@ export default class Index extends PureComponent {
   };
   handleSubmitKey = vals => {
     this.props.dispatch({
-      type: "appControl/addCertificate",
+      type: 'appControl/addCertificate',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         alias: vals.alias,
         private_key: vals.private_key,
-        certificate: vals.certificate
+        certificate: vals.certificate,
       },
       callback: () => {
         this.cancelCreateKey();
         this.fetchCertificates();
-      }
+      },
     });
   };
   handleOpenOuter = port => {
     this.props.dispatch({
-      type: "appControl/openPortOuter",
+      type: 'appControl/openPortOuter',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port
+        port,
       },
       callback: () => {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
-    });
-  };
-  onCloseOuter = port => {
-    this.props.dispatch({
-      type: "appControl/closePortOuter",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        port
       },
-      callback: () => {
-        this.fetchPorts();
-        this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
-        this.props.onshowRestartTips(true);
-      }
     });
   };
+
   handleOpenInner = port => {
     this.props.dispatch({
-      type: "appControl/openPortInner",
+      type: 'appControl/openPortInner',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        port
+        port,
       },
       callback: () => {
         this.fetchPorts();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
-    });
-  };
-  onCloseInner = port => {
-    this.props.dispatch({
-      type: "appControl/closePortInner",
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
-        port
       },
-      callback: () => {
-        this.fetchPorts();
-        this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
-        this.props.onshowRestartTips(true);
-      }
     });
   };
+
   handleAddDomain = values => {
-    if (values.protocol == "httptohttps") {
+    if (values.protocol == 'httptohttps') {
       values.rule_extensions = [
         {
           key: values.protocol,
-          value: "true"
-        }
+          value: 'true',
+        },
       ];
     }
     const { appDetail } = this.props;
     const { showAddDomain } = this.state;
     this.props.dispatch({
-      type: "appControl/bindDomain",
+      type: 'appControl/bindDomain',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
@@ -550,12 +563,12 @@ export default class Index extends PureComponent {
         protocol: values.protocol,
         certificate_id: values.certificate_id,
         group_id: appDetail.service.group_id,
-        rule_extensions: values.rule_extensions ? values.rule_extensions : []
+        rule_extensions: values.rule_extensions ? values.rule_extensions : [],
       },
       callback: () => {
         this.fetchPorts();
         this.onCancelAddDomain();
-      }
+      },
     });
   };
   showEditAlias = port => {
@@ -566,28 +579,37 @@ export default class Index extends PureComponent {
   };
   handleEditAlias = vals => {
     this.props.dispatch({
-      type: "appControl/editPortAlias",
+      type: 'appControl/editPortAlias',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         port: this.state.showEditAlias.container_port,
-        port_alias: vals.alias
+        port_alias: vals.alias,
       },
       callback: () => {
         this.fetchPorts();
         this.hideEditAlias();
         this.props.appDetail && this.props.appDetail.is_third
-          ? ""
-          : notification.success({ message: "操作成功" });
+          ? ''
+          : notification.success({ message: '操作成功' });
         this.props.onshowRestartTips(true);
-      }
+      },
     });
   };
+  // 是否可以浏览当前界面
+  canView() {
+    const {
+      componentPermissions: { isPort },
+    } = this.props;
+    return isPort;
+  }
   render() {
     const { ports, certificates, appDetail } = this.props;
     const { isAddLicense } = this.state;
     const isImageApp = appUtil.isImageApp(appDetail);
     const isDockerfile = appUtil.isDockerfile(appDetail);
+    if (!this.canView()) return <NoPermTip />;
+
     return (
       <Fragment>
         <Row>
@@ -597,14 +619,14 @@ export default class Index extends PureComponent {
               message="端口配置信息发生变化后需要重启组件才能生效"
               type="info"
               style={{
-                marginBottom: 24
+                marginBottom: 24,
               }}
             />
           </Col>
           <Col
             span={12}
             style={{
-              textAlign: "right"
+              textAlign: 'right',
             }}
           >
             <Button onClick={this.showAddPort} type="primary">
@@ -613,7 +635,6 @@ export default class Index extends PureComponent {
             </Button>
           </Col>
         </Row>
-
         {!ports.length ? (
           <Card>
             <p
@@ -621,7 +642,7 @@ export default class Index extends PureComponent {
                 marginTop: 100,
                 marginBottom: 100,
                 fontSize: 20,
-                textAlign: "center"
+                textAlign: 'center',
               }}
             >
               如需要提供访问服务，请
