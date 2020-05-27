@@ -1,3 +1,5 @@
+import globalUtil from '../utils/global';
+
 const actionMaps = {
   admin: '管理员',
   developer: '开发者',
@@ -25,6 +27,18 @@ export default {
   // 是否可以删除,
   canDel(role) {
     return !role.is_default;
+  },
+  canCreateComponent(currentTeamPermissionsInfo, dispatch) {
+    const componentPermissions = this.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      'queryComponentInfo'
+    );
+    const App = this.queryAppInfo(currentTeamPermissionsInfo, 'create');
+    const { isCreate, isConstruct } = componentPermissions;
+    if (App && isCreate && isConstruct) {
+      return true;
+    }
+    return globalUtil.withoutPermission(dispatch);
   },
   actionMap(name) {
     return actionMaps[name] || name;

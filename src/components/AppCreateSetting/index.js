@@ -14,9 +14,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import globalUtil from '../../utils/global';
 import CodeBuildConfig from '../CodeBuildConfig';
-import styles from './setting.less';
 import Port from '../../components/Port';
 import {
   getMnt,
@@ -25,6 +23,7 @@ import {
   removeRelationedApp,
   batchAddRelationedApp,
 } from '../../services/app';
+import NoPermTip from '../../components/NoPermTip';
 import EditPortAlias from '../../components/EditPortAlias';
 import ConfirmModal from '../../components/ConfirmModal';
 import AddPort from '../../components/AddPort';
@@ -35,7 +34,10 @@ import ViewRelationInfo from '../../components/ViewRelationInfo';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 
 import appUtil from '../../utils/app';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import styles from './setting.less';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -86,15 +88,21 @@ class BaseInfo extends PureComponent {
       ],
     };
   }
-  handleSubmit = e => {
-    const form = this.props.form;
+  handleSubmit = () => {
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (!err && onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { appDetail, form } = this.props;
+    const { getFieldDecorator } = form;
+    const extend_method = appDetail.service.extend_method;
+    const minMemory = appDetail.service.min_memory;
+    const list = this.state.memoryList;
+
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -118,9 +126,7 @@ class BaseInfo extends PureComponent {
         },
       },
     };
-    const extend_method = this.props.appDetail.service.extend_method;
-    const minMemory = this.props.appDetail.service.min_memory;
-    const list = this.state.memoryList;
+
     return (
       <Card
         title="基本信息"
@@ -185,7 +191,7 @@ class BaseInfo extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class RenderDeploy extends PureComponent {
   constructor(arg) {
@@ -197,6 +203,21 @@ class RenderDeploy extends PureComponent {
   componentDidMount() {
     this.getRuntimeInfo();
   }
+
+  getRuntimeInfo = () => {
+    this.props.dispatch({
+      type: 'appControl/getRuntimeBuildInfo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+      },
+      callback: data => {
+        if (data) {
+          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
+        }
+      },
+    });
+  };
   handleEditRuntime = (build_env_dict = {}) => {
     this.props.dispatch({
       type: 'appControl/editRuntimeBuildInfo',
@@ -229,35 +250,28 @@ class RenderDeploy extends PureComponent {
       },
     });
   };
-  getRuntimeInfo = () => {
-    this.props.dispatch({
-      type: 'appControl/getRuntimeBuildInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-      },
-      callback: data => {
-        if (data) {
-          this.setState({ runtimeInfo: data.bean ? data.bean : {} });
-        }
-      },
-    });
-  };
   render() {
-    const language = appUtil.getLanguage(this.props.appDetail);
-    const runtimeInfo = this.state.runtimeInfo;
-    const visible = this.props.visible;
-    if (!this.state.runtimeInfo) return null;
-    const appDetail = this.props.appDetail;
+    const {
+      visible,
+      appDetail,
+      componentPermissions: { isDeploytype, isSource },
+    } = this.props;
+    const { runtimeInfo } = this.state;
+    if (!runtimeInfo) return null;
+    const language = appUtil.getLanguage(appDetail);
+
     return (
       <div
         style={{
           display: visible ? 'block' : 'none',
         }}
       >
-        <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} />
+        {!isDeploytype && !isSource && <NoPermTip />}
+        {isDeploytype && (
+          <BaseInfo appDetail={appDetail} onSubmit={this.handleEditInfo} />
+        )}
 
-        {language && runtimeInfo && (
+        {language && runtimeInfo && isSource && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             onSubmit={this.handleEditRuntime}
@@ -269,8 +283,8 @@ class RenderDeploy extends PureComponent {
     );
   }
 }
-
 // 存储管理
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class Mnt extends PureComponent {
   constructor(arg) {
@@ -676,7 +690,7 @@ class Mnt extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class Relation extends PureComponent {
   constructor(arg) {
@@ -823,8 +837,8 @@ class Relation extends PureComponent {
     );
   }
 }
-
 // 端口
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class Ports extends PureComponent {
   constructor(props) {
@@ -1076,37 +1090,44 @@ class Ports extends PureComponent {
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 class RenderProperty extends PureComponent {
   render() {
-    const visible = this.props.visible;
-    const { appDetail } = this.props;
+    const {
+      appDetail,
+      visible,
+      componentPermissions: { isEnv, isRely, isStorage, isPort },
+    } = this.props;
     return (
       <div
         style={{
           display: visible ? 'block' : 'none',
         }}
       >
-        <Ports appDetail={appDetail} />
-        <EnvironmentVariable
-          title="环境变量"
-          type="Inner"
-          appAlias={appDetail.service.service_alias}
-        />
-        <Mnt appDetail={appDetail} />
-        <Relation appDetail={appDetail} />
+        {!isPort && !isEnv && !isStorage && !isRely && <NoPermTip />}
+
+        {isPort && <Ports appDetail={appDetail} />}
+        {isEnv && (
+          <EnvironmentVariable
+            title="环境变量"
+            type="Inner"
+            appAlias={appDetail.service.service_alias}
+          />
+        )}
+        {isStorage && <Mnt appDetail={appDetail} />}
+        {isRely && <Relation appDetail={appDetail} />}
       </div>
     );
   }
 }
-
+// eslint-disable-next-line react/no-multi-comp
 @connect(null, null, null, { withRef: true })
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      // property、deploy
+      componentPermissions: this.handlePermissions('queryComponentInfo'),
       type: 'property',
     };
   }
@@ -1118,9 +1139,16 @@ export default class Index extends PureComponent {
       this.setState({ type });
     }
   };
+  handlePermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
+    );
+  };
   render() {
     const { appDetail } = this.props;
-    const type = this.state.type;
+    const { type, componentPermissions } = this.state;
 
     return (
       <div>
@@ -1169,11 +1197,13 @@ export default class Index extends PureComponent {
               updateDetail={this.props.updateDetail}
               appDetail={appDetail}
               visible={type === 'deploy'}
+              componentPermissions={componentPermissions}
             />
             <RenderProperty
               key={appDetail.service.extend_method}
               appDetail={appDetail}
               visible={type !== 'deploy'}
+              componentPermissions={componentPermissions}
             />
           </div>
         </div>

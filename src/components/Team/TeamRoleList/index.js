@@ -38,10 +38,10 @@ export default class RoleList extends PureComponent {
     this.setState({ showAddRole: true });
   };
   hideAddRole = ID => {
+    this.setState({ showAddRole: false });
     if (ID && typeof ID === 'number') {
       return this.loadTeamRoles(ID);
     }
-    this.setState({ showAddRole: false });
   };
 
   handleDelRole = () => {

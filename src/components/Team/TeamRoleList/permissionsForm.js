@@ -139,7 +139,6 @@ export default class RoleList extends PureComponent {
         arr
       );
     }
-
     if (checkedKeys) {
       if (isEditor) {
         this.setState(
@@ -212,7 +211,7 @@ export default class RoleList extends PureComponent {
   };
 
   handleEditRole = values => {
-    const { dispatch, rolesID, onCancelAddRole } = this.props;
+    const { dispatch, rolesID } = this.props;
     dispatch({
       type: 'teamControl/editRole',
       payload: {
@@ -222,7 +221,6 @@ export default class RoleList extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          onCancelAddRole(res.bean.ID);
           return this.loadTeamRolesPermissions(res.bean.ID, true);
         }
         this.handleCloseLoading();
@@ -242,10 +240,10 @@ export default class RoleList extends PureComponent {
         },
         callback: res => {
           if (res && res._code === 200) {
+            onCancelAddRole(parseInt(res.bean.role_id));
             notification.success({
               message: isAddRole ? '创建成功' : '编辑成功',
             });
-            onCancelAddRole(res.bean.role_id);
           }
           this.handleCloseLoading();
         },
@@ -262,7 +260,7 @@ export default class RoleList extends PureComponent {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         const { isAddRole } = this.props;
-        const { rolePermissionItem } = this.state;
+        // const { rolePermissionItem } = this.state;
         this.setState({ loading: true }, () => {
           // if (rolePermissionItem) {
           //   this.handlePermissions(rolePermissionItem, true);
@@ -349,14 +347,7 @@ export default class RoleList extends PureComponent {
             <FormItem {...formItemLayout} label="角色名称">
               {getFieldDecorator('name', {
                 rules: [{ required: true, message: '请输入角色名称!' }],
-              })(
-                <Input
-                  placeholder="请输入角色名称"
-                  onChange={e => {
-                    console.log('e', e);
-                  }}
-                />
-              )}
+              })(<Input placeholder="请输入角色名称" />)}
             </FormItem>
             {permissions && (
               <FormItem {...formItemLayout} label="权限分配">

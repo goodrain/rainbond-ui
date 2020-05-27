@@ -23,7 +23,6 @@ import globalUtil from '../../utils/global';
 import pluginUtil from '../../utils/plugin';
 import appPluginUtil from '../../utils/appPlugin';
 import NoPermTip from '../../components/NoPermTip';
-import appUtil from '../../utils/app';
 
 const { Option } = Select;
 

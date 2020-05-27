@@ -478,6 +478,7 @@ class Main extends PureComponent {
       componentPermissions: {
         isAccess: isComponentDescribe,
         isCreate: isComponentCreate,
+        isConstruct: isComponentConstruct,
       },
     } = this.props;
     const {
@@ -578,7 +579,7 @@ class Main extends PureComponent {
             更新
           </Button>
         )}
-        {isConstruct && (
+        {isConstruct && isComponentConstruct && (
           <Button
             style={MR}
             disabled={BtnDisabled}
@@ -669,7 +670,7 @@ class Main extends PureComponent {
           </Col>
 
           <Col span={4} style={{ textAlign: 'right' }}>
-            {isComponentCreate && (
+            {isComponentCreate && isComponentConstruct && (
               <AddThirdParty
                 groupId={this.getGroupId()}
                 refreshCurrent={() => {
@@ -686,7 +687,7 @@ class Main extends PureComponent {
             )}
           </Col>
           <Col span={4} style={{ textAlign: 'center' }}>
-            {isComponentCreate && (
+            {isComponentCreate && isComponentConstruct && (
               <AddServiceComponent
                 groupId={this.getGroupId()}
                 refreshCurrent={() => {
@@ -740,7 +741,7 @@ class Main extends PureComponent {
           </Row>
         )}
 
-        {this.state.type === 'list' && isComponentCreate && (
+        {this.state.type === 'list' && (
           <ComponentList
             componentPermissions={componentPermissions}
             groupId={this.getGroupId()}

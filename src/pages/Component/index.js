@@ -711,22 +711,24 @@ class Main extends PureComponent {
           <div style={{ marginLeft: '14px' }}>
             <div className={styles.contentTitle}>
               {name || '-'}
-              <Icon
-                style={{
-                  cursor: 'pointer',
-                }}
-                onClick={this.showEditName}
-                type="edit"
-              />
+              {isEdit && (
+                <Icon
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                  onClick={this.showEditName}
+                  type="edit"
+                />
+              )}
             </div>
 
             <div className={styles.content_Box}>
-              {!appDetail.is_third && (
+              {!appDetail.is_third && isRestart && (
                 <a
                   onClick={() => {
-                    isRestart &&
-                      appStatusUtil.canRestart(status) &&
+                    if (appStatusUtil.canRestart(status)) {
                       this.handleDropClick('restart');
+                    }
                   }}
                   style={{
                     cursor: !appStatusUtil.canRestart(status)
@@ -737,7 +739,7 @@ class Main extends PureComponent {
                   重启
                 </a>
               )}
-              {!appDetail.is_third && <Divider type="vertical" />}
+              {!appDetail.is_third && isRestart && <Divider type="vertical" />}
 
               {isStop &&
               !appStatusUtil.canStart(status) &&
@@ -785,7 +787,7 @@ class Main extends PureComponent {
                   修改所属应用
                 </a>
               )}
-              <Divider type="vertical" />
+              {isEdit && <Divider type="vertical" />}
               {isDelete && (
                 <a
                   onClick={() => {
