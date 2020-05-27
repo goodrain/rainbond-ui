@@ -62,7 +62,7 @@ export default class RoleList extends PureComponent {
     this.setState({ checkedKeys });
   };
 
-  onSelect = (selectedKeys, info) => {
+  onSelect = selectedKeys => {
     this.setState({ selectedKeys });
   };
   handleResetRoleForm = () => {
@@ -114,7 +114,7 @@ export default class RoleList extends PureComponent {
   };
 
   handlePermissions = (rolePermissions, isEditor) => {
-    const { permissions, isAddRole } = this.props;
+    const { permissions } = this.props;
     const { checkedKeys } = this.state;
     const arr = [];
     const rolePermissionItem = rolePermissions;

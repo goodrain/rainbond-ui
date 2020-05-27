@@ -593,7 +593,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'action',
         key: 'action',
         align: 'center',
-        width: '100px',
+        width: '120px',
         render: (data, record) => {
           return record.is_outer_service == 1 ? (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>

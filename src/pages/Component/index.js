@@ -699,6 +699,7 @@ class Main extends PureComponent {
       appDetail,
       groups,
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
+      appPermissions: { isEdit: isAppEdit },
     } = this.props;
     const { status, isShowThirdParty } = this.state;
 
@@ -775,7 +776,7 @@ class Main extends PureComponent {
                 </span>
               ) : null}
 
-              {isEdit && (
+              {isAppEdit && (
                 <a
                   onClick={() => {
                     this.handleDropClick('moveGroup');
@@ -943,7 +944,6 @@ class Main extends PureComponent {
       componentPermissions: {
         isAccess,
         isStart,
-        isStop,
         isVisitWebTerminal,
         isConstruct,
         isUpdate,
@@ -958,6 +958,7 @@ class Main extends PureComponent {
         isCharacteristic,
         isHealth,
       },
+      appPermissions,
       componentPermissions,
       groups = [],
       form,
@@ -1319,6 +1320,7 @@ class Main extends PureComponent {
 
         {Com ? (
           <Com
+            appPermissions={appPermissions}
             componentPermissions={componentPermissions}
             timers={componentTimer}
             status={this.state.status}
@@ -1387,6 +1389,7 @@ export default class Index extends PureComponent {
     this.state = {
       show: true,
       componentPermissions: this.handlePermissions('queryComponentInfo'),
+      appPermissions: this.handlePermissions('queryAppInfo'),
     };
   }
   componentWillMount() {

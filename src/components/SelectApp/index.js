@@ -1,24 +1,25 @@
-import { Dropdown, Icon, Input, notification } from "antd";
-import { connect } from "dva";
-import { Link } from "dva/router";
-import React, { PureComponent } from "react";
-import { formatMessage, FormattedMessage } from "umi-plugin-locale";
-import EditGroupName from "../AddOrEditGroup";
-import style from "../SelectTeam/index.less";
+import { Dropdown, Icon, Input, notification } from 'antd';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import React, { PureComponent } from 'react';
+import { formatMessage, FormattedMessage } from 'umi-plugin-locale';
+import EditGroupName from '../AddOrEditGroup';
+import style from '../SelectTeam/index.less';
+import roleUtil from '../../utils/role';
 
-@connect(({ user }) => ({
-  currentUser: user.currentUser
+@connect(({ user, teamControl }) => ({
+  currentUser: user.currentUser,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
 }))
 export default class SelectApp extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       teamApps: [],
-      showOpenRegion: false,
       loading: true,
       currentApp: {},
-      queryName: "",
-      visible: false
+      queryName: '',
+      visible: false,
     };
   }
   componentDidMount() {
@@ -33,10 +34,10 @@ export default class SelectApp extends PureComponent {
     const { currentTeam, currentAppID } = this.props;
     const { queryName } = this.state;
     this.props.dispatch({
-      type: "global/fetchGroups",
+      type: 'global/fetchGroups',
       payload: {
         team_name: currentTeam.team_name,
-        query: queryName
+        query: queryName,
       },
       callback: re => {
         this.setState({ teamApps: re, loading: false });
@@ -45,7 +46,7 @@ export default class SelectApp extends PureComponent {
             this.setState({ teamApps: re, loading: false, currentApp: item });
           }
         });
-      }
+      },
     });
   };
   showCreateApp = () => {
@@ -55,17 +56,17 @@ export default class SelectApp extends PureComponent {
   handleCreateApp = vals => {
     const { dispatch, currentTeam } = this.props;
     dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,
-        group_note: vals.group_note
+        group_note: vals.group_note,
       },
       callback: () => {
-        notification.success({ message: formatMessage({ id: "add.success" }) });
+        notification.success({ message: formatMessage({ id: 'add.success' }) });
         this.cancelCreateApp();
         this.loadTeamApps();
-      }
+      },
     });
   };
   cancelCreateApp = () => {
@@ -84,11 +85,11 @@ export default class SelectApp extends PureComponent {
     const {
       className,
       currentTeam,
-      currentEnterprise,
       currentRegion,
       currentAppID,
       currentComponent,
-      active
+      active,
+      currentTeamPermissionsInfo,
     } = this.props;
     const currentTeamAppsPageLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps`;
     const {
@@ -96,8 +97,9 @@ export default class SelectApp extends PureComponent {
       loading,
       showCreateApp,
       currentApp,
-      visible
+      visible,
     } = this.state;
+    const isCreateApp = roleUtil.canCreateApp(currentTeamPermissionsInfo);
     const currentAPPLink = `/team/${currentTeam.team_name}/region/${currentRegion.team_region_name}/apps/${currentAppID}`;
     const dropdown = (
       <div className={style.dropBox}>
@@ -112,7 +114,7 @@ export default class SelectApp extends PureComponent {
               <Input.Search
                 onSearch={this.queryApps}
                 className={style.dropBoxSearchInputContrl}
-                placeholder={formatMessage({ id: "header.app.search" })}
+                placeholder={formatMessage({ id: 'header.app.search' })}
               />
             </div>
           </div>
@@ -125,21 +127,21 @@ export default class SelectApp extends PureComponent {
                 return (
                   <li key={item.group_id}>
                     <Link to={link} title={item.group_name}>
-                      <span>
-                        {item.group_name}
-                      </span>
+                      <span>{item.group_name}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
-            <div
-              className={style.dropBoxListCreate}
-              onClick={this.showCreateApp}
-            >
-              <Icon type="plus" />
-              <FormattedMessage id="header.app.create" />
-            </div>
+            {isCreateApp && (
+              <div
+                className={style.dropBoxListCreate}
+                onClick={this.showCreateApp}
+              >
+                <Icon type="plus" />
+                <FormattedMessage id="header.app.create" />
+              </div>
+            )}
           </div>
           <Link className={style.dropBoxAll} to={currentTeamAppsPageLink}>
             <span>
@@ -150,9 +152,9 @@ export default class SelectApp extends PureComponent {
         </div>
       </div>
     );
-    let showstyle = {}
+    let showstyle = {};
     if (!currentComponent) {
-      showstyle = {background: "#1890ff", color: "#ffffff"}
+      showstyle = { background: '#1890ff', color: '#ffffff' };
     }
     return (
       <div
@@ -162,26 +164,29 @@ export default class SelectApp extends PureComponent {
       >
         <Dropdown overlay={dropdown} visible={showCreateApp ? false : visible}>
           <div>
-            {active && <div className={style.selectButton}>
-              <div className={style.selectButtonName} style={showstyle}>
-                <span>
-                  {currentApp.group_name}
-                </span>
-                <Icon className={style.selectButtonArray} type="caret-down" />
+            {active && (
+              <div className={style.selectButton}>
+                <div className={style.selectButtonName} style={showstyle}>
+                  <span>{currentApp.group_name}</span>
+                  <Icon className={style.selectButtonArray} type="caret-down" />
+                </div>
               </div>
-            </div>}
-            {!active &&<Link className={style.selectButtonLink} to={currentAPPLink}>
-              {currentApp.group_name}
-            </Link>}
+            )}
+            {!active && (
+              <Link className={style.selectButtonLink} to={currentAPPLink}>
+                {currentApp.group_name}
+              </Link>
+            )}
           </div>
         </Dropdown>
-       
-        {showCreateApp &&
+
+        {showCreateApp && (
           <EditGroupName
-            title={formatMessage({ id: "header.app.create" })}
+            title={formatMessage({ id: 'header.app.create' })}
             onCancel={this.cancelCreateApp}
             onOk={this.handleCreateApp}
-          />}
+          />
+        )}
       </div>
     );
   }

@@ -40,6 +40,9 @@ export default {
     }
     return globalUtil.withoutPermission(dispatch);
   },
+  canCreateApp(currentTeamPermissionsInfo) {
+    return this.queryAppInfo(currentTeamPermissionsInfo, 'create');
+  },
   actionMap(name) {
     return actionMaps[name] || name;
   },
