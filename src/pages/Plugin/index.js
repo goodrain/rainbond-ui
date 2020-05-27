@@ -392,7 +392,6 @@ class PluginList extends PureComponent {
       operationPermissions,
     } = this.props;
     const { list } = this.state;
-    console.log('list', list);
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>

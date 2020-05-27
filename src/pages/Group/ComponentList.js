@@ -17,7 +17,6 @@ import {
   stop,
 } from '../../services/app';
 import appUtil from '../../utils/app';
-import appStatusUtil from '../../utils/appStatus-util';
 import globalUtil from '../../utils/global';
 @connect(
   ({ global }) => ({
@@ -85,7 +84,6 @@ export default class ComponentList extends Component {
   loadComponents = () => {
     const { dispatch, groupId: group_id } = this.props;
     const { current, pageSize: page_size } = this.state;
-
     dispatch({
       type: 'groupControl/fetchApps',
       payload: {
@@ -261,27 +259,18 @@ export default class ComponentList extends Component {
   canBatchRestart = () => {
     const selectedRowKeys = this.getSelected();
     const hasSelected = selectedRowKeys.length > 0;
-    const canotRestart = selectedRowKeys.filter(
-      item => !appStatusUtil.canRestart(item)
-    );
     return hasSelected;
   };
   // 是否可以批量启动
   canBatchStart = () => {
     const selectedRowKeys = this.getSelected();
     const hasSelected = selectedRowKeys.length > 0;
-    const canotStart = selectedRowKeys.filter(
-      item => !appStatusUtil.canStart(item)
-    );
     return hasSelected;
   };
   // 是否可以批量关闭
   canBatchStop = () => {
     const selectedRowKeys = this.getSelected();
     const hasSelected = selectedRowKeys.length > 0;
-    const canotStop = selectedRowKeys.filter(
-      item => !appStatusUtil.canStop(item)
-    );
     return hasSelected;
   };
   canBatchMove = () => {
@@ -296,11 +285,10 @@ export default class ComponentList extends Component {
   };
 
   render() {
-    const { selectedRowKeys, current, total, apps, pageSize } = this.state;
-
     const {
       componentPermissions: { isStart, isRestart, isStop, isDelete, isEdit },
     } = this.props;
+    const { selectedRowKeys, current, total, apps, pageSize } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -513,8 +501,6 @@ export default class ComponentList extends Component {
           }}
           bordered={false}
           bodyStyle={{ padding: '10px 10px' }}
-          // headStyle={{ borderBottom: "0px" ,float:"right"}}
-          // title={}
         >
           <ScrollerX sm={750}>
             <Table
@@ -525,7 +511,7 @@ export default class ComponentList extends Component {
               footer={() => footer}
               style={{ position: 'relative' }}
             />
-          </ScrollerX>{' '}
+          </ScrollerX>
           {this.state.batchDeleteShow && (
             <BatchDelete
               batchDeleteApps={this.state.batchDeleteApps}

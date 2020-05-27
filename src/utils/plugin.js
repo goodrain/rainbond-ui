@@ -62,10 +62,4 @@ export default {
   canEditInfoAndConfig(bean) {
     return bean.plugin_version_status !== 'fixed';
   },
-  // 是否可以构建
-  canBuild(bean) {
-    return (
-      bean.plugin_version_status !== 'fixed' && bean.build_status !== 'building'
-    );
-  },
 };

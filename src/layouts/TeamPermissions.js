@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
+import router from 'umi/router';
+import { notification } from 'antd';
 import PageLoading from '../components/PageLoading';
 import Exception from '../pages/Exception/403';
 import roleUtil from '../utils/role';
@@ -43,6 +45,12 @@ class TeamPermissions extends React.PureComponent {
   handleResults = (teams, teamName) => {
     const { dispatch } = this.props;
     const teamPermissions = userUtil.getTeamByTeamPermissions(teams, teamName);
+    if (teamPermissions && teamPermissions.length === 0) {
+      notification.warning({
+        message: '请先加入团队',
+      });
+      return router.push('/');
+    }
     dispatch({
       type: 'teamControl/fetchCurrentTeamPermissions',
       payload: teamPermissions,

@@ -250,12 +250,8 @@ export default class CreateCheck extends PureComponent {
               />
               <span
                 dangerouslySetInnerHTML={{
-                  __html:
-                    `<span>${ 
-                    item.error_info || '' 
-                    } ${ 
-                    item.solve_advice || '' 
-                    }</span>`,
+                  __html: `<span>${item.error_info || ''} ${item.solve_advice ||
+                    ''}</span>`,
                 }}
               />
             </div>
@@ -345,42 +341,41 @@ export default class CreateCheck extends PureComponent {
             {item.value}
           </div>
         );
-      } 
-        return (
-          <div
+      }
+      return (
+        <div
+          style={{
+            paddingLeft: 32,
+          }}
+        >
+          <span
             style={{
-              paddingLeft: 32,
+              verticalAlign: 'top',
+              display: 'inline-block',
+              fontWeight: 'bold',
             }}
           >
-            <span
-              style={{
-                verticalAlign: 'top',
-                display: 'inline-block',
-                fontWeight: 'bold',
-              }}
-            >
-              {item.key}：
-            </span>
-            <div
-              style={{
-                display: 'inline-block',
-              }}
-            >
-              {(item.value || []).map(item => {
-                return (
-                  <p
-                    style={{
-                      marginBottom: 0,
-                    }}
-                  >
-                    {item}
-                  </p>
-                );
-              })}
-            </div>
+            {item.key}：
+          </span>
+          <div
+            style={{
+              display: 'inline-block',
+            }}
+          >
+            {(item.value || []).map(item => {
+              return (
+                <p
+                  style={{
+                    marginBottom: 0,
+                  }}
+                >
+                  {item}
+                </p>
+              );
+            })}
           </div>
-        );
-      
+        </div>
+      );
     }
   };
   renderSuccess = () => {

@@ -28,6 +28,7 @@ function menuData(teamName, regionName, permissionsInfo) {
     const appView = results('app', 'describe');
     const appCreateView = results('app', 'create');
     const componentCreateView = results('component', 'create');
+    const componentConstructView = results('component', 'construct');
     const control = results('gatewayRule', 'describe');
     const certificate = results('certificate', 'describe');
     const pluginView = results('plugin', 'describe');
@@ -48,7 +49,7 @@ function menuData(teamName, regionName, permissionsInfo) {
         authority: ['admin', 'user'],
       });
     }
-    if (appCreateView && componentCreateView) {
+    if (appCreateView && componentCreateView && componentConstructView) {
       addMenuArr({
         name: formatMessage({ id: 'menu.team.create' }),
         icon: 'plus',
