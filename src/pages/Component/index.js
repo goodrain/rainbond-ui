@@ -64,6 +64,7 @@ import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
+import styless from '../../components/CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -97,6 +98,7 @@ class MoveGroup extends PureComponent {
       <Modal
         title="修改应用所属组"
         visible
+        className={styless.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={this.onCancel}
       >
@@ -156,6 +158,7 @@ class EditName extends PureComponent {
       <Modal
         title={title || '修改组件名称'}
         visible
+        className={styless.TelescopicModal}
         onOk={this.handleSubmit}
         onCancel={this.onCancel}
       >
@@ -185,7 +188,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     pods: appControl.pods,
@@ -194,6 +197,7 @@ class EditName extends PureComponent {
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
+    deleteAppLoading: loading.effects['appControl/deleteApp'],
   }),
   null,
   null,
@@ -221,7 +225,6 @@ class Main extends PureComponent {
       showMarketAppDetail: null,
       showApp: {},
       BuildState: null,
-      deployCanClick: false,
       rollingCanClick: false,
       isShowThirdParty: false,
       promptModal: null,
@@ -231,16 +234,6 @@ class Main extends PureComponent {
     this.socket = null;
   }
 
-  getChildContext() {
-    return {
-      isActionIng: res => {
-        // this.setState({actionIng: res})
-      },
-      appRolback: data => {
-        this.handleRollback(data);
-      },
-    };
-  }
   componentDidMount() {
     this.loadDetail();
     setTimeout(() => {
@@ -257,6 +250,93 @@ class Main extends PureComponent {
     }
   }
 
+  onDeleteApp = () => {
+    this.setState({ showDeleteApp: true });
+  };
+  getAppAlias() {
+    return this.props.match.params.appAlias;
+  }
+  getWebSocketUrl(service_id) {
+    const currTeam = userUtil.getTeamByTeamName(
+      this.props.currUser,
+      globalUtil.getCurrTeamName()
+    );
+    const currRegionName = globalUtil.getCurrRegionName();
+    if (currTeam) {
+      const region = teamUtil.getRegionByName(currTeam, currRegionName);
+      if (region) {
+        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
+        this.setState({ websocketURL }, () => {
+          this.createSocket();
+        });
+      }
+    }
+  }
+  getStatus = isCycle => {
+    getStatus({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.getAppAlias(),
+    })
+      .then(res => {
+        if (res && res._code === 200) {
+          this.setState({ status: res.bean }, () => {
+            if (isCycle) {
+              this.handleTimers(
+                'timer',
+                () => {
+                  this.getStatus(true);
+                },
+                5000
+              );
+            }
+          });
+        }
+      })
+      .catch(err => {
+        this.handleError(err);
+        this.handleTimers(
+          'timer',
+          () => {
+            this.getStatus(true);
+          },
+          10000
+        );
+      });
+  };
+
+  getChildCom = () => {
+    if (this.ref) {
+      return this.ref.getWrappedInstance({});
+    }
+    return null;
+  };
+  handleError = err => {
+    if (err && err.data && err.data.msg_show) {
+      notification.error({
+        message: `请求错误`,
+        description: err.data.msg_show,
+      });
+    }
+  };
+  handleTimers = (timerName, callback, times) => {
+    const { componentTimer } = this.state;
+    if (!componentTimer) {
+      return null;
+    }
+    this[timerName] = setTimeout(() => {
+      callback();
+    }, times);
+  };
+
+  handleTabChange = key => {
+    const { dispatch, match } = this.props;
+    const { appAlias } = match.params;
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/${key}`
+      )
+    );
+  };
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
@@ -349,94 +429,13 @@ class Main extends PureComponent {
       },
     });
   };
-  getWebSocketUrl(service_id) {
-    const currTeam = userUtil.getTeamByTeamName(
-      this.props.currUser,
-      globalUtil.getCurrTeamName()
-    );
-    const currRegionName = globalUtil.getCurrRegionName();
-    if (currTeam) {
-      const region = teamUtil.getRegionByName(currTeam, currRegionName);
-      if (region) {
-        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
-        this.setState({ websocketURL }, () => {
-          this.createSocket();
-        });
-      }
-    }
-  }
-  getStatus = isCycle => {
-    getStatus({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias(),
-    })
-      .then(res => {
-        if (res && res._code === 200) {
-          this.setState({ status: res.bean }, () => {
-            if (isCycle) {
-              this.handleTimers(
-                'timer',
-                () => {
-                  this.getStatus(true);
-                },
-                5000
-              );
-            }
-          });
-        }
-      })
-      .catch(err => {
-        this.handleError(err);
-        this.handleTimers(
-          'timer',
-          () => {
-            this.getStatus(true);
-          },
-          10000
-        );
-      });
-  };
-
-  handleError = err => {
-    if (err && err.data && err.data.msg_show) {
-      notification.error({
-        message: `请求错误`,
-        description: err.data.msg_show,
-      });
-    }
-  };
-  handleTimers = (timerName, callback, times) => {
-    this[timerName] = setTimeout(() => {
-      callback();
-    }, times);
-  };
-
-  handleTabChange = key => {
-    const { dispatch, match } = this.props;
-    const { appAlias } = this.props.match.params;
-    dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/${key}`
-      )
-    );
-  };
-  getChildCom = () => {
-    if (this.ref) {
-      return this.ref.getWrappedInstance({});
-    }
-    return null;
-  };
-  getAppAlias() {
-    return this.props.match.params.appAlias;
-  }
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
-  handleDeploy = (groupVersion, is_upgrate) => {
+  handleDeploy = groupVersion => {
     this.setState({
       showDeployTips: false,
       showreStartTips: false,
-      deployCanClick: true,
     });
     if (this.state.actionIng) {
       notification.warning({ message: `正在执行操作，请稍后` });
@@ -449,7 +448,6 @@ class Main extends PureComponent {
       group_version: groupVersion || '',
       is_upgrate: build_upgrade,
     }).then(data => {
-      this.setState({ deployCanClick: false });
       if (data) {
         this.handleCancelBuild();
         this.loadBuildState(this.props.appDetail);
@@ -580,14 +578,14 @@ class Main extends PureComponent {
   };
   closeComponentTimer = () => {
     this.setState({ componentTimer: false });
+    this.closeTimer();
   };
   openComponentTimer = () => {
-    this.setState({ componentTimer: true });
+    this.setState({ componentTimer: true }, () => {
+      this.getStatus(true);
+    });
   };
 
-  onDeleteApp = () => {
-    this.setState({ showDeleteApp: true });
-  };
   cancelDeleteApp = () => {
     this.openComponentTimer();
     this.setState({ showDeleteApp: false });
@@ -608,24 +606,25 @@ class Main extends PureComponent {
     }
   }
   handleDeleteApp = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    this.props.dispatch({
+    const teamName = globalUtil.getCurrTeamName();
+    const { dispatch, appDetail } = this.props;
+    dispatch({
       type: 'appControl/deleteApp',
       payload: {
-        team_name,
+        team_name: teamName,
         app_alias: this.getAppAlias(),
       },
       callback: () => {
-        this.props.dispatch({
+        dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name,
+            team_name: teamName,
           },
         });
-        this.props.dispatch(
+        dispatch(
           routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-              this.props.appDetail.service.group_id
+            `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+              appDetail.service.group_id
             }`
           )
         );
@@ -694,10 +693,138 @@ class Main extends PureComponent {
       },
     });
   };
+
+  handleUpdateRolling = () => {
+    this.setState({
+      showDeployTips: false,
+      showreStartTips: false,
+      rollingCanClick: true,
+    });
+    if (this.state.actionIng) {
+      notification.warning({ message: `正在执行操作，请稍后` });
+      return;
+    }
+    updateRolling({
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: this.getAppAlias(),
+    }).then(data => {
+      this.setState({ rollingCanClick: false });
+      if (data) {
+        notification.success({ message: `操作成功，更新中` });
+        const child = this.getChildCom();
+        if (child && child.onAction) {
+          child.onAction(data.bean);
+        }
+      }
+    });
+  };
+
+  handleChecked = value => {
+    this.props.dispatch({
+      type: 'appControl/changeApplicationState',
+      payload: {
+        build_upgrade: value,
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.getAppAlias(),
+      },
+      callback: data => {
+        if (data) {
+          notification.info({ message: '修改成功' });
+        }
+      },
+    });
+  };
+  handleOkBuild = () => {
+    this.props.form.validateFields((err, fieldsValue) => {
+      if (!err) {
+        this.handleDeploy(fieldsValue.group_version);
+      }
+    });
+  };
+
+  handleOpenBuild = () => {
+    const { appDetail } = this.props;
+    const serviceAlias = appDetail.service.service_alias;
+    const buildType = appDetail.service.service_source;
+    const text = appDetail.rain_app_name;
+    const { status } = this.state;
+    if (buildType == 'market' && status && status.status != 'undeploy') {
+      this.props.dispatch({
+        type: 'appControl/getBuildInformation',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: serviceAlias,
+        },
+        callback: res => {
+          if (res && res._code == 200) {
+            this.setState({
+              BuildList: res.list,
+              visibleBuild: true,
+              BuildText: text,
+              BuildState:
+                res.list && res.list.length > 0 ? res.list.length : null,
+              showApp: {
+                details: false,
+                group_name: text,
+              },
+            });
+          }
+        },
+      });
+    } else {
+      buildType == 'market' ? this.handleDeploy('', true) : this.handleDeploy();
+    }
+  };
+  handleCancelBuild = () => {
+    this.setState({
+      visibleBuild: null,
+      BuildText: '',
+    });
+  };
+
+  hideMarketAppDetail = () => {
+    this.setState({
+      showMarketAppDetail: null,
+    });
+  };
+  hideMarketOpenAppDetail = () => {
+    this.setState({
+      showMarketAppDetail: true,
+    });
+  };
+  handleOpenHelpfulHints = promptModal => {
+    this.setState({
+      promptModal,
+    });
+  };
+  handleOffHelpfulHints = () => {
+    this.setState({
+      promptModal: null,
+    });
+  };
+  handleJumpAgain = () => {
+    const { promptModal } = this.state;
+    promptModal == 'stop'
+      ? this.handleStop()
+      : promptModal == 'start'
+      ? this.handleStart()
+      : promptModal == 'restart'
+      ? this.handleRestart()
+      : '';
+  };
+  toWebConsole = () => {
+    const { appDetail } = this.props;
+    this.props.dispatch(
+      routerRedux.replace(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+          appDetail.service.service_alias
+        }/webconsole`
+      )
+    );
+  };
   renderTitle(name) {
     const {
       appDetail,
-      groups,
       componentPermissions: { isRestart, isStop, isDelete, isEdit },
       appPermissions: { isEdit: isAppEdit },
     } = this.props;
@@ -753,7 +880,9 @@ class Main extends PureComponent {
                         : 'pointer',
                     }}
                     onClick={() => {
-                      this.handleOpenHelpfulHints('stop');
+                      if (appStatusUtil.canStop(status)) {
+                        this.handleOpenHelpfulHints('stop');
+                      }
                     }}
                   >
                     关闭
@@ -795,9 +924,7 @@ class Main extends PureComponent {
                     this.handleDropClick('deleteApp');
                   }}
                   style={{
-                    cursor: !appUtil.canDelete(appDetail)
-                      ? 'no-drop'
-                      : 'pointer',
+                    cursor: 'pointer',
                   }}
                 >
                   删除
@@ -809,132 +936,7 @@ class Main extends PureComponent {
       </Fragment>
     );
   }
-  handleUpdateRolling = () => {
-    this.setState({
-      showDeployTips: false,
-      showreStartTips: false,
-      rollingCanClick: true,
-    });
-    if (this.state.actionIng) {
-      notification.warning({ message: `正在执行操作，请稍后` });
-      return;
-    }
-    updateRolling({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias(),
-    }).then(data => {
-      this.setState({ rollingCanClick: false });
-      if (data) {
-        notification.success({ message: `操作成功，更新中` });
-        const child = this.getChildCom();
-        if (child && child.onAction) {
-          child.onAction(data.bean);
-        }
-      }
-    });
-  };
-  handleChecked = value => {
-    this.props.dispatch({
-      type: 'appControl/changeApplicationState',
-      payload: {
-        build_upgrade: value,
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
-      },
-      callback: data => {
-        if (data) {
-          notification.info({ message: '修改成功' });
-        }
-      },
-    });
-  };
-  handleOkBuild = () => {
-    this.props.form.validateFields((err, fieldsValue) => {
-      if (!err) {
-        this.handleDeploy(fieldsValue.group_version);
-      }
-    });
-  };
 
-  handleOpenBuild = () => {
-    const appDetail = this.props.appDetail;
-    const serviceAlias = appDetail.service.service_alias;
-    const buildType = appDetail.service.service_source;
-    const text = appDetail.rain_app_name;
-    const { status } = this.state;
-    if (buildType == 'market' && status && status.status != 'undeploy') {
-      this.props.dispatch({
-        type: 'appControl/getBuildInformation',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: serviceAlias,
-        },
-        callback: res => {
-          if (res && res._code == 200) {
-            this.setState({
-              BuildList: res.list,
-              visibleBuild: true,
-              BuildText: text,
-              BuildState:
-                res.list && res.list.length > 0 ? res.list.length : null,
-              showApp: {
-                details: false,
-                group_name: text,
-              },
-            });
-          }
-        },
-      });
-    } else {
-      buildType == 'market' ? this.handleDeploy('', true) : this.handleDeploy();
-    }
-  };
-  handleCancelBuild = () => {
-    this.setState({
-      visibleBuild: null,
-      BuildText: '',
-    });
-  };
-  hideMarketAppDetail = () => {
-    this.setState({
-      showMarketAppDetail: null,
-    });
-  };
-  hideMarketOpenAppDetail = () => {
-    this.setState({
-      showMarketAppDetail: true,
-    });
-  };
-  handleOpenHelpfulHints = promptModal => {
-    this.setState({
-      promptModal,
-    });
-  };
-  handleOffHelpfulHints = () => {
-    this.setState({
-      promptModal: null,
-    });
-  };
-  handleJumpAgain = () => {
-    const { promptModal } = this.state;
-    promptModal == 'stop'
-      ? this.handleStop()
-      : promptModal == 'start'
-      ? this.handleStart()
-      : promptModal == 'restart'
-      ? this.handleRestart()
-      : '';
-  };
-  toWebConsole = () => {
-    const { appDetail } = this.props;
-    this.props.dispatch(
-      routerRedux.replace(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-          appDetail.service.service_alias
-        }/webconsole`
-      )
-    );
-  };
   render() {
     const {
       appDetail,
@@ -962,6 +964,7 @@ class Main extends PureComponent {
       componentPermissions,
       groups = [],
       form,
+      deleteAppLoading,
     } = this.props;
     const { BuildList, componentTimer, isShowThirdParty, status } = this.state;
     const { getFieldDecorator } = form;
@@ -1217,15 +1220,19 @@ class Main extends PureComponent {
           <Modal
             title="友情提示"
             visible={this.state.promptModal}
+            className={styless.TelescopicModal}
             onOk={this.handleJumpAgain}
             onCancel={this.handleOffHelpfulHints}
             confirmLoading={!this.state.promptModal}
           >
-            <p>确定{codeObj[this.state.promptModal]}当前组件？</p>
+            <p style={{ textAlign: 'center' }}>
+              确定{codeObj[this.state.promptModal]}当前组件？
+            </p>
           </Modal>
         )}
         <Modal
           title={[<span>从云市应用构建</span>]}
+          className={styless.TelescopicModal}
           visible={this.state.visibleBuild}
           onOk={this.handleOkBuild}
           onCancel={this.handleCancelBuild}
@@ -1344,6 +1351,7 @@ class Main extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteApp}
             onCancel={this.cancelDeleteApp}
+            loading={deleteAppLoading}
             title="删除组件"
             desc="确定要删除此组件吗？"
             subDesc="此操作不可恢复"
