@@ -304,7 +304,7 @@ export default class Main extends PureComponent {
   };
   handleCreate = (vals, is_deploy) => {
     const { dispatch } = this.props;
-    const { showCreate: app } = this.state.showCreate;
+    const { showCreate: app } = this.state;
     const teamName = globalUtil.getCurrTeamName();
     dispatch({
       type: 'createApp/installApp',
@@ -533,7 +533,7 @@ export default class Main extends PureComponent {
             ]}
           >
             <Card.Meta
-              style={{ height: 112, overflow: 'auto' }}
+              className={PluginStyles.cardsMetas}
               avatar={
                 <img
                   style={{ width: 110, height: 110, margin: ' 0 auto' }}
@@ -569,32 +569,30 @@ export default class Main extends PureComponent {
                       <div className={PluginStyles.overScroll}>
                         <div>
                           {item.versions_info &&
-                            item.versions_info.map((item, index) => {
+                            item.versions_info.map((items, index) => {
                               return (
                                 <Tag
-                                  title={item.version}
+                                  title={items.version}
                                   className={PluginStyles.cardVersionTagStyle}
                                   color="green"
                                   size="small"
-                                  title={item.version}
                                   key={index}
                                 >
-                                  {item.version}
+                                  {items.version}
                                 </Tag>
                               );
                             })}
                           {item.app_versions &&
-                            item.app_versions.map((item, index) => {
+                            item.app_versions.map((itemx, index) => {
                               return (
                                 <Tag
-                                  title={item}
                                   className={PluginStyles.cardVersionTagStyle}
                                   color="green"
                                   size="small"
-                                  title={item.app_version}
+                                  title={itemx.app_version}
                                   key={index}
                                 >
-                                  {item.app_version}
+                                  {itemx.app_version}
                                 </Tag>
                               );
                             })}
