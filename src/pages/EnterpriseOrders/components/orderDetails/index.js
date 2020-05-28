@@ -166,11 +166,14 @@ export default class OrderDetails extends PureComponent {
       },
       {
         name: '总费用',
-        value: `¥ ${info.final_price.toFixed(2) / 1} ${info.original_price &&
+        value: `¥ ${info.final_price.toFixed(2) / 1} ${
+          info.original_price &&
           info.final_price !== 0 &&
-          info.original_price !== info.final_price ?
-          `已优惠¥ ${(info.original_price - info.final_price).toFixed(2) /
-            1}`:''}`,
+          info.original_price !== info.final_price
+            ? `已优惠¥ ${(info.original_price - info.final_price).toFixed(2) /
+                1}`
+            : ''
+        }`,
       },
     ];
 
@@ -240,7 +243,14 @@ export default class OrderDetails extends PureComponent {
                       </div>
                     </Col>
                     <Col span={12} className={styles.orderTitleR}>
-                      <p>请通过对公付款到以下账号：</p>
+                      <p>
+                        请通过对公付款到以下账号{' '}
+                        <Paragraph
+                          style={{ marginBottom: '0px' }}
+                          copyable={{ text: `开户行：${bankInfo.bank}; 账号名：${bankInfo.account_name}; 账号：${bankInfo.account};` }}
+                        />
+                        ：
+                      </p>
                       <p>
                         <span>开户行：</span>
                         <Paragraph
