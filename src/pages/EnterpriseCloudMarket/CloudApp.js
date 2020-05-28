@@ -1,10 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
-import globalUtil from '../../utils/global';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import MarketAppDetailShow from '../../components/MarketAppDetailShow';
-import BasicListStyles from '../List/BasicList.less';
-import Styles from './index.less';
 import {
   Card,
   List,
@@ -15,11 +11,15 @@ import {
   Select,
   Alert,
 } from 'antd';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import globalUtil from '../../utils/global';
+import BasicListStyles from '../List/BasicList.less';
+import Styles from './index.less';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Search } = Input;
-const Option = Select.Option;
+const { Option } = Select;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
@@ -29,81 +29,56 @@ export default class CloudApp extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      page_size: 10,
+      pageSize: 10,
       total: 0,
       page: 1,
-      sync: false,
       loading: false,
       showMarketAppDetail: false,
       showApp: {},
-      version: null,
-      versionList: null,
       networkText: '',
+      appName: '',
     };
   }
   componentDidMount = () => {
     this.loadApps();
   };
-  handleClose = () => {
-    const { dispatch, eid } = this.props;
 
-    dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
-
-    this.setState({ versionList: null });
-  };
-
-  handleSearch = app_name => {
-    this.setState(
-      {
-        versionList: null,
-        app_name,
-        page: 1,
-      },
-      () => {
-        this.loadApps();
+  getAction = item => {
+    if (item.is_complete) {
+      if (item.is_upgrade === 0) {
+        return (
+          <Fragment>
+            <span>已下载,无更新</span>
+          </Fragment>
+        );
       }
-    );
-  };
-
-  loadApps = () => {
-    const { dispatch, eid } = this.props;
-    this.setState(
-      {
-        loading: true,
-      },
-      () => {
-        dispatch({
-          type: 'market/getMarketApp',
-          payload: {
-            enterprise_id: eid,
-            app_name: this.state.app_name,
-            page: this.state.page,
-            page_size: this.state.page_size,
-          },
-          callback: data => {
-            if (data) {
-              this.setState({
-                apps: data.list || [],
-                loading:
-                  data._code &&
-                  data._code === 210 &&
-                  data._condition &&
-                  data._condition === 10503
-                    ? -1
-                    : false,
-                total: data.total,
-                version: null,
-                networkText: data.msg_show,
-              });
-            }
-          },
-        });
-      }
+      return (
+        <Fragment>
+          <a
+            href="javascript:;"
+            onClick={() => {
+              this.handleLoadAppDetail(item);
+            }}
+          >
+            更新新版本
+          </a>
+        </Fragment>
+      );
+    }
+    return (
+      <a
+        href="javascript:;"
+        onClick={() => {
+          this.handleLoadAppDetail(item);
+        }}
+      >
+        下载
+      </a>
     );
   };
 
   handleLoadAppDetail = item => {
-    const { dispatch, eid } = this.props;
+    const { dispatch, eid, onSyncSuccess } = this.props;
     dispatch({
       type: 'global/syncMarketAppDetail',
       payload: {
@@ -113,21 +88,19 @@ export default class CloudApp extends PureComponent {
           app_versions: item.version,
         },
       },
-      callback: data => {
+      callback: () => {
         notification.success({ message: '操作成功' });
         this.loadApps();
-        this.props.onSyncSuccess && this.props.onSyncSuccess();
+        if (onSyncSuccess) {
+          onSyncSuccess();
+        }
       },
     });
   };
 
-  shouldComponentUpdate = () => {
-    return true;
-  };
-
   handleChange = (version, data, index) => {
-    this.setState({ version });
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'global/getVersion',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -174,56 +147,89 @@ export default class CloudApp extends PureComponent {
       showMarketAppDetail: false,
     });
   };
-  getAction = item => {
-    if (item.is_complete) {
-      if (item.is_upgrade === 0) {
-        return (
-          <Fragment>
-            <span>已下载,无更新</span>
-          </Fragment>
-        );
+
+  loadApps = () => {
+    const { dispatch, eid } = this.props;
+    const { appName, page, pageSize } = this.state;
+    this.setState(
+      {
+        loading: true,
+      },
+      () => {
+        dispatch({
+          type: 'market/getMarketApp',
+          payload: {
+            enterprise_id: eid,
+            app_name: appName,
+            page,
+            page_size: pageSize,
+          },
+          callback: data => {
+            if (data) {
+              this.setState({
+                apps: data.list || [],
+                loading:
+                  data._code &&
+                  data._code === 210 &&
+                  data._condition &&
+                  data._condition === 10503
+                    ? -1
+                    : false,
+                total: data.total,
+                networkText: data.msg_show,
+              });
+            }
+          },
+        });
       }
-      return (
-        <Fragment>
-          <a
-            href="javascript:;"
-            onClick={() => {
-              this.handleLoadAppDetail(item);
-            }}
-          >
-            更新新版本
-          </a>
-        </Fragment>
-      );
-    }
-    return (
-      <a
-        href="javascript:;"
-        onClick={() => {
-          this.handleLoadAppDetail(item);
-        }}
-      >
-        下载
-      </a>
     );
   };
+
+  handleSearch = appName => {
+    this.setState(
+      {
+        appName,
+        page: 1,
+      },
+      () => {
+        this.loadApps();
+      }
+    );
+  };
+  handleClose = () => {
+    const { dispatch, eid } = this.props;
+
+    dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+  };
+
   render() {
-    const { versionList, CloudApp } = this.state;
+    const {
+      pageSize,
+      total,
+      page,
+      loading,
+      networkText,
+      apps,
+      showMarketAppDetail,
+      showApp,
+    } = this.state;
+
     const paginationProps = {
-      page_size: this.state.page_size,
-      total: this.state.total,
-      current: this.state.page,
-      onChange: page_size => {
-        this.handlePageChange(page_size);
+      page_size: pageSize,
+      total,
+      current: page,
+      onChange: pages => {
+        this.handlePageChange(pages);
       },
     };
+
     return (
       <Card
         className={BasicListStyles.listCard}
         bordered={false}
         title={
           <div>
-            云端{' '}
+            云端
             <Search
               className={BasicListStyles.extraContentSearch}
               placeholder="请输入名称进行搜索"
@@ -248,11 +254,11 @@ export default class CloudApp extends PureComponent {
           </div>
         }
       >
-        {this.state.loading === -1 ? (
+        {loading === -1 ? (
           <div style={{ height: '300px' }}>
             <Alert
               style={{ marginTop: '130px', textAlign: 'center' }}
-              message={this.state.networkText}
+              message={networkText}
               type="warning"
             />
           </div>
@@ -260,9 +266,9 @@ export default class CloudApp extends PureComponent {
           <List
             size="large"
             rowKey="id"
-            loading={this.state.loading === -1 ? false : this.state.loading}
+            loading={loading === -1 ? false : loading}
             pagination={paginationProps}
-            dataSource={this.state.apps}
+            dataSource={apps}
             renderItem={(item, index) => (
               <List.Item actions={[this.getAction(item)]}>
                 <List.Item.Meta
@@ -270,6 +276,7 @@ export default class CloudApp extends PureComponent {
                     <Avatar
                       src={
                         item.pic ||
+                        // eslint-disable-next-line global-require
                         require('../../../public/images/app_icon.jpg')
                       }
                       onClick={() => {
@@ -288,7 +295,7 @@ export default class CloudApp extends PureComponent {
                       }}
                     >
                       {item.app_name}
-                      {!this.state.loading && (
+                      {!loading && (
                         <Select
                           style={{ marginLeft: '18px' }}
                           defaultValue={item.version[0]}
@@ -298,10 +305,10 @@ export default class CloudApp extends PureComponent {
                           size="small"
                         >
                           {item.version &&
-                            item.version.map((item, index) => {
+                            item.version.map((items, index) => {
                               return (
-                                <Option value={item} key={index}>
-                                  {item}
+                                <Option value={items} key={index}>
+                                  {items}
                                 </Option>
                               );
                             })}
@@ -319,11 +326,11 @@ export default class CloudApp extends PureComponent {
             )}
           />
         )}
-        {this.state.showMarketAppDetail && (
+        {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
+            app={showApp}
           />
         )}
       </Card>
