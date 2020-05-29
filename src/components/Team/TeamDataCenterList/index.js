@@ -3,14 +3,11 @@ import { connect } from 'dva';
 import { Card, Avatar } from 'antd';
 import moment from 'moment';
 import OpenRegion from '../../OpenRegion';
-import teamUtil from '../../../utils/team';
 import globalUtil from '../../../utils/global';
-import userUtil from '../../../utils/user';
 import styles from './index.less';
 
-@connect(({ teamControl, loading, user }) => ({
+@connect(({ teamControl, loading }) => ({
   regions: teamControl.regions,
-  currUser: user.currentUser,
   projectLoading: loading.effects['project/fetchNotice'],
   activitiesLoading: loading.effects['activities/fetchList'],
 }))
@@ -57,11 +54,9 @@ export default class DatacenterList extends PureComponent {
   render() {
     const {
       regions,
-      currUser,
       projectLoading,
-      datecenterPermissions: { isCreate, isEdit, isDelete },
+      datecenterPermissions: { isInstall },
     } = this.props;
-    console.log('regions', regions);
     return (
       <div>
         <Card
@@ -72,7 +67,7 @@ export default class DatacenterList extends PureComponent {
           title="已开通集群"
           bordered={false}
           extra={
-            isCreate && (
+            isInstall && (
               <a href="javascript:;" onClick={this.onOpenRegion}>
                 开通集群
               </a>
