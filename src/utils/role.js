@@ -18,8 +18,22 @@ const AccessText = {
   teamRegion: '团队集群管理',
 };
 
-let arr = ['isAccess', 'isCreate', 'isEdit', 'isDelete'];
-let targetArr = ['describe', 'create', 'edit', 'delete'];
+let arr = [
+  'isAccess',
+  'isCreate',
+  'isEdit',
+  'isDelete',
+  'isInstall',
+  'isUninstall',
+];
+let targetArr = [
+  'describe',
+  'create',
+  'edit',
+  'delete',
+  'install',
+  'uninstall',
+];
 const operationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct'];
 const targetOperationArr = ['start', 'stop', 'update', 'construct'];
 
