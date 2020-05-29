@@ -3,7 +3,8 @@
 /* eslint-disable react/no-multi-comp */
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
+import { routerRedux, Link } from 'dva/router';
+
 import {
   Alert,
   Badge,
@@ -1002,7 +1003,16 @@ class Main extends PureComponent {
         )}
 
         {isVisitWebTerminal && !isShowThirdParty && (
-          <Button onClick={this.toWebConsole}>Web终端</Button>
+          <Button>
+            <Link
+              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
+                appDetail.service.service_alias
+              }/webconsole`}
+              target="_blank"
+            >
+              Web终端
+            </Link>
+          </Button>
         )}
 
         {isShowThirdParty ? (

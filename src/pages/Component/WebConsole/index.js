@@ -113,9 +113,13 @@ export default class WebConsole extends PureComponent {
           pods[0].container &&
           pods[0].container.length > 0
         ) {
-          const noPlugContainers = pods[0].container.filter(
-            item => !item.container_name.includes('plugin')
-          );
+          const noPlugContainers = pods[0].container.filter(item => {
+            return (
+              !item.container_name.includes('plugin') &&
+              !item.container_name.includes('tcp')
+            );
+          });
+
           const container_name =
             noPlugContainers && noPlugContainers.length > 0
               ? noPlugContainers[0].container_name

@@ -4,10 +4,6 @@ import teamUtil from '../../utils/team';
 import roleUtil from '../../utils/role';
 
 class TeamMemberTable extends PureComponent {
-  handleTableChange = (pagination, filters, sorter) => {
-    this.props.onChange(pagination, filters, sorter);
-  };
-
   render() {
     const {
       list,
@@ -97,12 +93,7 @@ class TeamMemberTable extends PureComponent {
     ];
 
     return (
-      <Table
-        pagination={pagination}
-        dataSource={list}
-        columns={columns}
-        onChange={this.handleTableChange}
-      />
+      <Table pagination={pagination} dataSource={list} columns={columns} />
     );
   }
 }
