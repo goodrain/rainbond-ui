@@ -1229,10 +1229,14 @@ export async function toBuildShape(params) {
 
 /** 获取所有的拓扑图 */
 export async function toQueryTopology(params) {
+  const { team_name, groupId, region_name } = params;
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.team_name}/topological?group_id=${params.groupId}&region=${params.region_name}`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/topological?group_id=${groupId}&region=${region_name}`,
     {
       method: 'get',
+      params: {
+        region_name,
+      },
     }
   );
 }
