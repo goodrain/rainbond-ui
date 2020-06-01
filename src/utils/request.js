@@ -89,20 +89,22 @@ export default function request(url, options) {
   const token = cookie.get('token');
   const teamName = cookie.get('team_name');
   const regionName = cookie.get('region_name');
-
+  let interfaceRegionName = '';
   if (token && newOptions.passAuthorization) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
   }
+  if (
+    url &&
+    url.lastIndexOf('/groups') > -1 &&
+    newOptions.params &&
+    newOptions.params.region_name
+  ) {
+    interfaceRegionName = newOptions.params.region_name;
+  }
   newOptions.headers.X_REGION_NAME =
-    globalUtil.getCurrRegionName() || regionName;
-  // newOptions.headers.X_REGION_NAME = "rainbond";
+    interfaceRegionName || globalUtil.getCurrRegionName() || regionName;
   newOptions.headers.X_TEAM_NAME = globalUtil.getCurrTeamName() || teamName;
 
-  // newOptions.headers.Authorization = 'GRJWT '+
-  // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxpY2hhbyIsImV4cCI6MTU
-  // x
-  // ODY2MzYyNCwiZW1haWwiOiJsaWNAZ29vZHJhaW4uY29tIiwidXNlcl9pZCI6Nn0.N95RuiLn0nA8T
-  // w RR0TGh6luHnJ9A_IYJtGxHQdtc2jE';
   newOptions.url = url;
   // newOptions.withCredentials = true;
   axios.defaults.withCredentials = true;
