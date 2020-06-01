@@ -113,7 +113,12 @@ export default class Index extends PureComponent {
     const { userTeamList } = this.state;
     const teamRegion = getFieldValue('teamRegion');
     const arrs = userTeamList.filter(item => item.name === teamRegion);
-    const teamName = arrs && arrs[0].value[0];
+    let teamName = '';
+    let regionName = '';
+    if (arrs.length > 0) {
+      teamName = arrs && arrs[0].value[0];
+      regionName = arrs && arrs[0].value[1];
+    }
 
     this.props.dispatch({
       type: 'groupControl/addGroup',
@@ -124,7 +129,7 @@ export default class Index extends PureComponent {
       callback: group => {
         if (group) {
           // 获取群组
-          this.fetchTeamApps(teamName, group.group_id);
+          this.fetchTeamApps(teamName, regionName, group.group_id);
           this.cancelAddGroup();
         }
       },
@@ -132,7 +137,7 @@ export default class Index extends PureComponent {
   };
 
   // 应用
-  fetchTeamApps = (teamName, groupId) => {
+  fetchTeamApps = (teamName, regionName, groupId) => {
     const { dispatch, form } = this.props;
     const { app_page, app_page_size } = this.state;
     const { setFieldsValue } = form;
@@ -141,6 +146,7 @@ export default class Index extends PureComponent {
       payload: {
         query: '',
         team_name: teamName || globalUtil.getCurrTeamName(),
+        region_name: regionName || globalUtil.getCurrRegionName(),
         page: app_page,
         page_size: app_page_size,
       },
@@ -274,7 +280,7 @@ export default class Index extends PureComponent {
     const arr = userTeamList.filter(item => item.name === value);
     if (arr) {
       if (arr.length > 0) {
-        this.fetchTeamApps(arr[0].value[0]);
+        this.fetchTeamApps(arr[0].value[0], arr[0].value[1]);
       } else {
         setFieldsValue({ apps: '' });
       }
