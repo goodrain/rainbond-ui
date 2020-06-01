@@ -90,12 +90,10 @@ export default class Index extends PureComponent {
             const arr = [];
             list.map((item, index) => {
               const { build_source } = item;
-              const {
-                service_source,
-              } = build_source;
+              const { service_source } = build_source;
 
               const isThirdParty = service_source === 'third_party';
-              !isThirdParty&&arr.push(index);
+              !isThirdParty && arr.push(index);
             });
             this.setState({
               checkAllList: arr,
@@ -115,7 +113,12 @@ export default class Index extends PureComponent {
     const { userTeamList } = this.state;
     const teamRegion = getFieldValue('teamRegion');
     const arrs = userTeamList.filter(item => item.name === teamRegion);
-    const teamName = arrs && arrs[0].value[0];
+    let teamName = '';
+    let regionName = '';
+    if (arrs.length > 0) {
+      teamName = arrs && arrs[0].value[0];
+      regionName = arrs && arrs[0].value[1];
+    }
 
     this.props.dispatch({
       type: 'groupControl/addGroup',
@@ -126,7 +129,7 @@ export default class Index extends PureComponent {
       callback: group => {
         if (group) {
           // 获取群组
-          this.fetchTeamApps(teamName, group.group_id);
+          this.fetchTeamApps(teamName, regionName, group.group_id);
           this.cancelAddGroup();
         }
       },
@@ -134,7 +137,7 @@ export default class Index extends PureComponent {
   };
 
   // 应用
-  fetchTeamApps = (teamName, groupId) => {
+  fetchTeamApps = (teamName, regionName, groupId) => {
     const { dispatch, form } = this.props;
     const { app_page, app_page_size } = this.state;
     const { setFieldsValue } = form;
@@ -143,6 +146,7 @@ export default class Index extends PureComponent {
       payload: {
         query: '',
         team_name: teamName || globalUtil.getCurrTeamName(),
+        region_name: regionName || globalUtil.getCurrRegionName(),
         page: app_page,
         page_size: app_page_size,
       },
@@ -185,7 +189,7 @@ export default class Index extends PureComponent {
       const versions = isCodeApp ? code_version : version;
       const objs = {
         service_id,
-        change: { build_source: { version:versions } },
+        change: { build_source: { version: versions } },
       };
       arr.push(objs);
     });
@@ -276,7 +280,7 @@ export default class Index extends PureComponent {
     const arr = userTeamList.filter(item => item.name === value);
     if (arr) {
       if (arr.length > 0) {
-        this.fetchTeamApps(arr[0].value[0]);
+        this.fetchTeamApps(arr[0].value[0], arr[0].value[1]);
       } else {
         setFieldsValue({ apps: '' });
       }
@@ -421,41 +425,34 @@ export default class Index extends PureComponent {
                   </FormItem>
                 </Col>
               )}
-              {appList && (
-                <Col
-                  span={10}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  <FormItem {...formItemLayout} label="">
-                    {getFieldDecorator('apps', {
-                      initialValue: groupDetail.group_id,
-                      rules: [
-                        {
-                          required: true,
-                          message: '请选择应用',
-                        },
-                      ],
-                    })(
-                      <Select
-                        style={{ width: '180px' }}
-                        placeholder="请选择应用"
-                      >
-                        {appList.map(item => (
+              <Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
+                <FormItem {...formItemLayout} label="">
+                  {getFieldDecorator('apps', {
+                    initialValue: groupDetail.group_id,
+                    rules: [
+                      {
+                        required: true,
+                        message: '请选择应用',
+                      },
+                    ],
+                  })(
+                    <Select style={{ width: '180px' }} placeholder="请选择应用">
+                      {appList &&
+                        appList.map(item => (
                           <Option key={item.group_id} value={item.group_id}>
                             {item.group_name}
                           </Option>
                         ))}
-                      </Select>
-                    )}
-                  </FormItem>
-                  <Button
-                    style={{ margin: '0 0 24px 10px' }}
-                    onClick={this.onAddGroup}
-                  >
-                    新建应用
-                  </Button>
-                </Col>
-              )}
+                    </Select>
+                  )}
+                </FormItem>
+                <Button
+                  style={{ margin: '0 0 24px 10px' }}
+                  onClick={this.onAddGroup}
+                >
+                  新建应用
+                </Button>
+              </Col>
             </Row>
           </Form>
           <div className={styles.tabTitle}>
@@ -472,9 +469,10 @@ export default class Index extends PureComponent {
             <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
           </div>
           {loading ? (
-              <p style={{ textAlign: "center" }}>
-                  <Spin />
-              </p> ) : (
+            <p style={{ textAlign: 'center' }}>
+              <Spin />
+            </p>
+          ) : (
             <Checkbox.Group
               style={{ width: '100%' }}
               value={checkedList}
@@ -562,8 +560,14 @@ export default class Index extends PureComponent {
                   <div className={styles.tabTr} key={service_id}>
                     <Tooltip title={service_cname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index} disabled={isThirdParty}>{!isThirdParty&&service_cname}</Checkbox>
-                        {isThirdParty&&<span style={{marginLeft:'-16px'}}>{service_cname}</span>}
+                        <Checkbox value={index} disabled={isThirdParty}>
+                          {!isThirdParty && service_cname}
+                        </Checkbox>
+                        {isThirdParty && (
+                          <span style={{ marginLeft: '-16px' }}>
+                            {service_cname}
+                          </span>
+                        )}
                       </div>
                     </Tooltip>
 
