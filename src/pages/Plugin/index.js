@@ -132,7 +132,9 @@ class MarketPlugin extends PureComponent {
                       }}
                     >
                       {' '}
-                      {pluginUtil.getCategoryCN(item.category)}{' '}
+                      {pluginUtil.getCategoryCN(
+                        item.plugin_type || item.category
+                      )}{' '}
                     </p>
                     <Ellipsis className={styles.item} lines={3}>
                       {item.desc}
@@ -172,43 +174,9 @@ class PluginList extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
+      defaultList: [],
       list: [],
-      filebeat_log_plugin: null,
-      logtail_log_plugin: null,
       deletePlugin: null,
-      downstream_net_plugin: null,
-      perf_analyze_plugin: null,
-      inandout_net_plugin: null,
-      filebeat_log_pluginData: {
-        category: 'filebeat_log_plugin',
-        desc: '通过filebeat日志收集器，对接ELK集群，完成日志收集',
-        plugin_alias: 'fileBeat日志收集插件',
-        hasInstall: false,
-      },
-      ali_logtail_log_pluginData: {
-        category: 'logtail_log_plugin',
-        desc: '通过logtail日志收集器，对接阿里云日志收集服务，完成日志收集',
-        plugin_alias: '阿里云logtail日志收集插件',
-        hasInstall: false,
-      },
-      downstream_net_pluginData: {
-        category: 'downstream_net_plugin',
-        desc: '实现智能路由、A/B测试、灰度发布、端口复用等微治理功能',
-        plugin_alias: '出站网络治理插件',
-        hasInstall: false,
-      },
-      perf_analyze_pluginData: {
-        category: 'perf_analyze_plugin',
-        desc: '实时分析应用的吞吐率、响应时间、在线人数等指标',
-        plugin_alias: '实时性能分析',
-        hasInstall: false,
-      },
-      inandout_net_pluginData: {
-        category: 'inandout_net_plugin',
-        desc: '该插件支持的出站和入站网络治理，包括动态路由、限流、熔断等功能',
-        plugin_alias: '综合网络治理插件',
-        hasInstall: false,
-      },
     };
     this.timer = null;
   }
@@ -234,7 +202,7 @@ class PluginList extends PureComponent {
 
   getAction = (item, operationPermissions) => {
     const { isCreate, isDelete } = operationPermissions;
-    if (item.hasInstall !== false) {
+    if (item.has_install !== false) {
       const arr = [];
       if (isDelete) {
         arr.push(
@@ -296,28 +264,20 @@ class PluginList extends PureComponent {
       },
       callback: data => {
         if (data && data.bean) {
-          const {
-            bean: {
-              downstream_net_plugin,
-              perf_analyze_plugin,
-              inandout_net_plugin,
-              logtail_log_plugin,
-              filebeat_log_plugin,
+          this.setState(
+            {
+              defaultList: data.list,
             },
-          } = data;
-          this.setState({
-            filebeat_log_plugin,
-            logtail_log_plugin,
-            downstream_net_plugin,
-            perf_analyze_plugin,
-            inandout_net_plugin,
-          });
-          this.fetchPlugins();
+            () => {
+              this.fetchPlugins();
+            }
+          );
         }
       },
     });
   };
   fetchPlugins = () => {
+    const { defaultList } = this.state;
     this.props.dispatch({
       type: 'plugin/getMyPlugins',
       payload: {
@@ -325,34 +285,10 @@ class PluginList extends PureComponent {
       },
       callback: data => {
         if (data) {
-          const list = data.list || [];
-          const {
-            filebeat_log_plugin,
-            filebeat_log_pluginData,
-            logtail_log_plugin,
-            ali_logtail_log_pluginData,
-            downstream_net_plugin,
-            downstream_net_pluginData,
-            perf_analyze_plugin,
-            perf_analyze_pluginData,
-            inandout_net_plugin,
-            inandout_net_pluginData,
-          } = this.state;
-          if (filebeat_log_plugin === false) {
-            list.unshift(filebeat_log_pluginData);
-          }
-          if (logtail_log_plugin === false) {
-            list.unshift(ali_logtail_log_pluginData);
-          }
-          if (downstream_net_plugin === false) {
-            list.unshift(downstream_net_pluginData);
-          }
-          if (perf_analyze_plugin === false) {
-            list.unshift(perf_analyze_pluginData);
-          }
-          if (inandout_net_plugin === false) {
-            list.unshift(inandout_net_pluginData);
-          }
+          const arr = defaultList.filter(item => {
+            return !item.has_install;
+          });
+          const list = [...arr, ...data.list] || [];
           this.setState({
             list,
           });
@@ -451,7 +387,9 @@ class PluginList extends PureComponent {
                             }}
                           >
                             {' '}
-                            {pluginUtil.getCategoryCN(item.category)}{' '}
+                            {pluginUtil.getCategoryCN(
+                              item.plugin_type || item.category
+                            )}{' '}
                           </p>
                           <Ellipsis className={styles.item} lines={3}>
                             {item.desc}

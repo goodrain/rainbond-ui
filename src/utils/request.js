@@ -95,7 +95,7 @@ export default function request(url, options) {
   }
   if (
     url &&
-    url.lastIndexOf('/groups') > -1 &&
+    (url.lastIndexOf('/groups') > -1 || url.lastIndexOf('/topological') > -1) &&
     newOptions.params &&
     newOptions.params.region_name
   ) {
@@ -121,7 +121,6 @@ export default function request(url, options) {
     window.g_app._store.dispatch({
       type: 'global/showLoading',
     });
-
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
