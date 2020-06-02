@@ -1231,13 +1231,9 @@ export async function toBuildShape(params) {
 export async function toQueryTopology(params) {
   const { team_name, groupId, region_name } = params;
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/topological`,
+    `${apiconfig.baseUrl}/console/teams/${team_name}/topological?group_id=${groupId}&region_name=${region_name}`,
     {
       method: 'get',
-      params: {
-        group_id: groupId,
-        region_name,
-      },
     }
   );
 }
