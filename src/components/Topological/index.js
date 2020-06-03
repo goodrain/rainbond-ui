@@ -1,52 +1,44 @@
-import React, { PureComponent, Fragment } from 'react';
-import debounce from 'lodash.debounce';
-import globalUtil from '../../utils/global';
+/* eslint-disable func-names */
+import React from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import globalUtil from '../../utils/global';
 import apiconfig from '../../../config/api.config';
 
 @connect()
 class Index extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  componentDidMount() {}
   componentWillMount() {
-    const team_name = globalUtil.getCurrTeamName();
-    const groupId = this.props.group_id;
-    const self = this;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const { group_id: groupId, dispatch } = this.props;
+    const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function() {
-        return `${
-          apiconfig.baseUrl
-        }/console/teams/${team_name}/topological?group_id=${groupId}&region_name=${globalUtil.getCurrRegionName()}`;
+        return topologicalAddress;
       };
 
       window.iframeGetMonitor = function(fn) {
-        self.props.dispatch({
+        dispatch({
           type: 'groupControl/groupMonitorData',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
+            team_name: teamName,
             group_id: groupId,
           },
           callback: data => {
-            if (data) {
-              fn && fn(data || {});
+            if (data && fn) {
+              fn(data || {});
             }
           },
         });
-
-        return `${
-          apiconfig.baseUrl
-        }/console/teams/${team_name}/topological?group_id=${groupId}&region_name=${globalUtil.getCurrRegionName()}`;
+        return topologicalAddress;
       };
 
       window.iframeGetTenantName = function() {
-        return team_name;
+        return teamName;
       };
 
       window.iframeGetRegion = function() {
-        return globalUtil.getCurrRegionName();
+        return regionName;
       };
 
       window.iframeGetGroupId = function() {
@@ -55,22 +47,18 @@ class Index extends React.Component {
 
       // 拓扑图点击服务事件
       window.handleClickService = function(nodeDetails) {
-        self.props.dispatch(
+        dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-              nodeDetails.service_alias
-            }/overview`
+            `/team/${teamName}/region/${regionName}/components/${nodeDetails.service_alias}/overview`
           )
         );
       };
 
       // 拓扑图点击依赖服务事件
       window.handleClickRelation = function(relation) {
-        self.props.dispatch(
+        dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
-              relation.service_alias
-            }/overview`
+            `/team/${teamName}/region/${regionName}/components/${relation.service_alias}/overview`
           )
         );
       };
@@ -78,6 +66,7 @@ class Index extends React.Component {
   }
   render() {
     return (
+      // eslint-disable-next-line jsx-a11y/iframe-has-title
       <iframe
         src={`${apiconfig.baseUrl}/static/www/weavescope/index.html`}
         style={{
