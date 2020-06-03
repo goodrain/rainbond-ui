@@ -17,6 +17,13 @@ export default {
       enterpriseInfo.logo &&
       enterpriseInfo.logo.enable &&
       enterpriseInfo.logo.value),
+  // BillingFunction
+  isEnableBillingFunction: () => false,
+  // footer
+  isEnableDefaultFooter: () => false,
+  // Kubernetes Cluster
+  isEnableK8sCluster: () => false,
+
   // 判断是否是第一个用户注册管理员
   fetchIsFirstRegist: (bean = {}) =>
     bean && bean.is_user_register && bean.is_user_register.enable
@@ -27,8 +34,8 @@ export default {
     (bean &&
       bean.appstore_image_hub &&
       bean.appstore_image_hub.enable &&
-      '支持') ||
-    '不支持',
+      "支持") ||
+    "不支持",
 
   // 判断企业是否配置了自动签发证书
   CertificateIssuedByEnable: (bean = {}) =>
@@ -36,8 +43,7 @@ export default {
 
   // 自动签发证书内容
   CertificateIssuedByValue: (bean = {}) =>
-    (bean && bean.auto_ssl  && bean.auto_ssl.value) ||
-    false,
+    (bean && bean.auto_ssl && bean.auto_ssl.value) || false,
 
   // 判断平台是否配置了oautg 2.0
   OauthbEnable: (bean = {}) =>
@@ -97,24 +103,24 @@ export default {
       bean.document &&
       bean.document.enable &&
       bean.document.value.platform_url) ||
-    '',
-  OauthParameter: (paraName = '') => {
+    "",
+  OauthParameter: (paraName = "") => {
     const url = document.location.toString();
-    const arrObj = url.split('?');
+    const arrObj = url.split("?");
 
     if (arrObj.length > 1) {
-      const arrPara = arrObj[1].split('&');
+      const arrPara = arrObj[1].split("&");
       let arr;
 
       for (let i = 0; i < arrPara.length; i++) {
-        arr = arrPara[i].split('=');
+        arr = arrPara[i].split("=");
 
         if (arr != null && arr[0] == paraName) {
           return arr[1];
         }
       }
-      return '';
+      return "";
     }
-    return '';
-  },
+    return "";
+  }
 };

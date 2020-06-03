@@ -1,7 +1,9 @@
-import { isUrl } from '../utils/utils';
-import userUtil from '../utils/user';
+/* eslint-disable react/react-in-jsx-scope */
+import { isUrl } from "../utils/utils";
+import userUtil from "../utils/user";
+import rainbondUtil from "../utils/rainbond";
 
-const menuData = function(eid, currentUser) {
+function menuData(eid, currentUser) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const clusterSvg = (
     <i className="anticon">
@@ -47,57 +49,59 @@ const menuData = function(eid, currentUser) {
   );
   const menuArr = [
     {
-      name: '总览',
-      icon: 'dashboard',
+      name: "总览",
+      icon: "dashboard",
       path: `/enterprise/${eid}/index`,
-      authority: ['admin', 'user'],
+      authority: ["admin", "user"]
     },
     {
-      name: '共享库',
-      icon: 'share-alt',
+      name: "共享库",
+      icon: "share-alt",
       path: `/enterprise/${eid}/shared`,
-      authority: ['admin', 'user'],
-    },
-    {
-      name: '订购',
+      authority: ["admin", "user"]
+    }
+  ];
+  if (rainbondUtil.isEnableBillingFunction()) {
+    menuArr.push({
+      name: "订购",
       icon: orderSvg,
       path: `/enterprise/${eid}/orders/overviewService`,
-      authority: ['admin', 'user'],
-    },
-    {
-      name: '团队',
-      icon: 'team',
-      path: `/enterprise/${eid}/teams`,
-      authority: ['admin', 'user'],
-    },
-  ];
+      authority: ["admin", "user"]
+    });
+  }
+  menuArr.push({
+    name: "团队",
+    icon: "team",
+    path: `/enterprise/${eid}/teams`,
+    authority: ["admin", "user"]
+  });
   if (adminer) {
     menuArr.push(
       {
-        name: '集群',
+        name: "集群",
         icon: clusterSvg,
         path: `/enterprise/${eid}/clusters`,
-        authority: ['admin', 'user'],
+        authority: ["admin", "user"]
       },
       {
-        name: '用户',
-        icon: 'user',
+        name: "用户",
+        icon: "user",
         path: `/enterprise/${eid}/users`,
-        authority: ['admin', 'user'],
+        authority: ["admin", "user"]
       },
       {
-        name: '设置',
-        icon: 'setting',
+        name: "设置",
+        icon: "setting",
         path: `/enterprise/${eid}/setting`,
-        authority: ['admin', 'user'],
+        authority: ["admin", "user"]
       }
     );
   }
 
   return menuArr;
-};
+}
 
-function formatter(data, parentPath = '', parentAuthority) {
+function formatter(data, parentPath = "", parentAuthority) {
   return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
@@ -106,7 +110,7 @@ function formatter(data, parentPath = '', parentAuthority) {
     const result = {
       ...item,
       path,
-      authority: item.authority || parentAuthority,
+      authority: item.authority || parentAuthority
     };
     if (item.children) {
       result.children = formatter(

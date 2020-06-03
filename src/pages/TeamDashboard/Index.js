@@ -820,7 +820,7 @@ export default class Index extends PureComponent {
                     marginTop: '10px',
                   }}
                 >
-                  欢迎使用Rainbond云应用操作系统
+                  欢迎使用云应用操作系统
                 </h1>
               )
             }
@@ -833,9 +833,7 @@ export default class Index extends PureComponent {
             maskClosable={false}
           >
             <p style={{ fontSize: '17px' }}>
-              Rainbond
-              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解
-              Rainbond 项目，我们特意为你准备了 Rainbond 基础功能流程的新手任务
+              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了 平台 基础功能流程的新手任务
             </p>
             <p>
               <div className={styles.stepsbox}>

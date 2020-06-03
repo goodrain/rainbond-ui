@@ -61,7 +61,7 @@ class UserLayout extends React.PureComponent {
                     rainbondInfo.title &&
                     rainbondInfo.title.enable
                       ? rainbondInfo.title.value
-                      : 'Rainbond'}
+                      : ''}
                   </h1>
                 </Link>
               </div>

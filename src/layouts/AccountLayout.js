@@ -67,7 +67,7 @@ class AccountLayout extends PureComponent {
         rainbondInfo.title &&
         rainbondInfo.title.enable &&
         rainbondInfo.title.value) ||
-      'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
+      ' Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
   };
 
@@ -120,7 +120,7 @@ class AccountLayout extends PureComponent {
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
     if (!ready || !enterprise || !enterpriseServiceInfo) {
       return <PageLoading />;
     }

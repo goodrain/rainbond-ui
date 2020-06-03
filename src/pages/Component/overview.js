@@ -118,7 +118,7 @@ class LogItem extends PureComponent {
           url: this.getSocketUrl(),
           eventId: data.event_id,
           onMessage: data => {
-            const logs = this.state.logs;
+            const {logs} = this.state;
             logs.unshift(data);
             this.setState({
               logs: [].concat(logs),
@@ -358,7 +358,7 @@ class LogItem extends PureComponent {
 // eslint-disable-next-line react/no-multi-comp
 class LogList extends PureComponent {
   render() {
-    const list = this.props.list;
+    const {list} = this.props;
     return (
       <div className={styles.logs}>
         {list.map(item => (

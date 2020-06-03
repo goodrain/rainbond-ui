@@ -10,16 +10,16 @@ import {
   Menu,
   notification,
   Spin,
-  Tooltip,
-} from 'antd';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import Debounce from 'lodash-decorators/debounce';
-import React, { PureComponent } from 'react';
-import userIcon from '../../../public/images/user-icon-small.png';
-import rainbondUtil from '../../utils/rainbond';
-import ChangePassword from '../ChangePassword';
-import styles from './index.less';
+  Tooltip
+} from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import Debounce from "lodash-decorators/debounce";
+import React, { PureComponent } from "react";
+import userIcon from "../../../public/images/user-icon-small.png";
+import rainbondUtil from "../../utils/rainbond";
+import ChangePassword from "../ChangePassword";
+import styles from "./index.less";
 
 const { Header } = Layout;
 
@@ -27,26 +27,26 @@ const { Header } = Layout;
   rainbondInfo: global.rainbondInfo,
   appDetail: appControl.appDetail,
   currentUser: user.currentUser,
-  enterpriseServiceInfo: order.enterpriseServiceInfo,
+  enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showChangePassword: false,
+      showChangePassword: false
     };
   }
 
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
-    if (key === 'userCenter') {
+    if (key === "userCenter") {
       dispatch(routerRedux.replace(`/account/center`));
     }
-    if (key === 'cpw') {
+    if (key === "cpw") {
       this.showChangePass();
     }
-    if (key === 'logout') {
-      dispatch({ type: 'user/logout' });
+    if (key === "logout") {
+      dispatch({ type: "user/logout" });
     }
   };
   showChangePass = () => {
@@ -57,13 +57,13 @@ export default class GlobalHeader extends PureComponent {
   };
   handleChangePass = vals => {
     this.props.dispatch({
-      type: 'user/changePass',
+      type: "user/changePass",
       payload: {
-        ...vals,
+        ...vals
       },
       callback: () => {
-        notification.success({ message: '修改成功，请重新登录' });
-      },
+        notification.success({ message: "修改成功，请重新登录" });
+      }
     });
   };
 
@@ -72,7 +72,6 @@ export default class GlobalHeader extends PureComponent {
     onCollapse(!collapsed);
   };
   @Debounce(600)
-
   handleVip = () => {
     const { dispatch, eid } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
@@ -84,7 +83,7 @@ export default class GlobalHeader extends PureComponent {
       customHeader,
       rainbondInfo,
       collapsed,
-      enterpriseServiceInfo,
+      enterpriseServiceInfo
     } = this.props;
     if (!currentUser && !enterpriseServiceInfo) {
       return null;
@@ -115,7 +114,7 @@ export default class GlobalHeader extends PureComponent {
           <Icon
             component={component}
             style={{
-              marginRight: 8,
+              marginRight: 8
             }}
           />
           {text}
@@ -126,9 +125,9 @@ export default class GlobalHeader extends PureComponent {
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {MenuItems('userCenter', handleUserSvg, '个人中心')}
-          {MenuItems('cpw', handleEditSvg, '修改密码')}
-          {MenuItems('logout', handleLogoutSvg, '退出登录')}
+          {MenuItems("userCenter", handleUserSvg, "个人中心")}
+          {MenuItems("cpw", handleEditSvg, "修改密码")}
+          {MenuItems("logout", handleLogoutSvg, "退出登录")}
         </Menu>
       </div>
     );
@@ -136,18 +135,19 @@ export default class GlobalHeader extends PureComponent {
       <Header className={styles.header}>
         <Icon
           className={styles.trigger}
-          type={!collapsed ? 'menu-unfold' : 'menu-fold'}
-          style={{ color: '#ffffff', float: 'left' }}
+          type={!collapsed ? "menu-unfold" : "menu-fold"}
+          style={{ color: "#ffffff", float: "left" }}
           onClick={this.toggle}
         />
         {customHeader && customHeader()}
         <div className={styles.right}>
-          {enterpriseServiceInfo.type === 'free' && (
-            <Button type="primary" onClick={this.handleVip}>
-              升级付费服务
-            </Button>
-          )}
-          {rainbondUtil.documentEnable(rainbondInfo) && (
+          {rainbondUtil.isEnableBillingFunction() &&
+            enterpriseServiceInfo.type === "free" && (
+              <Button type="primary" onClick={this.handleVip}>
+                升级付费服务
+              </Button>
+            )}
+          {/* {rainbondUtil.documentEnable(rainbondInfo) && (
             <Tooltip title="平台使用手册">
               <a
                 target="_blank"
@@ -158,7 +158,7 @@ export default class GlobalHeader extends PureComponent {
                 <Icon type="question-circle-o" />
               </a>
             </Tooltip>
-          )}
+          )} */}
 
           {currentUser ? (
             <Dropdown overlay={menu}>
@@ -171,7 +171,7 @@ export default class GlobalHeader extends PureComponent {
             <Spin
               size="small"
               style={{
-                marginLeft: 8,
+                marginLeft: 8
               }}
             />
           )}

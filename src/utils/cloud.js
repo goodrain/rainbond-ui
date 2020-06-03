@@ -1,6 +1,6 @@
 import { notification } from 'antd'
 
-var aliyunRegionNames = [
+const aliyunRegionNames = [
   {
     RegionId: 'cn-qingdao',
     RegionEndpoint: 'ecs.aliyuncs.com',
@@ -108,7 +108,7 @@ var aliyunRegionNames = [
   }
 ]
 
-var createKubernetesSteps = {
+const createKubernetesSteps = {
   Init: {
     Title: '控制器初始化',
     Description: '检测提供的参数是否正确',
@@ -143,7 +143,7 @@ var createKubernetesSteps = {
   }
 }
 
-var initRainbondSteps = {
+const initRainbondSteps = {
   Init: {
     Title: '控制器初始化',
     Description: '检测提供的参数是否正确',
@@ -482,14 +482,14 @@ const cloud = {
     }
   },
   showCreateKubernetesSteps (events) {
-    var colorMap = {
+    const colorMap = {
       start: '',
       '': 'gray',
       failure: 'red',
       success: 'green'
     }
     let complete = false
-    let steps = []
+    const steps = []
     events.map(item => {
       let step = createKubernetesSteps[item.type]
       if (step == undefined) {
@@ -513,14 +513,14 @@ const cloud = {
     return { complete, steps }
   },
   showInitRainbondSteps (events) {
-    var colorMap = {
+    const colorMap = {
       start: '',
       '': 'gray',
       failure: 'red',
       success: 'green'
     }
     let complete = false
-    let steps = []
+    const steps = []
     events.map(item => {
       let step = initRainbondSteps[item.type]
       if (step == undefined) {

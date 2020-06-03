@@ -2,21 +2,18 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Button, Modal, Form } from 'antd';
-import ordersUtil from '../../utils/orders';
 
 @Form.create()
 @connect()
 export default class Index extends PureComponent {
-  constructor(arg) {
-    super(arg);
-    this.state = {};
-  }
 
   handleClose = () => {
     this.hidden();
     const { onOk, eid, dispatch } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/orders/overviewService`));
-    onOk && onOk();
+    if(onOk){
+      onOk();
+    }
   };
   hidden = () => {
     const { dispatch } = this.props;

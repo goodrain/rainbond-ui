@@ -110,7 +110,7 @@ export default class EnterpriseShared extends PureComponent {
     //   }
     // })
     const file_name = file[0].name;
-    const event_id = file[0].response.data.bean.event_id;
+    const {event_id} = file[0].response.data.bean;
     this.props.dispatch({
       type: 'market/importApp',
       payload: {
@@ -128,7 +128,7 @@ export default class EnterpriseShared extends PureComponent {
   };
   onChangeUpload = info => {
     const { autoQuery } = this.state;
-    let fileList = info.fileList;
+    let {fileList} = info;
     fileList = fileList.filter(file => {
       if (file.response) {
         return file.response.msg === 'success';
@@ -142,7 +142,7 @@ export default class EnterpriseShared extends PureComponent {
       });
     }
 
-    const status = info.file.status;
+    const {status} = info.file;
     if (status === 'done') {
       this.setState({
         percents: false,
@@ -442,7 +442,7 @@ export default class EnterpriseShared extends PureComponent {
     return (
       <PageHeaderLayout
         title="离线应用模板导入"
-        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他 Rainbond 平台导出或云应用商店导出"
+        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出"
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
           <div className={styles.tit}>离线应用模板导入</div>

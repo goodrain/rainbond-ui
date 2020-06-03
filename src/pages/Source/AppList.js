@@ -83,7 +83,7 @@ class ExportBtn extends PureComponent {
   };
 
   appExport = format => {
-    const app = this.props.app;
+    const {app} = this.props;
     const app_id = app.ID;
     this.props.dispatch({
       type: 'market/appExport',
@@ -180,7 +180,7 @@ class ExportBtn extends PureComponent {
     return (
       <Fragment>
         {rainbondUtil.exportAppEnable(enterprise) && (
-          <Tooltip title="导出后的文件可直接在Rainbond平台安装">
+          <Tooltip title="导出后的文件可直接在平台安装">
             <a
               onClick={this.showAppExport}
               style={{ marginRight: 8 }}
@@ -442,27 +442,27 @@ export default class AppList extends PureComponent {
     const exportbox = querydata[id];
     const appquery = exportbox.rainbond_app;
     const composequery = exportbox.docker_compose;
-    let apptext = 'rainbond-app(点击导出)';
+    let apptext = '(点击导出)';
     let composetext = 'docker_compose(点击导出)';
     let appurl = 'javascript:;';
     let composeurl = 'javascript:;';
     let appisSuccess = 'none';
     let composeisSuccess = 'none';
-    const export_status = item.export_status;
+    const {export_status} = item;
     if (appquery) {
       if (appquery.is_export_before) {
         if (appquery.status == 'success') {
-          apptext = 'rainbond-app(点击下载)';
+          apptext = '(点击下载)';
           appisSuccess = 'success';
           appurl = appquery.file_path;
         } else if (appquery.status == 'exporting') {
-          apptext = 'rainbond-app(导出中)';
+          apptext = '(导出中)';
           appisSuccess = 'loading';
         } else {
-          apptext = 'rainbond-app(导出失败)';
+          apptext = '(导出失败)';
         }
       } else {
-        apptext = 'rainbond-app(点击导出)';
+        apptext = '(点击导出)';
       }
       if (composequery.is_export_before) {
         if (composequery.status == 'success') {
@@ -480,7 +480,7 @@ export default class AppList extends PureComponent {
       }
     } else {
       composetext = 'docker_compose(点击下载)';
-      apptext = 'rainbond-app(点击下载)';
+      apptext = '(点击下载)';
     }
 
     return (
@@ -501,7 +501,7 @@ export default class AppList extends PureComponent {
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
-    const ID = item.ID;
+    const {ID} = item;
     newvisible[ID] = flag;
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);

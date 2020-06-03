@@ -5,14 +5,14 @@ import {
   Button,
   notification,
   Select,
-} from 'antd';
+ Spin, Icon } from 'antd';
 
 import globalUtil from '../../utils/global';
 import { connect } from 'dva';
-import { Spin, Icon } from 'antd';
+
 import DescriptionList from "../../components/DescriptionList"
 
-const Option = Select.Option;
+const {Option} = Select;
 const { Description } = DescriptionList;
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
@@ -33,7 +33,7 @@ export default class AppExporter extends PureComponent {
     this.props.onCancel && this.props.onCancel();
   };
   handleExporter = (format) => {
-    const app = this.props.app;
+    const {app} = this.props;
     const app_id = app.ID;
     const { exportVersion } = this.state;
 
@@ -53,7 +53,7 @@ export default class AppExporter extends PureComponent {
         }
       },
     });
-    return
+
   }
   queryExport = () => {
     const item = this.props.app || {};
@@ -124,44 +124,81 @@ export default class AppExporter extends PureComponent {
   };
   getAction = (app_status, type) => {
     if (!app_status.is_export_before) {
-      return (<Button type="primary" size="small" onClick={() => {
+      return (<Button
+        type="primary"
+        size="small"
+        onClick={() => {
         this.handleExporter(type)
-      }}>导出</Button>)
+      }}
+      >导出
+              </Button>)
     }
 
     if (app_status.status == "success") {
       return (
         <div>
-          <Button type="primary" size="small" onClick={() => {
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => {
             this.download(app_status.file_path)
-          }}>下载</Button>
-          <Button style={{ marginLeft: 16 }} onClick={() => {
+          }}
+          >下载
+          </Button>
+          <Button
+            style={{ marginLeft: 16 }}
+            onClick={() => {
             this.handleExporter(type)
-          }}>重新导出</Button>
+          }}
+          >重新导出
+          </Button>
         </div>
       )
     }
     if (app_status.status == "exporting") {
       return (
         <div>
-          <Button disabled type="primary" size="small" onClick={() => {
+          <Button
+            disabled
+            type="primary"
+            size="small"
+            onClick={() => {
             this.download(downloadPath)
-          }}>下载</Button>
-          <Button disabled style={{ marginLeft: 16 }} size="small" onClick={() => {
+          }}
+          >下载
+          </Button>
+          <Button
+            disabled
+            style={{ marginLeft: 16 }}
+            size="small"
+            onClick={() => {
             this.handleExporter(type)
-          }}>重新导出</Button>
+          }}
+          >重新导出
+          </Button>
         </div>
       )
     }
     if (app_status.status == "failed") {
       return (
         <div>
-          <Button disabled type="primary" size="small" onClick={() => {
+          <Button
+            disabled
+            type="primary"
+            size="small"
+            onClick={() => {
             this.download(downloadPath)
-          }}>下载</Button>
-          <Button style={{ marginLeft: 16 }} size="small" onClick={() => {
+          }}
+          >下载
+          </Button>
+          <Button
+            style={{ marginLeft: 16 }}
+            size="small"
+            onClick={() => {
             this.handleExporter(type)
-          }}>重新导出</Button>
+          }}
+          >重新导出
+          </Button>
         </div>
       )
     }
@@ -172,7 +209,7 @@ export default class AppExporter extends PureComponent {
     }
     const rainbond_app_status = this.state.app_exporte_status.rainbond_app
     return (
-      <DescriptionList size="large" title="RainbondApp规范(Rainbond平台可用)" style={{ marginBottom: 32 }}>
+      <DescriptionList size="large" title="App规范(平台可用)" style={{ marginBottom: 32 }}>
         <Description term="导出状态">{this.getStatus(rainbond_app_status)}</Description>
         {this.getAction(rainbond_app_status, "rainbond-app")}
       </DescriptionList>
@@ -214,7 +251,7 @@ export default class AppExporter extends PureComponent {
             {this.state.exportVersionList.map((item, index) => {
               return <Option key={index} value={item}>{item}</Option>
             })}
-          </Select>
+               </Select>
         </div>
         {this.getRainbondAppShow()}
         {!(this.props.app.source == "market") && this.getDockerComposeAppShow()}

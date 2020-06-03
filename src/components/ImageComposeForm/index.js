@@ -69,7 +69,7 @@ export default class Index extends PureComponent {
             />
 
             <Form.Item {...formItemLayout} label="注意">
-              Rainbond 将解析 DockerCompose
+              将解析 DockerCompose
               配置中的组件相关属性用来便捷创建组件，其中的动态变量不支持解析赋值,
               其中使用了私有仓库的镜像?{' '}
               <a
