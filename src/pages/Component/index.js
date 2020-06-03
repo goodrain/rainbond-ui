@@ -235,6 +235,16 @@ class Main extends PureComponent {
     this.socket = null;
   }
 
+  getChildContext() {
+    return {
+      isActionIng: res => {
+        this.setState({ actionIng: res });
+      },
+      appRolback: data => {
+        this.handleRollback(data);
+      },
+    };
+  }
   componentDidMount() {
     this.loadDetail();
     setTimeout(() => {
