@@ -1,51 +1,27 @@
 import React, { PureComponent, Fragment } from 'react';
 
 import { connect } from 'dva';
-import {
-  Card,
-  Button,
-  Col,
-  Row,
-  Menu,
-  Dropdown,
-  Icon,
-  Spin,
-  List,
-  Tag,
-  Radio,
-  Input,
-  Tooltip,
-  Pagination,
-  notification,
-  Avatar,
-} from 'antd';
-import { routerRedux } from 'dva/router';
-import BasicListStyles from '../List/BasicList.less';
-import userUtil from '../../utils/user';
-import CloudApp from './CloudApp';
+import { Card, Icon, List, Tag, Input, Tooltip, Avatar } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import CloudApp from './CloudApp';
 import rainbondUtil from '../../utils/rainbond';
-
 import styles from './index.less';
+import BasicListStyles from '../List/BasicList.less';
 
 const { Search } = Input;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
-    const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       loading: true,
-      page_size: 10,
+      pageSize: 10,
       total: 0,
-      app_name: '',
+      appName: '',
       page: 1,
       scope: 'enterprise',
       showCloudApp: true,
@@ -55,24 +31,63 @@ export default class EnterpriseShared extends PureComponent {
   componentDidMount() {
     const { user } = this.props;
     if (user) {
-      this.load();
+      this.getApps();
     }
   }
-  handleSearch = app_name => {
-    this.setState(
-      {
-        app_name,
-        page: 1,
+
+  getApps = () => {
+    const {
+      dispatch,
+      user,
+      match: {
+        params: { eid },
       },
-      () => {
-        this.load();
-      }
-    );
-  };
-  load = () => {
-    this.getApps();
+    } = this.props;
+    const { page, pageSize, appName, scope } = this.state;
+    dispatch({
+      type: 'market/fetchAppModels',
+      payload: {
+        enterprise_id: eid,
+        user_id: user.user_id,
+        app_name: appName,
+        scope,
+        page,
+        page_size: pageSize,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            componentList: res.list,
+            loading: false,
+            total: res.total,
+          });
+        }
+      },
+    });
   };
 
+  getAction = item => {
+    const { versions_info: versionsInfo = [] } = item;
+    if (versionsInfo && versionsInfo.length > 0) {
+      return (
+        <Fragment>
+          <Tag
+            style={{
+              height: '17px',
+              lineHeight: '16px',
+              color: '#999999',
+              border: 'none',
+              background: 'none',
+            }}
+            size="small"
+          >
+            {versionsInfo[0].version}
+          </Tag>
+        </Fragment>
+      );
+    }
+    return '-';
+  };
   handlePageChange = page => {
     this.setState(
       {
@@ -84,78 +99,43 @@ export default class EnterpriseShared extends PureComponent {
     );
   };
 
-  getApps = () => {
-    const {
-      dispatch,
-      user,
-      match: {
-        params: { eid },
+  handleSearch = appName => {
+    this.setState(
+      {
+        appName,
+        page: 1,
       },
-    } = this.props;
-    const { page, page_size, app_name, scope } = this.state;
-    dispatch({
-      type: 'market/fetchAppModels',
-      payload: {
-        enterprise_id: eid,
-        user_id: user.user_id,
-        app_name,
-        scope,
-        page,
-        page_size,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            componentList: res.list,
-            loading: false,
-          });
-        }
-      },
-    });
-  };
-  getAction = item => {
-    if (item.versions_info && item.versions_info.length > 0) {
-      return (
-        <Fragment>
-          {item.versions_info.map((item, index) => {
-            return (
-              <Tag
-                style={{
-                  height: '17px',
-                  lineHeight: '16px',
-                  color: '#999999',
-                  border: 'none',
-                  background: 'none',
-                }}
-                size="small"
-                key={index}
-              >
-                {item.version}
-              </Tag>
-            );
-          })}
-        </Fragment>
-      );
-    }
-    return '-';
+      () => {
+        this.getApps();
+      }
+    );
   };
   render() {
-    const { componentList } = this.state;
     const {
-      rainbondInfo,
       enterprise,
       match: {
         params: { eid },
       },
     } = this.props;
+
+    const {
+      componentList,
+      pageSize,
+      total,
+      page,
+      showCloudApp,
+      loading,
+    } = this.state;
+
     const paginationProps = {
-      page_size: this.state.page_size,
-      total: this.state.total,
-      current: this.state.page,
-      onChange: page_size => {
-        this.handlePageChange(page_size);
+      page_size: pageSize,
+      total,
+      current: page,
+      onChange: pages => {
+        this.handlePageChange(pages);
       },
     };
+
     return (
       <PageHeaderLayout
         title="云端应用商店应用同步"
@@ -170,7 +150,7 @@ export default class EnterpriseShared extends PureComponent {
         <div
           className={BasicListStyles.standardList}
           style={{
-            display: this.state.showCloudApp ? 'flex' : 'block',
+            display: showCloudApp ? 'flex' : 'block',
             position: 'relative',
             overflow: 'hidden',
           }}
@@ -215,12 +195,10 @@ export default class EnterpriseShared extends PureComponent {
                   </p>
                 ),
               }}
-              loading={this.state.loading}
+              loading={loading}
               pagination={paginationProps}
               dataSource={componentList}
-              renderItem={(item, index) => {
-                const itemID = item.app_id;
-
+              renderItem={item => {
                 const renderItem = (
                   <List.Item actions={[this.getAction(item)]}>
                     <List.Item.Meta
@@ -228,24 +206,15 @@ export default class EnterpriseShared extends PureComponent {
                         <Avatar
                           src={
                             item.pic ||
+                            // eslint-disable-next-line global-require
                             require('../../../public/images/app_icon.jpg')
                           }
                           shape="square"
                           size="large"
-                          onClick={() => {
-                            // this.showMarketAppDetail(item);
-                          }}
                         />
                       }
                       title={
-                        <a
-                          style={{ color: '#384551' }}
-                          onClick={() => {
-                            // this.showMarketAppDetail(item);
-                          }}
-                        >
-                          {item.app_name}
-                        </a>
+                        <a style={{ color: '#384551' }}>{item.app_name}</a>
                       }
                       description={
                         <Tooltip title={item.describe}>
@@ -262,7 +231,7 @@ export default class EnterpriseShared extends PureComponent {
           <div
             style={{
               transition: 'all .8s',
-              transform: this.state.showCloudApp
+              transform: showCloudApp
                 ? 'translate3d(0, 0, 0)'
                 : 'translate3d(100%, 0, 0)',
               marginLeft: 8,

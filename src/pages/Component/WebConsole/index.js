@@ -36,7 +36,6 @@ export default class WebConsole extends PureComponent {
   }
   componentDidMount() {
     this.loadDetail();
-    this.fetchPods(true);
   }
   onEdit = (targetKey, action) => {
     this[action](targetKey);
@@ -91,6 +90,11 @@ export default class WebConsole extends PureComponent {
 
   fetchPods = isAssignment => {
     this.setState({ loading: true });
+    const {
+      appDetail: {
+        service: { service_id },
+      },
+    } = this.state;
     this.props.dispatch({
       type: 'appControl/fetchPods',
       payload: {
@@ -113,9 +117,10 @@ export default class WebConsole extends PureComponent {
           pods[0].container &&
           pods[0].container.length > 0
         ) {
-          const noPlugContainers = pods[0].container.filter(
-            item => !item.container_name.includes('plugin')
+          const noPlugContainers = pods[0].container.filter(item =>
+            item.container_name.includes(service_id)
           );
+
           const container_name =
             noPlugContainers && noPlugContainers.length > 0
               ? noPlugContainers[0].container_name
@@ -146,7 +151,9 @@ export default class WebConsole extends PureComponent {
         app_alias: globalUtil.getComponentID(),
       },
       callback: appDetail => {
-        this.setState({ appDetail });
+        this.setState({ appDetail }, () => {
+          this.fetchPods(true);
+        });
       },
     });
   };
@@ -171,7 +178,7 @@ export default class WebConsole extends PureComponent {
     this.setState({ tabs: tab, activeKey });
   };
 
-  leftRender = () => {
+  leftRender = service => {
     const { pods, loading } = this.state;
     let defaultSelectedKeys = [];
     if (
@@ -218,18 +225,29 @@ export default class WebConsole extends PureComponent {
               defaultSelectedKeys={defaultSelectedKeys}
             >
               {pods.map(pod => {
-                let title = pod.pod_name;
+                const { pod_name: podName } = pod;
+                let title = podName;
                 if (title.includes('deployment')) {
                   title = title.slice(title.indexOf('-') + 1);
                 }
                 return (
-                  <TreeNode title={`实例/${title}`} key={pod.pod_name}>
+                  <TreeNode title={`实例/${title}`} key={podName}>
                     {pod.container.map(container => {
+                      const { container_name: containerName } = container;
+                      let titleName = `容器/${containerName}`;
+                      if (containerName.includes(service.service_id)) {
+                        titleName = `组件容器`;
+                      } else if (containerName.includes('plugin')) {
+                        titleName = `插件容器`;
+                      } else if (containerName.includes('default-tcpmesh')) {
+                        titleName = `默认Mesh容器`;
+                      }
+
                       return (
                         <TreeNode
                           isLeaf
-                          title={`容器/${container.container_name}`}
-                          key={`${pod.pod_name}.${container.container_name}`}
+                          title={titleName}
+                          key={`${podName}.${containerName}`}
                         />
                       );
                     })}
@@ -260,10 +278,15 @@ export default class WebConsole extends PureComponent {
 
   render() {
     const { leftWidth, tabs, appDetail, activeKey } = this.state;
+    const service = appDetail && appDetail.service;
     return (
       <Row className={styles.box}>
-        <Col className={styles.col} span={leftWidth}>
-          {this.leftRender()}
+        <Col
+          className={styles.col}
+          style={{ background: '#2f2a2a' }}
+          span={leftWidth}
+        >
+          {service && this.leftRender(service)}
         </Col>
         <Col className={styles.col} span={24 - leftWidth}>
           <span onClick={this.controllLeft} className={styles.control}>
@@ -302,7 +325,7 @@ export default class WebConsole extends PureComponent {
             )}
           </span>
           <div className={styles.tabs}>
-            {tabs.length > 0 && appDetail && appDetail.service && (
+            {tabs.length > 0 && service && (
               <Tabs
                 defaultActiveKey={`${tabs[tabs.length - 1].key}`}
                 onChange={this.onChange}

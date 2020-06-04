@@ -425,27 +425,35 @@ export default class Index extends PureComponent {
     this.loadBuildSourceInfo();
     this.fetchAppDiskAndMemory();
     this.getVersionList();
-    this.fetchPods(true);
-    this.fetchOperationLog(true);
+    this.load();
   }
+
+  componentWillReceiveProps(nextProps) {
+    const { status: newStatus, timers: newTimers } = nextProps;
+    const { status, timers } = this.props;
+    if (newStatus !== status) {
+      // eslint-disable-next-line react/no-unused-state
+      this.setState({ status: newStatus });
+    }
+    if (newTimers !== timers) {
+      this.setState({ componentTimers: newTimers }, () => {
+        if (newTimers) {
+          this.load();
+        } else {
+          this.closeTimer();
+        }
+      });
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
     this.closeTimer();
   }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (
-      nextProps.status !== prevState.status ||
-      nextProps.timers !== prevState.timers
-    ) {
-      return {
-        status: nextProps.status,
-        componentTimers: nextProps.timers,
-      };
-    }
-    return null;
-  }
-
+  load = () => {
+    this.fetchPods(true);
+    this.fetchOperationLog(true);
+  };
   closeTimer = () => {
     if (this.fetchOperationLogTimer) {
       clearInterval(this.fetchOperationLogTimer);
@@ -532,6 +540,10 @@ export default class Index extends PureComponent {
     }
   };
   handleTimers = (timerName, callback, times) => {
+    const { componentTimers } = this.state;
+    if (!componentTimers) {
+      return null;
+    }
     this[timerName] = setTimeout(() => {
       callback();
     }, times);

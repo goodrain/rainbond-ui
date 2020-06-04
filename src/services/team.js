@@ -363,6 +363,7 @@ export async function getTeamRegionGroups(body) {
       method: 'get',
       params: {
         query: body.query,
+        region_name: body.region_name,
       },
     }
   );

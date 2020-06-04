@@ -29,6 +29,7 @@ import {
   createTeam,
 } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import cookie from '../../utils/cookie';
 import roleUtil from '../../utils/role';
 import styles from './Index.less';
 
@@ -155,11 +156,16 @@ class Main extends PureComponent {
 
   loadTopology(isCycle) {
     const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+    cookie.set('team_name', team_name);
+    cookie.set('region_name', region_name);
+
     dispatch({
       type: 'global/fetAllTopology',
       payload: {
-        region_name: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
+        region_name,
+        team_name,
         groupId: this.getGroupId(),
       },
       callback: res => {

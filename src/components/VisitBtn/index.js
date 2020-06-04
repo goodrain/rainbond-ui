@@ -1,7 +1,5 @@
 import React, { PureComponent, Fragment } from 'react';
 import {
-  Row,
-  Col,
   Button,
   Modal,
   Dropdown,
@@ -15,14 +13,10 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import DescriptionList from '../../components/DescriptionList';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { link } from 'fs';
 import styles from './index.less';
-
-const { Description } = DescriptionList;
 
 /*
   access_type : no_port|无端口、
@@ -50,18 +44,29 @@ export default class Index extends PureComponent {
     this.mount = true;
     this.fetchVisitInfo();
   }
+
+  componentWillReceiveProps(nextProps) {
+    const { timers: newTimers } = nextProps;
+    const { timers } = this.props;
+    if (newTimers !== timers) {
+      this.setState(
+        {
+          componentTimers: newTimers,
+        },
+        () => {
+          if (newTimers) {
+            this.fetchVisitInfo();
+          } else {
+            this.closeTimer();
+          }
+        }
+      );
+    }
+  }
   componentWillUnmount() {
     this.closeTimer();
     this.mount = false;
     this.props.dispatch({ type: 'appControl/clearVisitInfo' });
-  }
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.timers !== prevState.timers) {
-      return {
-        componentTimers: nextProps.timers,
-      };
-    }
-    return null;
   }
 
   getHttpLinks = accessInfo => {
@@ -80,8 +85,8 @@ export default class Index extends PureComponent {
   };
   fetchVisitInfo = () => {
     if (!this.mount) return;
-    const appAlias = this.props.app_alias;
-    this.props.dispatch({
+    const { app_alias: appAlias, dispatch } = this.props;
+    dispatch({
       type: 'appControl/fetchVisitInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -119,6 +124,10 @@ export default class Index extends PureComponent {
     }
   };
   handleTimers = (timerName, callback, times) => {
+    const { componentTimers } = this.state;
+    if (!componentTimers) {
+      return null;
+    }
     this[timerName] = setTimeout(() => {
       callback();
     }, times);
