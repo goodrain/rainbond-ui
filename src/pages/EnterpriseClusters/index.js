@@ -82,12 +82,12 @@ export default class EnterpriseClusters extends PureComponent {
       },
       callback: res => {
         if (res && res.list) {
-          let clusters = [];
+          const clusters = [];
           res.list.map((item, index) => {
             item.key = `cluster${index}`;
             clusters.push(item);
           });
-          this.setState({ clusters: clusters });
+          this.setState({ clusters });
         }
       },
     });
@@ -123,7 +123,7 @@ export default class EnterpriseClusters extends PureComponent {
 
   handlUnit = num => {
     if (num) {
-      return (num/1024).toFixed(2) / 1;
+      return (num / 1024).toFixed(2) / 1;
     }
     return 0;
   };
@@ -176,6 +176,13 @@ export default class EnterpriseClusters extends PureComponent {
         title: '名称',
         dataIndex: 'region_alias',
         align: 'center',
+        render: (val, row) => {
+          return (
+            <Link to={`/enterprise/${eid}/clusters/${row.region_id}/dashboard`}>
+              {val}
+            </Link>
+          );
+        },
       },
       {
         title: '类型',
@@ -184,17 +191,31 @@ export default class EnterpriseClusters extends PureComponent {
         render: (val, _) => {
           return (
             <span>
-              {val && val instanceof Array && val.length>0 ? val.map(item => {
-                if (item == "development") {
-                  return <span style={{marginRight:"8px"}} key={item}>开发集群</span>
-                }
-                if (item == "ack-manage") {
-                  return <span style={{marginRight:"8px"}} key={item}>阿里云-托管集群</span>
-                }
-                if (item == "custom") {
-                  return <span style={{marginRight:"8px"}} key={item}>普通集群</span>
-                }
-              }) : "普通集群"}
+              {val && val instanceof Array && val.length > 0
+                ? val.map(item => {
+                    if (item == 'development') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          开发集群
+                        </span>
+                      );
+                    }
+                    if (item == 'ack-manage') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          阿里云-托管集群
+                        </span>
+                      );
+                    }
+                    if (item == 'custom') {
+                      return (
+                        <span style={{ marginRight: '8px' }} key={item}>
+                          普通集群
+                        </span>
+                      );
+                    }
+                  })
+                : '普通集群'}
             </span>
           );
         },

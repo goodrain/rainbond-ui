@@ -71,6 +71,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/clusters/:clusterID/dashboard',
+            component: './EnterpriseClusterDashboard',
+            name: 'EnterpriseClusterDashboard',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/orders/:orderType',
             component: './EnterpriseOrders',
             name: 'EnterpriseOrders',
