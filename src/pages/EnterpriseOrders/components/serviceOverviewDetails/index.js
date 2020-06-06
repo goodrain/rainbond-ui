@@ -48,7 +48,7 @@ export default class ServiceOverview extends PureComponent {
     };
   }
   componentWillMount() {
-    this.fetchEnterpriseService();
+    // this.fetchEnterpriseService();
   }
   componentDidMount() {}
   fetchEnterpriseService = () => {

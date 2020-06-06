@@ -41,7 +41,7 @@ import styles from "../List/BasicList.less";
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
   overviewInfo: index.overviewInfo,
-  enterpriseServiceInfo: order.enterpriseServiceInfo
+  // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
@@ -379,7 +379,7 @@ export default class Enterprise extends PureComponent {
       ...teamBox,
       ...{ height: "68px", padding: "24px", cursor: "pointer" }
     };
-    const { rainbondInfo, enterpriseServiceInfo } = this.props;
+    const { rainbondInfo } = this.props;
     const {
       enterpriseInfo,
       overviewInfo,
@@ -516,10 +516,10 @@ export default class Enterprise extends PureComponent {
               {enterpriseInfo && (
                 <div className={styles.enterpriseName}>
                   企业名称：{enterpriseInfo.enterprise_alias}(
-                  {enterpriseServiceInfo && enterpriseServiceInfo.type === "vip"
+                  {/* {enterpriseServiceInfo && enterpriseServiceInfo.type === "vip"
                     ? "付费用户"
                     : "免费用户"}
-                  )
+                  ) */}
                 </div>
               )}
               {enterpriseInfo && (
@@ -544,7 +544,7 @@ export default class Enterprise extends PureComponent {
                   </p>
                 </div>
               )}
-              {(!enterpriseServiceInfo ||
+              {/* {(!enterpriseServiceInfo ||
                 enterpriseServiceInfo.type != "vip") &&
                 rainbondUtil.isEnableBillingFunction() && (
                   <div className={styles.btns}>
@@ -558,7 +558,7 @@ export default class Enterprise extends PureComponent {
                       获取商业解决方案
                     </Button>
                   </div>
-                )}
+                )} */}
             </div>
             <div>
               <img src={EnterpriseBj} alt="" style={{ marginRight: "54px" }} />

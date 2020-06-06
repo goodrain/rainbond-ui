@@ -241,7 +241,7 @@ class EnterpriseLayout extends PureComponent {
       return null;
     }
     const { dispatch } = this.props;
-    this.fetchEnterpriseService(eid);
+    // this.fetchEnterpriseService(eid);
     this.loadClusters(eid);
     dispatch({
       type: "global/fetchEnterpriseInfo",
@@ -264,7 +264,6 @@ class EnterpriseLayout extends PureComponent {
   render() {
     const {
       currentUser,
-      enterpriseServiceInfo,
       collapsed,
       location: { pathname },
       match: {
@@ -282,7 +281,7 @@ class EnterpriseLayout extends PureComponent {
     const queryString = stringify({
       redirect: window.location.href
     });
-    if (!ready || !enterpriseInfo || !enterpriseServiceInfo) {
+    if (!ready || !enterpriseInfo) {
       return <PageLoading />;
     }
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
@@ -292,7 +291,7 @@ class EnterpriseLayout extends PureComponent {
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
-          {BillingFunction && (
+          {/* {BillingFunction && (
             <Tooltip
               title={
                 enterpriseServiceInfo.type === "vip"
@@ -302,7 +301,7 @@ class EnterpriseLayout extends PureComponent {
             >
               {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
             </Tooltip>
-          )}
+          )} */}
           {enterpriseInfo && enterpriseInfo.enterprise_alias}
         </div>
       );
@@ -411,7 +410,7 @@ class EnterpriseLayout extends PureComponent {
 
         {orders && BillingFunction && (
           <ServiceOrder
-            enterpriseServiceInfo={enterpriseServiceInfo}
+            // enterpriseServiceInfo={enterpriseServiceInfo}
             eid={eid}
             orders={orders}
           />
@@ -438,5 +437,5 @@ export default connect(({ user, global, index, loading, order }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
-  enterpriseServiceInfo: order.enterpriseServiceInfo
+  // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))(EnterpriseLayout);

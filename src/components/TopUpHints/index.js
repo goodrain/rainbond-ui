@@ -7,7 +7,7 @@ import rainbondUtil from "../../utils/rainbond";
 
 @Form.create()
 @connect(({ order }) => ({
-  enterpriseServiceInfo: order.enterpriseServiceInfo
+  // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class Index extends PureComponent {
   state = {

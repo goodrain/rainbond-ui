@@ -27,7 +27,7 @@ const { Header } = Layout;
   rainbondInfo: global.rainbondInfo,
   appDetail: appControl.appDetail,
   currentUser: user.currentUser,
-  enterpriseServiceInfo: order.enterpriseServiceInfo
+  // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class GlobalHeader extends PureComponent {
   constructor(props) {
@@ -83,9 +83,9 @@ export default class GlobalHeader extends PureComponent {
       customHeader,
       rainbondInfo,
       collapsed,
-      enterpriseServiceInfo
+      // enterpriseServiceInfo
     } = this.props;
-    if (!currentUser && !enterpriseServiceInfo) {
+    if (!currentUser ) {
       return null;
     }
     const handleUserSvg = () => (
@@ -141,12 +141,12 @@ export default class GlobalHeader extends PureComponent {
         />
         {customHeader && customHeader()}
         <div className={styles.right}>
-          {rainbondUtil.isEnableBillingFunction() &&
+          {/* {rainbondUtil.isEnableBillingFunction() &&
             enterpriseServiceInfo.type === "free" && (
               <Button type="primary" onClick={this.handleVip}>
                 升级付费服务
               </Button>
-            )}
+            )} */}
           {/* {rainbondUtil.documentEnable(rainbondInfo) && (
             <Tooltip title="平台使用手册">
               <a

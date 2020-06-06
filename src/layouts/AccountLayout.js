@@ -88,7 +88,7 @@ class AccountLayout extends PureComponent {
   fetchEnterpriseInfo = () => {
     const { dispatch, currentUser } = this.props;
     if (currentUser && currentUser.enterprise_id) {
-      this.fetchEnterpriseService(currentUser.enterprise_id);
+      // this.fetchEnterpriseService(currentUser.enterprise_id);
       dispatch({
         type: 'global/fetchEnterpriseInfo',
         payload: {
@@ -116,12 +116,11 @@ class AccountLayout extends PureComponent {
       enterprise,
       location,
       location: { pathname },
-      enterpriseServiceInfo,
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
-    if (!ready || !enterprise || !enterpriseServiceInfo) {
+    if (!ready || !enterprise) {
       return <PageLoading />;
     }
     const queryString = stringify({
@@ -232,5 +231,4 @@ export default connect(({ user, global, order }) => ({
   rainbondInfo: global.rainbondInfo,
   collapsed: global.collapsed,
   enterprise: global.enterprise,
-  enterpriseServiceInfo: order.enterpriseServiceInfo,
 }))(AccountLayout);

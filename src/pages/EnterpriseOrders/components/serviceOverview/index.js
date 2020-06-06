@@ -18,7 +18,7 @@ export default class ServiceOverview extends PureComponent {
   }
 
   componentWillMount() {
-    this.fetchEnterpriseService();
+    // this.fetchEnterpriseService();
   }
   handlRefresh = () => {
     const { dispatch, eid } = this.props;

@@ -292,7 +292,7 @@ class TeamLayout extends PureComponent {
     if (!eid) {
       return null;
     }
-    this.fetchEnterpriseService(eid);
+    // this.fetchEnterpriseService(eid);
     const { dispatch } = this.props;
     dispatch({
       type: "global/fetchEnterpriseInfo",
@@ -353,7 +353,7 @@ class TeamLayout extends PureComponent {
   render() {
     const {
       currentUser,
-      enterpriseServiceInfo,
+      // enterpriseServiceInfo,
       collapsed,
       children,
       location: { pathname },
@@ -385,7 +385,6 @@ class TeamLayout extends PureComponent {
       !ready ||
       !currentEnterprise ||
       !currentTeam ||
-      !enterpriseServiceInfo ||
       !currentTeamPermissionsInfo
     ) {
       return <PageLoading />;
@@ -416,23 +415,23 @@ class TeamLayout extends PureComponent {
     }
 
     const mode = this.getMode(appID || componentID);
-    const nobleIcon = (
-      <Tooltip
-        title={
-          enterpriseServiceInfo.type === "vip"
-            ? "尊贵的付费企业用户"
-            : "免费用户"
-        }
-      >
-        {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
-      </Tooltip>
-    );
+    // const nobleIcon = (
+    //   <Tooltip
+    //     title={
+    //       enterpriseServiceInfo.type === "vip"
+    //         ? "尊贵的付费企业用户"
+    //         : "免费用户"
+    //     }
+    //   >
+    //     {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
+    //   </Tooltip>
+    // );
 
     const customHeader = () => {
       if (mode == "team") {
         return (
           <TeamHeader
-            nobleIcon={BillingFunction && nobleIcon}
+            nobleIcon={BillingFunction}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -450,7 +449,7 @@ class TeamLayout extends PureComponent {
           currentRegion={currentRegion}
           regionName={regionName}
           appID={appID}
-          nobleIcon={BillingFunction && nobleIcon}
+          nobleIcon={BillingFunction}
           currentComponent={currentComponent}
           componentID={componentID}
           upDataHeader={upDataHeader}
@@ -627,7 +626,7 @@ class TeamLayout extends PureComponent {
         )}
         {orders && BillingFunction && (
           <ServiceOrder
-            enterpriseServiceInfo={enterpriseServiceInfo}
+            // enterpriseServiceInfo={enterpriseServiceInfo}
             eid={currentEnterprise && currentEnterprise.enterprise_id}
             orders={orders}
           />
@@ -654,7 +653,7 @@ export default connect(
     nouse: global.nouse,
     enterprise: global.enterprise,
     orders: global.orders,
-    enterpriseServiceInfo: order.enterpriseServiceInfo,
+    // enterpriseServiceInfo: order.enterpriseServiceInfo,
     upDataHeader: global.upDataHeader,
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   })

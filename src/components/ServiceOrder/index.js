@@ -39,10 +39,10 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { orders, enterpriseServiceInfo } = this.props;
-    if (!enterpriseServiceInfo) {
-      return false;
-    }
+    const { orders } = this.props;
+    // if (!enterpriseServiceInfo) {
+    //   return false;
+    // }
     return (
       <Modal
         width={800}
