@@ -78,8 +78,8 @@ export default class EnterpriseClusters extends PureComponent {
     }
   }
   componentDidMount() {
-    this.getAccessKey();
-    this.loadRunningInitTasks();
+    // this.getAccessKey();
+    // this.loadRunningInitTasks();
   }
 
   // getAccessKey get enterprise accesskey
@@ -478,7 +478,7 @@ export default class EnterpriseClusters extends PureComponent {
       </svg>
     );
     const providers = cloud.getProviders();
-    const K8sCluster = rainbondUtil.isEnableK8sCluster();
+    const K8sCluster = rainbondUtil.isEnableK8sCluster() || false;
     return (
       <PageHeaderLayout
         title="添加集群"
@@ -501,9 +501,7 @@ export default class EnterpriseClusters extends PureComponent {
                 <div className={styles.importicon}>{icon}</div>
                 <div className={styles.importDesc}>
                   <h3>导入</h3>
-                  <p>
-                    导入现有的集群，集群的配置和维护由用户负责。
-                  </p>
+                  <p>导入现有的集群，集群的配置和维护由用户负责。</p>
                 </div>
               </div>
             </Col>
@@ -660,7 +658,7 @@ export default class EnterpriseClusters extends PureComponent {
             onCancel={this.cancelAddCluster}
           />
         )}
-        {showInitTaskDetail && (
+        {K8sCluster && showInitTaskDetail && (
           <ShowInitRainbondDetail
             onCancel={this.cancelShowInitDetail}
             eid={eid}
@@ -669,7 +667,7 @@ export default class EnterpriseClusters extends PureComponent {
             clusterID={initTask.clusterID}
           />
         )}
-        {initShow && (
+        {K8sCluster && initShow && (
           <Modal
             width={600}
             centered
