@@ -20,11 +20,9 @@ class TeamPermissions extends React.PureComponent {
   }
 
   fetchUserInfo = () => {
-    const { dispatch, currentUser } = this.props;
+    const { dispatch } = this.props;
     const { teamName } = this.props.match.params;
-    if (currentUser && teamName) {
-      this.handleResults(currentUser.teams, teamName);
-    } else if (teamName) {
+    if (teamName) {
       dispatch({
         type: 'user/fetchCurrent',
         callback: res => {
@@ -81,6 +79,4 @@ class TeamPermissions extends React.PureComponent {
   }
 }
 
-export default connect(({ user }) => ({
-  currentUser: user.currentUser,
-}))(TeamPermissions);
+export default connect()(TeamPermissions);

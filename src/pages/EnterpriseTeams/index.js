@@ -323,20 +323,38 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState({ joinTeam: false });
   };
 
-  showRegions = (team_name, regions) => {
+  showRegions = (team_name, regions, ismanagement = false) => {
     return regions.map(item => {
       return (
         <Button
           key={`${item.region_name}region`}
           className={styles.regionShow}
           onClick={() => {
-            this.onJumpTeam(team_name, item.region_name);
+            if (ismanagement) {
+              this.handleJoinTeams(team_name, item.region_name);
+            } else {
+              this.onJumpTeam(team_name, item.region_name);
+            }
           }}
         >
           {item.region_alias}
           <Icon type="right" />
         </Button>
       );
+    });
+  };
+  handleJoinTeams = (teamName, region) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'teamControl/joinTeam',
+      payload: {
+        team_name: teamName,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.onJumpTeam(teamName, region);
+        }
+      },
     });
   };
   onJumpTeam = (team_name, region) => {
@@ -515,7 +533,9 @@ export default class EnterpriseTeams extends PureComponent {
               <Row type="flex" align="middle" className={styles.pl24}>
                 <Col span={6}>{team_alias}</Col>
                 <Col span={3}>{owner_name}</Col>
-                <Col span={14}>{this.showRegions(team_name, region_list)}</Col>
+                <Col span={14}>
+                  {this.showRegions(team_name, region_list, true)}
+                </Col>
                 <Col span={1} className={styles.bor}>
                   <Dropdown
                     overlay={managementMenu(team_name)}
