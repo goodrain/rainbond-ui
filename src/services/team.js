@@ -575,3 +575,15 @@ export async function undoTeamUsers(body = { team_name, user_id, action }) {
     },
   });
 }
+
+/*
+  ADD Team
+ */
+export async function joinTeam(body = {}) {
+  return request(`${apiconfig.baseUrl}/console/enterprise/admin/join-team`, {
+    method: 'post',
+    data: {
+      team_name: body.team_name,
+    },
+  });
+}
