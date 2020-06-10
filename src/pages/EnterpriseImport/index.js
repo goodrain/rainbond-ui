@@ -1,40 +1,29 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
 import {
-  Card,
   Button,
-  myheaders,
-  Col,
-  Row,
-  Menu,
-  Dropdown,
-  Icon,
-  Spin,
-  List,
-  Tag,
-  Radio,
-  Input,
-  Tooltip,
-  Pagination,
-  notification,
-  Avatar,
+  Card,
   Checkbox,
-  Select,
+  Col,
+  Icon,
+  Input,
+  notification,
   Progress,
-  Upload,
-} from 'antd';
-import { routerRedux } from 'dva/router';
-import userUtil from '../../utils/user';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import rainbondUtil from '../../utils/rainbond';
-
-import styles from './index.less';
+  Radio,
+  Row,
+  Select,
+  Upload
+} from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import React, { PureComponent } from "react";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import userUtil from "../../utils/user";
+import styles from "./index.less";
 
 const { Search } = Input;
 
 @connect(({ user, global }) => ({
   user: user.currentUser,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -46,15 +35,15 @@ export default class EnterpriseShared extends PureComponent {
       fileList: [],
       existFileList: [],
       record: {},
-      event_id: '',
+      event_id: "",
       file_list: [],
       import_file_status: [],
       userTeamList: [],
       autoQuery: false,
-      scopeValue: enterpriseAdmin ? 'enterprise' : 'team',
-      tenant_name: '',
+      scopeValue: enterpriseAdmin ? "enterprise" : "team",
+      tenant_name: "",
       percents: false,
-      region_name: '',
+      region_name: ""
     };
   }
   componentDidMount() {
@@ -69,21 +58,21 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'market/cancelImportApp',
+      type: "market/cancelImportApp",
       payload: {
         enterprise_id: eid,
-        event_id: this.state.event_id,
+        event_id: this.state.event_id
       },
       callback: data => {
         if (data) {
           notification.success({ message: `取消成功` });
           dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
         }
-      },
+      }
     });
   };
   complete = () => {
@@ -97,7 +86,7 @@ export default class EnterpriseShared extends PureComponent {
     const file = this.state.fileList;
     if (file.length == 0) {
       notification.info({
-        message: '您还没有上传文件',
+        message: "您还没有上传文件"
       });
       return;
     }
@@ -112,18 +101,18 @@ export default class EnterpriseShared extends PureComponent {
     const file_name = file[0].name;
     const event_id = file[0].response.data.bean.event_id;
     this.props.dispatch({
-      type: 'market/importApp',
+      type: "market/importApp",
       payload: {
-        scope: 'enterprise',
+        scope: "enterprise",
         event_id,
-        file_name,
+        file_name
       },
       callback: data => {
         if (data) {
           notification.success({ message: `操作成功，正在导入` });
           this.props.onOk && this.props.onOk(data);
         }
-      },
+      }
     });
   };
   onChangeUpload = info => {
@@ -131,21 +120,21 @@ export default class EnterpriseShared extends PureComponent {
     let fileList = info.fileList;
     fileList = fileList.filter(file => {
       if (file.response) {
-        return file.response.msg === 'success';
+        return file.response.msg === "success";
       }
       return true;
     });
 
     if (info && info.event && info.event.percent) {
       this.setState({
-        percents: info.event.percent,
+        percents: info.event.percent
       });
     }
 
     const status = info.file.status;
-    if (status === 'done') {
+    if (status === "done") {
       this.setState({
-        percents: false,
+        percents: false
       });
       // this.handleQueryImportDir(true);
       // this.closeAutoQuery();
@@ -171,62 +160,62 @@ export default class EnterpriseShared extends PureComponent {
   handleSubmit = () => {
     const {
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { scopeValue, tenant_name, event_id, file_list } = this.state;
     if (file_list.length === 0) {
       notification.destroy();
       notification.warning({
-        message: '请至少选择一个应用',
+        message: "请至少选择一个应用"
       });
       return;
     }
-    if (tenant_name === '' && scopeValue !== 'enterprise') {
+    if (tenant_name === "" && scopeValue !== "enterprise") {
       notification.destroy();
       notification.warning({
-        message: '请选择一个团队',
+        message: "请选择一个团队"
       });
       return null;
     }
 
-    let fileStr = '';
+    let fileStr = "";
     file_list.map(order => {
       fileStr += `${order},`;
     });
     fileStr = fileStr.slice(0, fileStr.length - 1);
     this.props.dispatch({
-      type: 'market/importApp',
+      type: "market/importApp",
       payload: {
         scope: scopeValue,
         tenant_name,
         enterprise_id: eid,
         event_id,
-        file_name: fileStr,
+        file_name: fileStr
       },
       callback: data => {
         if (data) {
           notification.success({
-            message: '开始导入应用',
+            message: "开始导入应用"
           });
           this.closeAutoQuery();
           this.openQueryImportStatus();
         }
-      },
+      }
     });
   };
   queryImportRecord = () => {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     dispatch({
-      type: 'market/queryImportRecord',
+      type: "market/queryImportRecord",
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -234,7 +223,7 @@ export default class EnterpriseShared extends PureComponent {
             {
               record: res.bean,
               event_id: res.bean.event_id,
-              region_name: res.bean && res.bean.region_name,
+              region_name: res.bean && res.bean.region_name
             },
             () => {
               this.openQueryImportStatus();
@@ -242,51 +231,51 @@ export default class EnterpriseShared extends PureComponent {
             }
           );
         }
-      },
+      }
     });
   };
   queryImportStatus = () => {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'market/queryImportApp',
+      type: "market/queryImportApp",
       payload: {
         enterprise_id: eid,
-        event_id: this.state.event_id,
+        event_id: this.state.event_id
       },
       callback: data => {
         if (data && data._code === 200) {
           this.setState({
-            import_file_status: data.list,
+            import_file_status: data.list
           });
-          if (data.bean && data.bean.status == 'uploading') {
+          if (data.bean && data.bean.status == "uploading") {
             return;
           }
-          if (data.bean && data.bean.status == 'partial_success') {
+          if (data.bean && data.bean.status == "partial_success") {
             notification.success({
-              message: '部分应用导入失败，你可以重试或取消导入',
+              message: "部分应用导入失败，你可以重试或取消导入"
             });
             return;
           }
-          if (data.bean && data.bean.status == 'success') {
+          if (data.bean && data.bean.status == "success") {
             notification.success({
-              message: '导入完成',
+              message: "导入完成"
             });
 
             dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
 
             return;
           }
-          if (data.bean && data.bean.status == 'failed') {
-            notification.error({
-              message: '应用导入失败',
+          if (data.bean && data.bean.status == "failed") {
+            notification.warning({
+              message: "应用导入失败"
             });
             this.setState({
-              import_file_status:[],
+              import_file_status: []
             });
             return;
           }
@@ -294,7 +283,7 @@ export default class EnterpriseShared extends PureComponent {
             this.queryImportStatus();
           }, 2000);
         }
-      },
+      }
     });
   };
 
@@ -302,17 +291,17 @@ export default class EnterpriseShared extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { autoQuery } = this.state;
 
     if (isNext || autoQuery) {
       dispatch({
-        type: 'market/queryImportDirApp',
+        type: "market/queryImportDirApp",
         payload: {
           enterprise_id: eid,
-          event_id: this.state.event_id,
+          event_id: this.state.event_id
         },
         callback: data => {
           if (data) {
@@ -324,7 +313,7 @@ export default class EnterpriseShared extends PureComponent {
               _th.handleQueryImportDir();
             }, 8000);
           }
-        },
+        }
       });
     }
   };
@@ -349,12 +338,12 @@ export default class EnterpriseShared extends PureComponent {
   //   });
   // };
   onChange = checkedValues => {
-    console.log('checked = ', checkedValues);
+    console.log("checked = ", checkedValues);
   };
 
   onChangeRadio = e => {
     this.setState({
-      scopeValue: e.target.value,
+      scopeValue: e.target.value
     });
   };
 
@@ -363,30 +352,30 @@ export default class EnterpriseShared extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: "global/fetchUserTeams",
       payload: {
         enterprise_id: eid,
         user_id: user.user_id,
         page: 1,
-        page_size: 999,
+        page_size: 999
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            userTeamList: res.list,
+            userTeamList: res.list
           });
         }
-      },
+      }
     });
   };
 
   handleChangeTeam = tenant_name => {
     this.setState({
-      tenant_name,
+      tenant_name
     });
   };
 
@@ -412,7 +401,6 @@ export default class EnterpriseShared extends PureComponent {
       </svg>
     );
 
-
     const myheaders = {};
     const {
       existFileList,
@@ -420,22 +408,22 @@ export default class EnterpriseShared extends PureComponent {
       userTeamList,
       record,
       region_name,
-      enterpriseAdmin,
+      enterpriseAdmin
     } = this.state;
     const {
       rainbondInfo,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     const existFiles =
       existFileList && existFileList.length > 0 && existFileList;
 
     const radioStyle = {
-      display: 'block',
-      height: '30px',
-      lineHeight: '30px',
+      display: "block",
+      height: "30px",
+      lineHeight: "30px"
     };
     const userTeam = userTeamList && userTeamList.length > 0 && userTeamList;
 
@@ -444,10 +432,10 @@ export default class EnterpriseShared extends PureComponent {
         title="离线应用模板导入"
         content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他 Rainbond 平台导出或云应用商店导出"
       >
-        <div style={{ margin: '75px 21px 0 24px' }}>
+        <div style={{ margin: "75px 21px 0 24px" }}>
           <div className={styles.tit}>离线应用模板导入</div>
           <Card
-            bodyStyle={{ padding: '25px 0 25px 29px' }}
+            bodyStyle={{ padding: "25px 0 25px 29px" }}
             className={styles.mb10}
           >
             <Row className={styles.box}>
@@ -457,7 +445,7 @@ export default class EnterpriseShared extends PureComponent {
             </Row>
           </Card>
 
-          <Card bodyStyle={{ padding: '0 0 0 27px' }} className={styles.mb10}>
+          <Card bodyStyle={{ padding: "0 0 0 27px" }} className={styles.mb10}>
             <Row className={styles.box}>
               <Col span={23} className={styles.con}>
                 上传Rainbond APP文件
@@ -465,7 +453,7 @@ export default class EnterpriseShared extends PureComponent {
                   <Progress
                     percent={parseInt(percents)}
                     size="small"
-                    style={{ width: '98%' }}
+                    style={{ width: "98%" }}
                   />
                 )}
               </Col>
@@ -492,7 +480,7 @@ export default class EnterpriseShared extends PureComponent {
               <div className={styles.tit}>已上传文件列表</div>
               <Card className={styles.mb10}>
                 <Checkbox.Group
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   onChange={this.onFileChange}
                 >
                   <Row>
@@ -528,7 +516,7 @@ export default class EnterpriseShared extends PureComponent {
                     <Select
                       size="small"
                       defaultValue="请选择一个团队"
-                      style={{ width: 150, marginLeft: '15px' }}
+                      style={{ width: 150, marginLeft: "15px" }}
                       onChange={this.handleChangeTeam}
                     >
                       {userTeam &&
@@ -544,7 +532,7 @@ export default class EnterpriseShared extends PureComponent {
                   </Radio>
                 </Radio.Group>
               </Card>
-              <Row style={{ marginTop: '25px' }}>
+              <Row style={{ marginTop: "25px" }}>
                 <Col span={24} className={styles.btn}>
                   <Button
                     onClick={() => {

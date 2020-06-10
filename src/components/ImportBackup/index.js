@@ -1,27 +1,16 @@
-import React, { PureComponent } from "react";
+import { Button, Modal, notification, Upload } from "antd";
 import { connect } from "dva";
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  notification,
-  Modal,
-  Upload,
-  message
-} from "antd";
-import globalUtil from "../../utils/global";
-import apiconfig from '../../../config/api.config';
+import React, { PureComponent } from "react";
+import apiconfig from "../../../config/api.config";
 import cookie from "../../utils/cookie";
+import globalUtil from "../../utils/global";
 
 const token = cookie.get("token");
-let myheaders = {};
+const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
-  myheaders["X_REGION_NAME"] = globalUtil.getCurrRegionName();
-  myheaders["X_TEAM_NAME"] = globalUtil.getCurrTeamName();
+  myheaders.X_REGION_NAME = globalUtil.getCurrRegionName();
+  myheaders.X_TEAM_NAME = globalUtil.getCurrTeamName();
 }
 
 // @connect(({user, global}) => ({currUser: user.currentUser}))
@@ -40,24 +29,23 @@ export default class Index extends PureComponent {
   }
 
   onChange = info => {
-    let { fileList } = info;
-    const status = info.file.status;
+    const { fileList } = info;
+    const { status } = info.file;
     if (status === "done") {
       this.props.onReLoad && this.props.onReLoad();
     } else if (status === "error") {
       const { response } = info.file;
-      notification.error({ message: response.msg_show });
+      notification.warning({ message: response.msg_show });
     }
 
-    //重新设置state
+    // 重新设置state
     if (fileList[0] && fileList[0].status == "error") {
       this.setState({ fileList: [] });
-      return;
     } else {
       this.setState({ fileList });
     }
   };
-  //处理进度条
+  // 处理进度条
   handleProgress = (event, file) => {
     let { fileList } = this.state;
     fileList = fileList.map(item => {
@@ -84,23 +72,19 @@ export default class Index extends PureComponent {
     // });
   };
   onData = file => {
-    console.log("--->" + JSON.stringify(file));
+    console.log(`--->${JSON.stringify(file)}`);
   };
   render() {
     const group_id = this.props.groupId;
     const team_name = globalUtil.getCurrTeamName();
-    const uploadUrl =
-      apiconfig.baseUrl +
-      "/console/teams/" +
-      team_name +
-      "/groupapp/" +
-      group_id +
-      "/backup/import";
-    const fileList = this.state.fileList;
+    const uploadUrl = `${
+      apiconfig.baseUrl
+    }/console/teams/${team_name}/groupapp/${group_id}/backup/import`;
+    const { fileList } = this.state;
 
     return (
       <Modal
-        visible={true}
+        visible
         onCancel={this.props.onCancel}
         title="请导入备份"
         footer={[
