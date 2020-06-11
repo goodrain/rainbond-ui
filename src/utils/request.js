@@ -32,7 +32,7 @@ function checkStatus(response) {
   }
   const errortext = codeMessage[response.status] || response.statusText;
   notification.warning({
-    message: `请求错误 : ${response.url}`,
+    message: `警告 : ${response.url}`,
     description: errortext
   });
 
@@ -254,7 +254,7 @@ export default function request(url, options) {
             return;
           }
 
-          notification.warning({ message: "请求错误", description: msg });
+          notification.warning({ message: "警告", description: msg });
         }
 
         // if (status <= 504 && status >= 500) {

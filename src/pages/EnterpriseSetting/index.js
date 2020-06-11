@@ -496,7 +496,7 @@ export default class EnterpriseSetting extends PureComponent {
       enterprise
     );
     const AutomaticIssueCertificate = (
-      <Card hoverable bordered={false}>
+      <Card hoverable bordered={false}  style={{ borderTop: '1px solid  #ccc' }}>
         <Row type="flex" align="middle">
           <Col span={3}>自动签发证书</Col>
           <Col span={17}>
@@ -603,6 +603,7 @@ export default class EnterpriseSetting extends PureComponent {
           </div>
         ) : (
           <div>
+            {userRegistered}
             {AutomaticIssueCertificate}
             {oauth}
             {adminer && managementAdmin}
