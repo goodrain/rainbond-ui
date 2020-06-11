@@ -20,6 +20,7 @@ import {
   getJoinTeamUsers,
   setJoinTeamUsers,
   undoTeamUsers,
+  joinTeam,
   getTeamRolesPermissions,
   getTeamUserPermissions,
 } from '../services/team';
@@ -207,6 +208,13 @@ export default {
       const response = yield call(undoTeamUsers, payload);
       if (response && callback) {
         callback(response.bean);
+      }
+    },
+    // add teams
+    *joinTeam({ payload, callback }, { call }) {
+      const response = yield call(joinTeam, payload);
+      if (response && callback) {
+        callback(response);
       }
     },
   },

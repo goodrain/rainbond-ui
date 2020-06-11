@@ -26,8 +26,8 @@ import Authorized from "../utils/Authorized";
 import cookie from "../utils/cookie";
 import globalUtil from "../utils/global";
 import rainbondUtil from "../utils/rainbond";
-import userUtil from "../utils/user";
 import roleUtil from "../utils/role";
+import userUtil from "../utils/user";
 import AppHeader from "./components/AppHeader";
 import TeamHeader from "./components/TeamHeader";
 import Context from "./MenuContext";
@@ -167,14 +167,14 @@ class TeamLayout extends PureComponent {
               ? "当前集群不存在"
               : false;
           if (errtext && enterpriseList.length > 0) {
-            notification.error({ message: errtext });
+            notification.warning({ message: errtext });
             dispatch(
               routerRedux.replace(
                 `/enterprise/${enterpriseList[0].enterprise_id}/index`
               )
             );
           } else {
-            notification.error({ message: "请求错误" });
+            notification.warning({ message: "请求错误" });
           }
         }
       }
@@ -324,7 +324,7 @@ class TeamLayout extends PureComponent {
         rainbondInfo.title &&
         rainbondInfo.title.enable &&
         rainbondInfo.title.value) ||
-      " Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
+      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
     return title;
   };
 

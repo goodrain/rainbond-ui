@@ -43,7 +43,7 @@ class LicenseDrawer extends PureComponent {
       fileArr[length - 1] === 'key';
     if (!isRightType) {
       if (isMessage) {
-        message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
+        message.warning('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
       }
       return false;
     }

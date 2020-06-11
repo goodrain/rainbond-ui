@@ -4,7 +4,6 @@
 import React, { Fragment, PureComponent } from "react";
 import { connect } from "dva";
 import { routerRedux, Link } from "dva/router";
-
 import {
   Alert,
   Badge,
@@ -20,11 +19,11 @@ import {
   Tooltip
 } from "antd";
 import PropTypes from "prop-types";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import ConfirmModal from "../../components/ConfirmModal";
 import ManageAppGuide from "../../components/ManageAppGuide";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import VisitBtn from "../../components/VisitBtn";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import {
   deploy,
   getStatus,
@@ -242,7 +241,7 @@ class Main extends PureComponent {
       },
       appRolback: data => {
         this.handleRollback(data);
-      },
+      }
     };
   }
   componentDidMount() {
@@ -323,7 +322,7 @@ class Main extends PureComponent {
   };
   handleError = err => {
     if (err && err.data && err.data.msg_show) {
-      notification.error({
+      notification.warning({
         message: `请求错误`,
         description: err.data.msg_show
       });
@@ -1393,7 +1392,6 @@ class Main extends PureComponent {
     );
   }
 }
-
 
 @Form.create()
 @connect(

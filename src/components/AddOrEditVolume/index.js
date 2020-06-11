@@ -51,11 +51,11 @@ export default class AddVolumes extends PureComponent {
     if (value) {
       if (volumeCapacityValidation.required && value==0){
         callback(`请设置存储配额，不能为0`)
-        return 
+        return
       }
       if (volumeCapacityValidation.min && value<volumeCapacityValidation.min){
         callback(`限额最小值为${volumeCapacityValidation.min}GB`)
-        return 
+        return
       }
       if (volumeCapacityValidation.max && value>volumeCapacityValidation.max){
         callback(`限额最大值为${volumeCapacityValidation.min}GB`)
@@ -64,7 +64,7 @@ export default class AddVolumes extends PureComponent {
     }
     callback()
   }
-  //验证上传文件方式
+  // 验证上传文件方式
   checkFile = (rules, value, callback) => {
     if (value) {
       if (
@@ -85,28 +85,28 @@ export default class AddVolumes extends PureComponent {
   };
   beforeUpload = file => {
     const fileArr = file.name.split(".");
-    const length = fileArr.length;
-    let isRightType =
+    const {length} = fileArr;
+    const isRightType =
       fileArr[length - 1] == "txt" ||
       fileArr[length - 1] == "json" ||
       fileArr[length - 1] == "yaml" ||
       fileArr[length - 1] == "yml" ||
       fileArr[length - 1] == "xml";
     if (!isRightType) {
-      message.error("请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件", 5);
+      message.warning("请上传以.txt, .json, .yaml, .yaml, .xml结尾的文件", 5);
       return false;
-    } else {
-      return true;
     }
+      return true;
+
   };
   readFileContents = (fileList, name) => {
     const _th = this;
     let fileString = "";
-    for (var i = 0; i < fileList.length; i++) {
-      var reader = new FileReader(); //新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, "UTF-8"); //读取文件
+    for (let i = 0; i < fileList.length; i++) {
+      const reader = new FileReader(); // 新建一个FileReader
+      reader.readAsText(fileList[i].originFileObj, "UTF-8"); // 读取文件
       reader.onload = function ss(evt) {
-        //读取完文件之后会回来这里
+        // 读取完文件之后会回来这里
         fileString += evt.target.result; // 读取文件内容
         _th.props.form.setFieldsValue({ [name]: fileString });
       };
@@ -133,9 +133,9 @@ export default class AddVolumes extends PureComponent {
         width={500}
         closable={false}
         onClose={this.handleCancel}
-        visible={true}
+        visible
         maskClosable={false}
-        closable={true}
+        closable
         style={{
           height: "100%",
           overflow: "auto",
@@ -155,7 +155,7 @@ export default class AddVolumes extends PureComponent {
             })(
               <Input
                 placeholder="请输入存储名称"
-                disabled={this.props.editor ? true : false}
+                disabled={!!this.props.editor}
               />
             )}
           </FormItem>
@@ -178,7 +178,7 @@ export default class AddVolumes extends PureComponent {
                   validator: this.checkVolumeCapacity,
                 }
               ]
-            })(<Input type="number" disabled={this.props.editor ? true : false} />)}
+            })(<Input type="number" disabled={!!this.props.editor} />)}
           </FormItem>
           <FormItem {...formItemLayout} label="类型">
             {getFieldDecorator("volume_type", {
@@ -196,7 +196,7 @@ export default class AddVolumes extends PureComponent {
                     <Radio
                       key={item.volume_type}
                       value={item.volume_type}
-                      disabled={this.props.editor ? true : false}
+                      disabled={!!this.props.editor}
                     >
                       <Tooltip title={item.description}>
                         {item.name_show}

@@ -25,7 +25,7 @@ class EditClusterInfo extends PureComponent {
       fileArr[length - 1] === 'yaml' || fileArr[length - 1] === 'yml';
     if (!isRightType) {
       if (isMessage) {
-        notification.error({
+        notification.warning({
           message: '请上传以.yaml、.yml结尾的 Region Config 文件',
         });
       }
