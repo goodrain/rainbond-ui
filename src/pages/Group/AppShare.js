@@ -263,7 +263,9 @@ class AppInfo extends PureComponent {
   renderExtend = () => {
     const app = this.props.app || {};
     const { getFieldDecorator, getFieldValue } = this.props.form;
+
     if (app.extend_method_map) {
+      const steps = getFieldValue('extend||step_node');
       return (
         <div
           style={{
@@ -294,7 +296,7 @@ class AppInfo extends PureComponent {
                     style={{ width: '100%' }}
                     placeholder="请输入最小节点"
                     min={1}
-                    step={app.extend_method_map.step_node}
+                    step={steps || app.extend_method_map.step_node}
                   />
                 )}
               </FormItem>
@@ -314,7 +316,7 @@ class AppInfo extends PureComponent {
                     style={{ width: '100%' }}
                     placeholder="请输入最大节点"
                     min={1}
-                    step={app.extend_method_map.step_node}
+                    step={steps || app.extend_method_map.step_node}
                   />
                 )}
               </FormItem>
@@ -717,11 +719,11 @@ export default class Main extends PureComponent {
           },
           handleError: err => {
             this.setState({ submitLoading: false });
-            const data =err && err.data
+            const data = err && err.data;
             const msg = data && data.msg_show;
-            if(data&&data.code&&data.code===10501){
+            if (data && data.code && data.code === 10501) {
               notification.warning({ message: '提示', description: msg });
-              this.setState({isShare: 'true'})
+              this.setState({ isShare: 'true' });
               return null;
             }
             notification.error({ message: '请求错误', description: msg });
