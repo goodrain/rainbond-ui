@@ -35,7 +35,7 @@ import pluginUtil from "../../utils/plugin";
 import styles from "./Index.less";
 import mytabcss from "./mytab.less";
 
-const TabPane = Tabs.TabPane;
+const {TabPane} = Tabs;
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const ButtonGroup = Button.Group;
@@ -254,7 +254,9 @@ class AppInfo extends PureComponent {
   renderExtend = () => {
     const app = this.props.app || {};
     const { getFieldDecorator, getFieldValue } = this.props.form;
+
     if (app.extend_method_map) {
+      const steps = getFieldValue('extend||step_node');
       return (
         <div
           style={{
@@ -285,7 +287,7 @@ class AppInfo extends PureComponent {
                     style={{ width: "100%" }}
                     placeholder="请输入最小节点"
                     min={1}
-                    step={app.extend_method_map.step_node}
+                    step={steps || app.extend_method_map.step_node}
                   />
                 )}
               </FormItem>
@@ -305,7 +307,7 @@ class AppInfo extends PureComponent {
                     style={{ width: "100%" }}
                     placeholder="请输入最大节点"
                     min={1}
-                    step={app.extend_method_map.step_node}
+                    step={steps || app.extend_method_map.step_node}
                   />
                 )}
               </FormItem>
@@ -684,8 +686,8 @@ export default class Main extends PureComponent {
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const team_name = globalUtil.getCurrTeamName();
-        const shareId = this.props.match.params.shareId;
-        const appID = this.props.match.params.appID;
+        const {shareId} = this.props.match.params;
+        const {appID} = this.props.match.params;
 
         dispatch({
           type: "groupControl/subShareInfo",
@@ -711,8 +713,8 @@ export default class Main extends PureComponent {
             const data = err && err.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: "提示", description: msg });
-              this.setState({ isShare: "true" });
+              notification.warning({ message: '提示', description: msg });
+              this.setState({ isShare: 'true' });
               return null;
             }
             notification.warning({ message: "请求错误", description: msg });
@@ -861,14 +863,14 @@ export default class Main extends PureComponent {
 
   hanldeShareTypeChange = e => {
     const { getFieldDecorator, setFieldsValue } = this.props.form;
-    const value = e.target.value;
+    const {value} = e.target;
     this.setState({
       ShareTypeShow: value == "goodrain"
     });
     setFieldsValue({ scope: value });
   };
   hanldeScopeValueChange = e => {
-    const value = e.target.value;
+    const {value} = e.target;
     this.setState({
       scopeValue: value
     });
@@ -997,7 +999,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const info = this.state.info;
+    const {info} = this.state;
     if (!info) {
       return null;
     }
@@ -1005,7 +1007,7 @@ export default class Main extends PureComponent {
     const plugins = info.share_plugin_list || [];
     const tabk = this.state.key;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const loading = this.props.loading;
+    const {loading} = this.props;
     const {
       shareModal,
       sharearrs,
