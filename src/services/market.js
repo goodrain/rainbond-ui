@@ -121,6 +121,16 @@ export async function createAppModel(body) {
     }
   );
 }
+/* 创建市场应用 */
+export async function createMarketAppModel(data) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${data.enterprise_id}/cloud/markets/${data.marketName}/app-models`,
+    {
+      method: 'post',
+      data,
+    }
+  );
+}
 
 /* 获取云端应用列表（搜索） */
 export async function getMarketApp(param) {

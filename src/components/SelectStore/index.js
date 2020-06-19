@@ -80,7 +80,7 @@ class SelectStore extends PureComponent {
           >
             <FormItem {...formItemLayout} label="发布商店" hasFeedback>
               {getFieldDecorator('store_id', {
-                initialValue: stores[0].market_id || '',
+                initialValue: stores[0].name || '',
                 rules: [
                   {
                     required: true,
@@ -91,7 +91,7 @@ class SelectStore extends PureComponent {
                 <Select placeholder="请选择发布的商店">
                   {stores.map((item, index) => {
                     return (
-                      <Option key={`store${index}`} value={item.market_id}>
+                      <Option key={`store${index}`} value={item.name}>
                         {item.name}
                       </Option>
                     );

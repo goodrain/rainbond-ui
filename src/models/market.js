@@ -2,6 +2,7 @@ import {
   fetchAppModels,
   upAppModel,
   createAppModel,
+  createMarketAppModel,
   fetchAppModelsTags,
   getMarketApp,
   createTag,
@@ -19,133 +20,140 @@ import {
   queryImportRecord,
   cancelImportApp,
   getRecommendMarketAppList,
-} from "../services/market";
+} from '../services/market';
 
 export default {
-  namespace: "market",
-  state: {
-  },
+  namespace: 'market',
+  state: {},
   effects: {
-    *fetchAppModels({ payload, callback }, { put, call }) {
+    *fetchAppModels({ payload, callback }, { call }) {
       const response = yield call(fetchAppModels, payload);
-      if (response) {
-        callback && callback(response);
+      if (response && callback) {
+        callback(response);
       }
     },
-    *upAppModel({ payload, callback }, { put, call }) {
+    *upAppModel({ payload, callback }, { call }) {
       const response = yield call(upAppModel, payload);
-      if (response) {
-        callback && callback(response);
+      if (response && callback) {
+        callback(response);
       }
     },
-    *createAppModel({ payload, callback }, { put, call }) {
+    *createAppModel({ payload, callback }, { call }) {
       const response = yield call(createAppModel, payload);
-      if (response) {
-        callback && callback(response);
+      if (response && callback) {
+        callback(response);
       }
     },
-    *fetchAppModelsTags({ payload, callback }, { put, call }) {
+    *createMarketAppModel({ payload, callback }, { call }) {
+      const response = yield call(createMarketAppModel, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppModelsTags({ payload, callback }, { call }) {
       const response = yield call(fetchAppModelsTags, payload);
-      if (response) {
-        callback && callback(response);
+      if (response && callback) {
+        callback(response);
       }
     },
 
-    *createTag({ payload, callback }, { call, put }) {
+    *createTag({ payload, callback }, { call }) {
       const data = yield call(createTag, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *upDataTag ({ payload, callback }, { call, put }) {
+    *upDataTag({ payload, callback }, { call }) {
       const data = yield call(upDataTag, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *deleteTag ({ payload, callback }, { call, put }) {
+    *deleteTag({ payload, callback }, { call }) {
       const data = yield call(deleteTag, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *getMarketApp({ payload, callback }, { call, put }) {
+    *getMarketApp({ payload, callback }, { call }) {
       const data = yield call(getMarketApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *getRecommendMarketAppList({ payload, callback }, { call, put }) {
+    *getRecommendMarketAppList({ payload, callback }, { call }) {
       const data = yield call(getRecommendMarketAppList, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *queryExport({ payload, callback }, { call, put }) {
+    *queryExport({ payload, callback }, { call }) {
       const data = yield call(queryExport, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *appExport({ payload, callback }, { call, put }) {
+    *appExport({ payload, callback }, { call }) {
       const data = yield call(appExport, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *getExport({ payload, callback }, { call, put }) {
+    *getExport({ payload, callback }, { call }) {
       const data = yield call(getExport, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *uploadApp({ payload, callback }, { call, put }) {
+    *uploadApp({ payload, callback }, { call }) {
       const data = yield call(uploadApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *importApp({ payload, callback }, { call, put }) {
+    *importApp({ payload, callback }, { call }) {
       const data = yield call(importApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *queryImportApp({ payload, callback }, { call, put }) {
+    *queryImportApp({ payload, callback }, { call }) {
       const data = yield call(queryImportApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *importDir({ payload, callback }, { call, put }) {
+    *importDir({ payload, callback }, { call }) {
       const data = yield call(importDir, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *queryImportDirApp({ payload, callback }, { call, put }) {
+    *queryImportDirApp({ payload, callback }, { call }) {
       const data = yield call(queryImportDirApp, payload);
-      callback && callback(data);
+      if (data && callback) {
+        callback(data);
+      }
     },
-    *queryImportingApp({ payload, callback }, { call, put }) {
+    *queryImportingApp({ payload, callback }, { call }) {
       const data = yield call(queryImportingApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *queryImportRecord({ payload, callback }, { call, put }) {
+    *queryImportRecord({ payload, callback }, { call }) {
       const data = yield call(queryImportRecord, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *cancelImportApp({ payload, callback }, { call, put }) {
+    *cancelImportApp({ payload, callback }, { call }) {
       const data = yield call(cancelImportApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
-    }
+    },
   },
 
-  reducers: {}
+  reducers: {},
 };
