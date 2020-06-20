@@ -21,7 +21,6 @@ import GlobalHeader from '../components/GlobalHeader';
 import GlobalRouter from '../components/GlobalRouter';
 import PageLoading from '../components/PageLoading';
 import SiderMenu from '../components/SiderMenu';
-import Authorized from '../utils/Authorized';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
 import rainbondUtil from '../utils/rainbond';
@@ -484,17 +483,7 @@ class TeamLayout extends PureComponent {
           );
         }
 
-        return (
-          <div style={{ height: '100%' }}>
-            <Authorized
-              logined
-              authority={['admin', 'user']}
-              noMatch={<Redirect to="/user/login" />}
-            >
-              {children}
-            </Authorized>
-          </div>
-        );
+        return <div style={{ height: '100%' }}>{children}</div>;
       };
       return (
         <Layout>
@@ -504,7 +493,6 @@ class TeamLayout extends PureComponent {
             currentTeam={currentTeam}
             currentUser={currentUser}
             logo={fetchLogo}
-            Authorized={Authorized}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}
@@ -541,7 +529,6 @@ class TeamLayout extends PureComponent {
                     rainbondInfo.title.value
                   }
                   currentUser={currentUser}
-                  Authorized={Authorized}
                   collapsed={collapsed}
                   location={location}
                   isMobile={this.state.isMobile}

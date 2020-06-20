@@ -14,7 +14,6 @@ import SiderMenu from '../components/SiderMenu';
 import GlobalHeader from '../components/GlobalHeader';
 import PageLoading from '../components/PageLoading';
 import headerStype from '../components/GlobalHeader/index.less';
-import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
 
 import logo from '../../public/logo.png';
@@ -158,7 +157,6 @@ class AccountLayout extends PureComponent {
             enterpriseList={enterpriseList}
             currentUser={currentUser}
             logo={fetchLogo}
-            Authorized={Authorized}
             collapsed={collapsed}
             location={location}
             isMobile={isMobile}
@@ -186,13 +184,7 @@ class AccountLayout extends PureComponent {
                 width: autoWidth,
               }}
             >
-              <Authorized
-                logined
-                authority={['admin', 'user']}
-                noMatch={<Redirect to="/user/login" />}
-              >
-                {children}
-              </Authorized>
+              {children}
             </Content>
           </Layout>
         </Layout>

@@ -1,9 +1,9 @@
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message, notification } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
-import { Route, Redirect, routerRedux } from 'dva/router';
+import { Redirect, routerRedux } from 'dva/router';
+import { Layout } from 'antd';
 import { stringify } from 'querystring';
 import memoizeOne from 'memoize-one';
 import deepEqual from 'lodash.isequal';
@@ -15,7 +15,6 @@ import PageLoading from '../components/PageLoading';
 import SiderMenu from '../components/SiderMenu';
 import pathToRegexp from 'path-to-regexp';
 import globalUtil from '../utils/global';
-import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
 import { getMenuData } from '../common/enterpriseMenu';
 import logo from '../../public/logo.png';
@@ -271,7 +270,6 @@ class EnterpriseLayout extends PureComponent {
             enterpriseList={enterpriseList}
             currentUser={currentUser}
             logo={fetchLogo}
-            Authorized={Authorized}
             collapsed={collapsed}
             location={location}
             isMobile={this.state.isMobile}
@@ -301,7 +299,6 @@ class EnterpriseLayout extends PureComponent {
                   rainbondInfo.title.value
                 }
                 currentUser={currentUser}
-                Authorized={Authorized}
                 menuData={getMenuData(eid, currentUser)}
                 showMenu
                 pathname={pathname}
@@ -316,14 +313,7 @@ class EnterpriseLayout extends PureComponent {
                   width: autoWidth,
                 }}
               >
-                <Authorized
-                  logined
-                  // authority={children.props.route.authority}
-                  authority={['admin', 'user']}
-                  noMatch={<Redirect to="/user/login" />}
-                >
-                  {children}
-                </Authorized>
+                {children}
               </Content>
             </Layout>
           </Layout>

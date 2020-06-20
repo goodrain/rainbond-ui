@@ -61,7 +61,12 @@ class SecurityLayout extends React.PureComponent {
     if (!isReady) {
       return <PageLoading />;
     }
-    if (isReady && !isLogin && window.location.pathname !== '/user/login') {
+    if (
+      isReady &&
+      !isLogin &&
+      window.location.pathname !== '/user/login' &&
+      window.location.pathname !== '/'
+    ) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
 
