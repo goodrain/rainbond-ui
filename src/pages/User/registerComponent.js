@@ -212,7 +212,7 @@ export default class RegisterComponent extends Component {
             <Input
               size="large"
               type="password"
-              placeholder="至少8位，区分大小写"
+              placeholder="密码不能少于8位！"
             />
           )}
         </FormItem>

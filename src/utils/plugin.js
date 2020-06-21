@@ -34,6 +34,28 @@ const versionStatusMap = {
   unfixed: '未固定',
 };
 
+const mountMap = [
+  '/',
+  '/bin',
+  '/boot',
+  '/dev',
+  '/etc',
+  '/home',
+  '/lib',
+  '/lib64',
+  '/opt',
+  '/proc',
+  '/root',
+  '/sbin',
+  '/srv',
+  '/sys',
+  '/tmp',
+  '/usr',
+  '/var',
+  '/user/local',
+  '/user/sbin',
+  '/user/bin',
+];
 export default {
   getCategoryCN(category) {
     return categoryMap[category] || '未知类型';
@@ -59,5 +81,8 @@ export default {
   // 是否可以修改基本信息和配置组信息, 已经版本固定的不能进行修改
   canEditInfoAndConfig(bean) {
     return bean.plugin_version_status !== 'fixed';
+  },
+  isMountPath(path) {
+    return mountMap.includes(path);
   },
 };
