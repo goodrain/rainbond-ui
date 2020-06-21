@@ -515,11 +515,7 @@ export default class Enterprise extends PureComponent {
 
               {enterpriseInfo && (
                 <div className={styles.enterpriseName}>
-                  企业名称：{enterpriseInfo.enterprise_alias}(
-                  {/* {enterpriseServiceInfo && enterpriseServiceInfo.type === "vip"
-                    ? "付费用户"
-                    : "免费用户"}
-                  ) */}
+                  企业名称：{enterpriseInfo.enterprise_alias}
                 </div>
               )}
               {enterpriseInfo && (
