@@ -1,22 +1,26 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable array-callback-return */
+/* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import React, { PureComponent, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'dva';
 import { Button, notification } from 'antd';
+import { connect } from 'dva';
+import PropTypes from 'prop-types';
+import React, { Fragment, PureComponent } from 'react';
+import LogProcress from '../../components/LogProcress';
+import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
 import dateUtil from '../../utils/date-util';
-import { getActionLogDetail } from '../../services/app';
+import globalUtil from '../../utils/global';
 import LogSocket from '../../utils/logSocket';
-import BuildHistory from './component/BuildHistory/index';
+import regionUtil from '../../utils/region';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
 import OperationRecord from './component/Basic/operationRecord';
+import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
-import LogProcress from '../../components/LogProcress';
 import styles from './Index.less';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import regionUtil from '../../utils/region';
 
 const ButtonGroup = Button.Group;
 
@@ -118,7 +122,7 @@ class LogItem extends PureComponent {
           url: this.getSocketUrl(),
           eventId: data.event_id,
           onMessage: data => {
-            const logs = this.state.logs;
+            const { logs } = this.state;
             logs.unshift(data);
             this.setState({
               logs: [].concat(logs),
@@ -358,7 +362,7 @@ class LogItem extends PureComponent {
 // eslint-disable-next-line react/no-multi-comp
 class LogList extends PureComponent {
   render() {
-    const list = this.props.list;
+    const { list } = this.props;
     return (
       <div className={styles.logs}>
         {list.map(item => (
@@ -481,7 +485,7 @@ export default class Index extends PureComponent {
     });
   }
 
-  fetchOperationLog = isCycle => {
+  fetchOperationLog = (isCycle, isopenLog = false) => {
     this.props.dispatch({
       type: 'appControl/fetchOperationLog',
       payload: {
@@ -495,14 +499,10 @@ export default class Index extends PureComponent {
         if (res && res._code === 200) {
           this.setState(
             {
+              isopenLog,
               has_next: res.has_next || false,
               logList: res.list || [],
               recordLoading: false,
-              total: res.bean.total
-                ? res.bean.total
-                : res.list
-                ? res.list.length
-                : 0,
             },
             () => {
               if (isCycle) {
@@ -576,9 +576,7 @@ export default class Index extends PureComponent {
     this.getVersionList();
   };
   onLogPush = isopen => {
-    this.setState({
-      isopenLog: isopen,
-    });
+    this.fetchOperationLog(false, isopen);
   };
   onPageChange = page => {};
 
@@ -716,7 +714,6 @@ export default class Index extends PureComponent {
       recordLoading,
       has_next,
       current_version,
-      componentTimers,
     } = this.state;
     return (
       <Fragment>
