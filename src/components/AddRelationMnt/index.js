@@ -2,13 +2,13 @@
   挂载共享目录组件
 */
 
-import React, { PureComponent, Fragment } from 'react';
-import moment from 'moment';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Link, Route } from 'dva/router';
-import { Input, Table, Modal, notification, Pagination, Tooltip } from 'antd';
+import { Link } from 'dva/router';
+import { Input, Table, Modal, notification, Tooltip } from 'antd';
 import { getMnt } from '../../services/app';
 import globalUtil from '../../utils/global';
+import pluginUtil from '../../utils/plugin';
 import { getVolumeTypeShowName } from '../../utils/utils';
 
 const { Search } = Input;
@@ -43,13 +43,15 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = () => {
-    if (!this.state.selectedRowKeys.length) {
+    const { onSubmit } = this.props;
+    const { selectedRowKeys } = this.state;
+    if (!selectedRowKeys.length) {
       notification.warning({ message: '请选择要挂载的目录' });
       return;
     }
 
     let res = [];
-    res = this.state.selectedRowKeys.map(index => {
+    res = selectedRowKeys.map(index => {
       const data = this.state.list[index];
       return {
         id: data.dep_vol_id,
@@ -62,9 +64,26 @@ export default class Index extends PureComponent {
       notification.warning({ message: '请检查本地存储目录是否填写' });
       return;
     }
-
-    this.props.onSubmit && this.props.onSubmit(res);
+    let mag = '';
+    const isMountList = res.filter(item => {
+      const { path } = item;
+      if (path === '') {
+        mag = '请输入本地挂载路径';
+      }
+      const isMountPath = pluginUtil.isMountPath(path);
+      if (isMountPath) {
+        mag = `${path}路径为系统保留路径，请更换其他路径`;
+      }
+      return path !== '' && !isMountPath;
+    });
+    if (mag) {
+      notification.warning({ message: mag });
+    }
+    if (onSubmit && isMountList.length > 0 && !mag) {
+      onSubmit(res);
+    }
   };
+
   handleTableChange = (page, pageSize) => {
     this.setState(
       {
@@ -110,7 +129,7 @@ export default class Index extends PureComponent {
   };
   render() {
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
+      onChange: selectedRowKeys => {
         this.setState({
           selectedRowKeys,
         });

@@ -23,6 +23,7 @@ import globalUtil from '../../utils/global';
 import { getVolumeTypeShowName } from '../../utils/utils';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
+import pluginUtil from '../../utils/plugin';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -76,7 +77,19 @@ export default class AddVolumes extends PureComponent {
 
     this.props.onSubmit && this.props.onSubmit(res);
   };
+  checkMountPath = (_, value, callback) => {
+    if (value === '' || !value) {
+      callback('请输入挂载路径');
+      return;
+    }
 
+    if (pluginUtil.isMountPath(value)) {
+      callback('挂载路径为系统保留路径，请更换其他路径');
+      return;
+    }
+
+    callback();
+  };
   handleTableChange = (page, pageSize) => {
     this.setState(
       {
@@ -184,6 +197,7 @@ export default class AddVolumes extends PureComponent {
                     {
                       required: true,
                       message: '请输入挂载路径',
+                      validator: this.checkMountPath,
                     },
                   ],
                 })(<Input placeholder="请输入挂载路径" />)}
