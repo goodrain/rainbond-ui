@@ -116,6 +116,10 @@ export default class Index extends PureComponent {
     });
   };
   handleError = err => {
+    const { componentTimers } = this.state;
+    if (!componentTimers) {
+      return null;
+    }
     if (err && err.data && err.data.msg_show) {
       notification.error({
         message: `请求错误`,
