@@ -321,6 +321,10 @@ class Main extends PureComponent {
     return null;
   };
   handleError = err => {
+    const { componentTimer } = this.state;
+    if (!componentTimer) {
+      return null;
+    }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
@@ -425,7 +429,10 @@ class Main extends PureComponent {
       },
       handleError: data => {
         const code = httpResponseUtil.getCode(data);
-
+        const { componentTimer } = this.state;
+        if (!componentTimer) {
+          return null;
+        }
         if (code) {
           // 应用不存在
           if (code === 404) {
@@ -595,9 +602,12 @@ class Main extends PureComponent {
       this.getStatus(true);
     });
   };
-  cancelDeleteApp = () => {
-    this.openComponentTimer();
+
+  cancelDeleteApp = (isOpen = true) => {
     this.setState({ showDeleteApp: false });
+    if (isOpen) {
+      this.openComponentTimer();
+    }
   };
   createSocket() {
     const { appDetail } = this.props;
@@ -624,6 +634,8 @@ class Main extends PureComponent {
         app_alias: this.getAppAlias()
       },
       callback: () => {
+        this.closeComponentTimer();
+        this.cancelDeleteApp(false);
         dispatch({
           type: "global/fetchGroups",
           payload: {
