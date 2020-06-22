@@ -142,19 +142,17 @@ export default class Index extends PureComponent {
               }}
             >
               尚未绑定{type}账号
-              {handleType && handleType === 'Service' && ButtonGroupState && (
-                <a
-                  href={authUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    marginLeft: 20,
-                  }}
-                  type="primary"
-                >
-                  去认证
-                </a>
-              )}
+              <a
+                href={authUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  marginLeft: 20,
+                }}
+                type="primary"
+              >
+                去认证
+              </a>
             </div>
           ) : (
             <div>
