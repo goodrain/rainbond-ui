@@ -494,7 +494,7 @@ export default class Index extends PureComponent {
                   }
                   style={{ color: !isLocalShared && 'rgba(0, 0, 0, 0.65)' }}
                 >
-                  {appUtil.isOauthByBuildSource(buildSource)
+                  {appUtil.isOauthByBuildSource(buildSource) && thirdInfo
                     ? thirdInfo.service_type
                     : buildShared}
                 </Link>
