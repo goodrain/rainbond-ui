@@ -12,7 +12,7 @@ const menuData = function(eid, currentUser) {
       authority: ['admin', 'user'],
     },
     {
-      name: '共享库',
+      name: '应用市场',
       icon: 'share-alt',
       path: `/enterprise/${eid}/shared`,
       authority: ['admin', 'user'],

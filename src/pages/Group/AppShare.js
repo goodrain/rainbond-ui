@@ -993,7 +993,7 @@ export default class Main extends PureComponent {
     if (record && record.scope == 'goodrain') {
       breadcrumbList.push({ title: '发布到云应用商店' });
     } else {
-      breadcrumbList.push({ title: '发布到共享库' });
+      breadcrumbList.push({ title: '发布到应用市场' });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
     return (

@@ -72,7 +72,7 @@ export default class Main extends PureComponent {
       scopeMax:
         this.props.scopeMax ||
         (rainbondUtil.cloudMarketEnable(this.props.enterprise)
-          ? 'cloudApplication'
+          ? ''
           : 'localApplication'),
       showApp: {},
       showMarketAppDetail: false,
@@ -80,6 +80,9 @@ export default class Main extends PureComponent {
       handleType: this.props.handleType ? this.props.handleType : null,
       moreState: this.props.moreState ? this.props.moreState : null,
       is_deploy: true,
+      marketTabLoading: false,
+      marketTab: [],
+      currentKey: '',
     };
     this.mount = false;
   }
@@ -90,7 +93,7 @@ export default class Main extends PureComponent {
   componentDidMount() {
     this.mount = true;
     this.getApps();
-    this.getCloudRecommendApps();
+    this.getMarketsTab();
   }
   componentWillUnmount() {
     this.mount = false;
@@ -101,13 +104,15 @@ export default class Main extends PureComponent {
     this.setState({ showCreate: null });
   };
   getCloudRecommendApps = v => {
+    const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
-      type: 'market/getRecommendMarketAppList',
+      type: 'market/fetchMarkets',
       payload: {
+        name: currentKey,
         enterprise_id: currentEnterprise.enterprise_id,
-        app_name: v ? '' : this.state.cloudApp_name || '',
-        page_size: v ? 9 : this.state.cloudPageSize,
+        query: v ? '' : this.state.cloudApp_name || '',
+        pageSize: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage,
       },
       callback: data => {
@@ -172,7 +177,45 @@ export default class Main extends PureComponent {
       },
     });
   };
-
+  getMarketsTab = () => {
+    const { dispatch, currentEnterprise, enterprise } = this.props;
+    if (!rainbondUtil.cloudMarketEnable(enterprise)) {
+      return null;
+    }
+    this.setState({ marketTabLoading: true });
+    dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          const arr = res.list;
+          const arryNew = [];
+          let scopeMax = '';
+          if (arr && arr.length > 0) {
+            scopeMax = arr[0].name;
+            res.list.map(item => {
+              arryNew.push(
+                Object.assign({}, item, { tab: item.alias, key: item.name })
+              );
+            });
+          }
+          this.setState(
+            {
+              scopeMax,
+              currentKey: scopeMax,
+              marketTabLoading: false,
+              marketTab: arryNew,
+            },
+            () => {
+              this.getCloudRecommendApps('reset');
+            }
+          );
+        }
+      },
+    });
+  };
   handleSearch = v => {
     const { scopeMax } = this.state;
     if (scopeMax == 'localApplication') {
@@ -235,6 +278,7 @@ export default class Main extends PureComponent {
   handleTabMaxChange = key => {
     this.setState(
       {
+        currentKey: key,
         scopeMax: key,
         isSpinList: true,
         isSpincloudList: true,
@@ -276,7 +320,7 @@ export default class Main extends PureComponent {
           is_deploy,
           group_key: installBounced.group_key,
           app_version: fieldsValue.group_version,
-          install_from_cloud: scopeMax == 'cloudApplication',
+          install_from_cloud: scopeMax !== 'localApplication',
         },
         callback: () => {
           // 刷新左侧按钮
@@ -338,7 +382,7 @@ export default class Main extends PureComponent {
   };
 
   handleCloudCreate = (vals, is_deploy) => {
-    const { scopeMax } = this.state;
+    const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
       type: 'createApp/installApp',
@@ -350,7 +394,8 @@ export default class Main extends PureComponent {
         app_versions: app.app_versions,
         group_key: app.app_key_id,
         app_version: vals.group_version,
-        install_from_cloud: scopeMax == 'cloudApplication',
+        install_from_cloud: scopeMax !== 'localApplication',
+        marketName: currentKey,
       },
       callback: () => {
         // 刷新左侧按钮
@@ -432,7 +477,7 @@ export default class Main extends PureComponent {
     const cloud = scopeMax != 'localApplication';
     const title = item => (
       <div
-        title={cloud ? item.name : item.app_name || ''}
+        title={item.app_name || ''}
         style={{
           maxWidth: '200px',
           overflow: 'hidden',
@@ -582,8 +627,8 @@ export default class Main extends PureComponent {
                                 </Tag>
                               );
                             })}
-                          {item.app_versions &&
-                            item.app_versions.map((itemx, index) => {
+                          {item.versions &&
+                            item.versions.map((itemx, index) => {
                               return (
                                 <Tag
                                   className={PluginStyles.cardVersionTagStyle}
@@ -604,16 +649,11 @@ export default class Main extends PureComponent {
                       <div className={PluginStyles.shareNameStyle}>
                         <span>分享者:</span>
                         <a
-                          href={
-                            item.enterprise &&
-                            item.enterprise.enterprise_market_url
-                              ? item.enterprise.enterprise_market_url
-                              : 'javascript:;'
-                          }
+                          href={item.market_url || 'javascript:;'}
                           target="_blank"
-                          title={item.enterprise.name}
+                          title={item.market_name}
                         >
-                          {item.enterprise.name}
+                          {item.market_name}
                         </a>
                       </div>
                     )}
@@ -669,6 +709,7 @@ export default class Main extends PureComponent {
       page,
       pageSize,
       total,
+      marketTab,
     } = this.state;
 
     const formItemLayout = {
@@ -818,10 +859,6 @@ export default class Main extends PureComponent {
         key: '',
         tab: '全部',
       },
-      {
-        key: 'goodrain',
-        tab: '云端下载',
-      },
     ];
     const tabComponentList = [
       {
@@ -834,20 +871,14 @@ export default class Main extends PureComponent {
       },
     ];
     const tabList = tabAllList.concat(tabComponentList);
-    const tabListMax = [
+    const tabListMax = marketTab.concat([
       {
         key: 'localApplication',
         tab: '本地应用',
       },
-    ];
+    ]);
 
-    if (rainbondUtil.cloudMarketEnable(enterprise)) {
-      tabListMax.unshift({
-        key: 'cloudApplication',
-        tab: '云端应用',
-      });
-    }
-
+    console.log('tabListMax', tabListMax);
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),

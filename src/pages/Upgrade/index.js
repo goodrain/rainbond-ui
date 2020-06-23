@@ -331,7 +331,7 @@ export default class AppList extends PureComponent {
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
         title="升级管理"
-        content="当前应用内具有从共享库或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作"
+        content="当前应用内具有从应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作"
         extraContent={null}
       >
         {!infoShow && (

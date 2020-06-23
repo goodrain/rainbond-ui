@@ -289,7 +289,7 @@ const appUtil = {
     }
     const map = {
       source_code: '源码',
-      market: buildSource.install_from_cloud ? '云应用商店' : '本地共享库',
+      market: buildSource.install_from_cloud ? '云应用商店' : '本地应用市场',
       docker_compose: 'DockerCompose',
       docker_run: 'DockerRun',
       docker_image: '镜像',

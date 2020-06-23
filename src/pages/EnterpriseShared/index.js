@@ -1,43 +1,47 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { Link } from 'dva/router';
 import {
-  Card,
   Button,
   Col,
   Row,
   Menu,
-  Dropdown,
   Icon,
   Spin,
-  Tabs,
   Radio,
   Input,
   Checkbox,
   Pagination,
   notification,
   Tooltip,
+  Divider,
+  Tabs,
 } from 'antd';
-import { Link, routerRedux } from 'dva/router';
-import NoComponent from '../../../public/images/noComponent.png';
-import userUtil from '../../utils/user';
-import Lists from '../../components/Lists';
-import CreateAppModels from '../../components/CreateAppModels';
-import DeleteApp from '../../components/DeleteApp';
-import AppExporter from './AppExporter';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ExportOperation from './ExportOperation';
 import TagList from './TagList';
-import rainbondUtil from '../../utils/rainbond';
 import ConfirmModal from '../../components/ConfirmModal';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import DeleteApp from '../../components/DeleteApp';
+import Lists from '../../components/Lists';
+import CreateAppModels from '../../components/CreateAppModels';
+import CreateAppMarket from '../../components/CreateAppMarket';
+import userUtil from '../../utils/user';
+import rainbondUtil from '../../utils/rainbond';
 
+import NoComponent from '../../../public/images/noComponent.png';
 import styles from './index.less';
 
+const { TabPane } = Tabs;
 const { Search } = Input;
 
-@connect(({ user, global }) => ({
+@connect(({ user, global, loading }) => ({
   user: user.currentUser,
   enterprise: global.enterprise,
   rainbondInfo: global.rainbondInfo,
+  upAppMarketLoading: loading.effects['market/upAppMarket'],
+  createAppMarketLoading: loading.effects['market/createAppMarket'],
 }))
 export default class EnterpriseShared extends PureComponent {
   constructor(props) {
@@ -47,18 +51,23 @@ export default class EnterpriseShared extends PureComponent {
     const enterpriseAdmin = userUtil.isCompanyAdmin(user);
 
     this.state = {
-      page_size: 10,
+      marketPag: {
+        pageSize: 10,
+        total: 0,
+        page: 1,
+        query: '',
+      },
+      pageSize: 10,
       total: 0,
       page: 1,
-      teamList: [],
       componentList: [],
-      exitTeamName: '',
-      userTeamsLoading: true,
+      localLoading: true,
+      marketLoading: true,
+      marketTabLoading: true,
       enterpriseAdmin,
       tagList: [],
       tags: [],
       scope: 'enterprise',
-      showExporterApp: false,
       appInfo: false,
       visibles: null,
       bouncedText: '',
@@ -66,11 +75,19 @@ export default class EnterpriseShared extends PureComponent {
       group_version: null,
       chooseVersion: null,
       deleteApp: false,
+      deleteAppMarket: false,
+      deleteAppMarketLoading: false,
       createAppModel: false,
       upDataAppModel: false,
+      createAppMarket: false,
       moreTags: false,
       editorTags: false,
       seeTag: false,
+      marketList: [],
+      marketTab: [],
+      activeTabKey: 'local',
+      marketInfo: false,
+      upAppMarket: false,
     };
   }
   componentDidMount() {
@@ -79,22 +96,76 @@ export default class EnterpriseShared extends PureComponent {
       this.load();
     }
   }
-
-  load = () => {
-    this.getApps();
-    this.getTags();
-  };
-
-  handleSearchTeam = name => {
+  onChangeRadio = e => {
     this.setState(
       {
-        page: 1,
-        name,
+        scope: e.target.value,
       },
       () => {
         this.getApps();
       }
     );
+  };
+  onChangeCheckbox = checkedValues => {
+    this.setState(
+      {
+        tags: checkedValues,
+      },
+      () => {
+        this.getApps();
+      }
+    );
+  };
+
+  onChangeBounced = checkedValues => {
+    this.setState({
+      chooseVersion: checkedValues,
+    });
+  };
+
+  onPageChangeApp = (page, pageSize) => {
+    this.setState({ page, pageSize }, () => {
+      this.getApps();
+    });
+  };
+  onPageChangeAppMarket = (page, pageSize) => {
+    const { marketInfo, marketPag } = this.state;
+    const setMarketPag = Object.assign({}, marketPag, {
+      page,
+      pageSize,
+    });
+    this.setState({ marketPag: setMarketPag }, () => {
+      this.getMarkets(marketInfo && marketInfo.name);
+    });
+  };
+  onTabChange = tabID => {
+    const { marketTab } = this.state;
+    let arr = [];
+    arr = marketTab.filter(item => {
+      return item.ID == tabID;
+    });
+    const isArr = arr && arr.length > 0;
+
+    if (tabID !== 'add') {
+      this.setState({ activeTabKey: tabID });
+    }
+
+    this.setState({ marketInfo: isArr ? arr[0] : false }, () => {
+      if (tabID !== 'local' && isArr && arr[0].status == 1) {
+        this.getMarkets(arr[0].name);
+      } else {
+        this.setState({
+          marketList: [],
+          marketLoading: false,
+          marketPag: {
+            pageSize: 10,
+            total: 0,
+            page: 1,
+            query: '',
+          },
+        });
+      }
+    });
   };
 
   getApps = () => {
@@ -105,8 +176,8 @@ export default class EnterpriseShared extends PureComponent {
         params: { eid },
       },
     } = this.props;
-    const { page, page_size, name, scope, tags } = this.state;
-    this.setState({ userTeamsLoading: true }, () => {
+    const { page, pageSize, name, scope, tags } = this.state;
+    this.setState({ localLoading: true }, () => {
       dispatch({
         type: 'market/fetchAppModels',
         payload: {
@@ -115,7 +186,7 @@ export default class EnterpriseShared extends PureComponent {
           app_name: name,
           scope,
           page,
-          page_size,
+          page_size: pageSize,
           tags,
         },
         callback: res => {
@@ -123,7 +194,7 @@ export default class EnterpriseShared extends PureComponent {
             this.setState({
               total: res.total,
               componentList: res.list,
-              userTeamsLoading: false,
+              localLoading: false,
             });
           }
         },
@@ -153,28 +224,99 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  onChangeRadio = e => {
+  getMarketsTab = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    this.setState({ marketTabLoading: true });
+    dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            marketTabLoading: false,
+            marketTab: res.list,
+          });
+        }
+      },
+    });
+  };
+
+  getMarkets = name => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    const { marketPag } = this.state;
+    const payload = Object.assign(
+      {},
+      {
+        name,
+        enterprise_id: eid,
+      },
+      marketPag
+    );
+    this.setState({ marketLoading: true });
+
+    dispatch({
+      type: 'market/fetchMarkets',
+      payload,
+      callback: res => {
+        if (res && res._code === 200) {
+          const setMarketPag = Object.assign({}, this.state.marketPag, {
+            total: res.total,
+          });
+          this.setState({
+            marketLoading: false,
+            marketList: res.list,
+            marketPag: setMarketPag,
+          });
+        }
+      },
+    });
+  };
+
+  load = () => {
+    this.getApps();
+    this.getTags();
+    this.getMarketsTab();
+  };
+
+  handleSearchLocal = name => {
     this.setState(
       {
-        scope: e.target.value,
+        page: 1,
+        name,
       },
       () => {
         this.getApps();
       }
     );
   };
+  handleSearchMarket = query => {
+    const { marketPag, marketInfo } = this.state;
 
-  onChangeCheckbox = checkedValues => {
+    const setMarketPag = Object.assign({}, marketPag, {
+      page: 1,
+      query,
+    });
     this.setState(
       {
-        tags: checkedValues,
+        marketPag: setMarketPag,
       },
       () => {
-        this.getApps();
+        this.getMarkets(marketInfo && marketInfo.name);
       }
     );
   };
-
   handleOpenEditorMoreTags = () => {
     this.setState({ moreTags: true, editorTags: true });
   };
@@ -193,13 +335,12 @@ export default class EnterpriseShared extends PureComponent {
       bouncedType: 'delete',
     });
   };
-
-  onChangeBounced = checkedValues => {
-    this.setState({
-      chooseVersion: checkedValues,
-    });
+  handleOpenDeleteAppMarket = () => {
+    this.setState({ deleteAppMarket: true });
   };
-
+  handleCloseDeleteAppMarket = () => {
+    this.setState({ deleteAppMarket: false });
+  };
   handleOkBounced = values => {
     const { bouncedType } = this.state;
     this.setState(
@@ -242,7 +383,37 @@ export default class EnterpriseShared extends PureComponent {
       },
     });
   };
-
+  handleDeleteAppMarket = () => {
+    const { marketInfo } = this.state;
+    this.setState({ deleteAppMarketLoading: true });
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'market/deleteAppMarket',
+      payload: {
+        enterprise_id: eid,
+        marketName: marketInfo.name,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.handleCloseDeleteAppMarket();
+          this.getMarketsTab();
+          this.setState({
+            activeTabKey: 'local',
+            marketInfo: false,
+            deleteAppMarketLoading: false,
+          });
+          notification.success({
+            message: '删除成功',
+          });
+        }
+      },
+    });
+  };
   handleCancelDelete = () => {
     this.setState({
       deleteApp: null,
@@ -311,6 +482,13 @@ export default class EnterpriseShared extends PureComponent {
     this.getApps();
     this.handleCancelAppModel();
   };
+
+  handleCreateAppMarket = () => {
+    notification.success({ message: '创建成功' });
+    this.getMarketsTab();
+    this.handleCancelAppMarket();
+  };
+
   handleCancelAppModel = () => {
     this.setState({
       createAppModel: false,
@@ -323,6 +501,23 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
+  handleOpenUpAppMarket = () => {
+    this.setState({
+      upAppMarket: true,
+    });
+  };
+
+  handleOpencreateAppMarket = () => {
+    this.setState({
+      createAppMarket: true,
+    });
+  };
+  handleCancelAppMarket = () => {
+    this.setState({
+      createAppMarket: false,
+      upAppMarket: false,
+    });
+  };
   handleupDataAppModel = () => {
     notification.success({ message: '编辑成功' });
     this.getApps();
@@ -342,11 +537,6 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false,
     });
   };
-  onPageChangeApp = (page, pageSize) => {
-    this.setState({ page, pageSize }, () => {
-      this.getApps();
-    });
-  };
 
   render() {
     const {
@@ -355,16 +545,25 @@ export default class EnterpriseShared extends PureComponent {
       match: {
         params: { eid },
       },
+      createAppMarketLoading,
+      upAppMarketLoading,
     } = this.props;
 
     const {
       componentList,
-      userTeamsLoading,
+      marketList,
+      marketTab,
+      marketTabLoading,
+      localLoading,
+      marketLoading,
       tagList,
       appInfo,
       visibles,
       bouncedText,
       enterpriseAdmin,
+      activeTabKey,
+      marketInfo,
+      marketPag,
     } = this.state;
 
     const tagLists = tagList && tagList.length > 0 && tagList;
@@ -372,7 +571,7 @@ export default class EnterpriseShared extends PureComponent {
     const defaultSvg = () => (
       <svg width="50px" height="50px" viewBox="0 0 50 50">
         <g
-          id="企业视图-共享库"
+          id="企业视图-应用市场"
           stroke="none"
           strokeWidth="1"
           fill="none"
@@ -472,24 +671,9 @@ export default class EnterpriseShared extends PureComponent {
           </Menu.Item>
         );
 
-      const cloudsUpdate = appInfo.source === 'market' &&
-        rainbondUtil.cloudMarketEnable(enterprise) && (
-          <Menu.Item>
-            <a
-              style={{ marginRight: 8 }}
-              onClick={() => {
-                this.handleLoadAppDetail(appInfo, '云端更新');
-              }}
-            >
-              云端更新
-            </a>
-          </Menu.Item>
-        );
-
-      if (cloudsUpdate || exportOperation || editorApp || delApp) {
+      if (exportOperation || editorApp || delApp) {
         return (
           <Menu>
-            {cloudsUpdate}
             {exportOperation}
             {editorApp}
             {delApp}
@@ -499,34 +683,33 @@ export default class EnterpriseShared extends PureComponent {
       return null;
     };
 
-    const addMenuApps = (
-      <Menu>
-        {enterpriseAdmin && (
-          <Menu.Item>
-            <a onClick={this.handleOpenCreateAppModel}>创建应用模版</a>
-          </Menu.Item>
-        )}
-        <Menu.Item>
-          <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
-        </Menu.Item>
-      </Menu>
-    );
-
     const operation = (
       <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
-        {rainbondUtil.cloudMarketEnable(enterprise) && (
-          <Button type="primary" style={{ marginRight: '22px' }}>
-            <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
+        <Button style={{ marginRight: '22px' }}>
+          <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+        </Button>
+        {enterpriseAdmin && (
+          <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+            创建应用模版
           </Button>
         )}
-
-        <Dropdown overlay={addMenuApps} placement="topCenter">
-          <Button type="primary">
-            <Icon type="plus" />
-          </Button>
-        </Dropdown>
       </Col>
     );
+
+    const marketOperation = (
+      <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
+        <Button
+          onClick={this.handleOpenDeleteAppMarket}
+          style={{ marginRight: '22px' }}
+        >
+          删除
+        </Button>
+        <Button type="primary" onClick={this.handleOpenUpAppMarket}>
+          编辑
+        </Button>
+      </Col>
+    );
+
     const noShared = (
       <div className={styles.noShared}>
         <img src={NoComponent} />
@@ -549,70 +732,67 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
 
-    const sharedList = (
+    const localsContent = (
       <div>
         <Row
           style={{
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '28px',
-            marginTop: '20px',
+            marginBottom: '20px',
+            marginTop: '4px',
           }}
         >
           <Col span={19} style={{ textAlign: 'left', display: 'flex' }}>
             <Search
-              style={{ width: '396px' }}
+              style={{ width: '250px' }}
               placeholder="请输入名称进行搜索"
-              onSearch={this.handleSearchTeam}
+              onSearch={this.handleSearchLocal}
             />
             <div className={styles.serBox}>
-              <div>
-                <Radio.Group
-                  value={this.state.scope}
-                  onChange={this.onChangeRadio}
+              <Radio.Group
+                className={styles.setRadioGroup}
+                value={this.state.scope}
+                onChange={this.onChangeRadio}
+              >
+                <Radio.Button value="enterprise">企业</Radio.Button>
+                <Radio.Button value="team">团队</Radio.Button>
+              </Radio.Group>
+              {tagLists && <Divider type="vertical" />}
+              {tagLists && (
+                <Checkbox.Group
+                  className={styles.setCheckboxGroup}
+                  onChange={this.onChangeCheckbox}
+                  value={this.state.tags}
                 >
-                  <Radio.Button value="enterprise">企业</Radio.Button>
-                  <Radio.Button value="team">团队</Radio.Button>
-                </Radio.Group>
-              </div>
-              {tagLists && tagLists && <div />}
-              {tagLists && tagLists && (
-                <div>
-                  <Checkbox.Group
-                    style={{ width: '100%' }}
-                    onChange={this.onChangeCheckbox}
-                    value={this.state.tags}
+                  {tagLists.map((item, index) => {
+                    const { name, tag_id } = item;
+                    if (index > 4) {
+                      return null;
+                    }
+                    return (
+                      <Checkbox key={tag_id} value={name}>
+                        {name}
+                      </Checkbox>
+                    );
+                  })}
+                  <a
+                    onClick={this.handleOpenEditorMoreTags}
+                    style={{ float: 'right' }}
                   >
-                    {tagLists.map((item, index) => {
-                      const { name, tag_id } = item;
-                      if (index === 5) {
-                        return (
-                          <a onClick={this.handleOpenEditorMoreTags}>更多</a>
-                        );
-                      }
-                      if (index > 5) {
-                        return null;
-                      }
-                      return (
-                        <Checkbox key={tag_id} value={name}>
-                          {name}
-                        </Checkbox>
-                      );
-                    })}
-                  </Checkbox.Group>
-                </div>
+                    更多标签
+                  </a>
+                </Checkbox.Group>
               )}
             </div>
           </Col>
           {operation}
         </Row>
-
-        {userTeamsLoading ? (
+        {localLoading ? (
           <div className={styles.example}>
             <Spin />
           </div>
         ) : componentList && componentList.length > 0 ? (
-          componentList.map((item, index) => {
+          componentList.map(item => {
             const {
               app_id,
               pic,
@@ -709,17 +889,145 @@ export default class EnterpriseShared extends PureComponent {
           <Pagination
             showQuickJumper
             current={this.state.page}
-            pageSize={this.state.page_size}
+            pageSize={this.state.pageSize}
             total={Number(this.state.total)}
             onChange={this.onPageChangeApp}
           />
         </div>
       </div>
     );
+    const marketContent = (
+      <div>
+        <Row
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '20px',
+            marginTop: '4px',
+          }}
+        >
+          <Col span={19} style={{ textAlign: 'left', display: 'flex' }}>
+            <p>市场已经正常连接，该平台具有 只读 | 安装 |推送 应用权限</p>
+            <Search
+              style={{ width: '250px' }}
+              placeholder="请输入名称进行搜索"
+              onSearch={this.handleSearchMarket}
+            />
+          </Col>
+          {marketOperation}
+        </Row>
+        {marketLoading ? (
+          <div className={styles.example}>
+            <Spin />
+          </div>
+        ) : marketList && marketList.length > 0 ? (
+          marketList.map(item => {
+            const {
+              app_id,
+              logo,
+              describe,
+              app_name,
+              tags,
+              versions,
+              dev_status,
+              install_number,
+            } = item;
+            return (
+              <Lists
+                key={app_id}
+                stylePro={{ marginBottom: '10px' }}
+                Cols={
+                  <div className={styles.h70}>
+                    <Col span={3} style={{ display: 'flex' }}>
+                      <div className={styles.lt}>
+                        <p>
+                          <Icon type="arrow-down" />
+                          {install_number}
+                        </p>
+                      </div>
+                      <div className={styles.imgs}>
+                        {logo ? (
+                          <img src={logo} alt="" />
+                        ) : (
+                          <Icon component={defaultSvg} />
+                        )}
+                      </div>
+                    </Col>
+                    <Col span={13} className={styles.tits}>
+                      <div>
+                        <p>{app_name}</p>
+                        <p>
+                          <Tooltip placement="topLeft" title={describe}>
+                            {describe}
+                          </Tooltip>
+                        </p>
+                      </div>
+                    </Col>
+                    <Col span={4} className={styles.status}>
+                      <div>
+                        {dev_status && (
+                          <p className={styles.dev_status}>{dev_status}</p>
+                        )}
 
+                        {versions && versions.length > 0 ? (
+                          <p className={styles.dev_version}>
+                            {versions[0].app_version}
+                          </p>
+                        ) : (
+                          <p className={styles.dev_version}>无版本</p>
+                        )}
+                      </div>
+                    </Col>
+
+                    <Col span={4} className={styles.tags}>
+                      {tags &&
+                        tags.length > 0 &&
+                        tags.map((item, index) => {
+                          const { tag_id, name } = item;
+                          if (index > 2) {
+                            return null;
+                          }
+                          return (
+                            <div key={tag_id} style={{ marginRight: '5px' }}>
+                              {name}
+                            </div>
+                          );
+                        })}
+                      {tags && tags.length > 3 && (
+                        <a
+                          style={{ marginLeft: '5px' }}
+                          onClick={() => {
+                            this.handleOpenMoreTags(tags);
+                          }}
+                        >
+                          更多
+                        </a>
+                      )}
+                    </Col>
+                  </div>
+                }
+                overlay={managementMenu(item)}
+              />
+            );
+          })
+        ) : (
+          noShared
+        )}
+
+        <div style={{ textAlign: 'right' }}>
+          <Pagination
+            showQuickJumper
+            current={marketPag.page}
+            pageSize={marketPag.pageSize}
+            total={Number(marketPag.total)}
+            onChange={this.onPageChangeAppMarket}
+          />
+        </div>
+      </div>
+    );
     return (
       <PageHeaderLayout
-        title="共享库"
+        title="应用市场管理"
         content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台"
       >
         {this.state.moreTags && (
@@ -735,7 +1043,6 @@ export default class EnterpriseShared extends PureComponent {
             editorTags={this.state.editorTags}
           />
         )}
-
         {this.state.deleteApp && (
           <ConfirmModal
             onOk={this.handleDeleteApp}
@@ -743,6 +1050,15 @@ export default class EnterpriseShared extends PureComponent {
             subDesc="删除后其他人将无法安装此应用模型"
             title="删除应用模版"
             onCancel={this.handleCancelDelete}
+          />
+        )}
+        {this.state.deleteAppMarket && (
+          <ConfirmModal
+            onOk={this.handleDeleteAppMarket}
+            loading={this.state.deleteAppMarketLoading}
+            desc={`确定要删除此${marketInfo.name}吗?`}
+            title={`删除${marketInfo.name}`}
+            onCancel={this.handleCloseDeleteAppMarket}
           />
         )}
 
@@ -754,6 +1070,26 @@ export default class EnterpriseShared extends PureComponent {
             onCancel={this.handleCancelAppModel}
           />
         )}
+
+        {this.state.createAppMarket && (
+          <CreateAppMarket
+            title="创建应用市场"
+            eid={eid}
+            loading={createAppMarketLoading}
+            onOk={this.handleCreateAppMarket}
+            onCancel={this.handleCancelAppMarket}
+          />
+        )}
+        {this.state.upAppMarket && (
+          <CreateAppMarket
+            title="编辑应用市场"
+            eid={eid}
+            loading={upAppMarketLoading}
+            marketInfo={marketInfo}
+            onOk={this.handleCreateAppMarket}
+            onCancel={this.handleCancelAppMarket}
+          />
+        )}
         {this.state.upDataAppModel && (
           <CreateAppModels
             title="编辑应用模版"
@@ -763,7 +1099,6 @@ export default class EnterpriseShared extends PureComponent {
             onCancel={this.handleCancelupDataAppModel}
           />
         )}
-
         {visibles && (
           <DeleteApp
             appInfo={appInfo}
@@ -773,15 +1108,59 @@ export default class EnterpriseShared extends PureComponent {
             onCheckedValues={this.onChangeBounced}
           />
         )}
-        <div
-          style={{
-            display: 'block',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
+        <Tabs
+          activeKey={activeTabKey}
+          className={styles.setTabs}
+          onChange={this.onTabChange}
         >
-          {sharedList}
-        </div>
+          <TabPane
+            tab={
+              <span>
+                <Icon type="apple" />
+                本地组件库
+              </span>
+            }
+            key="local"
+          >
+            <div
+              style={{
+                display: 'block',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {localsContent}
+            </div>
+          </TabPane>
+          {marketTab.map(item => {
+            const { ID, alias } = item;
+            return (
+              <TabPane
+                tab={
+                  <span>
+                    <Icon type="android" />
+                    {alias}
+                  </span>
+                }
+                key={ID}
+              >
+                {marketContent}
+              </TabPane>
+            );
+          })}
+          {/* {activeTabKey !== 'local' && ( */}
+          <TabPane
+            tab={
+              <Icon
+                type="plus"
+                style={{ fontSize: '25px', margin: 0 }}
+                onClick={this.handleOpencreateAppMarket}
+              />
+            }
+            key="add"
+          />
+          {/* )} */}
+        </Tabs>
       </PageHeaderLayout>
     );
   }

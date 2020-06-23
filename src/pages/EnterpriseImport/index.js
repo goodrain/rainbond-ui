@@ -286,7 +286,7 @@ export default class EnterpriseShared extends PureComponent {
               message: '应用导入失败',
             });
             this.setState({
-              import_file_status:[],
+              import_file_status: [],
             });
             return;
           }
@@ -412,7 +412,6 @@ export default class EnterpriseShared extends PureComponent {
       </svg>
     );
 
-
     const myheaders = {};
     const {
       existFileList,
@@ -442,7 +441,7 @@ export default class EnterpriseShared extends PureComponent {
     return (
       <PageHeaderLayout
         title="离线应用模板导入"
-        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他 Rainbond 平台导出或云应用商店导出"
+        content="离线应用模板导入是创建本地应用市场应用模型的方式之一，离线应用包可以来自其他 Rainbond 平台导出或云应用商店导出"
       >
         <div style={{ margin: '75px 21px 0 24px' }}>
           <div className={styles.tit}>离线应用模板导入</div>
