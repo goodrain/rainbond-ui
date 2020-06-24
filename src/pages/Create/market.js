@@ -490,7 +490,7 @@ export default class Main extends PureComponent {
             this.showMarketAppDetail(item);
           }}
         >
-          {cloud ? item.name : item.app_name || ''}
+          {item.app_name}
         </a>
       </div>
     );
@@ -567,15 +567,19 @@ export default class Main extends PureComponent {
         ) : (
           <Card
             className={PluginStyles.cards}
-            actions={[
-              <span
-                onClick={() => {
-                  this.showCreate(item);
-                }}
-              >
-                安装
-              </span>,
-            ]}
+            actions={
+              isInstall
+                ? [
+                    <span
+                    onClick={() => {
+                        this.showCreate(item);
+                      }}
+                  >
+                      安装
+                  </span>,
+                  ]
+                : [<div />]
+            }
           >
             <Card.Meta
               className={PluginStyles.cardsMetas}
@@ -710,6 +714,7 @@ export default class Main extends PureComponent {
       pageSize,
       total,
       marketTab,
+      currentKey,
     } = this.state;
 
     const formItemLayout = {
@@ -878,7 +883,6 @@ export default class Main extends PureComponent {
       },
     ]);
 
-    console.log('tabListMax', tabListMax);
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
@@ -898,6 +902,21 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
+    let isInstall = false;
+    if (marketTab && marketTab.length > 0) {
+      const arr = marketTab.filter(item => {
+        return item.name == currentKey;
+      });
+      if (
+        arr &&
+        arr.length > 0 &&
+        arr[0].access_actions &&
+        arr[0].access_actions.length > 0
+      ) {
+        isInstall = arr[0].access_actions.includes('ReadInstall');
+      }
+    }
+
     return (
       <div>
         {this.state.showCreate && (

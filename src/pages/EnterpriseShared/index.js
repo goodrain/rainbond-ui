@@ -29,8 +29,11 @@ import CreateAppModels from '../../components/CreateAppModels';
 import CreateAppMarket from '../../components/CreateAppMarket';
 import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
-
+import { fetchMarketAuthority } from '../../utils/authority';
+import globalUtil from '../../utils/global';
 import NoComponent from '../../../public/images/noComponent.png';
+import LocalMarket from '../../../public/images/localMarket.png';
+import CloudMarket from '../../../public/images/cloudMarket.png';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
@@ -47,9 +50,7 @@ export default class EnterpriseShared extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-
     const enterpriseAdmin = userUtil.isCompanyAdmin(user);
-
     this.state = {
       marketPag: {
         pageSize: 10,
@@ -565,8 +566,12 @@ export default class EnterpriseShared extends PureComponent {
       marketInfo,
       marketPag,
     } = this.state;
-
     const tagLists = tagList && tagList.length > 0 && tagList;
+    const accessActions =
+      marketInfo &&
+      marketInfo.access_actions &&
+      marketInfo.access_actions.length > 0 &&
+      marketInfo.access_actions;
 
     const defaultSvg = () => (
       <svg width="50px" height="50px" viewBox="0 0 50 50">
@@ -685,7 +690,7 @@ export default class EnterpriseShared extends PureComponent {
 
     const operation = (
       <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
-        <Button style={{ marginRight: '22px' }}>
+        <Button style={{ margin: '0 14px 0 10px' }}>
           <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
         </Button>
         {enterpriseAdmin && (
@@ -710,16 +715,11 @@ export default class EnterpriseShared extends PureComponent {
       </Col>
     );
 
-    const noShared = (
+    const noLocalMarket = (
       <div className={styles.noShared}>
         <img src={NoComponent} />
         <p>当前无组件，请选择方式添加</p>
         <div className={styles.btns}>
-          {rainbondUtil.cloudMarketEnable(enterprise) && (
-            <Button type="primary">
-              <Link to={`/enterprise/${eid}/shared/cloudMarket`}>云端同步</Link>
-            </Button>
-          )}
           {enterpriseAdmin && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
               创建应用模版
@@ -732,6 +732,17 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
 
+    const noCloudMarket = (
+      <div className={styles.noShared}>
+        <img src={NoComponent} />
+        <p>当前无组件，请选择方式添加</p>
+        <div className={styles.btns}>
+          <Button type="primary">
+            <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
+          </Button>
+        </div>
+      </div>
+    );
     const localsContent = (
       <div>
         <Row
@@ -882,7 +893,7 @@ export default class EnterpriseShared extends PureComponent {
             );
           })
         ) : (
-          noShared
+          noLocalMarket
         )}
 
         <div style={{ textAlign: 'right' }}>
@@ -906,10 +917,30 @@ export default class EnterpriseShared extends PureComponent {
             marginTop: '4px',
           }}
         >
-          <Col span={19} style={{ textAlign: 'left', display: 'flex' }}>
-            <p>市场已经正常连接，该平台具有 只读 | 安装 |推送 应用权限</p>
+          <Col
+            span={19}
+            style={{ textAlign: 'left', display: 'flex', alignItems: 'center' }}
+          >
+            <div>
+              市场已经正常连接，该平台具有&nbsp;
+              {accessActions &&
+                accessActions.map((item, index) => {
+                  return (
+                    <a>
+                      {fetchMarketAuthority(item)}
+                      {index < accessActions.length - 1 && (
+                        <Divider
+                          type="vertical"
+                          style={{ background: '#1890ff' }}
+                        />
+                      )}
+                    </a>
+                  );
+                })}
+              &nbsp;应用权限
+            </div>
             <Search
-              style={{ width: '250px' }}
+              style={{ width: '400px', marginLeft: '100px' }}
               placeholder="请输入名称进行搜索"
               onSearch={this.handleSearchMarket}
             />
@@ -1006,12 +1037,11 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                   </div>
                 }
-                overlay={managementMenu(item)}
               />
             );
           })
         ) : (
-          noShared
+          noCloudMarket
         )}
 
         <div style={{ textAlign: 'right' }}>
@@ -1115,8 +1145,8 @@ export default class EnterpriseShared extends PureComponent {
         >
           <TabPane
             tab={
-              <span>
-                <Icon type="apple" />
+              <span className={styles.verticalCen}>
+                {globalUtil.fetchSvg('localMarket')}
                 本地组件库
               </span>
             }
@@ -1137,8 +1167,8 @@ export default class EnterpriseShared extends PureComponent {
             return (
               <TabPane
                 tab={
-                  <span>
-                    <Icon type="android" />
+                  <span className={styles.verticalCen}>
+                    {globalUtil.fetchSvg('cloudMarket')}
                     {alias}
                   </span>
                 }
@@ -1148,18 +1178,18 @@ export default class EnterpriseShared extends PureComponent {
               </TabPane>
             );
           })}
-          {/* {activeTabKey !== 'local' && ( */}
-          <TabPane
-            tab={
-              <Icon
-                type="plus"
-                style={{ fontSize: '25px', margin: 0 }}
-                onClick={this.handleOpencreateAppMarket}
-              />
-            }
-            key="add"
-          />
-          {/* )} */}
+          {activeTabKey !== 'local' && (
+            <TabPane
+              tab={
+                <Icon
+                  type="plus"
+                  className={styles.addSvg}
+                  onClick={this.handleOpencreateAppMarket}
+                />
+              }
+              key="add"
+            />
+          )}
         </Tabs>
       </PageHeaderLayout>
     );
