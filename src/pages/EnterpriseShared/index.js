@@ -32,8 +32,6 @@ import rainbondUtil from '../../utils/rainbond';
 import { fetchMarketAuthority } from '../../utils/authority';
 import globalUtil from '../../utils/global';
 import NoComponent from '../../../public/images/noComponent.png';
-import LocalMarket from '../../../public/images/localMarket.png';
-import CloudMarket from '../../../public/images/cloudMarket.png';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
