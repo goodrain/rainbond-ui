@@ -681,7 +681,7 @@ export default class Enterprise extends PureComponent {
                   style={{ height: '243px' }}
                 >
                   <Row>
-                    <Col span={8}>
+                    <Col span={7}>
                       <ul className={styles.Box}>
                         <li>
                           <div>
@@ -697,7 +697,7 @@ export default class Enterprise extends PureComponent {
                         <li>——</li>
                       </ul>
                     </Col>
-                    <Col span={8}>
+                    <Col span={10}>
                       <ul className={styles.Box}>
                         <li>
                           <div>
@@ -714,7 +714,7 @@ export default class Enterprise extends PureComponent {
                         <li>——</li>
                       </ul>
                     </Col>
-                    <Col span={8}>
+                    <Col span={7}>
                       <ul className={styles.Box}>
                         <li>
                           <div>
@@ -905,7 +905,7 @@ export default class Enterprise extends PureComponent {
                 >
                   {overviewMonitorInfo && (
                     <Row>
-                      <Col span={8}>
+                      <Col span={7}>
                         <ul className={styles.Box}>
                           <li>
                             <img src={Records} alt="" />
@@ -922,7 +922,7 @@ export default class Enterprise extends PureComponent {
                           <li>——</li>
                         </ul>
                       </Col>
-                      <Col span={8}>
+                      <Col span={10}>
                         <ul className={styles.Box}>
                           <li>
                             <img src={Memory} alt="" />
@@ -955,7 +955,7 @@ export default class Enterprise extends PureComponent {
                           <li>——</li>
                         </ul>
                       </Col>
-                      <Col span={8}>
+                      <Col span={7}>
                         <ul className={styles.Box}>
                           <li>
                             <img src={Cpus} alt="" />

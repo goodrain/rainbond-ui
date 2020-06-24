@@ -1,3 +1,7 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable array-callback-return */
+/* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
 import { Button, notification } from "antd";
 import { connect } from "dva";
@@ -118,7 +122,7 @@ class LogItem extends PureComponent {
           url: this.getSocketUrl(),
           eventId: data.event_id,
           onMessage: data => {
-            const logs = this.state.logs;
+            const { logs } = this.state;
             logs.unshift(data);
             this.setState({
               logs: [].concat(logs)
@@ -358,7 +362,7 @@ class LogItem extends PureComponent {
 // eslint-disable-next-line react/no-multi-comp
 class LogList extends PureComponent {
   render() {
-    const list = this.props.list;
+    const { list } = this.props;
     return (
       <div className={styles.logs}>
         {list.map(item => (
@@ -481,7 +485,7 @@ export default class Index extends PureComponent {
     });
   }
 
-  fetchOperationLog = isCycle => {
+  fetchOperationLog = (isCycle, isopenLog = false) => {
     this.props.dispatch({
       type: "appControl/fetchOperationLog",
       payload: {
@@ -495,14 +499,10 @@ export default class Index extends PureComponent {
         if (res && res._code === 200) {
           this.setState(
             {
+              isopenLog,
               has_next: res.has_next || false,
               logList: res.list || [],
               recordLoading: false,
-              total: res.bean.total
-                ? res.bean.total
-                : res.list
-                ? res.list.length
-                : 0
             },
             () => {
               if (isCycle) {
@@ -532,6 +532,10 @@ export default class Index extends PureComponent {
   };
 
   handleError = err => {
+    const { componentTimers } = this.state;
+    if (!componentTimers) {
+      return null;
+    }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
@@ -716,7 +720,6 @@ export default class Index extends PureComponent {
       recordLoading,
       has_next,
       current_version,
-      componentTimers
     } = this.state;
     return (
       <Fragment>

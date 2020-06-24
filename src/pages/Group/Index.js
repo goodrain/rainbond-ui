@@ -129,7 +129,8 @@ class Main extends PureComponent {
       size: "large",
       currApp: {},
       loadingDetail: true,
-      rapidCopy: false
+      rapidCopy: false,
+      componentTimer: true,
     };
   }
 
@@ -138,9 +139,7 @@ class Main extends PureComponent {
   }
 
   componentWillUnmount() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    this.closeTimer();
     const { dispatch } = this.props;
     dispatch({ type: "groupControl/clearGroupDetail" });
   }
@@ -148,7 +147,11 @@ class Main extends PureComponent {
   getGroupId() {
     return this.props.appID;
   }
-
+  closeTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
   loading = () => {
     this.fetchAppDetail();
     this.loadTopology(true);
@@ -234,6 +237,10 @@ class Main extends PureComponent {
     });
   }
   handleError = err => {
+    const { componentTimer } = this.state;
+    if (!componentTimer) {
+      return null;
+    }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
@@ -242,6 +249,10 @@ class Main extends PureComponent {
     }
   };
   handleTimers = (timerName, callback, times) => {
+    const { componentTimer } = this.state;
+    if (!componentTimer) {
+      return null;
+    }
     this[timerName] = setTimeout(() => {
       callback();
     }, times);
@@ -267,8 +278,12 @@ class Main extends PureComponent {
         }
       },
       handleError: res => {
+        const { componentTimer } = this.state;
+        if (!componentTimer) {
+          return null;
+        }
         if (res && res.code === 404) {
-          this.props.dispatch(
+          dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
@@ -291,11 +306,26 @@ class Main extends PureComponent {
     this.setState({ type });
   };
   toDelete = () => {
+    this.closeComponentTimer();
     this.setState({ toDelete: true });
   };
-  cancelDelete = () => {
+  cancelDelete = (isOpen = true) => {
     this.setState({ toDelete: false });
+    if (isOpen) {
+      this.openComponentTimer();
+    }
   };
+
+  closeComponentTimer = () => {
+    this.setState({ componentTimer: false });
+    this.closeTimer();
+  };
+  openComponentTimer = () => {
+    this.setState({ componentTimer: true }, () => {
+      this.loadTopology(true);
+    });
+  };
+
   handleDelete = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -306,9 +336,10 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: "删除成功" });
-          this.cancelDelete();
-          this.props.dispatch(
+          notification.success({ message: '删除成功' });
+          this.closeComponentTimer();
+          this.cancelDelete(false);
+          dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )

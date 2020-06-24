@@ -1,8 +1,9 @@
-import React, { PureComponent } from 'react';
-import { Icon, Form, Card, Row, Col, Tooltip, Modal } from 'antd';
+/* eslint-disable camelcase */
+import { Card, Col, Form, Icon, Modal, Row, Tooltip } from 'antd';
 import { connect } from 'dva';
-import globalUtil from '../../../../utils/global';
 import moment from 'moment';
+import React, { PureComponent } from 'react';
+import globalUtil from '../../../../utils/global';
 import LogShow from '../LogShow';
 import styles from './operation.less';
 
@@ -13,8 +14,6 @@ class Index extends PureComponent {
     super(arg);
     this.state = {
       logVisible: false,
-      content: '',
-      showHighlighted: '',
       selectEventID: '',
       showSocket: false,
     };
@@ -23,12 +22,16 @@ class Index extends PureComponent {
 
   handleMore = () => {
     const { handleMore } = this.props;
-    handleMore && handleMore(true);
+    if (handleMore) {
+      handleMore(true);
+    }
   };
 
   showLogModal = (EventID, showSocket) => {
     const { isopenLog, onLogPush } = this.props;
-    isopenLog && onLogPush && onLogPush(false);
+    if (isopenLog && onLogPush) {
+      onLogPush(false);
+    }
 
     this.setState({
       logVisible: true,
@@ -37,16 +40,27 @@ class Index extends PureComponent {
     });
   };
 
-  handleCancel = e => {
+  handleCancel = () => {
     this.setState({
       logVisible: false,
     });
+  };
+
+  showUserName = UserName => {
+    if (UserName === 'system') {
+      return '@系统';
+    }
+    if (UserName) {
+      return `@${UserName}`;
+    }
+    return '';
   };
 
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket } = this.state;
     const logsvg = globalUtil.fetchSvg('logs', '#cccccc');
+    let showLogEvent = '';
     return (
       <Card bordered={false} title="操作记录" loading={recordLoading}>
         <Row gutter={24}>
@@ -64,12 +78,16 @@ class Index extends PureComponent {
                   EventID,
                   create_time,
                 } = item;
-                const UserNames =
-                  UserName == 'system'
-                    ? '@系统'
-                    : UserName
-                    ? `@${UserName}`
-                    : '';
+                if (
+                  isopenLog &&
+                  FinalStatus === '' &&
+                  OptType &&
+                  OptType.indexOf('build') > -1 &&
+                  showLogEvent === ''
+                ) {
+                  showLogEvent = EventID;
+                }
+                const UserNames = this.showUserName(UserName);
                 const Messages =
                   Status !== 'success' &&
                   globalUtil.fetchAbnormalcolor(OptType) ===
@@ -137,15 +155,9 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div style={{ position: 'relative' }}>
-                      {isopenLog &&
-                        FinalStatus === '' &&
-                        OptType &&
-                        OptType.indexOf('build') > -1 &&
-                        EventID &&
-                        this.showLogModal(EventID, FinalStatus == '')}
-                      {SynType == 0 && (
+                      {SynType === 0 && (
                         <Tooltip
-                          visible={FinalStatus == ''}
+                          visible={FinalStatus === ''}
                           placement="top"
                           arrowPointAtCenter
                           autoAdjustOverflow={false}
@@ -157,7 +169,7 @@ class Index extends PureComponent {
                               width: '16px',
                             }}
                             onClick={() => {
-                              this.showLogModal(EventID, FinalStatus == '');
+                              this.showLogModal(EventID, FinalStatus === '');
                             }}
                           >
                             {logsvg}
@@ -168,7 +180,7 @@ class Index extends PureComponent {
                   </div>
                 );
               })}
-
+            {showLogEvent && this.showLogModal(showLogEvent, true)}
             {!logList ||
               (logList && logList.length === 0 && (
                 <div
@@ -213,7 +225,7 @@ class Index extends PureComponent {
             <LogShow
               showSocket={showSocket}
               EventID={selectEventID}
-              socket={this.props.socket && this.props.socket}
+              socket={this.props.socket}
             />
           </Modal>
         )}
