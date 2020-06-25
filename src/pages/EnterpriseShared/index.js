@@ -153,21 +153,22 @@ export default class EnterpriseShared extends PureComponent {
     });
     const isArr = arr && arr.length > 0;
     this.setState(
-      { marketInfo: isArr ? arr[0] : false, activeTabKey: `${tabID}` },
+      {
+        marketInfo: isArr ? arr[0] : false,
+        activeTabKey: `${tabID}`,
+        name: '',
+        marketList: [],
+        marketLoading: false,
+        marketPag: {
+          pageSize: 10,
+          total: 0,
+          page: 1,
+          query: '',
+        },
+      },
       () => {
         if (tabID !== 'local' && isArr && arr[0].status == 1) {
           this.getMarkets(arr[0].name);
-        } else {
-          this.setState({
-            marketList: [],
-            marketLoading: false,
-            marketPag: {
-              pageSize: 10,
-              total: 0,
-              page: 1,
-              query: '',
-            },
-          });
         }
       }
     );
@@ -768,9 +769,11 @@ export default class EnterpriseShared extends PureComponent {
         imageStyle={{
           height: 60,
         }}
-        description={<span>市场未连接、暂无数据</span>}
+        description={
+          <span>{!isMarket ? '市场未连接、暂无数据' : '暂无数据'}</span>
+        }
       >
-        {marketOperation}
+        {isMarket && marketOperation}
       </Empty>
     );
     const localsContent = (

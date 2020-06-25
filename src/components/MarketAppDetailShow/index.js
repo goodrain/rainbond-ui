@@ -34,16 +34,7 @@ export default class Index extends PureComponent {
         ) : details ? (
           <ReactMarkdown className={styles.markdown} source={details} />
         ) : (
-          <span>
-            未编辑应用详情
-            <a
-              style={{ textAlign: 'center' }}
-              target="_blank"
-              href="https://t.goodrain.com"
-            >
-              更多应用制作请参阅社区用户文献
-            </a>
-          </span>
+          <span>未编辑应用详情</span>
         )}
       </Modal>
     );
