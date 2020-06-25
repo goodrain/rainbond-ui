@@ -198,10 +198,10 @@ export default class Main extends PureComponent {
           const arryNew = [];
           if (arr && arr.length > 0) {
             res.list.map(item => {
-              const { alias, name, status } = item;
+              const { name, status, alias } = item;
               if (status == 1) {
                 arryNew.push(
-                  Object.assign({}, item, { tab: alias, key: name })
+                  Object.assign({}, item, { tab: alias || name, key: name })
                 );
               }
             });
@@ -304,7 +304,13 @@ export default class Main extends PureComponent {
   handleInstallBounced = e => {
     e.preventDefault();
     const { form, dispatch, groupId, refreshCurrent } = this.props;
-    const { installBounced, is_deploy, scopeMax, handleType } = this.state;
+    const {
+      installBounced,
+      is_deploy,
+      scopeMax,
+      handleType,
+      currentKey,
+    } = this.state;
     const teamName = globalUtil.getCurrTeamName();
 
     form.validateFields((err, Value) => {
@@ -318,6 +324,7 @@ export default class Main extends PureComponent {
           is_deploy,
           group_key: installBounced.ID,
           app_version: Value.group_version,
+          marketName: currentKey,
           install_from_cloud: scopeMax !== 'localApplication',
         },
         callback: () => {
@@ -548,15 +555,17 @@ export default class Main extends PureComponent {
       </div>,
     ];
 
-    const defaultActions = [
-      <span
-        onClick={() => {
-          isInstall && this.showCreate(item);
-        }}
-      >
-        {isInstall ? '安装' : ''}
-      </span>,
-    ];
+    const defaultActions = isInstall
+      ? [
+        <span
+            onClick={() => {
+              this.showCreate(item);
+            }}
+          >
+            安装
+          </span>,
+        ]
+      : [];
 
     return (
       <Fragment>
@@ -945,7 +954,7 @@ export default class Main extends PureComponent {
           >
             {scopeMax != 'localApplication' && !isInstall && (
               <Alert
-                message="当前市场没有安装权限，请前往应用市场获取更多权限"
+                message="当前市场没有安装权限，请联系企业管理员更新市场AccessKey"
                 type="success"
                 style={{ margin: '-10px 0 15px 0' }}
               />

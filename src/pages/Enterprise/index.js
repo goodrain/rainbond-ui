@@ -78,123 +78,34 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     this.loading();
   }
-
-  loading = () => {
-    const { adminer, eid } = this.state;
-    if (eid) {
-      this.getEnterpriseInfo();
-      this.getOverviewTeam();
-      if (adminer) {
-        if (!cookie.get("appStore")) {
-          this.loadAppStore();
-        }
-        this.getOverviewApp();
-        this.getOverview();
-        this.getOverviewMonitor();
-      } else {
-        this.fetchCollectionViewInfo();
-      }
-    }
-  };
-
-  loadAppStore = () => {
-    const { eid } = this.state;
-    const { dispatch } = this.props;
-    dispatch({
-      type: "market/getMarketApp",
-      payload: {
-        enterprise_id: eid,
-        app_name: "",
-        page: 1,
-        page_size: 9
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          cookie.setGuide("appStore", "true");
-        }
-      }
-    });
-  };
   onPageChangeCollectionView = (page, pageSize) => {
     this.setState({ page, pageSize }, () => {
       this.fetchCollectionViewInfo();
     });
   };
-  fetchCollectionViewInfo = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-    dispatch({
-      type: "user/fetchCollectionViewInfo",
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState({
-            total: res.list.length,
-            collectionInfoLoading: false,
-            collectionList: res.list
-          });
-        }
-      }
-    });
+
+  onAddTeam = () => {
+    this.setState({ showAddTeam: true });
   };
 
-  getEnterpriseInfo = () => {
+  getParam() {
+    return this.props.match.params;
+  }
+
+  getOverviewMonitor = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
 
     dispatch({
-      type: "global/fetchEnterpriseInfo",
+      type: 'global/fetchOverviewMonitor',
       payload: {
         enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false
-          });
-        }
-      }
-    });
-  };
-
-  getOverviewApp = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: "global/fetchOverviewApp",
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            overviewAppInfo:
-              res.bean && JSON.stringify(res.bean) != "{}" ? res.bean : false,
-            overviewAppInfoLoading: false
-          });
-        }
-      }
-    });
-  };
-
-  getOverview = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: "global/fetchOverview",
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            overviewInfo: res.bean,
-            overviewInfoLoading: false
+            overviewMonitorInfo: res.bean,
+            overviewMonitorInfoLoading: false,
           });
         }
       }
@@ -206,7 +117,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: "global/fetchOverviewTeam",
+      type: 'global/fetchOverviewTeam',
       payload: {
         enterprise_id: eid
       },
@@ -214,40 +125,108 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading: false
+            overviewTeamInfoLoading: false,
           });
         }
       }
     });
   };
 
-  getOverviewMonitor = () => {
+  getOverview = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
 
     dispatch({
-      type: "global/fetchOverviewMonitor",
+      type: 'global/fetchOverview',
       payload: {
         enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading: false
+            overviewInfo: res.bean,
+            overviewInfoLoading: false,
           });
         }
       }
     });
   };
 
-  onAddTeam = () => {
-    this.setState({ showAddTeam: true });
+  getOverviewApp = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
+    dispatch({
+      type: 'global/fetchOverviewApp',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewAppInfo:
+              res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
+            overviewAppInfoLoading: false,
+          });
+        }
+      }
+    });
   };
 
-  getParam() {
-    return this.props.match.params;
-  }
+  getEnterpriseInfo = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
+    dispatch({
+      type: 'global/fetchEnterpriseInfo',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            enterpriseInfo: res.bean,
+            enterpriseInfoLoading: false,
+          });
+        }
+      }
+    });
+  };
+
+  loading = () => {
+    const { adminer, eid } = this.state;
+    if (eid) {
+      this.getEnterpriseInfo();
+      this.getOverviewTeam();
+      if (adminer) {
+        this.getOverviewApp();
+        this.getOverview();
+        this.getOverviewMonitor();
+      } else {
+        this.fetchCollectionViewInfo();
+      }
+    }
+  };
+
+  fetchCollectionViewInfo = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+    dispatch({
+      type: 'user/fetchCollectionViewInfo',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        if (res && res._code == 200) {
+          this.setState({
+            total: res.list.length,
+            collectionInfoLoading: false,
+            collectionList: res.list,
+          });
+        }
+      }
+    });
+  };
 
   handleCreateTeam = values => {
     this.props.dispatch({

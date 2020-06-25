@@ -98,9 +98,10 @@ class SelectStore extends PureComponent {
               })(
                 <Select placeholder="请选择发布的商店">
                   {stores.map((item, index) => {
+                    const { name, alias } = item;
                     return (
-                      <Option key={`store${index}`} value={item.name}>
-                        {item.name}
+                      <Option key={`store${index}`} value={name}>
+                        {alias || name}
                       </Option>
                     );
                   })}
@@ -110,7 +111,7 @@ class SelectStore extends PureComponent {
             </FormItem>
           </Form>
         ) : (
-          <p style={{ textAlign: 'center' }}>当前企业暂无应用商店</p>
+          <p style={{ textAlign: 'center' }}>暂无推送权限的应用商店</p>
         )}
       </Modal>
     );
