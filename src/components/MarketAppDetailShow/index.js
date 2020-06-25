@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { PureComponent } from 'react';
 import { Modal, Button } from 'antd';
 import ReactMarkdown from 'react-markdown';
@@ -9,12 +10,13 @@ export default class Index extends PureComponent {
     const { app = {} } = this.props;
     this.state = {
       details: app.details,
-      title: app.app_name,
+      title: app.app_name || app.group_name,
     };
   }
   render() {
-    const { app = {}, onOk, onCancel } = this.props;
+    const { onOk, onCancel } = this.props;
     const { title, details } = this.state;
+
     return (
       <Modal
         visible
@@ -24,16 +26,14 @@ export default class Index extends PureComponent {
         title={title}
         width={700}
       >
-        {app.logo ? (
+        {details && details.indexOf('</') > -1 ? (
           <div
             className={styles.markdown}
             dangerouslySetInnerHTML={{ __html: details }}
           />
-        ) : (
+        ) : details ? (
           <ReactMarkdown className={styles.markdown} source={details} />
-        )}
-
-        {!details && (
+        ) : (
           <span>
             未编辑应用详情
             <a

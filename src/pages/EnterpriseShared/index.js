@@ -25,6 +25,7 @@ import ExportOperation from './ExportOperation';
 import TagList from './TagList';
 import ConfirmModal from '../../components/ConfirmModal';
 import DeleteApp from '../../components/DeleteApp';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import Lists from '../../components/Lists';
 import CreateAppModels from '../../components/CreateAppModels';
 import CreateAppMarket from '../../components/CreateAppMarket';
@@ -88,6 +89,8 @@ export default class EnterpriseShared extends PureComponent {
       activeTabKey: 'local',
       marketInfo: false,
       upAppMarket: false,
+      showApp: {},
+      showMarketAppDetail: false,
     };
   }
   componentDidMount() {
@@ -148,9 +151,8 @@ export default class EnterpriseShared extends PureComponent {
       return item.ID == tabID;
     });
     const isArr = arr && arr.length > 0;
-
     this.setState(
-      { marketInfo: isArr ? arr[0] : false, activeTabKey: tabID },
+      { marketInfo: isArr ? arr[0] : false, activeTabKey: `${tabID}` },
       () => {
         if (tabID !== 'local' && isArr && arr[0].status == 1) {
           this.getMarkets(arr[0].name);
@@ -226,7 +228,7 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
 
-  getMarketsTab = () => {
+  getMarketsTab = ID => {
     const {
       dispatch,
       match: {
@@ -241,10 +243,17 @@ export default class EnterpriseShared extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
-          this.setState({
-            marketTabLoading: false,
-            marketTab: res.list,
-          });
+          this.setState(
+            {
+              marketTabLoading: false,
+              marketTab: res.list,
+            },
+            () => {
+              if (ID) {
+                this.onTabChange(ID);
+              }
+            }
+          );
         }
       },
     });
@@ -485,9 +494,10 @@ export default class EnterpriseShared extends PureComponent {
     this.handleCancelAppModel();
   };
 
-  handleCreateAppMarket = () => {
-    notification.success({ message: '创建成功' });
-    this.getMarketsTab();
+  handleCreateAppMarket = ID => {
+    const { upAppMarket } = this.state;
+    notification.success({ message: upAppMarket ? '编辑成功' : '创建成功' });
+    this.getMarketsTab(ID);
     this.handleCancelAppMarket();
   };
 
@@ -539,7 +549,23 @@ export default class EnterpriseShared extends PureComponent {
       upDataAppModel: false,
     });
   };
-
+  showMarketAppDetail = app => {
+    // cloud app
+    if (app && app.app_detail_url) {
+      window.open(app.app_detail_url, '_blank');
+      return;
+    }
+    this.setState({
+      showApp: app,
+      showMarketAppDetail: true,
+    });
+  };
+  hideMarketAppDetail = () => {
+    this.setState({
+      showApp: {},
+      showMarketAppDetail: false,
+    });
+  };
   render() {
     const {
       rainbondInfo,
@@ -840,7 +866,15 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={13} className={styles.tits}>
                       <div>
-                        <p>{app_name}</p>
+                        <p>
+                          <a
+                            onClick={() => {
+                              this.showMarketAppDetail(item);
+                            }}
+                          >
+                            {app_name}
+                          </a>
+                        </p>
                         <p>
                           <Tooltip placement="topLeft" title={describe}>
                             {describe}
@@ -1001,7 +1035,15 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={13} className={styles.tits}>
                       <div>
-                        <p>{app_name}</p>
+                        <p>
+                          <a
+                            onClick={() => {
+                              this.showMarketAppDetail(item);
+                            }}
+                          >
+                            {app_name}
+                          </a>
+                        </p>
                         <p>
                           <Tooltip placement="topLeft" title={describe}>
                             {describe}
@@ -1075,6 +1117,13 @@ export default class EnterpriseShared extends PureComponent {
         title="应用市场管理"
         content="应用模型是指模型化、标准化的应用制品包，是企业数字资产的应用化产物，可以通过标准的方式安装到任何Rainbond平台或其他支持的云原生平台"
       >
+        {this.state.showMarketAppDetail && (
+          <MarketAppDetailShow
+            onOk={this.hideMarketAppDetail}
+            onCancel={this.hideMarketAppDetail}
+            app={this.state.showApp}
+          />
+        )}
         {this.state.moreTags && (
           <TagList
             title="查看标签"
@@ -1119,7 +1168,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {this.state.createAppMarket && (
           <CreateAppMarket
-            title="创建应用市场"
+            title="添加应用市场"
             eid={eid}
             loading={createAppMarketLoading}
             onOk={this.handleCreateAppMarket}
@@ -1179,13 +1228,13 @@ export default class EnterpriseShared extends PureComponent {
             </div>
           </TabPane>
           {marketTab.map(item => {
-            const { ID, alias } = item;
+            const { ID, alias, name } = item;
             return (
               <TabPane
                 tab={
                   <span className={styles.verticalCen}>
                     {globalUtil.fetchSvg('cloudMarket')}
-                    {alias}
+                    {alias || name}
                   </span>
                 }
                 key={ID}
@@ -1196,11 +1245,13 @@ export default class EnterpriseShared extends PureComponent {
           })}
           <TabPane
             tab={
-              <Icon
-                type="plus"
-                className={styles.addSvg}
-                onClick={this.handleOpencreateAppMarket}
-              />
+              <Tooltip placement="top" title="添加应用市场">
+                <Icon
+                  type="plus"
+                  className={styles.addSvg}
+                  onClick={this.handleOpencreateAppMarket}
+                />
+              </Tooltip>
             }
             key="add"
           />

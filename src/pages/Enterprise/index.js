@@ -77,81 +77,74 @@ export default class Enterprise extends PureComponent {
   componentDidMount() {
     this.loading();
   }
-  loading = () => {
-    const { adminer, eid } = this.state;
-    if (eid) {
-      this.getEnterpriseInfo();
-      this.getOverviewTeam();
-      if (adminer) {
-        if (!cookie.get('appStore')) {
-          this.loadAppStore();
-        }
-        this.getOverviewApp();
-        this.getOverview();
-        this.getOverviewMonitor();
-      } else {
-        this.fetchCollectionViewInfo();
-      }
-    }
-  };
-
-  loadAppStore = () => {
-    const { eid } = this.state;
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'market/getMarketApp',
-      payload: {
-        enterprise_id: eid,
-        app_name: '',
-        page: 1,
-        page_size: 9,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          cookie.setGuide('appStore', 'true');
-        }
-      },
-    });
-  };
   onPageChangeCollectionView = (page, pageSize) => {
     this.setState({ page, pageSize }, () => {
       this.fetchCollectionViewInfo();
     });
   };
-  fetchCollectionViewInfo = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-    dispatch({
-      type: 'user/fetchCollectionViewInfo',
-      payload: {
-        enterprise_id: eid,
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState({
-            total: res.list.length,
-            collectionInfoLoading: false,
-            collectionList: res.list,
-          });
-        }
-      },
-    });
+
+  onAddTeam = () => {
+    this.setState({ showAddTeam: true });
   };
 
-  getEnterpriseInfo = () => {
+  getParam() {
+    return this.props.match.params;
+  }
+
+  getOverviewMonitor = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchEnterpriseInfo',
+      type: 'global/fetchOverviewMonitor',
       payload: {
         enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false,
+            overviewMonitorInfo: res.bean,
+            overviewMonitorInfoLoading: false,
+          });
+        }
+      },
+    });
+  };
+
+  getOverviewTeam = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
+    dispatch({
+      type: 'global/fetchOverviewTeam',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewTeamInfo: res.bean,
+            overviewTeamInfoLoading: false,
+          });
+        }
+      },
+    });
+  };
+
+  getOverview = () => {
+    const { dispatch } = this.props;
+    const { eid } = this.state;
+
+    dispatch({
+      type: 'global/fetchOverview',
+      payload: {
+        enterprise_id: eid,
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.setState({
+            overviewInfo: res.bean,
+            overviewInfoLoading: false,
           });
         }
       },
@@ -179,73 +172,60 @@ export default class Enterprise extends PureComponent {
     });
   };
 
-  getOverview = () => {
+  getEnterpriseInfo = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchOverview',
+      type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            overviewInfo: res.bean,
-            overviewInfoLoading: false,
+            enterpriseInfo: res.bean,
+            enterpriseInfoLoading: false,
           });
         }
       },
     });
   };
 
-  getOverviewTeam = () => {
+  loading = () => {
+    const { adminer, eid } = this.state;
+    if (eid) {
+      this.getEnterpriseInfo();
+      this.getOverviewTeam();
+      if (adminer) {
+        this.getOverviewApp();
+        this.getOverview();
+        this.getOverviewMonitor();
+      } else {
+        this.fetchCollectionViewInfo();
+      }
+    }
+  };
+
+  fetchCollectionViewInfo = () => {
     const { dispatch } = this.props;
     const { eid } = this.state;
-
     dispatch({
-      type: 'global/fetchOverviewTeam',
+      type: 'user/fetchCollectionViewInfo',
       payload: {
         enterprise_id: eid,
       },
       callback: res => {
-        if (res && res._code === 200) {
+        if (res && res._code == 200) {
           this.setState({
-            overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading: false,
+            total: res.list.length,
+            collectionInfoLoading: false,
+            collectionList: res.list,
           });
         }
       },
     });
   };
-
-  getOverviewMonitor = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: 'global/fetchOverviewMonitor',
-      payload: {
-        enterprise_id: eid,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          this.setState({
-            overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading: false,
-          });
-        }
-      },
-    });
-  };
-
-  onAddTeam = () => {
-    this.setState({ showAddTeam: true });
-  };
-
-  getParam() {
-    return this.props.match.params;
-  }
 
   handleCreateTeam = values => {
     this.props.dispatch({

@@ -39,20 +39,22 @@ class CreateAppMarket extends PureComponent {
       ),
       callback: res => {
         if (res && res._code === 200) {
-          onOk && onOk();
+          const { list } = res;
+          onOk && onOk(list && list.ID);
         }
       },
     });
   };
   createAppMarket = values => {
-    const { dispatch, eid, appInfo, onOk } = this.props;
+    const { dispatch, eid, onOk } = this.props;
 
     dispatch({
       type: 'market/createAppMarket',
       payload: Object.assign({}, { enterprise_id: eid }, values),
       callback: res => {
         if (res && res._code === 200) {
-          onOk && onOk(appInfo);
+          const { bean } = res;
+          onOk && onOk(bean && bean.ID);
         }
       },
     });
@@ -83,19 +85,26 @@ class CreateAppMarket extends PureComponent {
         confirmLoading={loading || false}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
-          <FormItem {...formItemLayout} label="备注">
+          <FormItem {...formItemLayout} label="标识">
             {getFieldDecorator('name', {
               initialValue: marketInfo.name || '',
-
               rules: [
+                { required: true, message: '请输入标识' },
                 {
-                  required: true,
-                  message: '请输入备注',
+                  pattern: /^[a-z0-9A-Z-_]+$/,
+                  message: '只支持字母、数字和-_组合',
+                },
+                {
+                  max: 64,
+                  message: '最大长度64位',
                 },
               ],
-            })(<Input placeholder="请输入备注" />)}
+            })(<Input placeholder="请输入标识" />)}
+            <div className={styles.conformDesc}>
+              可以帮助用户在删除已有市场后重新添加回来。
+            </div>
           </FormItem>
-          <FormItem {...formItemLayout} label="应用市场类型">
+          <FormItem {...formItemLayout} label="类型">
             {getFieldDecorator('type', {
               initialValue: marketInfo.type || 'rainstore',
               rules: [
@@ -125,23 +134,30 @@ class CreateAppMarket extends PureComponent {
             })(<Input placeholder="请输入通信地址" />)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="Rainstore市场域">
+          <FormItem {...formItemLayout} label="市场域">
             {getFieldDecorator('domain', {
               initialValue: marketInfo.domain || '',
 
               rules: [
                 {
                   required: true,
-                  message: '请输入Rainstore市场域',
+                  message: '请输入市场域',
                 },
               ],
-            })(<Input placeholder="请输入Rainstore市场域" />)}
+            })(<Input placeholder="请输入市场域" />)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="通信秘钥">
+          <FormItem {...formItemLayout} label="AccessKey">
             {getFieldDecorator('access_key', {
               initialValue: marketInfo.access_key || '',
-            })(<Input placeholder="请输入通信秘钥" />)}
+              rules: [
+                { required: false, message: '请输入AccessKey' },
+                {
+                  max: 64,
+                  message: '最大长度64位',
+                },
+              ],
+            })(<Input placeholder="请输入AccessKey" />)}
             <div className={styles.conformDesc}>
               为空则只读权限、请前往应用市场获取AccessKey
             </div>

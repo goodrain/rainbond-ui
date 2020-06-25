@@ -216,6 +216,9 @@ export default function request(url, options) {
           });
           return;
         }
+        if (resData.code === 10421) {
+          return;
+        }
 
         // 访问资源集群与当前集群不一致
         if (resData.code === 10404) {
