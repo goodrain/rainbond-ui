@@ -3,10 +3,10 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
+import React, { Fragment, PureComponent } from 'react';
 import { Button, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
-import React, { Fragment, PureComponent } from 'react';
 import LogProcress from '../../components/LogProcress';
 import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
