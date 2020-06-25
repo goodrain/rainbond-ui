@@ -9,8 +9,7 @@ export default class Index extends PureComponent {
     const { app = {} } = this.props;
     this.state = {
       details: app.details,
-      title: app.group_name,
-      key: app.group_key,
+      title: app.app_name,
     };
   }
   render() {
@@ -25,8 +24,11 @@ export default class Index extends PureComponent {
         title={title}
         width={700}
       >
-        {app.source && app.source === 'market' ? (
-          <div dangerouslySetInnerHTML={{ __html: details }} />
+        {app.logo ? (
+          <div
+            className={styles.markdown}
+            dangerouslySetInnerHTML={{ __html: details }}
+          />
         ) : (
           <ReactMarkdown className={styles.markdown} source={details} />
         )}

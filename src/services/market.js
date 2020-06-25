@@ -411,6 +411,9 @@ export async function getStoreList(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
     {
       method: 'get',
+      params: {
+        extend: true,
+      },
     }
   );
 }

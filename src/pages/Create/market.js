@@ -25,6 +25,7 @@ import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
+import { fetchMarketAuthority } from '../../utils/authority';
 import PluginStyles from '../Plugin/Index.less';
 import styles from '../../components/CreateTeam/index.less';
 
@@ -48,10 +49,17 @@ const { TabPane } = Tabs;
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
+    const {
+      handleType = '',
+      match,
+      scope = '',
+      enterprise,
+      moreState,
+    } = this.props;
     const appName = decodeURIComponent(
-      this.props.handleType && this.props.handleType === 'Service'
+      handleType === 'Service'
         ? ''
-        : this.props.match.params.keyword || ''
+        : (match && match.params && match.params.keyword) || ''
     );
     this.state = {
       list: [],
@@ -68,17 +76,13 @@ export default class Main extends PureComponent {
       cloudPageSize: 9,
       cloudTotal: 0,
       showCreate: null,
-      scope: this.props.scope || '',
-      scopeMax:
-        this.props.scopeMax ||
-        (rainbondUtil.cloudMarketEnable(this.props.enterprise)
-          ? ''
-          : 'localApplication'),
+      scope,
+      scopeMax: 'localApplication',
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
-      handleType: this.props.handleType ? this.props.handleType : null,
-      moreState: this.props.moreState ? this.props.moreState : null,
+      handleType: handleType || null,
+      moreState: moreState || null,
       is_deploy: true,
       marketTabLoading: false,
       marketTab: [],
@@ -179,9 +183,9 @@ export default class Main extends PureComponent {
   };
   getMarketsTab = () => {
     const { dispatch, currentEnterprise, enterprise } = this.props;
-    if (!rainbondUtil.cloudMarketEnable(enterprise)) {
-      return null;
-    }
+    // if (!rainbondUtil.cloudMarketEnable(enterprise)) {
+    //   return null;
+    // }
     this.setState({ marketTabLoading: true });
     dispatch({
       type: 'market/fetchMarketsTab',
@@ -192,26 +196,20 @@ export default class Main extends PureComponent {
         if (res && res._code === 200) {
           const arr = res.list;
           const arryNew = [];
-          let scopeMax = '';
           if (arr && arr.length > 0) {
-            scopeMax = arr[0].name;
             res.list.map(item => {
-              arryNew.push(
-                Object.assign({}, item, { tab: item.alias, key: item.name })
-              );
+              const { alias, name, status } = item;
+              if (status == 1) {
+                arryNew.push(
+                  Object.assign({}, item, { tab: alias, key: name })
+                );
+              }
             });
           }
-          this.setState(
-            {
-              scopeMax,
-              currentKey: scopeMax,
-              marketTabLoading: false,
-              marketTab: arryNew,
-            },
-            () => {
-              this.getCloudRecommendApps('reset');
-            }
-          );
+          this.setState({
+            marketTabLoading: false,
+            marketTab: arryNew,
+          });
         }
       },
     });
@@ -309,7 +307,7 @@ export default class Main extends PureComponent {
     const { installBounced, is_deploy, scopeMax, handleType } = this.state;
     const teamName = globalUtil.getCurrTeamName();
 
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields((err, Value) => {
       if (err) return;
       dispatch({
         type: 'createApp/installApp',
@@ -318,8 +316,8 @@ export default class Main extends PureComponent {
           group_id: groupId || 0,
           app_id: installBounced.app_id,
           is_deploy,
-          group_key: installBounced.group_key,
-          app_version: fieldsValue.group_version,
+          group_key: installBounced.ID,
+          app_version: Value.group_version,
           install_from_cloud: scopeMax !== 'localApplication',
         },
         callback: () => {
@@ -450,11 +448,15 @@ export default class Main extends PureComponent {
   };
 
   handleTabs = (tabList, cardList) => {
+    const { handleType } = this.state;
     return (
       <Tabs
         defaultActiveKey=""
         onChange={this.handleTabChange}
-        style={{ background: '#fff', padding: '20px ' }}
+        style={{
+          background: '#fff',
+          padding: handleType ? '0 20px 20px' : '20px ',
+        }}
       >
         {tabList.map(item => {
           const { key, tab } = item;
@@ -472,9 +474,10 @@ export default class Main extends PureComponent {
       </Tabs>
     );
   };
-  renderApp = item => {
+  renderApp = (item, isInstall) => {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
+
     const title = item => (
       <div
         title={item.app_name || ''}
@@ -494,113 +497,111 @@ export default class Main extends PureComponent {
         </a>
       </div>
     );
+    const versionBox = (
+      <div title={item.version} className={PluginStyles.cardVersionStyle}>
+        <span>版本:</span>
+        <div className={PluginStyles.overScroll}>
+          <div>
+            {item.versions_info &&
+              item.versions_info.map((items, index) => {
+                return (
+                  <Tag
+                    title={items.version}
+                    className={PluginStyles.cardVersionTagStyle}
+                    color="green"
+                    size="small"
+                    key={index}
+                  >
+                    {items.version}
+                  </Tag>
+                );
+              })}
+            {item.versions &&
+              item.versions.map((itemx, index) => {
+                return (
+                  <Tag
+                    className={PluginStyles.cardVersionTagStyle}
+                    color="green"
+                    size="small"
+                    title={itemx.app_version}
+                    key={index}
+                  >
+                    {itemx.app_version}
+                  </Tag>
+                );
+              })}
+          </div>
+        </div>
+      </div>
+    );
+    const fastactions = [
+      <div
+        onClick={() => {
+          isInstall && this.showCreate(item);
+        }}
+      >
+        <div className={PluginStyles.cardTitle}>
+          <span title={item.app_name}>{item.app_name}</span>
+          {isInstall && <span>安装</span>}
+        </div>
+        {versionBox}
+      </div>,
+    ];
+
+    const defaultActions = [
+      <span
+        onClick={() => {
+          isInstall && this.showCreate(item);
+        }}
+      >
+        {isInstall ? '安装' : ''}
+      </span>,
+    ];
+
     return (
       <Fragment>
         {(item.is_official == true || item.is_official == 1) && (
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
-        {handleType ? (
-          <Card
-            className={PluginStyles.cards}
-            actions={[
-              <div
-                onClick={() => {
-                  this.showCreate(item);
-                }}
-              >
-                <div className={PluginStyles.cardTitle}>
-                  <span title={item.app_name}>{item.app_name}</span>
-                  <span>安装</span>
-                </div>
-                <div
-                  title={item.version}
-                  className={PluginStyles.cardVersionStyle}
-                >
-                  <span>版本:</span>
-                  <div className={PluginStyles.overScroll}>
-                    <div>
-                      {item.versions_info &&
-                        item.versions_info.map((items, index) => {
-                          return (
-                            <Tag
-                              title={items.version}
-                              className={PluginStyles.cardVersionTagStyle}
-                              color="green"
-                              size="small"
-                              key={index}
-                            >
-                              {items.version}
-                            </Tag>
-                          );
-                        })}
-                    </div>
-                  </div>
-                </div>
-              </div>,
-            ]}
-          >
-            <Card.Meta
-              style={{
+        <Card
+          className={PluginStyles.cards}
+          actions={handleType ? fastactions : defaultActions}
+        >
+          <Card.Meta
+            className={PluginStyles.cardsMetas}
+            style={
+              handleType && {
                 height: 80,
                 overflow: 'hidden',
                 display: 'flex',
                 justifyContent: 'center',
                 cursor: 'pointer',
-              }}
-              className={PluginStyles.CardMeta}
-              avatar={
-                <img
-                  style={{ width: 80, height: 80, margin: 'auto' }}
-                  alt={item.title}
-                  src={
-                    item.pic || require('../../../public/images/app_icon.jpg')
-                  }
-                />
               }
-              onClick={() => {
-                this.showMarketAppDetail(item);
-              }}
-              title=""
-              description=""
-            />
-          </Card>
-        ) : (
-          <Card
-            className={PluginStyles.cards}
-            actions={
-              isInstall
-                ? [
-                    <span
-                    onClick={() => {
-                        this.showCreate(item);
-                      }}
-                  >
-                      安装
-                  </span>,
-                  ]
-                : [<div />]
             }
-          >
-            <Card.Meta
-              className={PluginStyles.cardsMetas}
-              avatar={
-                <img
-                  style={{ width: 110, height: 110, margin: ' 0 auto' }}
-                  alt={item.title}
-                  src={
-                    cloud
-                      ? item.logo
-                      : item.pic ||
-                        require('../../../public/images/app_icon.jpg')
-                  }
-                  height={154}
-                  onClick={() => {
-                    this.showMarketAppDetail(item);
-                  }}
-                />
-              }
-              title={title(item)}
-              description={
+            avatar={
+              <img
+                style={
+                  handleType
+                    ? { width: 80, height: 80, margin: ' 0 auto' }
+                    : { width: 110, height: 110, margin: ' 0 auto' }
+                }
+                alt={item.title}
+                src={
+                  cloud
+                    ? item.logo
+                    : item.pic || require('../../../public/images/app_icon.jpg')
+                }
+                height={handleType ? 154 : 80}
+                onClick={() => {
+                  this.showMarketAppDetail(item);
+                }}
+              />
+            }
+            title={handleType ? '' : title(item)}
+            description={
+              handleType ? (
+                ''
+              ) : (
                 <Fragment>
                   <span
                     style={{
@@ -610,57 +611,7 @@ export default class Main extends PureComponent {
                       fontSize: 12,
                     }}
                   >
-                    <div
-                      title={item.version}
-                      className={PluginStyles.cardVersionStyle}
-                    >
-                      <span>版本:</span>
-                      <div className={PluginStyles.overScroll}>
-                        <div>
-                          {item.versions_info &&
-                            item.versions_info.map((items, index) => {
-                              return (
-                                <Tag
-                                  title={items.version}
-                                  className={PluginStyles.cardVersionTagStyle}
-                                  color="green"
-                                  size="small"
-                                  key={index}
-                                >
-                                  {items.version}
-                                </Tag>
-                              );
-                            })}
-                          {item.versions &&
-                            item.versions.map((itemx, index) => {
-                              return (
-                                <Tag
-                                  className={PluginStyles.cardVersionTagStyle}
-                                  color="green"
-                                  size="small"
-                                  title={itemx.app_version}
-                                  key={index}
-                                >
-                                  {itemx.app_version}
-                                </Tag>
-                              );
-                            })}
-                        </div>
-                      </div>
-                    </div>
-
-                    {cloud && (
-                      <div className={PluginStyles.shareNameStyle}>
-                        <span>分享者:</span>
-                        <a
-                          href={item.market_url || 'javascript:;'}
-                          target="_blank"
-                          title={item.market_name}
-                        >
-                          {item.market_name}
-                        </a>
-                      </div>
-                    )}
+                    {versionBox}
                     {!cloud && (
                       <div className={PluginStyles.memoryStyle}>
                         <span>内存: </span>
@@ -669,15 +620,13 @@ export default class Main extends PureComponent {
                     )}
                   </span>
                   <Ellipsis className={PluginStyles.item} lines={3}>
-                    <span title={cloud ? item.desc : item.describe}>
-                      {cloud ? item.desc : item.describe}
-                    </span>
+                    <span title={item.describe}>{item.describe}</span>
                   </Ellipsis>
                 </Fragment>
-              }
-            />
-          </Card>
-        )}
+              )
+            }
+          />
+        </Card>
       </Fragment>
     );
   };
@@ -686,9 +635,52 @@ export default class Main extends PureComponent {
       is_deploy: !this.state.is_deploy,
     });
   };
+  renderFormComponent = () => {
+    const formItemLayout = {
+      labelCol: {
+        span: 5,
+      },
+      wrapperCol: {
+        span: 19,
+      },
+    };
+    const { form } = this.props;
+    const { getFieldDecorator } = form;
+    const { installBounced } = this.state;
+    const versionList = installBounced.versions_info || installBounced.versions;
+
+    return (
+      <Form
+        onSubmit={this.handleInstallBounced}
+        layout="horizontal"
+        hideRequiredMark
+      >
+        <Form.Item {...formItemLayout} label="安装版本">
+          {getFieldDecorator('group_version', {
+            initialValue: versionList[0].version || versionList[0].app_version,
+            rules: [
+              {
+                required: true,
+                message: '请选择版本',
+              },
+            ],
+          })(
+            <Select style={{ width: '220px' }}>
+              {versionList.map((item, index) => {
+                return (
+                  <Option key={index} value={item.version || item.app_version}>
+                    {item.version || item.app_version}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
+        </Form.Item>
+      </Form>
+    );
+  };
   render() {
     const {
-      form,
       loading,
       enterprise,
       currentEnterprise,
@@ -696,7 +688,6 @@ export default class Main extends PureComponent {
       currentRegionName,
     } = this.props;
 
-    const { getFieldDecorator } = form;
     const {
       handleType,
       moreState,
@@ -717,14 +708,6 @@ export default class Main extends PureComponent {
       currentKey,
     } = this.state;
 
-    const formItemLayout = {
-      labelCol: {
-        span: 5,
-      },
-      wrapperCol: {
-        span: 19,
-      },
-    };
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
@@ -734,14 +717,23 @@ export default class Main extends PureComponent {
       },
     };
     const cloudPaginationProps = {
-      current: cloudPage,
-      pageSize: cloudPageSize,
-      total: cloudTotal,
+      current: moreState ? 1 : cloudPage,
+      pageSize: moreState ? 3 : cloudPageSize,
+      total: moreState ? 1 : cloudTotal,
       onChange: v => {
         this.hanldeCloudPageChange(v);
       },
     };
+    let isInstall = true;
 
+    if (marketTab && marketTab.length > 0) {
+      const arr = marketTab.filter(item => {
+        return item.name == currentKey;
+      });
+      if (arr && arr.length > 0) {
+        isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');
+      }
+    }
     const cardList = (
       <List
         bordered={false}
@@ -759,16 +751,6 @@ export default class Main extends PureComponent {
               <br />
               <br />
               发布应用模型
-              {rainbondUtil.cloudMarketEnable(enterprise) && currentEnterprise && (
-                <span>
-                  或{' '}
-                  <Link
-                    to={`/enterprise/${currentEnterprise.enterprise_id}/shared/cloudMarket`}
-                  >
-                    从云端同步
-                  </Link>
-                </span>
-              )}
             </p>
           ),
         }}
@@ -776,7 +758,7 @@ export default class Main extends PureComponent {
         dataSource={list}
         renderItem={item => (
           <List.Item style={{ border: 'none' }}>
-            {this.renderApp(item)}
+            {this.renderApp(item, true)}
           </List.Item>
         )}
       />
@@ -792,31 +774,11 @@ export default class Main extends PureComponent {
           sm: 1,
           xs: 1,
         }}
-        locale={{
-          emptyText: !isSpincloudList && cloudList && cloudList.length <= 0 && (
-            <p style={{ paddingTop: 80, lineHeight: 1.3 }}>
-              暂无应用模型， 你可以
-              <br />
-              <br />
-              发布应用模型
-              {rainbondUtil.cloudMarketEnable(enterprise) && currentEnterprise && (
-                <span>
-                  或{' '}
-                  <Link
-                    to={`/enterprise/${currentEnterprise.enterprise_id}/shared/cloudMarket`}
-                  >
-                    从云端同步
-                  </Link>
-                </span>
-              )}
-            </p>
-          ),
-        }}
         pagination={cloudPaginationProps}
         dataSource={cloudList}
         renderItem={item => (
           <List.Item style={{ border: 'none' }}>
-            {this.renderApp(item)}
+            {this.renderApp(item, isInstall)}
           </List.Item>
         )}
       />
@@ -852,7 +814,7 @@ export default class Main extends PureComponent {
             }
             onSearch={this.handleSearch}
             style={{
-              width: 522,
+              width: 500,
             }}
           />
         </span>
@@ -876,12 +838,12 @@ export default class Main extends PureComponent {
       },
     ];
     const tabList = tabAllList.concat(tabComponentList);
-    const tabListMax = marketTab.concat([
+    const tabListMax = [
       {
         key: 'localApplication',
-        tab: '本地应用',
+        tab: '本地组件库',
       },
-    ]);
+    ].concat(marketTab);
 
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -902,20 +864,6 @@ export default class Main extends PureComponent {
         <Spin size="large" />
       </div>
     );
-    let isInstall = false;
-    if (marketTab && marketTab.length > 0) {
-      const arr = marketTab.filter(item => {
-        return item.name == currentKey;
-      });
-      if (
-        arr &&
-        arr.length > 0 &&
-        arr[0].access_actions &&
-        arr[0].access_actions.length > 0
-      ) {
-        isInstall = arr[0].access_actions.includes('ReadInstall');
-      }
-    }
 
     return (
       <div>
@@ -942,18 +890,98 @@ export default class Main extends PureComponent {
           />
         )}
 
-        {handleType ? (
-          <div>
-            {!moreState && mainSearch}
-            <div
-              style={{
-                marginBottom: !moreState ? '40px' : '0px',
-              }}
-              className={PluginStyles.cardList}
-            >
-              {this.handleTabs(tabComponentList, cardList)}
-            </div>
-            {moreState && list && list.length > 0 && (
+        {handleType && installBounced && (
+          <Modal
+            title="确认要安装此应用作为你的组件么？"
+            className={styles.TelescopicModal}
+            visible={installBounced}
+            onOk={this.handleInstallBounced}
+            onCancel={() => {
+              this.setState({ installBounced: false });
+            }}
+            footer={
+              <div>
+                <Button
+                  onClick={() => {
+                    this.setState({
+                      installBounced: false,
+                      is_deploy: true,
+                    });
+                  }}
+                >
+                  取消
+                </Button>
+                <Button
+                  onClick={this.handleInstallBounced}
+                  type="primary"
+                  style={{ marginRight: '5px' }}
+                  loading={loading.effects['createApp/installApp']}
+                >
+                  安装
+                </Button>
+                <Radio
+                  size="small"
+                  onClick={this.renderSuccessOnChange}
+                  checked={this.state.is_deploy}
+                >
+                  并构建启动
+                </Radio>
+              </div>
+            }
+          >
+            <p>{installBounced.describe}</p>
+            {this.renderFormComponent()}
+          </Modal>
+        )}
+
+        <div>
+          <PageHeaderLayout
+            breadcrumbList={breadcrumbList}
+            content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+            tabList={tabListMax}
+            tabActiveKey={scopeMax}
+            onTabChange={this.handleTabMaxChange}
+            isFooter={!!handleType}
+          >
+            {scopeMax != 'localApplication' && !isInstall && (
+              <Alert
+                message="当前市场没有安装权限，请前往应用市场获取更多权限"
+                type="success"
+                style={{ margin: '-10px 0 15px 0' }}
+              />
+            )}
+            {scopeMax == 'localApplication' ? (
+              <div>
+                {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
+              </div>
+            ) : (
+              <div>
+                {isSpincloudList && isSpincloudList !== -1 ? (
+                  SpinBox
+                ) : (
+                  <div>
+                    <div
+                      className={PluginStyles.cardList}
+                      style={{
+                        paddingBottom: '20px',
+                        marginBottom: !moreState ? '40px' : '0px',
+                      }}
+                    >
+                      {isSpincloudList !== -1 && cloudCardList}
+                      {networkText && (
+                        <Alert
+                          style={{ textAlign: 'center', marginBottom: 16 }}
+                          message={networkText}
+                          type="warning"
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {handleType && moreState && list && list.length > 0 && (
               <div
                 style={{
                   textAlign: 'right',
@@ -969,122 +997,8 @@ export default class Main extends PureComponent {
                 <a onClick={this.loadMore}>查看更多...</a>
               </div>
             )}
-            {installBounced && (
-              <Modal
-                title="确认要安装此应用作为你的组件么？"
-                className={styles.TelescopicModal}
-                visible={installBounced}
-                onOk={this.handleInstallBounced}
-                onCancel={() => {
-                  this.setState({ installBounced: false });
-                }}
-                footer={
-                  <div>
-                    <Button
-                      onClick={() => {
-                        this.setState({
-                          installBounced: false,
-                          is_deploy: true,
-                        });
-                      }}
-                    >
-                      取消
-                    </Button>
-                    <Button
-                      onClick={this.handleInstallBounced}
-                      type="primary"
-                      style={{ marginRight: '5px' }}
-                      loading={loading.effects['createApp/installApp']}
-                    >
-                      安装
-                    </Button>
-                    <Radio
-                      size="small"
-                      onClick={this.renderSuccessOnChange}
-                      checked={this.state.is_deploy}
-                    >
-                      并构建启动
-                    </Radio>
-                  </div>
-                }
-              >
-                <p>{installBounced.describe}</p>
-                <Form
-                  onSubmit={this.handleInstallBounced}
-                  layout="horizontal"
-                  hideRequiredMark
-                >
-                  <Form.Item {...formItemLayout} label="安装版本">
-                    {getFieldDecorator('group_version', {
-                      initialValue:
-                        installBounced &&
-                        installBounced.versions_info &&
-                        installBounced.versions_info[0].version,
-                      rules: [
-                        {
-                          required: true,
-                          message: '请选择版本',
-                        },
-                      ],
-                    })(
-                      <Select style={{ width: '220px' }}>
-                        {this.state.installBounced &&
-                          this.state.installBounced.versions_info &&
-                          this.state.installBounced.versions_info.map(
-                            (item, index) => {
-                              return (
-                                <Option key={index} value={item.version}>
-                                  {item.version}
-                                </Option>
-                              );
-                            }
-                          )}
-                      </Select>
-                    )}
-                  </Form.Item>
-                </Form>
-              </Modal>
-            )}
-          </div>
-        ) : (
-          <div>
-            <PageHeaderLayout
-              breadcrumbList={breadcrumbList}
-              content={mainSearch}
-              tabList={tabListMax}
-              tabActiveKey={scopeMax}
-              onTabChange={this.handleTabMaxChange}
-            >
-              {scopeMax == 'localApplication' ? (
-                <div>
-                  {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
-                </div>
-              ) : (
-                <div>
-                  {isSpincloudList && isSpincloudList !== -1 ? (
-                    SpinBox
-                  ) : (
-                    <div>
-                      <div
-                        className={PluginStyles.cardList}
-                        style={{ paddingBottom: '20px' }}
-                      >
-                        {isSpincloudList !== -1 && cloudCardList}
-                        {networkText && (
-                          <Alert
-                            style={{ textAlign: 'center', marginBottom: 16 }}
-                            message={networkText}
-                            type="warning"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </PageHeaderLayout>
-          </div>
-        )}
+          </PageHeaderLayout>
+        </div>
       </div>
     );
   }

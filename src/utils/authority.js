@@ -7,11 +7,17 @@ export function getAuthority() {
 export function setAuthority(data = {}) {
   return localStorage.setItem('antd-pro-authority', data.authority);
 }
-export function fetchMarketAuthority(data) {
+export function fetchMarketMap(data) {
   const map = {
     OnlyRead: '只读',
     ReadInstall: '安装',
     Write: '推送',
   };
   return map[data] || data;
+}
+export function fetchMarketAuthority(Info, Authority) {
+  if (Info && Info.access_actions && Info.access_actions.length > 0) {
+    return Info.access_actions.includes(Authority);
+  }
+  return false;
 }

@@ -18,6 +18,7 @@ import {
   Tooltip,
   Divider,
   Tabs,
+  Empty,
 } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ExportOperation from './ExportOperation';
@@ -29,7 +30,7 @@ import CreateAppModels from '../../components/CreateAppModels';
 import CreateAppMarket from '../../components/CreateAppMarket';
 import userUtil from '../../utils/user';
 import rainbondUtil from '../../utils/rainbond';
-import { fetchMarketAuthority } from '../../utils/authority';
+import { fetchMarketMap } from '../../utils/authority';
 import globalUtil from '../../utils/global';
 import NoComponent from '../../../public/images/noComponent.png';
 import styles from './index.less';
@@ -138,6 +139,9 @@ export default class EnterpriseShared extends PureComponent {
     });
   };
   onTabChange = tabID => {
+    if (tabID === 'add') {
+      return null;
+    }
     const { marketTab } = this.state;
     let arr = [];
     arr = marketTab.filter(item => {
@@ -145,26 +149,25 @@ export default class EnterpriseShared extends PureComponent {
     });
     const isArr = arr && arr.length > 0;
 
-    if (tabID !== 'add') {
-      this.setState({ activeTabKey: tabID });
-    }
-
-    this.setState({ marketInfo: isArr ? arr[0] : false }, () => {
-      if (tabID !== 'local' && isArr && arr[0].status == 1) {
-        this.getMarkets(arr[0].name);
-      } else {
-        this.setState({
-          marketList: [],
-          marketLoading: false,
-          marketPag: {
-            pageSize: 10,
-            total: 0,
-            page: 1,
-            query: '',
-          },
-        });
+    this.setState(
+      { marketInfo: isArr ? arr[0] : false, activeTabKey: tabID },
+      () => {
+        if (tabID !== 'local' && isArr && arr[0].status == 1) {
+          this.getMarkets(arr[0].name);
+        } else {
+          this.setState({
+            marketList: [],
+            marketLoading: false,
+            marketPag: {
+              pageSize: 10,
+              total: 0,
+              page: 1,
+              query: '',
+            },
+          });
+        }
       }
-    });
+    );
   };
 
   getApps = () => {
@@ -571,6 +574,7 @@ export default class EnterpriseShared extends PureComponent {
       marketInfo.access_actions.length > 0 &&
       marketInfo.access_actions;
 
+    const isMarket = marketInfo && marketInfo.status == 1;
     const defaultSvg = () => (
       <svg width="50px" height="50px" viewBox="0 0 50 50">
         <g
@@ -700,7 +704,7 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const marketOperation = (
-      <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
+      <div>
         <Button
           onClick={this.handleOpenDeleteAppMarket}
           style={{ marginRight: '22px' }}
@@ -710,7 +714,7 @@ export default class EnterpriseShared extends PureComponent {
         <Button type="primary" onClick={this.handleOpenUpAppMarket}>
           编辑
         </Button>
-      </Col>
+      </div>
     );
 
     const noLocalMarket = (
@@ -731,15 +735,16 @@ export default class EnterpriseShared extends PureComponent {
     );
 
     const noCloudMarket = (
-      <div className={styles.noShared}>
-        <img src={NoComponent} />
-        <p>当前无组件，请选择方式添加</p>
-        <div className={styles.btns}>
-          <Button type="primary">
-            <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
-          </Button>
-        </div>
-      </div>
+      <Empty
+        style={{ marginTop: '120px' }}
+        image="https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original"
+        imageStyle={{
+          height: 60,
+        }}
+        description={<span>市场未连接、暂无数据</span>}
+      >
+        {marketOperation}
+      </Empty>
     );
     const localsContent = (
       <div>
@@ -907,44 +912,56 @@ export default class EnterpriseShared extends PureComponent {
     );
     const marketContent = (
       <div>
-        <Row
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '20px',
-            marginTop: '4px',
-          }}
-        >
-          <Col
-            span={19}
-            style={{ textAlign: 'left', display: 'flex', alignItems: 'center' }}
+        {isMarket && (
+          <Row
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '20px',
+              marginTop: '4px',
+            }}
           >
-            <div>
-              市场已经正常连接，该平台具有&nbsp;
-              {accessActions &&
-                accessActions.map((item, index) => {
-                  return (
-                    <a>
-                      {fetchMarketAuthority(item)}
-                      {index < accessActions.length - 1 && (
-                        <Divider
-                          type="vertical"
-                          style={{ background: '#1890ff' }}
-                        />
-                      )}
-                    </a>
-                  );
-                })}
-              &nbsp;应用权限
-            </div>
-            <Search
-              style={{ width: '400px', marginLeft: '100px' }}
-              placeholder="请输入名称进行搜索"
-              onSearch={this.handleSearchMarket}
-            />
-          </Col>
-          {marketOperation}
-        </Row>
+            <Col
+              span={19}
+              style={{
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <div>
+                市场已经正常连接，该平台具有&nbsp;
+                {accessActions &&
+                  accessActions.map((item, index) => {
+                    return (
+                      <a>
+                        {fetchMarketMap(item)}
+                        {index < accessActions.length - 1 && (
+                          <Divider
+                            type="vertical"
+                            style={{ background: '#1890ff' }}
+                          />
+                        )}
+                      </a>
+                    );
+                  })}
+                &nbsp;应用权限
+              </div>
+              <Search
+                style={{ width: '400px', marginLeft: '100px' }}
+                placeholder="请输入名称进行搜索"
+                onSearch={this.handleSearchMarket}
+              />
+            </Col>
+            <Col
+              span={5}
+              style={{ textAlign: 'right' }}
+              className={styles.btns}
+            >
+              {marketOperation}
+            </Col>
+          </Row>
+        )}
         {marketLoading ? (
           <div className={styles.example}>
             <Spin />
@@ -1084,6 +1101,7 @@ export default class EnterpriseShared extends PureComponent {
           <ConfirmModal
             onOk={this.handleDeleteAppMarket}
             loading={this.state.deleteAppMarketLoading}
+            subDesc="此操作不可恢复"
             desc={`确定要删除此${marketInfo.name}吗?`}
             title={`删除${marketInfo.name}`}
             onCancel={this.handleCloseDeleteAppMarket}
@@ -1176,18 +1194,16 @@ export default class EnterpriseShared extends PureComponent {
               </TabPane>
             );
           })}
-          {activeTabKey !== 'local' && (
-            <TabPane
-              tab={
-                <Icon
-                  type="plus"
-                  className={styles.addSvg}
-                  onClick={this.handleOpencreateAppMarket}
-                />
-              }
-              key="add"
-            />
-          )}
+          <TabPane
+            tab={
+              <Icon
+                type="plus"
+                className={styles.addSvg}
+                onClick={this.handleOpencreateAppMarket}
+              />
+            }
+            key="add"
+          />
         </Tabs>
       </PageHeaderLayout>
     );

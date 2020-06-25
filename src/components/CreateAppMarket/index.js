@@ -142,6 +142,9 @@ class CreateAppMarket extends PureComponent {
             {getFieldDecorator('access_key', {
               initialValue: marketInfo.access_key || '',
             })(<Input placeholder="请输入通信秘钥" />)}
+            <div className={styles.conformDesc}>
+              为空则只读权限、请前往应用市场获取AccessKey
+            </div>
           </FormItem>
         </Form>
       </Modal>
