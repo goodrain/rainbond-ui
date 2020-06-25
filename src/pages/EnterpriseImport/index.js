@@ -275,7 +275,7 @@ export default class EnterpriseShared extends PureComponent {
               message: "应用导入失败"
             });
             this.setState({
-              import_file_status: []
+              import_file_status: [],
             });
             return;
           }

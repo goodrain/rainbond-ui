@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Button, Modal, Form, Select } from 'antd';
 import styles from '../CreateTeam/index.less';
+import { fetchMarketAuthority } from '../../utils/authority';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -27,7 +28,14 @@ class SelectStore extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ storeList: data.list, loading: false });
+          const { list = [] } = data;
+          let newList = [];
+          if (list.length > 0) {
+            newList = list.filter(
+              item => item.status == 1 && fetchMarketAuthority(item, 'Write')
+            );
+          }
+          this.setState({ storeList: newList, loading: false });
         }
       },
     });
@@ -102,12 +110,7 @@ class SelectStore extends PureComponent {
             </FormItem>
           </Form>
         ) : (
-          <p>
-            当前企业暂无开通应用商店，请前往应用市场申请开通{' '}
-            <a target="_blank" href="https://market.goodrain.com/manage">
-              去开通
-            </a>
-          </p>
+          <p style={{ textAlign: 'center' }}>当前企业暂无应用商店</p>
         )}
       </Modal>
     );

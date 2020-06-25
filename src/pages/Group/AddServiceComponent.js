@@ -161,7 +161,7 @@ export default class AddServiceComponent extends PureComponent {
       ? 'Gitlab项目'
       : oauth_type === 'gitee'
       ? 'Gitee项目'
-      : `${name  }项目`;
+      : `${name}项目`;
   };
 
   render() {
@@ -274,35 +274,37 @@ export default class AddServiceComponent extends PureComponent {
                     <Icon component={codeSvg} />
                     <p className={styles.ServiceSmallTitle}>自定义仓库</p>
                   </Col>
-                  {servers && servers.length>0 && servers.map(item => {
-                    const { service_id, oauth_type } = item;
-                    return (
-                      <Col
-                        key={service_id}
-                        span={8}
-                        className={styles.ServiceDiv}
-                        onClick={() => {
-                          this.setState(
-                            {
-                              gitType: oauth_type,
-                              gitServiceID: service_id,
-                            },
-                            () => {
-                              this.handleServiceComponent(
-                                false,
-                                'gitrepostory'
-                              );
-                            }
-                          );
-                        }}
-                      >
-                        {oauthUtil.getIcon(item, '60px')}
-                        <p className={styles.ServiceSmallTitle}>
-                          {this.getGitServerName(item)}
-                        </p>
-                      </Col>
-                    );
-                  })}
+                  {servers &&
+                    servers.length > 0 &&
+                    servers.map(item => {
+                      const { service_id, oauth_type } = item;
+                      return (
+                        <Col
+                          key={service_id}
+                          span={8}
+                          className={styles.ServiceDiv}
+                          onClick={() => {
+                            this.setState(
+                              {
+                                gitType: oauth_type,
+                                gitServiceID: service_id,
+                              },
+                              () => {
+                                this.handleServiceComponent(
+                                  false,
+                                  'gitrepostory'
+                                );
+                              }
+                            );
+                          }}
+                        >
+                          {oauthUtil.getIcon(item, '60px')}
+                          <p className={styles.ServiceSmallTitle}>
+                            {this.getGitServerName(item)}
+                          </p>
+                        </Col>
+                      );
+                    })}
                 </Row>
 
                 <Row style={{ marginBottom: '2px' }}>
@@ -364,13 +366,17 @@ export default class AddServiceComponent extends PureComponent {
               </div>
               <div className={styles.ServiceBox}>
                 <Row>
-                  <p className={styles.ServiceTitle}>从应用市场开始</p>
+                  <p
+                    className={styles.ServiceTitle}
+                    style={{ marginBottom: '20px' }}
+                  >
+                    从应用市场开始
+                  </p>
                 </Row>
                 <Row>
                   <Market
                     scope="enterprise"
                     handleType="Service"
-                    scopeMax="localApplication"
                     refreshCurrent={() => {
                       this.refreshCurrent();
                     }}

@@ -1,37 +1,37 @@
-import React from "react";
-import { Link } from "dva/router";
-import { DefaultFooter } from "@ant-design/pro-layout";
-import PageHeader from "../components/PageHeader";
-import styles from "./PageHeaderLayout.less";
-import rainbondUtil from "../utils/rainbond";
+import React from 'react';
+import { Link } from 'dva/router';
+import PageHeader from '../components/PageHeader';
+import styles from './PageHeaderLayout.less';
+import { DefaultFooter } from '@ant-design/pro-layout';
+import { Icon } from 'antd';
 
-export default ({ children, wrapperClassName, top, ...restProps }) => (
-  <div style={{ margin: "-24px -24px 0" }} className={wrapperClassName}>
+export default ({
+  isFooter,
+  children,
+  wrapperClassName,
+  top,
+  ...restProps
+}) => (
+  <div style={{ margin: '-24px -24px 0' }} className={wrapperClassName}>
     {top}
     <PageHeader key="pageheader" {...restProps} linkElement={Link} />
     {children ? <div className={styles.content}>{children}</div> : null}
-    {rainbondUtil.isEnableDefaultFooter() && (
+    {!isFooter && (
       <DefaultFooter
-        copyright="© 2020 北京好雨科技有限公司"
+        copyright="2020 北京好雨科技有限公司出品"
         links={[
           {
-            key: "price",
-            href: "https://goodrain.goodrain.com/page/price",
-            title: "价格",
-            blankTarget: true
+            key: 'Rainbond',
+            title: 'Rainbond',
+            href: 'https://www.rainbond.com',
+            blankTarget: true,
           },
           {
-            key: "agreement",
-            href: "https://goodrain.goodrain.com/page/agreement",
-            title: "服务条款",
-            blankTarget: true
+            key: 'github',
+            title: <Icon type="github" />,
+            href: 'https://github.com/goodrain/rainbond',
+            blankTarget: true,
           },
-          {
-            key: "sla",
-            href: "https://goodrain.goodrain.com/page/sla",
-            title: "服务SLA",
-            blankTarget: true
-          }
         ]}
       />
     )}

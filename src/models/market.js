@@ -1,9 +1,14 @@
 import {
   fetchAppModels,
   upAppModel,
+  upAppMarket,
+  deleteAppMarket,
   createAppModel,
+  createAppMarket,
   createMarketAppModel,
   fetchAppModelsTags,
+  fetchMarkets,
+  fetchMarketsTab,
   getMarketApp,
   createTag,
   upDataTag,
@@ -38,8 +43,26 @@ export default {
         callback(response);
       }
     },
+    *upAppMarket({ payload, callback }, { call }) {
+      const response = yield call(upAppMarket, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *deleteAppMarket({ payload, callback }, { call }) {
+      const response = yield call(deleteAppMarket, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *createAppModel({ payload, callback }, { call }) {
       const response = yield call(createAppModel, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *createAppMarket({ payload, callback }, { call }) {
+      const response = yield call(createAppMarket, payload);
       if (response && callback) {
         callback(response);
       }
@@ -56,7 +79,18 @@ export default {
         callback(response);
       }
     },
-
+    *fetchMarketsTab({ payload, callback }, { call }) {
+      const response = yield call(fetchMarketsTab, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchMarkets({ payload, callback }, { call }) {
+      const response = yield call(fetchMarkets, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *createTag({ payload, callback }, { call }) {
       const data = yield call(createTag, payload);
       if (data && callback) {

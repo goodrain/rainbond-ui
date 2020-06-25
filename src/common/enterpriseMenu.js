@@ -55,8 +55,8 @@ function menuData(eid, currentUser) {
       authority: ["admin", "user"]
     },
     {
-      name: "共享库",
-      icon: "share-alt",
+      name: '应用市场',
+      icon: 'share-alt',
       path: `/enterprise/${eid}/shared`,
       authority: ["admin", "user"]
     }
