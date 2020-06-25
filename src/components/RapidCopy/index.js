@@ -1,10 +1,10 @@
 /*
    快速复制
 */
-import { Button, Checkbox, Col, Form, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import React, { PureComponent } from 'react';
+import { Button, Checkbox, Col, Form, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import AddGroup from '../AddOrEditGroup';
@@ -12,9 +12,7 @@ import styless from '../CreateTeam/index.less';
 import styles from './index.less';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
-const plainOptions = ['Apple', 'Pear', 'Orange'];
-const CheckboxGroup = Checkbox.Group;
+const { Option } = Select;
 
 @Form.create()
 @connect(({ user, enterprise, groupControl }) => ({
@@ -71,22 +69,19 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           const { list } = res;
+          const arr = [];
           if (list && list.length > 0) {
-            const arr = [];
             list.map((item, index) => {
-              const { build_source } = item;
-              const { service_source } = build_source;
-
-              const isThirdParty = service_source === 'third_party';
-              !isThirdParty && arr.push(index);
-            });
-            this.setState({
-              checkAllList: arr,
-              checkedList: arr,
-              dataSource: res.list,
-              loading: false,
+              arr.push(index);
             });
           }
+
+          this.setState({
+            checkAllList: arr,
+            checkedList: arr,
+            dataSource: res.list,
+            loading: false,
+          });
         }
       },
     });
@@ -491,7 +486,7 @@ export default class Index extends PureComponent {
                   : isMarketApp
                   ? rain_app_name
                   : isThirdParty
-                  ? '第三方组件: 暂不支持复制'
+                  ? '第三方组件'
                   : '';
 
                 let versionConetent = '';
@@ -538,21 +533,14 @@ export default class Index extends PureComponent {
                     </FormItem>
                   );
                 } else {
-                  versionConetent = '暂不支持变更版本';
+                  versionConetent = isThirdParty ? '-' : '暂不支持变更版本';
                 }
 
                 return (
                   <div className={styles.tabTr} key={service_id}>
                     <Tooltip title={service_cname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index} disabled={isThirdParty}>
-                          {!isThirdParty && service_cname}
-                        </Checkbox>
-                        {isThirdParty && (
-                          <span style={{ marginLeft: '-16px' }}>
-                            {service_cname}
-                          </span>
-                        )}
+                        <Checkbox value={index}>{service_cname}</Checkbox>
                       </div>
                     </Tooltip>
 
@@ -572,7 +560,7 @@ export default class Index extends PureComponent {
                             : isMarketApp
                             ? '组件库:'
                             : isThirdParty
-                            ? '第三方组件:'
+                            ? '第三方组件'
                             : '-'}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>
@@ -583,7 +571,7 @@ export default class Index extends PureComponent {
                             : isMarketApp
                             ? rain_app_name
                             : isThirdParty
-                            ? '暂不支持复制'
+                            ? ''
                             : '-'}
                         </div>
                       </div>
