@@ -1,10 +1,9 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-multi-comp */
-import React, { Fragment, PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-
 import {
   Alert,
   Badge,
@@ -17,14 +16,18 @@ import {
   notification,
   Radio,
   Select,
-  Tooltip,
+  Tooltip
 } from 'antd';
+import { connect } from 'dva';
+import { Link, routerRedux } from 'dva/router';
 import PropTypes from 'prop-types';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
+import styless from '../../components/CreateTeam/index.less';
 import ManageAppGuide from '../../components/ManageAppGuide';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import VisitBtn from '../../components/VisitBtn';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   deploy,
   getStatus,
@@ -32,11 +35,28 @@ import {
   rollback,
   start,
   stop,
-  updateRolling,
+  updateRolling
 } from '../../services/app';
+import appUtil from '../../utils/app';
+import AppPubSubSocket from '../../utils/appPubSubSocket';
+import appStatusUtil from '../../utils/appStatus-util';
+import {
+  createApp,
+  createComponent,
+  createEnterprise,
+  createTeam
+} from '../../utils/breadcrumb';
+import dateUtil from '../../utils/date-util';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
+import regionUtil from '../../utils/region';
+import roleUtil from '../../utils/role';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
 import ConnectionInformation from './connectionInformation';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
+import styles from './Index.less';
 import Log from './log';
 import Members from './members';
 import Mnt from './mnt';
@@ -48,24 +68,6 @@ import Relation from './relation';
 import Resource from './resource';
 import Setting from './setting';
 import ThirdPartyServices from './ThirdPartyServices';
-import appUtil from '../../utils/app';
-import AppPubSubSocket from '../../utils/appPubSubSocket';
-import appStatusUtil from '../../utils/appStatus-util';
-import {
-  createApp,
-  createComponent,
-  createEnterprise,
-  createTeam,
-} from '../../utils/breadcrumb';
-import dateUtil from '../../utils/date-util';
-import globalUtil from '../../utils/global';
-import httpResponseUtil from '../../utils/httpResponse';
-import regionUtil from '../../utils/region';
-import teamUtil from '../../utils/team';
-import userUtil from '../../utils/user';
-import roleUtil from '../../utils/role';
-import styles from './Index.less';
-import styless from '../../components/CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -73,7 +75,12 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class MoveGroup extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -138,7 +145,12 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class EditName extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -213,13 +225,10 @@ class Main extends PureComponent {
     super(arg);
     this.state = {
       actionIng: false,
-      appDetail: {},
       status: {},
       showDeleteApp: false,
       showEditName: false,
       showMoveGroup: false,
-      showDeployTips: false,
-      showreStartTips: false,
       visibleBuild: null,
       BuildText: '',
       BuildList: [],
@@ -247,9 +256,7 @@ class Main extends PureComponent {
   }
   componentDidMount() {
     this.loadDetail();
-    setTimeout(() => {
-      this.getStatus(true);
-    }, 5000);
+    this.getStatus(true);
   }
   componentWillUnmount() {
     this.closeTimer();
@@ -362,7 +369,7 @@ class Main extends PureComponent {
     if (
       appDetail &&
       appDetail.service &&
-      appDetail.service.service_source == 'market'
+      appDetail.service.service_source === 'market'
     ) {
       const serviceAlias = appDetail.service.service_alias;
       this.props.dispatch({
@@ -402,7 +409,7 @@ class Main extends PureComponent {
         ) {
           if (
             appDetail.service &&
-            appDetail.service.create_status == 'complete'
+            appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
@@ -435,7 +442,6 @@ class Main extends PureComponent {
           return null;
         }
         if (code) {
-          // 应用不存在
           if (code === 404) {
             this.props.dispatch(
               routerRedux.push(
@@ -692,7 +698,7 @@ class Main extends PureComponent {
   };
   handleMoveGroup = data => {
     const team_name = globalUtil.getCurrTeamName();
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     const serviceAlias = appDetail.service.service_alias;
     this.props.dispatch({
       type: 'appControl/moveGroup',
