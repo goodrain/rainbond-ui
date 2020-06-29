@@ -16,7 +16,7 @@ import {
   notification,
   Radio,
   Select,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -35,7 +35,7 @@ import {
   rollback,
   start,
   stop,
-  updateRolling
+  updateRolling,
 } from '../../services/app';
 import appUtil from '../../utils/app';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
@@ -44,7 +44,7 @@ import {
   createApp,
   createComponent,
   createEnterprise,
-  createTeam
+  createTeam,
 } from '../../utils/breadcrumb';
 import dateUtil from '../../utils/date-util';
 import globalUtil from '../../utils/global';
@@ -75,12 +75,7 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class MoveGroup extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -145,12 +140,7 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class EditName extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -331,6 +321,9 @@ class Main extends PureComponent {
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
+      return null;
+    }
+    if (err && err.code == 404) {
       return null;
     }
     if (err && err.data && err.data.msg_show) {

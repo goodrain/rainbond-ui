@@ -336,13 +336,7 @@ export function rollback(
 /*
 	获取应用详细信息
 */
-export async function getDetail(
-  body = {
-    team_name,
-    app_alias,
-  },
-  handleError
-) {
+export async function getDetail(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/detail`,
     {
@@ -355,12 +349,7 @@ export async function getDetail(
 /*
 	获取应用状态
 */
-export function getStatus(
-  body = {
-    team_name,
-    app_alias,
-  }
-) {
+export function getStatus(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/status`,
     {
