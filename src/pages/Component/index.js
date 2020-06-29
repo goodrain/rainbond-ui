@@ -325,6 +325,9 @@ class Main extends PureComponent {
     if (!componentTimer) {
       return null;
     }
+    if (err && err.code == 404) {
+      return null;
+    }
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
