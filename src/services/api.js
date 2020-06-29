@@ -416,6 +416,8 @@ export async function postUpdateOrder(
       method: 'post',
       data: {
         group_key: body.group_key,
+        market_name: body.marketName,
+        is_from_cloud: body.isFromCloud,
       },
     }
   );
@@ -467,14 +469,7 @@ export async function getUpdatedVersion(
 
 /* 查询某云市应用下服务的更新信息 */
 
-export async function getUpdatedInfo(
-  body = {
-    team_name,
-    group_id,
-    group_key,
-    version,
-  }
-) {
+export async function getUpdatedInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`,
     {
@@ -482,6 +477,7 @@ export async function getUpdatedInfo(
       params: {
         group_key: body.group_key,
         version: body.version,
+        market_name: body.marketName,
       },
     }
   );
