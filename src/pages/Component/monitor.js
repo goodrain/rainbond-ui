@@ -1,25 +1,24 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
+import React, { PureComponent, Fragment } from 'react';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import { Row, Col, Card, Button, Table, Icon, Tooltip } from 'antd';
+import numeral from 'numeral';
 import {
   ChartCard,
   MiniArea,
   MiniBar,
   Field,
-  TimelineChart
-} from "../../components/Charts";
-import numeral from "numeral";
-import { Link } from "dva/router";
-import { DatePicker, Row, Col, Card, Button, Table, Icon, Tooltip } from "antd";
-
-import ScrollerX from "../../components/ScrollerX";
-import NoPermTip from "../../components/NoPermTip";
-import globalUtil from "../../utils/global";
-import userUtil from "../../utils/user";
-import teamUtil from "../../utils/team";
-import regionUtil from "../../utils/region";
-import appUtil from "../../utils/app";
-import monitorDataUtil from "../../utils/monitorDataUtil";
-import styles from "./Index.less";
+  TimelineChart,
+} from '../../components/Charts';
+import ScrollerX from '../../components/ScrollerX';
+import NoPermTip from '../../components/NoPermTip';
+import globalUtil from '../../utils/global';
+import userUtil from '../../utils/user';
+import teamUtil from '../../utils/team';
+import regionUtil from '../../utils/region';
+import appUtil from '../../utils/app';
+import monitorDataUtil from '../../utils/monitorDataUtil';
+import styles from './Index.less';
 
 const ButtonGroup = Button.Group;
 
@@ -28,10 +27,10 @@ class Empty extends PureComponent {
     return (
       <div
         style={{
-          height: "300px",
-          lineHeight: "300px",
-          textAlign: " center",
-          fontSize: 26
+          height: '300px',
+          lineHeight: '300px',
+          textAlign: ' center',
+          fontSize: 26,
         }}
       >
         暂无数据
@@ -40,23 +39,20 @@ class Empty extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
   appDetail: appControl.appDetail,
   onlineNumberRange: appControl.onlineNumberRange,
   appRequestRange: appControl.appRequestRange,
-  requestTimeRange: appControl.requestTimeRange
+  requestTimeRange: appControl.requestTimeRange,
 }))
 class MonitorHistory extends PureComponent {
   state = {
-    houer: 1
+    houer: 1,
   };
-  getStartTime() {
-    return new Date().getTime() / 1000 - 60 * 60 * this.state.houer;
-  }
-  getStep() {
-    var houer = this.state.houer;
-    return (60 * 60 * houer) / 20 + "s";
+  componentWillUnmount() {
+    this.mounted = false;
   }
   componentDidMount() {
     this.mounted = true;
@@ -65,20 +61,24 @@ class MonitorHistory extends PureComponent {
     this.fetchRequestRange();
     this.fetchOnlineNumberRange();
   }
-  componentWillUnmount() {
-    this.mounted = false;
+  getStartTime() {
+    return new Date().getTime() / 1000 - 60 * 60 * this.state.houer;
+  }
+  getStep() {
+    const { houer } = this.state;
+    return `${(60 * 60 * houer) / 20}s`;
   }
 
   fetchRequestTimeRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequestTimeRange",
+      type: 'appControl/fetchRequestTimeRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -86,19 +86,19 @@ class MonitorHistory extends PureComponent {
             this.fetchRequestTimeRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchRequestRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequestRange",
+      type: 'appControl/fetchRequestRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -106,19 +106,19 @@ class MonitorHistory extends PureComponent {
             this.fetchRequestRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchOnlineNumberRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchOnlineNumberRange",
+      type: 'appControl/fetchOnlineNumberRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -126,21 +126,19 @@ class MonitorHistory extends PureComponent {
             this.fetchOnlineNumberRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
 
   selectDate = houer => {
     this.setState({ houer });
   };
-  isActive(houer) {
+  isActive = houer => {
     if (houer === this.state.houer) {
       return styles.currentDate;
     }
-  }
+  };
   render() {
-    const { rangePickerValue } = this.state;
-
     const salesExtra = (
       <div className={styles.salesExtraWrap}>
         <div className={styles.salesExtra}>
@@ -179,7 +177,7 @@ class MonitorHistory extends PureComponent {
         <Card
           title="响应时间"
           style={{
-            marginBottom: 20
+            marginBottom: 20,
           }}
           extra={salesExtra}
         >
@@ -193,7 +191,7 @@ class MonitorHistory extends PureComponent {
           extra={salesExtra}
           title="吞吐率"
           style={{
-            marginBottom: 20
+            marginBottom: 20,
           }}
         >
           {appRequest.length ? (
@@ -214,6 +212,7 @@ class MonitorHistory extends PureComponent {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
   appDetail: appControl.appDetail,
@@ -222,22 +221,17 @@ class MonitorHistory extends PureComponent {
   appRequest: appControl.appRequest,
   appRequestRange: appControl.appRequestRange,
   requestTime: appControl.requestTime,
-  requestTimeRange: appControl.requestTimeRange
+  requestTimeRange: appControl.requestTimeRange,
 }))
 class MonitorNow extends PureComponent {
   constructor(props) {
     super(props);
     this.inerval = 5000;
     this.state = {
-      logs: []
+      logs: [],
     };
   }
-  getStartTime() {
-    return new Date().getTime() / 1000 - 60 * 60;
-  }
-  getStep() {
-    return 60;
-  }
+
   componentDidMount() {
     this.mounted = true;
     this.fetchRequestTime();
@@ -250,37 +244,45 @@ class MonitorNow extends PureComponent {
   }
   componentWillUnmount() {
     this.mounted = false;
-    this.props.dispatch({ type: "appControl/clearOnlineNumberRange" });
-    this.props.dispatch({ type: "appControl/clearRequestTime" });
-    this.props.dispatch({ type: "appControl/clearRequestTimeRange" });
-    this.props.dispatch({ type: "appControl/clearRequest" });
-    this.props.dispatch({ type: "appControl/clearRequestRange" });
-    this.props.dispatch({ type: "appControl/clearOnlineNumber" });
+    this.props.dispatch({ type: 'appControl/clearOnlineNumberRange' });
+    this.props.dispatch({ type: 'appControl/clearRequestTime' });
+    this.props.dispatch({ type: 'appControl/clearRequestTimeRange' });
+    this.props.dispatch({ type: 'appControl/clearRequest' });
+    this.props.dispatch({ type: 'appControl/clearRequestRange' });
+    this.props.dispatch({ type: 'appControl/clearOnlineNumber' });
+  }
+  // eslint-disable-next-line class-methods-use-this
+  getStartTime() {
+    return new Date().getTime() / 1000 - 60 * 60;
+  }
+  // eslint-disable-next-line class-methods-use-this
+  getStep() {
+    return 60;
   }
   getSocketUrl = () => {
-    var currTeam = userUtil.getTeamByTeamName(
+    const currTeam = userUtil.getTeamByTeamName(
       this.props.currUser,
       globalUtil.getCurrTeamName()
     );
-    var currRegionName = globalUtil.getCurrRegionName();
+    const currRegionName = globalUtil.getCurrRegionName();
 
     if (currTeam) {
-      var region = teamUtil.getRegionByName(currTeam, currRegionName);
+      const region = teamUtil.getRegionByName(currTeam, currRegionName);
 
       if (region) {
         return regionUtil.getMonitorWebSocketUrl(region);
       }
     }
-    return "";
+    return '';
   };
   fetchRequestTime() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequestTime",
+      type: 'appControl/fetchRequestTime',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
+        serviceId: this.props.appDetail.service.service_id,
       },
       complete: () => {
         if (this.mounted) {
@@ -288,19 +290,19 @@ class MonitorNow extends PureComponent {
             this.fetchRequestTime();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchRequestTimeRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequestTimeRange",
+      type: 'appControl/fetchRequestTimeRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -308,17 +310,17 @@ class MonitorNow extends PureComponent {
             this.fetchRequestTimeRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchRequest() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequest",
+      type: 'appControl/fetchRequest',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
+        serviceId: this.props.appDetail.service.service_id,
       },
       complete: () => {
         if (this.mounted) {
@@ -326,19 +328,19 @@ class MonitorNow extends PureComponent {
             this.fetchRequest();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchRequestRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchRequestRange",
+      type: 'appControl/fetchRequestRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -346,17 +348,17 @@ class MonitorNow extends PureComponent {
             this.fetchRequestRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchOnlineNumber() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchOnlineNumber",
+      type: 'appControl/fetchOnlineNumber',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        serviceId: this.props.appDetail.service.service_id
+        serviceId: this.props.appDetail.service.service_id,
       },
       complete: () => {
         if (this.mounted) {
@@ -364,19 +366,19 @@ class MonitorNow extends PureComponent {
             this.fetchOnlineNumber();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   fetchOnlineNumberRange() {
     if (!this.mounted) return;
     this.props.dispatch({
-      type: "appControl/fetchOnlineNumberRange",
+      type: 'appControl/fetchOnlineNumberRange',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
         start: this.getStartTime(),
         serviceId: this.props.appDetail.service.service_id,
-        step: this.getStep()
+        step: this.getStep(),
       },
       complete: () => {
         if (this.mounted) {
@@ -384,14 +386,16 @@ class MonitorNow extends PureComponent {
             this.fetchOnlineNumberRange();
           }, this.inerval);
         }
-      }
+      },
     });
   }
   createSocket() {
-    this.props.socket &&
-      this.props.socket.setOnMonitorMessage(messages => {
+    const { socket } = this.props;
+    if (socket) {
+      socket.setOnMonitorMessage(messages => {
         this.updateTable(messages);
       });
+    }
   }
   updateTable(event) {
     try {
@@ -407,8 +411,8 @@ class MonitorNow extends PureComponent {
       lg: 12,
       xl: 8,
       style: {
-        marginBottom: 24
-      }
+        marginBottom: 24,
+      },
     };
     return (
       <Fragment>
@@ -419,14 +423,14 @@ class MonitorNow extends PureComponent {
               title="平均响应时间（ms）"
               action={
                 <Tooltip title="平均响应时间，单位毫秒">
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
+                  {' '}
+                  <Icon type="info-circle-o" />{' '}
                 </Tooltip>
               }
               total={numeral(
                 monitorDataUtil.queryTog2(this.props.requestTime)
-              ).format("0,0")}
-              footer={<Field label="最大响应时间" value="-" />}
+              ).format('0,0')}
+              footer={<Field label="" value="" />}
               contentHeight={46}
             >
               <MiniArea
@@ -443,14 +447,14 @@ class MonitorNow extends PureComponent {
               title="吞吐率（dps）"
               action={
                 <Tooltip title="过去一分钟平均每5s的请求次数">
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
+                  {' '}
+                  <Icon type="info-circle-o" />{' '}
                 </Tooltip>
               }
               total={numeral(
                 monitorDataUtil.queryTog2(this.props.appRequest)
-              ).format("0,0")}
-              footer={<Field label="最大吞吐率" value="-" />}
+              ).format('0,0')}
+              footer={<Field label="" value="" />}
               contentHeight={46}
             >
               <MiniArea
@@ -467,14 +471,14 @@ class MonitorNow extends PureComponent {
               title="在线人数"
               action={
                 <Tooltip title="过去5分钟的独立IP数量">
-                  {" "}
-                  <Icon type="info-circle-o" />{" "}
+                  {' '}
+                  <Icon type="info-circle-o" />{' '}
                 </Tooltip>
               }
               total={numeral(
                 monitorDataUtil.queryTog2(this.props.onlineNumber)
-              ).format("0,0")}
-              footer={<Field label="日访问量" value="-" />}
+              ).format('0,0')}
+              footer={<Field label="" value="" />}
               contentHeight={46}
             >
               <MiniBar
@@ -490,29 +494,29 @@ class MonitorNow extends PureComponent {
             <Table
               columns={[
                 {
-                  title: "Url",
-                  dataIndex: "Key"
+                  title: 'Url',
+                  dataIndex: 'Key',
                 },
                 {
-                  title: "累计时间(ms)",
-                  dataIndex: "CumulativeTime",
-                  width: 150
+                  title: '累计时间(ms)',
+                  dataIndex: 'CumulativeTime',
+                  width: 150,
                 },
                 {
-                  title: "平均时间(ms)",
-                  dataIndex: "AverageTime",
-                  width: 150
+                  title: '平均时间(ms)',
+                  dataIndex: 'AverageTime',
+                  width: 150,
                 },
                 {
-                  title: "请求次数",
-                  dataIndex: "Count",
-                  width: 100
+                  title: '请求次数',
+                  dataIndex: 'Count',
+                  width: 100,
                 },
                 {
-                  title: "异常次数",
-                  dataIndex: "AbnormalCount",
-                  width: 100
-                }
+                  title: '异常次数',
+                  dataIndex: 'AbnormalCount',
+                  width: 100,
+                },
               ]}
               pagination={false}
               dataSource={this.state.logs}
@@ -524,18 +528,16 @@ class MonitorNow extends PureComponent {
   }
 }
 
-@connect(
-  ({ user, appControl }) => ({ currUser: user.currentUser }),
-  null,
-  null,
-  { withRef: true }
-)
+// eslint-disable-next-line react/no-multi-comp
+@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
+  withRef: true,
+})
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      type: "now",
-      anaPlugins: null
+      type: 'now',
+      anaPlugins: null,
     };
   }
 
@@ -543,26 +545,27 @@ export default class Index extends PureComponent {
     if (!this.canView()) return;
     this.getAnalyzePlugins();
   }
-  //是否可以浏览当前界面
-  canView() {
-    return appUtil.canManageAppMonitor(this.props.appDetail);
-  }
+
   getAnalyzePlugins() {
     this.props.dispatch({
-      type: "appControl/getAnalyzePlugins",
+      type: 'appControl/getAnalyzePlugins',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: data => {
         const list = (data && data.list) || [];
         this.setState({ anaPlugins: list });
-      }
+      },
     });
+  }
+  // 是否可以浏览当前界面
+  canView() {
+    return appUtil.canManageAppMonitor(this.props.appDetail);
   }
   changeType = type => {
     if (type !== this.state.type) {
-      this.setState({ type: type });
+      this.setState({ type });
     }
   };
   render() {
@@ -574,21 +577,21 @@ export default class Index extends PureComponent {
       return null;
     }
 
-    //判断是否有安装性能分析插件
+    // 判断是否有安装性能分析插件
     if (!anaPlugins.length) {
       return (
         <Card>
           <div
             style={{
-              textAlign: "center",
+              textAlign: 'center',
               fontSize: 18,
-              padding: "30px 0"
+              padding: '30px 0',
             }}
           >
             尚未开通性能分析插件
             <p
               style={{
-                paddingTop: 8
+                paddingTop: 8,
               }}
             >
               <Link
@@ -608,30 +611,30 @@ export default class Index extends PureComponent {
       <Fragment>
         <div
           style={{
-            textAlign: "right",
-            marginBottom: 25
+            textAlign: 'right',
+            marginBottom: 25,
           }}
         >
           <ButtonGroup>
             <Button
               onClick={() => {
-                this.changeType("now");
+                this.changeType('now');
               }}
-              type={type === "now" ? "primary" : ""}
+              type={type === 'now' ? 'primary' : ''}
             >
               实时
             </Button>
             <Button
               onClick={() => {
-                this.changeType("history");
+                this.changeType('history');
               }}
-              type={type === "history" ? "primary" : ""}
+              type={type === 'history' ? 'primary' : ''}
             >
               历史
             </Button>
           </ButtonGroup>
         </div>
-        {type === "now" ? (
+        {type === 'now' ? (
           <MonitorNow {...this.props} />
         ) : (
           <MonitorHistory {...this.props} />

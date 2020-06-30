@@ -175,7 +175,7 @@ export default class Index extends PureComponent {
               arr.push({
                 x: moment(new Date(visitDatas[i][0] * 1000))
                   .locale('zh-cn')
-                  .format('YYYY-MM-DD hh:mm'),
+                  .format('YYYY-MM-DD HH:mm'),
                 y: Math.floor(visitDatas[i][1]),
               });
             }
