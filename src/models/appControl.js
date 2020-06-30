@@ -1,5 +1,6 @@
 import { getGroupApps } from '../services/group';
 import {
+  getComponentState,
   getDetail,
   getPorts,
   deletePort,
@@ -121,7 +122,6 @@ import {
 } from '../services/app';
 
 import { getCertificates, addCertificate } from '../services/team';
-import cookie from '../utils/cookie';
 
 export default {
   namespace: 'appControl',
@@ -446,6 +446,12 @@ export default {
       if (response) {
         yield put({ type: 'saveDetail', payload: response.bean });
         callback && callback(response.bean);
+      }
+    },
+    *fetchComponentState({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentState, payload, handleError);
+      if (response) {
+        callback && callback(response);
       }
     },
     *createService({ payload, callback }, { call, put }) {

@@ -30,7 +30,6 @@ import VisitBtn from '../../components/VisitBtn';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   deploy,
-  getStatus,
   restart,
   rollback,
   start,
@@ -249,7 +248,7 @@ class Main extends PureComponent {
     this.getStatus(true);
   }
   componentWillUnmount() {
-    this.closeTimer();
+    this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
     if (this.socket) {
@@ -281,14 +280,17 @@ class Main extends PureComponent {
     }
   }
   getStatus = isCycle => {
-    getStatus({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias(),
-    })
-      .then(res => {
+    const { componentTimer } = this.state;
+    this.props.dispatch({
+      type: 'appControl/fetchComponentState',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.getAppAlias(),
+      },
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({ status: res.bean }, () => {
-            if (isCycle) {
+            if (isCycle && !componentTimer) {
               this.handleTimers(
                 'timer',
                 () => {
@@ -299,17 +301,20 @@ class Main extends PureComponent {
             }
           });
         }
-      })
-      .catch(err => {
+      },
+      handleError: err => {
         this.handleError(err);
-        this.handleTimers(
-          'timer',
-          () => {
-            this.getStatus(true);
-          },
-          10000
-        );
-      });
+        if (!componentTimer) {
+          this.handleTimers(
+            'timer',
+            () => {
+              this.getStatus(true);
+            },
+            10000
+          );
+        }
+      },
+    });
   };
 
   getChildCom = () => {
@@ -323,7 +328,12 @@ class Main extends PureComponent {
     if (!componentTimer) {
       return null;
     }
-    if (err && err.code == 404) {
+    if (
+      err &&
+      err.status == 404 &&
+      window.location.href.indexOf('components') === -1
+    ) {
+      this.closeComponentTimer();
       return null;
     }
     if (err && err.data && err.data.msg_show) {
