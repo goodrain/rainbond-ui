@@ -19,7 +19,9 @@ const monitorDataUtil = {
     let res = [];
     if (data.result && data.result.length && data.result[0].values) {
       res = data.result[0].values.map(value => ({
-        x: moment(new Date(value[0] * 1000)).locale('zh-cn').format('hh:mm:ss'),
+        x: moment(new Date(value[0] * 1000))
+          .locale('zh-cn')
+          .format('HH:mm:ss'),
         y: Number(value[1]),
         y1: Number(value[1]),
         y2: Number(value[1]),
