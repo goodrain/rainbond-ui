@@ -349,11 +349,12 @@ export async function getDetail(body = {}, handleError) {
 /*
 	获取应用状态
 */
-export function getStatus(body = {}) {
+export function getComponentState(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/status`,
     {
       method: 'get',
+      handleError,
       showLoading: false,
     }
   );

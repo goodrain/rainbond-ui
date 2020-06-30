@@ -407,7 +407,7 @@ class Index extends PureComponent {
                                   {create_time &&
                                     moment(create_time)
                                       .locale('zh-cn')
-                                      .format('YYYY-MM-DD hh:mm:ss')}
+                                      .format('YYYY-MM-DD HH:mm:ss')}
                                 </font>
                               </time>
                             </div>
@@ -441,17 +441,17 @@ class Index extends PureComponent {
                             build_version != current_version &&
                             isRollback &&
                             current_version ? (
-                            <Popconfirm
-                                title="确定要回滚到此版本吗?"
-                                onConfirm={() => {
+                              <Popconfirm
+                              title="确定要回滚到此版本吗?"
+                              onConfirm={() => {
                                 this.handleRolback(item);
                               }}
-                              >
-                                <span>
-                                <Divider type="vertical" />
-                                <a style={{ fontSize: '12px' }}>回滚</a>
-                              </span>
-                              </Popconfirm>
+                            >
+                              <span>
+                                  <Divider type="vertical" />
+                                  <a style={{ fontSize: '12px' }}>回滚</a>
+                                </span>
+                            </Popconfirm>
                           ) : (
                             ''
                           )}

@@ -1,7 +1,20 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
-import { List, Card, Row, Col, Radio, Input, Progress, Button, Icon, Dropdown, Menu, Avatar } from 'antd';
+import {
+  List,
+  Card,
+  Row,
+  Col,
+  Radio,
+  Input,
+  Progress,
+  Button,
+  Icon,
+  Dropdown,
+  Menu,
+  Avatar,
+} from 'antd';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
@@ -26,7 +39,10 @@ export default class BasicList extends PureComponent {
   }
 
   render() {
-    const { list: { list }, loading } = this.props;
+    const {
+      list: { list },
+      loading,
+    } = this.props;
 
     const Info = ({ title, value, bordered }) => (
       <div className={styles.headerInfo}>
@@ -66,14 +82,22 @@ export default class BasicList extends PureComponent {
         </div>
         <div className={styles.listContentItem}>
           <span>开始时间</span>
-          <p>{moment(createdAt).locale('zh-cn').format('YYYY-MM-DD hh:mm')}</p>
+          <p>
+            {moment(createdAt)
+              .locale('zh-cn')
+              .format('YYYY-MM-DD HH:mm')}
+          </p>
         </div>
         <div className={styles.listContentItem}>
-          <Progress percent={percent} status={status} strokeWidth={6} style={{ width: 180 }} />
+          <Progress
+            percent={percent}
+            status={status}
+            strokeWidth={6}
+            style={{ width: 180 }}
+          />
         </div>
       </div>
     );
-
 
     return (
       <PageHeaderLayout>
@@ -100,7 +124,11 @@ export default class BasicList extends PureComponent {
             bodyStyle={{ padding: '0 32px 40px 32px' }}
             extra={extraContent}
           >
-            <Button type="dashed" style={{ width: '100%', marginBottom: 8 }} icon="plus">
+            <Button
+              type="dashed"
+              style={{ width: '100%', marginBottom: 8 }}
+              icon="plus"
+            >
               添加
             </Button>
             <List
@@ -110,11 +138,11 @@ export default class BasicList extends PureComponent {
               pagination={paginationProps}
               dataSource={list}
               renderItem={item => (
-                <List.Item
-                  actions={[<a>编辑</a>]}
-                >
+                <List.Item actions={[<a>编辑</a>]}>
                   <List.Item.Meta
-                    avatar={<Avatar src={item.logo} shape="square" size="large" />}
+                    avatar={
+                      <Avatar src={item.logo} shape="square" size="large" />
+                    }
                     title={<a href={item.href}>{item.title}</a>}
                     description={item.subDescription}
                   />
