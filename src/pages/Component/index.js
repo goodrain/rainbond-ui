@@ -16,7 +16,7 @@ import {
   notification,
   Radio,
   Select,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -30,12 +30,11 @@ import VisitBtn from '../../components/VisitBtn';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   deploy,
-  getStatus,
   restart,
   rollback,
   start,
   stop,
-  updateRolling
+  updateRolling,
 } from '../../services/app';
 import appUtil from '../../utils/app';
 import AppPubSubSocket from '../../utils/appPubSubSocket';
@@ -44,7 +43,7 @@ import {
   createApp,
   createComponent,
   createEnterprise,
-  createTeam
+  createTeam,
 } from '../../utils/breadcrumb';
 import dateUtil from '../../utils/date-util';
 import globalUtil from '../../utils/global';
@@ -75,12 +74,7 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class MoveGroup extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -145,12 +139,7 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(
-  null,
-  null,
-  null,
-  { withRef: true }
-)
+@connect(null, null, null, { withRef: true })
 class EditName extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -259,7 +248,7 @@ class Main extends PureComponent {
     this.getStatus(true);
   }
   componentWillUnmount() {
-    this.closeTimer();
+    this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
     if (this.socket) {
@@ -291,14 +280,17 @@ class Main extends PureComponent {
     }
   }
   getStatus = isCycle => {
-    getStatus({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias(),
-    })
-      .then(res => {
+    const { componentTimer } = this.state;
+    this.props.dispatch({
+      type: 'appControl/fetchComponentState',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.getAppAlias(),
+      },
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({ status: res.bean }, () => {
-            if (isCycle) {
+            if (isCycle && !componentTimer) {
               this.handleTimers(
                 'timer',
                 () => {
@@ -309,17 +301,20 @@ class Main extends PureComponent {
             }
           });
         }
-      })
-      .catch(err => {
+      },
+      handleError: err => {
         this.handleError(err);
-        this.handleTimers(
-          'timer',
-          () => {
-            this.getStatus(true);
-          },
-          10000
-        );
-      });
+        if (!componentTimer) {
+          this.handleTimers(
+            'timer',
+            () => {
+              this.getStatus(true);
+            },
+            10000
+          );
+        }
+      },
+    });
   };
 
   getChildCom = () => {
@@ -331,6 +326,14 @@ class Main extends PureComponent {
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
+      return null;
+    }
+    if (
+      err &&
+      err.status == 404 &&
+      window.location.href.indexOf('components') === -1
+    ) {
+      this.closeComponentTimer();
       return null;
     }
     if (err && err.data && err.data.msg_show) {
