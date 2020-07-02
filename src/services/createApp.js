@@ -1,11 +1,10 @@
-import { stringify } from 'qs';
 import request from '../utils/request';
 import apiconfig from '../../config/api.config';
 
 /*
    源码创建应用
 */
-export async function createAppByCode(body = { team_name }) {
+export async function createAppByCode(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -29,7 +28,7 @@ export async function createAppByCode(body = { team_name }) {
 /*
    源码第三方创建应用
 */
-export async function createThirtAppByCodes(body = { team_name }) {
+export async function createThirtAppByCodes(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -54,9 +53,7 @@ export async function createThirtAppByCodes(body = { team_name }) {
 /*
    源码创建应用
 */
-export async function createThirdPartyServices(
-  body = { team_name, group_id, service_cname, endpoints_type, endpoints }
-) {
+export async function createThirdPartyServices(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`,
     {
@@ -74,9 +71,7 @@ export async function createThirdPartyServices(
 /*
    compose创建应用
 */
-export async function createAppByCompose(
-  body = { team_name, group_name, yaml_content, user_name, password }
-) {
+export async function createAppByCompose(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`,
     {
@@ -95,17 +90,7 @@ export async function createAppByCompose(
 /*
    指定镜像或docuer run 创建应用
 */
-export async function createAppByDockerrun(
-  body = {
-    team_name,
-    group_id,
-    docker_cmd,
-    service_cname,
-    image_type,
-    user_name,
-    password,
-  }
-) {
+export async function createAppByDockerrun(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_run`,
     {
@@ -125,7 +110,7 @@ export async function createAppByDockerrun(
 /*
    获取应用检测的事件Id
 */
-export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
+export function getCreateCheckId(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
@@ -138,9 +123,7 @@ export function getCreateCheckId(body = { team_name, app_alias }, handleError) {
 /*
 	获取应用检测结果
 */
-export function getCreateCheckResult(
-  body = { team_name, app_alias, check_uuid }
-) {
+export function getCreateCheckResult(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
@@ -155,9 +138,7 @@ export function getCreateCheckResult(
 /*
   获取compose应用创建检测结果
 */
-export function getCreateComposeCheckInfo(
-  body = { team_name, group_id, group_id }
-) {
+export function getCreateComposeCheckInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
@@ -172,14 +153,7 @@ export function getCreateComposeCheckInfo(
 /*
   获取compose应用创建检测结果
 */
-export function getCreateComposeCheckResult(
-  body = {
-    team_name,
-    group_id,
-    check_uuid,
-    group_id,
-  }
-) {
+export function getCreateComposeCheckResult(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
@@ -195,7 +169,7 @@ export function getCreateComposeCheckResult(
 /*
    构建应用
 */
-export function buildApp(body = { team_name, app_alias, is_deploy }) {
+export function buildApp(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
@@ -210,14 +184,7 @@ export function buildApp(body = { team_name, app_alias, is_deploy }) {
 /*
   获取分支
 */
-export function getCodeBranchs(
-  body = {
-    team_name,
-    git_url,
-    service_project_id,
-    type,
-  }
-) {
+export function getCodeBranchs(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/branchs`,
     {
@@ -234,7 +201,7 @@ export function getCodeBranchs(
 /*
     获取创建应用的check_uuid
 */
-export function getCheckuuid(body = { team_name, app_alias }) {
+export function getCheckuuid(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/get_check_uuid`,
     {
@@ -246,9 +213,7 @@ export function getCheckuuid(body = { team_name, app_alias }) {
 /*
     获取compose创建应用的check_uuid
 */
-export function getComposeCheckuuid(
-  body = { team_name, group_id, compose_id }
-) {
+export function getComposeCheckuuid(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/get_check_uuid`,
     {
@@ -274,28 +239,19 @@ export function getMarketApp(body = {}) {
   从云市安装应用
 */
 export async function installApp(body = {}) {
-  const {
-    team_name,
-    group_id,
-    app_id,
-    group_key,
-    app_version,
-    is_deploy,
-    install_from_cloud,
-    marketName,
-  } = body;
   return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/market_create`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`,
     {
       method: 'post',
       data: {
-        group_id,
-        app_id,
-        group_key,
-        app_version,
-        is_deploy,
-        install_from_cloud: install_from_cloud || false,
-        market_name: marketName,
+        group_id: body.group_id,
+        app_id: body.app_id,
+        group_key: body.group_key,
+        app_version: body.app_version,
+        is_deploy: body.is_deploy,
+        install_from_cloud: body.install_from_cloud
+          ? body.install_from_cloud
+          : false,
       },
     }
   );
@@ -304,7 +260,7 @@ export async function installApp(body = {}) {
 /*
    根据compose_id获取应用
 */
-export async function getAppsByComposeId(body = { team_name, compose_id }) {
+export async function getAppsByComposeId(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/services`,
     {
@@ -316,7 +272,7 @@ export async function getAppsByComposeId(body = { team_name, compose_id }) {
 /*
    根据compose_id获取compose内容
 */
-export async function getComposeByComposeId(body = { team_name, compose_id }) {
+export async function getComposeByComposeId(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
     {
