@@ -292,7 +292,7 @@ class Main extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({ status: res.bean }, () => {
-            if (isCycle && !componentTimer) {
+            if (isCycle && componentTimer) {
               this.handleTimers(
                 "timer",
                 () => {
@@ -306,7 +306,7 @@ class Main extends PureComponent {
       },
       handleError: err => {
         this.handleError(err);
-        if (!componentTimer) {
+        if (componentTimer) {
           this.handleTimers(
             'timer',
             () => {
