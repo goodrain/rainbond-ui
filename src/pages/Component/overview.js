@@ -580,11 +580,8 @@ export default class Index extends PureComponent {
     this.getVersionList();
   };
   onLogPush = isopen => {
-    this.setState({
-      isopenLog: isopen
-    });
+    this.fetchOperationLog(false, isopen);
   };
-  onPageChange = page => {};
 
   handleDel = item => {
     this.props.dispatch({
