@@ -150,6 +150,7 @@ class Index extends React.Component {
       createAppByCodeLoading,
       ServiceComponent,
       thirdInfo,
+      groupId,
     } = this.props;
     const showCreateGroup =
       this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
@@ -176,7 +177,9 @@ class Index extends React.Component {
               }
             >
               {getFieldDecorator('group_id', {
-                initialValue: groups && groups.length > 0 && groups[0].group_id,
+                initialValue:
+                  +groupId ||
+                  (groups && groups.length > 0 && groups[0].group_id),
                 rules: [{ required: true, message: '请选择' }],
               })(
                 <Select
