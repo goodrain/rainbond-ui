@@ -1,3 +1,6 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-multi-comp */
@@ -13,58 +16,57 @@ import {
   notification,
   Radio,
   Select,
-  Tooltip
-} from "antd";
-import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
-import PropTypes from "prop-types";
-import React, { Fragment, PureComponent } from "react";
-import ConfirmModal from "../../components/ConfirmModal";
-import styless from "../../components/CreateTeam/index.less";
-import ManageAppGuide from "../../components/ManageAppGuide";
-import MarketAppDetailShow from "../../components/MarketAppDetailShow";
-import VisitBtn from "../../components/VisitBtn";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+  Tooltip,
+} from 'antd';
+import { connect } from 'dva';
+import { Link, routerRedux } from 'dva/router';
+import PropTypes from 'prop-types';
+import React, { Fragment, PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
+import styless from '../../components/CreateTeam/index.less';
+import ManageAppGuide from '../../components/ManageAppGuide';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import VisitBtn from '../../components/VisitBtn';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   deploy,
-  getStatus,
   restart,
   rollback,
   start,
   stop,
-  updateRolling
-} from "../../services/app";
-import appUtil from "../../utils/app";
-import AppPubSubSocket from "../../utils/appPubSubSocket";
-import appStatusUtil from "../../utils/appStatus-util";
+  updateRolling,
+} from '../../services/app';
+import appUtil from '../../utils/app';
+import AppPubSubSocket from '../../utils/appPubSubSocket';
+import appStatusUtil from '../../utils/appStatus-util';
 import {
   createApp,
   createComponent,
   createEnterprise,
-  createTeam
-} from "../../utils/breadcrumb";
-import dateUtil from "../../utils/date-util";
-import globalUtil from "../../utils/global";
-import httpResponseUtil from "../../utils/httpResponse";
-import regionUtil from "../../utils/region";
-import roleUtil from "../../utils/role";
-import teamUtil from "../../utils/team";
-import userUtil from "../../utils/user";
-import ConnectionInformation from "./connectionInformation";
-import EnvironmentConfiguration from "./environmentConfiguration";
-import Expansion from "./expansion";
-import styles from "./Index.less";
-import Log from "./log";
-import Members from "./members";
-import Mnt from "./mnt";
-import Monitor from "./monitor";
-import Overview from "./overview";
-import Plugin from "./plugin";
-import Port from "./port";
-import Relation from "./relation";
-import Resource from "./resource";
-import Setting from "./setting";
-import ThirdPartyServices from "./ThirdPartyServices";
+  createTeam,
+} from '../../utils/breadcrumb';
+import dateUtil from '../../utils/date-util';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
+import regionUtil from '../../utils/region';
+import roleUtil from '../../utils/role';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
+import ConnectionInformation from './connectionInformation';
+import EnvironmentConfiguration from './environmentConfiguration';
+import Expansion from './expansion';
+import styles from './Index.less';
+import Log from './log';
+import Members from './members';
+import Mnt from './mnt';
+import Monitor from './monitor';
+import Overview from './overview';
+import Plugin from './plugin';
+import Port from './port';
+import Relation from './relation';
+import Resource from './resource';
+import Setting from './setting';
+import ThirdPartyServices from './ThirdPartyServices';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -222,13 +224,10 @@ class Main extends PureComponent {
     super(arg);
     this.state = {
       actionIng: false,
-      appDetail: {},
       status: {},
       showDeleteApp: false,
       showEditName: false,
       showMoveGroup: false,
-      showDeployTips: false,
-      showreStartTips: false,
       visibleBuild: null,
       BuildText: "",
       BuildList: [],
@@ -256,14 +255,12 @@ class Main extends PureComponent {
   }
   componentDidMount() {
     this.loadDetail();
-    setTimeout(() => {
-      this.getStatus(true);
-    }, 5000);
+    this.getStatus(true);
   }
   componentWillUnmount() {
-    this.closeTimer();
-    this.props.dispatch({ type: "appControl/clearPods" });
-    this.props.dispatch({ type: "appControl/clearDetail" });
+    this.closeComponentTimer();
+    this.props.dispatch({ type: 'appControl/clearPods' });
+    this.props.dispatch({ type: 'appControl/clearDetail' });
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
@@ -293,14 +290,17 @@ class Main extends PureComponent {
     }
   }
   getStatus = isCycle => {
-    getStatus({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: this.getAppAlias()
-    })
-      .then(res => {
+    const { componentTimer } = this.state;
+    this.props.dispatch({
+      type: 'appControl/fetchComponentState',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.getAppAlias(),
+      },
+      callback: res => {
         if (res && res._code === 200) {
           this.setState({ status: res.bean }, () => {
-            if (isCycle) {
+            if (isCycle && !componentTimer) {
               this.handleTimers(
                 "timer",
                 () => {
@@ -311,17 +311,20 @@ class Main extends PureComponent {
             }
           });
         }
-      })
-      .catch(err => {
+      },
+      handleError: err => {
         this.handleError(err);
-        this.handleTimers(
-          "timer",
-          () => {
-            this.getStatus(true);
-          },
-          10000
-        );
-      });
+        if (!componentTimer) {
+          this.handleTimers(
+            'timer',
+            () => {
+              this.getStatus(true);
+            },
+            10000
+          );
+        }
+      },
+    });
   };
 
   getChildCom = () => {
@@ -333,6 +336,14 @@ class Main extends PureComponent {
   handleError = err => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
+      return null;
+    }
+    if (
+      err &&
+      err.status == 404 &&
+      window.location.href.indexOf('components') === -1
+    ) {
+      this.closeComponentTimer();
       return null;
     }
     if (err && err.data && err.data.msg_show) {
@@ -371,7 +382,7 @@ class Main extends PureComponent {
     if (
       appDetail &&
       appDetail.service &&
-      appDetail.service.service_source == "market"
+      appDetail.service.service_source === 'market'
     ) {
       const serviceAlias = appDetail.service.service_alias;
       this.props.dispatch({
@@ -411,7 +422,7 @@ class Main extends PureComponent {
         ) {
           if (
             appDetail.service &&
-            appDetail.service.create_status == "complete"
+            appDetail.service.create_status === 'complete'
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
@@ -444,7 +455,6 @@ class Main extends PureComponent {
           return null;
         }
         if (code) {
-          // 应用不存在
           if (code === 404) {
             this.props.dispatch(
               routerRedux.push(
@@ -701,7 +711,7 @@ class Main extends PureComponent {
   };
   handleMoveGroup = data => {
     const team_name = globalUtil.getCurrTeamName();
-    const appDetail = this.props.appDetail;
+    const { appDetail } = this.props;
     const serviceAlias = appDetail.service.service_alias;
     this.props.dispatch({
       type: "appControl/moveGroup",

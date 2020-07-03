@@ -174,9 +174,9 @@ export default class Index extends PureComponent {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
                 x: moment(new Date(visitDatas[i][0] * 1000))
-                  .locale("zh-cn")
-                  .format("YYYY-MM-DD hh:mm"),
-                y: Math.floor(visitDatas[i][1])
+                  .locale('zh-cn')
+                  .format('YYYY-MM-DD HH:mm'),
+                y: Math.floor(visitDatas[i][1]),
               });
             }
           }

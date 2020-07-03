@@ -256,10 +256,9 @@ export default class EnterpriseUsers extends PureComponent {
         render: val => {
           return (
             <span>
-              {' '}
               {moment(val)
                 .locale('zh-cn')
-                .format('YYYY-MM-DD hh:mm:ss')}
+                .format('YYYY-MM-DD HH:mm:ss')}
             </span>
           );
         },
