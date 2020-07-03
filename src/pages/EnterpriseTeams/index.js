@@ -736,7 +736,7 @@ export default class EnterpriseTeams extends PureComponent {
             onOk={this.handleDelTeam}
             title="删除团队"
             subDesc="此操作不可恢复"
-            desc="确定要删除此团队吗？"
+            desc="确定要删除此团队和团队下的所有资源吗？"
             onCancel={this.hideDelTeam}
           />
         )}
