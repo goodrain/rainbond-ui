@@ -267,7 +267,7 @@ export async function deleteTeam(
   }
 ) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/delete`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/delete?force=true`,
     {
       method: 'delete',
     }
