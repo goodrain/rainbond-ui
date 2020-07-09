@@ -62,6 +62,7 @@ class SecurityLayout extends React.PureComponent {
       return <PageLoading />;
     }
     if (isReady && !isLogin && window.location.pathname !== '/user/login') {
+      globalUtil.removeCookie();
       return <Redirect to={`/user/login?${queryString}`} />;
     }
 

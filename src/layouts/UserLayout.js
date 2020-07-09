@@ -28,6 +28,7 @@ class UserLayout extends React.PureComponent {
             info.enterprise_center_oauth && info.enterprise_center_oauth.value;
           if (isOauth && oauthInfo) {
             if (oauthInfo.is_auto_login) {
+              globalUtil.removeCookie();
               window.location.href = oauthUtil.getAuthredictURL(oauthInfo);
             }
             this.isRender(!oauthInfo.is_auto_login);
