@@ -880,8 +880,8 @@ export default {
         callback && callback(response);
       }
     },
-    *getVariableList({ payload, callback }, { call, put }) {
-      const response = yield call(getVariableList, payload);
+    *getVariableList({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getVariableList, payload, handleError);
       if (response) {
         callback && callback(response);
       }

@@ -56,14 +56,27 @@ class EditableCell extends React.Component {
           return;
         }
         this.setState({ list: arr });
-        attr_name &&
+        if (attr_name) {
           form.setFieldsValue({
             attr_name,
           });
-        attr_value &&
+        }
+        if (attr_value) {
           form.setFieldsValue({
             attr_value,
           });
+        }
+      },
+      handleError: err => {
+        if (err && err.data && err.data.code == 10401) {
+          return null;
+        }
+        if (err && err.data && err.data.msg_show) {
+          notification.warning({
+            message: `请求错误`,
+            description: err.data.msg_show,
+          });
+        }
       },
     });
   };
@@ -87,7 +100,7 @@ class EditableCell extends React.Component {
     let rulesList = [];
 
     if (dataIndex === 'attr_name') {
-      placeholders = '请输入变量名称 格式/^[A-Za-z].*$/';
+      placeholders = '请输入变量名称';
 
       rulesList = [
         {
@@ -96,7 +109,7 @@ class EditableCell extends React.Component {
         },
         {
           pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
-          message: '格式不正确， /^[A-Za-z].*$/',
+          message: '请输入合法的变量名、不支持中文',
         },
       ];
     } else if (dataIndex === 'attr_value') {
@@ -170,6 +183,7 @@ class EditableCell extends React.Component {
   }
 }
 
+// eslint-disable-next-line react/no-multi-comp
 @connect(({ appControl }) => ({
   innerEnvs: appControl.innerEnvs,
 }))
@@ -178,11 +192,11 @@ class EnvironmentVariable extends React.Component {
     super(arg);
     this.state = {
       isAttrNameList: [],
-      loading:true,
+      loading: true,
       env_name: '',
       page: 1,
       page_size: 5,
-      total:0,
+      total: 0,
       editingID: '',
       innerEnvsList: [],
       addVariable: false,
@@ -429,7 +443,7 @@ class EnvironmentVariable extends React.Component {
             innerEnvsList: res.list,
             isAttrNameList: arr,
             total: res.bean.total,
-            loading:false,
+            loading: false,
           });
         }
       },
