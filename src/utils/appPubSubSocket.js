@@ -43,6 +43,7 @@ AppPubSubSocket.prototype = {
       interval: 20,
       autoStart: false,
       batchout: true,
+      maxCache: 5000,
       onExecute: message => {
         if (message === undefined) {
           return;
@@ -54,7 +55,7 @@ AppPubSubSocket.prototype = {
       interval: 5,
       autoStart: false,
       onExecute: message => {
-        if (message == undefined) {
+        if (message === undefined) {
           return;
         }
         this.onMonitorMessage(message);
@@ -119,16 +120,54 @@ AppPubSubSocket.prototype = {
     }
   },
   setOnLogMessage(callbackAll, onLogMessage) {
+    if (this.serviceId) {
+      const message = {
+        event: 'pusher:subscribe',
+        data: {
+          channel: `l-${this.serviceId}`,
+        },
+      };
+      this.webSocket.send(JSON.stringify(message));
+    }
     callbackAll(this.serviceLogQueue.brushout());
     this.onLogMessage = onLogMessage;
     this.serviceLogQueue.start();
   },
   setOnMonitorMessage(onMonitorMessage) {
+    if (this.serviceId) {
+      const message = {
+        event: 'pusher:subscribe',
+        data: {
+          channel: `m-${this.serviceId}`,
+        },
+      };
+      this.webSocket.send(JSON.stringify(message));
+    }
     this.onMonitorMessage = onMonitorMessage;
     this.monitorLogQueue.start();
   },
   closeLogMessage() {
+    if (this.serviceId) {
+      const message = {
+        event: 'cancel:subscribe',
+        data: {
+          channel: `docker-${this.serviceId}`,
+        },
+      };
+      this.webSocket.send(JSON.stringify(message));
+    }
     this.serviceLogQueue.stop();
+  },
+  closeMonitorMessage() {
+    if (this.serviceId) {
+      const message = {
+        event: 'cancel:subscribe',
+        data: {
+          channel: `newmonitor-${this.serviceId}`,
+        },
+      };
+      this.webSocket.send(JSON.stringify(message));
+    }
   },
   close() {
     if (this.webSocket) {
@@ -137,16 +176,6 @@ AppPubSubSocket.prototype = {
   },
 
   _onOpen() {
-    // 通知服务器
-    if (this.serviceId) {
-      const message = {
-        event: 'pusher:subscribe',
-        data: {
-          channel: `s-${this.serviceId}`,
-        },
-      };
-      this.webSocket.send(JSON.stringify(message));
-    }
     this.onOpen(this.webSocket);
     this.opened = true;
     if (this.waitingSendMessage.length > 0) {

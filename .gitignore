@@ -24,3 +24,4 @@ yarn-error.log
 jsconfig.json
 .vscode/settings.json
 /build/dist
+.scannerwork

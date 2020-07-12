@@ -1,23 +1,23 @@
-import React, { PureComponent, Fragment } from 'react';
+import { Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Row, Col, Card, Button, Table, Icon, Tooltip } from 'antd';
 import numeral from 'numeral';
+import React, { Fragment, PureComponent } from 'react';
 import {
   ChartCard,
+  Field,
   MiniArea,
   MiniBar,
-  Field,
-  TimelineChart,
+  TimelineChart
 } from '../../components/Charts';
-import ScrollerX from '../../components/ScrollerX';
 import NoPermTip from '../../components/NoPermTip';
-import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
-import teamUtil from '../../utils/team';
-import regionUtil from '../../utils/region';
+import ScrollerX from '../../components/ScrollerX';
 import appUtil from '../../utils/app';
+import globalUtil from '../../utils/global';
 import monitorDataUtil from '../../utils/monitorDataUtil';
+import regionUtil from '../../utils/region';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
 import styles from './Index.less';
 
 const ButtonGroup = Button.Group;
@@ -51,15 +51,15 @@ class MonitorHistory extends PureComponent {
   state = {
     houer: 1,
   };
-  componentWillUnmount() {
-    this.mounted = false;
-  }
   componentDidMount() {
     this.mounted = true;
     this.inerval = 10000;
     this.fetchRequestTimeRange();
     this.fetchRequestRange();
     this.fetchOnlineNumberRange();
+  }
+  componentWillUnmount() {
+    this.mounted = false;
   }
   getStartTime() {
     return new Date().getTime() / 1000 - 60 * 60 * this.state.houer;
@@ -250,6 +250,10 @@ class MonitorNow extends PureComponent {
     this.props.dispatch({ type: 'appControl/clearRequest' });
     this.props.dispatch({ type: 'appControl/clearRequestRange' });
     this.props.dispatch({ type: 'appControl/clearOnlineNumber' });
+    const { socket } = this.props;
+    if (socket) {
+      socket.closeMonitorMessage()
+    }
   }
   // eslint-disable-next-line class-methods-use-this
   getStartTime() {
@@ -529,9 +533,14 @@ class MonitorNow extends PureComponent {
 }
 
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
-  withRef: true,
-})
+@connect(
+  ({ user }) => ({ currUser: user.currentUser }),
+  null,
+  null,
+  {
+    withRef: true,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
