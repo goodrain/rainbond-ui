@@ -16,9 +16,9 @@ Queue.prototype = {
     return this.datas.shift();
   },
   shiftAll() {
-    let datas = this.datas
-    this.datas = []
-    return datas
+    const { datas } = this;
+    this.datas = [];
+    return datas;
   },
   getCount() {
     return this.datas.length;

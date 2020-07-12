@@ -26,3 +26,4 @@ package-lock.json
 jsconfig.json
 .vscode/settings.json
 /build/dist
+.scannerwork
