@@ -1,27 +1,61 @@
-import React, { PureComponent, Fragment } from "react";
-import globalUtil from "../../utils/global";
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
+import {
+  Avatar,
+
+
+
+
+
+
+
+
+
+
+  Button, Card, Col,
+
+
+
+
+  Form, Icon,
+
+
+
+  Input, List,
+
+
+
+
+
+
+
+
+  Modal, Pagination,
+
+
+
+
+  Row, Skeleton,
+
+
+
+
+
+
+
+
+
+  Spin,
+  Tooltip
+} from 'antd';
 import { connect } from "dva";
+import React from "react";
 import App from "../../../public/images/app.svg";
+import globalUtil from "../../utils/global";
 import ThirForm from "./form.js";
 import styles from "./Index.less";
 
-import {
-  List,
-  Avatar,
-  Icon,
-  Skeleton,
-  Row,
-  Col,
-  Input,
-  Card,
-  Typography,
-  Modal,
-  Form,
-  Select,
-  Button,
-  Spin,
-  Tooltip
-} from "antd";
+
 
 @connect()
 @Form.create()
@@ -33,7 +67,6 @@ class Index extends React.Component {
       detection: false,
       lists: [],
       page: 1,
-      page_size: 10,
       total: 0,
       loading: true,
       thirdInfo: false,
@@ -44,8 +77,6 @@ class Index extends React.Component {
       create_status: "",
       service_info: "",
       error_infos: "",
-      lastPage: true,
-      firstPage: true
     };
   }
   componentDidMount() {
@@ -57,20 +88,15 @@ class Index extends React.Component {
       this.handleCodeWarehouseInfo(nextProps);
     }
   }
-  onPagePre = () => {
-    const { page } = this.state;
-    if (page > 1) {
-      let pages = page - 1;
-      const firstPage = page == 1;
-      this.setState({ firstPage, page: pages, loading: true }, () => {
-        this.handleCodeWarehouseInfo(this.props);
-      });
-    }
+  onChangePage = (page) => {
+    this.setState({ page, loading: true }, () => {
+      this.handleCodeWarehouseInfo(this.props);
+    });
   };
   onPageNext = () => {
     const { lastPage, page } = this.state;
     if (!lastPage) {
-      let pages = page + 1;
+      const pages = page + 1;
       this.setState({ page: pages, loading: true }, () => {
         this.handleCodeWarehouseInfo(this.props);
       });
@@ -89,7 +115,7 @@ class Index extends React.Component {
       }
     );
   };
-  //获取代码仓库信息
+  // 获取代码仓库信息
   handleCodeWarehouseInfo = props => {
     const { page, search } = this.state;
     const { dispatch, type } = props;
@@ -107,13 +133,9 @@ class Index extends React.Component {
           },
           callback: res => {
             if (res && res.bean) {
-              const firstPage = page == 1;
-              const lastPage = res.bean.repositories.length < 10;
               this.setState({
-                firstPage,
-                lastPage,
                 loading: false,
-                total: res.bean.total,
+                total: Number(res.bean.total),
                 lists: res.bean.repositories
               });
             }
@@ -123,7 +145,7 @@ class Index extends React.Component {
     );
   };
 
-  //代码检测
+  // 代码检测
   handleTestCode = () => {
     const { thirdInfo } = this.state;
     const { dispatch } = this.props;
@@ -238,11 +260,11 @@ class Index extends React.Component {
       loading,
       thirdInfo,
       create_loading,
-      firstPage,
-      lastPage
+      total,
+      page
     } = this.state;
     const { handleType } = this.props;
-    let ServiceComponent = handleType && handleType === "Service";
+    const ServiceComponent = handleType && handleType === "Service";
     return (
       <div
         style={{
@@ -257,35 +279,35 @@ class Index extends React.Component {
             footer={
               !this.state.create_status
                 ? [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      loading={create_loading}
-                      onClick={this.handleTestCode}
-                    >
-                      检测
-                    </Button>
+                  <Button key="back" onClick={this.handleDetection}>
+                    关闭
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={create_loading}
+                    onClick={this.handleTestCode}
+                  >
+                    检测
+                  </Button>
                   ]
                 : this.state.create_status == "Success"
                 ? [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>,
-                    <Button
-                      key="submit"
-                      type="primary"
-                      onClick={this.handleDetection}
-                    >
-                      确认
-                    </Button>
+                  <Button key="back" onClick={this.handleDetection}>
+                    关闭
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    onClick={this.handleDetection}
+                  >
+                    确认
+                  </Button>
                   ]
                 : [
-                    <Button key="back" onClick={this.handleDetection}>
-                      关闭
-                    </Button>
+                  <Button key="back" onClick={this.handleDetection}>
+                    关闭
+                  </Button>
                   ]
             }
           >
@@ -410,26 +432,8 @@ class Index extends React.Component {
               />
             }
             footer={
-              <div
-                style={{
-                  textAlign: "right",
-                  marginBottom: ServiceComponent ? "40px" : "0"
-                }}
-              >
-                {!firstPage && (
-                  <Button
-                    style={{ marginRight: "5px" }}
-                    onClick={this.onPagePre}
-                    loading={loading}
-                  >
-                    上一页
-                  </Button>
-                )}
-                {!lastPage && (
-                  <Button loading={loading} onClick={this.onPageNext}>
-                    下一页
-                  </Button>
-                )}
+              <div style={{display: 'flex', marginBottom: '32px'}}>
+                <Pagination style={{marginLeft: 'auto'}} showTotal={t => `共计 ${t} 个仓库`} onChange={this.onChangePage} current={page} total={total} />
               </div>
             }
             dataSource={lists}
