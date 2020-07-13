@@ -852,12 +852,14 @@ export default class CreateCheck extends React.Component {
       ];
     }
 
-    const { ButtonGroupState = false, handleServiceBotton } = this.props;
+    const { ButtonGroupState = false, handleServiceBotton, ErrState } = this.props;
 
-    if (isDeploy && ServiceGetData && !ButtonGroupState) {
-      handleServiceBotton(actions, true);
-    } else if (ServiceGetData && ButtonGroupState) {
-      this.props.handleServiceBotton(actions, false);
+    if (isDeploy) {
+      if (ServiceGetData && (!ButtonGroupState || !ErrState)) {
+        handleServiceBotton(actions, true, true);
+      }
+    } else if (ServiceGetData && (ButtonGroupState || ErrState)) {
+      handleServiceBotton(actions, false, false);
     }
 
     return (
