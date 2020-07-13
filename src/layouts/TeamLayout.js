@@ -3,7 +3,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification, Tooltip } from "antd";
+import { Icon, Layout, notification } from "antd";
 import classNames from "classnames";
 import { connect } from "dva";
 import { Redirect, routerRedux } from "dva/router";
@@ -13,7 +13,6 @@ import PropTypes from "prop-types";
 import { Fragment, PureComponent } from "react";
 import { ContainerQuery } from "react-container-query";
 import DocumentTitle from "react-document-title";
-import logo from "../../public/logo.png";
 import { getAppMenuData } from "../common/appMenu";
 import { getMenuData } from "../common/teamMenu";
 import AuthCompany from "../components/AuthCompany";
@@ -272,6 +271,17 @@ class TeamLayout extends PureComponent {
         },
         callback: appDetail => {
           this.setState({ currentComponent: appDetail.service });
+        },
+        handleError: data => {
+          if (data.status) {
+            if (data.status === 404) {
+              this.props.dispatch(
+                routerRedux.push(
+                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
+                )
+              );
+            }
+          }
         }
       });
     }

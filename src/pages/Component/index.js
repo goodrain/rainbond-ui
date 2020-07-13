@@ -1,9 +1,9 @@
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-multi-comp */
-import React, { Fragment, PureComponent } from "react";
-import { connect } from "dva";
-import { routerRedux, Link } from "dva/router";
 import {
   Alert,
   Badge,
@@ -18,8 +18,12 @@ import {
   Select,
   Tooltip
 } from "antd";
+import { connect } from "dva";
+import { Link, routerRedux } from "dva/router";
 import PropTypes from "prop-types";
+import React, { Fragment, PureComponent } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
+import styless from "../../components/CreateTeam/index.less";
 import ManageAppGuide from "../../components/ManageAppGuide";
 import MarketAppDetailShow from "../../components/MarketAppDetailShow";
 import VisitBtn from "../../components/VisitBtn";
@@ -32,20 +36,6 @@ import {
   stop,
   updateRolling
 } from "../../services/app";
-import ConnectionInformation from "./connectionInformation";
-import EnvironmentConfiguration from "./environmentConfiguration";
-import Expansion from "./expansion";
-import Log from "./log";
-import Members from "./members";
-import Mnt from "./mnt";
-import Monitor from "./monitor";
-import Overview from "./overview";
-import Plugin from "./plugin";
-import Port from "./port";
-import Relation from "./relation";
-import Resource from "./resource";
-import Setting from "./setting";
-import ThirdPartyServices from "./ThirdPartyServices";
 import appUtil from "../../utils/app";
 import AppPubSubSocket from "../../utils/appPubSubSocket";
 import appStatusUtil from "../../utils/appStatus-util";
@@ -57,13 +47,25 @@ import {
 } from "../../utils/breadcrumb";
 import dateUtil from "../../utils/date-util";
 import globalUtil from "../../utils/global";
-import httpResponseUtil from "../../utils/httpResponse";
 import regionUtil from "../../utils/region";
+import roleUtil from "../../utils/role";
 import teamUtil from "../../utils/team";
 import userUtil from "../../utils/user";
-import roleUtil from "../../utils/role";
+import ConnectionInformation from "./connectionInformation";
+import EnvironmentConfiguration from "./environmentConfiguration";
+import Expansion from "./expansion";
 import styles from "./Index.less";
-import styless from "../../components/CreateTeam/index.less";
+import Log from "./log";
+import Members from "./members";
+import Mnt from "./mnt";
+import Monitor from "./monitor";
+import Overview from "./overview";
+import Plugin from "./plugin";
+import Port from "./port";
+import Relation from "./relation";
+import Resource from "./resource";
+import Setting from "./setting";
+import ThirdPartyServices from "./ThirdPartyServices";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -211,13 +213,10 @@ class Main extends PureComponent {
     super(arg);
     this.state = {
       actionIng: false,
-      appDetail: {},
       status: {},
       showDeleteApp: false,
       showEditName: false,
       showMoveGroup: false,
-      showDeployTips: false,
-      showreStartTips: false,
       visibleBuild: null,
       BuildText: "",
       BuildList: [],
@@ -327,15 +326,17 @@ class Main extends PureComponent {
   };
   handleError = err => {
     const { componentTimer } = this.state;
+    const { appDetail, dispatch } = this.props;
     if (!componentTimer) {
       return null;
     }
-    if (
-      err &&
-      err.status == 404 &&
-      window.location.href.indexOf('components') === -1
-    ) {
+    if (err && err.status === 404) {
       this.closeComponentTimer();
+      dispatch(
+        routerRedux.push(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appDetail.service.group_id}`
+        )
+      );
       return null;
     }
     if (err && err.data && err.data.msg_show) {
@@ -344,6 +345,7 @@ class Main extends PureComponent {
         description: err.data.msg_show
       });
     }
+    return null;
   };
   handleTimers = (timerName, callback, times) => {
     const { componentTimer } = this.state;
@@ -374,7 +376,7 @@ class Main extends PureComponent {
     if (
       appDetail &&
       appDetail.service &&
-      appDetail.service.service_source == "market"
+      appDetail.service.service_source === "market"
     ) {
       const serviceAlias = appDetail.service.service_alias;
       this.props.dispatch({
@@ -414,7 +416,7 @@ class Main extends PureComponent {
         ) {
           if (
             appDetail.service &&
-            appDetail.service.create_status == "complete"
+            appDetail.service.create_status === "complete"
           ) {
             this.getStatus(false);
           } else if (!appUtil.isCreateFromCompose(appDetail)) {
@@ -441,21 +443,18 @@ class Main extends PureComponent {
         this.getWebSocketUrl(appDetail.service.service_id);
       },
       handleError: data => {
-        const code = httpResponseUtil.getCode(data);
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
         }
-        if (code) {
-          // 应用不存在
-          if (code === 404) {
-            this.props.dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-              )
-            );
-          }
+        if (data.status === 404) {
+          this.props.dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
+            )
+          );
         }
+        return null
       }
     });
   };

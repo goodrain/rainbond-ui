@@ -135,7 +135,7 @@ class Index extends React.Component {
             if (res && res.bean) {
               this.setState({
                 loading: false,
-                total: Number(res.bean.total),
+                total: Number(res.bean.total) || 0,
                 lists: res.bean.repositories
               });
             }

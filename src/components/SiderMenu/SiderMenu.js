@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { Icon, Input, Layout } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -286,12 +287,12 @@ export default class SiderMenu extends PureComponent {
         className={styles.sider}
       >
         <div className={styles.siderLeft}>
-          <CollectionView
+          {collectionVisible && <CollectionView
             title={formatMessage({ id: 'sidecar.collection.add' })}
             visible={collectionVisible}
             onOk={this.handleCollectionView}
             onCancel={this.handleCloseCollectionVisible}
-          />
+          />}
 
           {delcollectionVisible && (
             <ConfirmModal
