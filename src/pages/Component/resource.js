@@ -295,7 +295,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
-            tags: res.bean[tabType],
+            tags: res.bean ? res.bean[tabType] : [],
             tagsLoading: false,
             OauthLoading: false,
           });

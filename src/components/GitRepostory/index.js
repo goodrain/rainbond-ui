@@ -92,36 +92,42 @@ export default class Index extends PureComponent {
   };
 
   handleSubmit = value => {
-    const { type: service_id } = this.props;
+    const {
+      type: service_id,
+      dispatch,
+      handleType,
+      handleServiceGetData,
+      handleServiceBotton,
+    } = this.props;
     const teamName = globalUtil.getCurrTeamName();
-    this.props.dispatch({
+    const payload = {
+      service_id,
+      code_version: value.code_version,
+      git_url: value.project_url,
+      group_id: value.group_id,
+      server_type: 'git',
+      service_cname: value.service_cname,
+      is_oauth: true, // 是否为oauth创建
+      git_project_id: value.project_id,
+      team_name: teamName,
+      open_webhook: value.open_webhook, // 是否开启webhook
+      full_name: value.project_full_name,
+    };
+    dispatch({
       type: 'createApp/createThirtAppByCode',
-      payload: {
-        service_id,
-        code_version: value.code_version,
-        git_url: value.project_url,
-        group_id: value.group_id,
-        server_type: 'git',
-        service_cname: value.service_cname,
-        is_oauth: true, // 是否为oauth创建
-        git_project_id: value.project_id,
-        team_name: teamName,
-        open_webhook: true, // 是否开启webhook
-        full_name: value.project_full_name,
-      },
+      payload,
       callback: data => {
         const appAlias = data && data.bean.service_alias;
-
-        this.props.handleType && this.props.handleType === 'Service'
-          ? this.props.handleServiceGetData(appAlias)
-          : this.props.dispatch(
-              routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
-              )
-            );
-        this.props.handleType &&
-          this.props.handleType === 'Service' &&
-          this.props.handleServiceBotton(null, null);
+        if (handleType && handleType === 'Service') {
+          handleServiceGetData(appAlias);
+          handleServiceBotton(null, null);
+        } else {
+          dispatch(
+            routerRedux.push(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${appAlias}`
+            )
+          );
+        }
       },
     });
   };
