@@ -2279,13 +2279,7 @@ export async function editMemberAction(
 /*
 	获取变量的信息
 */
-export async function getVariableList(
-  body = {
-    attr_name,
-    attr_value,
-    team_name,
-  }
-) {
+export async function getVariableList(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/services/envs`,
     {
@@ -2294,6 +2288,7 @@ export async function getVariableList(
         attr_name: body.attr_name ? body.attr_name : '',
         attr_value: body.attr_value ? body.attr_value : '',
       },
+      handleError,
     }
   );
 }
