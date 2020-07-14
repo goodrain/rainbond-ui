@@ -73,7 +73,12 @@ const RadioGroup = Radio.Group;
 
 /* 转移到其他应用组 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class MoveGroup extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -138,7 +143,12 @@ class MoveGroup extends PureComponent {
 
 /* 修改组件名称 */
 @Form.create()
-@connect(null, null, null, { withRef: true })
+@connect(
+  null,
+  null,
+  null,
+  { withRef: true }
+)
 class EditName extends PureComponent {
   onCancel = () => {
     this.props.onCancel();
@@ -230,6 +240,7 @@ class Main extends PureComponent {
       componentTimer: true
     };
     this.socket = null;
+    this.destroy = false;
   }
 
   getChildContext() {
@@ -250,20 +261,23 @@ class Main extends PureComponent {
   }
   componentWillUnmount() {
     this.closeComponentTimer();
-    this.props.dispatch({ type: 'appControl/clearPods' });
-    this.props.dispatch({ type: 'appControl/clearDetail' });
+    this.props.dispatch({ type: "appControl/clearPods" });
+    this.props.dispatch({ type: "appControl/clearDetail" });
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
     }
+    this.destroy = true;
   }
 
   onDeleteApp = () => {
     this.setState({ showDeleteApp: true });
   };
+
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
+
   getWebSocketUrl(service_id) {
     const currTeam = userUtil.getTeamByTeamName(
       this.props.currUser,
@@ -280,13 +294,14 @@ class Main extends PureComponent {
       }
     }
   }
+
   getStatus = isCycle => {
     const { componentTimer } = this.state;
     this.props.dispatch({
-      type: 'appControl/fetchComponentState',
+      type: "appControl/fetchComponentState",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
+        app_alias: this.getAppAlias()
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -305,16 +320,16 @@ class Main extends PureComponent {
       },
       handleError: err => {
         this.handleError(err);
-        if (componentTimer) {
+        if (isCycle && componentTimer && err.status !== 404) {
           this.handleTimers(
-            'timer',
+            "timer",
             () => {
               this.getStatus(true);
             },
             10000
           );
         }
-      },
+      }
     });
   };
 
@@ -332,11 +347,15 @@ class Main extends PureComponent {
     }
     if (err && err.status === 404) {
       this.closeComponentTimer();
-      dispatch(
-        routerRedux.push(
-          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appDetail.service.group_id}`
-        )
-      );
+      if (!this.destroy) {
+        dispatch(
+          routerRedux.push(
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+              appDetail.service.group_id
+            }`
+          )
+        );
+      }
       return null;
     }
     if (err && err.data && err.data.msg_show) {
@@ -366,6 +385,7 @@ class Main extends PureComponent {
       )
     );
   };
+
   closeTimer = () => {
     if (this.timer) {
       clearInterval(this.timer);
@@ -454,7 +474,7 @@ class Main extends PureComponent {
             )
           );
         }
-        return null
+        return null;
       }
     });
   };

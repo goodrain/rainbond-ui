@@ -2,60 +2,26 @@
 /* eslint-disable camelcase */
 import {
   Avatar,
-
-
-
-
-
-
-
-
-
-
-  Button, Card, Col,
-
-
-
-
-  Form, Icon,
-
-
-
-  Input, List,
-
-
-
-
-
-
-
-
-  Modal, Pagination,
-
-
-
-
-  Row, Skeleton,
-
-
-
-
-
-
-
-
-
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  Input,
+  List,
+  Modal,
+  Pagination,
+  Row,
+  Skeleton,
   Spin,
   Tooltip
-} from 'antd';
+} from "antd";
 import { connect } from "dva";
 import React from "react";
 import App from "../../../public/images/app.svg";
 import globalUtil from "../../utils/global";
 import ThirForm from "./form.js";
 import styles from "./Index.less";
-
-
 
 @connect()
 @Form.create()
@@ -76,7 +42,7 @@ class Index extends React.Component {
       create_loading: false,
       create_status: "",
       service_info: "",
-      error_infos: "",
+      error_infos: ""
     };
   }
   componentDidMount() {
@@ -85,22 +51,15 @@ class Index extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.type !== this.props.type) {
-      this.handleCodeWarehouseInfo(nextProps);
+      this.setState({ visible: false, search: "" }, () => {
+        this.handleCodeWarehouseInfo(nextProps);
+      });
     }
   }
-  onChangePage = (page) => {
+  onChangePage = page => {
     this.setState({ page, loading: true }, () => {
       this.handleCodeWarehouseInfo(this.props);
     });
-  };
-  onPageNext = () => {
-    const { lastPage, page } = this.state;
-    if (!lastPage) {
-      const pages = page + 1;
-      this.setState({ page: pages, loading: true }, () => {
-        this.handleCodeWarehouseInfo(this.props);
-      });
-    }
   };
   handleSearch = search => {
     const _th = this;
@@ -222,7 +181,9 @@ class Index extends React.Component {
     });
   };
   componentWillUnmount() {
-    this.timer && clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   }
   showModal = thirdInfo => {
     this.setState({
@@ -238,7 +199,9 @@ class Index extends React.Component {
   };
 
   handleDetection = () => {
-    this.timer && clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     this.setState({
       detection: false,
       create_status: "",
@@ -432,8 +395,14 @@ class Index extends React.Component {
               />
             }
             footer={
-              <div style={{display: 'flex', marginBottom: '32px'}}>
-                <Pagination style={{marginLeft: 'auto'}} showTotal={t => `共计 ${t} 个仓库`} onChange={this.onChangePage} current={page} total={total} />
+              <div style={{ display: "flex", marginBottom: "32px" }}>
+                <Pagination
+                  style={{ marginLeft: "auto" }}
+                  showTotal={t => `共计 ${t} 个仓库`}
+                  onChange={this.onChangePage}
+                  current={page}
+                  total={total}
+                />
               </div>
             }
             dataSource={lists}
