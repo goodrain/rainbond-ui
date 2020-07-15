@@ -1,20 +1,15 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-  Row,
-  Col,
   Button,
   Drawer,
   Form,
   Input,
   Radio,
-  Upload,
   message,
 } from 'antd';
 
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -48,7 +43,7 @@ class LicenseDrawer extends PureComponent {
       fileArr[length - 1] === 'key';
     if (!isRightType) {
       if (isMessage) {
-        message.error('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
+        message.warning('请上传以.pem, .crt, .cer, .key结尾的文件', 5);
       }
       return false;
     }

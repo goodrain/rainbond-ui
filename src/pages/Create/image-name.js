@@ -5,6 +5,7 @@ import { Card } from "antd";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
 import ImageNameForm from "../../components/ImageNameForm";
+import TopUpHints from '../../components/TopUpHints';
 
 @connect(({ user, global }) => ({ currUser: user.currentUser, groups: global.groups }))
 export default class Index extends PureComponent {
@@ -72,6 +73,7 @@ export default class Index extends PureComponent {
           const image = decodeURIComponent(this.props.handleType&&this.props.handleType==="Service"?"":(this.props.match.params.image || ""));
     return (
       <Card>
+        <TopUpHints />
         <div className={styles.formWrap} style={{width:this.props.handleType&&this.props.handleType==="Service"?"auto":"500px"}}>
           <ImageNameForm data={{ docker_cmd: image || "" }} onSubmit={this.handleSubmit} {...this.props}/>
         </div>

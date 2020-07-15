@@ -3,10 +3,10 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
+import React, { Fragment, PureComponent } from 'react';
 import { Button, notification } from 'antd';
 import { connect } from 'dva';
 import PropTypes from 'prop-types';
-import React, { Fragment, PureComponent } from 'react';
 import LogProcress from '../../components/LogProcress';
 import { getActionLogDetail } from '../../services/app';
 import appAcionLogUtil from '../../utils/app-action-log-util';
@@ -26,32 +26,32 @@ const ButtonGroup = Button.Group;
 
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail,
+  appDetail: appControl.appDetail
 }))
 class LogItem extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      status: '',
-      resultStatus: '',
+      status: "",
+      resultStatus: "",
       opened: false,
-      logType: 'info',
-      logs: [],
+      logType: "info",
+      logs: []
     };
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
-    appRolback: PropTypes.func,
+    appRolback: PropTypes.func
   };
   showLogType = () => {
-    if (this.state.status === 'ing') {
-      return 'none';
+    if (this.state.status === "ing") {
+      return "none";
     }
 
     if (this.state.opened === false) {
-      return 'none';
+      return "none";
     }
-    return '';
+    return "";
   };
 
   componentDidMount() {
@@ -59,7 +59,7 @@ class LogItem extends PureComponent {
     if (data) {
       if (this.ref) {
         this.ref.querySelector(
-          '.actioncn'
+          ".actioncn"
         ).innerHTML = appAcionLogUtil.getActionCN(data);
         if (appAcionLogUtil.isSuccess(data)) {
           this.onSuccess();
@@ -71,12 +71,12 @@ class LogItem extends PureComponent {
           this.onTimeout(data);
         }
         if (appAcionLogUtil.isActioning(data)) {
-          this.setState({ status: 'ing' });
-          this.ref.querySelector('.actionresultcn').innerHTML = '进行中';
+          this.setState({ status: "ing" });
+          this.ref.querySelector(".actionresultcn").innerHTML = "进行中";
           this.context.isActionIng(true);
         }
         this.ref.querySelector(
-          '.action-user'
+          ".action-user"
         ).innerHTML = `@${appAcionLogUtil.getActionUser(data)}`;
       }
     }
@@ -87,11 +87,11 @@ class LogItem extends PureComponent {
       app_alias: this.props.appAlias,
       level: this.state.logType,
       team_name: globalUtil.getCurrTeamName(),
-      event_id: this.props.data.event_id,
+      event_id: this.props.data.event_id
     }).then(data => {
       if (data) {
         this.setState({
-          logs: data.list || [],
+          logs: data.list || []
         });
       }
     });
@@ -110,14 +110,14 @@ class LogItem extends PureComponent {
         return regionUtil.getEventWebSocketUrl(region);
       }
     }
-    return '';
+    return "";
   };
   createSocket() {
     const { data } = this.props;
     const socketUrls = this.getSocketUrl();
     if (socketUrls) {
       const isThrough = dateUtil.isWebSocketOpen(socketUrls);
-      if (isThrough && isThrough === 'through') {
+      if (isThrough && isThrough === "through") {
         this.socket = new LogSocket({
           url: this.getSocketUrl(),
           eventId: data.event_id,
@@ -125,9 +125,9 @@ class LogItem extends PureComponent {
             const { logs } = this.state;
             logs.unshift(data);
             this.setState({
-              logs: [].concat(logs),
+              logs: [].concat(logs)
             });
-          },
+          }
         });
       }
     }
@@ -136,38 +136,38 @@ class LogItem extends PureComponent {
     this.isDoing = false;
   };
   onSuccess = data => {
-    this.setState({ resultStatus: 'success' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '完成';
+    this.setState({ resultStatus: "success" });
+    this.ref.querySelector(".actionresultcn").innerHTML = "完成";
   };
   onTimeout = data => {
-    this.setState({ resultStatus: 'timeout' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '超时';
+    this.setState({ resultStatus: "timeout" });
+    this.ref.querySelector(".actionresultcn").innerHTML = "超时";
 
     this.ref.querySelector(
-      '.action-error-msg'
+      ".action-error-msg"
     ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onFail = data => {
-    this.setState({ resultStatus: 'fail' });
-    this.ref.querySelector('.actionresultcn').innerHTML = '失败';
+    this.setState({ resultStatus: "fail" });
+    this.ref.querySelector(".actionresultcn").innerHTML = "失败";
 
     this.ref.querySelector(
-      '.action-error-msg'
+      ".action-error-msg"
     ).innerHTML = `(${appAcionLogUtil.getFailMessage(data)})`;
   };
   onComplete = data => {
-    this.setState({ status: '' });
+    this.setState({ status: "" });
     this.context.isActionIng(false);
     this.close();
   };
   getLogContHeight() {
     const { status, opened } = this.state;
-    if (status === 'ing' && !opened) {
+    if (status === "ing" && !opened) {
       return 15;
     }
 
     if (opened) {
-      return 'auto';
+      return "auto";
     }
 
     return 0;
@@ -176,7 +176,7 @@ class LogItem extends PureComponent {
     this.setState(
       {
         opened: true,
-        logType: 'info',
+        logType: "info"
       },
       () => {
         this.loadLog();
@@ -193,7 +193,7 @@ class LogItem extends PureComponent {
     this.setState(
       {
         logType: type,
-        logs: [],
+        logs: []
       },
       () => {
         this.loadLog();
@@ -205,14 +205,14 @@ class LogItem extends PureComponent {
   };
   getResultClass() {
     const { data } = this.props;
-    if (this.state.resultStatus === 'fail') {
+    if (this.state.resultStatus === "fail") {
       return styles.fail;
     }
 
-    if (this.state.resultStatus === 'success') {
+    if (this.state.resultStatus === "success") {
       return styles.success;
     }
-    return '';
+    return "";
   }
   handleRollback = () => {
     this.context.appRolback(
@@ -222,7 +222,7 @@ class LogItem extends PureComponent {
   render() {
     const { status, opened, logType, logs } = this.state;
     const { data } = this.props;
-    const box = document.getElementById('box');
+    const box = document.getElementById("box");
     if (!data) {
       return null;
     }
@@ -239,7 +239,7 @@ class LogItem extends PureComponent {
           <span className={styles.date}>
             {dateUtil.dateToCN(
               appAcionLogUtil.getActionDateTime(data),
-              'yyyy-MM-dd'
+              "yyyy-MM-dd"
             )}
           </span>
         </div>
@@ -274,39 +274,39 @@ class LogItem extends PureComponent {
               </div>
             </div>
           ) : (
-            ''
+            ""
           )}
 
           <ButtonGroup
             style={{
-              display: this.showLogType(),
+              display: this.showLogType()
             }}
             size="small"
             className={styles.logTypeBtn}
           >
             <Button
               onClick={() => {
-                this.changeLogType('info');
+                this.changeLogType("info");
               }}
-              className={logType === 'info' ? 'active' : ''}
+              className={logType === "info" ? "active" : ""}
               type="dashed"
             >
               Info日志
             </Button>
             <Button
               onClick={() => {
-                this.changeLogType('debug');
+                this.changeLogType("debug");
               }}
-              className={logType === 'debug' ? 'active' : ''}
+              className={logType === "debug" ? "active" : ""}
               type="dashed"
             >
               Debug日志
             </Button>
             <Button
               onClick={() => {
-                this.changeLogType('error');
+                this.changeLogType("error");
               }}
-              className={logType === 'error' ? 'active' : ''}
+              className={logType === "error" ? "active" : ""}
               type="dashed"
             >
               Error日志
@@ -316,12 +316,12 @@ class LogItem extends PureComponent {
             style={{
               height: this.getLogContHeight(),
               maxHeight: 350,
-              overflowY: 'auto',
+              overflowY: "auto"
             }}
             className={`${styles.logContent} logs-cont`}
           >
             {/* 动态日志 */}
-            {status === 'ing' ? (
+            {status === "ing" ? (
               <LogProcress
                 resover
                 onClose={this.onClose}
@@ -342,10 +342,10 @@ class LogItem extends PureComponent {
                     <p key={index}>
                       <span
                         style={{
-                          marginRight: 10,
+                          marginRight: 10
                         }}
                       >
-                        {dateUtil.format(item.time, 'hh:mm:ss')}
+                        {dateUtil.format(item.time, "hh:mm:ss")}
                       </span>
                       <span>{item.message}</span>
                     </p>
@@ -387,7 +387,7 @@ class LogList extends PureComponent {
     requestTime: appControl.requestTime,
     requestTimeRange: appControl.requestTimeRange,
     appDisk: appControl.appDisk,
-    appMemory: appControl.appMemory,
+    appMemory: appControl.appMemory
   }),
   null,
   null,
@@ -413,16 +413,16 @@ export default class Index extends PureComponent {
       more: false,
       total: 0,
       current_version: null,
-      status: '',
+      status: "",
       isopenLog: false,
       buildSource: null,
-      componentTimers: this.props.timers,
+      componentTimers: this.props.timers
     };
     this.inerval = 5000;
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
-    appRolback: PropTypes.func,
+    appRolback: PropTypes.func
   };
   componentDidMount() {
     this.mounted = true;
@@ -469,31 +469,31 @@ export default class Index extends PureComponent {
 
   fetchAppDiskAndMemory() {
     this.props.dispatch({
-      type: 'appControl/getAppResource',
+      type: "appControl/getAppResource",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias,
+        app_alias: this.props.appAlias
       },
       callback: data => {
         if (data && data.bean) {
           this.setState({
             disk: data.bean.disk || 0,
-            memory: data.bean.memory || 0,
+            memory: data.bean.memory || 0
           });
         }
-      },
+      }
     });
   }
 
   fetchOperationLog = (isCycle, isopenLog = false) => {
     this.props.dispatch({
-      type: 'appControl/fetchOperationLog',
+      type: "appControl/fetchOperationLog",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appAlias,
-        target: 'service',
+        target: "service",
         page: this.state.page,
-        page_size: this.state.page_size,
+        page_size: this.state.page_size
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -507,7 +507,7 @@ export default class Index extends PureComponent {
             () => {
               if (isCycle) {
                 this.handleTimers(
-                  'fetchOperationLogTimer',
+                  "fetchOperationLogTimer",
                   () => {
                     this.fetchOperationLog(true);
                   },
@@ -521,13 +521,13 @@ export default class Index extends PureComponent {
       handleError: err => {
         this.handleError(err);
         this.handleTimers(
-          'fetchOperationLogTimer',
+          "fetchOperationLogTimer",
           () => {
             this.fetchOperationLog(true);
           },
           10000
         );
-      },
+      }
     });
   };
 
@@ -537,9 +537,9 @@ export default class Index extends PureComponent {
       return null;
     }
     if (err && err.data && err.data.msg_show) {
-      notification.error({
+      notification.warning({
         message: `请求错误`,
-        description: err.data.msg_show,
+        description: err.data.msg_show
       });
     }
   };
@@ -557,7 +557,7 @@ export default class Index extends PureComponent {
     this.setState(
       {
         page: 1,
-        page_size: this.state.page_size * (this.state.page + 1),
+        page_size: this.state.page_size * (this.state.page + 1)
       },
       () => {
         this.fetchOperationLog(false);
@@ -582,36 +582,35 @@ export default class Index extends PureComponent {
   onLogPush = isopen => {
     this.fetchOperationLog(false, isopen);
   };
-  onPageChange = page => {};
 
   handleDel = item => {
     this.props.dispatch({
-      type: 'appControl/delAppVersion',
+      type: "appControl/delAppVersion",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
-        version_id: item.build_version,
+        version_id: item.build_version
       },
       callback: res => {
         if (res) {
           notification.success({
-            message: '删除成功',
+            message: "删除成功"
           });
           this.getVersionList();
         }
-      },
+      }
     });
   };
 
   getVersionList = update => {
     update && this.props.setShowUpgrade();
     this.props.dispatch({
-      type: 'appControl/getAppVersionList',
+      type: "appControl/getAppVersionList",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         service_alias: this.props.appAlias,
         page_num: 1,
-        page_size: 10,
+        page_size: 10
       },
       callback: data => {
         if (data && data.bean && data.list) {
@@ -626,39 +625,39 @@ export default class Index extends PureComponent {
           this.setState({
             current_version: data.bean.current_version,
             beanData: beanobj,
-            dataList: data.list,
+            dataList: data.list
           });
         }
-      },
+      }
     });
   };
 
   loadBuildSourceInfo = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'appControl/getAppBuidSource',
+      type: "appControl/getAppBuidSource",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        service_alias: this.props.appAlias,
+        service_alias: this.props.appAlias
       },
       callback: data => {
         if (data) {
           this.setState({
             buildSource:
-              data.bean && data.bean.service_source && data.bean.service_source,
+              data.bean && data.bean.service_source && data.bean.service_source
           });
         }
-      },
+      }
     });
   };
 
   fetchPods = isCycle => {
     const { appAlias, dispatch } = this.props;
     dispatch({
-      type: 'appControl/fetchPods',
+      type: "appControl/fetchPods",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -666,12 +665,12 @@ export default class Index extends PureComponent {
             {
               new_pods: res.list.new_pods,
               old_pods: res.list.old_pods,
-              runLoading: false,
+              runLoading: false
             },
             () => {
               if (isCycle) {
                 this.handleTimers(
-                  'fetchPodsTimer',
+                  "fetchPodsTimer",
                   () => {
                     this.fetchPods(true);
                   },
@@ -685,19 +684,19 @@ export default class Index extends PureComponent {
       handleError: err => {
         this.handleError(err);
         this.handleTimers(
-          'fetchPodsTimer',
+          "fetchPodsTimer",
           () => {
             this.fetchPods(true);
           },
           10000
         );
-      },
+      }
     });
   };
 
   handleMore = more => {
     this.setState({
-      more,
+      more
     });
   };
 

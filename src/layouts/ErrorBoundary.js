@@ -47,6 +47,7 @@ export default class ErrorBoundary extends PureComponent {
   render() {
     const { hasError } = this.state;
     const { children } = this.props;
+
     if (hasError) {
       notification.destroy();
       notification.info({

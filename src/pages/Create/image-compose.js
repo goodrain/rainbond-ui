@@ -1,35 +1,11 @@
-import React, { PureComponent } from 'react';
+import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Icon,
-  Menu,
-  Dropdown,
-  notification,
-  Select,
-  Input,
-  Modal,
-} from 'antd';
-import styles from './Index.less';
-import AddGroup from '../../components/AddOrEditGroup';
-import globalUtil from '../../utils/global';
+import React, { PureComponent } from 'react';
 import ImageComposeForm from '../../components/ImageComposeForm';
-
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    span: 5,
-  },
-  wrapperCol: {
-    span: 19,
-  },
-};
+import TopUpHints from '../../components/TopUpHints';
+import globalUtil from '../../utils/global';
+import styles from './Index.less';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -38,12 +14,7 @@ const formItemLayout = {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      codeType: 'Git',
-      showUsernameAndPass: false,
-      showKey: false,
-      addGroup: false,
-    };
+    this.state = {};
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -91,8 +62,8 @@ export default class Index extends PureComponent {
         ...value,
       },
       callback: data => {
-        const group_id = data.bean.group_id;
-        const compose_id = data.bean.compose_id;
+        const { group_id } = data.bean;
+        const { compose_id } = data.bean;
         this.props.dispatch(
           routerRedux.push(
             `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${group_id}/${compose_id}`
@@ -104,6 +75,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div className={styles.formWrap}>
           <ImageComposeForm onSubmit={this.handleSubmit} />
         </div>

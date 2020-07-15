@@ -18,10 +18,12 @@ class CreateTeam extends PureComponent {
   }
   componentDidMount() {
     const { enterprise_id } = this.props;
-    enterprise_id && this.getUnRelationedApp(enterprise_id);
+    if (enterprise_id) {
+      this.getUnRelationedApp(enterprise_id);
+    }
   }
   getUnRelationedApp = enterprise_id => {
-    getAllRegion({enterprise_id}).then(data => {
+    getAllRegion({enterprise_id, status: "1"}).then(data => {
       if (data) {
         this.setState({ regions: data.list || [] });
       }

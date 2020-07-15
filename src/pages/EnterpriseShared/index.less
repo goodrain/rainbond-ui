@@ -114,8 +114,14 @@
   display      : flex;
   align-items  : center;
   padding      : 0 5px;
+  width        : 800px;
+  overflow-x   : auto;
+  white-space  : nowrap;
+  text-overflow: ellipsis;
 
-  &>div:nth-of-type(1) {
+  .setRadioGroup {
+    width: 80px;
+
     :global {
       .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
         box-shadow: none !important;
@@ -126,19 +132,28 @@
       }
 
       .ant-radio-button-wrapper {
-        border: none !important;
+        padding: 0 6px;
+        border : none !important;
+      }
+    }
+
+  }
+
+  .setCheckboxGroup {
+    margin: -4px 0 0 5px;
+    width : calc(100% - 110px) !important;
+    :global {
+      .ant-checkbox-wrapper+span {
+        vertical-align: middle;
       }
     }
   }
-
-  &>div:nth-of-type(2) {
-    width     : 1px;
-    height    : 14px;
-    background: #D8D8D8;
-    margin    : 0 14px 0 24px;
-  }
 }
-
+.verticalCen{
+  display    : flex;
+  align-items: center;
+  svg{margin-right: 5px;}
+}
 .status {
   display    : flex;
   align-items: center;
@@ -229,4 +244,26 @@
       border-color    : #4D73B1 !important;
     }
   }
+}
+
+.setTabs {
+  :global {
+    .ant-tabs-bar {
+      border: none;
+    }
+
+    .ant-tabs-tab {
+      background: #fff;
+      padding   : 6px 16px 8px;
+
+      &>span {
+        vertical-align: super;
+      }
+    }
+  }
+}
+.addSvg{
+  display: flex;
+  padding: 3px 0px 5px;
+  margin-right: 0 !important;
 }

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Button, Modal, Form, Select } from 'antd';
 import styles from '../CreateTeam/index.less';
+import { fetchMarketAuthority } from '../../utils/authority';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -27,7 +28,14 @@ class SelectStore extends PureComponent {
       },
       callback: data => {
         if (data) {
-          this.setState({ storeList: data.list, loading: false });
+          const { list = [] } = data;
+          let newList = [];
+          if (list.length > 0) {
+            newList = list.filter(
+              item => item.status == 1 && fetchMarketAuthority(item, 'Write')
+            );
+          }
+          this.setState({ storeList: newList, loading: false });
         }
       },
     });
@@ -80,7 +88,7 @@ class SelectStore extends PureComponent {
           >
             <FormItem {...formItemLayout} label="发布商店" hasFeedback>
               {getFieldDecorator('store_id', {
-                initialValue: stores[0].market_id || '',
+                initialValue: stores[0].name || '',
                 rules: [
                   {
                     required: true,
@@ -90,9 +98,10 @@ class SelectStore extends PureComponent {
               })(
                 <Select placeholder="请选择发布的商店">
                   {stores.map((item, index) => {
+                    const { name, alias } = item;
                     return (
-                      <Option key={`store${index}`} value={item.market_id}>
-                        {item.name}
+                      <Option key={`store${index}`} value={name}>
+                        {alias || name}
                       </Option>
                     );
                   })}
@@ -102,12 +111,7 @@ class SelectStore extends PureComponent {
             </FormItem>
           </Form>
         ) : (
-          <p>
-            当前企业暂无开通应用商店，请前往应用市场申请开通{' '}
-            <a target="_blank" href="https://market.goodrain.com/manage">
-              去开通
-            </a>
-          </p>
+          <p style={{ textAlign: 'center' }}>暂无推送权限的应用商店</p>
         )}
       </Modal>
     );

@@ -1,10 +1,9 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import {
   Row,
   Col,
-  Card,
   Button,
   List,
   Checkbox,
@@ -18,14 +17,11 @@ import globalUtil from '../../utils/global';
 import infoUtil from './info-util';
 import styles from './index.less';
 
-const Option = Select.Option;
+const { Option } = Select;
 
+// eslint-disable-next-line react/no-redundant-should-component-update
 @Form.create()
-@connect(({ user, global, groupControl }) => ({
-  groupDetail: groupControl.groupDetail || {},
-  currUser: user.currentUser,
-  groups: global.groups || [],
-}))
+@connect()
 export default class AppList extends PureComponent {
   constructor(props) {
     super(props);
@@ -36,7 +32,6 @@ export default class AppList extends PureComponent {
       upgradeVersions: [],
       upgradeInfo: [],
       upgrade_info: '',
-      upgrade_info_two: [],
       upgradeRecords: [],
       text: this.props.activeKey == 2 ? '回滚' : '升级',
       upgradeText: '升级',
@@ -55,16 +50,22 @@ export default class AppList extends PureComponent {
   }
 
   // 生成升级订单
+  // eslint-disable-next-line react/sort-comp
   generateUpdateOrder = () => {
     const { group_id } = this.props;
     const { infoObj } = this.state;
+    const payload = {
+      team_name: globalUtil.getCurrTeamName(),
+      group_id,
+      group_key: infoObj.group_key,
+    };
+    if (infoObj && (infoObj.source === 'market' || infoObj.is_from_cloud)) {
+      payload.marketName = infoObj.market_name;
+      payload.isFromCloud = true;
+    }
     this.props.dispatch({
       type: 'global/CloudAppUpdateOrder',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id,
-        group_key: infoObj.group_key,
-      },
+      payload,
       callback: res => {
         if (res && res._code == 200) {
           if (this.props.activeKey != 2) {
@@ -175,16 +176,20 @@ export default class AppList extends PureComponent {
   // 查询某云市应用下组件的更新信息
   getUpdatedInfo = versions => {
     const version = this.props.form.getFieldValue('upgradeVersions');
-    const { group_id } = this.props;
+    const { group_id, dispatch } = this.props;
     const { infoObj } = this.state;
-    this.props.dispatch({
+    const payload = {
+      team_name: globalUtil.getCurrTeamName(),
+      group_id,
+      group_key: infoObj.group_key,
+      version: versions || version,
+    };
+    if (infoObj && infoObj.is_from_cloud) {
+      payload.marketName = infoObj.market_name;
+    }
+    dispatch({
       type: 'global/CloudAppUpdatedInfo',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id,
-        group_key: infoObj.group_key,
-        version: versions || version,
-      },
+      payload,
       callback: res => {
         if (res && res._code == 200) {
           const { indexs } = this.state;
@@ -220,7 +225,7 @@ export default class AppList extends PureComponent {
     this.getUpdatedInfo(value);
   };
 
-  onChange = checkedValues => {
+  onChange = () => {
     // console.log('checked = ', checkedValues);
   };
   handleType = (type, index) => {
@@ -234,7 +239,7 @@ export default class AppList extends PureComponent {
       // this.setState({ type: type.service_id, indexs: index, upgrade_info: service.type=="upgrade"? upgradeInfo[index]:{type:"add"} });
     }
   };
-  handleSubmit = e => {
+  handleSubmit = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.createUpgradeTasks(values);
@@ -250,6 +255,7 @@ export default class AppList extends PureComponent {
     const indexc = [];
 
     for (let i = 0; i < upgradeInfo.length; i++) {
+      // eslint-disable-next-line no-plusplus
       for (let k = 0; k < values.services.length; k++) {
         if (upgradeInfo[i].service.service_id == values.services[k]) {
           arr.push(upgradeInfo[i]);
@@ -382,36 +388,35 @@ export default class AppList extends PureComponent {
                 style={{
                   textAlign: 'center',
                   lineHeight: '300px',
-                  fontSize: '25px'
+                  fontSize: '25px',
                 }}
               >
                 新增组件
               </div>
-            )
-          }
+            ),
+          },
         ];
       } else if (upgrade_info && JSON.stringify(upgrade_info) != '{}') {
         return this.setData(upgrade_info);
       } else if (update && JSON.stringify(update) != '{}') {
         return this.setData(update);
       }
-        return [
-          {
-            title: '',
-            description: (
-              <div
-                style={{
-                  textAlign: 'center',
-                  lineHeight: '300px',
-                  fontSize: '25px'
-                }}
-              >
-                组件无变更，无需升级
-              </div>
-            )
-          }
-        ];
-
+      return [
+        {
+          title: '',
+          description: (
+            <div
+              style={{
+                textAlign: 'center',
+                lineHeight: '300px',
+                fontSize: '25px',
+              }}
+            >
+              组件无变更，无需升级
+            </div>
+          ),
+        },
+      ];
 
       // if (service.type == "add") {
       //     let images = deploy_version ? {
@@ -473,24 +478,23 @@ export default class AppList extends PureComponent {
       //     title: '运行环境版本',
       //     description: (<div>从{deploy_version.old}变更为{deploy_version.new}</div>),
       // } : ""
-    } 
-      return [
-        {
-          title: '',
-          description: (
-            <div
-              style={{
-                textAlign: 'center',
-                lineHeight: '300px',
-                fontSize: '25px'
-              }}
-            >
-              组件无变更，无需升级
-            </div>
-          )
-        }
-      ];
-    
+    }
+    return [
+      {
+        title: '',
+        description: (
+          <div
+            style={{
+              textAlign: 'center',
+              lineHeight: '300px',
+              fontSize: '25px',
+            }}
+          >
+            组件无变更，无需升级
+          </div>
+        ),
+      },
+    ];
   };
 
   setData = data => {
@@ -831,7 +835,7 @@ export default class AppList extends PureComponent {
                                   JSON.stringify(upgrade_info || update) !=
                                     '{}' ? (
                                     <div>
-                                      {(upgradeRecords[index] &&
+                                        {(upgradeRecords[index] &&
                                         upgradeRecords[index].status == 1) ||
                                       (upgradeRecords[index] &&
                                         upgradeRecords[index].status == 2) ||
@@ -872,7 +876,7 @@ export default class AppList extends PureComponent {
                                           />
                                         </Tooltip>
                                       )}
-                                    </div>
+                                      </div>
                                   ) : (
                                     service &&
                                     service.type && (

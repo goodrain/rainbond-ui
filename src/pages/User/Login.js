@@ -11,6 +11,19 @@ import oauthUtil from '../../utils/oauth';
   rainbondInfo: global.rainbondInfo,
 }))
 export default class LoginPage extends Component {
+  constructor(props) {
+    super(props);
+    const { rainbondInfo } = this.props;
+    this.state = {
+      oauth_servicesList:
+        rainbondInfo &&
+        rainbondInfo.oauth_services &&
+        rainbondInfo.oauth_services.value &&
+        rainbondInfo.oauth_services.value.length > 0 &&
+        rainbondInfo.oauth_services.value,
+    };
+  }
+
   handleSubmit = values => {
     const { dispatch } = this.props;
     const query_params = new URLSearchParams(this.props.location.search);
@@ -36,6 +49,7 @@ export default class LoginPage extends Component {
 
   render() {
     const { rainbondInfo } = this.props;
+    const { oauth_servicesList } = this.state;
 
     const oauthInfo =
       rainbondInfo &&

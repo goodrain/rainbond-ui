@@ -10,8 +10,8 @@ export default function TeamHeader(props) {
     currentEnterprise,
     currentTeam,
     currentRegion,
-    regionName,
-    upDataHeader,
+    nobleIcon,
+    upDataHeader
   } = props;
 
   return (
@@ -21,6 +21,7 @@ export default function TeamHeader(props) {
       ) : (
         <div>
           <div className={headerStype.item}>
+          {nobleIcon}
             <Link
               className={headerStype.itemlink}
               to={`/enterprise/${currentEnterprise.enterprise_id}/index`}

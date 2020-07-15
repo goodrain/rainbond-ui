@@ -235,7 +235,7 @@ export default class AppPublishList extends PureComponent {
               type="primary"
               onClick={this.onPublishLocal}
             >
-              发布到共享库
+              发布到应用市场
             </Button>
             <Button style={{ marginRight: 8 }} onClick={this.onPublishStore}>
               发布到云应用商店
@@ -291,7 +291,7 @@ export default class AppPublishList extends PureComponent {
                           <Link
                             to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
-                            共享库
+                            应用市场
                           </Link>
                         );
                       case 'team':
@@ -299,7 +299,7 @@ export default class AppPublishList extends PureComponent {
                           <Link
                             to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
-                            共享库(团队)
+                            应用市场(团队)
                           </Link>
                         );
                       case 'enterprise':
@@ -307,7 +307,7 @@ export default class AppPublishList extends PureComponent {
                           <Link
                             to={`/enterprise/${currentEnterprise.enterprise_id}/shared`}
                           >
-                            共享库(企业)
+                            应用市场(企业)
                           </Link>
                         );
                       default:

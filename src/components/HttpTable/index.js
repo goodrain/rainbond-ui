@@ -593,7 +593,7 @@ export default class HttpTable extends PureComponent {
         dataIndex: 'action',
         key: 'action',
         align: 'center',
-        width: '100px',
+        width: '120px',
         render: (data, record) => {
           return record.is_outer_service == 1 ? (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
@@ -658,7 +658,7 @@ export default class HttpTable extends PureComponent {
       },
     ];
     return (
-      <div className={styles.tdPadding}>
+      <div>
         <Row
           style={{
             display: 'flex',
@@ -685,6 +685,7 @@ export default class HttpTable extends PureComponent {
             dataSource={dataList}
             columns={columns}
             loading={loading}
+            size="default"
             rowKey={this.rowKey}
             pagination={{
               total,

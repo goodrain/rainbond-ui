@@ -12,6 +12,31 @@ export async function fetchAppModelsTags(param) {
     }
   );
 }
+export async function fetchMarkets(params = {}) {
+  const { enterprise_id, name, pageSize, page, query } = params;
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/cloud/markets/${name}/app-models`,
+    {
+      method: 'get',
+      params: {
+        page_size: pageSize,
+        page,
+        query,
+      },
+    }
+  );
+}
+export async function fetchMarketsTab(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets`,
+    {
+      method: 'get',
+      params: {
+        extend: true,
+      },
+    }
+  );
+}
 
 /* 添加本地标签 */
 export async function createTag(param) {
@@ -98,6 +123,38 @@ export async function upAppModel(body) {
   );
 }
 
+/* delete  App  Market */
+export async function deleteAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
+    {
+      method: 'DELETE',
+    }
+  );
+}
+
+/* up  App  Market */
+export async function upAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
+    {
+      method: 'PUT',
+      data: body,
+    }
+  );
+}
+
+/* create  App  Market */
+export async function createAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
+    {
+      method: 'post',
+      data: body,
+    }
+  );
+}
+
 /* 创建本地应用 */
 export async function createAppModel(body) {
   return request(
@@ -118,6 +175,16 @@ export async function createAppModel(body) {
         describe: body.describe,
         tag_ids: body.tag_ids,
       },
+    }
+  );
+}
+/* 创建市场应用 */
+export async function createMarketAppModel(data) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${data.enterprise_id}/cloud/markets/${data.marketName}/app-models`,
+    {
+      method: 'post',
+      data,
     }
   );
 }
@@ -344,6 +411,9 @@ export async function getStoreList(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
     {
       method: 'get',
+      params: {
+        extend: true,
+      },
     }
   );
 }

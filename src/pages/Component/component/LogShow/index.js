@@ -97,9 +97,9 @@ class Index extends React.Component {
           } else {
             logs.push(message);
           }
-          // if (this.refs.box) {
-          //   this.refs.box.scrollTop = this.refs.box.scrollHeight;
-          // }
+          if (this.refs.box) {
+            this.refs.box.scrollTop = this.refs.box.scrollHeight;
+          }
           this.setState({ logs, dynamic: true });
         },
         () => {

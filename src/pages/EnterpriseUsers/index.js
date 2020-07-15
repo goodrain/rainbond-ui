@@ -1,12 +1,15 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Button, Table, Row, Col, notification } from 'antd';
 import moment from 'moment';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CreatUser from '../../components/CreatUserForm';
+import { Button, Card, Col, Form, Input, notification, Row, Table } from 'antd';
 import ConfirmModal from '../../components/ConfirmModal';
+import CreatUser from '../../components/CreatUserForm';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import cloud from '../../utils/cloud';
 import userUtil from '../../utils/user';
+
+const FormItem = Form.Item;
 
 @connect(({ user, list, loading, global, index }) => ({
   user: user.currentUser,
@@ -34,6 +37,7 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
       text: '',
       delVisible: false,
+      name: '',
     };
   }
   componentWillMount() {
@@ -83,20 +87,7 @@ export default class EnterpriseUsers extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.data && res.data.code) {
-          // eslint-disable-next-line default-case
-          switch (res.data.code) {
-            case 3000:
-              notification.warning({ message: '用户已存在' });
-              break;
-            case 3003:
-              notification.warning({ message: '邮箱已存在' });
-              break;
-            case 3004:
-              notification.warning({ message: '电话已存在' });
-              break;
-          }
-        }
+        cloud.handleCloudAPIError(res);
       },
     });
   };
@@ -104,7 +95,7 @@ export default class EnterpriseUsers extends PureComponent {
   upUser = values => {
     const { userInfo } = this.state;
     const info = userInfo;
-    info.user_name = values.user_name;
+    info.real_name = values.real_name;
     info.password = values.password;
 
     const {
@@ -153,14 +144,14 @@ export default class EnterpriseUsers extends PureComponent {
     });
   };
 
-  loadUser = name => {
+  loadUser = () => {
     const {
       dispatch,
       match: {
         params: { eid },
       },
     } = this.props;
-    const { page, pageSize } = this.state;
+    const { page, pageSize, name } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseUsers',
       payload: {
@@ -181,7 +172,7 @@ export default class EnterpriseUsers extends PureComponent {
   addUser = () => {
     this.setState({
       userVisible: true,
-      text: '添加用户',
+      text: '新增用户',
     });
   };
 
@@ -213,7 +204,12 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
     });
   };
-
+  handleSearch = e => {
+    this.loadUser();
+  };
+  handelChange = e => {
+    this.setState({ name: e.target.value });
+  };
   render() {
     const {
       adminList,
@@ -238,6 +234,12 @@ export default class EnterpriseUsers extends PureComponent {
         title: '用户名称',
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
+        align: 'center',
+      },
+      {
+        title: '姓名',
+        dataIndex: 'real_name',
+        rowKey: 'real_name',
         align: 'center',
       },
       {
@@ -292,20 +294,48 @@ export default class EnterpriseUsers extends PureComponent {
         title="用户管理"
         content="企业用户查询、添加和修改相关功能，用户需要操作应用或组件相关资源时需要将其分配到相应的团队"
       >
-        <Card>
-          <Row style={{ marginBottom: '20px' }}>
-            <Col span={12} style={{ color: '#2B3844' }}>
-              企业用户
-            </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
-              {adminer && (
-                <Button onClick={this.addUser} type="primary" size="small">
-                  新增
+        <Row
+          style={{
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Col span={12}>
+            <Form layout="inline" style={{ display: 'inline-block' }}>
+              <FormItem>
+                <Input
+                  placeholder="搜索用户"
+                  onChange={this.handelChange.bind(this)}
+                  onPressEnter={this.handleSearch}
+                  style={{ width: 250 }}
+                />
+              </FormItem>
+              <FormItem>
+                <Button
+                  type="primary"
+                  onClick={this.handleSearch}
+                  icon="search"
+                >
+                  搜索
                 </Button>
-              )}
-            </Col>
-          </Row>
-
+              </FormItem>
+            </Form>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            {adminer && (
+              <Button
+                type="primary"
+                icon="plus"
+                style={{ float: 'right' }}
+                onClick={this.addUser}
+              >
+                新增用户
+              </Button>
+            )}
+          </Col>
+        </Row>
+        <Card>
           {delVisible && (
             <ConfirmModal
               onOk={this.handleDelete}

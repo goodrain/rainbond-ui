@@ -4,15 +4,16 @@ import { Form, Input, Select, Modal, Switch, Button } from "antd";
 import Branches from "../../../public/images/branches.svg";
 import Application from "../../../public/images/application.svg";
 import styles from "./Index.less";
-const Option = Select.Option;
+import styless from "../CreateTeam/index.less";
 
-@connect(({}) => ({}))
+const { Option } = Select;
+
+@connect()
 class CreateOAuthForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       oauthList: [],
-      tenant_name: "",
       edit: false
     };
   }
@@ -20,19 +21,22 @@ class CreateOAuthForm extends PureComponent {
     this.fetchOauthType();
     const { oauthInfo } = this.props;
     if (oauthInfo) {
-      this.setState({ edit: true });
+      this.handleEdit();
     }
   }
   componentWillUpdate(props) {
     const { oauthInfo } = props;
     if (oauthInfo) {
-      this.setState({ edit: true });
+      this.handleEdit();
     }
   }
 
+  handleEdit = (edit = true) => {
+    this.setState({ edit });
+  };
+
   fetchOauthType = () => {
     const { dispatch } = this.props;
-
     dispatch({
       type: "user/fetchOauthType",
       callback: res => {
@@ -45,13 +49,12 @@ class CreateOAuthForm extends PureComponent {
     });
   };
 
-  handleChange = tenant_name => {
-    this.setState({ tenant_name });
-  };
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(values);
+    const { form, onOk } = this.props;
+
+    form.validateFields((err, values) => {
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
@@ -71,17 +74,18 @@ class CreateOAuthForm extends PureComponent {
     const oauthType = getFieldValue("oauth_type") || "github";
     return (
       <Modal
-        visible={true}
-        title="Oauth"
+        visible
+        title="OAuth"
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
         width={600}
-        className={styles.thirdModal}
+        className={styless.TelescopicModal}
         footer={[
           <Button type="primary" loading={loading} onClick={this.handleSubmit}>
             确定
-          </Button>
+          </Button>,
+          <Button onClick={onCancel}>取消</Button>
         ]}
       >
         <Form layout="horizontal" hideRequiredMark onSubmit={this.handleSubmit}>
@@ -234,7 +238,6 @@ class CreateOAuthForm extends PureComponent {
               平台访问域名是用于OAuth认证完回跳时的访问地址
             </div>
           </Form.Item>
-
           <Form.Item
             className={styles.clearConform}
             {...formItemLayout}

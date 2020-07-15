@@ -83,7 +83,7 @@ class ExportBtn extends PureComponent {
   };
 
   appExport = format => {
-    const app = this.props.app;
+    const {app} = this.props;
     const app_id = app.ID;
     this.props.dispatch({
       type: 'market/appExport',
@@ -448,7 +448,7 @@ export default class AppList extends PureComponent {
     let composeurl = 'javascript:;';
     let appisSuccess = 'none';
     let composeisSuccess = 'none';
-    const export_status = item.export_status;
+    const {export_status} = item;
     if (appquery) {
       if (appquery.is_export_before) {
         if (appquery.status == 'success') {
@@ -501,7 +501,7 @@ export default class AppList extends PureComponent {
 
   handleVisibleChange = (item, flag) => {
     const newvisible = this.state.visiblebox;
-    const ID = item.ID;
+    const {ID} = item;
     newvisible[ID] = flag;
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);

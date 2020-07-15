@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { Icon, Input, Layout } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -286,12 +287,12 @@ export default class SiderMenu extends PureComponent {
         className={styles.sider}
       >
         <div className={styles.siderLeft}>
-          <CollectionView
+          {collectionVisible && <CollectionView
             title={formatMessage({ id: 'sidecar.collection.add' })}
             visible={collectionVisible}
             onOk={this.handleCollectionView}
             onCancel={this.handleCloseCollectionVisible}
-          />
+          />}
 
           {delcollectionVisible && (
             <ConfirmModal
@@ -320,21 +321,23 @@ export default class SiderMenu extends PureComponent {
               />
             </div>
             {collectionList.map(item => {
-              return (
-                <Link key={item.url} to={item.url}>
-                  <div className={styles.con}>
-                    {item.name}
-                    <Icon
-                      className={styles.addCollection}
-                      component={delSvg}
-                      onClick={e => {
-                        e.preventDefault();
-                        this.handleOpenDelCollectionVisible(item);
-                      }}
-                    />
-                  </div>
-                </Link>
-              );
+              if (item.url) {
+                return (
+                  <Link key={item.url} to={item.url}>
+                    <div className={styles.con}>
+                      {item.name}
+                      <Icon
+                        className={styles.addCollection}
+                        component={delSvg}
+                        onClick={e => {
+                          e.preventDefault();
+                          this.handleOpenDelCollectionVisible(item);
+                        }}
+                      />
+                    </div>
+                  </Link>
+                );
+              }
             })}
 
             <div className={styles.tit}>
@@ -375,15 +378,11 @@ export default class SiderMenu extends PureComponent {
             )}
             {userTeam &&
               userTeam.map(item => {
-                const currRegion = 'no-region';
                 const { region, team_name, team_alias } = item;
                 return (
                   <Link
                     key={item.team_name}
-                    to={`/team/${team_name}/region/${
-                      region
-                      // region.length > 0 ? region[0].team_region_name : currRegion
-                    }/index`}
+                    to={`/team/${team_name}/region/${region}/index`}
                   >
                     <div className={styles.con}>
                       {team_alias}
