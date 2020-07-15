@@ -194,14 +194,14 @@ export default function request(url, options) {
 
           return;
         }
-        if (resData.code === 10407) {
-          cookie.setGuide("appStore", "true");
-          window.g_app._store.dispatch({
-            type: "global/showAuthCompany"
-          });
+        // if (resData.code === 10407) {
+        //   cookie.setGuide("appStore", "true");
+        //   window.g_app._store.dispatch({
+        //     type: "global/showAuthCompany"
+        //   });
 
-          return;
-        }
+        //   return;
+        // }
 
         if (resData.code === 10405) {
           window.g_app._store.dispatch({

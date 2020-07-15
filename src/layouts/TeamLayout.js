@@ -618,7 +618,7 @@ class TeamLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+        {/* {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
             eid={this.state.eid}
             market_info={this.state.market_info}
@@ -633,7 +633,7 @@ class TeamLayout extends PureComponent {
               window.location.reload();
             }}
           />
-        )}
+        )} */}
         {orders && BillingFunction && (
           <ServiceOrder
             // enterpriseServiceInfo={enterpriseServiceInfo}

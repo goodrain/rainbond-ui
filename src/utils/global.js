@@ -17,13 +17,13 @@ const global = {
     );
   },
   removeCookie() {
-    cookie.remove("team_name", { domain: "" });
-    cookie.remove("region_name", { domain: "" });
-    cookie.remove("team", { domain: "" });
-    cookie.remove("token", { domain: "" });
-    cookie.remove("appStore", { domain: "" });
-    cookie.remove("newbie_guide", { domain: "" });
-    cookie.remove("platform_url", { domain: "" });
+    cookie.remove("team_name");
+    cookie.remove("region_name");
+    cookie.remove("team");
+    cookie.remove("token", "");
+    cookie.remove("appStore");
+    cookie.remove("newbie_guide");
+    cookie.remove("platform_url");
   },
   putLog(info) {
     if (!info || (info && !info.enterprise_id)) {

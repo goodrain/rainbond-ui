@@ -13,11 +13,6 @@ import rainbondUtil from '../../utils/rainbond';
 export default class Register extends Component {
   // first user, to register admin
   state = {
-    count: 0,
-    confirmDirty: false,
-    visible: false,
-    help: '',
-    prefix: '86',
     time: Date.now(),
   };
 

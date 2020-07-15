@@ -324,7 +324,7 @@ export default {
       };
     },
     saveOtherTeam(state, action) {
-      const currentUser = state.currentUser;
+      const {currentUser} = state;
       currentUser.teams.push(action.team);
       return {
         ...state,

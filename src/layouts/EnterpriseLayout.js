@@ -391,7 +391,7 @@ class EnterpriseLayout extends PureComponent {
         <Loading />
 
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+        {/* {(this.props.showAuthCompany || this.state.showAuthCompany) && (
           <AuthCompany
             eid={eid}
             market_info={this.state.market_info}
@@ -406,7 +406,7 @@ class EnterpriseLayout extends PureComponent {
               window.location.reload();
             }}
           />
-        )}
+        )} */}
 
         {orders && BillingFunction && (
           <ServiceOrder

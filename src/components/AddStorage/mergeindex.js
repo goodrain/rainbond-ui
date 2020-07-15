@@ -2,8 +2,8 @@
   挂载共享目录组件
 */
 
-import React, { PureComponent } from 'react';
-import { Link } from 'dva/router';
+import React, { PureComponent } from "react";
+import { Link } from "dva/router";
 import {
   Input,
   Table,
@@ -16,19 +16,19 @@ import {
   Button,
   Row,
   Col,
-  Upload,
-} from 'antd';
-import { getMnt } from '../../services/app';
-import globalUtil from '../../utils/global';
-import { getVolumeTypeShowName } from '../../utils/utils';
-import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
-import pluginUtil from '../../utils/plugin';
+  Upload
+} from "antd";
+import { getMnt } from "../../services/app";
+import globalUtil from "../../utils/global";
+import { getVolumeTypeShowName } from "../../utils/utils";
+import apiconfig from "../../../config/api.config";
+import cookie from "../../utils/cookie";
+import pluginUtil from "../../utils/plugin";
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const { TextArea } = Input;
-const TabPane = Tabs.TabPane;
+const { TabPane } = Tabs;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
@@ -44,9 +44,9 @@ export default class AddVolumes extends PureComponent {
       configurationShow: !!(
         this.props.data &&
         this.props.data.volume_type &&
-        this.props.data.volume_type == 'config-file'
+        this.props.data.volume_type == "config-file"
       ),
-      configuration_content: '',
+      configuration_content: ""
     };
   }
 
@@ -56,7 +56,7 @@ export default class AddVolumes extends PureComponent {
 
   handleSubmit = () => {
     if (!this.state.selectedRowKeys.length) {
-      notification.warning({ message: '请选择要挂载的目录' });
+      notification.warning({ message: "请选择要挂载的目录" });
       return;
     }
 
@@ -65,26 +65,26 @@ export default class AddVolumes extends PureComponent {
       const data = this.state.list[index];
       return {
         id: data.dep_vol_id,
-        path: this.state.localpaths[data.dep_vol_id],
+        path: this.state.localpaths[data.dep_vol_id]
       };
     });
     res = res.filter(item => !!item.path);
 
     if (!res.length) {
-      notification.warning({ message: '请检查本地存储目录是否填写' });
+      notification.warning({ message: "请检查本地存储目录是否填写" });
       return;
     }
 
     this.props.onSubmit && this.props.onSubmit(res);
   };
   checkMountPath = (_, value, callback) => {
-    if (value === '' || !value) {
-      callback('请输入挂载路径');
+    if (value === "" || !value) {
+      callback("请输入挂载路径");
       return;
     }
 
     if (pluginUtil.isMountPath(value)) {
-      callback('挂载路径为系统保留路径，请更换其他路径');
+      callback("挂载路径为系统保留路径，请更换其他路径");
       return;
     }
 
@@ -94,7 +94,7 @@ export default class AddVolumes extends PureComponent {
     this.setState(
       {
         current: page,
-        pageSize,
+        pageSize
       },
       () => {
         this.loadUnMntList();
@@ -108,12 +108,12 @@ export default class AddVolumes extends PureComponent {
       app_alias: this.props.appAlias,
       page: this.state.current,
       page_size: this.state.pageSize,
-      type: 'unmnt',
+      type: "unmnt"
     }).then(data => {
       if (data) {
         this.setState({
           list: data.list || [],
-          total: data.total,
+          total: data.total
         });
       }
     });
@@ -134,25 +134,25 @@ export default class AddVolumes extends PureComponent {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { data, appBaseInfo } = this.props;
+    const { data } = this.props;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-      },
+        sm: { span: 18 }
+      }
     };
-    const token = cookie.get('token');
+    const token = cookie.get("token");
 
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
+      onChange: selectedRowKeys => {
         this.setState({
-          selectedRowKeys,
+          selectedRowKeys
         });
-      },
+      }
     };
     const { total, current, pageSize } = this.state;
 
@@ -160,7 +160,7 @@ export default class AddVolumes extends PureComponent {
       onChange: this.handleTableChange,
       total,
       pageSize,
-      current,
+      current
     };
 
     return (
@@ -175,14 +175,14 @@ export default class AddVolumes extends PureComponent {
           <TabPane tab="Tab 1" key="1">
             <Form onSubmit={this.handleSubmit}>
               <FormItem {...formItemLayout} label="名称">
-                {getFieldDecorator('volume_name', {
-                  initialValue: data.volume_name || '',
+                {getFieldDecorator("volume_name", {
+                  initialValue: data.volume_name || "",
                   rules: [
                     {
                       required: true,
-                      message: '请输入存储名称',
-                    },
-                  ],
+                      message: "请输入存储名称"
+                    }
+                  ]
                 })(
                   <Input
                     placeholder="请输入存储名称"
@@ -191,26 +191,26 @@ export default class AddVolumes extends PureComponent {
                 )}
               </FormItem>
               <FormItem {...formItemLayout} label="挂载路径">
-                {getFieldDecorator('volume_path', {
-                  initialValue: data.volume_path || '',
+                {getFieldDecorator("volume_path", {
+                  initialValue: data.volume_path || "",
                   rules: [
                     {
                       required: true,
-                      message: '请输入挂载路径',
-                      validator: this.checkMountPath,
-                    },
-                  ],
+                      message: "请输入挂载路径",
+                      validator: this.checkMountPath
+                    }
+                  ]
                 })(<Input placeholder="请输入挂载路径" />)}
               </FormItem>
               <FormItem {...formItemLayout} label="类型">
-                {getFieldDecorator('volume_type', {
-                  initialValue: 'config-file',
+                {getFieldDecorator("volume_type", {
+                  initialValue: "config-file",
                   rules: [
                     {
                       required: true,
-                      message: '请选择存储类型',
-                    },
-                  ],
+                      message: "请选择存储类型"
+                    }
+                  ]
                 })(
                   <RadioGroup onChange={this.handleChange}>
                     <Radio value="config-file" disabled={!!this.props.editor}>
@@ -224,23 +224,23 @@ export default class AddVolumes extends PureComponent {
               <FormItem
                 {...formItemLayout}
                 label="文件内容"
-                style={{ textAlign: 'right' }}
+                style={{ textAlign: "right" }}
               >
-                {getFieldDecorator('file_content', {
+                {getFieldDecorator("file_content", {
                   initialValue: data.file_content || undefined,
-                  rules: [{ required: true, message: '请编辑内容!' }],
+                  rules: [{ required: true, message: "请编辑内容!" }]
                 })(
                   <TextArea
                     rows={8}
-                    style={{ backgroundColor: '#02213f', color: '#fff' }}
+                    style={{ backgroundColor: "#02213f", color: "#fff" }}
                   />
                 )}
               </FormItem>
               <Row>
-                <Col style={{ marginTop: '-7%' }} span={4} offset={4}>
+                <Col style={{ marginTop: "-7%" }} span={4} offset={4}>
                   <FormItem>
-                    {getFieldDecorator('configuration_check', {
-                      rules: [{ validator: this.checkFile }],
+                    {getFieldDecorator("configuration_check", {
+                      rules: [{ validator: this.checkFile }]
                     })(
                       <Upload
                         action={`${apiconfig.baseUrl}/console/enterprise/team/certificate`}
@@ -262,13 +262,13 @@ export default class AddVolumes extends PureComponent {
               pagination={pagination}
               dataSource={this.state.list}
               rowSelection={rowSelection}
-              style={{ width: '100%', overflowX: 'auto' }}
+              style={{ width: "100%", overflowX: "auto" }}
               columns={[
                 {
-                  title: '本地挂载路径',
-                  dataIndex: 'localpath',
-                  key: '1',
-                  width: '20%',
+                  title: "本地挂载路径",
+                  dataIndex: "localpath",
+                  key: "1",
+                  width: "20%",
                   render: (localpath, data, index) => (
                     <Input
                       onChange={e => {
@@ -276,69 +276,69 @@ export default class AddVolumes extends PureComponent {
                       }}
                       disabled={this.isDisabled(data, index)}
                     />
-                  ),
+                  )
                 },
                 {
-                  title: '目标存储名称',
-                  dataIndex: 'dep_vol_name',
-                  key: '2',
-                  width: '15%',
+                  title: "目标存储名称",
+                  dataIndex: "dep_vol_name",
+                  key: "2",
+                  width: "15%",
                   render: (data, index) => (
                     <Tooltip title={data}>
                       <span
                         style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
                         }}
                       >
                         {data}
                       </span>
                     </Tooltip>
-                  ),
+                  )
                 },
                 {
-                  title: '目标挂载路径',
-                  dataIndex: 'dep_vol_path',
-                  key: '3',
-                  width: '15%',
+                  title: "目标挂载路径",
+                  dataIndex: "dep_vol_path",
+                  key: "3",
+                  width: "15%",
                   render: (data, index) => (
                     <Tooltip title={data}>
                       <span
                         style={{
-                          wordBreak: 'break-all',
-                          wordWrap: 'break-word',
+                          wordBreak: "break-all",
+                          wordWrap: "break-word"
                         }}
                       >
                         {data}
                       </span>
                     </Tooltip>
-                  ),
+                  )
                 },
                 {
-                  title: '目标存储类型',
-                  dataIndex: 'dep_vol_type',
-                  key: '4',
-                  width: '15%',
+                  title: "目标存储类型",
+                  dataIndex: "dep_vol_type",
+                  key: "4",
+                  width: "15%",
                   render: (text, record) => {
                     return (
                       <Tooltip title={text}>
                         <span
                           style={{
-                            wordBreak: 'break-all',
-                            wordWrap: 'break-word',
+                            wordBreak: "break-all",
+                            wordWrap: "break-word"
                           }}
                         >
                           {getVolumeTypeShowName(null, text)}
                         </span>
                       </Tooltip>
                     );
-                  },
+                  }
                 },
                 {
-                  title: '目标所属组件',
-                  dataIndex: 'dep_app_name',
-                  key: '5',
-                  width: '15%',
+                  title: "目标所属组件",
+                  dataIndex: "dep_app_name",
+                  key: "5",
+                  width: "15%",
                   render: (v, data) => {
                     return (
                       <Tooltip title={v}>
@@ -349,8 +349,8 @@ export default class AddVolumes extends PureComponent {
                         >
                           <span
                             style={{
-                              wordBreak: 'break-all',
-                              wordWrap: 'break-word',
+                              wordBreak: "break-all",
+                              wordWrap: "break-word"
                             }}
                           >
                             {v}
@@ -358,13 +358,13 @@ export default class AddVolumes extends PureComponent {
                         </Link>
                       </Tooltip>
                     );
-                  },
+                  }
                 },
                 {
-                  title: '目标组件所属应用',
-                  dataIndex: 'dep_app_group',
-                  key: '6',
-                  width: '15%',
+                  title: "目标组件所属应用",
+                  dataIndex: "dep_app_group",
+                  key: "6",
+                  width: "15%",
                   render: (v, data) => {
                     return (
                       <Tooltip title={v}>
@@ -375,8 +375,8 @@ export default class AddVolumes extends PureComponent {
                         >
                           <span
                             style={{
-                              wordBreak: 'break-all',
-                              wordWrap: 'break-word',
+                              wordBreak: "break-all",
+                              wordWrap: "break-word"
                             }}
                           >
                             {v}
@@ -384,8 +384,8 @@ export default class AddVolumes extends PureComponent {
                         </Link>
                       </Tooltip>
                     );
-                  },
-                },
+                  }
+                }
               ]}
             />
           </TabPane>
