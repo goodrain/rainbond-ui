@@ -79,7 +79,7 @@ export default {
       }
     },
     *groupMonitorData({ payload, callback }, { call, put }) {
-      const response = yield call(groupMonitorData, payload);
+      const response = yield call(groupMonitorData, payload, handleError);
       if (response) {
         callback && callback(response);
       }
