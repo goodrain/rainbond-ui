@@ -121,6 +121,7 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toAdd: false,
+      isTopology: false,
       service_alias: [],
       linkList: [],
       jsonDataLength: 0,
@@ -174,9 +175,14 @@ class Main extends PureComponent {
       callback: res => {
         if (res && res._code == 200) {
           const data = res.bean;
-          if (JSON.stringify(data) === '{}') {
+          if (
+            (data && JSON.stringify(data) === '{}') ||
+            (data.json_data && JSON.stringify(data.json_data) === '{}')
+          ) {
+            this.setState({ isTopology: false });
             return;
           }
+
           const service_alias = [];
           const { json_data } = data;
           this.setState({ jsonDataLength: Object.keys(json_data).length });
@@ -188,7 +194,7 @@ class Main extends PureComponent {
               service_alias.push(json_data[key].service_alias);
             }
           });
-          this.setState({ service_alias }, () => {
+          this.setState({ service_alias, isTopology: true }, () => {
             this.loadLinks(service_alias.join('-'), isCycle);
           });
         }
@@ -524,7 +530,9 @@ class Main extends PureComponent {
       rapidCopy,
       jsonDataLength,
       linkList,
+      isTopology,
     } = this.state;
+    console.log('isTopology', isTopology);
     if (groupDetail.group_id != appID && !loadingDetail) {
       this.fetchAppDetail();
     }
@@ -785,7 +793,7 @@ class Main extends PureComponent {
           />
         )}
         {this.state.type === 'shape' && (
-          <AppShape group_id={this.getGroupId()} />
+          <AppShape group_id={this.getGroupId()} isTopology={isTopology} />
         )}
         {this.state.type === 'spin' && <Spin />}
         {this.state.type === 'shapes' && (

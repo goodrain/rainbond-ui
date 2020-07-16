@@ -1,6 +1,7 @@
+/* eslint-disable no-shadow */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button, Icon, Drawer, Alert, Tooltip } from 'antd';
+import { Row, Col, Button, Icon, Drawer, Alert } from 'antd';
 import styles from './Index.less';
 import Custom from '../Create/code-custom';
 import Check from '../Create/create-check';
@@ -24,7 +25,6 @@ export default class AddServiceComponent extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      CustomButton: false,
       toAddService: false,
       ServiceComponentOnePage: true,
       ServiceComponentTwoPage: null,
@@ -32,20 +32,22 @@ export default class AddServiceComponent extends PureComponent {
       ServiceGetData: null,
       ButtonGroup: false,
       ButtonGroupState: true,
-      handleType: null,
       moreState: true,
       BackType: null,
       errState: true,
     };
   }
-  cancelDelete = () => {
-    this.setState({ toDelete: false });
-  };
-  toAdd = () => {
-    this.setState({ toAdd: true });
-  };
-  cancelAdd = () => {
-    this.setState({ toAdd: false });
+  getGitServerName = item => {
+    const { oauth_type: oauthType, name } = item;
+    let setName = name;
+    if (oauthType === 'github') {
+      setName = 'Github项目';
+    } else if (oauthType === 'gitlab') {
+      setName = 'Gitlab项目';
+    } else if (oauthType === 'gitee') {
+      setName = 'Gitee项目';
+    }
+    return setName;
   };
 
   toAddService = () => {
@@ -66,21 +68,17 @@ export default class AddServiceComponent extends PureComponent {
 
   // 组件展示
   handleServiceComponent = (
-    ServiceComponentOnePage,
-    ServiceComponentTwoPage,
-    ServiceComponentThreePage,
+    ServiceComponentOnePage = false,
+    ServiceComponentTwoPage = null,
+    ServiceComponentThreePage = null,
     dataName,
-    data
+    data = null
   ) => {
     // ServiceComponentOnePage 显示第一页
     // ServiceComponentTwoPage 显示第二页组件模块
     // ServiceComponentThreePage 显示第三页组件模块
     // dataName 显示数据流程
-    ServiceComponentOnePage = ServiceComponentOnePage || false;
-    ServiceComponentTwoPage = ServiceComponentTwoPage || null;
-    ServiceComponentThreePage = ServiceComponentThreePage || null;
 
-    data = data || null;
     this.setState({
       ServiceComponentOnePage,
       ServiceComponentTwoPage,
@@ -105,7 +103,6 @@ export default class AddServiceComponent extends PureComponent {
   // 上一步
   handleBackEvents = () => {
     const {
-      ServiceComponentOnePage,
       ServiceComponentTwoPage,
       ServiceComponentThreePage,
       BackType,
@@ -125,7 +122,7 @@ export default class AddServiceComponent extends PureComponent {
         ButtonGroupState: true,
       });
     }
-    if (ServiceComponentTwoPage == 'market') {
+    if (ServiceComponentTwoPage === 'market') {
       this.setState({ moreState: true });
     }
   };
@@ -137,7 +134,6 @@ export default class AddServiceComponent extends PureComponent {
   refreshCurrent = () => {
     this.setState(
       {
-        CustomButton: false,
         toAddService: false,
         ServiceComponentOnePage: true,
         ServiceComponentTwoPage: null,
@@ -145,7 +141,6 @@ export default class AddServiceComponent extends PureComponent {
         ServiceGetData: null,
         ButtonGroup: false,
         ButtonGroupState: true,
-        handleType: null,
         moreState: true,
       },
       () => {
@@ -153,19 +148,9 @@ export default class AddServiceComponent extends PureComponent {
       }
     );
   };
-  getGitServerName = item => {
-    const { oauth_type } = item;
-    return oauth_type === 'github'
-      ? 'Github项目'
-      : oauth_type === 'gitlab'
-      ? 'Gitlab项目'
-      : oauth_type === 'gitee'
-      ? 'Gitee项目'
-      : `${name  }项目`;
-  };
 
   render() {
-    const { rainbondInfo, enterprise } = this.props;
+    const { rainbondInfo, enterprise, onload, groupId } = this.props;
     const {
       ButtonGroup,
       moreState,
@@ -176,6 +161,7 @@ export default class AddServiceComponent extends PureComponent {
       ButtonGroupState,
       gitType,
       gitServiceID,
+      toAddService,
     } = this.state;
     const codeSvg = () => (
       <svg width="60px" height="60px" viewBox="0 0 50 50" version="1.1">
@@ -237,8 +223,31 @@ export default class AddServiceComponent extends PureComponent {
         />
       </svg>
     );
-
     const servers = oauthUtil.getEnableGitOauthServer(enterprise);
+    const setProps = {
+      handleType: 'Service',
+      groupId,
+      ButtonGroupState,
+      moreState,
+      handleServiceBotton: (ButtonGroups, ButtonGroupStates) => {
+        this.handleServiceBotton(ButtonGroups, ButtonGroupStates);
+      },
+      handleServiceGetData: data => {
+        this.handleServiceComponent(
+          false,
+          null,
+          'check',
+          'ServiceGetData',
+          data
+        );
+      },
+      handleServiceComponent: () => {
+        this.handleServiceComponent(false, 'market', null, 'moreState', false);
+      },
+      refreshCurrent: () => {
+        this.refreshCurrent();
+      },
+    };
     return (
       <div>
         <Button
@@ -253,7 +262,7 @@ export default class AddServiceComponent extends PureComponent {
           title="添加组件"
           placement="right"
           onClose={this.cancelAddService}
-          visible={this.state.toAddService}
+          visible={toAddService}
           maskClosable={false}
           width={550}
         >
@@ -274,37 +283,41 @@ export default class AddServiceComponent extends PureComponent {
                     <Icon component={codeSvg} />
                     <p className={styles.ServiceSmallTitle}>自定义仓库</p>
                   </Col>
-                  {servers && servers.length>0 && servers.map(item => {
-                    const { service_id, oauth_type } = item;
-                    return (
-                      <Col
-                        key={service_id}
-                        span={8}
-                        className={styles.ServiceDiv}
-                        onClick={() => {
-                          this.setState(
-                            {
-                              gitType: oauth_type,
-                              gitServiceID: service_id,
-                            },
-                            () => {
-                              this.handleServiceComponent(
-                                false,
-                                'gitrepostory'
-                              );
-                            }
-                          );
-                        }}
-                      >
-                        {oauthUtil.getIcon(item, '60px')}
-                        <p className={styles.ServiceSmallTitle}>
-                          {this.getGitServerName(item)}
-                        </p>
-                      </Col>
-                    );
-                  })}
+                  {servers &&
+                    servers.length > 0 &&
+                    servers.map(item => {
+                      const {
+                        service_id: serviceId,
+                        oauth_type: oauthType,
+                      } = item;
+                      return (
+                        <Col
+                          key={serviceId}
+                          span={8}
+                          className={styles.ServiceDiv}
+                          onClick={() => {
+                            this.setState(
+                              {
+                                gitType: oauthType,
+                                gitServiceID: serviceId,
+                              },
+                              () => {
+                                this.handleServiceComponent(
+                                  false,
+                                  'gitrepostory'
+                                );
+                              }
+                            );
+                          }}
+                        >
+                          {oauthUtil.getIcon(item, '60px')}
+                          <p className={styles.ServiceSmallTitle}>
+                            {this.getGitServerName(item)}
+                          </p>
+                        </Col>
+                      );
+                    })}
                 </Row>
-
                 <Row style={{ marginBottom: '2px' }}>
                   {rainbondUtil.documentEnable(rainbondInfo) && (
                     <Alert
@@ -316,6 +329,7 @@ export default class AddServiceComponent extends PureComponent {
                               <a
                                 key={key}
                                 href={languageObj[key]}
+                                // eslint-disable-next-line react/jsx-no-target-blank
                                 target="_blank"
                               >
                                 {key}
@@ -332,7 +346,6 @@ export default class AddServiceComponent extends PureComponent {
                   )}
                 </Row>
               </div>
-
               <div className={styles.ServiceBox}>
                 <Row>
                   <p className={styles.ServiceTitle}>从源镜像开始</p>
@@ -368,79 +381,20 @@ export default class AddServiceComponent extends PureComponent {
                 </Row>
                 <Row>
                   <Market
+                    {...setProps}
                     scope="enterprise"
-                    handleType="Service"
                     scopeMax="localApplication"
-                    refreshCurrent={() => {
-                      this.refreshCurrent();
-                    }}
-                    groupId={this.props.groupId}
-                    ButtonGroupState={ButtonGroupState}
-                    moreState={moreState}
-                    handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                      this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-                    }}
-                    handleServiceGetData={data => {
-                      this.handleServiceComponent(
-                        false,
-                        null,
-                        'check',
-                        'ServiceGetData',
-                        data
-                      );
-                    }}
-                    handleServiceComponent={() => {
-                      this.handleServiceComponent(
-                        false,
-                        'market',
-                        null,
-                        'moreState',
-                        false
-                      );
-                    }}
                   />
                 </Row>
               </div>
             </div>
           )}
-          {ServiceComponentTwoPage === 'custom' && (
-            <Custom
-              handleType="Service"
-              groupId={this.props.groupId}
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  'check',
-                  'ServiceGetData',
-                  data
-                );
-              }}
-            />
-          )}
+          {ServiceComponentTwoPage === 'custom' && <Custom {...setProps} />}
           {ServiceComponentTwoPage === 'gitrepostory' && (
             <CodeGitRepostory
               type={gitServiceID}
               gitType={gitType}
-              handleType="Service"
-              groupId={this.props.groupId}
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  'check',
-                  'ServiceGetData',
-                  data
-                );
-              }}
+              {...setProps}
             />
           )}
           {ServiceComponentThreePage === 'check' && ServiceGetData && (
@@ -453,95 +407,41 @@ export default class AddServiceComponent extends PureComponent {
                 this.refreshCurrent();
               }}
               handleServiceBotton={(
-                ButtonGroup,
-                ButtonGroupState,
-                errState
+                ButtonGroups,
+                ButtonGroupStates,
+                errStates
               ) => {
                 this.handleServiceBotton(
-                  ButtonGroup,
-                  ButtonGroupState,
-                  errState
+                  ButtonGroups,
+                  ButtonGroupStates,
+                  errStates
                 );
               }}
               handleServiceDataState={(
-                ServiceComponentOnePage,
-                ServiceComponentTwoPage,
-                ServiceComponentThreePage,
+                ServiceComponentOnePages,
+                ServiceComponentTwoPages,
+                ServiceComponentThreePages,
                 data
               ) => {
                 this.handleServiceComponent(
-                  ServiceComponentOnePage,
-                  ServiceComponentTwoPage,
-                  ServiceComponentThreePage,
+                  ServiceComponentOnePages,
+                  ServiceComponentTwoPages,
+                  ServiceComponentThreePages,
                   'ServiceGetData',
                   data
                 );
-                this.props.onload && this.props.onload();
+                onload && onload();
               }}
             />
           )}
-
           {ServiceComponentTwoPage === 'imageName' && (
-            <ImageName
-              groupId={this.props.groupId}
-              handleType="Service"
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  'check',
-                  'ServiceGetData',
-                  data
-                );
-              }}
-            />
+            <ImageName {...setProps} />
           )}
-
-          {ServiceComponentTwoPage === 'imageCmd' && (
-            <ImageCmd
-              groupId={this.props.groupId}
-              handleType="Service"
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  'check',
-                  'ServiceGetData',
-                  data
-                );
-              }}
-            />
-          )}
+          {ServiceComponentTwoPage === 'imageCmd' && <ImageCmd {...setProps} />}
           {ServiceComponentTwoPage === 'market' && (
             <Market
               scopeMax="localApplication"
-              groupId={this.props.groupId}
-              refreshCurrent={() => {
-                this.refreshCurrent();
-              }}
-              handleType="Service"
-              moreState={moreState}
-              ButtonGroupState={ButtonGroupState}
-              handleServiceBotton={(ButtonGroup, ButtonGroupState) => {
-                this.handleServiceBotton(ButtonGroup, ButtonGroupState);
-              }}
-              handleServiceGetData={data => {
-                this.handleServiceComponent(
-                  false,
-                  null,
-                  'check',
-                  'ServiceGetData',
-                  data
-                );
-              }}
+              {...setProps}
               handleServiceComponent={() => {
                 this.handleServiceComponent(false, 'market', null);
               }}
