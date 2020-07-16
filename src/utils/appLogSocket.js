@@ -8,7 +8,7 @@
 	本类依赖TimerQueue工具类
 */
 
-import TimerQueue from './timerQueue';
+import TimerQueue from "./timerQueue";
 
 function noop() {}
 
@@ -40,7 +40,7 @@ AppLogSocket.prototype = {
     this.webSocket.onerror = this._onError.bind(this);
     this.timerQueue = new TimerQueue({
       onExecute: this.onMessage,
-      autoStart: true,
+      autoStart: true
     });
     const i = 1;
   },
@@ -50,20 +50,25 @@ AppLogSocket.prototype = {
   close() {
     this.webSocket && this.webSocket.close();
   },
-  _onOpen(evt) {
+  _onOpen() {
     // 通知服务器
-    this.serviceId && this.webSocket.send(`topic=${this.serviceId}`);
-    this.onOpen(this.webSocket);
+    try {
+      this.serviceId && this.webSocket.send(`topic=${this.serviceId}`);
+      this.onOpen(this.webSocket);
+    } catch (err) {
+      console.log("err", err);
+      return false;
+    }
   },
   _onMessage(evt) {
     // 代表连接成功， 不做任何处理
-    if (evt.data && evt.data !== 'ok') {
+    if (evt.data && evt.data !== "ok") {
       let msg = evt.data;
       if (this.instanceId) {
         if (msg.substring(0, 12) === this.instanceId) {
           msg = msg.substr(13);
         } else {
-          msg = '';
+          msg = "";
         }
       } else {
         msg = msg;
@@ -87,7 +92,7 @@ AppLogSocket.prototype = {
   destroy() {
     this.destroyed = true;
     this.webSocket && this.webSocket.close();
-  },
+  }
 };
 
 export default AppLogSocket;

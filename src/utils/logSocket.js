@@ -34,9 +34,14 @@ LogSocket.prototype = {
   close() {
     this.webSocket && this.webSocket.close();
   },
-  _onOpen(evt) {
-    this.webSocket.send(`event_id=${this.eventId}`);
-    this.onOpen();
+  _onOpen() {
+    try {
+      this.webSocket.send(`event_id=${this.eventId}`);
+      this.onOpen();
+    } catch (err) {
+      console.log("err", err);
+      return false;
+    }
   },
   _onMessage(evt) {
     // 代表连接成功， 不做任何处理
