@@ -121,7 +121,7 @@ class Main extends PureComponent {
       toDelete: false,
       toEdit: false,
       toAdd: false,
-      isTopology: false,
+      isTopology: true,
       service_alias: [],
       linkList: [],
       jsonDataLength: 0,
@@ -532,7 +532,6 @@ class Main extends PureComponent {
       linkList,
       isTopology,
     } = this.state;
-    console.log('isTopology', isTopology);
     if (groupDetail.group_id != appID && !loadingDetail) {
       this.fetchAppDetail();
     }
