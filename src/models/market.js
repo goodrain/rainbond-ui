@@ -22,8 +22,7 @@ import {
   queryImportRecord,
   upAppMarket,
   upAppModel,
-  upDataTag,
-  uploadApp
+  upDataTag
 } from "../services/market";
 
 export default {
@@ -128,12 +127,6 @@ export default {
     },
     *appExport({ payload, callback }, { call }) {
       const data = yield call(appExport, payload);
-      if (data && callback) {
-        callback(data);
-      }
-    },
-    *uploadApp({ payload, callback }, { call }) {
-      const data = yield call(uploadApp, payload);
       if (data && callback) {
         callback(data);
       }

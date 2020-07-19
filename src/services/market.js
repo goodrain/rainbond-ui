@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* 获取本地标签s（搜索） */
 export async function fetchAppModelsTags(param) {
@@ -237,19 +237,6 @@ export function appExport(
         app_versions: body.app_versions,
         format: body.format,
       },
-    }
-  );
-}
-
-/*
-     应用包上传
-  */
-export function uploadApp(body = { team_name }) {
-  const team_name = body.team_name;
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/upload`,
-    {
-      method: 'post',
     }
   );
 }
