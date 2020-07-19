@@ -143,12 +143,6 @@ export default [
             authority: ['admin', 'user'],
           },
           {
-            path: '/team/:teamName/region/:regionName/source/:type?/:name?',
-            component: './Source/Index',
-            name: 'Source',
-            authority: ['admin', 'user'],
-          },
-          {
             path: '/team/:teamName/region/:regionName/message',
             component: './Message/Index',
             name: 'Message',

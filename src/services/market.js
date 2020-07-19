@@ -242,18 +242,6 @@ export function appExport(
 }
 
 /*
-     获取导出文件
-  */
-export async function getExport(body = { team_name, app_id, format }) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/export/down?app_id=${body.app_id}&format=${body.format}`,
-    {
-      method: 'get',
-    }
-  );
-}
-
-/*
      应用包上传
   */
 export function uploadApp(body = { team_name }) {

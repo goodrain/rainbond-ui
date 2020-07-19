@@ -1,34 +1,33 @@
 import {
-  fetchAppModels,
-  upAppModel,
-  upAppMarket,
-  deleteAppMarket,
-  createAppModel,
+  appExport,
+  cancelImportApp,
   createAppMarket,
+  createAppModel,
   createMarketAppModel,
+  createTag,
+  deleteAppMarket,
+  deleteTag,
+  fetchAppModels,
   fetchAppModelsTags,
   fetchMarkets,
   fetchMarketsTab,
   getMarketApp,
-  createTag,
-  upDataTag,
-  deleteTag,
-  queryExport,
-  appExport,
-  getExport,
-  uploadApp,
+  getRecommendMarketAppList,
   importApp,
-  queryImportApp,
   importDir,
+  queryExport,
+  queryImportApp,
   queryImportDirApp,
   queryImportingApp,
   queryImportRecord,
-  cancelImportApp,
-  getRecommendMarketAppList,
-} from '../services/market';
+  upAppMarket,
+  upAppModel,
+  upDataTag,
+  uploadApp
+} from "../services/market";
 
 export default {
-  namespace: 'market',
+  namespace: "market",
   state: {},
   effects: {
     *fetchAppModels({ payload, callback }, { call }) {
@@ -133,12 +132,6 @@ export default {
         callback(data);
       }
     },
-    *getExport({ payload, callback }, { call }) {
-      const data = yield call(getExport, payload);
-      if (data && callback) {
-        callback(data);
-      }
-    },
     *uploadApp({ payload, callback }, { call }) {
       const data = yield call(uploadApp, payload);
       if (data && callback) {
@@ -186,8 +179,8 @@ export default {
       if (data && callback) {
         callback(data);
       }
-    },
+    }
   },
 
-  reducers: {},
+  reducers: {}
 };
