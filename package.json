@@ -11,8 +11,8 @@
     "analyze": "cross-env ANALYZE=true roadhog build"
   },
   "engines": {
-    "node": "12.8.1",
-    "yarn": "1.17.3"
+    "node": "12.8.2",
+    "yarn": "1.22.4"
   },
   "dependencies": {
     "@ant-design/compatible": "^0.0.1-rc.1",
