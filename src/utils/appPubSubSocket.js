@@ -49,7 +49,7 @@ AppPubSubSocket.prototype = {
           return;
         }
         this.onLogMessage(message);
-      },
+      }
     });
     this.monitorLogQueue = new TimerQueue({
       interval: 5,
@@ -59,14 +59,11 @@ AppPubSubSocket.prototype = {
           return;
         }
         this.onMonitorMessage(message);
-      },
+      }
     });
     this.eventLogQueue = new Map();
     this.opened = false;
     this.waitingSendMessage = [];
-  },
-  getSocket() {
-    return this.webSocket;
   },
   getEventLogQueue(channel) {
     if (this.eventLogQueue.has(channel)) {
@@ -81,7 +78,7 @@ AppPubSubSocket.prototype = {
     if (this.eventLogQueue.has(channel)) {
       this.eventLogQueue.get(channel).onExecute = item => {
         if (item.action !== undefined && item.status !== undefined) {
-          if (item.status === 'success') {
+          if (item.status === "success") {
             onSuccess(item.message);
           } else {
             onFailure(item.message);
@@ -96,77 +93,102 @@ AppPubSubSocket.prototype = {
           autoStart: true,
           onExecute: item => {
             if (item.action !== undefined && item.status !== undefined) {
-              if (item.status === 'success') {
+              if (item.status === "success") {
                 onSuccess(item.message);
               } else {
                 onFailure(item.message);
               }
             }
             onMessage(item);
-          },
+          }
         })
       );
       const message = {
-        event: 'pusher:subscribe',
+        event: "pusher:subscribe",
         data: {
-          channel: `e-${eventID}`,
-        },
+          channel: `e-${eventID}`
+        }
       };
-      if (this.opened) {
-        this.webSocket.send(JSON.stringify(message));
-      } else {
-        this.waitingSendMessage.push(JSON.stringify(message));
+      try {
+        if (this.opened) {
+          this.webSocket.send(JSON.stringify(message));
+        } else {
+          this.waitingSendMessage.push(JSON.stringify(message));
+        }
+      } catch (err) {
+        console.log("err", err);
+        return false;
       }
     }
   },
   setOnLogMessage(callbackAll, onLogMessage) {
-    if (this.serviceId) {
-      const message = {
-        event: 'pusher:subscribe',
-        data: {
-          channel: `l-${this.serviceId}`,
-        },
-      };
-      this.webSocket.send(JSON.stringify(message));
+    try {
+      if (this.serviceId) {
+        const message = {
+          event: "pusher:subscribe",
+          data: {
+            channel: `l-${this.serviceId}`
+          }
+        };
+        this.webSocket.send(JSON.stringify(message));
+      }
+      callbackAll(this.serviceLogQueue.brushout());
+      this.onLogMessage = onLogMessage;
+      this.serviceLogQueue.start();
+    } catch (err) {
+      console.log("err", err);
+      return false;
     }
-    callbackAll(this.serviceLogQueue.brushout());
-    this.onLogMessage = onLogMessage;
-    this.serviceLogQueue.start();
   },
   setOnMonitorMessage(onMonitorMessage) {
-    if (this.serviceId) {
-      const message = {
-        event: 'pusher:subscribe',
-        data: {
-          channel: `m-${this.serviceId}`,
-        },
-      };
-      this.webSocket.send(JSON.stringify(message));
+    try {
+      if (this.serviceId) {
+        const message = {
+          event: "pusher:subscribe",
+          data: {
+            channel: `m-${this.serviceId}`
+          }
+        };
+        this.webSocket.send(JSON.stringify(message));
+      }
+      this.onMonitorMessage = onMonitorMessage;
+      this.monitorLogQueue.start();
+    } catch (err) {
+      console.log("err", err);
+      return false;
     }
-    this.onMonitorMessage = onMonitorMessage;
-    this.monitorLogQueue.start();
   },
   closeLogMessage() {
-    if (this.serviceId) {
-      const message = {
-        event: 'cancel:subscribe',
-        data: {
-          channel: `docker-${this.serviceId}`,
-        },
-      };
-      this.webSocket.send(JSON.stringify(message));
+    try {
+      if (this.serviceId) {
+        const message = {
+          event: "cancel:subscribe",
+          data: {
+            channel: `docker-${this.serviceId}`
+          }
+        };
+        this.webSocket.send(JSON.stringify(message));
+      }
+      this.serviceLogQueue.stop();
+    } catch (err) {
+      console.log("err", err);
+      return false;
     }
-    this.serviceLogQueue.stop();
   },
   closeMonitorMessage() {
-    if (this.serviceId) {
-      const message = {
-        event: 'cancel:subscribe',
-        data: {
-          channel: `newmonitor-${this.serviceId}`,
-        },
-      };
-      this.webSocket.send(JSON.stringify(message));
+    try {
+      if (this.serviceId) {
+        const message = {
+          event: "cancel:subscribe",
+          data: {
+            channel: `newmonitor-${this.serviceId}`
+          }
+        };
+        this.webSocket.send(JSON.stringify(message));
+      }
+    } catch (err) {
+      console.log("err", err);
+      return false;
     }
   },
   close() {
@@ -176,13 +198,17 @@ AppPubSubSocket.prototype = {
   },
 
   _onOpen() {
-    this.onOpen(this.webSocket);
-    this.opened = true;
-    if (this.waitingSendMessage.length > 0) {
-      this.waitingSendMessage.map(m => {
-        this.webSocket.send(m);
-        return null;
-      });
+    try {
+      this.onOpen(this.webSocket);
+      this.opened = true;
+      if (this.waitingSendMessage.length > 0) {
+        this.waitingSendMessage.map(m => {
+          this.webSocket.send(m);
+          return null;
+        });
+      }
+    } catch (err) {
+      console.log("err", err);
     }
   },
   _onMessage(message) {
@@ -193,7 +219,7 @@ AppPubSubSocket.prototype = {
     if (!me.event) {
       return;
     }
-    if (me.event === 'monitor') {
+    if (me.event === "monitor") {
       if (me.data) {
         const msg = JSON.parse(me.data);
         if (msg) {
@@ -201,12 +227,12 @@ AppPubSubSocket.prototype = {
         }
       }
     }
-    if (me.event === 'service:log') {
+    if (me.event === "service:log") {
       if (me.data) {
         this.serviceLogQueue.add(me.data);
       }
     }
-    if (me.event === 'event:log') {
+    if (me.event === "event:log") {
       if (me.data) {
         const msg = JSON.parse(me.data);
         if (msg) {
@@ -214,18 +240,18 @@ AppPubSubSocket.prototype = {
         }
       }
     }
-    if (me.event === 'event:success') {
+    if (me.event === "event:success") {
       this.getEventLogQueue(me.channel).add({
-        action: 'closed',
+        action: "closed",
         message: me.data,
-        status: 'success',
+        status: "success"
       });
     }
-    if (me.event === 'event:failure') {
+    if (me.event === "event:failure") {
       this.getEventLogQueue(me.channel).add({
-        action: 'closed',
+        action: "closed",
         message: me.data,
-        status: 'failure',
+        status: "failure"
       });
     }
   },
@@ -249,7 +275,7 @@ AppPubSubSocket.prototype = {
     if (this.webSocket) {
       this.webSocket.close();
     }
-  },
+  }
 };
 
 export default AppPubSubSocket;

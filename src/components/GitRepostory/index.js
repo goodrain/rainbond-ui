@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-unused-expressions */
 import { Card } from 'antd';

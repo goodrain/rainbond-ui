@@ -25,14 +25,14 @@ export default class SelectRegion extends PureComponent {
 
   loadTeamRegions = () => {
     const { currentTeam } = this.props;
-    this.setState({ loading: false, teamRegions: currentTeam.region });
+    this.setState({ loading: false, teamRegions: currentTeam && currentTeam.region });
   };
   showOpenRegion = () => {
     this.handleOut();
     this.setState({ showOpenRegion: true });
   };
   handleOpenRegion = regions => {
-    if (regions.length == 0) {
+    if (regions.length === 0) {
       return;
     }
     const { currentTeam } = this.props;

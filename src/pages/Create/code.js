@@ -1,15 +1,16 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable camelcase */
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import CodeGitRepostory from '../../components/GitRepostory';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
+import rainbondUtil from '../../utils/rainbond';
+import roleUtil from '../../utils/role';
 import CodeCustom from './code-custom';
 import CodeDemo from './code-demo';
-import CodeGitRepostory from '../../components/GitRepostory';
-import rainbondUtil from '../../utils/rainbond';
-import oauthUtil from '../../utils/oauth';
-import globalUtil from '../../utils/global';
-import roleUtil from '../../utils/role';
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 
 @connect(
   ({ teamControl, global, enterprise }) => ({

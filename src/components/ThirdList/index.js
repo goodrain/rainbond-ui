@@ -52,22 +52,15 @@ class Index extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.type !== this.props.type) {
-      this.handleCodeWarehouseInfo(nextProps);
+      this.setState({ visible: false, search: "" }, () => {
+        this.handleCodeWarehouseInfo(nextProps);
+      });
     }
   }
   onChangePage = page => {
     this.setState({ page, loading: true }, () => {
       this.handleCodeWarehouseInfo(this.props);
     });
-  };
-  onPageNext = () => {
-    const { lastPage, page } = this.state;
-    if (!lastPage) {
-      const pages = page + 1;
-      this.setState({ page: pages, loading: true }, () => {
-        this.handleCodeWarehouseInfo(this.props);
-      });
-    }
   };
   handleSearch = search => {
     const _th = this;
@@ -189,7 +182,9 @@ class Index extends React.Component {
     });
   };
   componentWillUnmount() {
-    this.timer && clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   }
   showModal = thirdInfo => {
     this.setState({
@@ -205,7 +200,9 @@ class Index extends React.Component {
   };
 
   handleDetection = () => {
-    this.timer && clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     this.setState({
       detection: false,
       create_status: "",

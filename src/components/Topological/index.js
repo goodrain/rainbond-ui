@@ -1,9 +1,9 @@
 /* eslint-disable func-names */
-import React from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import globalUtil from '../../utils/global';
+import React from 'react';
 import apiconfig from '../../../config/api.config';
+import globalUtil from '../../utils/global';
 
 @connect()
 class Index extends React.Component {
@@ -17,7 +17,7 @@ class Index extends React.Component {
         return topologicalAddress;
       };
 
-      window.iframeGetMonitor = function(fn) {
+      window.iframeGetMonitor = function(fn, errcallback) {
         dispatch({
           type: 'groupControl/groupMonitorData',
           payload: {
@@ -26,9 +26,14 @@ class Index extends React.Component {
           },
           callback: data => {
             if (data && fn) {
-              fn(data || {});
+              fn(data);
             }
           },
+          handleError: (err) => {
+            if (errcallback) {
+              errcallback(err)
+            }
+          }
         });
         return topologicalAddress;
       };

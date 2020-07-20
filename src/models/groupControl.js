@@ -33,19 +33,19 @@ import {
   startPluginShareEventInShareApp,
   getPluginShareEventInShareApp,
   queryAllBackup,
-  queryRestoreState,
-} from '../services/group';
-import cookie from '../utils/cookie';
+  queryRestoreState
+} from "../services/group";
+import cookie from "../utils/cookie";
 
 export default {
-  namespace: 'groupControl',
+  namespace: "groupControl",
   state: {
     // app detail
     groupDetail: {},
     // component list
     apps: [],
     // plugin
-    plugins: [],
+    plugins: []
   },
   effects: {
     *fetchBackupStatus({ payload, callback }, { call, put }) {
@@ -78,8 +78,8 @@ export default {
         callback && callback(response);
       }
     },
-    *groupMonitorData({ payload, callback }, { call, put }) {
-      const response = yield call(groupMonitorData, payload);
+    *groupMonitorData({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(groupMonitorData, payload, handleError);
       if (response) {
         callback && callback(response);
       }
@@ -93,14 +93,14 @@ export default {
     *fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getGroupDetail, payload, handleError);
       if (response) {
-        yield put({ type: 'saveGroupDetail', payload: response.bean });
+        yield put({ type: "saveGroupDetail", payload: response.bean });
         callback && callback(response);
       }
     },
     *fetchApps({ payload, callback }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {
-        yield put({ type: 'saveApps', payload: response.list });
+        yield put({ type: "saveApps", payload: response.list });
         callback && callback(response);
       }
     },
@@ -276,32 +276,32 @@ export default {
       if (response) {
         callback && callback(response);
       }
-    },
+    }
   },
   reducers: {
     clearApps(state, action) {
       return {
         ...state,
-        apps: [],
+        apps: []
       };
     },
     saveApps(state, action) {
       return {
         ...state,
-        apps: action.payload,
+        apps: action.payload
       };
     },
     clearGroupDetail(state, action) {
       return {
         ...state,
-        groupDetail: {},
+        groupDetail: {}
       };
     },
     saveGroupDetail(state, action) {
       return {
         ...state,
-        groupDetail: action.payload,
+        groupDetail: action.payload
       };
-    },
-  },
+    }
+  }
 };

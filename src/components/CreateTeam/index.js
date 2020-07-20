@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react';
-import { Button, Icon, Modal, Form, Checkbox, Select, Input } from 'antd';
-import { getAllRegion } from '../../services/api';
-import globalUtil from '../../utils/global';
-import styles from './index.less';
+import React, { PureComponent } from "react";
+import { Button, Icon, Modal, Form, Checkbox, Select, Input } from "antd";
+import { getAllRegion } from "../../services/api";
+import globalUtil from "../../utils/global";
+import styles from "./index.less";
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @Form.create()
 class CreateTeam extends PureComponent {
@@ -13,7 +13,7 @@ class CreateTeam extends PureComponent {
     super(arg);
     this.state = {
       actions: [],
-      regions: [],
+      regions: []
     };
   }
   componentDidMount() {
@@ -23,47 +23,34 @@ class CreateTeam extends PureComponent {
     }
   }
   getUnRelationedApp = enterprise_id => {
-    getAllRegion({enterprise_id, status: "1"}).then(data => {
+    getAllRegion({ enterprise_id, status: "1" }).then(data => {
       if (data) {
         this.setState({ regions: data.list || [] });
       }
     });
   };
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(values);
+    const { onOk, form } = this.props;
+    form.validateFields((err, values) => {
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { onOk, onCancel, actions } = this.props;
+    const { onOk, onCancel, actions, form } = this.props;
+    const { getFieldDecorator } = form;
 
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-      },
+        sm: { span: 14 }
+      }
     };
-    const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 14,
-          offset: 6,
-        },
-      },
-    };
-
-    const options = actions || [];
 
     return (
       <Modal
@@ -76,36 +63,40 @@ class CreateTeam extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" onClick={this.handleSubmit}>
             确定
-          </Button>,
+          </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal">
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
-            {getFieldDecorator('team_name', {
+            {getFieldDecorator("team_name", {
               rules: [
                 {
                   required: true,
-                  message: '请输入团队名称',
+                  message: "请输入团队名称"
                 },
-              ],
+                {
+                  max: 10,
+                  message: "团队名称最多10个字"
+                }
+              ]
             })(<Input placeholder="请输入团队名称" />)}
             <div className={styles.conformDesc}>
-              请输入创建的团队名称，最多10字
+              请输入创建的团队名称，最多10个字
             </div>
           </FormItem>
 
           <FormItem {...formItemLayout} label="集群" hasFeedback>
-            {getFieldDecorator('useable_regions', {
+            {getFieldDecorator("useable_regions", {
               rules: [
                 {
                   required: true,
-                  message: '请选择集群',
-                },
-              ],
+                  message: "请选择集群"
+                }
+              ]
             })(
               <Select
                 mode="multiple"
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
                 placeholder="选择集群"
               >
                 {(this.state.regions || []).map(item => {
