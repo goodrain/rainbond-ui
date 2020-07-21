@@ -171,7 +171,10 @@ export default class TcpTable extends PureComponent {
     );
   }
   handleSearch = value => {
-    this.setState({ tcp_search: value }, () => {
+    this.setState({ 
+      tcp_search: value,
+      page_num: 1
+    }, () => {
       this.load();
     });
   };

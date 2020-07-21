@@ -1,13 +1,12 @@
-import React, { PureComponent } from 'react';
+import { Button, Card, Modal, notification, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
-import { Row, Card, Table, Button, notification, Tooltip, Modal } from 'antd';
-import Search from '../Search';
-import DrawerForm from '../DrawerForm';
-import ParameterForm from '../ParameterForm';
-import InfoConnectModal from '../InfoConnectModal';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
-import styles from './index.less';
+import DrawerForm from '../DrawerForm';
+import InfoConnectModal from '../InfoConnectModal';
+import ParameterForm from '../ParameterForm';
+import Search from '../Search';
 
 @connect(({ user, global, loading, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -355,7 +354,11 @@ export default class HttpTable extends PureComponent {
     }
   };
   handleSearch = search_conditions => {
-    this.setState({ http_search: search_conditions, loading: true }, () => {
+    this.setState({ 
+      http_search: search_conditions, 
+      loading: true,
+      page_num: 1,
+    }, () => {
       this.load();
     });
   };
