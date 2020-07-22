@@ -1,8 +1,9 @@
-import { routerRedux } from 'dva/router';
-import moment from 'moment';
-import axios from 'axios';
-import cookie from './cookie';
-import styles from './utils.less';
+/* eslint-disable react/react-in-jsx-scope */
+import { routerRedux } from "dva/router";
+import moment from "moment";
+import axios from "axios";
+import cookie from "./cookie";
+import styles from "./utils.less";
 
 const global = {
   withoutPermission(dispatch) {
@@ -16,13 +17,13 @@ const global = {
     );
   },
   removeCookie() {
-    cookie.remove('team_name', { domain: '' });
-    cookie.remove('region_name', { domain: '' });
-    cookie.remove('team', { domain: '' });
-    cookie.remove('token', { domain: '' });
-    cookie.remove('appStore', { domain: '' });
-    cookie.remove('newbie_guide', { domain: '' });
-    cookie.remove('platform_url', { domain: '' });
+    cookie.remove("team_name", { domain: "" });
+    cookie.remove("region_name", { domain: "" });
+    cookie.remove("team", { domain: "" });
+    cookie.remove("token", { domain: "" });
+    cookie.remove("appStore", { domain: "" });
+    cookie.remove("newbie_guide", { domain: "" });
+    cookie.remove("platform_url", { domain: "" });
   },
   putLog(info) {
     if (!info || (info && !info.enterprise_id)) {
@@ -30,11 +31,11 @@ const global = {
     }
     try {
       const defaultOptions = {
-        credentials: 'same-origin',
+        credentials: "same-origin"
       };
       const { title, version } = info;
-      defaultOptions.url = 'https://log.rainbond.com/log';
-      defaultOptions.method = 'post';
+      defaultOptions.url = "https://log.rainbond.com/log";
+      defaultOptions.method = "post";
       defaultOptions.data = JSON.stringify({
         url: window.location.href,
         eid: info.enterprise_id,
@@ -42,8 +43,8 @@ const global = {
         version: version.value,
         title: title.value,
         day: moment(new Date())
-          .locale('zh-cn')
-          .format('YYYYMMDD'),
+          .locale("zh-cn")
+          .format("YYYYMMDD")
       });
       defaultOptions.data = JSON.parse(defaultOptions.data);
       axios(defaultOptions);
@@ -51,87 +52,87 @@ const global = {
   },
   getCurrEnterpriseId() {
     const reg = /enterprise\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = location.hash || "";
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return '';
+    return "";
   },
   getCurrTeamName() {
     const reg = /team\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = location.hash || "";
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return '';
+    return "";
   },
   getComponentID() {
     const reg = /components\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = location.hash || "";
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return '';
+    return "";
   },
   getAppID() {
     const reg = /apps\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = location.hash || "";
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return '';
+    return "";
   },
   getCurrRegionName() {
     const reg = /region\/([^\/]+)/;
-    const hash = location.hash || '';
+    const hash = location.hash || "";
     const match = hash.match(reg);
     if (match) {
       return match[1];
     }
-    return '';
+    return "";
   },
   fetchStateColor(status) {
     const statusColorMap = {
-      RUNNING: '#00D777', // 运行中 绿色
-      running: '#00D777', // 运行中 绿色
-      starting: '#F69D4A', // 启动中
-      Starting: '#F69D4A', // 启动中
-      NOTREADY: '#F69D4A', // 未就绪
-      checking: 'F69D4A', // 检测中
-      SCHEDULING: '#F69D4A', // 检测中
-      stopping: '#20124A', // 关闭中 紫色
-      Stopping: '#20124A', // 关闭中 紫色
-      unusual: '#CD0200', // 异常 纯红
-      ABNORMAL: '#CD0200', // 异常 纯红
-      closed: '#000021', // 已关闭 黑色
-      Closed: '#000021', // 已关闭 黑色
-      undeploy: '#708090', // 未部署 石板灰
-      Undeploy: '#708090', // 未部署 石板灰
-      Unknow: '#CD0200', // 未知深粉色
-      unknow: '#CD0200', // 未知/深粉色
-      Creating: '#778899', // 部署中 浅石板灰
-      creating: '#778899', // 部署中 浅石板灰
-      Third_party: '#5BB2FA',
-      Internet: '#5BB2FA', // 蓝色
-      TheInternet: '#5BB2FA', // 蓝色
-      Abnormal: '#CD0200', // 不正常,纯红
-      abnormal: '#CD0200', // 不正常,纯红
-      Build_failure: '#CD0200', // 构建失败 纯红
-      build_failure: '#CD0200', // 构建失败 纯红
-      Upgrade: '#00FF4A', // 升级中
-      upgrade: '#00FF4A', // 升级中
-      expired: '#CD0200', // 过期 猩红
-      Expired: '#CD0200', // 猩红
-      UNHEALTHY: '#CD0200',
-      INITIATING: '#F69D4A',
-      TEMINATING: '#20124A', // 关闭中 紫色
-      tEMINATING: '#20124A', // 关闭中 紫色
-      Some_abnormal: '#FF0000', // 一些不正常 纯红
-      Building: '#007710', // 构建  纯蓝
+      RUNNING: "#00D777", // 运行中 绿色
+      running: "#00D777", // 运行中 绿色
+      starting: "#F69D4A", // 启动中
+      Starting: "#F69D4A", // 启动中
+      NOTREADY: "#F69D4A", // 未就绪
+      checking: "F69D4A", // 检测中
+      SCHEDULING: "#F69D4A", // 检测中
+      stopping: "#20124A", // 关闭中 紫色
+      Stopping: "#20124A", // 关闭中 紫色
+      unusual: "#CD0200", // 异常 纯红
+      ABNORMAL: "#CD0200", // 异常 纯红
+      closed: "#000021", // 已关闭 黑色
+      Closed: "#000021", // 已关闭 黑色
+      undeploy: "#708090", // 未部署 石板灰
+      Undeploy: "#708090", // 未部署 石板灰
+      Unknow: "#CD0200", // 未知深粉色
+      unknow: "#CD0200", // 未知/深粉色
+      Creating: "#778899", // 部署中 浅石板灰
+      creating: "#778899", // 部署中 浅石板灰
+      Third_party: "#5BB2FA",
+      Internet: "#5BB2FA", // 蓝色
+      TheInternet: "#5BB2FA", // 蓝色
+      Abnormal: "#CD0200", // 不正常,纯红
+      abnormal: "#CD0200", // 不正常,纯红
+      Build_failure: "#CD0200", // 构建失败 纯红
+      build_failure: "#CD0200", // 构建失败 纯红
+      Upgrade: "#00FF4A", // 升级中
+      upgrade: "#00FF4A", // 升级中
+      expired: "#CD0200", // 过期 猩红
+      Expired: "#CD0200", // 猩红
+      UNHEALTHY: "#CD0200",
+      INITIATING: "#F69D4A",
+      TEMINATING: "#20124A", // 关闭中 紫色
+      tEMINATING: "#20124A", // 关闭中 紫色
+      Some_abnormal: "#FF0000", // 一些不正常 纯红
+      Building: "#007710" // 构建  纯蓝
     };
     return statusColorMap[status] || statusColorMap.unknow;
   },
@@ -140,6 +141,141 @@ const global = {
   },
   fetchSvg(type, color) {
     const svgType = {
+      vip: (
+        <svg
+          t="1585818847140"
+          viewBox="0 0 1024 1024"
+          p-id="2821"
+          width="20"
+          height="20"
+        >
+          <path
+            d="M1007.669 323.675c0.481 8.367-2.411 16.732-8.204 23.327l-480.066 548.598 359.083-571.927h129.185z"
+            fill="#2EB9EF"
+            p-id="2822"
+          />
+          <path
+            d="M1007.669 323.675h-129.185l-55.985-204.317c11.584 0.803 22.363 6.275 30.086 15.124l147.045 168.442c5.149 5.953 7.885 13.354 8.043 20.754z"
+            fill="#44C9F2"
+            p-id="2823"
+          />
+          <path
+            d="M822.497 119.357l55.985 204.317h-166.189l-32.821-73.039 139.162-131.599c1.286 0 2.572 0 3.861 0.324z"
+            fill="#2EB9EF"
+            p-id="2824"
+          />
+          <path
+            d="M878.484 323.675l-359.083 571.927 192.895-571.927zM818.636 119.036l-139.162 131.599-160.075-131.599z"
+            fill="#46D3F9"
+            p-id="2825"
+          />
+          <path
+            d="M679.476 250.636l32.821 73.039h-192.895v-204.64z"
+            fill="#5CD6F7"
+            p-id="2826"
+          />
+          <path
+            d="M712.295 323.675l-192.895 571.927v-571.927h7.241z"
+            fill="#76E5FF"
+            p-id="2827"
+          />
+          <path
+            d="M519.241 323.675v571.927l-192.895-571.927h185.654z"
+            fill="#3FC1EF"
+            p-id="2828"
+          />
+          <path
+            d="M519.241 119.036v204.64h-192.895l32.821-73.039z"
+            fill="#76E5FF"
+            p-id="2829"
+          />
+          <path
+            d="M326.346 323.675l192.895 571.927-359.243-571.927z"
+            fill="#46D3F9"
+            p-id="2830"
+          />
+          <path
+            d="M159.995 323.675l359.243 571.927-480.226-548.598c-5.791-6.595-8.687-14.961-8.204-23.327h129.185z"
+            fill="#2EB9EF"
+            p-id="2831"
+          />
+          <path
+            d="M519.241 119.036l-160.075 131.599-139.321-131.599z"
+            fill="#46D3F9"
+            p-id="2832"
+          />
+          <path
+            d="M359.164 250.636l-32.821 73.039h-166.35l55.985-204.317c1.286-0.324 2.572-0.324 3.861-0.324l139.321 131.599z"
+            fill="#2EB9EF"
+            p-id="2833"
+          />
+          <path
+            d="M215.982 119.357l-55.985 204.317h-129.185c0.16-7.399 3.057-14.801 8.204-20.754l147.045-168.442c7.724-8.847 18.5-14.319 29.923-15.124z"
+            fill="#44C9F2"
+            p-id="2834"
+          />
+        </svg>
+      ),
+      free: (
+        <svg
+          t="1585879598597"
+          viewBox="0 0 1025 1024"
+          p-id="7186"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M1021.747 356.557l-2.355 2.253-493.67 658.33-4.608 4.607h-2.253c-1.536 1.536-3.789 2.253-6.861 2.253-3.072 0-5.325-0.717-6.86-2.253h-2.254l-4.608-4.608L4.608 358.81c-1.536 0-2.253-0.716-2.253-2.252v-2.253C0.717 352.768 0 351.232 0 349.696v-6.861l2.253-2.253c0-1.433 0.717-3.072 2.253-4.608v-2.252l256-256c3.072-1.434 5.324-2.253 6.86-2.253 1.536-1.434 3.79-2.253 6.861-2.253H749.67c3.072 0 5.325 0.82 6.861 2.253 1.536 0 3.072 0.819 4.608 2.253h2.253l256 256c1.536 3.072 2.253 5.324 2.253 6.86l2.355 2.253v6.861l-2.253 4.608v2.253z m-966.86 9.113L452.607 896l-192-530.33H54.886zM256 134.86L61.747 329.115H256V134.86z m214.835-25.19H292.557v192l178.278-192z m-171.417 256L512 950.886l212.582-585.113H299.418z m409.19-36.556L512 118.886 315.392 329.114h393.216z m22.835-219.444H553.165l178.278 192v-192zM571.392 896l397.722-530.33H763.392l-192 530.33z m390.86-566.886L768 134.86v194.253h194.253z"
+            p-id="7187"
+            fill="#ffffff"
+          />
+        </svg>
+      ),
+      cloudMarket: (
+        <svg
+          t="1592977834590"
+          viewBox="0 0 1024 1024"
+          p-id="15784"
+          width="14"
+          height="14"
+        >
+          <path
+            d="M832 128 192 128C153.6 128 128 153.6 128 192l0 448c0 38.4 25.6 64 64 64l640 0c38.4 0 64-25.6 64-64L896 192C896 153.6 870.4 128 832 128zM864 614.4c0 32-25.6 57.6-57.6 57.6L217.6 672c-32 0-57.6-25.6-57.6-57.6L160 217.6c0-32 25.6-57.6 57.6-57.6l588.8 0c32 0 57.6 25.6 57.6 57.6L864 614.4z"
+            p-id="15785"
+            fill="#2c2c2c"
+          />
+          <path
+            d="M640 832 608 832l0-128-192 0 0 128L384 832c-19.2 0-32 12.8-32 32C352 883.2 364.8 896 384 896l32 0 192 0L640 896c19.2 0 32-12.8 32-32C672 844.8 659.2 832 640 832z"
+            p-id="15786"
+            fill="#2c2c2c"
+          />
+          <path
+            d="M736 268.8c-19.2 0-32 12.8-32 32 0 6.4 0 6.4 0 12.8L595.2 473.6c0 0 0 0-6.4 0-6.4 0-6.4 0-12.8 0L448 352c0 0 0-6.4 0-6.4 0-19.2-12.8-32-32-32C403.2 313.6 384 326.4 384 345.6c0 6.4 0 6.4 0 12.8L288 499.2c0 0 0 0 0 0C268.8 499.2 256 512 256 531.2c0 19.2 12.8 32 32 32S320 544 320 531.2c0-6.4 0-6.4 0-12.8l96-140.8c0 0 6.4 0 6.4 0 6.4 0 6.4 0 6.4 0l134.4 128c0 0 0 6.4 0 6.4 0 19.2 12.8 32 32 32s32-12.8 32-32c0-6.4 0-6.4 0-12.8l108.8-160c0 0 0 0 0 0C755.2 332.8 768 320 768 300.8 768 288 755.2 268.8 736 268.8z"
+            p-id="15787"
+            fill="#2c2c2c"
+          />
+        </svg>
+      ),
+      localMarket: (
+        <svg
+          t="1592977601179"
+          viewBox="0 0 1024 1024"
+          p-id="13469"
+          width="14"
+          height="14"
+        >
+          <path
+            d="M721.9 94.2H302c-104.7 0-190 85.1-190 189.9v455.7c0 104.7 85.2 190 190 190h420c104.7 0 190-85.2 190-190V284.1c-0.1-104.8-85.3-189.9-190.1-189.9z m139.6 645.6c0 77-62.6 139.6-139.6 139.6H302c-77-0.1-139.6-62.7-139.6-139.6V284.1c0-77 62.6-139.6 139.6-139.6h420c77 0 139.6 62.6 139.6 139.6l-0.1 455.7z"
+            p-id="13470"
+            fill="#2c2c2c"
+          />
+          <path
+            d="M642.5 354.9c-17.3 0-31.5 14.1-31.5 31.5 0 54.7-44.4 99.1-99.1 99.1s-99.1-44.4-99.1-99.1c0-17.3-14.1-31.5-31.5-31.5-17.3 0-31.5 14.1-31.5 31.5 0 89.4 72.7 162 162 162s162-72.7 162-162c0.2-17.5-13.9-31.5-31.3-31.5z"
+            p-id="13471"
+            fill="#2c2c2c"
+          />
+        </svg>
+      ),
       uploads: (
         <svg viewBox="0 0 1024 1024" width="20" height="20">
           <path
@@ -242,7 +378,7 @@ const global = {
       logs: (
         <svg
           style={{
-            cursor: 'pointer',
+            cursor: "pointer"
           }}
           t="1566527207023"
           className={styles.iconm}
@@ -255,7 +391,7 @@ const global = {
         >
           <path
             d="M902.8 892l-95.5-96.3c62.4-95.5 35.6-223.5-59.9-285.9s-223.5-35.6-285.9 59.9-35.6 223.5 59.9 285.9c33.7 22 73.1 33.7 113.4 33.6 40.6-0.1 80.3-12.2 114-34.8l95.6 96.2c11.9 11.9 31.3 11.9 43.2 0l15.3-15.4c11.9-12.1 11.9-31.4 0-43.5l-0.1 0.3zM746.4 734.6C732 765 706 788.3 674.2 799.3c-12.7 5-26.2 7.4-39.8 6.9-69.6 1-126.7-54.6-127.7-124.2S561.4 555.3 631 554.3 757.7 609 758.6 678.5c0.3 19.5-4 38.7-12.4 56.2l0.2-0.1zM364.6 720H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5H363c2.5-29.2 9.8-57.8 21.4-84.6H263.5c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 13.9-29.8 30.5-30.5h159.3c31.1-38.5 72.1-67.8 118.6-84.6H263.5c-17.5 0-31.8-14.2-31.7-31.8 0-17.5 14.2-31.7 31.7-31.7H749c17.5 0 31.8 14.2 31.7 31.8 0 17.5-14.2 31.7-31.7 31.7h-23.8c85.9 31.3 150.5 103.6 171.9 192.6V160.1c0.1-52.9-42.7-96-95.6-96.3H210.8c-52.9 0.4-95.5 43.3-95.5 96.2v687c0 52.9 42.7 95.9 95.6 96.2h346.4C455 912.9 379.7 825.7 364.6 720zM263.4 212.2H749c17.5 0.7 31.2 15.5 30.5 33-0.7 16.6-13.9 29.8-30.5 30.5H263.4c-17.5-0.7-31.2-15.5-30.5-33 0.7-16.6 14-29.8 30.5-30.5z"
-            fill={color || '#000'}
+            fill={color || "#000"}
             p-id="5958"
           />
         </svg>
@@ -297,7 +433,7 @@ const global = {
       ),
       useDisk: (
         <svg
-          style={{ marginRight: '6px' }}
+          style={{ marginRight: "6px" }}
           t="1566640777774"
           viewBox="0 0 1024 1024"
           version="1.1"
@@ -396,7 +532,7 @@ const global = {
         >
           <path
             d="M951.509333 507.2L465.194667 993.514667c-0.682667 1.024-1.130667 2.176-2.026667 3.072a20.8 20.8 0 0 1-15.253333 5.994666 20.8 20.8 0 0 1-15.253334-5.994666c-0.896-0.896-1.322667-2.048-2.026666-3.072L73.066667 635.946667c-1.024-0.682667-2.154667-1.130667-3.072-2.026667A20.8 20.8 0 0 1 64 618.666667a20.693333 20.693333 0 0 1 5.994667-15.253334c0.917333-0.896 2.048-1.322667 3.072-2.026666L559.381333 115.093333A20.906667 20.906667 0 0 1 575.914667 106.666667h86.528c2.837333-32.042667 15.914667-60.16 35.626666-78.570667l0.341334 0.384c4.181333-4.416 9.877333-7.146667 16.170666-7.146667 12.629333 0 22.869333 10.922667 22.869334 24.384 0 8-3.84 14.741333-9.408 19.178667-10.218667 9.429333-17.493333 24.298667-19.925334 41.770667h102.464c6.826667 0 12.672 3.413333 16.533334 8.426666l124.373333 124.373334a20.992 20.992 0 0 1 8.426667 16.554666V490.666667a20.906667 20.906667 0 0 1-8.405334 16.533333z m-220.757333-151.658667a22.101333 22.101333 0 0 1-16.170667 7.125334c-12.629333 0-22.826667-10.922667-22.826666-24.384 0-8 3.84-14.741333 9.408-19.2 5.290667-4.885333 9.621333-11.456 13.162666-18.837334-18.24 4.864-31.744 21.333333-31.744 41.066667a42.666667 42.666667 0 0 0 85.333334 0c0-10.090667-3.626667-19.221333-9.493334-26.538667-13.12 33.002667-27.669333 40.768-27.669333 40.768z m186.496-91.413333L802.453333 149.333333h-89.877333c3.712 9.472 9.045333 17.536 15.466667 23.466667 0.874667 0.704 1.962667 1.130667 2.709333 1.962667l0.384-0.384c22.208 20.757333 36.8 53.504 36.8 90.752 0 0.896-0.213333 1.685333-0.256 2.56 25.536 14.741333 42.922667 42.026667 42.922667 73.642666a85.333333 85.333333 0 0 1-170.666667 0 85.141333 85.141333 0 0 1 81.493333-84.949333c-1.92-18.944-9.408-35.157333-20.245333-45.184-0.874667-0.704-1.962667-1.130667-2.752-1.962667l-0.341333 0.384C682.218667 194.794667 670.506667 173.674667 664.96 149.333333h-80.917333l-469.333334 469.333334 333.205334 333.205333 469.333333-469.333333V264.128zM304.682667 582.08a20.842667 20.842667 0 0 1 29.461333 0l150.378667 150.378667a20.842667 20.842667 0 0 1-29.461334 29.461333l-150.378666-150.378667a20.842667 20.842667 0 0 1 0-29.461333z m85.333333-85.333333a20.842667 20.842667 0 0 1 29.461333 0l150.357334 150.378666a20.842667 20.842667 0 0 1-29.461334 29.461334l-150.357333-150.378667a20.842667 20.842667 0 0 1 0-29.461333z"
-            fill={color || '#000'}
+            fill={color || "#000"}
             p-id="26202"
           />
         </svg>
@@ -432,7 +568,7 @@ const global = {
       currentVersion: (
         <svg
           style={{
-            cursor: 'pointer',
+            cursor: "pointer"
           }}
           t="1566532978509"
           className={styles.icon}
@@ -458,7 +594,7 @@ const global = {
       upgrade: (
         <svg
           style={{
-            cursor: 'pointer',
+            cursor: "pointer"
           }}
           t="1566533552365"
           className={styles.icon}
@@ -484,7 +620,7 @@ const global = {
       rollback: (
         <svg
           style={{
-            cursor: 'pointer',
+            cursor: "pointer"
           }}
           t="1566533701108"
           className={styles.icon}
@@ -505,7 +641,7 @@ const global = {
       delete: (
         <svg
           style={{
-            cursor: 'pointer',
+            cursor: "pointer"
           }}
           t="1566533607654"
           className={styles.icon}
@@ -578,7 +714,7 @@ const global = {
             fill="#9d9d9d"
           />
         </svg>
-      ),
+      )
     };
     return svgType[type] || type;
   },
@@ -586,59 +722,59 @@ const global = {
   fetchStateBJColor(status) {
     const statusColorMap = {
       running:
-        'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 运行中 绿色
+        "linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat", // 运行中 绿色
       starting:
-        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 启动中
+        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", // 启动中
       checking:
-        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 检测中
+        "linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat", // 检测中
       stopping:
-        'linear-gradient(to right, #20124A 0, #20124A 10px, #fff 10px, #fff 100%) no-repeat', // 关闭中 紫色
+        "linear-gradient(to right, #20124A 0, #20124A 10px, #fff 10px, #fff 100%) no-repeat", // 关闭中 紫色
       unusual:
-        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 异常
+        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat", // 异常
       closed:
-        'linear-gradient(to right, #000021 0, #000021 10px, #fff 10px, #fff 100%) no-repeat', // 已关闭
+        "linear-gradient(to right, #000021 0, #000021 10px, #fff 10px, #fff 100%) no-repeat", // 已关闭
       undeploy:
-        'linear-gradient(to right, #708090 0, #708090 10px, #fff 10px, #fff 100%) no-repeat', // 未部署 石板灰
+        "linear-gradient(to right, #708090 0, #708090 10px, #fff 10px, #fff 100%) no-repeat", // 未部署 石板灰
       unKnow:
-        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 未知
+        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat", // 未知
       upgrade:
-        'linear-gradient(to right, #00FF4A 0, #00FF4A 10px, #fff 10px, #fff 100%) no-repeat', // 升级中
+        "linear-gradient(to right, #00FF4A 0, #00FF4A 10px, #fff 10px, #fff 100%) no-repeat", // 升级中
       creating:
-        'linear-gradient(to right, #778899 0, #778899 10px, #fff 10px, #fff 100%) no-repeat', // 部署中
+        "linear-gradient(to right, #778899 0, #778899 10px, #fff 10px, #fff 100%) no-repeat", // 部署中
       expired:
-        'linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat', // 过期
+        "linear-gradient(to right, #CD0200 0, #CD0200 10px, #fff 10px, #fff 100%) no-repeat" // 过期
     };
     return statusColorMap[status] || statusColorMap.unKnow;
   },
 
   fetchStateText(state) {
     const statusColorMap = {
-      RUNNING: '运行中',
-      running: '运行中',
-      starting: '启动中',
-      checking: '检测中',
-      stopping: '关闭中',
-      unusual: '运行异常',
-      closed: '已关闭',
-      undeploy: '未部署',
-      unKnow: '未知',
-      UNKNOWN: '未知',
-      ABNORMAL: '运行异常',
-      TEMINATING: '关闭中',
-      INITIATING: '等待启动',
-      SCHEDULING: '调度中',
-      TheInternet: '未知',
-      upgrade: '升级中',
-      creating: '部署中',
-      expired: '过期',
-      NOTREADY: '未就绪',
-      UNHEALTHY: '不健康',
+      RUNNING: "运行中",
+      running: "运行中",
+      starting: "启动中",
+      checking: "检测中",
+      stopping: "关闭中",
+      unusual: "运行异常",
+      closed: "已关闭",
+      undeploy: "未部署",
+      unKnow: "未知",
+      UNKNOWN: "未知",
+      ABNORMAL: "运行异常",
+      TEMINATING: "关闭中",
+      INITIATING: "等待启动",
+      SCHEDULING: "调度中",
+      TheInternet: "未知",
+      upgrade: "升级中",
+      creating: "部署中",
+      expired: "过期",
+      NOTREADY: "未就绪",
+      UNHEALTHY: "不健康"
     };
     return statusColorMap[state] || statusColorMap.TheInternet;
   },
   fetchTime(value) {
     const second = value; // 时间差的毫秒数
-    let result = '';
+    let result = "";
 
     // 计算出相差天数
     const days = Math.floor(second / (24 * 3600 * 1000));
@@ -669,7 +805,7 @@ const global = {
     if (seconds && seconds >= 1) {
       result += `${seconds}秒`;
     }
-    return result || '1秒';
+    return result || "1秒";
   },
   fetchdayTime(date) {
     const second = Date.parse(new Date()) - new Date(date).getTime();
@@ -687,11 +823,11 @@ const global = {
     const leave3 = leave2 % (60 * 1000); // 计算分钟数后剩余的毫秒数
     const seconds = Math.round(leave3 / 1000);
 
-    let result = '';
+    let result = "";
     if (days && days > 7) {
       result = moment(date)
-        .locale('zh-cn')
-        .format('YYYY-MM-DD');
+        .locale("zh-cn")
+        .format("YYYY-MM-DD");
     } else if (days && days >= 1 && days < 7) {
       result += `${days}天前`;
     } else if (hours && hours >= 1 && hours <= 23) {
@@ -701,170 +837,170 @@ const global = {
     } else if (seconds && seconds >= 1 && seconds <= 59) {
       result += `${seconds}秒前`;
     } else {
-      result = '1秒前';
+      result = "1秒前";
     }
     return result;
   },
   fetchInstanceReasons(type) {
     const reasonsType = {
-      UnknownContainerStatuses: '未知的容器状态',
-      ContainersNotReady: '容器未就绪',
-      ContainersNotInitialized: '容器尚未初始化',
+      UnknownContainerStatuses: "未知的容器状态",
+      ContainersNotReady: "容器未就绪",
+      ContainersNotInitialized: "容器尚未初始化"
     };
     return reasonsType[type] || type;
   },
   fetchInstanceAdvice(type) {
     const adviceType = {
       OutOfMemory:
-        '内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存',
+        "内存不足, 建议为程序分配更多内存, 或检查程序是否合理使用内存",
       Unhealthy:
-        '健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确',
-      Initiating: '等待启动中, 请检查该组件所依赖的组件是否已经正常启动',
+        "健康检测不通过, 请检查程序的端口是否可用, 以及健康检测配置是否正确",
+      Initiating: "等待启动中, 请检查该组件所依赖的组件是否已经正常启动"
     };
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
-    if (finalstatus == '') {
+    if (finalstatus == "") {
       return (
-        <span style={{ color: '#F69C49', paddingLeft: '5px' }}>进行中</span>
+        <span style={{ color: "#F69C49", paddingLeft: "5px" }}>进行中</span>
       );
     }
     if (
-      finalstatus == 'timeout' ||
-      (finalstatus == 'complete' && status == 'timeout')
+      finalstatus == "timeout" ||
+      (finalstatus == "complete" && status == "timeout")
     ) {
-      return <span style={{ color: 'rgba(0, 0, 0, 0.65)' }}>操作已超时</span>;
+      return <span style={{ color: "rgba(0, 0, 0, 0.65)" }}>操作已超时</span>;
     }
 
-    if (finalstatus == 'empty' || finalstatus == 'emptycomplete') {
+    if (finalstatus == "empty" || finalstatus == "emptycomplete") {
       return <span />;
     }
     switch (status) {
-      case 'success':
-        return <span style={{ color: '#39AA56' }}>成功</span>;
-      case 'failure':
-        return <span style={{ color: '#F5212D' }}>失败</span>;
+      case "success":
+        return <span style={{ color: "#39AA56" }}>成功</span>;
+      case "failure":
+        return <span style={{ color: "#F5212D" }}>失败</span>;
     }
   },
   fetchAccessText(text) {
     const AccessText = {
-      component: '组件管理',
-      app: '应用管理',
-      gatewayRule: '网关访问策略',
-      certificate: '证书管理',
-      plugin: '插件管理',
-      teamMember: '团队成员管理',
-      teamRole: '团队角色管理',
-      teamRegion: '团队集群管理',
+      component: "组件管理",
+      app: "应用管理",
+      gatewayRule: "网关访问策略",
+      certificate: "证书管理",
+      plugin: "插件管理",
+      teamMember: "团队成员管理",
+      teamRole: "团队角色管理",
+      teamRegion: "团队集群管理"
     };
     return AccessText[text] || text;
   },
   fetchAbnormalcolor(type) {
     const abnormalcolor = {
-      AbnormalRecovery: '#39AA56',
-      OOMKilled: '#CD0200',
-      LivenessProbeFailed: '#CD0200',
-      ReadinessProbeFailed: '#CD0200',
-      AbnormalShtdown: '#CD0200',
-      EventTypeAbnormalExited: '#CD0200',
-      AbnormalExited: '#CD0200',
+      AbnormalRecovery: "#39AA56",
+      OOMKilled: "#CD0200",
+      LivenessProbeFailed: "#CD0200",
+      ReadinessProbeFailed: "#CD0200",
+      AbnormalShtdown: "#CD0200",
+      EventTypeAbnormalExited: "#CD0200",
+      AbnormalExited: "#CD0200"
     };
-    return abnormalcolor[type] || 'rgba(0,0,0,0.65)';
+    return abnormalcolor[type] || "rgba(0,0,0,0.65)";
   },
   fetchStateOptTypeText(state) {
     const statusOptType = {
-      deploy: '构建组件',
-      delete: '删除组件',
-      HorizontalUpgrade: '水平升级',
-      VerticalUpgrade: '垂直升级',
-      create: '创建组件',
-      callback: '回滚',
-      'git-change': '代码仓库修改',
-      own_money: '欠费关闭',
-      add_label: '添加标签',
-      delete_label: '删除标签',
-      service_state: '应用状态修改',
-      reboot: '重启组件',
-      market_sync: '云市同步',
-      truncate: '删除组件',
-      EventTypeAbnormalExited: '组件异常退出',
-      OOMKilled: '发生OOM',
-      LivenessProbeFailed: '健康检查不通过(重启)',
-      ReadinessProbeFailed: '健康检查不通过(下线)',
-      AbnormalShtdown: ' 组件异常退出',
-      AbnormalExited: '组件异常退出',
-      AbnormalRecovery: '恢复正常',
-      '': '-',
-      'create-service': '创建组件',
-      'batch-build-service': '批量构建组件',
-      'batch-start-service': '批量启动组件',
-      'batch-stop-service': '批量停止组件',
-      'batch-upgrade-service': '批量升级组件',
-      'build-service': '构建组件',
-      build: '构建组件',
-      upgrade: '滚动升级组件',
-      'start-service': '启动组件',
-      start: '启动组件',
-      'add-app-autoscaler-rule': '添加自动伸缩规则',
-      'update-app-autoscaler-rule': '更新自动伸缩规则',
-      'stop-service': '停止组件',
-      stop: '停止组件',
-      'restart-service': '重启组件',
-      restart: '重启组件',
-      'vertical-service': '垂直扩展组件',
-      vertical: '垂直扩展组件',
-      'horizontal-service': '水平扩展组件',
-      horizontal: '水平扩展组件',
-      'set-language': '设置组件语言',
-      'delete-service': '删除组件',
-      'upgrade-service': '升级组件',
-      'delete-buildversion': '删除构建版本',
-      'share-service': '分享组件',
-      'share-wb': '分享到内部市场',
-      'share-ws': '分享到云端市场',
-      'share-yb': '发布到市场',
-      'share-ys': '发布到市场',
-      updata: '更新组件',
-      'add-service-dependency': '添加组件依赖',
-      'delete-service-dependency': '删除组件依赖',
-      'add-service-env': '添加组件环境变量',
-      'update-service-env': '更新组件环境变量',
-      'delete-service-env': '删除组件环境变量',
-      'add-service-port': '添加组件端口',
-      'update-service-port-old': '更新组件端口',
-      'update-service-port': '更新组件端口',
-      'delete-service-port': '删除组件端口',
-      'handle-service-outerport': '修改组件对外端口',
-      'handle-service-innerport': '修改组件对内端口',
-      'change-service-lbport': '修改组件LB端口',
-      'rollback-service': '回滚',
-      'add-service-volume': '添加组件持久化存储',
-      'update-service-volume': '更新组件持久化存储',
-      'delete-service-volume': '删除组件持久化存储',
-      'add-service-depvolume': '添加组件依赖存储',
-      'delete-service-depvolume': '删除组件依赖存储',
-      'add-service-probe': '添加组件探针',
-      'update-service-probe': '更新组件探针',
-      'delete-service-probe': '删除组件探针',
-      'add-service-label': '添加组件标签',
-      'update-service-label': '更新组件标签',
-      'delete-service-label': '删除组件标签',
-      'add-thirdpart-service': '添加第三方组件',
-      'update-thirdpart-service': '更新第三方组件',
-      'delete-thirdpart-service': '删除第三方组件',
-      'update-service-gateway-rule': '更新组件网关规则',
-      'app-restore-envs': '重新加载应用环境变量',
-      'app-restore-ports': '重新加载应用端口',
-      'app-restore-volumes': '重新加载应用存储',
-      'app-restore-probe': '重新加载应用探针',
-      'app-restore-deps': '重新加载应用依赖',
-      'app-restore-depvols': '重新加载应用依赖存储',
-      'app-restore-plugins': '重新加载应用插件',
+      deploy: "构建组件",
+      delete: "删除组件",
+      HorizontalUpgrade: "水平升级",
+      VerticalUpgrade: "垂直升级",
+      create: "创建组件",
+      callback: "回滚",
+      "git-change": "代码仓库修改",
+      own_money: "欠费关闭",
+      add_label: "添加标签",
+      delete_label: "删除标签",
+      service_state: "应用状态修改",
+      reboot: "重启组件",
+      market_sync: "云市同步",
+      truncate: "删除组件",
+      EventTypeAbnormalExited: "组件异常退出",
+      OOMKilled: "发生OOM",
+      LivenessProbeFailed: "健康检查不通过(重启)",
+      ReadinessProbeFailed: "健康检查不通过(下线)",
+      AbnormalShtdown: " 组件异常退出",
+      AbnormalExited: "组件异常退出",
+      AbnormalRecovery: "恢复正常",
+      "": "-",
+      "create-service": "创建组件",
+      "batch-build-service": "批量构建组件",
+      "batch-start-service": "批量启动组件",
+      "batch-stop-service": "批量停止组件",
+      "batch-upgrade-service": "批量升级组件",
+      "build-service": "构建组件",
+      build: "构建组件",
+      upgrade: "滚动升级组件",
+      "start-service": "启动组件",
+      start: "启动组件",
+      "add-app-autoscaler-rule": "添加自动伸缩规则",
+      "update-app-autoscaler-rule": "更新自动伸缩规则",
+      "stop-service": "停止组件",
+      stop: "停止组件",
+      "restart-service": "重启组件",
+      restart: "重启组件",
+      "vertical-service": "垂直扩展组件",
+      vertical: "垂直扩展组件",
+      "horizontal-service": "水平扩展组件",
+      horizontal: "水平扩展组件",
+      "set-language": "设置组件语言",
+      "delete-service": "删除组件",
+      "upgrade-service": "升级组件",
+      "delete-buildversion": "删除构建版本",
+      "share-service": "分享组件",
+      "share-wb": "分享到内部市场",
+      "share-ws": "分享到云端市场",
+      "share-yb": "发布到市场",
+      "share-ys": "发布到市场",
+      updata: "更新组件",
+      "add-service-dependency": "添加组件依赖",
+      "delete-service-dependency": "删除组件依赖",
+      "add-service-env": "添加组件环境变量",
+      "update-service-env": "更新组件环境变量",
+      "delete-service-env": "删除组件环境变量",
+      "add-service-port": "添加组件端口",
+      "update-service-port-old": "更新组件端口",
+      "update-service-port": "更新组件端口",
+      "delete-service-port": "删除组件端口",
+      "handle-service-outerport": "修改组件对外端口",
+      "handle-service-innerport": "修改组件对内端口",
+      "change-service-lbport": "修改组件LB端口",
+      "rollback-service": "回滚",
+      "add-service-volume": "添加组件持久化存储",
+      "update-service-volume": "更新组件持久化存储",
+      "delete-service-volume": "删除组件持久化存储",
+      "add-service-depvolume": "添加组件依赖存储",
+      "delete-service-depvolume": "删除组件依赖存储",
+      "add-service-probe": "添加组件探针",
+      "update-service-probe": "更新组件探针",
+      "delete-service-probe": "删除组件探针",
+      "add-service-label": "添加组件标签",
+      "update-service-label": "更新组件标签",
+      "delete-service-label": "删除组件标签",
+      "add-thirdpart-service": "添加第三方组件",
+      "update-thirdpart-service": "更新第三方组件",
+      "delete-thirdpart-service": "删除第三方组件",
+      "update-service-gateway-rule": "更新组件网关规则",
+      "app-restore-envs": "重新加载应用环境变量",
+      "app-restore-ports": "重新加载应用端口",
+      "app-restore-volumes": "重新加载应用存储",
+      "app-restore-probe": "重新加载应用探针",
+      "app-restore-deps": "重新加载应用依赖",
+      "app-restore-depvols": "重新加载应用依赖存储",
+      "app-restore-plugins": "重新加载应用插件"
     };
     return statusOptType[state] || state;
   },
   replaceUrlTeam(team) {
-    let href = location.href;
+    let { href } = location;
     const reg = /team\/([^/]+)/;
     href = href.replace(reg, (string, g1) =>
       string.replace(new RegExp(g1), team)
@@ -872,7 +1008,7 @@ const global = {
     return href;
   },
   replaceUrlRegion(region) {
-    let href = location.href;
+    let { href } = location;
     const reg = /region\/([^/]+)/;
     href = href.replace(reg, (string, g1) =>
       string.replace(new RegExp(g1), region)
@@ -880,7 +1016,7 @@ const global = {
     return href;
   },
   replaceUrlTeamAndTegion(team, region) {
-    let href = location.href;
+    let { href } = location;
     const reg = /team\/([^/]+)\/region\/([^/]+)/;
     href = href.replace(reg, (string, g1, g2) =>
       string.replace(new RegExp(g1), team).replace(new RegExp(g2), region)
@@ -890,43 +1026,43 @@ const global = {
   getSupportComponentTyps() {
     return [
       {
-        type: 'state_singleton',
-        name: this.getComponentType('state_singleton'),
-        desc: '部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 ',
+        type: "state_singleton",
+        name: this.getComponentType("state_singleton"),
+        desc: "部署为Statefulset类型，一般用于DB类，消息中间件类，数据类组件 "
       },
       {
-        type: 'state_multiple',
-        name: this.getComponentType('state_multiple'),
-        desc: '可多实例运行的有状态组件',
+        type: "state_multiple",
+        name: this.getComponentType("state_multiple"),
+        desc: "可多实例运行的有状态组件"
       },
       {
-        type: 'stateless_singleton',
-        name: this.getComponentType('stateless_singleton'),
-        desc: '部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数',
+        type: "stateless_singleton",
+        name: this.getComponentType("stateless_singleton"),
+        desc: "部署为Deployment, 一般用于Web类，API类等组件，不可扩展实例数"
       },
       {
-        type: 'stateless_multiple',
-        name: this.getComponentType('stateless_multiple'),
-        desc: '可多实例运行的无状态组件',
-      },
+        type: "stateless_multiple",
+        name: this.getComponentType("stateless_multiple"),
+        desc: "可多实例运行的无状态组件"
+      }
     ];
   },
   getComponentType(componentType) {
     switch (componentType) {
-      case 'state_singleton':
-        return '有状态单实例';
-      case 'state_multiple':
-        return '有状态多实例';
-      case 'stateless_singleton':
-        return '无状态单实例';
-      case 'stateless_multiple':
-        return '无状态多实例';
+      case "state_singleton":
+        return "有状态单实例";
+      case "state_multiple":
+        return "有状态多实例";
+      case "stateless_singleton":
+        return "无状态单实例";
+      case "stateless_multiple":
+        return "无状态多实例";
     }
   },
   isStateComponent(componentType) {
     if (
-      componentType == 'state_singleton' ||
-      componentType == 'state_multiple'
+      componentType == "state_singleton" ||
+      componentType == "state_multiple"
     ) {
       return true;
     }
@@ -934,13 +1070,13 @@ const global = {
   },
   isSingletonComponent(componentType) {
     if (
-      componentType == 'state_singleton' ||
-      componentType == 'stateless_singleton'
+      componentType == "state_singleton" ||
+      componentType == "stateless_singleton"
     ) {
       return true;
     }
     return false;
-  },
+  }
 };
 
 export default global;

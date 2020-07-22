@@ -32,7 +32,6 @@ import AddRelationMnt from '../../components/AddRelationMnt';
 import AddRelation from '../../components/AddRelation';
 import ViewRelationInfo from '../../components/ViewRelationInfo';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
-
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
@@ -99,7 +98,7 @@ class BaseInfo extends PureComponent {
   render() {
     const { appDetail, form } = this.props;
     const { getFieldDecorator } = form;
-    const extend_method = appDetail.service.extend_method;
+    const {extend_method} = appDetail.service;
     const minMemory = appDetail.service.min_memory;
     const list = this.state.memoryList;
 
@@ -126,7 +125,6 @@ class BaseInfo extends PureComponent {
         },
       },
     };
-
     return (
       <Card
         title="基本信息"

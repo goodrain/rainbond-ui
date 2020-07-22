@@ -1,15 +1,15 @@
 /* eslint-disable import/first */
-import React, { Fragment } from 'react';
-import globalUtil from '../../utils/global';
+import { Button, Form, Input, Select, Spin, Switch, Tabs } from 'antd';
 import { connect } from 'dva';
-import Branches from '../../../public/images/branches.svg';
+import React, { Fragment } from 'react';
 import Application from '../../../public/images/application.svg';
+import Branches from '../../../public/images/branches.svg';
 import Component from '../../../public/images/component.svg';
 import Unlock from '../../../public/images/unlock.svg';
 import AddGroup from '../../components/AddOrEditGroup';
+import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
-import { Tabs, Input, Form, Select, Button, Spin, Switch } from 'antd';
 
 const { Option, OptGroup } = Select;
 const { TabPane } = Tabs;
@@ -248,9 +248,7 @@ class Index extends React.Component {
                     {!tagsLoading && tags && tags.length > 0 ? (
                       tags.map(item => {
                         return (
-                          <Option key={item} value={item}>
-                            {item}
-                          </Option>
+                          <Option key={item} value={item}>{item}</Option>
                         );
                       })
                     ) : (
@@ -282,22 +280,22 @@ class Index extends React.Component {
               <div style={{ textAlign: 'center' }}>
                 {ServiceComponent && this.props.ButtonGroupState
                   ? this.props.handleServiceBotton(
-                      <Button
+                    <Button
                       onClick={this.handleSubmit}
                       type="primary"
                       loading={createAppByCodeLoading}
                     >
-                        新建组件
+                      新建组件
                     </Button>,
                       false
                     )
                   : !ServiceComponent && (
-                      <Button
+                  <Button
                     onClick={this.handleSubmit}
                     type="primary"
                     loading={createAppByCodeLoading}
                   >
-                        确认创建
+                    确认创建
                   </Button>
                     )}
               </div>

@@ -1,21 +1,10 @@
-import React, { PureComponent, Fragment } from 'react';
-import {
-  Button,
-  Modal,
-  Dropdown,
-  Menu,
-  Table,
-  Card,
-  Alert,
-  Tooltip,
-  Icon,
-  notification,
-} from 'antd';
+import { Alert, Button, Card, Dropdown, Icon, Menu, Modal, notification, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import globalUtil from '../../utils/global';
 import { openInNewTab } from '../../utils/utils';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styles from './index.less';
 
 /*
@@ -121,7 +110,7 @@ export default class Index extends PureComponent {
       return null;
     }
     if (err && err.data && err.data.msg_show) {
-      notification.error({
+      notification.warning({
         message: `请求错误`,
         description: err.data.msg_show,
       });

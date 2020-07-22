@@ -1,20 +1,22 @@
 /* eslint-disable no-nested-ternary */
-import React, { PureComponent } from 'react';
+import {
+  Card,
+
+  Col, Divider, Form, Modal,
+
+
+  Popconfirm,
+
+  Row,
+
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
-import {
-  Modal,
-  Form,
-  Divider,
-  Popconfirm,
-  Card,
-  Row,
-  Col,
-  Tooltip,
-} from 'antd';
-import LogShow from '../LogShow';
-import styles from '../../Index.less';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../../../utils/global';
+import styles from '../../Index.less';
+import LogShow from '../LogShow';
 
 @connect()
 @Form.create()
@@ -58,6 +60,18 @@ class Index extends PureComponent {
 
     handleDel && handleDel(item);
   };
+  showStatus = (status) => {
+    switch (status){
+      case '':
+        return "构建中"
+      case 'success':
+        return "构建成功"
+      case 'failure':
+        return "构建失败"
+      default:
+        return "未知"  
+    }
+  }
 
   render() {
     const {
@@ -345,18 +359,20 @@ class Index extends PureComponent {
                             >
                               {globalUtil.fetchSvg(
                                 'logState',
-                                status === 'success' ? '#39AA56' : '#db4545'
+                                status === 'failure'
+                                      ? '#39AA56#db4545'
+                                      : '#39AA56',
                               )}
                               <font
                                 style={{
                                   fontSize: '14px',
                                   color:
-                                    status === 'success'
-                                      ? '#39AA56'
-                                      : '#db4545',
+                                    status === 'failure'
+                                      ? '#39AA56#db4545'
+                                      : '#39AA56',
                                 }}
                               >
-                                {status === 'success' ? '成功' : '失败'}
+                                {this.showStatus(status)}
                               </font>
                             </a>
                           </div>
@@ -442,16 +458,16 @@ class Index extends PureComponent {
                             isRollback &&
                             current_version ? (
                               <Popconfirm
-                              title="确定要回滚到此版本吗?"
-                              onConfirm={() => {
+                                title="确定要回滚到此版本吗?"
+                                onConfirm={() => {
                                 this.handleRolback(item);
                               }}
-                            >
-                              <span>
+                              >
+                                <span>
                                   <Divider type="vertical" />
                                   <a style={{ fontSize: '12px' }}>回滚</a>
                                 </span>
-                            </Popconfirm>
+                              </Popconfirm>
                           ) : (
                             ''
                           )}

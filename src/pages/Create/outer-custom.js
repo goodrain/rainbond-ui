@@ -1,22 +1,12 @@
 /* eslint-disable no-unused-expressions */
-import React, { PureComponent } from 'react';
+import { Card } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Select } from 'antd';
-import styles from './Index.less';
-import globalUtil from '../../utils/global';
+import React, { PureComponent } from 'react';
 import OuterCustomForm from '../../components/OuterCustomForm';
-
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    span: 5,
-  },
-  wrapperCol: {
-    span: 19,
-  },
-};
+import TopUpHints from '../../components/TopUpHints';
+import globalUtil from '../../utils/global';
+import styles from './Index.less';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
@@ -25,12 +15,7 @@ const formItemLayout = {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      codeType: 'Git',
-      showUsernameAndPass: false,
-      showKey: false,
-      addGroup: false,
-    };
+    this.state = {};
   }
   onAddGroup = () => {
     this.setState({ addGroup: true });
@@ -111,6 +96,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div className={styles.formWrap}>
           <OuterCustomForm onSubmit={this.handleSubmit} {...this.props} />
         </div>

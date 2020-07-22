@@ -12,10 +12,9 @@ export default function AppHeader(props) {
     currentEnterprise,
     currentTeam,
     currentRegion,
-    regionName,
     appID,
     currentComponent,
-    componentID,
+    nobleIcon,
     upDataHeader,
   } = props;
 
@@ -26,6 +25,7 @@ export default function AppHeader(props) {
       ) : (
         <div>
           <div className={headerStype.item}>
+            {nobleIcon}
             <Link
               className={headerStype.itemlink}
               to={`/enterprise/${currentEnterprise.enterprise_id}/index`}

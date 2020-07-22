@@ -5,17 +5,17 @@ import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
 import globalUtil from '../../utils/global';
 
-require('codemirror/lib/codemirror.css');
+require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
 
-require('codemirror/theme/seti.css');
-require('codemirror/addon/display/fullscreen.css');
+require('react-codemirror/node_modules/codemirror/theme/seti.css');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
-require('codemirror/addon/display/panel');
-require('codemirror/mode/jsx/jsx');
-require('codemirror/mode/yaml/yaml');
-require('codemirror/addon/display/fullscreen');
-require('codemirror/addon/edit/matchbrackets');
+require('react-codemirror/node_modules/codemirror/addon/display/panel');
+require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
+require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
+require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
 
 class CodeMirrorForm extends PureComponent {
   constructor(props) {
@@ -84,9 +84,12 @@ class CodeMirrorForm extends PureComponent {
       mode,
       action,
       beforeUpload,
+      titles,
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
+      display: 'flex',
+      justifyContent: 'space-between',
       cursor: 'pointer',
       top: 0,
       textAlign: 'right',
@@ -135,27 +138,34 @@ class CodeMirrorForm extends PureComponent {
           rules: [{ required: true, message }],
         })(<CodeMirror options={options} ref={this.saveRef} />)}
         <div style={defaultFullScreenStyle}>
-          <Upload
-            action={
-              action ||
-              `${apiconfig.baseUrl}/console/enterprise/team/certificate`
-            }
-            showUploadList={false}
-            withCredentials
-            headers={{ Authorization: `GRJWT ${token}` }}
-            beforeUpload={beforeUpload || false}
-            onChange={this.handleChangeUpload}
+          <div
+            style={{ lineHeight: '20px', paddingLeft: '30px', color: '#fff' }}
           >
-            {globalUtil.fetchSvg('uploads')}
-          </Upload>
-          <span
-            style={{ margin: '0 20px' }}
-            onClick={() => {
-              this.setState({ fullScreen: !this.state.fullScreen });
-            }}
-          >
-            {globalUtil.fetchSvg('amplifications')}
-          </span>
+            {titles || ''}
+          </div>
+          <div>
+            <Upload
+              action={
+                action ||
+                `${apiconfig.baseUrl}/console/enterprise/team/certificate`
+              }
+              showUploadList={false}
+              withCredentials
+              headers={{ Authorization: `GRJWT ${token}` }}
+              beforeUpload={beforeUpload || false}
+              onChange={this.handleChangeUpload}
+            >
+              {globalUtil.fetchSvg('uploads')}
+            </Upload>
+            <span
+              style={{ margin: '0 20px' }}
+              onClick={() => {
+                this.setState({ fullScreen: !this.state.fullScreen });
+              }}
+            >
+              {globalUtil.fetchSvg('amplifications')}
+            </span>
+          </div>
         </div>
       </Form.Item>
     );

@@ -44,7 +44,6 @@ class UserLayout extends React.PureComponent {
       isRender,
     });
   };
-
   render() {
     const { rainbondInfo, nouse, children } = this.props;
     const { isRender } = this.state;
@@ -63,7 +62,7 @@ class UserLayout extends React.PureComponent {
                     rainbondInfo.title &&
                     rainbondInfo.title.enable
                       ? rainbondInfo.title.value
-                      : 'Rainbond'}
+                      : ''}
                   </h1>
                 </Link>
               </div>

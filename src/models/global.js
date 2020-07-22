@@ -40,6 +40,7 @@ import {
   deleteJoinTeam,
   setRegist,
   getRegist,
+  setCertificateType,
   saveLog,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
@@ -63,6 +64,7 @@ import {
   queryCodeWarehouseType,
   queryThirdInfo,
   toCreatUser,
+  toCreatCluster,
   toCeateSourceCode,
   toCreatOauth,
   toEditOauth,
@@ -104,6 +106,7 @@ export default {
     payTip: false,
     noMoneyTip: false,
     showAuthCompany: false,
+    orders:false,
     // 更新头部信息
     upDataHeader: false,
     // enterprise info
@@ -494,6 +497,13 @@ export default {
         });
       }
     },
+    *putCertificateType({ payload, callback }, { put, call }) {
+      const response = yield call(setCertificateType, payload);
+      if (response) {
+        callback && callback(response);
+      }
+    },
+
     *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
@@ -636,6 +646,12 @@ export default {
     },
     *creatUser({ payload, callback, handleError }, { call }) {
       const response = yield call(toCreatUser, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *creatCluster({ payload, callback }, { call }) {
+      const response = yield call(toCreatCluster, payload);
       if (callback) {
         callback(response);
       }
@@ -793,6 +809,18 @@ export default {
       return {
         ...state,
         apploadingnum: state.apploadingnum - 1,
+      };
+    },
+    showOrders(state,{payload}){
+      return {
+        ...state,
+        orders:payload.code
+      }
+    },
+    hideOrders(state, {}) {
+      return {
+        ...state,
+        orders: false,
       };
     },
     showAuthCompany(state, {}) {

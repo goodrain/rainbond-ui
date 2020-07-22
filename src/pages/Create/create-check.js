@@ -1,24 +1,27 @@
-import React, { PureComponent } from 'react';
-import { Button, Icon, Card, Modal, Radio, Tooltip } from 'antd';
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable react/no-danger */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-undef */
+import { Button, Card, Icon, Modal, Radio, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import ModifyImageCmd from './modify-image-cmd';
-import ModifyImageName from './modify-image-name';
-import ModifyUrl from './modify-url';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import ShowRegionKey from '../../components/ShowRegionKey';
+import React from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import LogProcress from '../../components/LogProcress';
 import Result from '../../components/Result';
+import ShowRegionKey from '../../components/ShowRegionKey';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
-  getCreateCheckId,
-  getCreateCheckResult,
   buildApp,
-  getCheckuuid,
+  getCheckuuid, getCreateCheckId,
+  getCreateCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
-import userUtil from '../../utils/user';
 import regionUtil from '../../utils/region';
+import userUtil from '../../utils/user';
+import ModifyImageCmd from './modify-image-cmd';
+import ModifyImageName from './modify-image-name';
+import ModifyUrl from './modify-url';
 
 @connect(
   ({ user, appControl }) => ({
@@ -29,7 +32,7 @@ import regionUtil from '../../utils/region';
   null,
   { withRef: true }
 )
-export default class CreateCheck extends PureComponent {
+export default class CreateCheck extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -145,7 +148,7 @@ export default class CreateCheck extends PureComponent {
   startCheck = loopStatus => {
     const appAlias = this.getAppAlias();
     const teamName = globalUtil.getCurrTeamName();
-    const p = getCreateCheckId(
+    getCreateCheckId(
       {
         team_name: teamName,
         app_alias: appAlias,
@@ -219,7 +222,7 @@ export default class CreateCheck extends PureComponent {
         });
         if (ServiceGetData && isDeploy) {
           refreshCurrent();
-        } else if (appDetail.service_source == 'third_party') {
+        } else if (appDetail.service_source === 'third_party') {
           dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${appAlias}/thirdPartyServices`
@@ -434,8 +437,9 @@ export default class CreateCheck extends PureComponent {
     const { errorInfo } = this.state;
     const extra = (
       <div>
-        {errorInfo.map(item => (
+        {errorInfo.map((item, index) => (
           <div
+            key={`error${index}`}
             style={{
               marginBottom: 16,
             }}
@@ -529,8 +533,9 @@ export default class CreateCheck extends PureComponent {
             display: 'inline-block',
           }}
         >
-          {(item.value || []).map(items => (
+          {(item.value || []).map((items,index) => (
             <p
+              key={`items${index}`}
               style={{
                 marginBottom: 0,
               }}
@@ -554,8 +559,9 @@ export default class CreateCheck extends PureComponent {
     const { ButtonGroupState, ErrState, handleServiceBotton } = this.props;
     let extra = '';
     if (serviceInfo && serviceInfo.length > 0) {
-      extra = serviceInfo.map(item => (
+      extra = serviceInfo.map((item,index) => (
         <div
+          key={`item${index}`}
           style={{
             marginBottom: 16,
           }}
@@ -567,7 +573,7 @@ export default class CreateCheck extends PureComponent {
     let actions = [];
     if (ServiceGetData) {
       actions = [
-        <div style={{ display: 'flex' }}>
+        <div key="action" style={{ display: 'flex' }}>
           <Button
             onClick={this.showDelete}
             type="default"
@@ -610,9 +616,9 @@ export default class CreateCheck extends PureComponent {
               </Radio>
             </Tooltip>
           </div>
-        </div>,
+        </div>
       ];
-    } else if (appDetail.service_source == 'third_party') {
+    } else if (appDetail.service_source === 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -645,7 +651,7 @@ export default class CreateCheck extends PureComponent {
             >
               创建
             </Button>
-            {appDetail.service_source == 'third_party'}
+            {appDetail.service_source === 'third_party'}
             <Tooltip
               placement="topLeft"
               title={
@@ -669,7 +675,7 @@ export default class CreateCheck extends PureComponent {
       ];
     }
 
-    if (appDetail.service_source == 'third_party') {
+    if (appDetail.service_source === 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -703,12 +709,12 @@ export default class CreateCheck extends PureComponent {
       <Result
         type="success"
         title={
-          appDetail.service_source == 'third_party'
+          appDetail.service_source === 'third_party'
             ? '第三方组件检测通过'
             : '组件构建源检测通过'
         }
         description={
-          appDetail.service_source == 'third_party' ? (
+          appDetail.service_source === 'third_party' ? (
             ''
           ) : (
             <div>
@@ -719,6 +725,7 @@ export default class CreateCheck extends PureComponent {
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Rainbond源码支持规范
               </a>{' '}
@@ -739,21 +746,7 @@ export default class CreateCheck extends PureComponent {
       isDeploy,
       appDetail,
       isMulti,
-      serviceInfo,
     } = this.state;
-    let extra = '';
-    if (serviceInfo && serviceInfo.length > 0) {
-      extra = serviceInfo.map(item => (
-        <div
-          style={{
-            marginBottom: 16,
-          }}
-        >
-          {this.renderSuccessInfo(item)}
-        </div>
-      ));
-    }
-
     let actions = [];
     if (ServiceGetData && isMulti) {
       actions = [
@@ -811,7 +804,7 @@ export default class CreateCheck extends PureComponent {
           </div>
         </div>,
       ];
-    } else if (appDetail.service_source == 'third_party') {
+    } else if (appDetail.service_source === 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -842,7 +835,7 @@ export default class CreateCheck extends PureComponent {
       ];
     }
 
-    if (appDetail.service_source == 'third_party') {
+    if (appDetail.service_source === 'third_party') {
       actions = [
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -859,32 +852,33 @@ export default class CreateCheck extends PureComponent {
       ];
     }
 
-    const { ButtonGroupState = false, handleServiceBotton } = this.props;
+    const { ButtonGroupState = false, handleServiceBotton, ErrState } = this.props;
 
-    if (isDeploy && ServiceGetData && !ButtonGroupState) {
-      handleServiceBotton(actions, true);
-    } else if (ServiceGetData && ButtonGroupState) {
-      this.props.handleServiceBotton(actions, false);
+    if (isDeploy) {
+      if (ServiceGetData && (!ButtonGroupState || !ErrState)) {
+        handleServiceBotton(actions, true, true);
+      }
+    } else if (ServiceGetData && (ButtonGroupState || ErrState)) {
+      handleServiceBotton(actions, false, false);
     }
 
     return (
       <Result
         type="success"
         title={
-          appDetail.service_source == 'third_party'
+          appDetail.service_source === 'third_party'
             ? '第三方组件检测通过'
             : '组件构建源检测出多模块构建'
         }
         description={
-          appDetail.service_source == 'third_party' ? (
-            ''
-          ) : (
+          appDetail.service_source !== 'third_party' && (
             <div>
               <div>组件构建源检测通过仅代表平台可以检测到多模块构建。</div>
               90%以上的用户在检测通过后可部署成功，如遇部署失败，可参考{' '}
               <a
                 href="http://www.rainbond.com/docs/user-manual/app-creation/language-support/"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Rainbond源码支持规范
               </a>{' '}
@@ -937,50 +931,6 @@ export default class CreateCheck extends PureComponent {
     );
   };
 
-  renderEdit = () => {
-    // 判断应用创建方式
-    const { appDetail } = this.state;
-    // 源码创建
-    if (appDetail.service_source === 'source_code') {
-      // 指定源码
-      if (appDetail.code_from === 'gitlab_manual') {
-        return (
-          <EditCreateCodeCustom
-            data={appDetail}
-            onSubmit={this.handleCodeSubmit}
-            onCancel={this.handleCancelEdit}
-          />
-        );
-      }
-      ServiceGetData &&
-        this.props.ButtonGroupState &&
-        this.props.handleServiceBotton(actions, false);
-
-      const extra = (
-        <div>
-          {this.state.eventId && (
-            <LogProcress
-              socketUrl={this.socketUrl}
-              eventId={this.state.eventId}
-            />
-          )}
-        </div>
-      );
-      return (
-        <Result
-          type="ing"
-          title="组件构建源检测中..."
-          extra={extra}
-          description="此过程可能比较耗时，请耐心等待"
-          actions={ServiceGetData ? '' : actions}
-          style={{
-            marginTop: 48,
-            marginBottom: 16,
-          }}
-        />
-      );
-    }
-  };
   render() {
     const { status, isMulti, appDetail } = this.state;
     const { ServiceGetData } = this.state;
@@ -995,10 +945,10 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && isMulti != true
+                {status === 'success' && isMulti !== true
                   ? this.renderSuccess()
                   : null}
-                {status === 'success' && isMulti == true
+                {status === 'success' && isMulti === true
                   ? this.renderMoreService()
                   : null}
                 {status === 'failure' ? this.renderError() : null}
@@ -1060,10 +1010,10 @@ export default class CreateCheck extends PureComponent {
                 }}
               >
                 {status === 'checking' ? this.renderChecking() : null}
-                {status === 'success' && isMulti != true
+                {status === 'success' && isMulti !== true
                   ? this.renderSuccess()
                   : null}
-                {status === 'success' && isMulti == true
+                {status === 'success' && isMulti === true
                   ? this.renderMoreService()
                   : null}
                 {status === 'failure' ? this.renderError() : null}

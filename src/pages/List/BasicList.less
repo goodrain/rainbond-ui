@@ -18,6 +18,22 @@
   }
 }
 
+.customerService {
+  transition: all 0.3s ease 0s;
+  position        : fixed;
+  z-index         : 9999999;
+  bottom          : 10px;
+  right           : 2px;
+  background-color: rgb(64, 169, 255, .8);
+  float           : right;
+  width           : 62px;
+  height          : 62px;
+  text-align      : center;
+  line-height     : 62px;
+  cursor          : pointer;
+  border-radius   : 50%;
+}
+
 .btns {
   button {
     font-family   : PingFangSC-Medium;
@@ -387,9 +403,11 @@
     font-size      : 26px;
     color          : #333333;
     margin         : 12px 0 4px 0;
+
     span:nth-of-type(1) {
       // text-align: right;
     }
+
     span:nth-of-type(2) {
       // text-align: left;
     }

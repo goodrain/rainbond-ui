@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import CodeCustomForm from '../../components/CodeCustomForm';
+import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
 import styles from './Index.less';
 
@@ -83,6 +84,7 @@ export default class Index extends PureComponent {
   render() {
     return (
       <Card>
+        <TopUpHints />
         <div
           className={styles.formWrap}
           style={{

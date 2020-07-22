@@ -93,7 +93,7 @@ export default class AddVolumes extends PureComponent {
                   },
                 ],
               })(
-                <RadioGroup onChange={this.handleChange}>
+                <RadioGroup>
                   <Radio value="config-file" disabled={!!this.props.editor}>
                     <Tooltip title="编辑或上传您的配置文件内容">
                       配置文件

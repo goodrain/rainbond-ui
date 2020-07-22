@@ -4,24 +4,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import {
-  Row,
-  Col,
-  Form,
-  Select,
-  Spin,
-  Modal,
-  Input,
-  Tooltip,
-  Button,
-  notification,
-  Checkbox,
-} from 'antd';
-import globalUtil from '../../utils/global';
+import { Button, Checkbox, Col, Form, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
 import appUtil from '../../utils/app';
-import styles from './index.less';
-import styless from '../CreateTeam/index.less';
+import globalUtil from '../../utils/global';
 import AddGroup from '../AddOrEditGroup';
+import styless from '../CreateTeam/index.less';
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -208,7 +196,7 @@ export default class Index extends PureComponent {
       },
       handleError: err => {
         if (err && err.data && err.data.msg_show) {
-          notification.error({ message: err.data.msg_show });
+          notification.warning({ message: err.data.msg_show });
         }
         this.handleCloseLoading();
       },

@@ -8,21 +8,18 @@ import {
   Select,
   Input,
   Radio,
-  Tag,
   Spin,
   Divider,
   Checkbox,
 } from 'antd';
 import { connect } from 'dva';
 import userUtil from '../../utils/user';
-import { getAllRegion } from '../../services/api';
-import globalUtil from '../../utils/global';
 import styles from '../CreateTeam/index.less';
 import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 const { TextArea } = Input;
 
 @Form.create()
@@ -39,13 +36,9 @@ class CreateAppModels extends PureComponent {
       userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
     this.state = {
       isShared: window.location.href.indexOf('shared') > -1,
-      actions: [],
-      regions: [],
       previewImage: '',
       previewVisible: false,
       tagList: [],
-      inputVisible: false,
-      inputValue: '',
       imageBase64: '',
       imageUrl: props.appInfo ? props.appInfo.pic : '',
       loading: false,
@@ -61,11 +54,17 @@ class CreateAppModels extends PureComponent {
   componentDidMount() {
     this.getTags();
     const { isShared, adminer } = this.state;
-    isShared && adminer && this.getEnterpriseTeams();
+    if (isShared && adminer) {
+      this.getEnterpriseTeams();
+    }
   }
-
+  onChangeCheckbox = () => {
+    this.setState({
+      Checkboxvalue: !this.state.Checkboxvalue,
+    });
+  };
   getTags = () => {
-    const { dispatch, eid, form } = this.props;
+    const { dispatch, eid } = this.props;
     dispatch({
       type: 'market/fetchAppModelsTags',
       payload: {
@@ -81,16 +80,19 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  addTeams = () => {
-    this.setState(
-      {
-        enterpriseTeamsLoading: true,
-        page_size: this.state.page_size + 10,
-      },
-      () => {
-        this.getEnterpriseTeams();
-      }
-    );
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  getLogoBase64 = (img, callback) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(img);
   };
 
   getEnterpriseTeams = name => {
@@ -120,7 +122,17 @@ class CreateAppModels extends PureComponent {
       },
     });
   };
-
+  addTeams = () => {
+    this.setState(
+      {
+        enterpriseTeamsLoading: true,
+        page_size: this.state.page_size + 10,
+      },
+      () => {
+        this.getEnterpriseTeams();
+      }
+    );
+  };
   handleSubmit = () => {
     const { form, appInfo } = this.props;
     form.validateFields((err, values) => {
@@ -132,12 +144,6 @@ class CreateAppModels extends PureComponent {
         }
       }
     });
-  };
-
-  getLogoBase64 = (img, callback) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
   };
 
   handleLogoChange = info => {
@@ -174,15 +180,6 @@ class CreateAppModels extends PureComponent {
     this.setState({
       previewImage: file.url || file.preview,
       previewVisible: true,
-    });
-  };
-
-  getBase64 = file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
     });
   };
 
@@ -227,8 +224,6 @@ class CreateAppModels extends PureComponent {
   //     },
   //   });
   // };
-
-  saveInputRef = input => (this.input = input);
 
   upAppModel = values => {
     const { dispatch, eid, appInfo, onOk, team_name } = this.props;
@@ -284,9 +279,11 @@ class CreateAppModels extends PureComponent {
       currentTeam,
       market_id,
       team_name,
+      defaultScope = false,
     } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const arr = [];
+    const tags = [];
     if (
       values.tag_ids &&
       values.tag_ids.length > 0 &&
@@ -296,13 +293,43 @@ class CreateAppModels extends PureComponent {
       values.tag_ids.map(items => {
         tagList.map(item => {
           if (items === item.name) {
+            tags.push(item.name);
             arr.push(parseFloat(item.tag_id));
           }
         });
       });
     }
 
-    const body = {
+    let customBody = {};
+
+    if (market_id) {
+      customBody = {
+        enterprise_id: eid,
+        marketName: market_id,
+        name: values.name,
+        logo: imageUrl,
+        introduction: '',
+        app_classification_id: '',
+        team_name: currentTeam && currentTeam.team_name,
+        desc: values.describe,
+        publish_type: 'private',
+        tags,
+      };
+
+      dispatch({
+        type: 'market/createMarketAppModel',
+        payload: customBody,
+        callback: res => {
+          if (res && res._code === 200) {
+            if (onOk) {
+              onOk();
+            }
+          }
+        },
+      });
+      return null;
+    }
+    customBody = {
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
@@ -313,35 +340,30 @@ class CreateAppModels extends PureComponent {
       tag_ids: arr,
     };
 
-    if (market_id) {
-      body.scope_target = { market_id };
-      body.scope = 'goodrain';
-      body.source = 'local';
-    }
-     if (isShared && values.scope !== 'enterprise') {
-      body.create_team = values.scope;
+    // if (market_id) {
+    //   customBody.scope_target = { market_id };
+    //   customBody.scope = 'goodrain';
+    //   customBody.source = 'local';
+    // }
+    if (isShared && values.scope !== 'enterprise') {
+      customBody.create_team = values.scope;
     }
 
     dispatch({
       type: 'market/createAppModel',
-      payload: body,
+      payload: customBody,
       callback: res => {
         if (res && res._code === 200) {
-          onOk && onOk();
+          if (onOk) {
+            onOk();
+          }
         }
       },
     });
   };
 
-  onChangeRadio = e => {
-    this.setState({
-      scope: e.target.value,
-    });
-  };
-
   handleOnSelect = value => {
     const { tagList } = this.state;
-    const { dispatch, eid, form } = this.props;
     if (value && tagList.length > 0) {
       let judge = true;
       tagList.map(item => {
@@ -358,30 +380,10 @@ class CreateAppModels extends PureComponent {
     }
   };
 
-  // handleOnDeselect = value => {
-  //   console.log(`dele`, value);
-  // };
-  handleChangeSelect = value => {
-    const { tagList } = this.state;
-
-    const set = '';
-    if (value && tagList) {
-      value.map(item => {
-        tagList.map(items => {});
-      });
-    }
-  };
-  onChangeCheckbox = value => {
-    this.setState({
-      Checkboxvalue: !this.state.Checkboxvalue,
-    });
-  };
-
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { getFieldDecorator } = this.props.form;
     const {
       onCancel,
-      eid,
       title,
       appInfo,
       defaultScope,

@@ -10,6 +10,10 @@
     "site": "roadhog-api-doc static && gh-pages -d dist",
     "analyze": "cross-env ANALYZE=true roadhog build"
   },
+  "engines": {
+    "node": "12.8.1",
+    "yarn": "1.17.3"
+  },
   "dependencies": {
     "@ant-design/compatible": "^0.0.1-rc.1",
     "@ant-design/pro-layout": "^4.4.2",
@@ -76,7 +80,6 @@
     "yarn": "^1.19.2"
   },
   "devDependencies": {
-    "axios": "^0.17.1",
     "babel-eslint": "^8.1.2",
     "babel-plugin-dva-hmr": "^0.4.1",
     "babel-plugin-import": "^1.6.3",
@@ -85,7 +88,7 @@
     "cross-port-killer": "^1.0.1",
     "echarts": "^4.1.0",
     "enzyme": "^3.1.0",
-    "eslint": "^4.14.0",
+    "eslint": "^5.0.0",
     "eslint-config-airbnb": "^16.0.0",
     "eslint-plugin-babel": "^4.0.0",
     "eslint-plugin-compat": "^2.1.0",
@@ -100,11 +103,10 @@
     "prettier-eslint": "^8.8.2",
     "pro-download": "^1.0.1",
     "react-codemirror": "1.0.0",
-    "react-markdown": "3.6.0",
     "redbox-react": "1.5.0",
     "regenerator-runtime": "^0.11.1",
     "rollbar": "^2.3.4",
-    "stylelint": "^8.4.0",
+    "stylelint": "^10.0.1",
     "stylelint-config-standard": "^18.0.0",
     "yamljs": "^0.3.0",
     "eslint-plugin-prettier": "3.1.3",

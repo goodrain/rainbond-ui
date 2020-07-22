@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import cookie from '../utils/cookie';
 
 // fetch Permissions
 export async function getPermissions() {
@@ -14,7 +15,7 @@ export async function getPermissions() {
 }
 
 /*
-  获取企业所有数据中心的每小时按需消费明细
+  获取企业所有集群的每小时按需消费明细
  */
 export async function getAllRegionFee(body = { team_name, date }) {
   return request(
@@ -225,7 +226,7 @@ export async function InitTeam(body = { team_alias, region_name }) {
   });
 }
 
-/* 获取某个数据中心的资源详情 */
+/* 获取某个集群的资源详情 */
 export async function getRegionSource(body = { team_name, region }) {
   return request(`${apiconfig.baseUrl}/console/enterprise/region/resource`, {
     method: 'get',
@@ -350,7 +351,7 @@ export async function getCompanyInfo(body = { team_name }) {
   });
 }
 
-/* 获取某数据中心下某一天的资源费用数据 */
+/* 获取某集群下某一天的资源费用数据 */
 export async function getRegionOneDayMoney(body = { team_name, date, region }) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/team/${body.team_name}/fee`,
@@ -415,6 +416,8 @@ export async function postUpdateOrder(
       method: 'post',
       data: {
         group_key: body.group_key,
+        market_name: body.marketName,
+        is_from_cloud: body.isFromCloud,
       },
     }
   );
@@ -466,14 +469,7 @@ export async function getUpdatedVersion(
 
 /* 查询某云市应用下服务的更新信息 */
 
-export async function getUpdatedInfo(
-  body = {
-    team_name,
-    group_id,
-    group_key,
-    version,
-  }
-) {
+export async function getUpdatedInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-info`,
     {
@@ -481,6 +477,7 @@ export async function getUpdatedInfo(
       params: {
         group_key: body.group_key,
         version: body.version,
+        market_name: body.marketName,
       },
     }
   );
@@ -674,7 +671,12 @@ export async function isPubCloud() {
 export function getAllRegion(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
-    { method: 'get' }
+    {
+      method: 'get',
+      params: {
+        status: param.status,
+      },
+    }
   );
 }
 
@@ -917,7 +919,7 @@ export async function fetchEnterpriseUsers(param) {
   );
 }
 
-/** 添加企业管理员 */
+/* 添加企业管理员 */
 export async function addEnterpriseAdminTeams(param) {
   return request(
     // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
@@ -1017,6 +1019,18 @@ export async function setRegist(body = { isRegist }) {
     method: 'put',
     data: { is_regist: body.isRegist },
   });
+}
+
+ /* 设置签发证书类型功能 */
+export async function setCertificateType(body = {}) {
+  const { enterprise_id } = body;
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/info?key=auto_ssl`,
+    {
+      method: 'put',
+      data: body,
+    }
+  );
 }
 
 /* 设置注册功能 */
@@ -1174,6 +1188,7 @@ export async function toCreatUser(params, handleError) {
         tenant_name: params.tenant_name,
         user_name: params.user_name,
         phone: params.phone,
+        real_name: params.real_name,
         email: params.email,
         password: params.password,
         re_password: params.password,
@@ -1190,6 +1205,7 @@ export async function upEnterpriseUsers(params) {
     {
       method: 'PUT',
       data: {
+        real_name: params.real_name,
         tenant_name: params.tenant_name,
         user_name: params.user_name,
         phone: params.phone,

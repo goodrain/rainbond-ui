@@ -101,9 +101,9 @@ export default class Index extends PureComponent {
 
     const appVersions =
       showCreate &&
-      showCreate.app_versions &&
-      showCreate.app_versions.length > 0 &&
-      showCreate.app_versions;
+      showCreate.versions &&
+      showCreate.versions.length > 0 &&
+      showCreate.versions;
 
     return (
       <Modal

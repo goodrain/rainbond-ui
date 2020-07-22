@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /*
    查询备份状态
@@ -84,13 +84,14 @@ export async function backup(body = { team_name, group_id }, handleError) {
 /*
   查询这个组的所有可监控应用的响应时间和吞吐率
 */
-export async function groupMonitorData(body = { team_name, group_id }) {
+export async function groupMonitorData(body = { team_name, group_id }, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/monitor/batch_query`,
     {
       method: 'get',
       showLoading: false,
       showMessage: false,
+      handleError,
     }
   );
 }

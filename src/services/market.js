@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* 获取本地标签s（搜索） */
 export async function fetchAppModelsTags(param) {
@@ -9,6 +9,31 @@ export async function fetchAppModelsTags(param) {
 
     {
       method: 'get',
+    }
+  );
+}
+export async function fetchMarkets(params = {}) {
+  const { enterprise_id, name, pageSize, page, query } = params;
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/cloud/markets/${name}/app-models`,
+    {
+      method: 'get',
+      params: {
+        page_size: pageSize,
+        page,
+        query,
+      },
+    }
+  );
+}
+export async function fetchMarketsTab(param) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/markets`,
+    {
+      method: 'get',
+      params: {
+        extend: true,
+      },
     }
   );
 }
@@ -98,6 +123,38 @@ export async function upAppModel(body) {
   );
 }
 
+/* delete  App  Market */
+export async function deleteAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
+    {
+      method: 'DELETE',
+    }
+  );
+}
+
+/* up  App  Market */
+export async function upAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
+    {
+      method: 'PUT',
+      data: body,
+    }
+  );
+}
+
+/* create  App  Market */
+export async function createAppMarket(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
+    {
+      method: 'post',
+      data: body,
+    }
+  );
+}
+
 /* 创建本地应用 */
 export async function createAppModel(body) {
   return request(
@@ -118,6 +175,16 @@ export async function createAppModel(body) {
         describe: body.describe,
         tag_ids: body.tag_ids,
       },
+    }
+  );
+}
+/* 创建市场应用 */
+export async function createMarketAppModel(data) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${data.enterprise_id}/cloud/markets/${data.marketName}/app-models`,
+    {
+      method: 'post',
+      data,
     }
   );
 }
@@ -170,31 +237,6 @@ export function appExport(
         app_versions: body.app_versions,
         format: body.format,
       },
-    }
-  );
-}
-
-/*
-     获取导出文件
-  */
-export async function getExport(body = { team_name, app_id, format }) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/export/down?app_id=${body.app_id}&format=${body.format}`,
-    {
-      method: 'get',
-    }
-  );
-}
-
-/*
-     应用包上传
-  */
-export function uploadApp(body = { team_name }) {
-  const team_name = body.team_name;
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${team_name}/apps/upload`,
-    {
-      method: 'post',
     }
   );
 }
@@ -344,6 +386,9 @@ export async function getStoreList(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
     {
       method: 'get',
+      params: {
+        extend: true,
+      },
     }
   );
 }

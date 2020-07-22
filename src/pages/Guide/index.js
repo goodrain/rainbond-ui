@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const {form} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
@@ -254,11 +254,11 @@ export default class Index extends PureComponent {
     return <Divider>完成任务前请查阅以上内容</Divider>;
   };
   getGuide = guideKey => {
-    var guide = { key: guideKey, status: false };
+    let guide = { key: guideKey, status: false };
     this.state.GuideList.map(item => {
       if (item.key == guideKey) {
         guide = item;
-        return;
+
       }
     });
     return guide;
@@ -267,7 +267,7 @@ export default class Index extends PureComponent {
   CreateApp = () => {
     const grade = this.getGuide("app_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     if (!grade) {
       return "";
     }
@@ -283,7 +283,7 @@ export default class Index extends PureComponent {
           style={{ color: grade.status ? "#1890ff" : "#A8A2A2" }}
         />
         <p>
-          应用是Rainbond核心抽象，由N个组件构成，它类似于Maven或Dotnet中的Project，通常是指一个完整的业务系统。在应用级抽象中用户通常关注以下知识：
+          应用是核心抽象，由N个组件构成，它类似于Maven或Dotnet中的Project，通常是指一个完整的业务系统。在应用级抽象中用户通常关注以下知识：
         </p>
         <p>
           1. 应用拓扑图可视化，便捷观察所有组件的运行状态{" "}
@@ -343,7 +343,7 @@ export default class Index extends PureComponent {
   CreateSourceCode = () => {
     const grade = this.getGuide("source_code_service_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -361,7 +361,7 @@ export default class Index extends PureComponent {
         />
 
         <p>
-          基于源码创建并持续构建组件是面向开发者的最常用的功能，Rainbond支持
+          基于源码创建并持续构建组件是面向开发者的最常用的功能，支持
           <a href={languageObj.Java} target="_blank">
             Java
           </a>
@@ -392,7 +392,7 @@ export default class Index extends PureComponent {
           源码为例，用户通常关注以下知识：
         </p>
         <p>
-          1. Rainbond如何支持各类型开发语言
+          1. 如何支持各类型开发语言
           <a
             href={`${platform_url}docs/user-manual/app-creation/language-support/`}
             target="_blank"
@@ -401,7 +401,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          2. Maven私服仓库如何对接到Rainbond
+          2. Maven私服仓库如何对接到平台
           <a
             href={`${platform_url}docs/advanced-scenarios/devops/connection-maven-repository/`}
             target="_blank"
@@ -471,7 +471,7 @@ export default class Index extends PureComponent {
   CreateByImageTaskShow = () => {
     const grade = this.getGuide("image_service_create");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -491,7 +491,7 @@ export default class Index extends PureComponent {
           从镜像创建组件要求用户具备一定的容器化知识，本次任务我们将从镜像安装Mysql数据库，完成本次任务用户关注以下知识：
         </p>
         <p>
-          1. Rainbond支持基于Docker镜像创建组件的规范{" "}
+          1. 支持基于Docker镜像创建组件的规范{" "}
           <a
             href={`${platform_url}docs/user-manual/app-creation/image-support/`}
             target="_blank"
@@ -500,7 +500,7 @@ export default class Index extends PureComponent {
           </a>
         </p>
         <p>
-          2. Rainbond支持基于DockerCompose便捷创建多个组件的规范
+          2. 支持基于DockerCompose便捷创建多个组件的规范
           <a
             href={`${platform_url}docs/user-manual/app-creation/image-support/docker-compose/`}
             target="_blank"
@@ -566,11 +566,11 @@ export default class Index extends PureComponent {
 
         <p>
           从应用市场安装应用是最便捷的云应用安装交付方式，目前
-          {configureGlobal.rainbondTextShow && (
+          {/* {configureGlobal.rainbondTextShow && (
             <a href={languageObj.Rainbond} target="_blank">
               Rainbond
             </a>
-          )}
+          )} */}
           公有市场中提供了部分数据库类中间件和一些开源应用。完成当前任务用户会关注以下功能:
         </p>
         <p>1. 从公有应用市场同步应用</p>
@@ -602,7 +602,7 @@ export default class Index extends PureComponent {
   Service = () => {
     const grade = this.getGuide("service_connect_db");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -620,7 +620,7 @@ export default class Index extends PureComponent {
         />
 
         <p>
-          当前任务以组件连接数据库为例学习Rainbond组件之间内网通信机制，完成当前任务用户会关注以下知识：
+          当前任务以组件连接数据库为例学习组件之间内网通信机制，完成当前任务用户会关注以下知识：
         </p>
         <p>
           1. 组件建立依赖关系包含的通信原理（组件注册/组件发现){" "}
@@ -662,7 +662,7 @@ export default class Index extends PureComponent {
   ReleaseMarket = () => {
     const grade = this.getGuide("share_app");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -725,7 +725,7 @@ export default class Index extends PureComponent {
   AccessStrategy = () => {
     const grade = this.getGuide("custom_gw_rule");
     const { rainbondInfo } = this.props;
-    let platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
+    const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
 
     if (!grade) {
       return "";
@@ -749,9 +749,9 @@ export default class Index extends PureComponent {
 
         <p>
           需要被外网访问的组件需要配置网关访问策略，
-          <a href={languageObj.Rainbond} target="_blank">
+          {/* <a href={languageObj.Rainbond} target="_blank">
             Rainbond
-          </a>
+          </a> */}
           网关支持HTTP/WebSocket/TCP/UDP服务访问协议。HTTP类策略根据域名等信息进行路由匹配，TCP类策略通过IP+端口进行路由匹配。完成当前任务用户会关注以下功能：
         </p>
         <p>
@@ -830,9 +830,9 @@ export default class Index extends PureComponent {
         />
         <p>
           组件插件体系是对组件治理功能的扩展方式，
-          <a href={languageObj.Rainbond} target="_blank">
+          {/* <a href={languageObj.Rainbond} target="_blank">
             Rainbond
-          </a>
+          </a> */}
           默认提供了性能分析插件和网络治理插件。当前任务为前置任务安装的Java组件安装性能分析插件为例。完成当前任务用户会关注以下知识：
         </p>
         <p>1. 性能分析插件的安装</p>

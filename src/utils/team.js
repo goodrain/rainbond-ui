@@ -15,7 +15,7 @@ const teamUtil = {
     return res.join(', ');
   },
   getRegionByName(teamBean, region_name) {
-    const regions = teamBean.region || [];
+    const regions = teamBean && teamBean.region || [];
     const region = regions.filter(
       item => item.team_region_name === region_name
     );

@@ -65,6 +65,36 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/clusters',
+            component: './EnterpriseClusters',
+            name: 'EnterpriseClusters',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/clusters/:clusterID/dashboard',
+            component: './EnterpriseClusterDashboard',
+            name: 'EnterpriseClusterDashboard',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/orders/:orderType',
+            component: './EnterpriseOrders',
+            name: 'EnterpriseOrders',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/orders/:orderType/details',
+            component: './EnterpriseOrders',
+            name: 'EnterpriseServiceOverview',
+            authority: ['admin', 'user'],
+          },
+          {
+            path: '/enterprise/:eid/orders/:orderType/orderDetails/:orderId',
+            component: './EnterpriseOrders',
+            name: 'EnterpriseOorderDetails',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/setting',
             component: './EnterpriseSetting',
             name: 'EnterpriseSetting',
@@ -88,6 +118,12 @@ export default [
             name: 'EnterpriseImport',
             authority: ['admin', 'user'],
           },
+          {
+            path: '/enterprise/:eid/addCluster',
+            component: './AddCluster',
+            name: 'AddCluster',
+            authority: ['admin', 'user'],
+          },
           { component: '404' },
         ],
       },
@@ -104,12 +140,6 @@ export default [
             path: '/team/:teamName/region/:regionName/index',
             component: './TeamDashboard/Index',
             name: 'teamOverview',
-            authority: ['admin', 'user'],
-          },
-          {
-            path: '/team/:teamName/region/:regionName/source/:type?/:name?',
-            component: './Source/Index',
-            name: 'Source',
             authority: ['admin', 'user'],
           },
           {

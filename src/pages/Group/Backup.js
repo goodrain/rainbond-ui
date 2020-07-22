@@ -158,7 +158,7 @@ class Backup extends PureComponent {
     };
     const cloudBackupTip = is_configed
       ? '备份到云端存储上，可实现跨集群迁移'
-      : '请在Rainbond管理后台开启此功能';
+      : '请在管理后台开启此功能';
     return (
       <Modal
         title="新增备份"

@@ -8,7 +8,7 @@ module.exports = {
   fixSiderbar: false, // sticky siderbar
   collapse: true,
   pwa: false,
-  title: 'rainbond',
+  title: '',
   menu:{
     disableLocal:true
   }

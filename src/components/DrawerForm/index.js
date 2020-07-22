@@ -1,39 +1,40 @@
-import React, { PureComponent } from "react";
-import Search from "../Search";
-import DAinput from "../DAinput";
-import { connect } from "dva";
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import {
-  Row,
-  Col,
-  Card,
-  Divider,
   Button,
+  Checkbox,
+  Col,
+  Divider,
   Drawer,
   Form,
+  Icon,
   Input,
   Select,
-  Radio,
   InputNumber,
-  Checkbox,
-  Icon,
-  Modal
-} from "antd";
-import globalUtil from "../../utils/global";
-import userUtil from "../../utils/user";
-import teamUtil from "../../utils/team";
-import styles from "./index.less";
-const FormItem = Form.Item;
-const Option = Select.Option;
-const RadioGroup = Radio.Group;
+  Modal,
+  Row,
+} from 'antd';
 
-@connect(({ user, loading }) => ({
+import globalUtil from '../../utils/global';
+import rainbondUtil from '../../utils/rainbond';
+import teamUtil from '../../utils/team';
+import userUtil from '../../utils/user';
+import DAinput from '../DAinput';
+import styles from './index.less';
+
+const FormItem = Form.Item;
+const { Option, OptGroup } = Select;
+
+@connect(({ user, loading, global }) => ({
   currUser: user.currentUser,
-  addHttpStrategyLoading: loading.effects["gateWay/addHttpStrategy"],
-  editHttpStrategyLoading: loading.effects["gateWay/editHttpStrategy"]
+  enterprise: global.enterprise,
+  addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
+  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy'],
 }))
 class DrawerForm extends PureComponent {
   constructor(props) {
     super(props);
+    const { editInfo } = this.props;
     this.state = {
       serviceComponentList: [],
       portList: [],
@@ -41,19 +42,19 @@ class DrawerForm extends PureComponent {
       isAddLicense: false,
       page: 1,
       page_size: 10,
-      service_id: "",
-      group_name: "",
+      service_id: '',
+      group_name: '',
       descriptionVisible: false,
       rule_extensions_visible: false,
+      automaticCertificateVisible: (editInfo && editInfo.auto_ssl) || false,
       isPerform: true,
-      routingConfiguration:
+      routingConfiguration: !!(
         props.editInfo &&
         (props.editInfo.domain_heander ||
           props.editInfo.domain_cookie ||
           // props.editInfo.the_weight ||
           props.editInfo.certificate_id)
-          ? true
-          : false
+      ),
     };
   }
   componentWillMount() {
@@ -65,32 +66,32 @@ class DrawerForm extends PureComponent {
     const { dispatch, editInfo, appID } = props;
     const team_name = globalUtil.getCurrTeamName();
     dispatch({
-      type: "appControl/fetchCertificates",
+      type: 'appControl/fetchCertificates',
       payload: {
         team_name,
         page,
-        page_size
+        page_size,
       },
       callback: data => {
         if (data && data.list) {
-          let listNum = (data.bean && data.bean.nums) || 0;
-          let isAdd = listNum && listNum > page_size ? true : false;
+          const listNum = (data.bean && data.bean.nums) || 0;
+          const isAdd = !!(listNum && listNum > page_size);
           this.setState({ licenseList: data.list, isAddLicense: isAdd });
         }
-      }
+      },
     });
     if (editInfo) {
-      this.handleServices({key: editInfo.g_id});
+      this.handleServices({ key: editInfo.g_id });
     }
     if (appID) {
-      this.handleServices({key: appID});
+      this.handleServices({ key: appID });
     }
   };
 
   addLicense = () => {
     this.setState(
       {
-        page_size: this.state.page_size + 10
+        page_size: this.state.page_size + 10,
       },
       () => {
         this.heandleEditInfo(this.props);
@@ -103,18 +104,23 @@ class DrawerForm extends PureComponent {
     const { group_name } = this.state;
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        if (values.certificate_id === 'auto_ssl') {
+          values.auto_ssl = true;
+          values.certificate_id = undefined;
+        }
+
         onOk && onOk(values, group_name);
       }
     });
   };
-  /**获取组件 */
+  /** 获取组件 */
   handleServices = groupObj => {
     const { isPerform } = this.state;
     const { dispatch, editInfo, groups } = this.props;
     const team_name = globalUtil.getCurrTeamName();
-    /**获取对应的group_name */
-    let group_obj = null
-    if (groups){
+    /** 获取对应的group_name */
+    let group_obj = null;
+    if (groups) {
       group_obj = groups.filter(item => {
         return item.group_id == groupObj.key;
       });
@@ -123,10 +129,10 @@ class DrawerForm extends PureComponent {
       this.setState({ group_name: group_obj[0].group_name });
     }
     dispatch({
-      type: "groupControl/fetchApps",
+      type: 'groupControl/fetchApps',
       payload: {
         group_id: groupObj.key,
-        team_name
+        team_name,
       },
       callback: data => {
         if (data) {
@@ -135,21 +141,21 @@ class DrawerForm extends PureComponent {
               if (isPerform && editInfo) {
                 this.handlePorts(editInfo.service_id, true);
                 this.props.form.setFieldsValue({
-                  service_id: editInfo.service_id
+                  service_id: editInfo.service_id,
                 });
               } else {
                 this.handlePorts(data.list[0].service_id, false);
                 this.props.form.setFieldsValue({
-                  service_id: data.list[0].service_id
+                  service_id: data.list[0].service_id,
                 });
               }
             }
           });
         }
-      }
+      },
     });
   };
-  /**获取端口 */
+  /** 获取端口 */
   handlePorts = service_id => {
     const { dispatch, editInfo } = this.props;
     const { isPerform } = this.state;
@@ -158,14 +164,14 @@ class DrawerForm extends PureComponent {
       return item.service_id == service_id;
     });
     dispatch({
-      type: "appControl/fetchPorts",
+      type: 'appControl/fetchPorts',
       payload: {
         app_alias:
           service_obj &&
           service_obj.length > 0 &&
           service_obj[0].service_alias &&
           service_obj[0].service_alias,
-        team_name
+        team_name,
       },
       callback: data => {
         if (data) {
@@ -173,109 +179,128 @@ class DrawerForm extends PureComponent {
             if (data.list && data.list.length > 0) {
               if (isPerform && editInfo) {
                 this.setState({
-                  isPerform: false
+                  isPerform: false,
                 });
                 this.props.form.setFieldsValue({
-                  container_port: editInfo.container_port
+                  container_port: editInfo.container_port,
                 });
               } else {
                 this.props.form.setFieldsValue({
-                  container_port: data.list[0].container_port
+                  container_port: data.list[0].container_port,
                 });
               }
             }
           });
         }
-      }
+      },
     });
   };
-  /**介绍域名说明 */
+  /** 介绍域名说明 */
   showDescription = () => {
     this.setState({
-      descriptionVisible: true
+      descriptionVisible: true,
     });
   };
   handleOk_description = () => {
     this.setState({
-      descriptionVisible: false
+      descriptionVisible: false,
     });
   };
   handeCertificateSelect = value => {
     if (value) {
-      this.setState({ rule_extensions_visible: true });
+      this.setState({
+        rule_extensions_visible: true,
+      });
     }
+    this.setState({
+      automaticCertificateVisible: value === 'auto_ssl',
+    });
   };
 
   handleRoutingConfiguration = () => {
     this.setState({
-      routingConfiguration: !this.state.routingConfiguration
+      routingConfiguration: !this.state.routingConfiguration,
     });
   };
   render() {
     const {
       onClose,
-      onOk,
+      enterprise,
       groups,
       editInfo,
       addHttpStrategyLoading,
-      editHttpStrategyLoading
+      editHttpStrategyLoading,
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 5 },
-        sm: { span: 5 }
+        sm: { span: 5 },
       },
       wrapperCol: {
         xs: { span: 19 },
-        sm: { span: 19 }
-      }
+        sm: { span: 19 },
+      },
     };
     // const currentGroup = editInfo ? editInfo.g_id : groups.lenth > 0 ? groups[0].group_id : null;
-    let rule_http, rule_round;
+    let rule_http;
+    let rule_round;
     if (editInfo && editInfo.rule_extensions) {
-      editInfo.rule_extensions.split(",").map(item => {
-        if (item.includes("httptohttps")) {
-          rule_http = item.split(":")[0];
-        } else if (item.includes("lb-type")) {
-          rule_round = item.split(":")[1];
+      editInfo.rule_extensions.split(',').map(item => {
+        if (item.includes('httptohttps')) {
+          rule_http = item.split(':')[0];
+        } else if (item.includes('lb-type')) {
+          rule_round = item.split(':')[1];
         }
       });
     }
-    /**筛选当前的集群 */
+    /** 筛选当前的集群 */
 
-    let currentRegion = "";
+    let currentRegion = '';
     const { currUser, appID } = this.props;
-    var currTeam = userUtil.getTeamByTeamName(
+    const currTeam = userUtil.getTeamByTeamName(
       currUser && currUser,
       globalUtil.getCurrTeamName()
     );
-    var currRegionName = globalUtil.getCurrRegionName();
+    const currRegionName = globalUtil.getCurrRegionName();
     if (currTeam) {
       currentRegion = teamUtil.getRegionByName(currTeam, currRegionName);
     }
+    const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
+      enterprise
+    );
+    const AutomaticCertificateValue = rainbondUtil.CertificateIssuedByValue(
+      enterprise
+    );
+    const AutomaticCertificateDeleteValue =
+      JSON.parse(AutomaticCertificateValue) || false;
 
-    const { routingConfiguration, licenseList, isAddLicense } = this.state;
+    const {
+      routingConfiguration,
+      licenseList,
+      isAddLicense,
+      automaticCertificateVisible,
+    } = this.state;
+    const dividers = <Divider style={{ margin: '4px 0' }} />;
     return (
       <div>
         <Drawer
-          title={editInfo ? "编辑Http访问策略" : "添加http访问策略"}
+          title={editInfo ? '编辑Http访问策略' : '添加http访问策略'}
           placement="right"
           width={500}
           closable={false}
           onClose={onClose}
           visible={this.props.visible}
           maskClosable={false}
-          closable={true}
           style={{
-            overflow: "auto"
+            overflow: 'auto',
           }}
         >
           <Form>
             <h3
               style={{
-                borderBottom: "1px solid #BBBBBB",
-                marginBottom: "10px"
+                borderBottom: '1px solid #BBBBBB',
+                marginBottom: '10px',
               }}
             >
               路由规则
@@ -285,20 +310,16 @@ class DrawerForm extends PureComponent {
               label="域名"
               className={styles.antd_form}
             >
-              {getFieldDecorator("domain_name", {
+              {getFieldDecorator('domain_name', {
                 rules: [
                   {
                     required: true,
-                    message: "请添加域名"
-                  }
-                  // {
-                  //     pattern: /(\.)(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/,
-                  //     message: "格式不正确",
-                  // },
+                    message: '请添加域名',
+                  },
                 ],
-                initialValue: editInfo.domain_name
+                initialValue: editInfo.domain_name,
               })(<Input placeholder="请输入域名" />)}
-              <span style={{ fontWeight: "bold", fontSize: "16px" }}>
+              <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                 <Icon type="question-circle" theme="filled" />
                 <a href="javascript:void(0)" onClick={this.showDescription}>
                   请将域名解析到：{currentRegion && currentRegion.tcpdomain}
@@ -306,24 +327,24 @@ class DrawerForm extends PureComponent {
               </span>
             </FormItem>
             <FormItem {...formItemLayout} label="Location">
-              {getFieldDecorator("domain_path", {
+              {getFieldDecorator('domain_path', {
                 rules: [
                   {
                     required: false,
-                    message: "/"
+                    message: '/',
                   },
                   {
                     pattern: /^\/+.*/,
-                    message: "请输入绝对路径"
-                  }
+                    message: '请输入绝对路径',
+                  },
                 ],
-                initialValue: editInfo.domain_path
+                initialValue: editInfo.domain_path,
               })(<Input placeholder="/" />)}
             </FormItem>
 
             {!routingConfiguration && (
               <div>
-                <p style={{ textAlign: "center" }}>
+                <p style={{ textAlign: 'center' }}>
                   更多高级路由参数
                   <br />
                   <Icon type="down" onClick={this.handleRoutingConfiguration} />
@@ -334,20 +355,20 @@ class DrawerForm extends PureComponent {
             {routingConfiguration && (
               <div>
                 <FormItem {...formItemLayout} label="请求头">
-                  {getFieldDecorator("domain_heander", {
-                    initialValue: editInfo.domain_heander
+                  {getFieldDecorator('domain_heander', {
+                    initialValue: editInfo.domain_heander,
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="Cookie">
-                  {getFieldDecorator("domain_cookie", {
-                    initialValue: editInfo.domain_cookie
+                  {getFieldDecorator('domain_cookie', {
+                    initialValue: editInfo.domain_cookie,
                   })(<DAinput />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="权重">
-                  {getFieldDecorator("the_weight", {
-                    initialValue: editInfo.the_weight || 100
+                  {getFieldDecorator('the_weight', {
+                    initialValue: editInfo.the_weight || 100,
                   })(
-                    <InputNumber min={1} max={100} style={{ width: "100%" }} />
+                    <InputNumber min={1} max={100} style={{ width: '100%' }} />
                   )}
                 </FormItem>
                 {licenseList && (
@@ -356,8 +377,11 @@ class DrawerForm extends PureComponent {
                     label="HTTPs证书"
                     style={{ zIndex: 999 }}
                   >
-                    {getFieldDecorator("certificate_id", {
-                      initialValue: editInfo.certificate_id || ""
+                    {getFieldDecorator('certificate_id', {
+                      initialValue:
+                        AutomaticCertificate && editInfo.auto_ssl
+                          ? 'auto_ssl'
+                          : editInfo.certificate_id,
                     })(
                       <Select
                         placeholder="请绑定证书"
@@ -367,11 +391,11 @@ class DrawerForm extends PureComponent {
                             {menu}
                             {isAddLicense && (
                               <div>
-                                <Divider style={{ margin: "4px 0" }} />
+                                {dividers}
                                 <div
                                   style={{
-                                    padding: "4px 8px",
-                                    cursor: "pointer"
+                                    padding: '4px 8px',
+                                    cursor: 'pointer',
                                   }}
                                   onMouseDown={e => e.preventDefault()}
                                   onClick={this.addLicense}
@@ -383,30 +407,60 @@ class DrawerForm extends PureComponent {
                           </div>
                         )}
                       >
-                        {licenseList && licenseList.length > 0 && (
-                          <Option value={""} key={99}>
-                            不绑定
-                          </Option>
-                        )}
-                        {licenseList.map((license, index) => {
-                          return (
-                            <Option value={license.id} key={index}>
-                              {license.alias}
+                        <OptGroup label="功能选择">
+                          {licenseList && licenseList.length > 0 && (
+                            <Option value="" key={99}>
+                              移除证书绑定
                             </Option>
-                          );
-                        })}
-                        {/* {this.state.licenseList.length > 0 ? (this.state.licenseList).map((license, index) => {
-                                        return <Option value={license.id.toString()} key={index}>{license.alias}</Option>
-                                    }) : <Option value={editInfo.certificate_id} key={editInfo.certificate_id}>{editInfo.certificate_name}</Option>} */}
+                          )}
+                          {AutomaticCertificate && (
+                            <Option value="auto_ssl" key="auto_ssl">
+                              自动签发证书（由控制器自动完成证书签发和匹配）
+                            </Option>
+                          )}
+                        </OptGroup>
+                        <OptGroup label="已有证书选择">
+                          {licenseList.map((license, index) => {
+                            return (
+                              <Option value={license.id} key={index}>
+                                {license.alias}
+                              </Option>
+                            );
+                          })}
+                        </OptGroup>
                       </Select>
                     )}
                   </FormItem>
                 )}
+                {AutomaticCertificate &&
+                  automaticCertificateVisible &&
+                  AutomaticCertificateDeleteValue && (
+                    <FormItem {...formItemLayout} label="认证配置">
+                      {getFieldDecorator('auto_ssl_config', {
+                        initialValue: editInfo.auto_ssl_config,
+                        rules: [
+                          {
+                            required: true,
+                            message: '请选择签发证书认证配置',
+                          },
+                        ],
+                      })(
+                        <Select placeholder="请选择签发证书认证配置">
+                          {Object.keys(AutomaticCertificateDeleteValue).map(
+                            item => {
+                              return <Option value={item}>{item}</Option>;
+                            }
+                          )}
+                        </Select>
+                      )}
+                    </FormItem>
+                  )}
+
                 <FormItem {...formItemLayout} label="扩展功能">
                   {(this.state.rule_extensions_visible ||
                     (editInfo.certificate_id && rule_http)) &&
-                    getFieldDecorator("rule_extensions_http", {
-                      initialValue: [rule_http]
+                    getFieldDecorator('rule_extensions_http', {
+                      initialValue: [rule_http],
                     })(
                       <Checkbox.Group>
                         <Row>
@@ -419,8 +473,8 @@ class DrawerForm extends PureComponent {
                       </Checkbox.Group>
                     )}
                   <FormItem>
-                    {getFieldDecorator("rule_extensions_round", {
-                      initialValue: rule_round || "round-robin"
+                    {getFieldDecorator('rule_extensions_round', {
+                      initialValue: rule_round || 'round-robin',
                     })(
                       <Select placeholder="请选择负载均衡类型">
                         <Option value="round-robin">负载均衡算法：轮询</Option>
@@ -431,26 +485,33 @@ class DrawerForm extends PureComponent {
                   </FormItem>
                 </FormItem>
 
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: 'center' }}>
                   <Icon type="up" onClick={this.handleRoutingConfiguration} />
                 </div>
               </div>
             )}
             <h3
               style={{
-                borderBottom: "1px solid #BBBBBB",
-                marginBottom: "10px"
+                borderBottom: '1px solid #BBBBBB',
+                marginBottom: '10px',
               }}
             >
               访问目标
             </h3>
-            <FormItem {...formItemLayout} label="应用名称" style={{ zIndex: 999 }}>
-              {getFieldDecorator("group_id", {
-                rules: [{ required: true, message: "请选择" }],
-                initialValue: appID ? {key: appID} : (editInfo && {
-                  key: editInfo.g_id,
-                  label: editInfo.group_name
-                }) || undefined
+            <FormItem
+              {...formItemLayout}
+              label="应用名称"
+              style={{ zIndex: 999 }}
+            >
+              {getFieldDecorator('group_id', {
+                rules: [{ required: true, message: '请选择' }],
+                initialValue: appID
+                  ? { key: appID }
+                  : (editInfo && {
+                      key: editInfo.g_id,
+                      label: editInfo.group_name,
+                    }) ||
+                    undefined,
               })(
                 <Select
                   labelInValue
@@ -460,7 +521,7 @@ class DrawerForm extends PureComponent {
                 >
                   {(groups || []).map(group => {
                     return (
-                      <Option value={group.group_id + ""} key={group.group_id}>
+                      <Option value={`${group.group_id}`} key={group.group_id}>
                         {group.group_name}
                       </Option>
                     );
@@ -469,21 +530,21 @@ class DrawerForm extends PureComponent {
               )}
             </FormItem>
             <FormItem {...formItemLayout} label="组件" style={{ zIndex: 999 }}>
-              {getFieldDecorator("service_id", {
-                rules: [{ required: true, message: "请选择" }],
+              {getFieldDecorator('service_id', {
+                rules: [{ required: true, message: '请选择' }],
                 initialValue:
                   editInfo && editInfo.service_id
                     ? editInfo.service_id
                     : this.state.serviceComponentList &&
                       this.state.serviceComponentList.length > 0
                     ? this.state.serviceComponentList[0].service_id
-                    : undefined
+                    : undefined,
               })(
                 <Select placeholder="请选择组件" onChange={this.handlePorts}>
                   {(this.state.serviceComponentList || []).map(
                     (service, index) => {
                       return (
-                        <Option value={service.service_id + ""} key={index}>
+                        <Option value={`${service.service_id}`} key={index}>
                           {service.service_cname}
                         </Option>
                       );
@@ -495,16 +556,16 @@ class DrawerForm extends PureComponent {
             <FormItem
               {...formItemLayout}
               label="端口号"
-              style={{ zIndex: 999, marginBottom: "150px" }}
+              style={{ zIndex: 999, marginBottom: '150px' }}
             >
-              {getFieldDecorator("container_port", {
+              {getFieldDecorator('container_port', {
                 initialValue:
                   editInfo && editInfo.container_port
                     ? editInfo.container_port
                     : this.state.portList && this.state.portList.length > 0
                     ? this.state.portList[0].container_port
                     : undefined,
-                rules: [{ required: true, message: "请选择端口号" }]
+                rules: [{ required: true, message: '请选择端口号' }],
               })(
                 <Select placeholder="请选择端口号">
                   {(this.state.portList || []).map((port, index) => {
@@ -520,21 +581,21 @@ class DrawerForm extends PureComponent {
           </Form>
           <div
             style={{
-              position: "absolute",
+              position: 'absolute',
               bottom: 0,
-              width: "100%",
-              borderTop: "1px solid #e8e8e8",
-              padding: "10px 16px",
-              textAlign: "right",
+              width: '100%',
+              borderTop: '1px solid #e8e8e8',
+              padding: '10px 16px',
+              textAlign: 'right',
               left: 0,
-              background: "#fff",
-              borderRadius: "0 0 4px 4px",
-              zIndex: 9999
+              background: '#fff',
+              borderRadius: '0 0 4px 4px',
+              zIndex: 9999,
             }}
           >
             <Button
               style={{
-                marginRight: 8
+                marginRight: 8,
               }}
               onClick={onClose}
             >
@@ -562,7 +623,7 @@ class DrawerForm extends PureComponent {
                 onClick={this.handleOk_description}
               >
                 确定
-              </Button>
+              </Button>,
             ]}
             zIndex={9999}
           >

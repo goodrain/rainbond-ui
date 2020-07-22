@@ -6,19 +6,13 @@ if [ -z "$VERSION" ];then
 		VERSION=$TRAVIS_TAG
 	fi
 fi
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
-docker build -t "rainbond/rainbond-ui:$VERSION" .
-docker push "rainbond/rainbond-ui:$VERSION"
+DOMESTIC_BASE_NAME="image.goodrain.com"
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  ${DOMESTIC_BASE_NAME}
+docker build -t "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION" -f Dockerfile.release .
+docker push "$DOMESTIC_BASE_NAME/rainbond-ui:$VERSION"
 
 sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
+sed -i "s/DOMESTIC_BASE_NAME/$DOMESTIC_BASE_NAME/g" ./build/Dockerfile
 mv dist build/dist
-docker build -t "rainbond/rbd-app-ui:$VERSION" ./build
-docker push "rainbond/rbd-app-ui:$VERSION"
-
-if [ ${DOMESTIC_BASE_NAME} ];
-then
-	newTag="${DOMESTIC_BASE_NAME}/${DOMESTIC_NAMESPACE}/rbd-app-ui:${VERSION}"
-	docker tag "rainbond/rbd-app-ui:$VERSION" "${newTag}"
-	docker login -u "$DOMESTIC_DOCKER_USERNAME" -p "$DOMESTIC_DOCKER_PASSWORD" ${DOMESTIC_BASE_NAME}
-	docker push "${newTag}"
-fi
+docker build -t "$DOMESTIC_BASE_NAME/rbd-app-ui:$VERSION" ./build
+docker push "$DOMESTIC_BASE_NAME/rbd-app-ui:$VERSION"
