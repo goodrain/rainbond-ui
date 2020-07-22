@@ -1,16 +1,25 @@
-import { createEnterpriseCluster, deleteEnterpriseCluster, fetchEnterpriseCluster, fetchEnterpriseClusters, getProtocols, upEnterpriseCluster } from '../services/region';
+import {
+  createEnterpriseCluster,
+  deleteEnterpriseCluster,
+  fetchEnterpriseCluster,
+  fetchEnterpriseClusters,
+  fetchEnterpriseClusterTenants,
+  getProtocols,
+  sethEnterpriseClusterTenantLimit,
+  upEnterpriseCluster
+} from "../services/region";
 
 export default {
-  namespace: 'region',
+  namespace: "region",
   state: {
     // 成员
-    protocols: [],
+    protocols: []
   },
   effects: {
     *fetchProtocols({ payload, callback }, { call, put }) {
       const response = yield call(getProtocols, payload);
       if (response && !response.status) {
-        yield put({ type: 'saveProtocols', payload: response.list });
+        yield put({ type: "saveProtocols", payload: response.list });
       }
     },
     *upEnterpriseCluster({ payload, callback }, { put, call }) {
@@ -19,14 +28,47 @@ export default {
         callback(response);
       }
     },
-    *createEnterpriseCluster({ payload, callback, handleError}, { put, call }) {
-      const response = yield call(createEnterpriseCluster, payload, handleError);
+    *createEnterpriseCluster(
+      { payload, callback, handleError },
+      { put, call }
+    ) {
+      const response = yield call(
+        createEnterpriseCluster,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }
     },
     *fetchEnterpriseClusters({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseClusters, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchEnterpriseClusterTenants(
+      { payload, callback, handleError },
+      { put, call }
+    ) {
+      const response = yield call(
+        fetchEnterpriseClusterTenants,
+        payload,
+        handleError
+      );
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *setEnterpriseTenantLimit(
+      { payload, callback, handleError },
+      { put, call }
+    ) {
+      const response = yield call(
+        sethEnterpriseClusterTenantLimit,
+        payload,
+        handleError
+      );
       if (response && callback) {
         callback(response);
       }
@@ -42,14 +84,14 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    },
+    }
   },
   reducers: {
     saveProtocols(state, action) {
       return {
         ...state,
-        protocols: action.payload,
+        protocols: action.payload
       };
-    },
-  },
+    }
+  }
 };

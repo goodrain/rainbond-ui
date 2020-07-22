@@ -55,6 +55,33 @@ export async function fetchEnterpriseClusters(param) {
   );
 }
 
+export async function fetchEnterpriseClusterTenants(param, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}/tenants`,
+    {
+      method: 'get',
+      params: {
+        page: param.page || 1,
+        pageSize: param.pageSize || 10,
+      },
+      handleError
+    }
+  );
+}
+
+export async function sethEnterpriseClusterTenantLimit(param, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions/${param.region_id}/tenants/${param.tenant_name}/limit`,
+    {
+      method: 'post',
+      data: {
+        limit_memory: param.limit_memory,
+      },
+      handleError
+    }
+  );
+}
+
 /* 获取企业集群详情 */
 export async function fetchEnterpriseCluster(param) {
   return request(
