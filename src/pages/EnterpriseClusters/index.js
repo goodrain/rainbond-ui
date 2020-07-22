@@ -179,6 +179,7 @@ export default class EnterpriseClusters extends PureComponent {
       {
         showTenantList: true,
         regionAlias: item.region_alias,
+        regionName: item.region_name,
         showTenantListRegion: item.region_id,
         loadTenants: true
       },
@@ -285,6 +286,26 @@ export default class EnterpriseClusters extends PureComponent {
   };
   handleTenantPageChange = page => {
     this.setState({ tenantPage: page }, this.loadRegionTenants);
+  };
+
+  handleJoinTeams = teamName => {
+    const { regionName } = this.state;
+    const { dispatch } = this.props;
+    dispatch({
+      type: "teamControl/joinTeam",
+      payload: {
+        team_name: teamName
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.onJumpTeam(teamName, regionName);
+        }
+      }
+    });
+  };
+  onJumpTeam = (team_name, region) => {
+    const { dispatch } = this.props;
+    dispatch(routerRedux.replace(`/team/${team_name}/region/${region}/index`));
   };
 
   render() {
@@ -479,6 +500,13 @@ export default class EnterpriseClusters extends PureComponent {
               }}
             >
               编辑
+            </a>,
+            <a
+              onClick={() => {
+                this.showRegions(item);
+              }}
+            >
+              资源限额
             </a>
           ];
         }
@@ -489,7 +517,18 @@ export default class EnterpriseClusters extends PureComponent {
       {
         title: "所属团队",
         dataIndex: "team_name",
-        align: "center"
+        align: "center",
+        render: (_, item) => {
+          return (
+            <a
+              onClick={() => {
+                this.handleJoinTeams(item.tenant_name);
+              }}
+            >
+              {item.team_name}
+            </a>
+          );
+        }
       },
       {
         title: "内存使用量(MB)",
@@ -572,6 +611,10 @@ export default class EnterpriseClusters extends PureComponent {
               onCancel={this.cancelEditClusters}
             />
           )}
+          <Alert
+            style={{ marginBottom: "16px" }}
+            message="注意！集群内存使用量是指当前集群的整体使用量，一般都大于租户内存使用量的总和"
+          />
           <Table size="middle" dataSource={clusters} columns={columns} />
         </Card>
         {showTenantList && (
@@ -637,12 +680,18 @@ export default class EnterpriseClusters extends PureComponent {
               </div>
             )}
             {!setTenantLimitShow && (
-              <Table
-                pagination={pagination}
-                dataSource={tenants}
-                columns={tenantColumns}
-                loading={loadTenants}
-              />
+              <div>
+                <Alert
+                  style={{ marginBottom: "16px" }}
+                  message={`CPU 使用量 1000 相当于分配1核 CPU`}
+                />
+                <Table
+                  pagination={pagination}
+                  dataSource={tenants}
+                  columns={tenantColumns}
+                  loading={loadTenants}
+                />
+              </div>
             )}
           </Modal>
         )}
