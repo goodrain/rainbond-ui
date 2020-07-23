@@ -3,8 +3,8 @@ import routerConfig from "./router.config";
 
 export default {
   history: "hash",
-  // publicPath: "/static/dists/",
-  publicPath: "/",
+  publicPath: "/static/dists/",
+  // publicPath: "/",
   hash: true,
   plugins: [
     [
@@ -15,19 +15,19 @@ export default {
           hmr: true
         },
         dynamicImport: {
-          loadingComponent: './components/PageLoading/index',
+          loadingComponent: "./components/PageLoading/index",
           webpackChunkName: true,
-          level: 3,
+          level: 3
         },
         locale: {
           // default false
           enable: false,
           // default zh-CN
-          default: 'zh-CN',
+          default: "zh-CN",
           // default true, when it is true, will use `navigator.language` overwrite default
-          baseNavigator: false,
+          baseNavigator: false
         }
-      },
+      }
     ]
   ],
   ignoreMomentLocale: true,
@@ -41,8 +41,8 @@ export default {
 
   routes: routerConfig,
   proxy: {
-    '/console/proxy': {
-      target: 'http://zengqg.pre.goodrain.com',
+    "/console/proxy": {
+      target: "http://zengqg.pre.goodrain.com",
       changeOrigin: true
     }
   }
