@@ -1,6 +1,6 @@
 #!/bin/bash
 IMAGE_DOMAIN=${IMAGE_DOMAIN:-docker.io}
-IMAGE_NAMESPACE=${IMAGE_DOMAIN:-rainbond}
+IMAGE_NAMESPACE=${IMAGE_NAMESPACE:-rainbond}
 if [ -z "$VERSION" ];then
 	if [ -z "$TRAVIS_TAG" ]; then
 		VERSION=$TRAVIS_BRANCH-dev
