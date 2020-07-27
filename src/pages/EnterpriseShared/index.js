@@ -746,7 +746,7 @@ export default class EnterpriseShared extends PureComponent {
     const noLocalMarket = (
       <div className={styles.noShared}>
         <img src={NoComponent} />
-        <p>当前无组件，请选择方式添加</p>
+        <p>当前无应用模版，请选择方式添加</p>
         <div className={styles.btns}>
           {enterpriseAdmin && (
             <Button type="primary" onClick={this.handleOpenCreateAppModel}>
