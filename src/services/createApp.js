@@ -1,5 +1,5 @@
-import request from '../utils/request';
-import apiconfig from '../../config/api.config';
+import request from "../utils/request";
+import apiconfig from "../../config/api.config";
 
 /*
    源码创建应用
@@ -8,19 +8,19 @@ export async function createAppByCode(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_id: body.group_id,
         code_from: body.code_from,
         service_cname: body.service_cname,
         git_url: body.git_url,
         // 好雨git应用id
-        git_project_id: body.git_project_id || '',
+        git_project_id: body.git_project_id || "",
         code_version: body.code_version,
         username: body.username,
         password: body.password,
-        server_type: body.server_type,
-      },
+        server_type: body.server_type
+      }
     }
   );
 }
@@ -32,7 +32,7 @@ export async function createThirtAppByCodes(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
-      method: 'post',
+      method: "post",
       data: {
         service_id: body.service_id,
         code_version: body.code_version,
@@ -41,12 +41,12 @@ export async function createThirtAppByCodes(body = {}) {
         server_type: body.server_type,
         service_cname: body.service_cname,
         is_oauth: body.is_oauth,
-        git_project_id: body.git_project_id || '',
-        check_uuid: body.check_uuid || '',
-        event_id: body.event_id || '',
+        git_project_id: body.git_project_id || "",
+        check_uuid: body.check_uuid || "",
+        event_id: body.event_id || "",
         open_webhook: body.open_webhook,
-        full_name: body.full_name,
-      },
+        full_name: body.full_name
+      }
     }
   );
 }
@@ -57,13 +57,13 @@ export async function createThirdPartyServices(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_id: body.group_id,
         service_cname: body.service_cname,
         endpoints_type: body.endpoints_type,
-        endpoints: body.endpoints ? body.endpoints : '',
-      },
+        endpoints: body.endpoints ? body.endpoints : ""
+      }
     }
   );
 }
@@ -75,14 +75,14 @@ export async function createAppByCompose(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_name: body.group_name,
-        image_type: 'docker_image',
+        image_type: "docker_image",
         yaml_content: body.yaml_content,
         user_name: body.user_name,
-        password: body.password,
-      },
+        password: body.password
+      }
     }
   );
 }
@@ -94,15 +94,15 @@ export async function createAppByDockerrun(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_run`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_id: body.group_id,
         docker_cmd: body.docker_cmd,
         service_cname: body.service_cname,
         image_type: body.image_type,
         user_name: body.user_name,
-        password: body.password,
-      },
+        password: body.password
+      }
     }
   );
 }
@@ -114,8 +114,8 @@ export function getCreateCheckId(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
-      method: 'post',
-      handleError,
+      method: "post",
+      handleError
     }
   );
 }
@@ -127,10 +127,10 @@ export function getCreateCheckResult(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check`,
     {
-      method: 'get',
+      method: "get",
       params: {
-        check_uuid: body.check_uuid,
-      },
+        check_uuid: body.check_uuid
+      }
     }
   );
 }
@@ -142,10 +142,10 @@ export function getCreateComposeCheckInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
-      method: 'post',
+      method: "post",
       data: {
-        compose_id: body.compose_id,
-      },
+        compose_id: body.compose_id
+      }
     }
   );
 }
@@ -157,11 +157,11 @@ export function getCreateComposeCheckResult(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
-      method: 'get',
+      method: "get",
       params: {
         check_uuid: body.check_uuid,
-        compose_id: body.compose_id,
-      },
+        compose_id: body.compose_id
+      }
     }
   );
 }
@@ -173,10 +173,10 @@ export function buildApp(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
-      method: 'post',
+      method: "post",
       data: {
-        is_deploy: body.is_deploy,
-      },
+        is_deploy: body.is_deploy
+      }
     }
   );
 }
@@ -188,12 +188,12 @@ export function getCodeBranchs(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/code_repo/branchs`,
     {
-      method: 'post',
+      method: "post",
       data: {
         type: body.type,
         service_code_clone_url: body.git_url,
-        service_code_id: body.service_project_id,
-      },
+        service_code_id: body.service_project_id
+      }
     }
   );
 }
@@ -205,7 +205,7 @@ export function getCheckuuid(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/get_check_uuid`,
     {
-      method: 'get',
+      method: "get"
     }
   );
 }
@@ -217,10 +217,10 @@ export function getComposeCheckuuid(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/get_check_uuid`,
     {
-      method: 'get',
+      method: "get",
       params: {
-        compose_id: body.compose_id,
-      },
+        compose_id: body.compose_id
+      }
     }
   );
 }
@@ -230,8 +230,8 @@ export function getComposeCheckuuid(body = {}) {
 */
 export function getMarketApp(body = {}) {
   return request(`${apiconfig.baseUrl}/console/apps`, {
-    method: 'get',
-    params: body,
+    method: "get",
+    params: body
   });
 }
 
@@ -242,7 +242,7 @@ export async function installApp(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`,
     {
-      method: 'post',
+      method: "post",
       data: {
         group_id: body.group_id,
         app_id: body.app_id,
@@ -252,7 +252,8 @@ export async function installApp(body = {}) {
         install_from_cloud: body.install_from_cloud
           ? body.install_from_cloud
           : false,
-      },
+        market_name: body.marketName
+      }
     }
   );
 }
@@ -264,7 +265,7 @@ export async function getAppsByComposeId(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/services`,
     {
-      method: 'get',
+      method: "get"
     }
   );
 }
@@ -276,7 +277,7 @@ export async function getComposeByComposeId(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/compose/${body.compose_id}/content`,
     {
-      method: 'get',
+      method: "get"
     }
   );
 }
