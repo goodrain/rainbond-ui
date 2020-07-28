@@ -474,7 +474,7 @@ class CreateAppModels extends PureComponent {
                 ],
               })(<Input placeholder="请输入名称" />)}
               <div className={styles.conformDesc}>
-                请输入创建的应用模板名称，最多64字.
+                请输入创建的应用模版名称，最多64字.
               </div>
             </FormItem>
             {!market_id && (
@@ -588,7 +588,7 @@ class CreateAppModels extends PureComponent {
                   },
                 ],
               })(<TextArea placeholder="请输入描述" />)}
-              <div className={styles.conformDesc}>请输入创建的应用模板描述</div>
+              <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
             </FormItem>
             <Form.Item {...formItemLayout} label="LOGO">
               {getFieldDecorator('pic', {

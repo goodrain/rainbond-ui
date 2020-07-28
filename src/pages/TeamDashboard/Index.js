@@ -174,9 +174,9 @@ export default class Index extends PureComponent {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
                 x: moment(new Date(visitDatas[i][0] * 1000))
-                  .locale('zh-cn')
-                  .format('YYYY-MM-DD HH:mm'),
-                y: Math.floor(visitDatas[i][1]),
+                  .locale("zh-cn")
+                  .format("YYYY-MM-DD HH:mm"),
+                y: Math.floor(visitDatas[i][1])
               });
             }
           }
@@ -782,17 +782,14 @@ export default class Index extends PureComponent {
             <Badge status="default" />
             <FormattedMessage id="team.appmodeNum" />
           </p>
-          <div>
-            <Link
-              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/source`}
-              style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
-              }}
-            >
-              {index.overviewInfo.share_app_num || 0}
-            </Link>
+          <div
+            style={{
+              wordBreak: "break-all",
+              wordWrap: "break-word",
+              color: "rgba(0,0,0,.85)"
+            }}
+          >
+            {index.overviewInfo.share_app_num || 0}
           </div>
         </div>
       </div>
@@ -832,8 +829,9 @@ export default class Index extends PureComponent {
             className={styles.modals}
             maskClosable={false}
           >
-            <p style={{ fontSize: '17px' }}>
-              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了 平台 基础功能流程的新手任务
+            <p style={{ fontSize: "17px" }}>
+              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了
+              平台 基础功能流程的新手任务
             </p>
             <p>
               <div className={styles.stepsbox}>
