@@ -41,7 +41,6 @@ const { Search } = Input;
 @connect(({ user, global, loading }) => ({
   user: user.currentUser,
   enterprise: global.enterprise,
-  rainbondInfo: global.rainbondInfo,
   upAppMarketLoading: loading.effects["market/upAppMarket"],
   createAppMarketLoading: loading.effects["market/createAppMarket"]
 }))
@@ -568,8 +567,6 @@ export default class EnterpriseShared extends PureComponent {
   };
   render() {
     const {
-      rainbondInfo,
-      enterprise,
       match: {
         params: { eid }
       },
@@ -807,12 +804,12 @@ export default class EnterpriseShared extends PureComponent {
                   value={this.state.tags}
                 >
                   {tagLists.map((item, index) => {
-                    const { name, tag_id } = item;
+                    const { name, tag_id: id } = item;
                     if (index > 4) {
                       return null;
                     }
                     return (
-                      <Checkbox key={tag_id} value={name}>
+                      <Checkbox key={id} value={name}>
                         {name}
                       </Checkbox>
                     );
@@ -836,18 +833,18 @@ export default class EnterpriseShared extends PureComponent {
         ) : componentList && componentList.length > 0 ? (
           componentList.map(item => {
             const {
-              app_id,
+              app_id: appId,
               pic,
               describe,
-              app_name,
+              app_name: appName,
               tags,
-              versions_info,
-              dev_status,
-              install_number
+              versions_info: versionsInfo,
+              dev_status: devStatus,
+              install_number: installNumber
             } = item;
             return (
               <Lists
-                key={app_id}
+                key={appId}
                 stylePro={{ marginBottom: "10px" }}
                 Cols={
                   <div className={styles.h70}>
@@ -855,7 +852,7 @@ export default class EnterpriseShared extends PureComponent {
                       <div className={styles.lt}>
                         <p>
                           <Icon type="arrow-down" />
-                          {install_number}
+                          {installNumber}
                         </p>
                       </div>
                       <div className={styles.imgs}>
@@ -874,7 +871,7 @@ export default class EnterpriseShared extends PureComponent {
                               this.showMarketAppDetail(item);
                             }}
                           >
-                            {app_name}
+                            {appName}
                           </a>
                         </p>
                         <p>
@@ -886,13 +883,13 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={4} className={styles.status}>
                       <div>
-                        {dev_status && (
-                          <p className={styles.dev_status}>{dev_status}</p>
+                        {devStatus && (
+                          <p className={styles.dev_status}>{devStatus}</p>
                         )}
 
-                        {versions_info && versions_info.length > 0 ? (
+                        {versionsInfo && versionsInfo.length > 0 ? (
                           <p className={styles.dev_version}>
-                            {versions_info[0].version}
+                            {versionsInfo[versionsInfo.length-1].version}
                           </p>
                         ) : (
                           <p className={styles.dev_version}>无版本</p>
@@ -904,12 +901,12 @@ export default class EnterpriseShared extends PureComponent {
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
-                          const { tag_id, name } = item;
+                          const { tag_id: tagId, name } = item;
                           if (index > 2) {
                             return null;
                           }
                           return (
-                            <div key={tag_id} style={{ marginRight: "5px" }}>
+                            <div key={tagId} style={{ marginRight: "5px" }}>
                               {name}
                             </div>
                           );
@@ -1005,18 +1002,18 @@ export default class EnterpriseShared extends PureComponent {
         ) : marketList && marketList.length > 0 ? (
           marketList.map(item => {
             const {
-              app_id,
+              app_id: appId,
               logo,
               describe,
-              app_name,
+              app_name: appName,
               tags,
               versions,
-              dev_status,
-              install_number
+              dev_status: devStatus,
+              install_number: installNumber
             } = item;
             return (
               <Lists
-                key={app_id}
+                key={appId}
                 stylePro={{ marginBottom: "10px" }}
                 Cols={
                   <div className={styles.h70}>
@@ -1024,7 +1021,7 @@ export default class EnterpriseShared extends PureComponent {
                       <div className={styles.lt}>
                         <p>
                           <Icon type="arrow-down" />
-                          {install_number}
+                          {installNumber}
                         </p>
                       </div>
                       <div className={styles.imgs}>
@@ -1043,7 +1040,7 @@ export default class EnterpriseShared extends PureComponent {
                               this.showMarketAppDetail(item);
                             }}
                           >
-                            {app_name}
+                            {appName}
                           </a>
                         </p>
                         <p>
@@ -1055,13 +1052,13 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={4} className={styles.status}>
                       <div>
-                        {dev_status && (
-                          <p className={styles.dev_status}>{dev_status}</p>
+                        {devStatus && (
+                          <p className={styles.dev_status}>{devStatus}</p>
                         )}
 
                         {versions && versions.length > 0 ? (
                           <p className={styles.dev_version}>
-                            {versions[0].app_version}
+                            {versions[versions.length-1].app_version}
                           </p>
                         ) : (
                           <p className={styles.dev_version}>无版本</p>
@@ -1073,12 +1070,12 @@ export default class EnterpriseShared extends PureComponent {
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
-                          const { tag_id, name } = item;
+                          const { tag_id: tagId, name } = item;
                           if (index > 2) {
                             return null;
                           }
                           return (
-                            <div key={tag_id} style={{ marginRight: "5px" }}>
+                            <div key={tagId} style={{ marginRight: "5px" }}>
                               {name}
                             </div>
                           );
