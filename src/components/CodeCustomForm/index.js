@@ -1,3 +1,6 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable no-void */
+/* eslint-disable no-nested-ternary */
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Form, Button, Select, Input, Checkbox, Row, Col } from "antd";
@@ -36,7 +39,8 @@ export default class Index extends PureComponent {
       addGroup: false,
       serverType: "git",
       subdirectories: false,
-      checkedList: []
+      checkedList: [],
+      visibleKey: false
     };
   }
   onAddGroup = () => {
@@ -50,16 +54,31 @@ export default class Index extends PureComponent {
       subdirectories: false
     });
   };
-  cancelAddGroup = () => {
-    this.setState({ addGroup: false });
+  onChange = checkedValues => {
+    this.setState({
+      checkedList: checkedValues,
+      showUsernameAndPass: checkedValues.includes("showUsernameAndPass"),
+      subdirectories: checkedValues.includes("subdirectories"),
+      showKey: checkedValues.includes("showKey"),
+      visibleKey: !this.state.showKey && checkedValues.includes("showKey")
+    });
   };
+  getDefaultBranchName = () => {
+    if (this.state.serverType == "svn") {
+      return "trunk";
+    }
+    return "master";
+  };
+
   getUrlCheck() {
     if (this.state.serverType == "svn") {
       return /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     return /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
   }
-
+  cancelAddGroup = () => {
+    this.setState({ addGroup: false });
+  };
   checkURL = (rule, value, callback) => {
     const urlCheck = this.getUrlCheck();
     if (urlCheck.test(value)) {
@@ -70,9 +89,10 @@ export default class Index extends PureComponent {
   };
 
   handleAddGroup = vals => {
-    const { setFieldsValue } = this.props.form;
+    const { form, dispatch } = this.props;
+    const { setFieldsValue } = form;
 
-    this.props.dispatch({
+    dispatch({
       type: "groupControl/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -81,7 +101,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res) {
           // 获取群组
-          this.props.dispatch({
+          dispatch({
             type: "global/fetchGroups",
             payload: {
               team_name: globalUtil.getCurrTeamName(),
@@ -98,11 +118,14 @@ export default class Index extends PureComponent {
   };
   hideShowKey = () => {
     this.handkeDeleteCheckedList("showKey");
-    this.setState({ showKey: false });
+    this.setState({ showKey: false, visibleKey: false });
+  };
+  handleVisibleKey = () => {
+    this.setState({ visibleKey: false });
   };
   handkeDeleteCheckedList = type => {
     const { checkedList } = this.state;
-    let arr = checkedList;
+    const arr = checkedList;
     if (arr.indexOf(type) > -1) {
       arr.splice(arr.indexOf(type), 1);
       this.setState({ checkedList: arr });
@@ -110,32 +133,28 @@ export default class Index extends PureComponent {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const form = this.props.form;
+    const { form, onSubmit } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) {
         return;
       }
       if (fieldsValue.version_type == "tag") {
+        // eslint-disable-next-line no-param-reassign
         fieldsValue.code_version = `tag:${fieldsValue.code_version}`;
       }
       if (fieldsValue.subdirectories && fieldsValue.server_type !== "svg") {
-        fieldsValue.git_url =
-          fieldsValue.git_url + "?dir=" + fieldsValue.subdirectories;
+        // eslint-disable-next-line no-param-reassign
+        fieldsValue.git_url = `${fieldsValue.git_url}?dir=${fieldsValue.subdirectories}`;
       }
-
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
+      if (onSubmit) {
+        onSubmit(fieldsValue);
+      }
     });
   };
-  getDefaultBranchName = () => {
-    if (this.state.serverType == "svn") {
-      return "trunk";
-    } else {
-      return "master";
-    }
-  };
+
   fetchCheckboxGroup = (type, serverType) => {
     const { checkedList, showKey } = this.state;
-    let isSubdirectories = serverType !== "svn";
+    const isSubdirectories = serverType !== "svn";
     return (
       <Checkbox.Group
         style={{ width: "100%", marginBottom: "10px" }}
@@ -162,40 +181,44 @@ export default class Index extends PureComponent {
       </Checkbox.Group>
     );
   };
-  onChange = checkedValues => {
-    this.setState({
-      checkedList: checkedValues,
-      showUsernameAndPass: checkedValues.includes("showUsernameAndPass"),
-      subdirectories: checkedValues.includes("subdirectories"),
-      showKey: checkedValues.includes("showKey")
-    });
-  };
+
   render() {
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { groups, createAppByCodeLoading } = this.props;
+    const {
+      groups,
+      createAppByCodeLoading,
+      form,
+      handleType,
+      groupId,
+      data = {},
+      showSubmitBtn,
+      ButtonGroupState,
+      handleServiceBotton,
+      showCreateGroup
+    } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+
     const {
       showUsernameAndPass,
-      showKey,
       subdirectories,
-      checkedList
+      serverType,
+      visibleKey
     } = this.state;
 
     const gitUrl = getFieldValue("git_url");
 
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || "");
+    // eslint-disable-next-line no-unused-vars
     let urlCheck = /^(git@|ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
-    if (this.state.serverType == "svn") {
+    if (serverType == "svn") {
       isHttp = true;
       urlCheck = /^(ssh:\/\/|svn:\/\/|http:\/\/|https:\/\/).+$/gi;
     }
     const isSSH = !isHttp;
-    const data = this.props.data || {};
-    const showSubmitBtn =
-      this.props.showSubmitBtn === void 0 ? true : this.props.showSubmitBtn;
-    const showCreateGroup =
-      this.props.showCreateGroup === void 0 ? true : this.props.showCreateGroup;
+    const showSubmitBtns = showSubmitBtn === void 0 ? true : showSubmitBtn;
+    const showCreateGroups =
+      showCreateGroup === void 0 ? true : showCreateGroup;
     const prefixSelector = getFieldDecorator("server_type", {
-      initialValue: data.server_type || this.state.serverType
+      initialValue: data.server_type || serverType
     })(
       <Select onChange={this.onChangeServerType} style={{ width: 100 }}>
         <Option value="git">Git</Option>
@@ -210,7 +233,7 @@ export default class Index extends PureComponent {
         <Option value="tag">Tag</Option>
       </Select>
     );
-    const serverType = getFieldValue("server_type");
+    // const serverType = getFieldValue("server_type");
 
     return (
       <Fragment>
@@ -218,8 +241,8 @@ export default class Index extends PureComponent {
           <Form.Item {...formItemLayout} label="应用名称">
             {getFieldDecorator("group_id", {
               initialValue:
-                this.props.handleType && this.props.handleType === "Service"
-                  ? Number(this.props.groupId)
+                handleType && handleType === "Service"
+                  ? Number(groupId)
                   : data.group_id,
               rules: [{ required: true, message: "请选择" }]
             })(
@@ -227,17 +250,10 @@ export default class Index extends PureComponent {
                 placeholder="请选择要所属应用"
                 style={{
                   display: "inline-block",
-                  width:
-                    this.props.handleType && this.props.handleType === "Service"
-                      ? ""
-                      : 292,
+                  width: handleType && handleType === "Service" ? "" : 292,
                   marginRight: 15
                 }}
-                disabled={
-                  this.props.handleType && this.props.handleType === "Service"
-                    ? true
-                    : false
-                }
+                disabled={!!(handleType && handleType === "Service")}
               >
                 {(groups || []).map(group => (
                   <Option key={group.group_id} value={group.group_id}>
@@ -246,8 +262,8 @@ export default class Index extends PureComponent {
                 ))}
               </Select>
             )}
-            {this.props.handleType &&
-            this.props.handleType === "Service" ? null : showCreateGroup ? (
+            {handleType &&
+            handleType === "Service" ? null : showCreateGroups ? (
               <Button onClick={this.onAddGroup}>新建应用</Button>
             ) : null}
           </Form.Item>
@@ -320,7 +336,7 @@ export default class Index extends PureComponent {
             )}
           </Form.Item>
 
-          {showSubmitBtn ? (
+          {showSubmitBtns ? (
             <Form.Item
               wrapperCol={{
                 xs: { span: 24, offset: 0 },
@@ -331,10 +347,8 @@ export default class Index extends PureComponent {
               }}
               label=""
             >
-              {this.props.handleType &&
-              this.props.handleType === "Service" &&
-              this.props.ButtonGroupState
-                ? this.props.handleServiceBotton(
+              {handleType && handleType === "Service" && ButtonGroupState
+                ? handleServiceBotton(
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
@@ -344,7 +358,7 @@ export default class Index extends PureComponent {
                     </Button>,
                     false
                   )
-                : !this.props.handleType && (
+                : !handleType && (
                     <Button
                       onClick={this.handleSubmit}
                       type="primary"
@@ -359,7 +373,12 @@ export default class Index extends PureComponent {
         {this.state.addGroup && (
           <AddGroup onCancel={this.cancelAddGroup} onOk={this.handleAddGroup} />
         )}
-        {showKey && isSSH && <ShowRegionKey onCancel={this.hideShowKey} />}
+        {visibleKey && isSSH && (
+          <ShowRegionKey
+            onCancel={this.hideShowKey}
+            onOk={this.handleVisibleKey}
+          />
+        )}
       </Fragment>
     );
   }
