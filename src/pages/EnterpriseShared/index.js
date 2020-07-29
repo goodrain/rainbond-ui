@@ -1070,13 +1070,12 @@ export default class EnterpriseShared extends PureComponent {
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
-                          const { tag_id: tagId, name } = item;
                           if (index > 2) {
                             return null;
                           }
                           return (
-                            <div key={tagId} style={{ marginRight: "5px" }}>
-                              {name}
+                            <div key={item} style={{ marginRight: "5px" }}>
+                              {item}
                             </div>
                           );
                         })}
