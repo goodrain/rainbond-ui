@@ -171,7 +171,7 @@ export default class TcpTable extends PureComponent {
     );
   }
   handleSearch = value => {
-    this.setState({ 
+    this.setState({
       tcp_search: value,
       page_num: 1
     }, () => {
@@ -434,9 +434,9 @@ export default class TcpTable extends PureComponent {
         render: (text, record) => {
           return record.is_outer_service == 0 &&
             record.service_source != "third_party" ? (
-            <a href="javascript:void(0)" disabled>
-              {text}
-            </a>
+              <a href="javascript:void(0)" disabled>
+                {text}
+              </a>
           ) : (
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
@@ -457,9 +457,9 @@ export default class TcpTable extends PureComponent {
         render: (text, record) => {
           return record.is_outer_service == 0 &&
             record.service_source != "third_party" ? (
-            <a href="javascript:void(0)" disabled>
-              {record.service_cname}({text})
-            </a>
+              <a href="javascript:void(0)" disabled>
+                {record.service_cname}({text})
+              </a>
           ) : (
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -480,8 +480,8 @@ export default class TcpTable extends PureComponent {
         render: (_, record) => {
           return record.is_outer_service == 1 ||
             record.service_source == "third_party" ? (
-            <div>
-              {isEdit && (
+              <div>
+                {isEdit && (
                 <a
                   style={{ marginRight: "10px" }}
                   onClick={this.handleConectInfo.bind(this, record)}
@@ -489,7 +489,7 @@ export default class TcpTable extends PureComponent {
                   连接信息
                 </a>
               )}
-              {isEdit && (
+                {isEdit && (
                 <a
                   style={{ marginRight: "10px" }}
                   onClick={this.handleEdit.bind(this, record)}
@@ -497,10 +497,10 @@ export default class TcpTable extends PureComponent {
                   编辑
                 </a>
               )}
-              {isDelete && (
+                {isDelete && (
                 <a onClick={this.handleDelete.bind(this, record)}>删除</a>
               )}
-            </div>
+              </div>
           ) : (
             <Tooltip
               placement="topLeft"
@@ -609,6 +609,7 @@ export default class TcpTable extends PureComponent {
         {visibleModal && (
           <Modal
             title="访问信息"
+            width="800px"
             visible={visibleModal}
             footer={null}
             onCancel={this.handeModalCancel}
