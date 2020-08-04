@@ -1,15 +1,27 @@
 /*
    快速复制
 */
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import { Button, Checkbox, Col, Form, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
-import appUtil from '../../utils/app';
-import globalUtil from '../../utils/global';
-import AddGroup from '../AddOrEditGroup';
-import styless from '../CreateTeam/index.less';
-import styles from './index.less';
+import React, { PureComponent } from "react";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Row,
+  Select,
+  Spin,
+  Tooltip
+} from "antd";
+import appUtil from "../../utils/app";
+import globalUtil from "../../utils/global";
+import AddGroup from "../AddOrEditGroup";
+import styless from "../CreateTeam/index.less";
+import styles from "./index.less";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -18,7 +30,7 @@ const { Option } = Select;
 @connect(({ user, enterprise, groupControl }) => ({
   currentUser: user.currentUser,
   currentEnterprise: enterprise.currentEnterprise,
-  groupDetail: groupControl.groupDetail || {},
+  groupDetail: groupControl.groupDetail || {}
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -26,25 +38,18 @@ export default class Index extends PureComponent {
 
     this.state = {
       userTeamList: [],
-      Loading: false,
-      list: [],
-      dataSource: [],
-      page_num: 1,
-      page_size: 10,
-      total: '',
-      bean: '',
+      Loading: true,
       loading: true,
+      dataSource: [],
       app_page_size: 10,
       app_page: 1,
       apps: [],
-      isAddApps: false,
       checkedList: [],
-      inputValue: '',
+      inputValue: "",
       checkAllList: [],
       indeterminate: false,
       checkAll: true,
-      errInput: '',
-      addGroup: false,
+      addGroup: false
     };
   }
   componentDidMount() {
@@ -55,16 +60,90 @@ export default class Index extends PureComponent {
   onAddGroup = () => {
     this.setState({ addGroup: true });
   };
+  onSelectChange = value => {
+    this.handleOpenLoging();
+    const { form } = this.props;
+    const { userTeamList } = this.state;
+    const { setFieldsValue } = form;
+    const arr = userTeamList.filter(item => item.name === value);
+    if (arr) {
+      if (arr.length > 0) {
+        this.fetchTeamApps(arr[0].value[0], arr[0].value[1]);
+      } else {
+        this.handleCloseLoging();
+        setFieldsValue({ apps: "" });
+      }
+    }
+  };
+  onGroupChange = checkedList => {
+    const { checkAllList } = this.state;
+    this.setState({
+      checkedList,
+      indeterminate:
+        !!checkedList.length && checkedList.length < checkAllList.length,
+      checkAll: checkedList.length === checkAllList.length
+    });
+  };
+
+  onCheckAllChange = e => {
+    const { checkAllList } = this.state;
+    this.setState({
+      checkedList: e.target.checked ? checkAllList : [],
+      indeterminate: false,
+      checkAll: e.target.checked
+    });
+  };
+
+  // 团队
+  getUserTeams = () => {
+    const { dispatch, currentUser, currentEnterprise } = this.props;
+    dispatch({
+      type: "global/fetchUserTeams",
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        user_id: currentUser.user_id,
+        page: 1,
+        page_size: 999
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          const { list } = res;
+          const arr = [];
+          if (list && list.length > 0) {
+            list.map(team => {
+              team.region_list.map(region => {
+                const item = {
+                  name: `${team.team_alias} | ${region.region_alias}`,
+                  value: [team.team_name, region.region_name]
+                };
+                arr.push(item);
+              });
+            });
+          }
+          this.setState({
+            userTeamList: arr
+          });
+        }
+      }
+    });
+  };
+
+  handleOpenLoging = () => {
+    this.setState({ Loading: true, loading: true });
+  };
+  handleCloseLoging = () => {
+    this.setState({ Loading: false, loading: false });
+  };
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
   fetchCopyComponent = () => {
     const { dispatch, groupDetail } = this.props;
     dispatch({
-      type: 'groupControl/fetchCopyComponent',
+      type: "groupControl/fetchCopyComponent",
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
-        group_id: groupDetail.group_id,
+        group_id: groupDetail.group_id
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -81,30 +160,31 @@ export default class Index extends PureComponent {
             checkedList: arr,
             dataSource: res.list,
             loading: false,
+            Loading: false
           });
         }
-      },
+      }
     });
   };
 
   handleAddGroup = vals => {
     const { getFieldValue } = this.props.form;
-
     const { userTeamList } = this.state;
-    const teamRegion = getFieldValue('teamRegion');
+    const teamRegion = getFieldValue("teamRegion");
     const arrs = userTeamList.filter(item => item.name === teamRegion);
-    let teamName = '';
-    let regionName = '';
+    let teamName = "";
+    let regionName = "";
     if (arrs.length > 0) {
       teamName = arrs && arrs[0].value[0];
       regionName = arrs && arrs[0].value[1];
     }
-
+    this.handleOpenLoging();
     this.props.dispatch({
-      type: 'groupControl/addGroup',
+      type: "groupControl/addGroup",
       payload: {
         team_name: teamName || globalUtil.getCurrTeamName(),
-        ...vals,
+        region_name: regionName || globalUtil.getCurrRegionName(),
+        ...vals
       },
       callback: group => {
         if (group) {
@@ -112,7 +192,8 @@ export default class Index extends PureComponent {
           this.fetchTeamApps(teamName, regionName, group.group_id);
           this.cancelAddGroup();
         }
-      },
+        this.handleCloseLoging();
+      }
     });
   };
 
@@ -122,23 +203,25 @@ export default class Index extends PureComponent {
     const { app_page, app_page_size } = this.state;
     const { setFieldsValue } = form;
     dispatch({
-      type: 'global/fetchGroups',
+      type: "global/fetchGroups",
       payload: {
-        query: '',
+        query: "",
         team_name: teamName || globalUtil.getCurrTeamName(),
         region_name: regionName || globalUtil.getCurrRegionName(),
         page: app_page,
-        page_size: app_page_size,
+        page_size: app_page_size
       },
       callback: data => {
         if (data) {
-          teamName &&
+          if (teamName) {
             setFieldsValue({
-              apps: groupId || (data.length > 0 ? data[0].group_id : ''),
+              apps: groupId || (data.length > 0 ? data[0].group_id : "")
             });
+          }
           this.setState({ apps: data });
         }
-      },
+        this.handleCloseLoging();
+      }
     });
   };
 
@@ -169,22 +252,22 @@ export default class Index extends PureComponent {
       const versions = isCodeApp ? code_version : version;
       const objs = {
         service_id,
-        change: { build_source: { version: versions } },
+        change: { build_source: { version: versions } }
       };
       arr.push(objs);
     });
     obj.services = arr;
     dispatch({
-      type: 'groupControl/addCopyTeamApps',
+      type: "groupControl/addCopyTeamApps",
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: groupDetail.group_id,
-        ...obj,
+        ...obj
       },
       callback: res => {
         this.handleCloseLoading();
         if (res && res._code === 200) {
-          notification.success({ message: '复制成功' });
+          notification.success({ message: "复制成功" });
           const { tar_team_name, tar_region_name, tar_group_id } = res.bean;
           dispatch(
             routerRedux.push(
@@ -199,12 +282,12 @@ export default class Index extends PureComponent {
           notification.warning({ message: err.data.msg_show });
         }
         this.handleCloseLoading();
-      },
+      }
     });
   };
 
   handleCloseLoading = () => {
-    this.setState({ Loading: false });
+    this.setState({ Loading: false, loading: false });
   };
 
   handleSave = row => {
@@ -213,58 +296,9 @@ export default class Index extends PureComponent {
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
-      ...row,
+      ...row
     });
-    this.setState({ inputValue: '', dataSource: newData });
-  };
-
-  // 团队
-  getUserTeams = () => {
-    const { dispatch, currentUser, currentEnterprise } = this.props;
-    dispatch({
-      type: 'global/fetchUserTeams',
-      payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
-        user_id: currentUser.user_id,
-        page: 1,
-        page_size: 999,
-      },
-      callback: res => {
-        if (res && res._code === 200) {
-          const { list } = res;
-          const arr = [];
-
-          list &&
-            list.length > 0 &&
-            list.map(team => {
-              team.region_list.map(region => {
-                const item = {
-                  name: `${team.team_alias} | ${region.region_alias}`,
-                  value: [team.team_name, region.region_name],
-                };
-                arr.push(item);
-              });
-            });
-          this.setState({
-            userTeamList: arr,
-          });
-        }
-      },
-    });
-  };
-
-  onSelectChange = value => {
-    const { form } = this.props;
-    const { userTeamList } = this.state;
-    const { setFieldsValue } = form;
-    const arr = userTeamList.filter(item => item.name === value);
-    if (arr) {
-      if (arr.length > 0) {
-        this.fetchTeamApps(arr[0].value[0], arr[0].value[1]);
-      } else {
-        setFieldsValue({ apps: '' });
-      }
-    }
+    this.setState({ inputValue: "", dataSource: newData });
   };
 
   handleOverDiv = content => {
@@ -283,28 +317,9 @@ export default class Index extends PureComponent {
     callback();
   };
 
-  onGroupChange = checkedList => {
-    const { checkAllList } = this.state;
-    this.setState({
-      checkedList,
-      indeterminate:
-        !!checkedList.length && checkedList.length < checkAllList.length,
-      checkAll: checkedList.length === checkAllList.length,
-    });
-  };
-
-  onCheckAllChange = e => {
-    const { checkAllList } = this.state;
-    this.setState({
-      checkedList: e.target.checked ? checkAllList : [],
-      indeterminate: false,
-      checkAll: e.target.checked,
-    });
-  };
-
   save = (item, isCodeApp) => {
     const { inputValue } = this.state;
-    const names = isCodeApp ? 'code_version' : 'version';
+    const names = isCodeApp ? "code_version" : "version";
     const str = item;
     str.build_source[names] = inputValue;
     this.handleSave({ ...str });
@@ -320,10 +335,12 @@ export default class Index extends PureComponent {
       apps,
       loading,
       Loading,
-      errInput,
+      addGroup,
+      indeterminate,
+      checkAll
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
-    let defaultTeamRegion = '';
+    let defaultTeamRegion = "";
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
     if (userTeams) {
@@ -338,12 +355,12 @@ export default class Index extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 17 },
-      },
+        sm: { span: 17 }
+      }
     };
 
     return (
@@ -358,103 +375,107 @@ export default class Index extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button
             type="primary"
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: "20px" }}
             disabled={!hasSelected}
             loading={Loading}
             onClick={this.handleSubmit}
           >
             确定
-          </Button>,
+          </Button>
         ]}
       >
-        <div className={styles.copyBox}>
-          {this.state.addGroup && (
-            <AddGroup
-              onCancel={this.cancelAddGroup}
-              onOk={this.handleAddGroup}
-            />
-          )}
+        <Spin spinning={loading} tip="Loading...">
+          <div className={styles.copyBox}>
+            {addGroup && (
+              <AddGroup
+                onCancel={this.cancelAddGroup}
+                onOk={this.handleAddGroup}
+              />
+            )}
 
-          <Form
-            onSubmit={this.handleSubmit}
-            layout="horizontal"
-            hideRequiredMark
-          >
-            <Row>
-              {userTeams && (
-                <Col span={6}>
-                  <FormItem {...formItemLayout} label="复制到">
-                    {getFieldDecorator('teamRegion', {
-                      initialValue: defaultTeamRegion,
+            <Form
+              onSubmit={this.handleSubmit}
+              layout="horizontal"
+              hideRequiredMark
+            >
+              <Row>
+                {userTeams && (
+                  <Col span={6}>
+                    <FormItem {...formItemLayout} label="复制到">
+                      {getFieldDecorator("teamRegion", {
+                        initialValue: defaultTeamRegion,
+                        rules: [
+                          {
+                            required: true,
+                            validator: this.checkTeams
+                          }
+                        ]
+                      })(
+                        <Select
+                          onChange={this.onSelectChange}
+                          placeholder="团队/集群"
+                        >
+                          {userTeams.map(item => {
+                            return (
+                              <Option value={item.name}>{item.name}</Option>
+                            );
+                          })}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Col>
+                )}
+                <Col
+                  span={10}
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  <FormItem {...formItemLayout} label="">
+                    {getFieldDecorator("apps", {
+                      initialValue: groupDetail.group_id,
                       rules: [
                         {
                           required: true,
-                          validator: this.checkTeams,
-                        },
-                      ],
+                          message: "请选择应用"
+                        }
+                      ]
                     })(
                       <Select
-                        onChange={this.onSelectChange}
-                        placeholder="团队/集群"
+                        style={{ width: "180px" }}
+                        placeholder="请选择应用"
                       >
-                        {userTeams.map(item => {
-                          return <Option value={item.name}>{item.name}</Option>;
-                        })}
+                        {appList &&
+                          appList.map(item => (
+                            <Option key={item.group_id} value={item.group_id}>
+                              {item.group_name}
+                            </Option>
+                          ))}
                       </Select>
                     )}
                   </FormItem>
+                  <Button
+                    style={{ margin: "0 0 24px 10px" }}
+                    onClick={this.onAddGroup}
+                  >
+                    新建应用
+                  </Button>
                 </Col>
-              )}
-              <Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
-                <FormItem {...formItemLayout} label="">
-                  {getFieldDecorator('apps', {
-                    initialValue: groupDetail.group_id,
-                    rules: [
-                      {
-                        required: true,
-                        message: '请选择应用',
-                      },
-                    ],
-                  })(
-                    <Select style={{ width: '180px' }} placeholder="请选择应用">
-                      {appList &&
-                        appList.map(item => (
-                          <Option key={item.group_id} value={item.group_id}>
-                            {item.group_name}
-                          </Option>
-                        ))}
-                    </Select>
-                  )}
-                </FormItem>
-                <Button
-                  style={{ margin: '0 0 24px 10px' }}
-                  onClick={this.onAddGroup}
+              </Row>
+            </Form>
+            <div className={styles.tabTitle}>
+              <div className={`${styles.w300} ${styles.over}`}>
+                <Checkbox
+                  indeterminate={indeterminate}
+                  onChange={this.onCheckAllChange}
+                  checked={checkAll}
                 >
-                  新建应用
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-          <div className={styles.tabTitle}>
-            <div className={`${styles.w300} ${styles.over}`}>
-              <Checkbox
-                indeterminate={this.state.indeterminate}
-                onChange={this.onCheckAllChange}
-                checked={this.state.checkAll}
-              >
-                组件名称
-              </Checkbox>
+                  组件名称
+                </Checkbox>
+              </div>
+              <div className={`${styles.w500} ${styles.over}`}>构建源信息</div>
+              <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
             </div>
-            <div className={`${styles.w500} ${styles.over}`}>构建源信息</div>
-            <div className={`${styles.w300} ${styles.over}`}>版本修改</div>
-          </div>
-          {loading ? (
-            <p style={{ textAlign: 'center' }}>
-              <Spin />
-            </p>
-          ) : (
             <Checkbox.Group
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               value={checkedList}
               onChange={this.onGroupChange}
             >
@@ -466,7 +487,7 @@ export default class Index extends PureComponent {
                   image,
                   git_url,
                   rain_app_name,
-                  service_source,
+                  service_source
                 } = build_source;
 
                 const isImageApp = appUtil.isImageAppByBuildSource(
@@ -477,7 +498,7 @@ export default class Index extends PureComponent {
                 );
                 const isCodeApp = appUtil.isCodeAppByBuildSource(build_source);
                 const versions = isCodeApp ? code_version : version;
-                const isThirdParty = service_source === 'third_party';
+                const isThirdParty = service_source === "third_party";
 
                 const tit = isImageApp
                   ? image
@@ -486,14 +507,14 @@ export default class Index extends PureComponent {
                   : isMarketApp
                   ? rain_app_name
                   : isThirdParty
-                  ? '第三方组件'
-                  : '';
+                  ? "第三方组件"
+                  : "";
 
-                let versionConetent = '';
+                let versionConetent = "";
                 const versionSelector = (
                   <Select
                     style={{ width: 70 }}
-                    defaultValue={isImageApp ? 'Tag' : 'branch'}
+                    defaultValue={isImageApp ? "Tag" : "branch"}
                   >
                     {!isImageApp && <Option value="branch">分支</Option>}
                     {isCodeApp && <Option value="Tag">Tag</Option>}
@@ -503,13 +524,13 @@ export default class Index extends PureComponent {
                   versionConetent = (
                     <FormItem>
                       {getFieldDecorator(service_id, {
-                        initialValue: versions || '',
+                        initialValue: versions || "",
                         rules: [
                           {
                             required: true,
-                            message: '不能为空',
-                          },
-                        ],
+                            message: "不能为空"
+                          }
+                        ]
                       })(
                         <Input
                           addonBefore={versionSelector}
@@ -520,12 +541,11 @@ export default class Index extends PureComponent {
                             this.save(item, isCodeApp);
                           }}
                           style={{
-                            width: '268px',
+                            width: "268px"
                           }}
                           onChange={e => {
                             this.setState({
-                              errInput: e.target.value,
-                              inputValue: e.target.value,
+                              inputValue: e.target.value
                             });
                           }}
                         />
@@ -533,7 +553,7 @@ export default class Index extends PureComponent {
                     </FormItem>
                   );
                 } else {
-                  versionConetent = isThirdParty ? '-' : '暂不支持变更版本';
+                  versionConetent = isThirdParty ? "-" : "暂不支持变更版本";
                 }
 
                 return (
@@ -548,20 +568,20 @@ export default class Index extends PureComponent {
                       <div className={`${styles.w500} ${styles.over}`}>
                         <div
                           style={{
-                            paddingRight: '5px',
-                            width: '80px',
-                            color: 'rgba(0, 0, 0, 0.85)',
+                            paddingRight: "5px",
+                            width: "80px",
+                            color: "rgba(0, 0, 0, 0.85)"
                           }}
                         >
                           {isImageApp
-                            ? '镜像:'
+                            ? "镜像:"
                             : isCodeApp
-                            ? '源码:'
+                            ? "源码:"
                             : isMarketApp
-                            ? '组件库:'
+                            ? "组件库:"
                             : isThirdParty
-                            ? '第三方组件'
-                            : '-'}
+                            ? "第三方组件"
+                            : "-"}
                         </div>
                         <div className={`${styles.w380} ${styles.over}`}>
                           {isImageApp
@@ -571,8 +591,8 @@ export default class Index extends PureComponent {
                             : isMarketApp
                             ? rain_app_name
                             : isThirdParty
-                            ? ''
-                            : '-'}
+                            ? ""
+                            : "-"}
                         </div>
                       </div>
                     </Tooltip>
@@ -583,8 +603,8 @@ export default class Index extends PureComponent {
                 );
               })}
             </Checkbox.Group>
-          )}
-        </div>
+          </div>
+        </Spin>
       </Modal>
     );
   }
