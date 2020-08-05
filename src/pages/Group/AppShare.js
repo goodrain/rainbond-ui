@@ -1,10 +1,10 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable import/first */
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import React, { PureComponent, Fragment } from "react";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import {
   Table,
   AutoComplete,
@@ -21,20 +21,20 @@ import {
   Checkbox,
   Tabs,
   Divider,
-  InputNumber,
-} from 'antd';
-import CreateAppModels from '../../components/CreateAppModels';
-import FooterToolbar from '../../components/FooterToolbar';
-import cookie from '../../utils/cookie';
+  InputNumber
+} from "antd";
+import CreateAppModels from "../../components/CreateAppModels";
+import FooterToolbar from "../../components/FooterToolbar";
+import cookie from "../../utils/cookie";
 import {
   createEnterprise,
   createTeam,
-  createApp,
-} from '../../utils/breadcrumb';
-import globalUtil from '../../utils/global';
-import pluginUtil from '../../utils/plugin';
-import styles from './Index.less';
-import mytabcss from './mytab.less';
+  createApp
+} from "../../utils/breadcrumb";
+import globalUtil from "../../utils/global";
+import pluginUtil from "../../utils/plugin";
+import styles from "./Index.less";
+import mytabcss from "./mytab.less";
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -49,13 +49,13 @@ const formItemLayout = {
   }
 };
 
-const token = cookie.get('token');
+const token = cookie.get("token");
 const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
 }
 
-@Form.create()
+// @Form.create()
 class AppInfo extends PureComponent {
   componentDidMount() {
     if (this.props.getref) {
@@ -210,7 +210,7 @@ class AppInfo extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
     if (app.extend_method_map) {
-      const steps = getFieldValue('extend||step_node');
+      const steps = getFieldValue("extend||step_node");
       return (
         <div
           style={{
@@ -385,8 +385,8 @@ export default class Main extends PureComponent {
     this.setState({
       shareModal: null,
       isShare: isShare || this.state.isShare,
-      service_cname: '',
-      dep_service_name: [],
+      service_cname: "",
+      dep_service_name: []
     });
   };
   getParams() {
@@ -409,13 +409,13 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getParams();
     dispatch({
-      type: 'groupControl/getShareInfo',
+      type: "groupControl/getShareInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...params,
+        ...params
       },
       callback: data => {
-        let selectedApp = '';
+        let selectedApp = "";
         if (data) {
           if (data.bean.share_service_list[0]) {
             selectedApp = data.bean.share_service_list[0].service_alias;
@@ -424,7 +424,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
-            share_service_list: data.bean.share_service_list,
+            share_service_list: data.bean.share_service_list
           });
           this.share_service_list = data.bean.share_service_list;
 
@@ -438,7 +438,7 @@ export default class Main extends PureComponent {
             });
             this.setState({
               shareList: arr,
-              sharearrs: arr,
+              sharearrs: arr
             });
             // this.props.form.setFieldsValue({ sharing: arr })
           }
@@ -452,7 +452,7 @@ export default class Main extends PureComponent {
             )
           );
         }
-      },
+      }
     });
   }
   fetchRecord = () => {
@@ -489,8 +489,8 @@ export default class Main extends PureComponent {
       team_name: teamName,
       app_id: appID
     };
-    if (scope == 'goodrain' && scopeTarget) {
-      body.scope = 'goodrain';
+    if (scope == "goodrain" && scopeTarget) {
+      body.scope = "goodrain";
       body.market_id = scopeTarget.store_id;
     } else {
       body.scope = "local";
@@ -528,15 +528,15 @@ export default class Main extends PureComponent {
                 }
                 if (isCreate) {
                   setFieldsValue({
-                    app_id: res.list[0].app_id,
+                    app_id: res.list[0].app_id
                   });
                 }
-                if (JSON.stringify(res.bean) === '{}') {
+                if (JSON.stringify(res.bean) === "{}") {
                   this.changeCurrentModel(res.list[0].app_id);
                 } else {
                   this.changeCurrentModel(
                     isCreate ? res.list[0].app_id : res.bean && res.bean.app_id,
-                    isCreate ? '' : res.bean && res.bean.version,
+                    isCreate ? "" : res.bean && res.bean.version,
                     isCreate
                   );
                 }
@@ -592,12 +592,12 @@ export default class Main extends PureComponent {
           version: values.version,
           version_alias: values.version_alias
         };
-        if (record.scope == 'goodrain') {
+        if (record.scope == "goodrain") {
           appVersionInfo.scope_target = record.scope_target;
           appVersionInfo.scope = record.scope;
           appVersionInfo.market_id =
             record.scope_target && record.scope_target.store_id;
-          appVersionInfo.template_type = 'RAM';
+          appVersionInfo.template_type = "RAM";
         }
         const share_service_data = this.share_service_list;
         const arr = [];
@@ -949,15 +949,21 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const {info} = this.state;
+    const { info, key: tabk } = this.state;
     if (!info) {
       return null;
     }
     const apps = info.share_service_list || [];
     const plugins = info.share_plugin_list || [];
-    const tabk = this.state.key;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const {loading} = this.props;
+    const {
+      loading,
+      form,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName
+    } = this.props;
+    const { getFieldDecorator, getFieldValue } = form;
+
     const {
       shareModal,
       sharearrs,
@@ -973,7 +979,6 @@ export default class Main extends PureComponent {
       submitLoading,
       appModelInfo
     } = this.state;
-    const { currentEnterprise, currentTeam, currentRegionName } = this.props;
     const Application = getFieldValue("app_id");
     let breadcrumbList = [];
     breadcrumbList = createApp(
@@ -988,14 +993,12 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({
       title: "发布记录列表",
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${
-        appDetail.group_id
-      }/publish`
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
     if (record && record.scope == "goodrain") {
       breadcrumbList.push({ title: "发布到云应用商店" });
     } else {
-      breadcrumbList.push({ title: '发布到应用市场' });
+      breadcrumbList.push({ title: "发布到应用市场" });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
     return (
@@ -1016,132 +1019,127 @@ export default class Main extends PureComponent {
                 padding: "24px"
               }}
             >
-              <Form layout="horizontal" className={styles.stepForm}>
-                <Row gutter={24}>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="应用模版">
-                      {getFieldDecorator("app_id", {
-                        initialValue: model.app_id,
-                        rules: [
-                          {
-                            required: true,
-                            message: "应用模版选择是必须的"
-                          }
-                        ]
-                      })(
-                        <Select
-                          style={{ width: 280 }}
-                          onChange={this.changeCurrentModel}
-                          placeholder="选择发布的应用模版"
-                          dropdownRender={menu => (
-                            <div>
-                              {menu}
-                              <Divider style={{ margin: "4px 0" }} />
-                              <div
-                                style={{
-                                  padding: "4px 8px",
-                                  cursor: "pointer",
-                                  textAlign: "center"
-                                }}
-                                onMouseDown={e => e.preventDefault()}
-                                onClick={this.showCreateAppModel}
-                              >
-                                <Icon type="plus" /> 新建应用模版
-                              </div>
+              {/* <Form layout="horizontal" className={styles.stepForm}> */}
+              <Row gutter={24}>
+                <Col span="12">
+                  <Form.Item {...formItemLayout} label="应用模版">
+                    {getFieldDecorator("app_id", {
+                      initialValue: model.app_id,
+                      rules: [
+                        {
+                          required: true,
+                          message: "应用模版选择是必须的"
+                        }
+                      ]
+                    })(
+                      <Select
+                        style={{ width: 280 }}
+                        onChange={this.changeCurrentModel}
+                        placeholder="选择发布的应用模版"
+                        dropdownRender={menu => (
+                          <div>
+                            {menu}
+                            <Divider style={{ margin: "4px 0" }} />
+                            <div
+                              style={{
+                                padding: "4px 8px",
+                                cursor: "pointer",
+                                textAlign: "center"
+                              }}
+                              onMouseDown={e => e.preventDefault()}
+                              onClick={this.showCreateAppModel}
+                            >
+                              <Icon type="plus" /> 新建应用模版
                             </div>
-                          )}
-                        >
-                          {models.map(item => (
-                            <Option key={item.app_id}>{item.app_name}</Option>
-                          ))}
-                        </Select>
-                      )}
-                      {Application &&
-                        models &&
-                        models.length > 0 &&
-                        !market_id && (
-                          <a
-                            style={{ marginLeft: "10px" }}
-                            onClick={() => {
-                              this.showEditorAppModel(Application);
-                            }}
-                          >
-                            编辑应用模版
-                          </a>
+                          </div>
                         )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="版本号">
-                      {getFieldDecorator("version", {
-                        initialValue:
-                          (versionInfo && versionInfo.version) || "",
-                        rules: [
-                          {
-                            required: true,
-                            validator: this.checkVersion
-                          }
-                        ]
-                      })(
-                        <AutoComplete
-                          style={{ width: 280 }}
-                          onChange={this.changeCurrentVersion}
-                          placeholder="版本号默认为选择模版的上次分享版本"
-                        >
-                          {versions &&
-                            versions.length > 0 &&
-                            versions.map((item, index) => {
-                              const { version } = item;
-                              return (
-                                <AutoComplete.Option
-                                  key={`version${index}`}
-                                  value={version}
-                                >
-                                  {version}
-                                </AutoComplete.Option>
-                              );
-                            })}
-                        </AutoComplete>
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="版本别名">
-                      {getFieldDecorator("version_alias", {
-                        initialValue:
-                          (versionInfo && versionInfo.version_alias) || ""
-                      })(
-                        <Input
-                          style={{ width: 280 }}
-                          placeholder="设置版本别名，比如高级版"
-                        />
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12" style={{ height: "104px" }}>
-                    <Form.Item {...formItemLayout} label="版本说明">
-                      {getFieldDecorator("describe", {
-                        initialValue:
-                          (versionInfo &&
-                            (versionInfo.describe ||
-                              versionInfo.app_describe)) ||
-                          "",
-                        rules: [
-                          {
-                            required: false,
-                            message: "请输入版本说明"
-                          }
-                        ]
-                      })(
-                        <TextArea
-                          placeholder="请输入版本说明"
-                          style={{ height: "70px" }}
-                        />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Form>
+                      >
+                        {models.map(item => (
+                          <Option key={item.app_id}>{item.app_name}</Option>
+                        ))}
+                      </Select>
+                    )}
+                    {Application && models && models.length > 0 && !market_id && (
+                      <a
+                        style={{ marginLeft: "10px" }}
+                        onClick={() => {
+                          this.showEditorAppModel(Application);
+                        }}
+                      >
+                        编辑应用模版
+                      </a>
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col span="12">
+                  <Form.Item {...formItemLayout} label="版本号">
+                    {getFieldDecorator("version", {
+                      initialValue: (versionInfo && versionInfo.version) || "",
+                      rules: [
+                        {
+                          required: true,
+                          validator: this.checkVersion
+                        }
+                      ]
+                    })(
+                      <AutoComplete
+                        style={{ width: 280 }}
+                        onChange={this.changeCurrentVersion}
+                        placeholder="版本号默认为选择模版的上次分享版本"
+                      >
+                        {versions &&
+                          versions.length > 0 &&
+                          versions.map((item, index) => {
+                            const { version } = item;
+                            return (
+                              <AutoComplete.Option
+                                key={`version${index}`}
+                                value={version}
+                              >
+                                {version}
+                              </AutoComplete.Option>
+                            );
+                          })}
+                      </AutoComplete>
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col span="12">
+                  <Form.Item {...formItemLayout} label="版本别名">
+                    {getFieldDecorator("version_alias", {
+                      initialValue:
+                        (versionInfo && versionInfo.version_alias) || ""
+                    })(
+                      <Input
+                        style={{ width: 280 }}
+                        placeholder="设置版本别名，比如高级版"
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col span="12" style={{ height: "104px" }}>
+                  <Form.Item {...formItemLayout} label="版本说明">
+                    {getFieldDecorator("describe", {
+                      initialValue:
+                        (versionInfo &&
+                          (versionInfo.describe || versionInfo.app_describe)) ||
+                        "",
+                      rules: [
+                        {
+                          required: false,
+                          message: "请输入版本说明"
+                        }
+                      ]
+                    })(
+                      <TextArea
+                        placeholder="请输入版本说明"
+                        style={{ height: "70px" }}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* </Form> */}
             </div>
           </Card>
           <Card
@@ -1204,6 +1202,7 @@ export default class Main extends PureComponent {
                   tabk == app.service_alias ? (
                     <div key={app.service_alias}>
                       <AppInfo
+                        form={form}
                         app={app}
                         getref={this.save}
                         tab={app.service_alias}
@@ -1217,6 +1216,7 @@ export default class Main extends PureComponent {
                       key={app.service_alias}
                     >
                       <AppInfo
+                        form={form}
                         app={app}
                         getref={this.save}
                         tab={app.service_alias}
