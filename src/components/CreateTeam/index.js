@@ -1,29 +1,30 @@
 import React, { PureComponent } from "react";
-import { Button, Icon, Modal, Form, Checkbox, Select, Input } from "antd";
+import { Button, Modal, Form, Select, Input } from "antd";
+import { connect } from "dva";
 import { getAllRegion } from "../../services/api";
-import globalUtil from "../../utils/global";
 import styles from "./index.less";
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
+@connect(({ loading }) => ({
+  Loading: loading.effects["teamControl/createTeam"]
+}))
 @Form.create()
 class CreateTeam extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      actions: [],
       regions: []
     };
   }
   componentDidMount() {
-    const { enterprise_id } = this.props;
-    if (enterprise_id) {
-      this.getUnRelationedApp(enterprise_id);
+    const { enterprise_id: ID } = this.props;
+    if (ID) {
+      this.getUnRelationedApp(ID);
     }
   }
-  getUnRelationedApp = enterprise_id => {
-    getAllRegion({ enterprise_id, status: "1" }).then(data => {
+  getUnRelationedApp = ID => {
+    getAllRegion({ enterprise_id: ID, status: "1" }).then(data => {
       if (data) {
         this.setState({ regions: data.list || [] });
       }
@@ -38,7 +39,7 @@ class CreateTeam extends PureComponent {
     });
   };
   render() {
-    const { onOk, onCancel, actions, form } = this.props;
+    const { onCancel, form, Loading } = this.props;
     const { getFieldDecorator } = form;
 
     const formItemLayout = {
@@ -61,7 +62,7 @@ class CreateTeam extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
-          <Button type="primary" onClick={this.handleSubmit}>
+          <Button type="primary" onClick={this.handleSubmit} loading={Loading}>
             确定
           </Button>
         ]}
@@ -113,5 +114,4 @@ class CreateTeam extends PureComponent {
     );
   }
 }
-
 export default CreateTeam;

@@ -1,62 +1,63 @@
-import React, { PureComponent } from 'react';
-import { Modal, Form, Select, Button } from 'antd';
-import { connect } from 'dva';
-import styles from '../CreateTeam/index.less';
+import React, { PureComponent } from "react";
+import { Modal, Form, Select, Button } from "antd";
+import { connect } from "dva";
+import styles from "../CreateTeam/index.less";
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @Form.create()
-@connect(({ user }) => ({
+@connect(({ user, loading }) => ({
   currUser: user.currentUser,
+  Loading: loading.effects["global/joinTeam"]
 }))
 export default class JoinTeam extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      teams: [],
+      teams: []
     };
   }
   componentDidMount() {
     this.loadTeams();
   }
   loadTeams = () => {
-    const { enterpriseID } = this.props
+    const { enterpriseID } = this.props;
     this.props.dispatch({
-      type: 'global/getUserCanJoinTeams',
+      type: "global/getUserCanJoinTeams",
       payload: {
-        enterpriseID: enterpriseID,
+        enterpriseID
       },
       callback: data => {
         if (data) {
           this.setState({ teams: data.list });
         }
-      },
+      }
     });
   };
 
   handleSubmit = () => {
     const { form, onOk } = this.props;
     form.validateFields((err, values) => {
-      if (!err) {
-        onOk && onOk(values);
+      if (!err && onOk) {
+        onOk(values);
       }
     });
   };
   render() {
-    const { onCancel, form } = this.props;
+    const { onCancel, form, Loading } = this.props;
     const { getFieldDecorator } = form;
     const { teams } = this.state;
     const teamList = teams && teams.length > 0 && teams;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-      },
+        sm: { span: 14 }
+      }
     };
 
     return (
@@ -68,24 +69,24 @@ export default class JoinTeam extends PureComponent {
         onCancel={onCancel}
         footer={[
           <Button onClick={onCancel}> 取消 </Button>,
-          <Button type="primary" onClick={this.handleSubmit}>
+          <Button type="primary" onClick={this.handleSubmit} loading={Loading}>
             确定
-          </Button>,
+          </Button>
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
           <FormItem {...formItemLayout} label="团队名称" hasFeedback>
-            {getFieldDecorator('team_name', {
-              initialValue: (teamList && teamList[0].team_name) || '',
+            {getFieldDecorator("team_name", {
+              initialValue: (teamList && teamList[0].team_name) || "",
               rules: [
                 {
                   required: true,
-                  message: '请选择团队',
-                },
-              ],
+                  message: "请选择团队"
+                }
+              ]
             })(
               <Select
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
                 onChange={this.handleTeamChange}
                 placeholder="请选择一个团队"
               >
