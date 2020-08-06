@@ -939,6 +939,7 @@ const global = {
       "build-service": "构建组件",
       build: "构建组件",
       upgrade: "滚动升级组件",
+      "update-service":'更新组件部署类型',
       "start-service": "启动组件",
       start: "启动组件",
       "add-app-autoscaler-rule": "添加自动伸缩规则",
