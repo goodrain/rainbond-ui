@@ -256,7 +256,7 @@ export default class Index extends PureComponent {
     const showAlias = appPortUtil.getShowAlias(port);
     const domains = appPortUtil.getDomains(port);
     const tcp_domains = appPortUtil.getTcpDomains(port);
-    let showDomain = this.props.showDomain;
+    let {showDomain} = this.props;
     const DomainText = this.domainsText(domains);
     const { agreement } = this.state;
     // 是否显示对外访问地址,创建过程中不显示
@@ -280,7 +280,7 @@ export default class Index extends PureComponent {
       });
     }
 
-    const teams = currUser.teams;
+    const {teams} = currUser;
     const teamName = globalUtil.getCurrTeamName();
     const currenTeams = teams.filter(item => {
       return item.team_name == teamName;
@@ -608,6 +608,7 @@ export default class Index extends PureComponent {
         {this.state.visibleModal && (
           <Modal
             title="访问信息"
+            width="800px"
             visible={this.state.visibleModal}
             footer={null}
             onCancel={this.handeModalCancel}
