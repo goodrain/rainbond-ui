@@ -57,7 +57,8 @@ export default class LoginPage extends Component {
       rainbondInfo.enterprise_center_oauth.value;
     const url = oauthInfo && oauthUtil.getAuthredictURL(oauthInfo);
     const icon = oauthInfo && oauthUtil.getIcon(oauthInfo);
-
+console.log('oauth_servicesList',oauth_servicesList)
+console.log('oauthInfo',oauthInfo)
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
