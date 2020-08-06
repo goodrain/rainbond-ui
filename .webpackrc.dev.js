@@ -26,7 +26,7 @@ export default {
     "filename": "../../templates/index.html", //
     "template": "./src/index.ejs"
   },
-  "publicPath" : "/", //
+  "publicPath" : "/static/dists/", //
   //"publicPath" : "/", ///
   "disableDynamicImport" : true,
   "hash" : true,
