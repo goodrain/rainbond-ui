@@ -10,6 +10,11 @@ echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 docker build -t "rainbond/rainbond-ui:$VERSION" .
 docker push "rainbond/rainbond-ui:$VERSION"
 
+if !(docker pull rainbond/rbd-app-ui:$VERSION > /dev/null); then
+	echo "failed to pull image rainbond/rbd-app-ui:$VERSION"
+	exit 0
+fi
+
 sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
 mv dist build/dist
 docker build -t "rainbond/rbd-app-ui:$VERSION" ./build
