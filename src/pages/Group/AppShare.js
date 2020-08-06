@@ -82,8 +82,8 @@ class AppInfo extends PureComponent {
     }
   };
   renderConnectInfo = () => {
-    const app = this.props.app || {};
-    const { getFieldDecorator } = this.props.form;
+    const { app = {}, form } = this.props;
+    const { getFieldDecorator } = form;
     if (
       app.service_connect_info_map_list &&
       app.service_connect_info_map_list.length
@@ -156,8 +156,8 @@ class AppInfo extends PureComponent {
     return null;
   };
   renderEvn = () => {
-    const { getFieldDecorator } = this.props.form;
-    const app = this.props.app || {};
+    const { app = {}, form } = this.props;
+    const { getFieldDecorator } = form;
     if (app.service_env_map_list && app.service_env_map_list.length) {
       return (
         <div
@@ -206,11 +206,12 @@ class AppInfo extends PureComponent {
     return null;
   };
   renderExtend = () => {
-    const app = this.props.app || {};
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const { app = {}, ID = "extend", form } = this.props;
+
+    const { getFieldDecorator, getFieldValue } = form;
 
     if (app.extend_method_map) {
-      const steps = getFieldValue("extend||step_node");
+      const steps = getFieldValue(`${ID}||step_node`);
       return (
         <div
           style={{
@@ -228,7 +229,7 @@ class AppInfo extends PureComponent {
           <Row>
             <Col span={6}>
               <FormItem label="最小节点(个)" style={{ padding: 16 }}>
-                {getFieldDecorator("extend||min_node", {
+                {getFieldDecorator(`${ID}||min_node`, {
                   initialValue: app.extend_method_map.min_node,
                   rules: [
                     {
@@ -248,7 +249,7 @@ class AppInfo extends PureComponent {
             </Col>
             <Col span={6}>
               <FormItem label="最大节点(个)" style={{ padding: 16 }}>
-                {getFieldDecorator("extend||max_node", {
+                {getFieldDecorator(`${ID}||max_node`, {
                   initialValue: app.extend_method_map.max_node,
                   rules: [
                     {
@@ -268,7 +269,7 @@ class AppInfo extends PureComponent {
             </Col>
             <Col span={6}>
               <FormItem label="节点步长(个)" style={{ padding: 16 }}>
-                {getFieldDecorator("extend||step_node", {
+                {getFieldDecorator(`${ID}||step_node`, {
                   initialValue: app.extend_method_map.step_node,
                   rules: [
                     {
@@ -288,7 +289,7 @@ class AppInfo extends PureComponent {
             </Col>
             <Col span={6}>
               <FormItem label="最小内存(M)" style={{ padding: 16 }}>
-                {getFieldDecorator("extend||min_memory", {
+                {getFieldDecorator(`${ID}||min_memory`, {
                   initialValue: app.extend_method_map.min_memory,
                   rules: [
                     {
@@ -370,7 +371,7 @@ export default class Main extends PureComponent {
       versions: [],
       versionInfo: false,
       editorAppModel: false,
-      appModelInfo: false
+      appModelInfo: false,
     };
     this.com = [];
     this.share_group_info = null;
@@ -389,13 +390,74 @@ export default class Main extends PureComponent {
       dep_service_name: []
     });
   };
+
+  onFileChange = e => {
+    const share_service_data = this.share_service_list;
+    const { shareList, sharearrs } = this.state;
+    // this.props.form.setFieldsValue({sharing:e})
+
+    if (e.length > 0) {
+      const newArray = sharearrs.filter(item => !e.includes(item));
+
+      const arr = [];
+      const dep_service_key = [];
+      const dep_service_name = [];
+      e.map(item => {
+        share_service_data.map(option => {
+          if (item == option.service_share_uuid) {
+            option.dep_service_map_list &&
+              option.dep_service_map_list.length > 0 &&
+              option.dep_service_map_list.map(items => {
+                dep_service_key.push(items.dep_service_key);
+                dep_service_name.push(option.service_cname);
+              });
+          }
+        });
+      });
+
+      let show = false;
+      let name = "";
+      if (newArray.length > 0 && dep_service_key.length > 0) {
+        newArray.map(item => {
+          share_service_data.map(option => {
+            if (item == option.service_share_uuid) {
+              name = option.service_cname;
+            }
+          });
+          dep_service_key.map(items => {
+            if (items == item) {
+              show = true;
+            }
+          });
+        });
+      }
+
+      if (show && e.length <= sharearrs.length) {
+        this.setState({
+          shareModal: e,
+          service_cname: name,
+          dep_service_name
+        });
+      } else {
+        this.setState(
+          {
+            sharearrs: e
+          },
+          () => {
+            this.handleTabList();
+          }
+        );
+      }
+    } else {
+      notification.warning({ message: "分享组件不能少于1个" });
+    }
+  };
   getParams() {
     return {
       groupId: this.props.match.params.appID,
       shareId: this.props.match.params.shareId
     };
   }
-
   getBase64 = file => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -424,10 +486,9 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
-            share_service_list: data.bean.share_service_list
+            share_service_list: data.bean.share_service_list,
           });
           this.share_service_list = data.bean.share_service_list;
-
           const arr = [];
           if (
             data.bean.share_service_list &&
@@ -600,6 +661,19 @@ export default class Main extends PureComponent {
           appVersionInfo.template_type = "RAM";
         }
         const share_service_data = this.share_service_list;
+
+        this.share_service_list.map((item, index) => {
+          const { extend_method_map, service_id } = item;
+          if (extend_method_map) {
+            Object.keys(extend_method_map).forEach(function(key) {
+              if (values[`${service_id}||${key}`]) {
+                share_service_data[index].extend_method_map[key] =
+                  values[`${service_id}||${key}`];
+              }
+            });
+          }
+        });
+
         const arr = [];
         const dep_service_key = [];
         sharearrs.map(item => {
@@ -657,7 +731,6 @@ export default class Main extends PureComponent {
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
-
         dispatch({
           type: "groupControl/subShareInfo",
           payload: {
@@ -725,68 +798,6 @@ export default class Main extends PureComponent {
   };
   tabClick = val => {
     this.setState({ key: val });
-  };
-
-  onFileChange = e => {
-    const share_service_data = this.share_service_list;
-    const { shareList, sharearrs } = this.state;
-    // this.props.form.setFieldsValue({sharing:e})
-
-    if (e.length > 0) {
-      const newArray = sharearrs.filter(item => !e.includes(item));
-
-      const arr = [];
-      const dep_service_key = [];
-      const dep_service_name = [];
-      e.map(item => {
-        share_service_data.map(option => {
-          if (item == option.service_share_uuid) {
-            option.dep_service_map_list &&
-              option.dep_service_map_list.length > 0 &&
-              option.dep_service_map_list.map(items => {
-                dep_service_key.push(items.dep_service_key);
-                dep_service_name.push(option.service_cname);
-              });
-          }
-        });
-      });
-
-      let show = false;
-      let name = "";
-      if (newArray.length > 0 && dep_service_key.length > 0) {
-        newArray.map(item => {
-          share_service_data.map(option => {
-            if (item == option.service_share_uuid) {
-              name = option.service_cname;
-            }
-          });
-          dep_service_key.map(items => {
-            if (items == item) {
-              show = true;
-            }
-          });
-        });
-      }
-
-      if (show && e.length <= sharearrs.length) {
-        this.setState({
-          shareModal: e,
-          service_cname: name,
-          dep_service_name
-        });
-      } else {
-        this.setState(
-          {
-            sharearrs: e
-          },
-          () => {
-            this.handleTabList();
-          }
-        );
-      }
-    } else {
-      notification.warning({ message: "分享组件不能少于1个" });
-    }
   };
 
   handleSubmits = () => {
@@ -1173,7 +1184,7 @@ export default class Main extends PureComponent {
                     style={{ display: "block", marginTop: "9px" }}
                   >
                     <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map(apptit => (
+                      {apps.map((apptit, index) => (
                         <TabPane
                           key={apptit.service_alias}
                           tab={
@@ -1193,37 +1204,19 @@ export default class Main extends PureComponent {
                               </a>
                             </span>
                           }
-                        />
+                        >
+                          <AppInfo
+                            form={form}
+                            app={share_service_list[index]}
+                            getref={this.save}
+                            tab={share_service_list[index].service_alias}
+                            ID={share_service_list[index].service_id}
+                          />
+                        </TabPane>
                       ))}
                     </Tabs>
                   </Checkbox.Group>
                 </div>
-                {share_service_list.map(app =>
-                  tabk == app.service_alias ? (
-                    <div key={app.service_alias}>
-                      <AppInfo
-                        form={form}
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: "none"
-                      }}
-                      key={app.service_alias}
-                    >
-                      <AppInfo
-                        form={form}
-                        app={app}
-                        getref={this.save}
-                        tab={app.service_alias}
-                      />
-                    </div>
-                  )
-                )}
               </div>
             </div>
           </Card>
