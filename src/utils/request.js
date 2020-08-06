@@ -155,7 +155,6 @@ export default function request(url, options) {
           window.g_app._store.dispatch({
             type: "global/showPayTip"
           });
-
           return;
         }
 
@@ -227,6 +226,11 @@ export default function request(url, options) {
         }
         if (resData.code === 10421) {
           return;
+        }
+        // cluster request error, ignore it
+        if (resData.code === 10411) {
+          console.log(resData)
+          return
         }
 
         // 访问资源集群与当前集群不一致
