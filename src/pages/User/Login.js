@@ -20,9 +20,9 @@ export default class LoginPage extends Component {
   componentWillMount() {
     const { dispatch, rainbondInfo } = this.props;
     dispatch({ type: "global/hideNeedLogin" });
-    if (rainbondInfo.enterprise_id) {
-      this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
-    }
+    // if (rainbondInfo.enterprise_id) {
+    //   this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
+    // }
   }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
