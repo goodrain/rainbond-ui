@@ -11,10 +11,9 @@ class Index extends React.Component {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
-    const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function() {
-        return topologicalAddress;
+        return null;
       };
 
       window.iframeGetMonitor = function(fn, errcallback) {
@@ -35,7 +34,7 @@ class Index extends React.Component {
             }
           }
         });
-        return topologicalAddress;
+        return null;
       };
 
       window.iframeGetTenantName = function() {
