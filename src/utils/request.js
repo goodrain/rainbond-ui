@@ -89,9 +89,11 @@ export default function request(url, options) {
   const teamName = cookie.get("team_name");
   const regionName = cookie.get("region_name");
   let interfaceRegionName = "";
+  let interfaceTeamName = "";
   if (token && newOptions.passAuthorization) {
     newOptions.headers.Authorization = `GRJWT ${token}`;
   }
+
   if (
     url &&
     (url.lastIndexOf("/groups") > -1 || url.lastIndexOf("/topological") > -1) &&
@@ -100,9 +102,19 @@ export default function request(url, options) {
   ) {
     interfaceRegionName = newOptions.params.region_name;
   }
+  if (
+    newOptions.data &&
+    newOptions.data.region_name &&
+    newOptions.data.team_name
+  ) {
+    interfaceRegionName = newOptions.data.region_name;
+    interfaceTeamName = newOptions.data.team_name;
+  }
+
   newOptions.headers.X_REGION_NAME =
     interfaceRegionName || globalUtil.getCurrRegionName() || regionName;
-  newOptions.headers.X_TEAM_NAME = globalUtil.getCurrTeamName() || teamName;
+  newOptions.headers.X_TEAM_NAME =
+    interfaceTeamName || globalUtil.getCurrTeamName() || teamName;
 
   newOptions.url = url;
   // newOptions.withCredentials = true;

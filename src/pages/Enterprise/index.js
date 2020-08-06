@@ -684,7 +684,7 @@ export default class Enterprise extends PureComponent {
                             {overviewInfo && overviewInfo.shared_apps}
                           </Link>
                         </li>
-                        <li>应用模板数量</li>
+                        <li>应用模版数量</li>
                         <li>——</li>
                       </ul>
                     </Col>

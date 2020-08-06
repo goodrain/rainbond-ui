@@ -1,26 +1,26 @@
-import React, { PureComponent } from 'react';
-import { Modal, Form, Select, Button, Checkbox, Row, Col } from 'antd';
-import { connect } from 'dva';
-import styles from '../../components/CreateTeam/index.less';
+import React, { PureComponent } from "react";
+import { Modal, Form, Select, Button, Checkbox, Row, Col } from "antd";
+import { connect } from "dva";
+import styles from "../../components/CreateTeam/index.less";
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
 
 @Form.create()
 @connect(({ user }) => ({
-  currUser: user.currentUser,
+  currUser: user.currentUser
 }))
 export default class TagList extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
-      tags: [],
+      tags: []
     };
   }
 
   onChangeCheckbox = checkedValues => {
     this.setState({
-      tags: checkedValues,
+      tags: checkedValues
     });
   };
 
@@ -41,12 +41,12 @@ export default class TagList extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 0 },
-        sm: { span: 0 },
+        sm: { span: 0 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 24 },
-      },
+        sm: { span: 24 }
+      }
     };
 
     return (
@@ -61,16 +61,15 @@ export default class TagList extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button type="primary" onClick={this.handleSubmit}>
             确定
-          </Button>,
+          </Button>
         ]}
       >
         {seeTag ? (
-          <Row>
+          <Row style={{marginBottom:'20px'}}>
             {seeTag.map(item => {
-              const { name, tag_id } = item;
               return (
-                <Col key={tag_id} span={8}>
-                  {name}
+                <Col key={item} span={8}>
+                  {item}
                 </Col>
               );
             })}
@@ -82,17 +81,17 @@ export default class TagList extends PureComponent {
             hideRequiredMark
           >
             <FormItem {...formItemLayout} label="">
-              {getFieldDecorator('tag', {
+              {getFieldDecorator("tag", {
                 initialValue: checkedValues || [],
                 rules: [
                   {
                     required: false,
-                    message: '请选择标签',
-                  },
-                ],
+                    message: "请选择标签"
+                  }
+                ]
               })(
                 <Checkbox.Group
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   onChange={this.onChangeCheckbox}
                 >
                   <Row>

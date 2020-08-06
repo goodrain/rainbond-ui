@@ -429,11 +429,11 @@ export default class EnterpriseShared extends PureComponent {
 
     return (
       <PageHeaderLayout
-        title="离线应用模板导入"
-        content="离线应用模板导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出"
+        title="离线应用模版导入"
+        content="离线应用模版导入是创建本地共享库应用模型的方式之一，离线应用包可以来自其他在线平台导出或云应用商店导出"
       >
         <div style={{ margin: "75px 21px 0 24px" }}>
-          <div className={styles.tit}>离线应用模板导入</div>
+          <div className={styles.tit}>离线应用模版导入</div>
           <Card
             bodyStyle={{ padding: "25px 0 25px 29px" }}
             className={styles.mb10}
