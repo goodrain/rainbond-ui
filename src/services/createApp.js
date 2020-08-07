@@ -1,5 +1,5 @@
-import request from '../utils/request';
 import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /*
    源码创建应用
@@ -252,6 +252,7 @@ export async function installApp(body = {}) {
         install_from_cloud: body.install_from_cloud
           ? body.install_from_cloud
           : false,
+        market_name: body.marketName
       },
     }
   );
