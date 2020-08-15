@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   Col,
   Empty,
@@ -32,15 +31,13 @@ import Convenient from "../../components/Convenient";
 import CreateTeam from "../../components/CreateTeam";
 import JoinTeam from "../../components/JoinTeam";
 import Meiqia from "../../layouts/Meiqia";
-import cookie from "../../utils/cookie";
 import userUtil from "../../utils/user";
-import rainbondUtil from "../../utils/rainbond";
 import styles from "../List/BasicList.less";
 
 @connect(({ user, global, index, order }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class Enterprise extends PureComponent {
@@ -97,7 +94,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchOverviewMonitor',
+      type: "global/fetchOverviewMonitor",
       payload: {
         enterprise_id: eid
       },
@@ -105,7 +102,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading: false,
+            overviewMonitorInfoLoading: false
           });
         }
       }
@@ -117,7 +114,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchOverviewTeam',
+      type: "global/fetchOverviewTeam",
       payload: {
         enterprise_id: eid
       },
@@ -125,7 +122,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading: false,
+            overviewTeamInfoLoading: false
           });
         }
       }
@@ -137,7 +134,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchOverview',
+      type: "global/fetchOverview",
       payload: {
         enterprise_id: eid
       },
@@ -145,7 +142,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewInfo: res.bean,
-            overviewInfoLoading: false,
+            overviewInfoLoading: false
           });
         }
       }
@@ -157,7 +154,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchOverviewApp',
+      type: "global/fetchOverviewApp",
       payload: {
         enterprise_id: eid
       },
@@ -165,8 +162,8 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             overviewAppInfo:
-              res.bean && JSON.stringify(res.bean) != '{}' ? res.bean : false,
-            overviewAppInfoLoading: false,
+              res.bean && JSON.stringify(res.bean) != "{}" ? res.bean : false,
+            overviewAppInfoLoading: false
           });
         }
       }
@@ -178,7 +175,7 @@ export default class Enterprise extends PureComponent {
     const { eid } = this.state;
 
     dispatch({
-      type: 'global/fetchEnterpriseInfo',
+      type: "global/fetchEnterpriseInfo",
       payload: {
         enterprise_id: eid
       },
@@ -186,7 +183,7 @@ export default class Enterprise extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false,
+            enterpriseInfoLoading: false
           });
         }
       }
@@ -212,7 +209,7 @@ export default class Enterprise extends PureComponent {
     const { dispatch } = this.props;
     const { eid } = this.state;
     dispatch({
-      type: 'user/fetchCollectionViewInfo',
+      type: "user/fetchCollectionViewInfo",
       payload: {
         enterprise_id: eid
       },
@@ -221,7 +218,7 @@ export default class Enterprise extends PureComponent {
           this.setState({
             total: res.list.length,
             collectionInfoLoading: false,
-            collectionList: res.list,
+            collectionList: res.list
           });
         }
       }
@@ -797,7 +794,9 @@ export default class Enterprise extends PureComponent {
                           onClick={() => {
                             this.props.dispatch(
                               routerRedux.replace(
-                                `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                                `/team/${new_join_team[0].team_name}/region/${
+                                  new_join_team[0].region
+                                }/index`
                               )
                             );
                           }}
@@ -807,7 +806,9 @@ export default class Enterprise extends PureComponent {
                               onClick={() => {
                                 this.props.dispatch(
                                   routerRedux.replace(
-                                    `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
+                                    `/team/${
+                                      new_join_team[0].team_name
+                                    }/region/${new_join_team[0].region}/index`
                                   )
                                 );
                               }}
@@ -825,7 +826,9 @@ export default class Enterprise extends PureComponent {
 
                           <Tooltip title={new_join_team[0].team_alias}>
                             <div
-                              className={`${styles.overText} ${styles.teamtest}`}
+                              className={`${styles.overText} ${
+                                styles.teamtest
+                              }`}
                             >
                               {new_join_team[0].team_alias}
                             </div>
@@ -1106,6 +1109,7 @@ export default class Enterprise extends PureComponent {
         {this.renderContent()}
         {rainbondInfo &&
           rainbondInfo.is_public &&
+          rainbondInfo.is_public.value &&
           rainbondInfo.is_public.enable && (
             <div className={styles.customerService}>
               <Meiqia />

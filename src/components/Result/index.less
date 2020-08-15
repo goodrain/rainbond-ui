@@ -10,11 +10,15 @@
     line-height: 72px;
     margin-bottom: 24px;
 
-    & > .success {
+    &>.success {
       color: @success-color;
     }
 
-    & > .error {
+    &>.warning {
+      color: @warning-color;
+    }
+
+    &>.error {
       color: @error-color;
     }
   }
@@ -38,7 +42,6 @@
     background: #fafafa;
     padding: 24px 40px;
     border-radius: @border-radius-sm;
-    text-align: left;
   }
 
   .actions {

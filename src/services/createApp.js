@@ -1,5 +1,5 @@
-import request from "../utils/request";
 import apiconfig from "../../config/api.config";
+import request from "../utils/request";
 
 /*
    源码创建应用

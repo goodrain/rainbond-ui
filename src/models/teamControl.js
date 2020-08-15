@@ -1,32 +1,34 @@
 import {
-  getMembers,
-  getTeamMembers,
-  editTeamName,
-  deleteTeam,
-  removeMember,
-  editMember,
-  moveTeam,
   addMember,
-  createTeam,
-  getRegions,
-  openRegion,
-  getRegionKey,
-  exitTeam,
-  editRole,
-  putRolePermissions,
-  removeRole,
+  closeTeamRegion,
   createRole,
-  getTeamRoles,
+  createTeam,
+  deleteTeam,
+  editMember,
+  editRole,
+  editTeamName,
+  exitTeam,
   getJoinTeamUsers,
-  setJoinTeamUsers,
-  undoTeamUsers,
-  joinTeam,
+  getMembers,
+  getRegionKey,
+  getRegions,
+  getTeamMembers,
+  getTeamRoles,
   getTeamRolesPermissions,
   getTeamUserPermissions,
-} from '../services/team';
+  joinTeam,
+  moveTeam,
+  openRegion,
+  putRolePermissions,
+  removeMember,
+  removeRole,
+  setJoinTeamUsers,
+  stopComponentInTeam,
+  undoTeamUsers
+} from "../services/team";
 
 export default {
-  namespace: 'teamControl',
+  namespace: "teamControl",
   state: {
     // 成员
     members: [],
@@ -36,9 +38,9 @@ export default {
     regions: [],
     // current show teams
     currentTeam: {},
-    currentRegionName: '',
+    currentRegionName: "",
     // team Permissions info
-    currentTeamPermissionsInfo: null,
+    currentTeamPermissionsInfo: null
   },
   effects: {
     *fetchTeamUserPermissions(
@@ -48,8 +50,8 @@ export default {
       const response = yield call(getTeamUserPermissions, payload, handleError);
       if (response) {
         yield put({
-          type: 'saveCurrentTeamPermissionsInfo',
-          payload: response.bean.permissions,
+          type: "saveCurrentTeamPermissionsInfo",
+          payload: response.bean.permissions
         });
         if (callback) {
           callback(response);
@@ -122,9 +124,15 @@ export default {
         callback(response);
       }
     },
-    *delTeam({ payload, callback }, { call }) {
-      const response = yield call(deleteTeam, payload);
+    *delTeam({ payload, callback, handleError }, { call }) {
+      const response = yield call(deleteTeam, payload, handleError);
       if (response && !response.status && callback) {
+        callback(response);
+      }
+    },
+    *stopComponentInTeam({ payload, callback, handleError }, { call }) {
+      const response = yield call(stopComponentInTeam, payload, handleError);
+      if (response && callback) {
         callback(response);
       }
     },
@@ -164,28 +172,34 @@ export default {
     *fetchRegions({ payload, callback }, { call, put }) {
       const response = yield call(getRegions, payload);
       if (response && !response.status) {
-        yield put({ type: 'saveRegions', payload: response.list });
+        yield put({ type: "saveRegions", payload: response.list });
         if (callback) {
           callback(response);
         }
       }
     },
     *fetchCurrentTeam({ payload }, { put }) {
-      yield put({ type: 'saveCurrentTeam', payload });
+      yield put({ type: "saveCurrentTeam", payload });
     },
     *fetchCurrentTeamPermissions({ payload }, { put }) {
       yield put({
-        type: 'saveCurrentTeamPermissionsInfo',
-        payload,
+        type: "saveCurrentTeamPermissionsInfo",
+        payload
       });
     },
     *fetchCurrentRegionName({ payload }, { put }) {
-      yield put({ type: 'saveCurrentRegionName', payload });
+      yield put({ type: "saveCurrentRegionName", payload });
     },
     // 开通集群
     *openRegion({ payload, callback }, { call }) {
       const response = yield call(openRegion, payload);
       if (response && !response.status && callback) {
+        callback(response);
+      }
+    },
+    *closeTeamRegion({ payload, callback, handleError }, { call }) {
+      const response = yield call(closeTeamRegion, payload, handleError);
+      if (response && callback) {
         callback(response);
       }
     },
@@ -216,39 +230,39 @@ export default {
       if (response && callback) {
         callback(response);
       }
-    },
+    }
   },
   reducers: {
     saveCurrentTeamPermissionsInfo(state, { payload }) {
       return {
         ...state,
-        currentTeamPermissionsInfo: payload,
+        currentTeamPermissionsInfo: payload
       };
     },
     saveCurrentTeam(state, action) {
       return {
         ...state,
-        currentTeam: action.payload,
+        currentTeam: action.payload
       };
     },
     saveCurrentRegionName(state, action) {
       return {
         ...state,
-        currentRegionName: action.payload.currentRegionName,
+        currentRegionName: action.payload.currentRegionName
       };
     },
     saveMember(state, action) {
       return {
         ...state,
-        members: action.payload,
+        members: action.payload
       };
     },
 
     saveRegions(state, action) {
       return {
         ...state,
-        regions: action.payload,
+        regions: action.payload
       };
-    },
-  },
+    }
+  }
 };

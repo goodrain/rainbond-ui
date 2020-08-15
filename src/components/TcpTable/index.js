@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   Button,
   Card,
@@ -171,15 +172,12 @@ export default class TcpTable extends PureComponent {
     );
   }
   handleSearch = value => {
-    this.setState(
-      {
-        tcp_search: value,
-        page_num: 1
-      },
-      () => {
-        this.load();
-      }
-    );
+    this.setState({
+      tcp_search: value,
+      page_num: 1
+    }, () => {
+      this.load();
+    });
   };
   handleOk = (values, obj) => {
     const { dispatch } = this.props;
@@ -616,6 +614,7 @@ export default class TcpTable extends PureComponent {
         {visibleModal && (
           <Modal
             title="访问信息"
+            width="800px"
             visible={visibleModal}
             footer={null}
             onCancel={this.handeModalCancel}

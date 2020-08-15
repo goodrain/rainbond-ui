@@ -1,3 +1,9 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/sort-comp */
 import {
   Badge,
   Button,
@@ -10,6 +16,7 @@ import {
   notification,
   Pagination,
   Row,
+  Spin,
   Table,
   Tooltip
 } from "antd";
@@ -22,6 +29,7 @@ import { FormattedMessage } from "umi-plugin-locale";
 import EditGroupName from "../../components/AddOrEditGroup";
 import { ChartCard, MiniArea } from "../../components/Charts";
 import NumberInfo from "../../components/NumberInfo";
+import Result from "../../components/Result";
 import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import { createEnterprise, createTeam } from "../../utils/breadcrumb";
 import configureGlobal from "../../utils/configureGlobal";
@@ -68,12 +76,13 @@ export default class Index extends PureComponent {
       visitData: [],
       current: null,
       guidevisible: false,
-      GuideList: []
+      GuideList: [],
+      loadingOverview: false,
+      loadedOverview: false
     };
   }
 
   componentWillMount() {
-    this.getTeamAppList();
     const { enterprise } = this.props;
     if (rainbondUtil.newbieGuideEnable(enterprise)) {
       this.getGuideState();
@@ -81,17 +90,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
-    this.loadApps();
     this.loadOverview();
-    this.getDomain();
-    this.getDomainName();
-    this.getTeamAppList();
-    this.getService();
-    this.loadEvents();
-    if (this.isPublicRegion()) {
-      this.getCompanyInfo();
-      this.getRegionResource();
-    }
   }
   componentWillUnmount() {
     this.handleClearTimeout(this.loadAppsTimer);
@@ -366,6 +365,7 @@ export default class Index extends PureComponent {
   };
   loadOverview = () => {
     const { dispatch } = this.props;
+    this.setState({ loadingOverview: true });
     dispatch({
       type: "index/fetchOverview",
       payload: {
@@ -373,23 +373,28 @@ export default class Index extends PureComponent {
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (res) {
+        this.setState({ loadingOverview: false, loadedOverview: true });
+        if (res && res.bean && res.bean.region_health) {
           dispatch({
             type: "global/setNouse",
             payload: {
               isNouse: false
             }
           });
-          this.handleTimers(
-            "loadOverviewTimer",
-            () => {
-              this.loadOverview();
-            },
-            10000
-          );
+          this.loadApps();
+          this.getDomain();
+          this.getDomainName();
+          this.getTeamAppList();
+          this.getService();
+          this.loadEvents();
+          if (this.isPublicRegion()) {
+            this.getCompanyInfo();
+            this.getRegionResource();
+          }
         }
       },
       handleError: err => {
+        this.setState({ loadingOverview: false, loadedOverview: true });
         if (err && err.code === 10400) {
           dispatch({
             type: "global/setNouse",
@@ -399,13 +404,6 @@ export default class Index extends PureComponent {
           });
         }
         this.handleError(err);
-        this.handleTimers(
-          "loadOverviewTimer",
-          () => {
-            this.loadOverview();
-          },
-          20000
-        );
       }
     });
   };
@@ -664,7 +662,6 @@ export default class Index extends PureComponent {
         width: "35%",
         sorter: (a, b) => a.range - b.range,
         render: (text, record) => (
-          // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
               display: "inline-block",
@@ -677,7 +674,6 @@ export default class Index extends PureComponent {
             {record.value[1]}
           </span>
         ),
-        // </Trend>
         align: "right"
       }
     ];
@@ -689,7 +685,14 @@ export default class Index extends PureComponent {
       currentTeamPermissionsInfo
     } = this.props;
 
-    const { teamAppList, GuideList, domainList, serviceList } = this.state;
+    const {
+      teamAppList,
+      GuideList,
+      domainList,
+      serviceList,
+      loadingOverview,
+      loadedOverview
+    } = this.state;
 
     const isCreate = roleUtil.queryAppInfo(
       currentTeamPermissionsInfo,
@@ -803,365 +806,391 @@ export default class Index extends PureComponent {
 
     const steps = guideutil.getStep(GuideList);
     return (
-      <PageHeaderLayout breadcrumbList={breadcrumbList}>
-        <div style={{ margin: "0px -24px 0" }}>
-          <Modal
-            title={
-              configureGlobal.rainbondTextShow && (
-                <h1
-                  style={{
-                    color: "#1890FF",
-                    textAlign: "center",
-                    border: "none",
-                    marginBottom: "0px",
-                    marginTop: "10px"
-                  }}
-                >
-                  欢迎使用云应用操作系统
-                </h1>
-              )
-            }
-            visible={this.state.guidevisible}
-            onOk={this.handleOkGuidevisible}
-            onCancel={this.handleCancelGuidevisible}
-            width={1000}
-            footer={null}
-            className={styles.modals}
-            maskClosable={false}
-          >
-            <p style={{ fontSize: "17px" }}>
-              是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了
-              平台 基础功能流程的新手任务
-            </p>
-            <p>
-              <div className={styles.stepsbox}>
-                {steps.map((item, index) => {
-                  const { status } = item;
-                  return (
-                    <div
-                      className={
-                        status ? styles.stepssuccess : styles.stepsinfo
-                      }
-                      key={index}
-                    >
+      <PageHeaderLayout>
+        {loadingOverview && <Spin tip="Loading..." />}
+        {!loadingOverview && index.overviewInfo.region_health && (
+          <div style={{ margin: "0px -24px 0" }}>
+            <Modal
+              title={
+                configureGlobal.rainbondTextShow && (
+                  <h1
+                    style={{
+                      color: "#1890FF",
+                      textAlign: "center",
+                      border: "none",
+                      marginBottom: "0px",
+                      marginTop: "10px"
+                    }}
+                  >
+                    欢迎使用云应用操作系统
+                  </h1>
+                )
+              }
+              visible={this.state.guidevisible}
+              onOk={this.handleOkGuidevisible}
+              onCancel={this.handleCancelGuidevisible}
+              width={1000}
+              footer={null}
+              className={styles.modals}
+              maskClosable={false}
+            >
+              <p style={{ fontSize: "17px" }}>
+                是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了
+                平台 基础功能流程的新手任务
+              </p>
+              <p>
+                <div className={styles.stepsbox}>
+                  {steps.map((item, index) => {
+                    const { status } = item;
+                    return (
                       <div
                         className={
-                          status ? styles.stepssuccesslux : styles.stepsinfolux
+                          status ? styles.stepssuccess : styles.stepsinfo
                         }
-                        style={{
-                          marginLeft:
-                            index == 0
-                              ? "53px"
-                              : index == 1
-                              ? "80px"
-                              : index == 2
-                              ? "100px"
-                              : index == 3
-                              ? "72px"
-                              : index == 4
-                              ? "82px"
-                              : index == 5
-                              ? "77px"
-                              : "53px",
-                          width:
-                            index == 1
-                              ? "86%"
-                              : index == 2
-                              ? "60%"
-                              : index == 3
-                              ? "86%"
-                              : index == 4
-                              ? "78%"
-                              : index == 5
-                              ? "77%"
-                              : "100%",
-                          display: index == 6 ? "none" : ""
-                        }}
-                      />
-                      <div
-                        className={
-                          status ? styles.stepssuccessbj : styles.stepsinfobj
-                        }
+                        key={index}
                       >
-                        <span>
-                          {status && (
-                            <svg
-                              viewBox="64 64 896 896"
-                              data-icon="check"
-                              width="1em"
-                              height="1em"
-                              fill="currentColor"
-                              aria-hidden="true"
-                            >
-                              <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
-                            </svg>
-                          )}
-                        </span>
-                      </div>
-                      <div
-                        className={
-                          status
-                            ? styles.stepssuccesscontent
-                            : styles.stepsinfocontent
-                        }
-                      >
-                        <div>{item.title}</div>
-                      </div>
-                      <div />
-                    </div>
-                  );
-                })}
-              </div>
-            </p>
-            <p style={{ textAlign: "center" }}>
-              <Link
-                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
-                style={{
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                  color: "#1890ff"
-                }}
-              >
-                <Button type="primary">查看详情</Button>
-              </Link>
-            </p>
-          </Modal>
-
-          <div className={styles.contents}>
-            <Row>
-              <Col
-                xs={14}
-                sm={14}
-                md={14}
-                lg={14}
-                xl={14}
-                style={{ paddingRight: "10px" }}
-              >
-                {extraContent}
-                <Card
-                  style={{
-                    marginBottom: 10
-                  }}
-                  title={
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between"
-                      }}
-                    >
-                      <span>应用</span>
-                      {isCreate && (
-                        <a
-                          style={{ fontSize: "14px", fontWeight: 400 }}
-                          onClick={() => {
-                            this.setState({ addApplication: true });
-                          }}
-                        >
-                          增加应用
-                        </a>
-                      )}
-                    </div>
-                  }
-                  bordered={false}
-                  bodyStyle={{
-                    padding: 0,
-                    height: "100%"
-                  }}
-                >
-                  {teamAppList &&
-                    teamAppList.length > 0 &&
-                    teamAppList.map((item, index) => {
-                      const {
-                        backup_record_num,
-                        group_name,
-                        run_service_num,
-                        services_num,
-                        share_record_num,
-                        group_id
-                      } = item;
-                      return (
                         <div
-                          key={index}
-                          style={{ borderBottom: "1px solid #e8e8e8" }}
+                          className={
+                            status
+                              ? styles.stepssuccesslux
+                              : styles.stepsinfolux
+                          }
+                          style={{
+                            marginLeft:
+                              index == 0
+                                ? "53px"
+                                : index == 1
+                                ? "80px"
+                                : index == 2
+                                ? "100px"
+                                : index == 3
+                                ? "72px"
+                                : index == 4
+                                ? "82px"
+                                : index == 5
+                                ? "77px"
+                                : "53px",
+                            width:
+                              index == 1
+                                ? "86%"
+                                : index == 2
+                                ? "60%"
+                                : index == 3
+                                ? "86%"
+                                : index == 4
+                                ? "78%"
+                                : index == 5
+                                ? "77%"
+                                : "100%",
+                            display: index == 6 ? "none" : ""
+                          }}
+                        />
+                        <div
+                          className={
+                            status ? styles.stepssuccessbj : styles.stepsinfobj
+                          }
                         >
-                          <div style={{ padding: "10px 20px" }}>
-                            <Link
-                              to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                item.group_id
-                              }`}
-                              style={{
-                                wordBreak: "break-all",
-                                wordWrap: "break-word",
-                                color: "rgba(0,0,0,.85)"
-                              }}
-                            >
-                              <a style={{ fontSize: "16px" }}>{group_name}</a>
-                            </Link>
+                          <span>
+                            {status && (
+                              <svg
+                                viewBox="64 64 896 896"
+                                data-icon="check"
+                                width="1em"
+                                height="1em"
+                                fill="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z" />
+                              </svg>
+                            )}
+                          </span>
+                        </div>
+                        <div
+                          className={
+                            status
+                              ? styles.stepssuccesscontent
+                              : styles.stepsinfocontent
+                          }
+                        >
+                          <div>{item.title}</div>
+                        </div>
+                        <div />
+                      </div>
+                    );
+                  })}
+                </div>
+              </p>
+              <p style={{ textAlign: "center" }}>
+                <Link
+                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
+                  style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word",
+                    color: "#1890ff"
+                  }}
+                >
+                  <Button type="primary">查看详情</Button>
+                </Link>
+              </p>
+            </Modal>
 
-                            <div className={styles.teamListStyle}>
-                              <div>
-                                <span>组件：</span>
-                                <Link
-                                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                    item.group_id
-                                  }`}
-                                  style={{
-                                    wordBreak: "break-all",
-                                    wordWrap: "break-word",
-                                    color: "rgba(0,0,0,.85)"
-                                  }}
-                                >
-                                  <a>
-                                    {run_service_num
-                                      ? `${run_service_num}/`
-                                      : ""}
-                                    {services_num}
+            <div className={styles.contents}>
+              <Row>
+                <Col
+                  xs={14}
+                  sm={14}
+                  md={14}
+                  lg={14}
+                  xl={14}
+                  style={{ paddingRight: "10px" }}
+                >
+                  {extraContent}
+                  <Card
+                    style={{
+                      marginBottom: 10
+                    }}
+                    title={
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between"
+                        }}
+                      >
+                        <span>应用</span>
+                        {isCreate && (
+                          <a
+                            style={{ fontSize: "14px", fontWeight: 400 }}
+                            onClick={() => {
+                              this.setState({ addApplication: true });
+                            }}
+                          >
+                            增加应用
+                          </a>
+                        )}
+                      </div>
+                    }
+                    bordered={false}
+                    bodyStyle={{
+                      padding: 0,
+                      height: "100%"
+                    }}
+                  >
+                    {teamAppList &&
+                      teamAppList.length > 0 &&
+                      teamAppList.map((item, index) => {
+                        const {
+                          backup_record_num,
+                          group_name,
+                          run_service_num,
+                          services_num,
+                          share_record_num,
+                          group_id
+                        } = item;
+                        return (
+                          <div
+                            key={index}
+                            style={{ borderBottom: "1px solid #e8e8e8" }}
+                          >
+                            <div style={{ padding: "10px 20px" }}>
+                              <Link
+                                to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                  item.group_id
+                                }`}
+                                style={{
+                                  wordBreak: "break-all",
+                                  wordWrap: "break-word",
+                                  color: "rgba(0,0,0,.85)"
+                                }}
+                              >
+                                <a style={{ fontSize: "16px" }}>{group_name}</a>
+                              </Link>
+
+                              <div className={styles.teamListStyle}>
+                                <div>
+                                  <span>组件：</span>
+                                  <Link
+                                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                      item.group_id
+                                    }`}
+                                    style={{
+                                      wordBreak: "break-all",
+                                      wordWrap: "break-word",
+                                      color: "rgba(0,0,0,.85)"
+                                    }}
+                                  >
+                                    <a>
+                                      {run_service_num
+                                        ? `${run_service_num}/`
+                                        : ""}
+                                      {services_num}
+                                    </a>
+                                  </Link>
+                                </div>
+                                <div>
+                                  <span>备份记录：</span>
+                                  <Link
+                                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
+                                      item.group_id
+                                    }/backup`}
+                                    style={{
+                                      wordBreak: "break-all",
+                                      wordWrap: "break-word",
+                                      color: "rgba(0,0,0,.85)"
+                                    }}
+                                  >
+                                    <a style={{ fontSize: "16px" }}>
+                                      {backup_record_num}
+                                    </a>
+                                  </Link>
+                                </div>
+                                <div>
+                                  <span>分享记录：</span>
+                                  <a style={{ color: "rgba(0, 0, 0, 0.65)" }}>
+                                    {share_record_num}
                                   </a>
-                                </Link>
-                              </div>
-                              <div>
-                                <span>备份记录：</span>
-                                <Link
-                                  to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                                    item.group_id
-                                  }/backup`}
-                                  style={{
-                                    wordBreak: "break-all",
-                                    wordWrap: "break-word",
-                                    color: "rgba(0,0,0,.85)"
-                                  }}
-                                >
-                                  <a style={{ fontSize: "16px" }}>
-                                    {backup_record_num}
-                                  </a>
-                                </Link>
-                              </div>
-                              <div>
-                                <span>分享记录：</span>
-                                <a style={{ color: "rgba(0, 0, 0, 0.65)" }}>
-                                  {share_record_num}
-                                </a>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
 
-                  {teamAppList &&
-                  teamAppList.length > 0 &&
-                  this.state.total > 0 ? (
-                    <div style={{ textAlign: "right", margin: "15px" }}>
-                      <Pagination
-                        current={this.state.page}
-                        pageSize={this.state.page_size}
-                        total={Number(this.state.total)}
-                        onChange={this.onPageChange}
-                      />
-                    </div>
-                  ) : (
-                    <List />
-                  )}
-                </Card>
-              </Col>
-              <Col xs={10} sm={10} md={10} lg={10} xl={10}>
-                <Card
-                  style={{
-                    marginBottom: 10,
-                    border: "none",
-                    height: "562px",
-                    overflow: "hidden"
-                  }}
-                  title="热门访问域名"
-                  bordered={false}
-                  bodyStyle={{
-                    padding: 0
-                  }}
-                  border={false}
-                >
-                  <ChartCard
+                    {teamAppList &&
+                    teamAppList.length > 0 &&
+                    this.state.total > 0 ? (
+                      <div style={{ textAlign: "right", margin: "15px" }}>
+                        <Pagination
+                          current={this.state.page}
+                          pageSize={this.state.page_size}
+                          total={Number(this.state.total)}
+                          onChange={this.onPageChange}
+                        />
+                      </div>
+                    ) : (
+                      <List />
+                    )}
+                  </Card>
+                </Col>
+                <Col xs={10} sm={10} md={10} lg={10} xl={10}>
+                  <Card
                     style={{
-                      marginTop: "-20px",
-                      border: "none"
+                      marginBottom: 10,
+                      border: "none",
+                      height: "562px",
+                      overflow: "hidden"
                     }}
+                    title="热门访问域名"
+                    bordered={false}
+                    bodyStyle={{
+                      padding: 0
+                    }}
+                    border={false}
                   >
-                    <NumberInfo
-                      subTitle={
-                        <span>
-                          整体请求量
-                          <Tooltip title="整体请求量">
-                            <Icon
-                              style={{ marginLeft: 8 }}
-                              type="info-circle-o"
-                            />
-                          </Tooltip>
-                        </span>
-                      }
-                      gap={8}
-                      total={numeral(this.state.num).format("0,0")}
-                    />
-                    <MiniArea line height={45} data={this.state.visitData} />
-                    <Table
-                      rowKey={record => record.index}
-                      size="small"
-                      style={{ marginTop: "15px", height: "300px" }}
-                      columns={columns}
-                      dataSource={domainList}
-                      pagination={{
-                        style: { marginBottom: 0 },
-                        current: this.state.domainPage,
-                        pageSize: this.state.domainPageSize,
-                        total: this.state.domainTotal,
-                        onChange: this.onDomainPageChange
-                      }}
-                    />
-                  </ChartCard>
-                </Card>
-                <Card
-                  style={{
-                    marginBottom: 10,
-                    height: 468
-                  }}
-                  title="热门访问组件"
-                  bordered={false}
-                  bodyStyle={{
-                    padding: 0
-                  }}
-                >
-                  <Col span={24}>
                     <ChartCard
                       style={{
                         marginTop: "-20px",
                         border: "none"
                       }}
                     >
+                      <NumberInfo
+                        subTitle={
+                          <span>
+                            整体请求量
+                            <Tooltip title="整体请求量">
+                              <Icon
+                                style={{ marginLeft: 8 }}
+                                type="info-circle-o"
+                              />
+                            </Tooltip>
+                          </span>
+                        }
+                        gap={8}
+                        total={numeral(this.state.num).format("0,0")}
+                      />
+                      <MiniArea line height={45} data={this.state.visitData} />
                       <Table
-                        className={styles.cancelMargin}
-                        style={{
-                          height: "390px",
-                          marginTop: "-20px",
-                          overflow: "auto"
-                        }}
                         rowKey={record => record.index}
                         size="small"
-                        columns={columnTwo}
-                        dataSource={serviceList}
-                        pagination={false}
+                        style={{ marginTop: "15px", height: "300px" }}
+                        columns={columns}
+                        dataSource={domainList}
+                        pagination={{
+                          style: { marginBottom: 0 },
+                          current: this.state.domainPage,
+                          pageSize: this.state.domainPageSize,
+                          total: this.state.domainTotal,
+                          onChange: this.onDomainPageChange
+                        }}
                       />
                     </ChartCard>
-                  </Col>
-                </Card>
-              </Col>
-            </Row>
-            {this.state.addApplication && (
-              <EditGroupName
-                title="添加应用"
-                onCancel={this.handleCancelApplication}
-                onOk={this.handleOkApplication}
-              />
-            )}
+                  </Card>
+                  <Card
+                    style={{
+                      marginBottom: 10,
+                      height: 468
+                    }}
+                    title="热门访问组件"
+                    bordered={false}
+                    bodyStyle={{
+                      padding: 0
+                    }}
+                  >
+                    <Col span={24}>
+                      <ChartCard
+                        style={{
+                          marginTop: "-20px",
+                          border: "none"
+                        }}
+                      >
+                        <Table
+                          className={styles.cancelMargin}
+                          style={{
+                            height: "390px",
+                            marginTop: "-20px",
+                            overflow: "auto"
+                          }}
+                          rowKey={record => record.index}
+                          size="small"
+                          columns={columnTwo}
+                          dataSource={serviceList}
+                          pagination={false}
+                        />
+                      </ChartCard>
+                    </Col>
+                  </Card>
+                </Col>
+              </Row>
+              {this.state.addApplication && (
+                <EditGroupName
+                  title="添加应用"
+                  onCancel={this.handleCancelApplication}
+                  onOk={this.handleOkApplication}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
+        {loadedOverview &&
+          index.overviewInfo &&
+          !index.overviewInfo.region_health && (
+            <div>
+              <Result
+                type="warning"
+                title="集群端失去响应，稍后重试"
+                description="若一直无法加载，请联系集群管理员查看集群状态"
+                extra={
+                  <Button
+                    loading={loadingOverview}
+                    onClick={this.loadOverview}
+                    type="primary"
+                    key="console"
+                  >
+                    重新加载
+                  </Button>
+                }
+              />
+            </div>
+          )}
       </PageHeaderLayout>
     );
   }
