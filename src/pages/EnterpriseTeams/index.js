@@ -1,24 +1,37 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable react/sort-comp */
+/* eslint-disable camelcase */
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Empty,
+  Icon,
+  Input,
+  Menu,
+  notification,
+  Pagination,
+  Row,
+  Spin
+} from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import React, { PureComponent } from "react";
+import WarningImg from "../../../public/images/warning.png";
+import ConfirmModal from "../../components/ConfirmModal";
+import CreateTeam from "../../components/CreateTeam";
+import JoinTeam from "../../components/JoinTeam";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+import roleUtil from "../../utils/role";
+import userUtil from "../../utils/user";
+import styles from "./index.less";
 
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import { Button, Card, Col, Dropdown, Empty, Icon, Input, Menu, notification, Pagination, Row, Spin, Tabs } from 'antd';
-import WarningImg from '../../../public/images/warning.png';
-import ConfirmModal from '../../components/ConfirmModal';
-import CreateTeam from '../../components/CreateTeam';
-import JoinTeam from '../../components/JoinTeam';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import roleUtil from '../../utils/role';
-import userUtil from '../../utils/user';
-import styles from './index.less';
-
-
-
-const { TabPane } = Tabs;
 const { Search } = Input;
 
 @connect(({ user }) => ({
-  user: user.currentUser,
+  user: user.currentUser
 }))
 export default class EnterpriseTeams extends PureComponent {
   constructor(props) {
@@ -34,7 +47,7 @@ export default class EnterpriseTeams extends PureComponent {
       showExitTeam: false,
       showDelApply: false,
       ApplyInfo: false,
-      exitTeamName: '',
+      exitTeamName: "",
       enterpriseTeamsLoading: false,
       userTeamsLoading: true,
       overviewTeamsLoading: true,
@@ -42,9 +55,10 @@ export default class EnterpriseTeams extends PureComponent {
       showDelTeam: false,
       page: 1,
       page_size: 10,
-      name: '',
+      name: "",
       total: 1,
       joinTeam: false,
+      delTeamLoading: false
     };
   }
   componentDidMount() {
@@ -70,27 +84,27 @@ export default class EnterpriseTeams extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
-      type: 'global/fetchEnterpriseTeams',
+      type: "global/fetchEnterpriseTeams",
       payload: {
         page,
         page_size,
         enterprise_id: eid,
-        name,
+        name
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             total: (res.bean && res.bean.total_count) || 1,
             teamList: (res.bean && res.bean.list) || [],
-            enterpriseTeamsLoading: false,
+            enterpriseTeamsLoading: false
           });
         }
-      },
+      }
     });
   };
   getUserTeams = () => {
@@ -98,27 +112,27 @@ export default class EnterpriseTeams extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { page, page_size, name } = this.state;
     dispatch({
-      type: 'global/fetchUserTeams',
+      type: "global/fetchUserTeams",
       payload: {
         enterprise_id: eid,
         user_id: user.user_id,
         page,
         page_size,
-        name,
+        name
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             userTeamList: res.list,
-            userTeamsLoading: false,
+            userTeamsLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -131,7 +145,7 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState(
       {
         page: 1,
-        name,
+        name
       },
       () => {
         this.getEnterpriseTeams();
@@ -139,7 +153,7 @@ export default class EnterpriseTeams extends PureComponent {
     );
   };
 
-  handlePaginations = isPages => (
+  handlePaginations = () => (
     <Pagination
       current={this.state.page}
       pageSize={this.state.page_size}
@@ -151,7 +165,7 @@ export default class EnterpriseTeams extends PureComponent {
     this.setState(
       {
         page: 1,
-        name,
+        name
       },
       () => {
         this.getUserTeams();
@@ -161,14 +175,14 @@ export default class EnterpriseTeams extends PureComponent {
 
   handleCreateTeam = values => {
     this.props.dispatch({
-      type: 'teamControl/createTeam',
+      type: "teamControl/createTeam",
       payload: values,
       callback: () => {
-        notification.success({ message: '添加成功' });
+        notification.success({ message: "添加成功" });
         // 添加完查询企业团队列表
         this.load();
         this.cancelCreateTeam();
-      },
+      }
     });
   };
 
@@ -176,23 +190,23 @@ export default class EnterpriseTeams extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     dispatch({
-      type: 'global/fetchOverviewTeam',
+      type: "global/fetchOverviewTeam",
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
       callback: res => {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamsLoading: false,
-            overviewTeamInfo: res.bean,
+            overviewTeamInfo: res.bean
           });
         }
-      },
+      }
     });
   };
 
@@ -209,9 +223,9 @@ export default class EnterpriseTeams extends PureComponent {
   handleExitTeam = () => {
     const { exitTeamName } = this.state;
     this.props.dispatch({
-      type: 'teamControl/exitTeam',
+      type: "teamControl/exitTeam",
       payload: {
-        team_name: exitTeamName,
+        team_name: exitTeamName
       },
       callback: res => {
         if (res && res._code === 200) {
@@ -219,12 +233,12 @@ export default class EnterpriseTeams extends PureComponent {
           this.getUserTeams();
           this.hideExitTeam();
         }
-      },
+      }
     });
   };
 
   hideExitTeam = () => {
-    this.setState({ showExitTeam: false, exitTeamName: '' });
+    this.setState({ showExitTeam: false, exitTeamName: "" });
   };
 
   showApply = ApplyInfo => {
@@ -238,11 +252,11 @@ export default class EnterpriseTeams extends PureComponent {
   handleActiveTabs = key => {
     this.setState(
       {
-        name: '',
-        page: 1,
+        name: "",
+        page: 1
       },
       () => {
-        if (key === 'team') {
+        if (key === "team") {
           this.getOverviewTeam();
           this.getUserTeams();
         } else {
@@ -250,6 +264,12 @@ export default class EnterpriseTeams extends PureComponent {
         }
       }
     );
+  };
+  showCloseAllComponent = exitTeamName => {
+    this.setState({ showCloseAllComponent: true, exitTeamName });
+  };
+  hideCloseAllComponent = () => {
+    this.setState({ showCloseAllComponent: false, exitTeamName: "" });
   };
 
   showDelTeam = exitTeamName => {
@@ -259,47 +279,91 @@ export default class EnterpriseTeams extends PureComponent {
   hideDelTeam = () => {
     this.setState({ showExitTeam: false, showDelTeam: false });
   };
-
-  handleDelTeam = () => {
-    const { exitTeamName } = this.state;
+  handleCloseAllComponentInTeam = () => {
+    const { exitTeamName, closeTeamComponentLoading } = this.state;
+    if (closeTeamComponentLoading) {
+      return;
+    }
+    this.setState({ closeTeamComponentLoading: true });
     this.props.dispatch({
-      type: 'teamControl/delTeam',
+      type: "teamControl/stopComponentInTeam",
       payload: {
-        team_name: exitTeamName,
+        team_name: exitTeamName
       },
       callback: res => {
+        this.setState({ closeTeamComponentLoading: false });
+        if (res && res._code === 200) {
+          notification.success({ message: "操作成功，组件正在关闭中" });
+        }
+        this.hideCloseAllComponent();
+      },
+      handleError: err => {
+        if (err.data) {
+          notification.warning({
+            message: err.data.msg_show
+          });
+        }
+        notification.warning({
+          message: "操作遇到故障，请稍后重试"
+        });
+        this.setState({ closeTeamComponentLoading: false });
+      }
+    });
+  };
+  handleDelTeam = () => {
+    const { exitTeamName, delTeamLoading } = this.state;
+    if (delTeamLoading) {
+      return;
+    }
+    this.setState({ delTeamLoading: true });
+    this.props.dispatch({
+      type: "teamControl/delTeam",
+      payload: {
+        team_name: exitTeamName
+      },
+      callback: res => {
+        this.setState({ delTeamLoading: false });
         if (res && res._code === 200) {
           this.getEnterpriseTeams();
           this.hideDelTeam();
+          notification.success({ message: "团队删除成功" });
         }
       },
+      handleError: err => {
+        if (err.data) {
+          notification.warning({
+            message: err.data.msg_show
+          });
+        }
+        this.setState({ delTeamLoading: false });
+      }
     });
   };
 
   handleDelApply = () => {
     const { ApplyInfo } = this.state;
     this.props.dispatch({
-      type: 'teamControl/undoTeamUsers',
+      type: "teamControl/undoTeamUsers",
       payload: {
-        team_name: ApplyInfo.team_name,
+        team_name: ApplyInfo.team_name
       },
       callback: () => {
-        notification.success({ message: '撤销申请成功' });
+        notification.success({ message: "撤销申请成功" });
         this.getOverviewTeam();
         this.hideDelApply();
-      },
+      }
     });
   };
 
   handleJoinTeam = values => {
     this.props.dispatch({
-      type: 'global/joinTeam',
+      type: "global/joinTeam",
       payload: values,
       callback: () => {
-        notification.success({ message: '申请成功，请等待审核' });
+        notification.success({ message: "申请成功，请等待审核" });
         this.getOverviewTeam();
         this.cancelJoinTeam();
-      },
+      }
     });
   };
 
@@ -333,15 +397,15 @@ export default class EnterpriseTeams extends PureComponent {
   handleJoinTeams = (teamName, region) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'teamControl/joinTeam',
+      type: "teamControl/joinTeam",
       payload: {
-        team_name: teamName,
+        team_name: teamName
       },
       callback: res => {
         if (res && res._code === 200) {
           this.onJumpTeam(teamName, region);
         }
-      },
+      }
     });
   };
   onJumpTeam = (team_name, region) => {
@@ -352,8 +416,8 @@ export default class EnterpriseTeams extends PureComponent {
   render() {
     const {
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const {
       teamList,
@@ -363,6 +427,9 @@ export default class EnterpriseTeams extends PureComponent {
       adminer,
       userTeamList,
       userTeamsLoading,
+      delTeamLoading,
+      showCloseAllComponent,
+      closeTeamComponentLoading
     } = this.state;
 
     const request_join_team =
@@ -402,14 +469,11 @@ export default class EnterpriseTeams extends PureComponent {
         />
       </svg>
     );
-    const pd24 = { height: '70px', paddingLeft: ' 24px ' };
-
     const menu = exitTeamName => {
       return (
         <Menu>
           <Menu.Item>
             <a
-              href="javascript:;"
               onClick={() => {
                 this.showExitTeam(exitTeamName);
               }}
@@ -426,7 +490,6 @@ export default class EnterpriseTeams extends PureComponent {
         <Menu>
           <Menu.Item>
             <a
-              href="javascript:;"
               onClick={() => {
                 this.showApply(item);
               }}
@@ -443,7 +506,15 @@ export default class EnterpriseTeams extends PureComponent {
         <Menu>
           <Menu.Item>
             <a
-              href="javascript:;"
+              onClick={() => {
+                this.showCloseAllComponent(exitTeamName);
+              }}
+            >
+              关闭所有组件
+            </a>
+          </Menu.Item>
+          <Menu.Item>
+            <a
               onClick={() => {
                 this.showDelTeam(exitTeamName);
               }}
@@ -455,19 +526,21 @@ export default class EnterpriseTeams extends PureComponent {
       );
     };
     const operation = (
-      <Col span={7} style={{ textAlign: 'right' }} className={styles.btns}>
+      <Col span={7} style={{ textAlign: "right" }} className={styles.btns}>
         {adminer && (
           <Button
             type="primary"
             onClick={this.onAddTeam}
-            style={{ marginRight: '5px' }}
+            style={{ marginRight: "5px" }}
           >
             创建团队
           </Button>
         )}
-        <Button type="primary" onClick={this.onJoinTeam}>
-          加入团队
-        </Button>
+        {!adminer && (
+          <Button type="primary" onClick={this.onJoinTeam}>
+            加入团队
+          </Button>
+        )}
       </Col>
     );
 
@@ -475,21 +548,21 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '20px',
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "20px"
           }}
         >
           <Col
             span={2}
             className={styles.teamsTit}
-            style={{ marginBottom: '0' }}
+            style={{ marginBottom: "0" }}
           >
             全部团队
           </Col>
-          <Col span={15} style={{ textAlign: 'left' }}>
+          <Col span={15} style={{ textAlign: "left" }}>
             <Search
-              style={{ width: '500px' }}
+              style={{ width: "500px" }}
               placeholder="请输入团队名称进行搜索"
               onSearch={this.handleSearchTeam}
             />
@@ -508,12 +581,12 @@ export default class EnterpriseTeams extends PureComponent {
             team_alias,
             region_list,
             owner_name,
-            team_name,
+            team_name
           } = item;
           return (
             <Card
               key={team_id}
-              style={{ marginTop: '10px' }}
+              style={{ marginTop: "10px" }}
               hoverable
               bodyStyle={{ padding: 0 }}
             >
@@ -528,14 +601,14 @@ export default class EnterpriseTeams extends PureComponent {
                     overlay={managementMenu(team_name)}
                     placement="bottomLeft"
                   >
-                    <Icon component={moreSvg} style={{ width: '100%' }} />
+                    <Icon component={moreSvg} style={{ width: "100%" }} />
                   </Dropdown>
                 </Col>
               </Row>
             </Card>
           );
         })}
-        <div style={{ textAlign: 'right', margin: '15px' }}>
+        <div style={{ textAlign: "right", margin: "15px" }}>
           {this.handlePaginations()}
         </div>
       </div>
@@ -545,7 +618,7 @@ export default class EnterpriseTeams extends PureComponent {
       <div>
         <Row>
           <Col span={17} className={styles.teamsTit}>
-            {haveNewJoinTeam && '最新加入团队'}
+            {haveNewJoinTeam && "最新加入团队"}
           </Col>
           {operation}
         </Row>
@@ -565,14 +638,14 @@ export default class EnterpriseTeams extends PureComponent {
               team_name,
               team_alias,
               owner_name,
-              role,
+              role
             } = item;
             return (
               <Card
                 key={team_id}
                 style={{
-                  marginTop: '10px',
-                  borderLeft: is_pass === 0 && '6px solid #4D73B1',
+                  marginTop: "10px",
+                  borderLeft: is_pass === 0 && "6px solid #4D73B1"
                 }}
                 bodyStyle={{ padding: 0 }}
                 hoverable
@@ -589,7 +662,7 @@ export default class EnterpriseTeams extends PureComponent {
                   <Col
                     span={11}
                     style={{
-                      color: is_pass === 0 && '#999999',
+                      color: is_pass === 0 && "#999999"
                     }}
                   >
                     {is_pass === 0 && (
@@ -606,7 +679,7 @@ export default class EnterpriseTeams extends PureComponent {
                       }
                       placement="bottomLeft"
                     >
-                      <Icon component={moreSvg} style={{ width: '100%' }} />
+                      <Icon component={moreSvg} style={{ width: "100%" }} />
                     </Dropdown>
                   </Col>
                 </Row>
@@ -616,22 +689,22 @@ export default class EnterpriseTeams extends PureComponent {
 
         <Row
           style={{
-            margin: '10px 0',
-            display: 'flex',
-            alignItems: 'center',
+            margin: "10px 0",
+            display: "flex",
+            alignItems: "center"
           }}
         >
           <Col
             span={4}
             className={styles.teamsTit}
-            style={{ marginBottom: '0' }}
+            style={{ marginBottom: "0" }}
           >
             我的团队
           </Col>
 
-          <Col span={20} style={{ textAlign: 'right' }}>
+          <Col span={20} style={{ textAlign: "right" }}>
             <Search
-              style={{ width: '500px' }}
+              style={{ width: "500px" }}
               placeholder="请输入团队名称进行搜索"
               onSearch={this.handleSearchUserTeam}
             />
@@ -645,7 +718,12 @@ export default class EnterpriseTeams extends PureComponent {
             <Col span={12}>集群</Col>
           </Row>
         )}
-        {!userTeam && <Empty description="暂无团队，请点击创建团队进行创建" image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+        {!userTeam && (
+          <Empty
+            description="暂无团队，请点击创建团队进行创建"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        )}
         {userTeam &&
           userTeam.map(item => {
             const {
@@ -654,12 +732,12 @@ export default class EnterpriseTeams extends PureComponent {
               team_name,
               region_list,
               owner_name,
-              roles,
+              roles
             } = item;
             return (
               <Card
                 key={team_id}
-                style={{ marginBottom: '10px' }}
+                style={{ marginBottom: "10px" }}
                 hoverable
                 bodyStyle={{ padding: 0 }}
               >
@@ -670,7 +748,7 @@ export default class EnterpriseTeams extends PureComponent {
                     {roles.map(item => {
                       return (
                         <span
-                          style={{ marginRight: '8px' }}
+                          style={{ marginRight: "8px" }}
                           key={`role${item}`}
                         >
                           {roleUtil.actionMap(item)}
@@ -683,7 +761,7 @@ export default class EnterpriseTeams extends PureComponent {
                   </Col>
                   <Col span={1} className={styles.bor}>
                     <Dropdown overlay={menu(team_name)} placement="bottomLeft">
-                      <Icon component={moreSvg} style={{ width: '100%' }} />
+                      <Icon component={moreSvg} style={{ width: "100%" }} />
                     </Dropdown>
                   </Col>
                 </Row>
@@ -692,12 +770,24 @@ export default class EnterpriseTeams extends PureComponent {
           })}
       </div>
     );
-
+    let title = "我的团队";
+    const content =
+      "团队是企业下多租户资源划分的一个层级，平台中各类资源都属于团队";
+    if (adminer) {
+      title = "团队管理";
+    }
     return (
-      <PageHeaderLayout
-        title="我的团队"
-        content="当前登录用户可见已加入的团队，根据最常使用、最新加入和全部已加入团队三维度展示，企业管理员可见企业团队管理入口"
-      >
+      <PageHeaderLayout title={title} content={content}>
+        {showCloseAllComponent && (
+          <ConfirmModal
+            onOk={this.handleCloseAllComponentInTeam}
+            loading={closeTeamComponentLoading}
+            title="关闭团队下所有组件"
+            subDesc="此操作不可恢复"
+            desc="确定要关闭团队下所有组件吗?"
+            onCancel={this.hideCloseAllComponent}
+          />
+        )}
         {this.state.joinTeam && (
           <JoinTeam
             enterpriseID={eid}
@@ -733,6 +823,7 @@ export default class EnterpriseTeams extends PureComponent {
         )}
         {this.state.showDelTeam && (
           <ConfirmModal
+            loading={delTeamLoading}
             onOk={this.handleDelTeam}
             title="删除团队"
             subDesc="此操作不可恢复"
@@ -746,20 +837,7 @@ export default class EnterpriseTeams extends PureComponent {
             <Spin />
           </div>
         ) : (
-          <div>
-            {adminer ? (
-              <Tabs defaultActiveKey="team" onChange={this.handleActiveTabs}>
-                <TabPane tab="团队" key="team">
-                  {teamInfo}
-                </TabPane>
-                <TabPane tab="管理" key="management">
-                  {managementTemas}
-                </TabPane>
-              </Tabs>
-            ) : (
-              teamInfo
-            )}
-          </div>
+          <div>{adminer ? managementTemas : teamInfo}</div>
         )}
       </PageHeaderLayout>
     );
