@@ -1,10 +1,11 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable import/extensions */
+/* eslint-disable react/sort-comp */
 import Result from "@/components/Result";
 import globalUtil from "@/utils/global";
 import { Alert, Button, Card, notification } from "antd";
 import { connect } from "dva";
 import React, { Fragment, PureComponent } from "react";
-
-const ButtonGroup = Button.Group;
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
@@ -43,7 +44,7 @@ export default class TraceShow extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service.service_alias
       },
-      callback: re => {
+      callback: () => {
         notification.success({ message: "设置成功，更新组件后生效" });
         this.loadTraceSetting();
       }
@@ -57,7 +58,7 @@ export default class TraceShow extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appDetail.service.service_alias
       },
-      callback: re => {
+      callback: () => {
         notification.success({ message: "关闭成功，更新组件后生效" });
         this.loadTraceSetting();
       }

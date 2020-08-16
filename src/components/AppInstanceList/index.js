@@ -1,8 +1,9 @@
+/* eslint-disable react/sort-comp */
+/* eslint-disable no-unused-expressions */
+import { List } from "antd";
 import React, { PureComponent } from "react";
-import { List,Form } from "antd";
 import WaterWave from "../Charts/WaterWave";
 import style from "./index.less";
-import { log } from "util";
 
 class InstanceList extends PureComponent {
   constructor(arg) {
@@ -23,7 +24,15 @@ class InstanceList extends PureComponent {
     const num = podName.split("-")[1];
     return `实例${num}`;
   };
-
+  getContainerMem = (containers)=> {
+    let memRate = 0
+    containers && containers.map(c=>{
+      if (c.container_name === this.props.serviceID) {
+        memRate = c.usage_rate
+      }
+    })
+    return memRate
+  }
   render() {
     const statusObj = {
       "Running":"正常运行",
@@ -42,19 +51,18 @@ class InstanceList extends PureComponent {
               className={style.instance}
               height={120}
               title="运行内存"
-              percent={(item.container[0] && item.container[0].usage_rate) || 0}
+              percent={this.getContainerMem(item.container)}
             />
             <a
               onClick={() => {
                 this.props.handlePodClick(item.pod_name, item.manage_name);
               }}
-              href="javascript:;"
               className={style.instancename}
             >
               {this.showName(item.pod_name)}
             </a>
-            <br/>
-            <a href="javascript:;" style={{color:"#000"}}>
+            <br />
+            <a style={{color:"#000"}}>
               {statusObj[item.pod_status]}
             </a>
           </List.Item>

@@ -1,9 +1,13 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable prettier/prettier */
 import { queryTags } from "../services/api";
 import {
   deleteComponsentTrace,
   getComponsentTrace,
   setComponsentTrace
 } from "../services/app";
+import { getMonitorRangeData } from "../services/monitor";
+
 
 export default {
   namespace: "monitor",
@@ -34,6 +38,12 @@ export default {
     },
     *deleteComponsentTrace({ payload, callback }, { call, put }) {
       const response = yield call(deleteComponsentTrace, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *getMonitorRangeData({ payload, callback }, { call, put }) {
+      const response = yield call(getMonitorRangeData, payload);
       if (callback) {
         callback(response);
       }

@@ -1,32 +1,48 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
-import { routerRedux, Link } from 'dva/router';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import moment from 'moment';
 import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
+  Alert, Button, Card, Col,
+
+
+
+
+
+
+  Divider, Form,
+
+
+
+
+
+
+
+
+  Icon, Input, notification, Row,
+
+
+
+
   Select,
-  notification,
+
   Spin,
-  Divider,
-  Input,
-  Table,
-  Alert,
-  Icon,
-  Switch,
+
+
+
+
+
+  Switch, Table
 } from 'antd';
-import sourceUtil from '../../utils/source';
+import { connect } from 'dva';
+import { Link, routerRedux } from 'dva/router';
+import moment from 'moment';
+import React, { PureComponent } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Deleteimg from '../../../public/images/delete.png';
+import InstanceList from '../../components/AppInstanceList';
+import ConfirmModal from '../../components/ConfirmModal';
+import NoPermTip from '../../components/NoPermTip';
 import { horizontal, vertical } from '../../services/app';
 import globalUtil from '../../utils/global';
-import NoPermTip from '../../components/NoPermTip';
-import InstanceList from '../../components/AppInstanceList';
+import sourceUtil from '../../utils/source';
 import AddScaling from './component/AddScaling';
-import Deleteimg from '../../../public/images/delete.png';
-import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Index.less';
 
 const { Option } = Select;
@@ -199,7 +215,7 @@ export default class Index extends PureComponent {
 
   handlePodClick = (podName, manageName) => {
     const adPopup = window.open('about:blank');
-    const appAlias = this.props.appAlias;
+    const {appAlias} = this.props;
     if (podName && manageName) {
       this.props.dispatch({
         type: 'appControl/managePod',
@@ -812,6 +828,7 @@ export default class Index extends PureComponent {
               <InstanceList
                 handlePodClick={this.handlePodClick}
                 list={this.state.instances}
+                serviceID={this.props.appDetail.service.service_id}
               />
               <Divider />
               <div>

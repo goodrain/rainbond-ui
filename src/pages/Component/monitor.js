@@ -7,7 +7,9 @@ import appUtil from "../../utils/app";
 import globalUtil from "../../utils/global";
 import MonitorHistory from "./component/monitor/pahistoryshow";
 import MonitorNow from "./component/monitor/pashow";
+import ResourceShow from "./component/monitor/resourceshow";
 import TraceShow from "./component/monitor/trace";
+
 const ButtonGroup = Button.Group;
 
 // eslint-disable-next-line react/no-multi-comp
@@ -131,10 +133,10 @@ export default class Index extends PureComponent {
 
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { type, anaPlugins, showMenu } = this.state;
+    const { showMenu } = this.state;
     const { appDetail } = this.props;
-    const showPerformance = anaPlugins && anaPlugins.length > 0;
     const defaultShow = ["pm"];
+    const enablePM = appDetail.service.language && appDetail.service.language.toLowerCase().indexOf("java")>-1
     return (
       <Row>
         <Col span={4}>
@@ -145,19 +147,20 @@ export default class Index extends PureComponent {
               style={{ height: "590px" }}
             >
               <Menu.Item key="pm">性能分析</Menu.Item>
-              <Menu.Item key="trace">链路追踪</Menu.Item>
-              {/* <Menu.Item key="resource" disabled>
+              <Menu.Item key="resource">
                 资源监控
               </Menu.Item>
-              <Menu.Item key="custom" disabled>
+              {enablePM && <Menu.Item key="trace">链路追踪</Menu.Item>}
+              {/* <Menu.Item key="custom" disabled>
                 业务监控
               </Menu.Item> */}
             </Menu>
           </div>
         </Col>
         <Col span={20}>
-          {showMenu == "pm" && this.renderPM()}
-          {showMenu == "trace" && <TraceShow />}
+          {showMenu === "pm" && this.renderPM()}
+          {showMenu === "trace" && <TraceShow />}
+          {showMenu === "resource" && <ResourceShow />}
         </Col>
       </Row>
     );
