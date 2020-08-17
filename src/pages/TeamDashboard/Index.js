@@ -1178,7 +1178,7 @@ export default class Index extends PureComponent {
                 type="warning"
                 title="集群端失去响应，稍后重试"
                 description="若一直无法加载，请联系集群管理员查看集群状态"
-                extra={
+                actions={[
                   <Button
                     loading={loadingOverview}
                     onClick={this.loadOverview}
@@ -1187,7 +1187,7 @@ export default class Index extends PureComponent {
                   >
                     重新加载
                   </Button>
-                }
+                ]}
               />
             </div>
           )}

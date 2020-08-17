@@ -1166,7 +1166,7 @@ export default class EnterpriseShared extends PureComponent {
 
         {this.state.createAppMarket && (
           <CreateAppMarket
-            title="添加应用市场"
+            title="添加应用商店"
             eid={eid}
             loading={createAppMarketLoading}
             onOk={this.handleCreateAppMarket}
@@ -1175,7 +1175,7 @@ export default class EnterpriseShared extends PureComponent {
         )}
         {this.state.upAppMarket && (
           <CreateAppMarket
-            title="编辑应用市场"
+            title="编辑应用商店连接信息"
             eid={eid}
             loading={upAppMarketLoading}
             marketInfo={marketInfo}

@@ -1,39 +1,38 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable import/first */
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import {
-  Table,
   AutoComplete,
-  Row,
-  Col,
-  Card,
-  Form,
   Button,
-  Input,
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Form,
   Icon,
+  Input,
+  InputNumber,
   Modal,
   notification,
+  Row,
   Select,
-  Checkbox,
-  Tabs,
-  Divider,
-  InputNumber
+  Table,
+  Tabs
 } from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import React, { Fragment, PureComponent } from "react";
 import CreateAppModels from "../../components/CreateAppModels";
 import FooterToolbar from "../../components/FooterToolbar";
-import cookie from "../../utils/cookie";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import {
+  createApp,
   createEnterprise,
-  createTeam,
-  createApp
+  createTeam
 } from "../../utils/breadcrumb";
+import cookie from "../../utils/cookie";
 import globalUtil from "../../utils/global";
 import pluginUtil from "../../utils/plugin";
-import styles from "./Index.less";
 import mytabcss from "./mytab.less";
 
 const { TabPane } = Tabs;
@@ -371,7 +370,7 @@ export default class Main extends PureComponent {
       versions: [],
       versionInfo: false,
       editorAppModel: false,
-      appModelInfo: false,
+      appModelInfo: false
     };
     this.com = [];
     this.share_group_info = null;
@@ -486,7 +485,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
-            share_service_list: data.bean.share_service_list,
+            share_service_list: data.bean.share_service_list
           });
           this.share_service_list = data.bean.share_service_list;
           const arr = [];
@@ -755,8 +754,8 @@ export default class Main extends PureComponent {
             const data = err && err.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: '提示', description: msg });
-              this.setState({ isShare: 'true' });
+              notification.warning({ message: "提示", description: msg });
+              this.setState({ isShare: "true" });
               return null;
             }
             notification.warning({ message: "请求错误", description: msg });
@@ -1004,12 +1003,14 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({
       title: "发布记录列表",
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${
+        appDetail.group_id
+      }/publish`
     });
     if (record && record.scope == "goodrain") {
       breadcrumbList.push({ title: "发布到云应用商店" });
     } else {
-      breadcrumbList.push({ title: "发布到应用市场" });
+      breadcrumbList.push({ title: "发布到组件库" });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
     return (
