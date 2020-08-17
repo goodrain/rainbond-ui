@@ -21,19 +21,30 @@ export default class RangeChart extends PureComponent {
   componentDidMount() {
     this.loadRangeData();
   }
-  loadRangeData() {
-    const { appDetail, dispatch, type } = this.props;
+  componentWillReceiveProps(nextProps) {
+    if (this.props.start !== nextProps.start || this.props.end !== nextProps.end || this.props.step !== nextProps.step){
+      this.loadRangeData(nextProps);
+    }
+  }
+  loadRangeData(props) {
+    this.setState({loading: true})
+    let prop = this.props
+    if (props) {
+      prop = props
+    }
+    const { appDetail, dispatch, type, start, end } = prop;
     dispatch({
       type: "monitor/getMonitorRangeData",
       payload: {
         query: this.getQueryByType(type),
-        start: new Date().getTime() / 1000 - 60 * 60,
-        end: new Date().getTime() / 1000,
-        step: 15,
+        start: start || new Date().getTime() / 1000 - 60 * 60,
+        end: end || new Date().getTime() / 1000,
+        step: Math.ceil((end - start) / 100) || 15,
         teamName: globalUtil.getCurrTeamName(),
         componentAlias: appDetail.service.service_alias
       },
       callback: re => {
+        this.setState({loading: false})
         if (re.bean) {
           this.setState({ memoryRange: re.bean.result });
         }
@@ -92,7 +103,7 @@ export default class RangeChart extends PureComponent {
             rangedata.push({
               cid,
               time: v[0] * 1000,
-              value: Number(v[1]).toFixed(2)
+              value: Math.floor(Number(v[1]) * 100) / 100
             });
           });
         }
@@ -104,7 +115,7 @@ export default class RangeChart extends PureComponent {
 
   render() {
     const { title, label, unit } = this.getMeta();
-    const { memoryRange } = this.state;
+    const { memoryRange, loading } = this.state;
     const data = this.converData(memoryRange);
     const cols = {
       time: {
@@ -127,7 +138,7 @@ export default class RangeChart extends PureComponent {
           title={title}
           extra={<a onClick={() => this.loadRangeData()}>刷新</a>}
         >
-          <Chart height={400} data={data} scale={cols} forceFit>
+          <Chart loading={loading} height={400} data={data} scale={cols} forceFit>
             <Legend />
             <Axis
               name="value"
