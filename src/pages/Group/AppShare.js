@@ -1,40 +1,40 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable import/first */
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
-  Table,
   AutoComplete,
-  Row,
-  Col,
-  Card,
-  Form,
   Button,
-  Input,
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Form,
   Icon,
+  Input,
+  InputNumber,
   Modal,
   notification,
+  Row,
   Select,
-  Checkbox,
-  Tabs,
-  Divider,
-  InputNumber,
-} from 'antd';
-import CreateAppModels from '../../components/CreateAppModels';
-import FooterToolbar from '../../components/FooterToolbar';
-import cookie from '../../utils/cookie';
+  Table,
+  Tabs
+} from "antd";
+import { connect } from "dva";
+import { routerRedux } from "dva/router";
+import React, { Fragment, PureComponent } from "react";
+import CreateAppModels from "../../components/CreateAppModels";
+import FooterToolbar from "../../components/FooterToolbar";
+import PageHeaderLayout from "../../layouts/PageHeaderLayout";
 import {
-  createEnterprise,
-  createTeam,
   createApp,
-} from '../../utils/breadcrumb';
-import globalUtil from '../../utils/global';
-import pluginUtil from '../../utils/plugin';
-import styles from './Index.less';
-import mytabcss from './mytab.less';
+  createEnterprise,
+  createTeam
+} from "../../utils/breadcrumb";
+import cookie from "../../utils/cookie";
+import globalUtil from "../../utils/global";
+import pluginUtil from "../../utils/plugin";
+import styles from "./Index.less";
+import mytabcss from "./mytab.less";
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
@@ -49,7 +49,7 @@ const formItemLayout = {
   }
 };
 
-const token = cookie.get('token');
+const token = cookie.get("token");
 const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
@@ -210,7 +210,7 @@ class AppInfo extends PureComponent {
     const { getFieldDecorator, getFieldValue } = this.props.form;
 
     if (app.extend_method_map) {
-      const steps = getFieldValue('extend||step_node');
+      const steps = getFieldValue("extend||step_node");
       return (
         <div
           style={{
@@ -385,8 +385,8 @@ export default class Main extends PureComponent {
     this.setState({
       shareModal: null,
       isShare: isShare || this.state.isShare,
-      service_cname: '',
-      dep_service_name: [],
+      service_cname: "",
+      dep_service_name: []
     });
   };
   getParams() {
@@ -409,13 +409,13 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getParams();
     dispatch({
-      type: 'groupControl/getShareInfo',
+      type: "groupControl/getShareInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...params,
+        ...params
       },
       callback: data => {
-        let selectedApp = '';
+        let selectedApp = "";
         if (data) {
           if (data.bean.share_service_list[0]) {
             selectedApp = data.bean.share_service_list[0].service_alias;
@@ -424,7 +424,7 @@ export default class Main extends PureComponent {
             info: data.bean,
             selectedApp,
             key: data.bean.share_service_list[0].service_alias,
-            share_service_list: data.bean.share_service_list,
+            share_service_list: data.bean.share_service_list
           });
           this.share_service_list = data.bean.share_service_list;
 
@@ -438,7 +438,7 @@ export default class Main extends PureComponent {
             });
             this.setState({
               shareList: arr,
-              sharearrs: arr,
+              sharearrs: arr
             });
             // this.props.form.setFieldsValue({ sharing: arr })
           }
@@ -452,7 +452,7 @@ export default class Main extends PureComponent {
             )
           );
         }
-      },
+      }
     });
   }
   fetchRecord = () => {
@@ -489,8 +489,8 @@ export default class Main extends PureComponent {
       team_name: teamName,
       app_id: appID
     };
-    if (scope == 'goodrain' && scopeTarget) {
-      body.scope = 'goodrain';
+    if (scope == "goodrain" && scopeTarget) {
+      body.scope = "goodrain";
       body.market_id = scopeTarget.store_id;
     } else {
       body.scope = "local";
@@ -528,15 +528,15 @@ export default class Main extends PureComponent {
                 }
                 if (isCreate) {
                   setFieldsValue({
-                    app_id: res.list[0].app_id,
+                    app_id: res.list[0].app_id
                   });
                 }
-                if (JSON.stringify(res.bean) === '{}') {
+                if (JSON.stringify(res.bean) === "{}") {
                   this.changeCurrentModel(res.list[0].app_id);
                 } else {
                   this.changeCurrentModel(
                     isCreate ? res.list[0].app_id : res.bean && res.bean.app_id,
-                    isCreate ? '' : res.bean && res.bean.version,
+                    isCreate ? "" : res.bean && res.bean.version,
                     isCreate
                   );
                 }
@@ -592,12 +592,12 @@ export default class Main extends PureComponent {
           version: values.version,
           version_alias: values.version_alias
         };
-        if (record.scope == 'goodrain') {
+        if (record.scope == "goodrain") {
           appVersionInfo.scope_target = record.scope_target;
           appVersionInfo.scope = record.scope;
           appVersionInfo.market_id =
             record.scope_target && record.scope_target.store_id;
-          appVersionInfo.template_type = 'RAM';
+          appVersionInfo.template_type = "RAM";
         }
         const share_service_data = this.share_service_list;
         const arr = [];
@@ -682,8 +682,8 @@ export default class Main extends PureComponent {
             const data = err && err.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: '提示', description: msg });
-              this.setState({ isShare: 'true' });
+              notification.warning({ message: "提示", description: msg });
+              this.setState({ isShare: "true" });
               return null;
             }
             notification.warning({ message: "请求错误", description: msg });
@@ -949,7 +949,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const {info} = this.state;
+    const { info } = this.state;
     if (!info) {
       return null;
     }
@@ -957,7 +957,7 @@ export default class Main extends PureComponent {
     const plugins = info.share_plugin_list || [];
     const tabk = this.state.key;
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const {loading} = this.props;
+    const { loading } = this.props;
     const {
       shareModal,
       sharearrs,
@@ -995,7 +995,7 @@ export default class Main extends PureComponent {
     if (record && record.scope == "goodrain") {
       breadcrumbList.push({ title: "发布到云应用商店" });
     } else {
-      breadcrumbList.push({ title: '发布到应用市场' });
+      breadcrumbList.push({ title: "发布到组件库" });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
     return (
