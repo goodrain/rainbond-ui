@@ -841,8 +841,8 @@ export default class EnterpriseShared extends PureComponent {
               describe,
               app_name,
               tags,
-              versions_info,
-              dev_status,
+              versions_info: versionsInfo,
+              dev_status: devStatus,
               install_number
             } = item;
             return (
@@ -886,13 +886,13 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={4} className={styles.status}>
                       <div>
-                        {dev_status && (
-                          <p className={styles.dev_status}>{dev_status}</p>
+                        {devStatus && (
+                          <p className={styles.dev_status}>{devStatus}</p>
                         )}
 
-                        {versions_info && versions_info.length > 0 ? (
+                        {versionsInfo && versionsInfo.length > 0 ? (
                           <p className={styles.dev_version}>
-                            {versions_info[0].version}
+                            {versionsInfo[versionsInfo.length-1].version}
                           </p>
                         ) : (
                           <p className={styles.dev_version}>无版本</p>
@@ -904,12 +904,12 @@ export default class EnterpriseShared extends PureComponent {
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
-                          const { tag_id, name } = item;
+                          const { tag_id: tagId, name } = item;
                           if (index > 2) {
                             return null;
                           }
                           return (
-                            <div key={tag_id} style={{ marginRight: "5px" }}>
+                            <div key={tagId} style={{ marginRight: "5px" }}>
                               {name}
                             </div>
                           );
@@ -1011,7 +1011,7 @@ export default class EnterpriseShared extends PureComponent {
               app_name,
               tags,
               versions,
-              dev_status,
+              dev_status: devStatus,
               install_number
             } = item;
             return (
@@ -1055,31 +1055,29 @@ export default class EnterpriseShared extends PureComponent {
                     </Col>
                     <Col span={4} className={styles.status}>
                       <div>
-                        {dev_status && (
-                          <p className={styles.dev_status}>{dev_status}</p>
+                        {devStatus && (
+                          <p className={styles.dev_status}>{devStatus}</p>
                         )}
 
                         {versions && versions.length > 0 ? (
                           <p className={styles.dev_version}>
-                            {versions[0].app_version}
+                            {versions[versions.length-1].app_version}
                           </p>
                         ) : (
                           <p className={styles.dev_version}>无版本</p>
                         )}
                       </div>
                     </Col>
-
                     <Col span={4} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
                         tags.map((item, index) => {
-                          const { tag_id, name } = item;
                           if (index > 2) {
                             return null;
                           }
                           return (
-                            <div key={tag_id} style={{ marginRight: "5px" }}>
-                              {name}
+                            <div key={item} style={{ marginRight: "5px" }}>
+                              {item}
                             </div>
                           );
                         })}
