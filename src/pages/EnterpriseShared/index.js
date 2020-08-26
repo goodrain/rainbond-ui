@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
 import {
@@ -147,7 +148,7 @@ export default class EnterpriseShared extends PureComponent {
     const { marketTab } = this.state;
     let arr = [];
     arr = marketTab.filter(item => {
-      return item.ID == tabID;
+      return item.ID === tabID;
     });
     const isArr = arr && arr.length > 0;
     this.setState(
@@ -852,7 +853,7 @@ export default class EnterpriseShared extends PureComponent {
                 Cols={
                   <div className={styles.h70}>
                     <Col span={3} style={{ display: "flex" }}>
-                      <div className={styles.lt}>
+                      <div className={styles.lt} title="安装量">
                         <p>
                           <Icon type="arrow-down" />
                           {install_number}
