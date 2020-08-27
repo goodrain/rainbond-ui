@@ -148,7 +148,7 @@ export default class EnterpriseShared extends PureComponent {
     const { marketTab } = this.state;
     let arr = [];
     arr = marketTab.filter(item => {
-      return item.ID === tabID;
+      return item.ID === Number(tabID);
     });
     const isArr = arr && arr.length > 0;
     this.setState(
@@ -166,7 +166,7 @@ export default class EnterpriseShared extends PureComponent {
         }
       },
       () => {
-        if (tabID !== "local" && isArr && arr[0].status == 1) {
+        if (tabID !== "local" && isArr && arr[0].status === 1) {
           this.getMarkets(arr[0].name);
         }
       }
