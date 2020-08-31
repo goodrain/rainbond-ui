@@ -7,7 +7,7 @@
 import globalUtil from "@/utils/global";
 import { Card } from "antd";
 import { Axis, Chart, Geom, Legend, Tooltip } from "bizcharts";
-import moment from 'moment';
+import moment from "moment";
 import React, { Fragment, PureComponent } from "react";
 
 export default class RangeChart extends PureComponent {
@@ -22,15 +22,19 @@ export default class RangeChart extends PureComponent {
     this.loadRangeData();
   }
   componentWillReceiveProps(nextProps) {
-    if (this.props.start !== nextProps.start || this.props.end !== nextProps.end || this.props.step !== nextProps.step){
+    if (
+      this.props.start !== nextProps.start ||
+      this.props.end !== nextProps.end ||
+      this.props.step !== nextProps.step
+    ) {
       this.loadRangeData(nextProps);
     }
   }
   loadRangeData(props) {
-    this.setState({loading: true})
-    let prop = this.props
+    this.setState({ loading: true });
+    let prop = this.props;
     if (props) {
-      prop = props
+      prop = props;
     }
     const { appDetail, dispatch, type, start, end } = prop;
     dispatch({
@@ -44,7 +48,7 @@ export default class RangeChart extends PureComponent {
         componentAlias: appDetail.service.service_alias
       },
       callback: re => {
-        this.setState({loading: false})
+        this.setState({ loading: false });
         if (re.bean) {
           this.setState({ memoryRange: re.bean.result });
         }
@@ -55,25 +59,13 @@ export default class RangeChart extends PureComponent {
     const { appDetail } = this.props;
     switch (T) {
       case "containerMem":
-        return `container_memory_rss{name=~"k8s_${
-          appDetail.service.service_id
-        }.*"}/1024/1024`;
+        return `container_memory_rss{name=~"k8s_${appDetail.service.service_id}.*"}/1024/1024`;
       case "containerCpu":
-        return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${
-          appDetail.service.service_id
-        }.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${
-          appDetail.service.service_id
-        }.*"}/container_spec_cpu_period{name=~"k8s_${
-          appDetail.service.service_id
-        }.*"}) by (pod, namespace)) * 100`;
+        return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${appDetail.service.service_id}.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${appDetail.service.service_id}.*"}/container_spec_cpu_period{name=~"k8s_${appDetail.service.service_id}.*"}) by (pod, namespace)) * 100`;
       case "containerNetR":
-        return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${
-          appDetail.service.service_id
-        }.*"}[1m])/1024`;
+        return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${appDetail.service.service_id}.*"}[1m])/1024`;
       case "containerNetT":
-        return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${
-          appDetail.service.service_id
-        }.*"}[1m])/1024`;
+        return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${appDetail.service.service_id}.*"}[1m])/1024`;
       default:
         return ``;
     }
@@ -82,20 +74,20 @@ export default class RangeChart extends PureComponent {
     const { type } = this.props;
     switch (type) {
       case "containerMem":
-        return {title: "内存使用量",label: "内存（MB）",unit: " MB"};
+        return { title: "内存使用量", label: "内存（MB）", unit: " MB" };
       case "containerCpu":
-        return {title: "CPU使用率",label: "CPU使用率（%）",unit: "%"};
+        return { title: "CPU使用率", label: "CPU使用率（%）", unit: "%" };
       case "containerNetR":
-        return {title: "传入流量",label: "流量（KB/s）",unit: " KB/s"};
+        return { title: "传入流量", label: "流量（KB/s）", unit: " KB/s" };
       case "containerNetT":
-        return {title: "传出流量",label: "流量（KB/s）",unit: " KB/s"};
+        return { title: "传出流量", label: "流量（KB/s）", unit: " KB/s" };
       default:
-        return {title: "",label: "",unit: ""};
+        return { title: "", label: "", unit: "" };
     }
-  }
+  };
   converData = dataRange => {
     const rangedata = [];
-    if (dataRange){
+    if (dataRange) {
       dataRange.map(item => {
         const cid = item.metric.pod;
         if (item.values) {
@@ -121,8 +113,11 @@ export default class RangeChart extends PureComponent {
       time: {
         alias: "时间",
         tickCount: 10,
-        type: 'time',
-        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
+        type: "time",
+        formatter: v =>
+          moment(new Date(v))
+            .locale("zh-cn")
+            .format("HH:mm")
       },
       value: {
         alias: { label },
@@ -138,7 +133,13 @@ export default class RangeChart extends PureComponent {
           title={title}
           extra={<a onClick={() => this.loadRangeData()}>刷新</a>}
         >
-          <Chart loading={loading} height={400} data={data} scale={cols} forceFit>
+          <Chart
+            loading={loading}
+            height={400}
+            data={data}
+            scale={cols}
+            forceFit
+          >
             <Legend />
             <Axis
               name="value"
@@ -146,9 +147,7 @@ export default class RangeChart extends PureComponent {
                 formatter: val => `${val}${unit}`
               }}
             />
-            <Axis
-              name="time"
-            />
+            <Axis name="time" />
             <Tooltip
               crosshairs={{
                 type: "y"
