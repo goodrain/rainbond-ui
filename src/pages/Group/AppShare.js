@@ -56,6 +56,9 @@ if (token) {
 
 // @Form.create()
 class AppInfo extends PureComponent {
+  state = {
+    checked: true
+  };
   componentDidMount() {
     if (this.props.getref) {
       this.props.getref(this);
@@ -116,12 +119,6 @@ class AppInfo extends PureComponent {
                   })(<Input placeholder={item.attr_value} />)}
                   {getFieldDecorator(`connect||${item.attr_name}||random`, {
                     valuePropName: "checked",
-                    rules: [
-                      {
-                        required: false,
-                        message: ""
-                      }
-                    ],
                     initialValue: item.attr_value == "**None**"
                   })(
                     <Checkbox
@@ -137,13 +134,7 @@ class AppInfo extends PureComponent {
                   )}
                   {getFieldDecorator(`connect||${item.attr_name}||is_change`, {
                     valuePropName: "checked",
-                    initialValue: item.is_change,
-                    rules: [
-                      {
-                        required: false,
-                        message: ""
-                      }
-                    ]
+                    initialValue: item.is_change
                   })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
               </Col>
@@ -154,10 +145,16 @@ class AppInfo extends PureComponent {
     }
     return null;
   };
+  onChange = e => {
+    this.setState({
+      checked: e.target.checked
+    });
+  };
   renderEvn = () => {
     const { app = {}, form } = this.props;
-    const { getFieldDecorator } = form;
+    const { getFieldDecorator, setFieldsValue } = form;
     if (app.service_env_map_list && app.service_env_map_list.length) {
+      // setFieldsValue({ `env||${item.attr_name}||is_change`: item.is_change })
       return (
         <div
           style={{
@@ -173,31 +170,40 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            {app.service_env_map_list.map(item => (
-              <Col span={8}>
-                <FormItem label={item.attr_name} style={{ padding: 16 }}>
-                  {getFieldDecorator(`env||${item.attr_name}||attr_value`, {
-                    initialValue: item.attr_value,
-                    rules: [
+            {app.service_env_map_list.map(item => {
+              const { attr_name, attr_value, is_change } = item;
+              return (
+                <Col span={8}>
+                  <FormItem label={attr_name} style={{ padding: 16 }}>
+                    {getFieldDecorator(
+                      `env||${attr_name}||attr_value||${attr_value}`,
                       {
-                        required: true,
-                        message: "不能为空"
+                        initialValue: attr_value,
+                        rules: [
+                          {
+                            required: true,
+                            message: "不能为空"
+                          }
+                        ]
                       }
-                    ]
-                  })(<Input />)}
-                  {getFieldDecorator(`env||${item.attr_name}||is_change`, {
-                    valuePropName: "checked",
-                    initialValue: item.is_change,
-                    rules: [
+                    )(<Input />)}
+                    {getFieldDecorator(
+                      `env||${attr_name}||is_change||${attr_value}`,
                       {
-                        required: false,
-                        message: ""
+                        valuePropName: "checked",
+                        initialValue: is_change,
+                        rules: [
+                          {
+                            required: false,
+                            message: ""
+                          }
+                        ]
                       }
-                    ]
-                  })(<Checkbox>可修改</Checkbox>)}
-                </FormItem>
-              </Col>
-            ))}
+                    )(<Checkbox>可修改</Checkbox>)}
+                  </FormItem>
+                </Col>
+              );
+            })}
           </Row>
         </div>
       );
@@ -394,7 +400,6 @@ export default class Main extends PureComponent {
     const share_service_data = this.share_service_list;
     const { shareList, sharearrs } = this.state;
     // this.props.form.setFieldsValue({sharing:e})
-
     if (e.length > 0) {
       const newArray = sharearrs.filter(item => !e.includes(item));
 
@@ -712,7 +717,10 @@ export default class Main extends PureComponent {
                 }
                 if (indexarr[0] == "env") {
                   option.service_env_map_list.map(serapp => {
-                    if (serapp.attr_name == indexarr[1]) {
+                    if (
+                      serapp.attr_name == indexarr[1] &&
+                      serapp.attr_value == indexarr[3]
+                    ) {
                       serapp[indexarr[2]] = appvalue[index];
                     }
                   });
@@ -810,10 +818,8 @@ export default class Main extends PureComponent {
 
   handleTabList = () => {
     const { sharearrs } = this.state;
-
     const share_service_data = this.share_service_list;
     const arr = [];
-
     sharearrs.map(item => {
       share_service_data.map(items => {
         if (item == items.service_share_uuid) {
@@ -821,13 +827,16 @@ export default class Main extends PureComponent {
         }
       });
     });
-
-    this.setState({
-      share_service_list: arr
-    });
-    if (arr.length > 0) {
-      this.tabClick(arr[0].service_alias);
-    }
+    this.setState(
+      {
+        share_service_list: arr
+      },
+      () => {
+        if (arr.length > 0) {
+          this.tabClick(arr[0].service_alias);
+        }
+      }
+    );
   };
 
   hanldeShareTypeChange = e => {
@@ -1003,9 +1012,7 @@ export default class Main extends PureComponent {
     );
     breadcrumbList.push({
       title: "发布记录列表",
-      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${
-        appDetail.group_id
-      }/publish`
+      href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
     if (record && record.scope == "goodrain") {
       breadcrumbList.push({ title: "发布到云应用商店" });
@@ -1185,36 +1192,40 @@ export default class Main extends PureComponent {
                     style={{ display: "block", marginTop: "9px" }}
                   >
                     <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map((apptit, index) => (
-                        <TabPane
-                          key={apptit.service_alias}
-                          tab={
-                            <span className={mytabcss.cont}>
-                              <Checkbox
-                                onChange={this.onChange}
-                                value={apptit.service_share_uuid}
-                                style={{ marginRight: "10px" }}
+                      {apps.map((apptit, index) => {
+                        return (
+                          <TabPane
+                            key={apptit.service_alias}
+                            tab={
+                              <span className={mytabcss.cont}>
+                                <Checkbox
+                                  onChange={this.onChange}
+                                  value={apptit.service_share_uuid}
+                                  style={{ marginRight: "10px" }}
+                                />
+                                <a
+                                  tab={apptit.service_cname}
+                                  onClick={() => {
+                                    this.tabClick(apptit.service_alias);
+                                  }}
+                                >
+                                  {apptit.service_cname}
+                                </a>
+                              </span>
+                            }
+                          >
+                            {sharearrs.includes(apptit.service_share_uuid) && (
+                              <AppInfo
+                                form={form}
+                                app={apptit}
+                                getref={this.save}
+                                tab={apptit.service_alias}
+                                ID={apptit.service_id}
                               />
-                              <a
-                                tab={apptit.service_cname}
-                                onClick={() => {
-                                  this.tabClick(apptit.service_alias);
-                                }}
-                              >
-                                {apptit.service_cname}
-                              </a>
-                            </span>
-                          }
-                        >
-                          <AppInfo
-                            form={form}
-                            app={share_service_list[index]}
-                            getref={this.save}
-                            tab={share_service_list[index].service_alias}
-                            ID={share_service_list[index].service_id}
-                          />
-                        </TabPane>
-                      ))}
+                            )}
+                          </TabPane>
+                        );
+                      })}
                     </Tabs>
                   </Checkbox.Group>
                 </div>
