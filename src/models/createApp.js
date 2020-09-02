@@ -4,6 +4,7 @@ import {
   createThirdPartyServices,
   createAppByCompose,
   createAppByDockerrun,
+  buildApp,
   installApp,
   getAppsByComposeId
 } from "../services/createApp";
@@ -71,7 +72,15 @@ export default {
           callback && callback(data);
         });
       }
+    },
+    *buildApps({ payload, callback }, { call }) {
+      const data = yield call(buildApp, payload);
+      if (data && callback) {
+        callback(data);
+      }
     }
+
+    // buildApp
   },
 
   reducers: {
