@@ -1709,7 +1709,22 @@ export async function deleteVolume(
     { method: "delete" }
   );
 }
-
+export function getPerformanceAnalysis(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.teamName}/apps/${body.app_alias}/monitor/query_range`,
+    {
+      method: "get",
+      showMessage: false,
+      params: {
+        query: body.query,
+        start: body.start || new Date().getTime() / 1000 - 60 * 60,
+        end: body.end || new Date().getTime() / 1000,
+        step: body.step || 72
+      },
+      showLoading: false
+    }
+  );
+}
 /*
 	 获取应用平均响应时间监控数据(当前请求时间点的数据)
 */
