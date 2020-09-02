@@ -66,9 +66,7 @@ class UserLayout extends React.PureComponent {
                   </h1>
                 </Link>
               </div>
-              <div className={styles.desc}>
-                以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台
-              </div>
+              <div className={styles.desc}></div>
             </div>
           )}
           <div>{children}</div>
