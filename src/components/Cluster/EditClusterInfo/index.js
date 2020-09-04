@@ -60,7 +60,7 @@ class EditClusterInfo extends PureComponent {
         sm: { span: 13 },
       },
     };
-    const reUrl = /(http|ws|https|wss):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
+    const reUrl = /(http|ws|https|wss):\/\/[\w\-_]+([\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/;
 
     return (
       <Modal
