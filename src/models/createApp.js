@@ -4,72 +4,79 @@ import {
   createThirdPartyServices,
   createAppByCompose,
   createAppByDockerrun,
+  buildApp,
   installApp,
   getAppsByComposeId
-} from "../services/createApp";
+} from '../services/createApp';
 
 export default {
-  namespace: "createApp",
+  namespace: 'createApp',
 
   state: {
-    extend_method: "",
-    min_memory: "",
-    service_runtimes: "",
-    service_server: "",
-    service_dependency: ""
+    extend_method: '',
+    min_memory: '',
+    service_runtimes: '',
+    service_server: '',
+    service_dependency: ''
   },
   effects: {
-    *getAppsByComposeId({ payload, callback }, { call, put }) {
+    *getAppsByComposeId({ payload, callback }, { call }) {
       const data = yield call(getAppsByComposeId, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *installApp({ payload, callback }, { call, put }) {
+    *installApp({ payload, callback }, { call }) {
       const data = yield call(installApp, payload);
-      if (data) {
-        callback && callback(data);
+      if (data && callback) {
+        callback(data);
       }
     },
-    *createAppByCode({ payload, callback }, { call, put }) {
+    *createAppByCode({ payload, callback }, { call }) {
       const data = yield call(createAppByCode, payload);
-      if (data) {
+      if (data && callback) {
         setTimeout(() => {
-          callback && callback(data);
+          callback(data);
         });
       }
     },
-    *createThirtAppByCode({ payload, callback }, { call, put }) {
+    *createThirtAppByCode({ payload, callback }, { call }) {
       const data = yield call(createThirtAppByCodes, payload);
-      if (data) {
+      if (data && callback) {
         setTimeout(() => {
-          callback && callback(data);
+          callback(data);
         });
       }
     },
 
-    *createThirdPartyServices({ payload, callback }, { call, put }) {
+    *createThirdPartyServices({ payload, callback }, { call }) {
       const data = yield call(createThirdPartyServices, payload);
-      if (data) {
+      if (data && callback) {
         setTimeout(() => {
-          callback && callback(data);
+          callback(data);
         });
       }
     },
-    *createAppByCompose({ payload, callback }, { call, put }) {
+    *createAppByCompose({ payload, callback }, { call }) {
       const data = yield call(createAppByCompose, payload);
-      if (data) {
+      if (data && callback) {
         setTimeout(() => {
-          callback && callback(data);
+          callback(data);
         });
       }
     },
-    *createAppByDockerrun({ payload, callback }, { call, put }) {
+    *createAppByDockerrun({ payload, callback }, { call }) {
       const data = yield call(createAppByDockerrun, payload);
-      if (data) {
+      if (data && callback) {
         setTimeout(() => {
-          callback && callback(data);
+          callback(data);
         });
+      }
+    },
+    *buildApps({ payload, callback }, { call }) {
+      const data = yield call(buildApp, payload);
+      if (data && callback) {
+        callback(data);
       }
     }
   },
@@ -81,13 +88,13 @@ export default {
         ...payload
       };
     },
-    clearRuntimeInfo(state) {
+    clearRuntimeInfo() {
       return {
-        extend_method: "",
-        min_memory: "",
-        service_runtimes: "",
-        service_server: "",
-        service_dependency: ""
+        extend_method: '',
+        min_memory: '',
+        service_runtimes: '',
+        service_server: '',
+        service_dependency: ''
       };
     }
   }

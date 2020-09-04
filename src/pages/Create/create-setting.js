@@ -6,12 +6,14 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import AppCreateSetting from '../../components/AppCreateSetting';
 import ConfirmModal from '../../components/ConfirmModal';
-import { buildApp } from '../../services/createApp';
 import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 
 @connect(
-  null,
+  ({ loading }) => ({
+    buildAppsLoading: loading.effects['createApp/buildApps'],
+    deleteAppLoading: loading.effects['appControl/deleteApp']
+  }),
   null,
   null,
   { withRef: true }
@@ -20,7 +22,7 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      appDetail: null,
+      appDetail: null
     };
   }
   componentDidMount() {
@@ -29,12 +31,15 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
+
   loadDetail = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { team_name, app_alias, region_name } = this.fetchParameter();
+    dispatch({
       type: 'appControl/fetchDetail',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.getAppAlias(),
+        team_name,
+        app_alias
       },
       callback: data => {
         this.setState({ appDetail: data });
@@ -44,14 +49,14 @@ export default class Index extends PureComponent {
         if (code) {
           // 应用不存在
           if (code === 404) {
-            this.props.dispatch(
+            dispatch(
               routerRedux.push(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
+                `/team/${team_name}/region/${region_name}/exception/404`
               )
             );
           }
         }
-      },
+      }
     });
   };
   getAppAlias() {
@@ -59,70 +64,82 @@ export default class Index extends PureComponent {
   }
 
   handleBuild = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    const app_alias = this.getAppAlias();
-    buildApp({ team_name, app_alias }).then(data => {
-      if (data) {
-        this.props.dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name,
-          },
-        });
-        this.props.dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${app_alias}/overview`
-          )
-        );
+    const { dispatch } = this.props;
+    const { team_name, app_alias, region_name } = this.fetchParameter();
+    dispatch({
+      type: 'createApp/buildApps',
+      payload: {
+        team_name,
+        app_alias
+      },
+      callback: data => {
+        if (data) {
+          dispatch({
+            type: 'global/fetchGroups',
+            payload: {
+              team_name
+            }
+          });
+          dispatch(
+            routerRedux.push(
+              `/team/${team_name}/region/${region_name}/components/${app_alias}/overview`
+            )
+          );
+        }
       }
     });
   };
   handleDelete = () => {
-    const team_name = globalUtil.getCurrTeamName();
-    const app_alias = this.getAppAlias();
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    const { team_name, app_alias, region_name } = this.fetchParameter();
+    dispatch({
       type: 'appControl/deleteApp',
       payload: {
         team_name,
         app_alias,
-        is_force: true,
+        is_force: true
       },
       callback: () => {
-        this.props.dispatch({
+        dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
-          },
+            team_name
+          }
         });
-        this.props.dispatch(
-          routerRedux.replace(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-          )
+        dispatch(
+          routerRedux.replace(`/team/${team_name}/region/${region_name}/index`)
         );
-      },
+      }
     });
   };
   showDelete = () => {
     this.setState({ showDelete: true });
   };
+  fetchParameter = () => {
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      region_name: globalUtil.getCurrRegionName(),
+      app_alias: this.getAppAlias()
+    };
+  };
   render() {
+    const { buildAppsLoading, deleteAppLoading } = this.props;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
       return null;
     }
-
     return (
       <div>
         <h2
           style={{
-            textAlign: 'center',
+            textAlign: 'center'
           }}
         >
           高级设置
         </h2>
         <div
           style={{
-            overflow: 'hidden',
+            overflow: 'hidden'
           }}
         >
           <AppCreateSetting
@@ -139,12 +156,13 @@ export default class Index extends PureComponent {
               left: 0,
               right: 0,
               zIndex: 2,
-              borderTop: '1px solid #e8e8e8',
+              borderTop: '1px solid #e8e8e8'
             }}
           >
             <Button
+              loading={buildAppsLoading}
               style={{
-                marginRight: 8,
+                marginRight: 8
               }}
               onClick={this.handleBuild}
               type="primary"
@@ -157,6 +175,7 @@ export default class Index extends PureComponent {
           </div>
           {this.state.showDelete && (
             <ConfirmModal
+              loading={deleteAppLoading}
               onOk={this.handleDelete}
               title="放弃创建"
               subDesc="此操作不可恢复"
