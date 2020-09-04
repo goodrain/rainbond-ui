@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Form, Input, Tree, Button, Spin, notification } from 'antd';

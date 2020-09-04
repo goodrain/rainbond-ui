@@ -1,23 +1,22 @@
-import React, { Fragment } from 'react';
-import { connect } from 'dva';
+/* eslint-disable camelcase */
 import {
-  Table,
-  Input,
-  InputNumber,
-  Popconfirm,
-  Form,
-  Card,
   Button,
+  Card,
+  Form,
   Icon,
-  Tooltip,
+  Input,
   notification,
   Pagination,
   Select,
-} from 'antd';
-import globalUtil from '../../utils/global';
-import ScrollerX from '../ScrollerX';
-import styles from './Index.less';
-import ConfirmModal from '../ConfirmModal';
+  Table,
+  Tooltip
+} from "antd";
+import { connect } from "dva";
+import React, { Fragment } from "react";
+import globalUtil from "../../utils/global";
+import ConfirmModal from "../ConfirmModal";
+import ScrollerX from "../ScrollerX";
+import styles from "./Index.less";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -28,7 +27,7 @@ class EditableCell extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      list: [],
+      list: []
     };
   }
 
@@ -42,28 +41,28 @@ class EditableCell extends React.Component {
     }
     const { dispatch } = this.props;
     dispatch({
-      type: 'appControl/getVariableList',
+      type: "appControl/getVariableList",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         attr_name,
-        attr_value,
+        attr_value
       },
       callback: res => {
         const arr = res && res.list ? res.list : [];
         arr.unshift(attr_name ? `${attr_name}` : `${attr_value}`);
         Array.from(new Set(arr));
-        if (arr && arr.length > 0 && arr[0] == 'null') {
+        if (arr && arr.length > 0 && arr[0] == "null") {
           return;
         }
         this.setState({ list: arr });
         if (attr_name) {
           form.setFieldsValue({
-            attr_name,
+            attr_name
           });
         }
         if (attr_value) {
           form.setFieldsValue({
-            attr_value,
+            attr_value
           });
         }
       },
@@ -96,7 +95,7 @@ class EditableCell extends React.Component {
       ...restProps
     } = this.props;
     const { list } = this.state;
-    let placeholders = '';
+    let placeholders = "";
     let rulesList = [];
 
     if (dataIndex === 'attr_name') {
@@ -105,30 +104,30 @@ class EditableCell extends React.Component {
       rulesList = [
         {
           required: true,
-          message: '请输入变量名称',
+          message: "请输入变量名称"
         },
         {
           pattern: /[-._a-zA-Z][-._a-zA-Z0-9]/,
           message: '请输入合法的变量名、不支持中文',
         },
       ];
-    } else if (dataIndex === 'attr_value') {
+    } else if (dataIndex === "attr_value") {
       rulesList = [
         {
           required: true,
-          message: '请输入变量值',
-        },
+          message: "请输入变量值"
+        }
       ];
-      placeholders = '请输入变量值';
+      placeholders = "请输入变量值";
     } else {
       rulesList = [
         {
           required: false,
-          message: '请输入变量说明',
-        },
+          message: "请输入变量说明"
+        }
       ];
 
-      placeholders = '请输入变量说明';
+      placeholders = "请输入变量说明";
     }
     return (
       <td {...restProps}>
@@ -136,37 +135,12 @@ class EditableCell extends React.Component {
           <Form.Item style={{ margin: 0 }}>
             {getFieldDecorator(dataIndex, {
               rules: rulesList,
-              initialValue: record[dataIndex],
+              initialValue: record[dataIndex]
             })(
-              autoQuery && dataIndex !== 'name' ? (
-                <Select
-                  style={{ width: '100%' }}
-                  disabled={!addVariable && dataIndex === 'attr_name'}
-                  placeholder={placeholders}
-                  showSearch
-                  showArrow={false}
-                  onSearch={val => {
-                    dataIndex === 'attr_name'
-                      ? this.handleList(val, null, form)
-                      : this.handleList(null, val, form);
-                  }}
-                >
-                  {list &&
-                    list.length > 0 &&
-                    list.map(item => {
-                      return (
-                        <Option key={item} value={item}>
-                          {item}
-                        </Option>
-                      );
-                    })}
-                </Select>
-              ) : (
-                <Input
-                  disabled={!addVariable && dataIndex === 'attr_name'}
-                  placeholder={placeholders}
-                />
-              )
+              <Input
+                disabled={!addVariable && dataIndex === "attr_name"}
+                placeholder={placeholders}
+              />
             )}
           </Form.Item>
         ) : (
@@ -185,7 +159,7 @@ class EditableCell extends React.Component {
 
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ appControl }) => ({
-  innerEnvs: appControl.innerEnvs,
+  innerEnvs: appControl.innerEnvs
 }))
 class EnvironmentVariable extends React.Component {
   constructor(arg) {
@@ -201,7 +175,7 @@ class EnvironmentVariable extends React.Component {
       innerEnvsList: [],
       addVariable: false,
       deleteVar: false,
-      transfer: false,
+      transfer: false
     };
   }
   componentDidMount() {
@@ -220,13 +194,13 @@ class EnvironmentVariable extends React.Component {
       ID,
       attr_name: undefined,
       attr_value: undefined,
-      name: '',
+      name: ""
     };
     this.setState(
       {
         addVariable: true,
         innerEnvsList: [newData, ...innerEnvsList],
-        total: total + 1,
+        total: total + 1
       },
       () => {
         this.edit(ID);
@@ -258,49 +232,49 @@ class EnvironmentVariable extends React.Component {
     const { dispatch, appAlias } = this.props;
     const { editingID } = this.state;
     dispatch({
-      type: 'appControl/editEvns',
+      type: "appControl/editEvns",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
         ID: editingID,
         attr_value: vals.attr_value,
-        name: vals.name,
+        name: vals.name
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: '编辑成功' });
+          notification.success({ message: "编辑成功" });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }
-      },
+      }
     });
   };
   handleSubmitAddVariable = vals => {
     const { dispatch, appAlias, type } = this.props;
     dispatch({
-      type: 'appControl/addInnerEnvs',
+      type: "appControl/addInnerEnvs",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
         attr_name: vals.attr_name,
         attr_value: vals.attr_value,
         name: vals.name,
-        scope: type === 'Inner' ? 'inner' : 'outer',
+        scope: type === "Inner" ? "inner" : "outer"
       },
       callback: res => {
         if (res && res._code === 200) {
-          notification.success({ message: '添加成功' });
+          notification.success({ message: "添加成功" });
           this.fetchInnerEnvs();
           this.handleCancelAddVariabl();
         }
-      },
+      }
     });
   };
 
   handleCancelAddVariabl = () => {
     this.setState({
       addVariable: false,
-      editingID: '',
+      editingID: ""
     });
   };
 
@@ -312,7 +286,7 @@ class EnvironmentVariable extends React.Component {
     this.setState(
       {
         page,
-        editingID: '',
+        editingID: ""
       },
       () => {
         this.fetchInnerEnvs();
@@ -325,7 +299,7 @@ class EnvironmentVariable extends React.Component {
       {
         page,
         page_size,
-        editingID: '',
+        editingID: ""
       },
       () => {
         this.fetchInnerEnvs();
@@ -341,20 +315,20 @@ class EnvironmentVariable extends React.Component {
     const { dispatch, appAlias } = this.props;
     const { deleteVar } = this.state;
     dispatch({
-      type: 'appControl/deleteEnvs',
+      type: "appControl/deleteEnvs",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
-        ID: deleteVar,
+        ID: deleteVar
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: '删除成功' });
+          notification.success({ message: "删除成功" });
           this.fetchInnerEnvs();
         }
         this.cancelDeleteVariabl();
         this.handleCancelAddVariabl();
-      },
+      }
     });
   };
 
@@ -370,21 +344,21 @@ class EnvironmentVariable extends React.Component {
     const { transfer } = this.state;
     const { dispatch, appAlias } = this.props;
     dispatch({
-      type: 'appControl/putTransfer',
+      type: "appControl/putTransfer",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias,
         ID: transfer.ID,
-        scope: transfer.scope == 'inner' ? 'outer' : 'inner',
+        scope: transfer.scope == "inner" ? "outer" : "inner"
       },
       callback: res => {
         if (res && res._code == 200) {
-          notification.success({ message: '转移成功' });
+          notification.success({ message: "转移成功" });
           this.fetchInnerEnvs();
           this.cancelTransfer();
           this.handleCancelAddVariabl();
         }
-      },
+      }
     });
   };
   cancelTransfer = () => {
@@ -394,7 +368,7 @@ class EnvironmentVariable extends React.Component {
     this.setState(
       {
         page: 1,
-        env_name,
+        env_name
       },
       () => {
         this.fetchInnerEnvs();
@@ -411,16 +385,16 @@ class EnvironmentVariable extends React.Component {
       app_alias: appAlias,
       page,
       page_size,
-      env_name,
+      env_name
     };
-    let request = '';
-    if (type === 'Inner') {
-      request = 'appControl/fetchInnerEnvs';
-    } else if (type === 'Outer') {
-      request = 'appControl/fetchOuterEnvs';
+    let request = "";
+    if (type === "Inner") {
+      request = "appControl/fetchInnerEnvs";
+    } else if (type === "Outer") {
+      request = "appControl/fetchOuterEnvs";
     } else {
-      request = 'appControl/fetchRelationOuterEnvs';
-      obj.env_type = 'outer';
+      request = "appControl/fetchRelationOuterEnvs";
+      obj.env_type = "outer";
     }
     dispatch({
       type: request,
@@ -432,7 +406,7 @@ class EnvironmentVariable extends React.Component {
             res.list.map(item => {
               const isHidden = globalUtil.confirmEnding(
                 `${item.attr_name}`,
-                'PASS'
+                "PASS"
               );
               if (isHidden) {
                 arr.push(item.ID);
@@ -443,16 +417,16 @@ class EnvironmentVariable extends React.Component {
             innerEnvsList: res.list,
             isAttrNameList: arr,
             total: res.bean.total,
-            loading: false,
+            loading: false
           });
         }
-      },
+      }
     });
   };
 
   AfterPassword = (isHidden, ID) => {
-    const passwordShow = globalUtil.fetchSvg('passwordShow');
-    const passwordHidden = globalUtil.fetchSvg('passwordHidden');
+    const passwordShow = globalUtil.fetchSvg("passwordShow");
+    const passwordHidden = globalUtil.fetchSvg("passwordHidden");
     return (
       <span
         onClick={() => {
@@ -473,13 +447,13 @@ class EnvironmentVariable extends React.Component {
       arr.push(ID);
     }
     this.setState({
-      isAttrNameList: arr,
+      isAttrNameList: arr
     });
   };
   handleDiv = v => {
     const wraps = {
-      wordBreak: 'break-all',
-      wordWrap: 'break-word',
+      wordBreak: "break-all",
+      wordWrap: "break-word"
     };
     return (
       <Tooltip title={v}>
@@ -499,42 +473,42 @@ class EnvironmentVariable extends React.Component {
       total,
       page,
       page_size,
-      loading,
+      loading
     } = this.state;
     const wraps = {
-      wordBreak: 'break-all',
-      wordWrap: 'break-word',
+      wordBreak: "break-all",
+      wordWrap: "break-word"
     };
     const components = {
       body: {
-        cell: EditableCell,
-      },
+        cell: EditableCell
+      }
     };
 
     const column = [
       {
-        title: '变量名',
-        dataIndex: 'attr_name',
-        key: '1',
-        width: '30%',
+        title: "变量名",
+        dataIndex: "attr_name",
+        key: "1",
+        width: "30%",
         editable: true,
-        render: v => this.handleDiv(v),
+        render: v => this.handleDiv(v)
       },
       {
-        title: '变量值',
-        dataIndex: 'attr_value',
-        key: '2',
-        width: '30%',
+        title: "变量值",
+        dataIndex: "attr_value",
+        key: "2",
+        width: "30%",
         editable: true,
         render: (v, item) => {
           const isHidden = isAttrNameList.includes(item.ID);
-          const isInput = globalUtil.confirmEnding(`${item.attr_name}`, 'PASS');
+          const isInput = globalUtil.confirmEnding(`${item.attr_name}`, "PASS");
           return (
             <Tooltip title={!isInput ? v : !isHidden && v}>
               {isInput ? (
                 <Input
                   addonAfter={this.AfterPassword(isHidden, item.ID)}
-                  type={isHidden ? 'password' : 'text'}
+                  type={isHidden ? "password" : "text"}
                   className={styles.hiddeninput}
                   value={v}
                 />
@@ -543,24 +517,24 @@ class EnvironmentVariable extends React.Component {
               )}
             </Tooltip>
           );
-        },
+        }
       },
       {
-        title: '说明',
-        dataIndex: 'name',
-        key: '3',
-        width: '25%',
+        title: "说明",
+        dataIndex: "name",
+        key: "3",
+        width: "25%",
         editable: true,
-        render: v => this.handleDiv(v),
-      },
+        render: v => this.handleDiv(v)
+      }
     ];
 
-    if (type !== 'OuterEnvs') {
+    if (type !== "OuterEnvs") {
       column.push({
-        title: '操作',
-        dataIndex: 'action',
-        key: '4',
-        width: '15%',
+        title: "操作",
+        dataIndex: "action",
+        key: "4",
+        width: "15%",
         render: (v, data) => {
           const { editingID } = this.state;
           const editable = this.isEditing(data);
@@ -591,11 +565,11 @@ class EnvironmentVariable extends React.Component {
             <Fragment>
               <a
                 onClick={() => this.onDeleteVariabl(data.ID)}
-                style={{ marginRight: '5px' }}
+                style={{ marginRight: "5px" }}
               >
                 删除
               </a>
-              {(type === 'Inner' || autoQuery) && (
+              {(type === "Inner" || autoQuery) && (
                 <Tooltip
                   title={
                     <p>
@@ -620,14 +594,14 @@ class EnvironmentVariable extends React.Component {
                     onClick={() => {
                       this.onTransfer(data);
                     }}
-                    style={{ marginRight: '5px' }}
+                    style={{ marginRight: "5px" }}
                   >
                     转移
                   </a>
                 </Tooltip>
               )}
               <a
-                disabled={editingID !== ''}
+                disabled={editingID !== ""}
                 onClick={() => {
                   this.edit(data.ID);
                 }}
@@ -636,7 +610,7 @@ class EnvironmentVariable extends React.Component {
               </a>
             </Fragment>
           );
-        },
+        }
       });
     }
     const columns = column.map(col => {
@@ -649,12 +623,12 @@ class EnvironmentVariable extends React.Component {
           record,
           form,
           addVariable,
-          inputType: 'text',
+          inputType: "text",
           dataIndex: col.dataIndex,
           title: col.title,
           autoQuery,
-          editing: this.isEditing(record),
-        }),
+          editing: this.isEditing(record)
+        })
       };
     });
 
@@ -681,11 +655,11 @@ class EnvironmentVariable extends React.Component {
           <ConfirmModal
             onOk={this.handleTransfer}
             onCancel={this.cancelTransfer}
-            title={autoQuery ? '转移连接信息变量' : '转移环境变量'}
+            title={autoQuery ? "转移连接信息变量" : "转移环境变量"}
             desc={
               autoQuery
-                ? '确定要将此连接信息变量转换为环境变量吗'
-                : '确定要将此环境变量转换为组件连接信息变量吗?'
+                ? "确定要将此连接信息变量转换为环境变量吗"
+                : "确定要将此环境变量转换为组件连接信息变量吗?"
             }
             subDesc="此操作不可恢复"
           />
@@ -693,22 +667,22 @@ class EnvironmentVariable extends React.Component {
 
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           loading={loading}
           title={title}
-          extra={type === 'Outer' && addButton}
+          extra={type === "Outer" && addButton}
         >
-          {type === 'Inner' && (
+          {type === "Inner" && (
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '20px',
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "20px"
               }}
             >
               <Search
-                style={{ width: '260px' }}
+                style={{ width: "260px" }}
                 placeholder="请输入变量名进行搜索"
                 onSearch={this.handleSearch}
               />
@@ -718,13 +692,13 @@ class EnvironmentVariable extends React.Component {
           <ScrollerX sm={600}>
             <EditableContext.Provider value={form}>
               <Table
-                style={{ width: '100%', overflowX: 'auto' }}
+                style={{ width: "100%", overflowX: "auto" }}
                 components={components}
                 columns={columns}
                 dataSource={innerEnvsList}
                 pagination={false}
               />
-              <div style={{ textAlign: 'right', marginTop: '8px' }}>
+              <div style={{ textAlign: "right", marginTop: "8px" }}>
                 <Pagination
                   current={page}
                   pageSize={page_size}
@@ -732,7 +706,7 @@ class EnvironmentVariable extends React.Component {
                   total={Number(total)}
                   defaultCurrent={1}
                   onChange={this.onPageChange}
-                  pageSizeOptions={['5', '10', '20', '50']}
+                  pageSizeOptions={["5", "10", "20", "50"]}
                   onShowSizeChange={this.onShowSizeChange}
                 />
               </div>

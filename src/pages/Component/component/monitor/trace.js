@@ -1,0 +1,110 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable import/extensions */
+/* eslint-disable react/sort-comp */
+import Result from "@/components/Result";
+import globalUtil from "@/utils/global";
+import { Alert, Button, Card, notification } from "antd";
+import { connect } from "dva";
+import React, { Fragment, PureComponent } from "react";
+
+// eslint-disable-next-line react/no-multi-comp
+@connect(({ user, appControl }) => ({
+  currUser: user.currentUser,
+  appDetail: appControl.appDetail
+}))
+export default class TraceShow extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      trace: {}
+    };
+  }
+
+  componentDidMount() {
+    this.loadTraceSetting();
+  }
+  loadTraceSetting() {
+    const { appDetail, dispatch } = this.props;
+    dispatch({
+      type: "monitor/getComponsentTrace",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appDetail.service.service_alias
+      },
+      callback: re => {
+        this.setState({ trace: re.bean });
+      }
+    });
+  }
+  openTrace = () => {
+    const { appDetail, dispatch } = this.props;
+    dispatch({
+      type: "monitor/setComponsentTrace",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appDetail.service.service_alias
+      },
+      callback: () => {
+        notification.success({ message: "设置成功，更新组件后生效" });
+        this.loadTraceSetting();
+      }
+    });
+  };
+  closeTrace = () => {
+    const { appDetail, dispatch } = this.props;
+    dispatch({
+      type: "monitor/deleteComponsentTrace",
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appDetail.service.service_alias
+      },
+      callback: () => {
+        notification.success({ message: "关闭成功，更新组件后生效" });
+        this.loadTraceSetting();
+      }
+    });
+  };
+  componentWillUnmount() {}
+
+  render() {
+    const { trace } = this.state;
+    return (
+      <Fragment>
+        <Alert
+          style={{ marginBottom: "16px" }}
+          message="当前基于Java类源代码构建的组件默认支持Pinpoint链路追踪数据采集"
+        />
+        <Card>
+          {trace.collector_host && !trace.enable_apm && (
+            <Result
+              type="success"
+              description="已经对接Pinpoint，可以开启数据采集"
+              actions={[
+                <Button type="primary" onClick={this.openTrace}>
+                  开启
+                </Button>
+              ]}
+            />
+          )}
+          {trace.collector_host && trace.enable_apm && (
+            <Result
+              type="success"
+              description="已经开启Pinpoint链路追踪数据采集"
+              actions={[
+                <Button type="primary" onClick={this.closeTrace}>
+                  关闭
+                </Button>
+              ]}
+            />
+          )}
+          {!trace.collector_host && (
+            <Result
+              type="warning"
+              description="当前组件未依赖Pinpoint服务，请先依赖Pinpoint服务"
+            />
+          )}
+        </Card>
+      </Fragment>
+    );
+  }
+}

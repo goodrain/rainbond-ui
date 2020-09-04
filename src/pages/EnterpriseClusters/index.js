@@ -1,3 +1,5 @@
+/* eslint-disable react/sort-comp */
+/* eslint-disable no-underscore-dangle */
 import {
   Alert,
   Badge,
@@ -118,6 +120,7 @@ export default class EnterpriseClusters extends PureComponent {
   addClusterShow = () => {};
 
   cancelEditClusters = () => {
+    this.loadClusters();
     this.setState({
       editClusterShow: false,
       text: "",
@@ -373,21 +376,21 @@ export default class EnterpriseClusters extends PureComponent {
             <span>
               {val && val instanceof Array && val.length > 0
                 ? val.map(item => {
-                    if (item == "development") {
+                    if (item === "development") {
                       return (
                         <span style={{ marginRight: "8px" }} key={item}>
                           开发集群
                         </span>
                       );
                     }
-                    if (item == "ack-manage") {
+                    if (item === "ack-manage") {
                       return (
                         <span style={{ marginRight: "8px" }} key={item}>
                           阿里云-托管集群
                         </span>
                       );
                     }
-                    if (item == "custom") {
+                    if (item === "custom") {
                       return (
                         <span style={{ marginRight: "8px" }} key={item}>
                           普通集群
@@ -431,7 +434,7 @@ export default class EnterpriseClusters extends PureComponent {
         width: "10%",
         render: (val, data) => {
           if (data.health_status === "failure") {
-            return <span style={{ color: "red" }}>异常</span>;
+            return <span style={{ color: "red" }}>通信异常</span>;
           }
           switch (val) {
             case "0":
@@ -683,7 +686,7 @@ export default class EnterpriseClusters extends PureComponent {
               <div>
                 <Alert
                   style={{ marginBottom: "16px" }}
-                  message={`CPU 使用量 1000 相当于分配1核 CPU`}
+                  message="CPU 使用量 1000 相当于分配1核 CPU"
                 />
                 <Table
                   pagination={pagination}

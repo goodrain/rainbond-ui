@@ -4,16 +4,16 @@ import { Link, routerRedux } from 'dva/router';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi-plugin-locale';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ScrollerX from '../../components/ScrollerX';
 import SelectStore from '../../components/SelectStore';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
-  createTeam,
+  createTeam
 } from '../../utils/breadcrumb';
-import roleUtil from '../../utils/role';
 import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
 
 @connect(({ list, loading, teamControl, enterprise }) => ({
   list,
@@ -235,7 +235,7 @@ export default class AppPublishList extends PureComponent {
               type="primary"
               onClick={this.onPublishLocal}
             >
-              发布到应用市场
+              发布到组件库
             </Button>
             <Button style={{ marginRight: 8 }} onClick={this.onPublishStore}>
               发布到云应用商店
