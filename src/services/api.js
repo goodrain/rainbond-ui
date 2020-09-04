@@ -942,7 +942,7 @@ export async function toEditOauth(params) {
 /** 修改镜像仓库信息 */
 export async function toEditImageHub(params) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/appstoreimagehub`,
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/appstoreimagehub`,
     {
       method: 'put',
       data: {
@@ -958,16 +958,16 @@ export async function toEditImageHub(params) {
 /** 修改云端备份配置 */
 export async function toEditCloudBackup(params) {
   return request(
-    `${apiconfig.baseUrl}/console/enterprises/${params.enterprise_id}/objectstorage`,
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/objectstorage`,
     {
       method: 'put',
       data: {
-        enable: params.enable,
-        provider: params.provider,
-        endpoint: params.endpoint,
-        bucket_name: params.bucket_name,
-        access_key: params.access_key,
-        secret_key: params.secret_key
+        enable: params.enable || '',
+        provider: params.provider || '',
+        endpoint: params.endpoint || '',
+        bucket_name: params.bucket_name || '',
+        access_key: params.access_key || '',
+        secret_key: params.secret_key || ''
       }
     }
   );
