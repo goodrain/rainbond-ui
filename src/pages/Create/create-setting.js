@@ -1,19 +1,18 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Button } from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import React, { PureComponent } from "react";
-import AppCreateSetting from "../../components/AppCreateSetting";
-import ConfirmModal from "../../components/ConfirmModal";
-import { buildApp } from "../../services/createApp";
-import globalUtil from "../../utils/global";
-import httpResponseUtil from "../../utils/httpResponse";
+import { Button } from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { PureComponent } from 'react';
+import AppCreateSetting from '../../components/AppCreateSetting';
+import ConfirmModal from '../../components/ConfirmModal';
+import globalUtil from '../../utils/global';
+import httpResponseUtil from '../../utils/httpResponse';
 
 @connect(
   ({ loading }) => ({
-    buildAppsLoading: loading.effects["createApp/buildApps"],
-    deleteAppLoading: loading.effects["appControl/deleteApp"]
+    buildAppsLoading: loading.effects['createApp/buildApps'],
+    deleteAppLoading: loading.effects['appControl/deleteApp']
   }),
   null,
   null,
@@ -30,14 +29,14 @@ export default class Index extends PureComponent {
     this.loadDetail();
   }
   componentWillUnmount() {
-    this.props.dispatch({ type: "appControl/clearDetail" });
+    this.props.dispatch({ type: 'appControl/clearDetail' });
   }
 
   loadDetail = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias, region_name } = this.fetchParameter();
     dispatch({
-      type: "appControl/fetchDetail",
+      type: 'appControl/fetchDetail',
       payload: {
         team_name,
         app_alias
@@ -68,7 +67,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { team_name, app_alias, region_name } = this.fetchParameter();
     dispatch({
-      type: "createApp/buildApps",
+      type: 'createApp/buildApps',
       payload: {
         team_name,
         app_alias
@@ -76,7 +75,7 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data) {
           dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name
             }
@@ -94,7 +93,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const { team_name, app_alias, region_name } = this.fetchParameter();
     dispatch({
-      type: "appControl/deleteApp",
+      type: 'appControl/deleteApp',
       payload: {
         team_name,
         app_alias,
@@ -102,7 +101,7 @@ export default class Index extends PureComponent {
       },
       callback: () => {
         dispatch({
-          type: "global/fetchGroups",
+          type: 'global/fetchGroups',
           payload: {
             team_name
           }
@@ -133,14 +132,14 @@ export default class Index extends PureComponent {
       <div>
         <h2
           style={{
-            textAlign: "center"
+            textAlign: 'center'
           }}
         >
           高级设置
         </h2>
         <div
           style={{
-            overflow: "hidden"
+            overflow: 'hidden'
           }}
         >
           <AppCreateSetting
@@ -149,15 +148,15 @@ export default class Index extends PureComponent {
           />
           <div
             style={{
-              background: "#fff",
-              padding: "20px",
-              textAlign: "right",
-              position: "fixed",
+              background: '#fff',
+              padding: '20px',
+              textAlign: 'right',
+              position: 'fixed',
               bottom: 0,
               left: 0,
               right: 0,
               zIndex: 2,
-              borderTop: "1px solid #e8e8e8"
+              borderTop: '1px solid #e8e8e8'
             }}
           >
             <Button
