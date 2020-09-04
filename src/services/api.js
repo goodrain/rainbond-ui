@@ -947,10 +947,10 @@ export async function toEditImageHub(params) {
       method: 'put',
       data: {
         enable: params.enable,
-        hub_url: params.hub_url,
-        namespace: params.namespace,
-        hub_user: params.hub_user,
-        hub_password: params.hub_password
+        hub_url: params.hub_url || '',
+        namespace: params.namespace || '',
+        hub_user: params.hub_user || '',
+        hub_password: params.hub_password || ''
       }
     }
   );
@@ -962,7 +962,7 @@ export async function toEditCloudBackup(params) {
     {
       method: 'put',
       data: {
-        enable: params.enable || '',
+        enable: params.enable,
         provider: params.provider || '',
         endpoint: params.endpoint || '',
         bucket_name: params.bucket_name || '',

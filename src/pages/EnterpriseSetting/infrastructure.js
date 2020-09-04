@@ -21,7 +21,7 @@ import OauthTable from './oauthTable';
   oauthLongin: loading.effects['global/creatOauth'],
   certificateLongin: loading.effects['global/putCertificateType'],
   imageHubLongin: loading.effects['global/editImageHub'],
-  cloudBackupLongin: loading.effects['global/editCloudBackup'],
+  objectStorageLongin: loading.effects['global/editCloudBackup'],
   overviewInfo: index.overviewInfo
 }))
 export default class Infrastructure extends PureComponent {
@@ -41,7 +41,9 @@ export default class Infrastructure extends PureComponent {
       isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
         enterprise
       ),
+      AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(enterprise),
       isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(enterprise),
+      ObjectStorageValue: rainbondUtil.fetchObjectStorage(enterprise),
       providers: [
         { key: 'alioss', name: '阿里云对象存储' },
         { key: 's3', name: 'S3' }
@@ -101,23 +103,27 @@ export default class Infrastructure extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { isEnableAppstoreImageHub } = this.state;
-    const params = value || isEnableAppstoreImageHub;
+    const { AppstoreImageHubValue, isEnableAppstoreImageHub } = this.state;
+    const params = value || AppstoreImageHubValue || {};
     dispatch({
       type: 'global/editImageHub',
       payload: {
         enterprise_id: eid,
         enable,
-        hub_url: params && params.hub_url,
-        namespace: params && params.namespace,
-        hub_user: params && params.hub_user,
-        hub_password: params && params.hub_password
+        hub_url: params.hub_url,
+        namespace: params.namespace,
+        hub_user: params.hub_user,
+        hub_password: params.hub_password
       },
 
       callback: res => {
         if (res && res._code === 200) {
           notification.success({
-            message: enable ? '开通成功' : '关闭成功'
+            message: !isEnableAppstoreImageHub
+              ? '开通成功'
+              : enable && value
+              ? '修改成功'
+              : '关闭成功'
           });
           this.fetchEnterpriseInfo();
           this.handelCloseImageHub();
@@ -133,24 +139,28 @@ export default class Infrastructure extends PureComponent {
         params: { eid }
       }
     } = this.props;
-    const { isEnableObjectStorage } = this.state;
-    const params = value || isEnableObjectStorage;
+    const { ObjectStorageValue, isEnableObjectStorage } = this.state;
+    const params = value || ObjectStorageValue || {};
     dispatch({
       type: 'global/editCloudBackup',
       payload: {
         enterprise_id: eid,
         enable,
-        provider: params && params.provider,
-        endpoint: params && params.endpoint,
-        bucket_name: params && params.bucket_name,
-        access_key: params && params.access_key,
-        secret_key: params && params.secret_key
+        provider: params.provider,
+        endpoint: params.endpoint,
+        bucket_name: params.bucket_name,
+        access_key: params.access_key,
+        secret_key: params.secret_key
       },
 
       callback: res => {
         if (res && res._code === 200) {
           notification.success({
-            message: enable ? '开通成功' : '关闭成功'
+            message: !isEnableObjectStorage
+              ? '开通成功'
+              : enable && value
+              ? '修改成功'
+              : '关闭成功'
           });
           this.fetchEnterpriseInfo();
           this.handelCloseCloudBackup();
@@ -297,7 +307,7 @@ export default class Infrastructure extends PureComponent {
       oauthLongin,
       certificateLongin,
       imageHubLongin,
-      cloudBackupLongin,
+      objectStorageLongin,
       match: {
         params: { eid }
       }
@@ -308,7 +318,9 @@ export default class Infrastructure extends PureComponent {
       showDeleteDomain,
       israinbondTird,
       isEnableAppstoreImageHub,
+      AppstoreImageHubValue,
       isEnableObjectStorage,
+      ObjectStorageValue,
       openCertificate,
       closeCertificate,
       openOauthTable,
@@ -491,9 +503,14 @@ export default class Infrastructure extends PureComponent {
         {openImageHub && (
           <ImageHubForm
             eid={eid}
+            title={
+              !isEnableAppstoreImageHub
+                ? '开通组件库镜像仓库'
+                : '组件库镜像仓库'
+            }
             loading={imageHubLongin}
             onCancel={this.handelCloseImageHub}
-            data={isEnableAppstoreImageHub}
+            data={AppstoreImageHubValue}
             onOk={values => {
               this.handelIsOpenImageHub(true, values);
             }}
@@ -502,9 +519,14 @@ export default class Infrastructure extends PureComponent {
         {openCloudBackup && (
           <CloudBackupForm
             eid={eid}
-            loading={cloudBackupLongin}
+            title={
+              !isEnableObjectStorage
+                ? '开通对象存储'
+                : '对象存储'
+            }
+            loading={objectStorageLongin}
             onCancel={this.handelCloseCloudBackup}
-            data={isEnableObjectStorage}
+            data={ObjectStorageValue}
             providers={providers}
             onOk={values => {
               this.handelIsOpenCloudBackup(true, values);
@@ -525,7 +547,7 @@ export default class Infrastructure extends PureComponent {
                 : showDeleteDomain
                 ? oauthLongin
                 : closeCloudBackup
-                ? cloudBackupLongin
+                ? objectStorageLongin
                 : false
             }
             title="关闭"

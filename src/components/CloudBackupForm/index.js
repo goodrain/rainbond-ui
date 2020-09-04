@@ -1,6 +1,6 @@
-import { Form, Input, Modal, Select } from "antd";
-import React, { PureComponent } from "react";
-import styles from "../CreateTeam/index.less";
+import { Form, Input, Modal, Select } from 'antd';
+import React, { PureComponent } from 'react';
+import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 
@@ -16,8 +16,15 @@ export default class CloudBackupForm extends PureComponent {
     });
   };
   render() {
-    const { title, onCancel, data = {}, form, providers } = this.props;
-    const { getFieldDecorator, getFieldValue } = form;
+    const {
+      title,
+      onCancel,
+      data = {},
+      form,
+      providers,
+      loading = false
+    } = this.props;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -30,7 +37,8 @@ export default class CloudBackupForm extends PureComponent {
     };
     return (
       <Modal
-        title={title || "对象存储"}
+        title={title}
+        confirmLoading={loading}
         visible
         className={styles.TelescopicModal}
         onCancel={onCancel}
@@ -38,12 +46,12 @@ export default class CloudBackupForm extends PureComponent {
       >
         <Form onSubmit={this.onOk}>
           <FormItem {...formItemLayout} label="存储类型">
-            {getFieldDecorator("provider", {
-              initialValue: data.provider || "",
+            {getFieldDecorator('provider', {
+              initialValue: data.provider || '',
               rules: [
                 {
                   required: true,
-                  message: "不能为空!"
+                  message: '不能为空!'
                 }
               ]
             })(
@@ -60,46 +68,46 @@ export default class CloudBackupForm extends PureComponent {
           </FormItem>
 
           <Form.Item {...formItemLayout} label="endpoint">
-            {getFieldDecorator("endpoint", {
-              initialValue: data.endpoint || "",
+            {getFieldDecorator('endpoint', {
+              initialValue: data.endpoint || '',
               rules: [
                 {
                   required: true,
-                  message: "请输入endpoint"
+                  message: '请输入endpoint'
                 }
               ]
             })(<Input placeholder="请输入endpoint" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="bucket_name">
-            {getFieldDecorator("bucket_name", {
-              initialValue: data.bucket_name || "",
+            {getFieldDecorator('bucket_name', {
+              initialValue: data.bucket_name || '',
               rules: [
                 {
                   required: true,
-                  message: "请输入bucket_name"
+                  message: '请输入bucket_name'
                 }
               ]
             })(<Input placeholder="请输入bucket_name" />)}
           </Form.Item>
 
           <Form.Item {...formItemLayout} name="access_key" label="Access Key">
-            {getFieldDecorator("access_key", {
-              initialValue: data.access_key || "",
+            {getFieldDecorator('access_key', {
+              initialValue: data.access_key || '',
               rules: [
                 {
                   required: true,
-                  message: "请提供具有足够权限的Access Key"
+                  message: '请提供具有足够权限的Access Key'
                 }
               ]
             })(<Input placeholder="Access Key" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} name="secret_key" label="Secret Key">
-            {getFieldDecorator("secret_key", {
-              initialValue: data.secret_key || "",
+            {getFieldDecorator('secret_key', {
+              initialValue: data.secret_key || '',
               rules: [
                 {
                   required: true,
-                  message: "请提供具有足够权限的Secret Key"
+                  message: '请提供具有足够权限的Secret Key'
                 }
               ]
             })(<Input type="password" placeholder="Secret Key" />)}
