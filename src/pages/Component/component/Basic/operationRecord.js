@@ -15,7 +15,7 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       selectEventID: '',
-      showSocket: false,
+      showSocket: false
     };
   }
   componentDidMount() {}
@@ -36,13 +36,13 @@ class Index extends PureComponent {
     this.setState({
       logVisible: true,
       selectEventID: EventID,
-      showSocket,
+      showSocket
     });
   };
 
   handleCancel = () => {
     this.setState({
-      logVisible: false,
+      logVisible: false
     });
   };
 
@@ -76,7 +76,7 @@ class Index extends PureComponent {
                   EndTime,
                   SynType,
                   EventID,
-                  create_time,
+                  create_time
                 } = item;
                 if (
                   isopenLog &&
@@ -122,7 +122,7 @@ class Index extends PureComponent {
                       <Tooltip title={Messages}>
                         <span
                           style={{
-                            color: globalUtil.fetchAbnormalcolor(OptType),
+                            color: globalUtil.fetchAbnormalcolor(OptType)
                           }}
                         >
                           {globalUtil.fetchStateOptTypeText(OptType)}&nbsp;
@@ -166,7 +166,7 @@ class Index extends PureComponent {
                         >
                           <div
                             style={{
-                              width: '16px',
+                              width: '16px'
                             }}
                             onClick={() => {
                               this.showLogModal(EventID, FinalStatus === '');
@@ -187,7 +187,7 @@ class Index extends PureComponent {
                   style={{
                     background: '#fff',
                     paddingBottom: '10px',
-                    textAlign: 'center',
+                    textAlign: 'center'
                   }}
                 >
                   暂无操作记录
@@ -197,12 +197,12 @@ class Index extends PureComponent {
               <p
                 style={{
                   textAlign: 'center',
-                  fontSize: 30,
+                  fontSize: 30
                 }}
               >
                 <Icon
                   style={{
-                    cursor: 'pointer',
+                    cursor: 'pointer'
                   }}
                   onClick={this.props.handleNextPage}
                   type="down"
@@ -212,22 +212,15 @@ class Index extends PureComponent {
           </Col>
         </Row>
         {logVisible && (
-          <Modal
+          <LogShow
             title="日志"
-            className={styles.logModal}
-            onCancel={this.handleCancel}
-            visible
-            maskClosable={false}
             width="1000px"
-            bodyStyle={{ background: '#222222', color: '#fff' }}
-            footer={null}
-          >
-            <LogShow
-              showSocket={showSocket}
-              EventID={selectEventID}
-              socket={this.props.socket}
-            />
-          </Modal>
+            onOk={this.handleCancel}
+            onCancel={this.handleCancel}
+            showSocket={showSocket}
+            EventID={selectEventID}
+            socket={this.props.socket}
+          />
         )}
       </Card>
     );
