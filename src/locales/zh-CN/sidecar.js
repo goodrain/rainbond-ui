@@ -1,5 +1,5 @@
 export default {
-  'sidecar.title': '切换功能视图',
+  'sidecar.title': '视图切换',
   'sidecar.collection': '收藏',
   'sidecar.collection.add': '新增收藏视图',
   'sidecar.enterprise': '企业视图',
