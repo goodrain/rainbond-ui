@@ -1,15 +1,23 @@
-import React, { PureComponent } from "react";
-import { Button, Icon, Modal } from "antd";
-import styles from "./index.less";
+/* eslint-disable prettier/prettier */
+import React, { PureComponent } from 'react';
+import { Button, Icon, Modal } from 'antd';
+import styles from './index.less';
 import styless from '../CreateTeam/index.less';
 
 class ConfirmModal extends PureComponent {
   render() {
-    const { title, onOk, onCancel, desc, subDesc, loading } = this.props;
+    const {
+      title,
+      onOk,
+      onCancel,
+      desc,
+      subDesc,
+      loading = false
+    } = this.props;
     return (
       <Modal
         title={title}
-        visible={true}
+        visible
         onOk={onOk}
         onCancel={onCancel}
         className={styless.TelescopicModal}
@@ -17,7 +25,7 @@ class ConfirmModal extends PureComponent {
           <Button onClick={onCancel}> 取消 </Button>,
           <Button
             type="primary"
-            loading={loading ? loading : false}
+            loading={loading}
             disabled={this.props.disabled}
             onClick={onOk}
           >
