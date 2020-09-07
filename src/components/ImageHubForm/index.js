@@ -68,7 +68,7 @@ export default class ImageHubForm extends PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="用户名">
             {getFieldDecorator('hub_user', {
-              initialValue: data.user_name || '',
+              initialValue: data.hub_user || '',
               rules: [
                 {
                   required: false,
@@ -78,8 +78,8 @@ export default class ImageHubForm extends PureComponent {
             })(<Input placeholder="请输入用户名" />)}
           </Form.Item>
           <Form.Item {...formItemLayout} label="密码">
-            {getFieldDecorator('hub_password	', {
-              initialValue: data.password || '',
+            {getFieldDecorator('hub_password', {
+              initialValue: data.hub_password || '',
               rules: [
                 {
                   required: false,
