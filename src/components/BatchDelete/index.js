@@ -1,51 +1,71 @@
+/* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
 import { Button, Modal, Table, Row, Col } from 'antd';
-import { batchDelete, reDelete } from '../../services/app';
+import { reDelete } from '../../services/app';
 import globalUtil from '../../utils/global';
+
+@connect(
+  ({ loading }) => ({
+    batchDeleteLoading: loading.effects['appControl/putBatchDelete']
+  }),
+  null,
+  null,
+  {
+    pure: false
+  }
+)
 
 /* 转移到其他应用组 */
 export default class MoveGroup extends PureComponent {
   constructor(props) {
     super(props);
+    const { batchDeleteApps } = this.props;
     this.state = {
-      batchDeleteApps: this.props.batchDeleteApps,
-      apps: this.props.batchDeleteApps.map(item => {
+      // eslint-disable-next-line react/no-unused-state
+      batchDeleteApps,
+      apps: batchDeleteApps.map(item => {
         if (item) {
           return {
             service_id: item.service_id,
             service_cname: item.service_cname,
             msg: '正在删除',
-            status: 0,
+            status: 0
           };
         }
       }),
-      confirm: false,
+      confirm: false
     };
   }
   handleDelete = () => {
     this.setState({ confirm: true });
-    const ids = this.props.batchDeleteApps.map(item => {
+    const { dispatch, batchDeleteApps } = this.props;
+    const ids = batchDeleteApps.map(item => {
       return item.service_id;
     });
-    batchDelete({
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(','),
-    }).then(data => {
-      if (data) {
-        this.setState({ apps: data.list });
+    dispatch({
+      type: 'appControl/putBatchDelete',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: ids.join(',')
+      },
+      callback: res => {
+        if (res) {
+          this.setState({ apps: res.list });
+        }
       }
     });
   };
 
-  reDelete = service_id => {
+  reDelete = id => {
     reDelete({
       team_name: globalUtil.getCurrTeamName(),
-      service_id,
+      service_id: id
     }).then(data => {
       if (data) {
         const newapps = [];
         this.state.apps.map(item => {
-          if (item.service_id == service_id) {
+          if (item.service_id == id) {
             item.status = 200;
             item.msg = '删除成功';
           }
@@ -56,25 +76,27 @@ export default class MoveGroup extends PureComponent {
     });
   };
   render() {
+    const { batchDeleteLoading, onCancel } = this.props;
+    const { confirm, apps } = this.state;
     return (
       <Modal
         title="确认批量删除"
         visible
         width={600}
-        onCancel={this.props.onCancel}
-        footer={<Button onClick={this.props.onCancel}>完成</Button>}
+        onCancel={onCancel}
+        footer={<Button onClick={onCancel}>完成</Button>}
       >
-        {this.state.confirm ? (
+        {confirm ? (
           <Table
-            dataSource={this.state.apps || []}
+            dataSource={apps || []}
             columns={[
               {
                 title: '组件名称',
-                dataIndex: 'service_cname',
+                dataIndex: 'service_cname'
               },
               {
                 title: '反馈信息',
-                dataIndex: 'msg',
+                dataIndex: 'msg'
               },
               {
                 title: '操作',
@@ -98,21 +120,19 @@ export default class MoveGroup extends PureComponent {
                   if (data.status == 200) {
                     return '已删除';
                   }
-                },
-              },
+                }
+              }
             ]}
           />
         ) : (
           <div style={{ textAlign: 'center' }}>
             <p>
-              {this.state.apps &&
-              this.state.apps.length &&
-              this.state.apps[0] != undefined
+              {apps && apps.length && apps[0] != undefined
                 ? '即将删除以下组件'
                 : '请刷新数据后删除'}
             </p>
             <Row>
-              {this.state.apps.map(item => {
+              {apps.map(item => {
                 if (item == undefined) return null;
                 return (
                   <Col
@@ -125,14 +145,14 @@ export default class MoveGroup extends PureComponent {
                 );
               })}
             </Row>
-            {this.state.apps &&
-            this.state.apps.length &&
-            this.state.apps[0] != undefined ? (
-              <Button type="primary" onClick={this.handleDelete}>
+            {apps && apps.length && apps[0] !== undefined && (
+              <Button
+                type="primary"
+                loading={batchDeleteLoading}
+                onClick={this.handleDelete}
+              >
                 确定批量删除
               </Button>
-            ) : (
-              ''
             )}
           </div>
         )}
