@@ -505,6 +505,7 @@ class Main extends PureComponent {
             child.onAction(res.bean);
           }
         }
+        this.handleOffHelpfulHints();
       }
     });
   };
@@ -775,10 +776,8 @@ class Main extends PureComponent {
           }
         }
       });
-    } else if (buildType == 'market') {
-      this.handleDeploy('', true);
     } else {
-      this.handleDeploy();
+      this.handleOpenHelpfulHints('deploy');
     }
   };
   handleCancelBuild = () => {
@@ -809,13 +808,21 @@ class Main extends PureComponent {
   };
   handleJumpAgain = () => {
     const { promptModal } = this.state;
-    if (promptModal === 'stop') {
-      this.handleOperation('putStop');
-    } else if (promptModal === 'start') {
-      this.handleOperation('putStart');
-    } else if (promptModal === 'restart') {
-      this.handleOperation('putReStart');
+    if (promptModal === 'deploy') {
+      this.handleDeploy();
+      return null;
     }
+    const parameter =
+      promptModal === 'stop'
+        ? 'putStop'
+        : promptModal === 'start'
+        ? 'putStart'
+        : promptModal === 'restart'
+        ? 'putReStart'
+        : promptModal === 'rolling'
+        ? 'putUpdateRolling'
+        : '';
+    this.handleOperation(parameter);
   };
   toWebConsole = () => {
     const { appDetail } = this.props;
@@ -1019,9 +1026,8 @@ class Main extends PureComponent {
           <Button
             disabled={!appStatusUtil.canStart(status)}
             onClick={() => {
-              this.handleOperation('putStart');
+              this.handleOpenHelpfulHints('start');
             }}
-            loading={startLoading}
           >
             启动
           </Button>
@@ -1046,7 +1052,7 @@ class Main extends PureComponent {
           <Tooltip title="有新版本">
             <Button
               onClick={this.handleOpenBuild}
-              loading={deployLoading || buildInformationLoading}
+              loading={buildInformationLoading}
             >
               <Badge
                 className={styles.badge}
@@ -1061,7 +1067,7 @@ class Main extends PureComponent {
         ) : status && status.status == 'undeploy' && isConstruct ? (
           <Button
             onClick={this.handleOpenBuild}
-            loading={deployLoading || buildInformationLoading}
+            loading={buildInformationLoading}
           >
             构建
           </Button>
@@ -1069,7 +1075,7 @@ class Main extends PureComponent {
           isConstruct && (
             <Button
               onClick={this.handleOpenBuild}
-              loading={deployLoading || buildInformationLoading}
+              loading={buildInformationLoading}
             >
               构建
             </Button>
@@ -1084,9 +1090,8 @@ class Main extends PureComponent {
           : isUpdate && (
               <Button
                 onClick={() => {
-                  this.handleOperation('putUpdateRolling');
+                  this.handleOpenHelpfulHints('rolling');
                 }}
-                loading={updateRollingLoading}
               >
                 更新(滚动)
               </Button>
@@ -1276,10 +1281,16 @@ class Main extends PureComponent {
             onOk={this.handleJumpAgain}
             onCancel={this.handleOffHelpfulHints}
             confirmLoading={
-              promptModal === 'putReStart'
+              promptModal === 'restart'
                 ? reStartLoading
                 : promptModal === 'stop'
                 ? stopLoading
+                : promptModal === 'start'
+                ? startLoading
+                : promptModal === 'deploy'
+                ? deployLoading
+                : promptModal === 'rolling'
+                ? updateRollingLoading
                 : !promptModal
             }
           >

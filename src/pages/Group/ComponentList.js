@@ -393,7 +393,6 @@ export default class ComponentList extends Component {
                     onClick={() => {
                       this.handleOperation('putReStart', data);
                     }}
-                    loading={reStartLoading}
                   >
                     重启
                   </Button>
@@ -404,7 +403,6 @@ export default class ComponentList extends Component {
                     onClick={() => {
                       this.handleOperation('putStart', data);
                     }}
-                    loading={startLoading}
                   >
                     启动
                   </Button>
@@ -415,7 +413,6 @@ export default class ComponentList extends Component {
                     onClick={() => {
                       this.handleOperation('putStop', data);
                     }}
-                    loading={stopLoading}
                   >
                     关闭
                   </Button>
@@ -495,6 +492,7 @@ export default class ComponentList extends Component {
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
+              loading={reStartLoading || startLoading || stopLoading}
               dataSource={apps || []}
               footer={() => footer}
               style={{ position: 'relative' }}
