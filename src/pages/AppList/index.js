@@ -266,7 +266,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '备份记录',
-                  width: '200px',
+                  width: '150px',
                   dataIndex: 'backup_record_num',
                   align: 'center',
                   render: (val, data) => {
@@ -281,7 +281,7 @@ export default class AppList extends PureComponent {
                 },
                 {
                   title: '发布记录',
-                  width: '200px',
+                  width: '150px',
                   dataIndex: 'share_record_num',
                   align: 'center',
                   render: (val, data) => {
