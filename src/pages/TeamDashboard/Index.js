@@ -987,7 +987,8 @@ export default class Index extends PureComponent {
                           run_service_num,
                           services_num,
                           share_record_num,
-                          group_id
+                          group_id,
+                          update_time
                         } = item;
                         return (
                           <div
@@ -1007,7 +1008,7 @@ export default class Index extends PureComponent {
                               >
                                 <a style={{ fontSize: "16px" }}>{group_name}</a>
                               </Link>
-
+                              <span className={styles.timeShow}>{update_time && moment(update_time).fromNow()}</span>
                               <div className={styles.teamListStyle}>
                                 <div>
                                   <span>组件：</span>
