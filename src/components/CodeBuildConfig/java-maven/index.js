@@ -3,13 +3,15 @@ import { Form, Radio, Switch, Input, Select, Button } from 'antd';
 import { connect } from 'dva';
 import JavaJDK from '../java-jdk';
 import MavenConfiguration from '@/components/MavenConfiguration';
-import globalUtil from '@//utils/global';
+import globalUtil from '@/utils/global';
+import roleUtil from '@/utils/role';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
 
 @connect(
-  ({ enterprise }) => ({
+  ({ enterprise, teamControl }) => ({
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
     currentEnterprise: enterprise.currentEnterprise
   }),
   null,
@@ -21,6 +23,7 @@ class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      mavenPermissions: this.handleEventPermissions('maven_setting'),
       mavenVisible: false,
       MavenList: [],
       activeMaven: ''
@@ -61,6 +64,12 @@ class Index extends PureComponent {
   };
 
   handleSubmit = () => {};
+
+  handleEventPermissions = type => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.queryTeamBasicInfo(currentTeamPermissionsInfo, type);
+  };
+
   render() {
     const formItemLayout = {
       labelCol: {
@@ -82,7 +91,12 @@ class Index extends PureComponent {
     };
     const { envs, form } = this.props;
     const { getFieldDecorator } = form;
-    const { mavenVisible, MavenList, activeMaven } = this.state;
+    const {
+      mavenVisible,
+      MavenList,
+      activeMaven,
+      mavenPermissions
+    } = this.state;
     return (
       <div>
         <JavaJDK form={form} envs={envs} />
@@ -151,9 +165,11 @@ class Index extends PureComponent {
               })}
             </Select>
           )}
-          <Button onClick={this.handleMavenConfiguration} type="primary">
-            管理Maven配置
-          </Button>
+          {mavenPermissions && (
+            <Button onClick={this.handleMavenConfiguration} type="primary">
+              管理Maven配置
+            </Button>
+          )}
         </Form.Item>
         {/* <Form.Item
           {...formItemLayout}

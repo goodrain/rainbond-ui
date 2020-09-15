@@ -393,7 +393,7 @@ export default class AddAdmin extends PureComponent {
                       },
                       {
                         pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/,
-                        message: '只支持字母、数字和组合'
+                        message: '只支持小写字母和数字组合'
                       }
                     ]
                   })(
