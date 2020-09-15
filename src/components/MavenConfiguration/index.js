@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent } from 'react';
 import {
   Modal,
   Form,
@@ -11,13 +11,13 @@ import {
   notification,
   Spin,
   Button
-} from "antd";
-import { connect } from "dva";
-import styles from "../CreateTeam/index.less";
-import CodeMirrorForm from "../CodeMirrorForm";
-import ConfirmModal from "../ConfirmModal";
-import globalUtil from "@//utils/global";
-import form from "@/models/form";
+} from 'antd';
+import { connect } from 'dva';
+import styles from '../CreateTeam/index.less';
+import CodeMirrorForm from '../CodeMirrorForm';
+import ConfirmModal from '../ConfirmModal';
+import globalUtil from '@//utils/global';
+import form from '@/models/form';
 
 const FormItem = Form.Item;
 const { Sider, Content } = Layout;
@@ -26,10 +26,10 @@ const { Sider, Content } = Layout;
 @connect(
   ({ enterprise, loading }) => ({
     currentEnterprise: enterprise.currentEnterprise,
-    AddMavensettingsLoading: loading.effects["appControl/AddMavensettings"],
-    EditMavensettingsLoading: loading.effects["appControl/EditMavensettings"],
+    AddMavensettingsLoading: loading.effects['appControl/AddMavensettings'],
+    EditMavensettingsLoading: loading.effects['appControl/EditMavensettings'],
     DeleteMavensettingsLoading:
-      loading.effects["appControl/DeleteMavensettings"]
+      loading.effects['appControl/DeleteMavensettings']
   }),
   null,
   null,
@@ -67,7 +67,7 @@ export default class AddAdmin extends PureComponent {
     const { dispatch, currentEnterprise, form } = this.props;
     const { setFieldsValue } = form;
     dispatch({
-      type: "appControl/fetchMavensettings",
+      type: 'appControl/fetchMavensettings',
       payload: {
         region_name: globalUtil.getCurrRegionName(),
         enterprise_id: currentEnterprise.enterprise_id,
@@ -111,13 +111,13 @@ export default class AddAdmin extends PureComponent {
     });
   };
   beforeUpload = (file, isMessage) => {
-    const fileArr = file.name.split(".");
+    const fileArr = file.name.split('.');
     const { length } = fileArr;
-    const isRightType = fileArr[length - 1] === "xml";
+    const isRightType = fileArr[length - 1] === 'xml';
     if (!isRightType) {
       if (isMessage) {
         notification.warning({
-          message: "请上传以.xml结尾的文件"
+          message: '请上传以.xml结尾的文件'
         });
       }
       return false;
@@ -148,7 +148,7 @@ export default class AddAdmin extends PureComponent {
       if (!err) {
         const { dispatch, currentEnterprise } = this.props;
         dispatch({
-          type: "appControl/AddMavensettings",
+          type: 'appControl/AddMavensettings',
           payload: {
             region_name: globalUtil.getCurrRegionName(),
             enterprise_id: currentEnterprise.enterprise_id,
@@ -162,7 +162,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: "添加成功" });
+              notification.success({ message: '添加成功' });
             }
           }
         });
@@ -173,7 +173,7 @@ export default class AddAdmin extends PureComponent {
     const { mavenInfo } = this.state;
     const { dispatch, currentEnterprise, form } = this.props;
     dispatch({
-      type: "appControl/DeleteMavensettings",
+      type: 'appControl/DeleteMavensettings',
       payload: {
         region_name: globalUtil.getCurrRegionName(),
         enterprise_id: currentEnterprise.enterprise_id,
@@ -182,8 +182,8 @@ export default class AddAdmin extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           const { setFieldsValue } = form;
-          setFieldsValue({ content: "" });
-          setFieldsValue({ name: "" });
+          setFieldsValue({ content: '' });
+          setFieldsValue({ name: '' });
           this.setState(
             {
               contentLoading: true
@@ -192,7 +192,7 @@ export default class AddAdmin extends PureComponent {
               this.onCancelDelete();
               this.fetchMavensettings(true);
 
-              notification.success({ message: "删除成功" });
+              notification.success({ message: '删除成功' });
             }
           );
         }
@@ -206,7 +206,7 @@ export default class AddAdmin extends PureComponent {
       if (!err) {
         const { dispatch, currentEnterprise } = this.props;
         dispatch({
-          type: "appControl/EditMavensettings",
+          type: 'appControl/EditMavensettings',
           payload: {
             region_name: globalUtil.getCurrRegionName(),
             enterprise_id: currentEnterprise.enterprise_id,
@@ -221,7 +221,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: "编辑成功" });
+              notification.success({ message: '编辑成功' });
             }
           }
         });
@@ -231,8 +231,8 @@ export default class AddAdmin extends PureComponent {
   handleAddClick = () => {
     this.setState({ contentLoading: true }, () => {
       const { setFieldsValue } = this.props.form;
-      setFieldsValue({ content: "" });
-      setFieldsValue({ name: "" });
+      setFieldsValue({ content: '' });
+      setFieldsValue({ name: '' });
       this.setState({
         mavenInfo: {},
         isEditor: false,
@@ -318,13 +318,13 @@ export default class AddAdmin extends PureComponent {
         )}
         <Spin spinning={loading} delay={0}>
           <Layout>
-            <Sider width={200} style={{ background: "#fff" }}>
+            <Sider width={200} style={{ background: '#fff' }}>
               <Row
                 style={{
-                  background: "#eceef1",
-                  height: "40px",
-                  lineHeight: "40px",
-                  padding: "0 16px 0 24px "
+                  background: '#eceef1',
+                  height: '40px',
+                  lineHeight: '40px',
+                  padding: '0 16px 0 24px '
                 }}
               >
                 <Col span={22}>配置列表</Col>
@@ -332,7 +332,7 @@ export default class AddAdmin extends PureComponent {
                   <Icon
                     type="plus"
                     onClick={this.handleAddClick}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: 'pointer' }}
                   />
                 </Col>
               </Row>
@@ -342,7 +342,7 @@ export default class AddAdmin extends PureComponent {
                   onClick={this.handleClick}
                   mode="inline"
                   selectedKeys={[`${mavenInfo.name}`]}
-                  style={{ height: "100%" }}
+                  style={{ height: '100%' }}
                 >
                   {mavenList.map(item => {
                     const { name } = item;
@@ -352,9 +352,9 @@ export default class AddAdmin extends PureComponent {
                           <Col
                             span={22}
                             style={{
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden"
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden'
                             }}
                           >
                             {name}
@@ -363,7 +363,7 @@ export default class AddAdmin extends PureComponent {
                             <Icon
                               type="delete"
                               onClick={this.handleDeleteClick}
-                              style={{ cursor: "pointer" }}
+                              style={{ cursor: 'pointer' }}
                             />
                           </Col>
                         </Row>
@@ -376,24 +376,24 @@ export default class AddAdmin extends PureComponent {
             <Content>
               <Form onSubmit={this.handleSubmit}>
                 <FormItem {...formItemLayout} label="配置名称">
-                  {getFieldDecorator("name", {
-                    initialValue: mavenInfo.name || "",
+                  {getFieldDecorator('name', {
+                    initialValue: mavenInfo.name || '',
                     rules: [
                       {
                         required: true,
-                        message: "请输入配置名称"
+                        message: '请输入配置名称'
                       },
                       {
                         min: 2,
-                        message: "最小长度2位"
+                        message: '最小长度2位'
                       },
                       {
                         max: 64,
-                        message: "最大长度64位"
+                        message: '最大长度64位'
                       },
                       {
                         pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/,
-                        message: "只支持字母、数字和组合"
+                        message: '只支持字母、数字和组合'
                       }
                     ]
                   })(
@@ -415,7 +415,7 @@ export default class AddAdmin extends PureComponent {
                     formItemLayout={formItemLayout}
                     getFieldDecorator={getFieldDecorator}
                     beforeUpload={this.beforeUpload}
-                    data={mavenInfo.content || ""}
+                    data={mavenInfo.content || ''}
                   />
                 )}
               </Form>

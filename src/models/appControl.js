@@ -1,4 +1,4 @@
-import { getGroupApps } from "../services/group";
+import { getGroupApps } from '../services/group';
 import {
   getComponentState,
   getDetail,
@@ -123,12 +123,12 @@ import {
   addMavensettings,
   editMavensettings,
   deleteMavensettings
-} from "../services/app";
+} from '../services/app';
 
-import { getCertificates, addCertificate } from "../services/team";
+import { getCertificates, addCertificate } from '../services/team';
 
 export default {
-  namespace: "appControl",
+  namespace: 'appControl',
   state: {
     // 标签信息
     tags: null,
@@ -183,7 +183,7 @@ export default {
     visitInfo: null,
     // 设置了权限的团队成员
     members: [],
-    build_upgrade: ""
+    build_upgrade: ''
   },
   effects: {
     *fetchOperationLog({ payload, callback, handleError }, { call, put }) {
@@ -394,7 +394,7 @@ export default {
     *fetchTags({ payload, callback }, { call, put }) {
       const response = yield call(getTags, payload);
       if (response) {
-        yield put({ type: "saveTags", payload: response.bean });
+        yield put({ type: 'saveTags', payload: response.bean });
         callback && callback(response.bean);
       }
     },
@@ -417,13 +417,13 @@ export default {
         if (callback) {
           callback(response);
         }
-        yield put({ type: "saveVisitInfo", payload: response.bean });
+        yield put({ type: 'saveVisitInfo', payload: response.bean });
       }
     },
     *fetchPods({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getPods, payload, handleError);
       if (response) {
-        yield put({ type: "savePods", payload: response.list });
+        yield put({ type: 'savePods', payload: response.list });
         callback && callback(response);
       }
     },
@@ -436,7 +436,7 @@ export default {
     *getScalingRules({ payload, callback }, { call, put }) {
       const response = yield call(getScalingRules, payload);
       if (response) {
-        yield put({ type: "saveScalingRules", payload: response.bean });
+        yield put({ type: 'saveScalingRules', payload: response.bean });
         callback && callback(response);
       }
     },
@@ -455,7 +455,7 @@ export default {
     *fetchExtendInfo({ payload, handleError }, { call, put }) {
       const response = yield call(getExtendInfo, payload, handleError);
       if (response) {
-        yield put({ type: "saveExtendInfo", payload: response.bean });
+        yield put({ type: 'saveExtendInfo', payload: response.bean });
       }
     },
     *editName({ payload, callback }, { call, put }) {
@@ -473,7 +473,7 @@ export default {
     *fetchDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getDetail, payload, handleError);
       if (response) {
-        yield put({ type: "saveDetail", payload: response.bean });
+        yield put({ type: 'saveDetail', payload: response.bean });
         callback && callback(response.bean);
       }
     },
@@ -492,13 +492,13 @@ export default {
     *fetchApps({ payload }, { call, put }) {
       const response = yield call(getGroupApps, payload);
       if (response) {
-        yield put({ type: "saveApps", payload: response.list });
+        yield put({ type: 'saveApps', payload: response.list });
       }
     },
     *fetchPorts({ payload, callback }, { call, put }) {
       const response = yield call(getPorts, payload);
       if (response) {
-        yield put({ type: "savePorts", payload: response.list });
+        yield put({ type: 'savePorts', payload: response.list });
         callback && callback(response);
       }
     },
@@ -595,7 +595,7 @@ export default {
     *fetchCertificates({ payload, callback }, { call, put }) {
       const response = yield call(getCertificates, payload);
       if (response) {
-        yield put({ type: "saveCertificates", payload: response.list });
+        yield put({ type: 'saveCertificates', payload: response.list });
         callback && callback(response);
       }
     },
@@ -608,7 +608,7 @@ export default {
     *fetchInnerEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getInnerEnvs, payload);
       if (response) {
-        yield put({ type: "saveInnerEnvs", payload: response.list });
+        yield put({ type: 'saveInnerEnvs', payload: response.list });
         callback && callback(response);
       }
     },
@@ -622,14 +622,14 @@ export default {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
         callback && callback(response);
-        yield put({ type: "saveOuterEnvs", payload: response.list });
+        yield put({ type: 'saveOuterEnvs', payload: response.list });
       }
     },
     *fetchRelationOuterEnvs({ payload, callback }, { call, put }) {
       const response = yield call(getOuterEnvs, payload);
       if (response) {
         callback && callback(response);
-        yield put({ type: "saveRelationOuterEnvs", payload: response.list });
+        yield put({ type: 'saveRelationOuterEnvs', payload: response.list });
       }
     },
     *addOuterEnvs({ payload, callback }, { call, put }) {
@@ -708,13 +708,13 @@ export default {
       const response = yield call(getRunningProbe, payload);
       if (response) {
         callback && callback(response);
-        yield put({ type: "saveRunningProbe", payload: response.bean });
+        yield put({ type: 'saveRunningProbe', payload: response.bean });
       }
     },
     *fetchStartProbe({ payload, callback }, { call, put }) {
       const response = yield call(getStartProbe, payload);
       if (response) {
-        yield put({ type: "saveStartProbe", payload: response.bean });
+        yield put({ type: 'saveStartProbe', payload: response.bean });
       }
     },
     *addStartProbe({ payload, callback }, { call, put }) {
@@ -744,7 +744,7 @@ export default {
     *fetchBaseInfo({ payload, callback }, { call, put }) {
       const response = yield call(getBaseInfo, payload);
       if (response) {
-        yield put({ type: "saveBaseInfo", payload: response.bean });
+        yield put({ type: 'saveBaseInfo', payload: response.bean });
       }
     },
     *deleteMnt({ payload, callback }, { call, put }) {
@@ -757,7 +757,7 @@ export default {
       const response = yield call(getVolumes, payload);
       if (response) {
         yield put({
-          type: "saveVolumes",
+          type: 'saveVolumes',
           payload: response.list || []
         });
         callback && callback(response);
@@ -791,7 +791,7 @@ export default {
     *fetchRequestTime({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequestTime, payload);
       if (response) {
-        yield put({ type: "saveRequestTime", payload: response.bean });
+        yield put({ type: 'saveRequestTime', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -800,7 +800,7 @@ export default {
     *fetchRequestTimeRange({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequestTimeRange, payload);
       if (response) {
-        yield put({ type: "saveRequestTimeRange", payload: response.bean });
+        yield put({ type: 'saveRequestTimeRange', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -809,7 +809,7 @@ export default {
     *fetchRequest({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppRequest, payload);
       if (response) {
-        yield put({ type: "saveRequest", payload: response.bean });
+        yield put({ type: 'saveRequest', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -819,7 +819,7 @@ export default {
       const response = yield call(getAppRequestRange, payload);
 
       if (response) {
-        yield put({ type: "saveRequestRange", payload: response.bean });
+        yield put({ type: 'saveRequestRange', payload: response.bean });
         callback && callback();
       }
       complete && complete();
@@ -828,7 +828,7 @@ export default {
     *fetchDisk({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppDisk, payload);
       if (response) {
-        yield put({ type: "saveAppDisk", payload: response.bean });
+        yield put({ type: 'saveAppDisk', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -837,7 +837,7 @@ export default {
     *fetchMemory({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppMemory, payload);
       if (response) {
-        yield put({ type: "saveAppMemory", payload: response.bean });
+        yield put({ type: 'saveAppMemory', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -846,7 +846,7 @@ export default {
     *fetchOnlineNumber({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppOnlineNumber, payload);
       if (response) {
-        yield put({ type: "saveOnlineNumber", payload: response.bean });
+        yield put({ type: 'saveOnlineNumber', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -855,7 +855,7 @@ export default {
     *fetchOnlineNumberRange({ payload, callback, complete }, { call, put }) {
       const response = yield call(getAppOnlineNumberRange, payload);
       if (response) {
-        yield put({ type: "saveOnlineNumberRange", payload: response.bean });
+        yield put({ type: 'saveOnlineNumberRange', payload: response.bean });
         callback && callback(response);
       }
       complete && complete();
@@ -864,7 +864,7 @@ export default {
     *fetchBranch({ payload, callback, complete }, { call, put }) {
       const response = yield call(getCodeBranch, payload);
       if (response) {
-        yield put({ type: "saveBranch", payload: response.list });
+        yield put({ type: 'saveBranch', payload: response.list });
         callback && callback(response);
       }
       complete && complete();
@@ -887,7 +887,7 @@ export default {
     *fetchMember({ payload }, { call, put }) {
       const response = yield call(getMembers, payload);
       if (response) {
-        yield put({ type: "saveMember", payload: response.list });
+        yield put({ type: 'saveMember', payload: response.list });
       }
     },
     *fetchpermsMember({ payload, callback }, { call, put }) {
@@ -990,7 +990,7 @@ export default {
     *changeApplicationState({ payload, callback }, { call, put }) {
       const response = yield call(changeApplicationState, payload);
       yield put({
-        type: "saveBuild_upgrade",
+        type: 'saveBuild_upgrade',
         build_upgrade: response.bean.build_upgrade
       });
       if (callback) {

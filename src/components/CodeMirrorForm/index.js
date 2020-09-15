@@ -1,22 +1,22 @@
-import React, { PureComponent } from "react";
-import CodeMirror from "react-codemirror";
-import { Upload } from "antd";
-import cookie from "../../utils/cookie";
-import apiconfig from "../../../config/api.config";
-import globalUtil from "../../utils/global";
+import React, { PureComponent } from 'react';
+import CodeMirror from 'react-codemirror';
+import { Upload } from 'antd';
+import cookie from '../../utils/cookie';
+import apiconfig from '../../../config/api.config';
+import globalUtil from '../../utils/global';
 
-require("react-codemirror/node_modules/codemirror/lib/codemirror.css");
+require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
 
-require("react-codemirror/node_modules/codemirror/theme/seti.css");
-require("react-codemirror/node_modules/codemirror/addon/display/fullscreen.css");
-require("../../styles/codemirror.less");
+require('react-codemirror/node_modules/codemirror/theme/seti.css');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
+require('../../styles/codemirror.less');
 
-require("react-codemirror/node_modules/codemirror/addon/display/panel");
-require("react-codemirror/node_modules/codemirror/mode/xml/xml");
-require("react-codemirror/node_modules/codemirror/mode/javascript/javascript");
-require("react-codemirror/node_modules/codemirror/mode/yaml/yaml");
-require("react-codemirror/node_modules/codemirror/addon/display/fullscreen");
-require("react-codemirror/node_modules/codemirror/addon/edit/matchbrackets");
+require('react-codemirror/node_modules/codemirror/addon/display/panel');
+require('react-codemirror/node_modules/codemirror/mode/xml/xml');
+require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
+require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
+require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
+require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
 
 // eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {
@@ -25,7 +25,7 @@ class CodeMirrorForm extends PureComponent {
     this.state = {
       fullScreen: false
     };
-    this.CodeMirrorRef = "";
+    this.CodeMirrorRef = '';
   }
   saveRef = ref => {
     this.CodeMirrorRef = ref;
@@ -46,17 +46,17 @@ class CodeMirrorForm extends PureComponent {
     let fileList = [...info.fileList];
     if (fileList.length > 0) {
       fileList = fileList.slice(-1);
-      this.readFileContents(fileList, "file_content");
+      this.readFileContents(fileList, 'file_content');
     }
   };
 
   readFileContents = fileList => {
-    let fileString = "";
+    let fileString = '';
     const { CodeMirrorRef } = this;
     const { name, setFieldsValue } = this.props;
     for (let i = 0; i < fileList.length; i++) {
       const reader = new FileReader(); // 新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, "UTF-8"); // 读取文件
+      reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
       // eslint-disable-next-line no-loop-func
       reader.onload = evt => {
         // 读取完文件之后会回来这里
@@ -71,7 +71,6 @@ class CodeMirrorForm extends PureComponent {
       };
     }
   };
-
 
   render() {
     const {
@@ -90,26 +89,26 @@ class CodeMirrorForm extends PureComponent {
     } = this.props;
     const { fullScreen } = this.state;
     let defaultFullScreenStyle = {
-      display: "flex",
-      justifyContent: "space-between",
-      cursor: "pointer",
+      display: 'flex',
+      justifyContent: 'space-between',
+      cursor: 'pointer',
       top: 0,
-      textAlign: "right",
-      background: "#333",
-      lineHeight: "1px",
-      padding: "9px 0 6px 0"
+      textAlign: 'right',
+      background: '#333',
+      lineHeight: '1px',
+      padding: '9px 0 6px 0'
     };
 
     if (fullScreen) {
       defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
-        position: "fixed",
-        right: "5px",
-        width: "100%",
+        position: 'fixed',
+        right: '5px',
+        width: '100%',
         zIndex: 99
       });
     } else {
       defaultFullScreenStyle = Object.assign(defaultFullScreenStyle, {
-        position: "absolute",
+        position: 'absolute',
         width,
         zIndex: 4
       });
@@ -118,7 +117,7 @@ class CodeMirrorForm extends PureComponent {
     const options = {
       mode: { name: mode || 'javascript', json: true },
       lineNumbers: true,
-      theme: "seti",
+      theme: 'seti',
       fullScreen,
       lineWrapping: true,
       smartIndent: true,
@@ -127,22 +126,22 @@ class CodeMirrorForm extends PureComponent {
       showCursorWhenSelecting: true
     };
 
-    const token = cookie.get("token");
+    const token = cookie.get('token');
     return (
       <Form.Item
         {...formItemLayout}
         label={label}
-        style={{ overflow: "hidden" }}
+        style={{ overflow: 'hidden' }}
       >
         {getFieldDecorator(name, {
-          initialValue: data || "",
+          initialValue: data || '',
           rules: [{ required: true, message }]
         })(<CodeMirror options={options} ref={this.saveRef} />)}
         <div style={defaultFullScreenStyle}>
           <div
-            style={{ lineHeight: "20px", paddingLeft: "30px", color: "#fff" }}
+            style={{ lineHeight: '20px', paddingLeft: '30px', color: '#fff' }}
           >
-            {titles || ""}
+            {titles || ''}
           </div>
           <div>
             <Upload
@@ -156,15 +155,15 @@ class CodeMirrorForm extends PureComponent {
               beforeUpload={beforeUpload || false}
               onChange={this.handleChangeUpload}
             >
-              {globalUtil.fetchSvg("uploads")}
+              {globalUtil.fetchSvg('uploads')}
             </Upload>
             <span
-              style={{ margin: "0 20px" }}
+              style={{ margin: '0 20px' }}
               onClick={() => {
                 this.setState({ fullScreen: !this.state.fullScreen });
               }}
             >
-              {globalUtil.fetchSvg("amplifications")}
+              {globalUtil.fetchSvg('amplifications')}
             </span>
           </div>
         </div>

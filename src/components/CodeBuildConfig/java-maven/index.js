@@ -1,9 +1,9 @@
-import React, { PureComponent } from "react";
-import { Form, Radio, Switch, Input, Select, Button } from "antd";
-import { connect } from "dva";
-import JavaJDK from "../java-jdk";
-import MavenConfiguration from "@/components/MavenConfiguration";
-import globalUtil from "@//utils/global";
+import React, { PureComponent } from 'react';
+import { Form, Radio, Switch, Input, Select, Button } from 'antd';
+import { connect } from 'dva';
+import JavaJDK from '../java-jdk';
+import MavenConfiguration from '@/components/MavenConfiguration';
+import globalUtil from '@//utils/global';
 
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -23,7 +23,7 @@ class Index extends PureComponent {
     this.state = {
       mavenVisible: false,
       MavenList: [],
-      activeMaven: ""
+      activeMaven: ''
     };
   }
   componentDidMount() {
@@ -39,7 +39,7 @@ class Index extends PureComponent {
   fetchMavensettings = () => {
     const { dispatch, currentEnterprise } = this.props;
     dispatch({
-      type: "appControl/fetchMavensettings",
+      type: 'appControl/fetchMavensettings',
       payload: {
         region_name: globalUtil.getCurrRegionName(),
         enterprise_id: currentEnterprise.enterprise_id,
@@ -55,7 +55,7 @@ class Index extends PureComponent {
   handleMavenConfiguration = () => {
     const { getFieldValue } = this.props.form;
     this.setState({
-      activeMaven: getFieldValue("BUILD_MAVEN_SETTING_NAME"),
+      activeMaven: getFieldValue('BUILD_MAVEN_SETTING_NAME'),
       mavenVisible: true
     });
   };
@@ -94,8 +94,8 @@ class Index extends PureComponent {
           />
         )}
         <Form.Item {...formItemLayout} label="Maven版本">
-          {getFieldDecorator("BUILD_RUNTIMES_MAVEN", {
-            initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || "3.3.1"
+          {getFieldDecorator('BUILD_RUNTIMES_MAVEN', {
+            initialValue: (envs && envs.BUILD_RUNTIMES_MAVEN) || '3.3.1'
           })(
             <RadioGroup>
               <Radio value="3.3.1">3.3.1(默认)</Radio>
@@ -113,8 +113,8 @@ class Index extends PureComponent {
           label="Web服务器版本"
           help="仅适用于打包为War包的项目"
         >
-          {getFieldDecorator("BUILD_RUNTIMES_SERVER", {
-            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || "tomcat85"
+          {getFieldDecorator('BUILD_RUNTIMES_SERVER', {
+            initialValue: (envs && envs.BUILD_RUNTIMES_SERVER) || 'tomcat85'
           })(
             <RadioGroup>
               <Radio value="tomcat85">tomcat85(默认)</Radio>
@@ -127,21 +127,21 @@ class Index extends PureComponent {
           )}
         </Form.Item>
         <Form.Item {...formItemLayout} label="Maven配置">
-          {getFieldDecorator("BUILD_MAVEN_SETTING_NAME", {
+          {getFieldDecorator('BUILD_MAVEN_SETTING_NAME', {
             initialValue:
               (envs && envs.BUILD_MAVEN_SETTING_NAME) ||
               (MavenList.length > 0 && MavenList[0].name) ||
-              "",
+              '',
             rules: [
               {
                 required: true,
-                message: "请选择Maven配置"
+                message: '请选择Maven配置'
               }
             ]
           })(
             <Select
               placeholder="请选择Maven配置"
-              style={{ width: "300px", marginRight: "20px" }}
+              style={{ width: '300px', marginRight: '20px' }}
             >
               {MavenList.map(item => {
                 return (
@@ -182,48 +182,48 @@ class Index extends PureComponent {
           })(<Input placeholder="" />)}
         </Form.Item> */}
         <Form.Item {...formItemLayout} label="Maven构建参数">
-          {getFieldDecorator("BUILD_MAVEN_CUSTOM_OPTS", {
+          {getFieldDecorator('BUILD_MAVEN_CUSTOM_OPTS', {
             initialValue:
-              (envs && envs.BUILD_MAVEN_CUSTOM_OPTS) || "-DskipTests",
+              (envs && envs.BUILD_MAVEN_CUSTOM_OPTS) || '-DskipTests',
             rules: [
               {
                 required: true,
-                message: "请输入Maven构建参数"
+                message: '请输入Maven构建参数'
               }
             ]
           })(<Input placeholder="请输入Maven构建参数" />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="Maven构建命令">
-          {getFieldDecorator("BUILD_MAVEN_CUSTOM_GOALS", {
+          {getFieldDecorator('BUILD_MAVEN_CUSTOM_GOALS', {
             initialValue:
               (envs && envs.BUILD_MAVEN_CUSTOM_GOALS) ||
-              "clean dependency:list install",
+              'clean dependency:list install',
             rules: [
               {
                 required: true,
-                message: "请输入Maven构建命令"
+                message: '请输入Maven构建命令'
               }
             ]
           })(<Input placeholder="请输入Maven构建命令" />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="MAVEN构建Java参数配置">
-          {getFieldDecorator("BUILD_MAVEN_JAVA_OPTS", {
-            initialValue: (envs && envs.BUILD_MAVEN_JAVA_OPTS) || "-Xmx1024m",
+          {getFieldDecorator('BUILD_MAVEN_JAVA_OPTS', {
+            initialValue: (envs && envs.BUILD_MAVEN_JAVA_OPTS) || '-Xmx1024m',
             rules: [
               {
                 required: true,
-                message: "请输入MAVEN构建Java参数配置"
+                message: '请输入MAVEN构建Java参数配置'
               }
             ]
           })(<Input placeholder="请输入MAVEN构建Java参数配置" />)}
         </Form.Item>
         <Form.Item {...formItemLayout} label="启动命令">
-          {getFieldDecorator("BUILD_PROCFILE", {
-            initialValue: (envs && envs.BUILD_PROCFILE) || "",
+          {getFieldDecorator('BUILD_PROCFILE', {
+            initialValue: (envs && envs.BUILD_PROCFILE) || '',
             rules: [
               {
                 required: true,
-                message: "请输入启动命令"
+                message: '请输入启动命令'
               }
             ]
           })(
