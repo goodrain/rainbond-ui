@@ -119,6 +119,10 @@ import {
   fetchInstanceDetails,
   fetchOperationLog,
   fetchLogContent,
+  getMavensettings,
+  addMavensettings,
+  editMavensettings,
+  deleteMavensettings
 } from '../services/app';
 
 import { getCertificates, addCertificate } from '../services/team';
@@ -179,7 +183,7 @@ export default {
     visitInfo: null,
     // 设置了权限的团队成员
     members: [],
-    build_upgrade: '',
+    build_upgrade: ''
   },
   effects: {
     *fetchOperationLog({ payload, callback, handleError }, { call, put }) {
@@ -326,6 +330,31 @@ export default {
         callback && callback(response);
       }
     },
+    *fetchMavensettings({ payload, callback }, { call }) {
+      const response = yield call(getMavensettings, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *AddMavensettings({ payload, callback }, { call }) {
+      const response = yield call(addMavensettings, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *EditMavensettings({ payload, callback }, { call }) {
+      const response = yield call(editMavensettings, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *DeleteMavensettings({ payload, callback }, { call }) {
+      const response = yield call(deleteMavensettings, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+
     *fetchInstanceDetails({ payload, callback }, { call, put }) {
       const response = yield call(fetchInstanceDetails, payload);
       if (response) {
@@ -729,7 +758,7 @@ export default {
       if (response) {
         yield put({
           type: 'saveVolumes',
-          payload: response.list || [],
+          payload: response.list || []
         });
         callback && callback(response);
       }
@@ -962,7 +991,7 @@ export default {
       const response = yield call(changeApplicationState, payload);
       yield put({
         type: 'saveBuild_upgrade',
-        build_upgrade: response.bean.build_upgrade,
+        build_upgrade: response.bean.build_upgrade
       });
       if (callback) {
         callback && callback(response);
@@ -973,296 +1002,296 @@ export default {
       if (callback) {
         callback && callback(response);
       }
-    },
+    }
   },
   reducers: {
     clearMembers(state, action) {
       return {
         ...state,
-        members: [],
+        members: []
       };
     },
     saveMember(state, action) {
       return {
         ...state,
-        members: action.payload,
+        members: action.payload
       };
     },
     saveVisitInfo(state, action) {
       return {
         ...state,
-        visitInfo: action.payload,
+        visitInfo: action.payload
       };
     },
     clearVisitInfo(state, action) {
       return {
         ...state,
-        visitInfo: null,
+        visitInfo: null
       };
     },
     clearPods(state, action) {
       return {
         ...state,
-        pods: {},
+        pods: {}
       };
     },
     savePods(state, action) {
       return {
         ...state,
-        pods: action.payload,
+        pods: action.payload
       };
     },
     clearExtendInfo(state, action) {
       return {
         ...state,
-        extendInfo: null,
+        extendInfo: null
       };
     },
     saveExtendInfo(state, action) {
       return {
         ...state,
-        extendInfo: action.payload,
+        extendInfo: action.payload
       };
     },
     saveScalingRules(state, action) {
       return {
         ...state,
-        scalingRules: action.payload,
+        scalingRules: action.payload
       };
     },
     saveBranch(state, action) {
       return {
         ...state,
-        codeBranch: action.payload,
+        codeBranch: action.payload
       };
     },
     saveApps(state, action) {
       return {
         ...state,
-        apps: action.payload,
+        apps: action.payload
       };
     },
     clearPorts(state, action) {
       return {
         ...state,
-        ports: [],
+        ports: []
       };
     },
     savePorts(state, action) {
       return {
         ...state,
-        ports: action.payload,
+        ports: action.payload
       };
     },
     clearInnerEnvs(state, action) {
       return {
         ...state,
-        innerEnvs: [],
+        innerEnvs: []
       };
     },
     saveInnerEnvs(state, action) {
       return {
         ...state,
-        innerEnvs: action.payload,
+        innerEnvs: action.payload
       };
     },
     clearOuterEnvs(state, action) {
       return {
         ...state,
-        outerEnvs: [],
+        outerEnvs: []
       };
     },
     saveOuterEnvs(state, action) {
       return {
         ...state,
-        outerEnvs: action.payload,
+        outerEnvs: action.payload
       };
     },
     clearRelationOuterEnvs(state, action) {
       return {
         ...state,
-        relationOuterEnvs: [],
+        relationOuterEnvs: []
       };
     },
     saveRelationOuterEnvs(state, action) {
       return {
         ...state,
-        relationOuterEnvs: action.payload,
+        relationOuterEnvs: action.payload
       };
     },
     clearRunningProbe(state, action) {
       return {
         ...state,
-        runningProbe: {},
+        runningProbe: {}
       };
     },
     saveRunningProbe(state, action) {
       return {
         ...state,
-        runningProbe: action.payload,
+        runningProbe: action.payload
       };
     },
     clearStartProbe(state, action) {
       return {
         ...state,
-        startProbe: {},
+        startProbe: {}
       };
     },
     saveStartProbe(state, action) {
       return {
         ...state,
-        startProbe: action.payload,
+        startProbe: action.payload
       };
     },
     saveBaseInfo(state, action) {
       return {
         ...state,
-        baseInfo: action.payload,
+        baseInfo: action.payload
       };
     },
     clearVolumes(state, action) {
       return {
         ...state,
-        volumes: [],
+        volumes: []
       };
     },
     saveVolumes(state, action) {
       return {
         ...state,
-        volumes: action.payload,
+        volumes: action.payload
       };
     },
     saveCertificates(state, action) {
       return {
         ...state,
-        certificates: action.payload,
+        certificates: action.payload
       };
     },
     clearRequesTime(state, action) {
       return {
         ...state,
-        requestTime: {},
+        requestTime: {}
       };
     },
     saveRequestTime(state, action) {
       return {
         ...state,
-        requestTime: action.payload,
+        requestTime: action.payload
       };
     },
     clearRequesTimeRange(state, action) {
       return {
         ...state,
-        requestTimeRange: {},
+        requestTimeRange: {}
       };
     },
     saveRequestTimeRange(state, action) {
       return {
         ...state,
-        requestTimeRange: action.payload,
+        requestTimeRange: action.payload
       };
     },
     clearAppDisk(state, action) {
       return {
         ...state,
-        appDisk: {},
+        appDisk: {}
       };
     },
     saveAppDisk(state, action) {
       return {
         ...state,
-        appDisk: action.payload,
+        appDisk: action.payload
       };
     },
     clearAppMemory(state, action) {
       return {
         ...state,
-        appMemory: {},
+        appMemory: {}
       };
     },
     saveAppMemory(state, action) {
       return {
         ...state,
-        appMemory: action.payload,
+        appMemory: action.payload
       };
     },
     clearRequest(state, action) {
       return {
         ...state,
-        appRequest: {},
+        appRequest: {}
       };
     },
     saveRequest(state, action) {
       return {
         ...state,
-        appRequest: action.payload,
+        appRequest: action.payload
       };
     },
     clearRequestRange(state, action) {
       return {
         ...state,
-        appRequestRange: {},
+        appRequestRange: {}
       };
     },
     saveRequestRange(state, action) {
       return {
         ...state,
-        appRequestRange: action.payload,
+        appRequestRange: action.payload
       };
     },
     clearOnlineNumber(state, action) {
       return {
         ...state,
-        onlineNumber: {},
+        onlineNumber: {}
       };
     },
     saveOnlineNumber(state, action) {
       return {
         ...state,
-        onlineNumber: action.payload,
+        onlineNumber: action.payload
       };
     },
     clearOnlineNumberRange(state, action) {
       return {
         ...state,
-        onlineNumberRange: {},
+        onlineNumberRange: {}
       };
     },
     saveOnlineNumberRange(state, action) {
       return {
         ...state,
-        onlineNumberRange: action.payload,
+        onlineNumberRange: action.payload
       };
     },
     clearDetail(state, action) {
       return {
         ...state,
-        appDetail: {},
+        appDetail: {}
       };
     },
     saveTags(state, action) {
       return {
         ...state,
-        tags: action.payload,
+        tags: action.payload
       };
     },
     clearTags(state, action) {
       return {
         ...state,
-        tags: null,
+        tags: null
       };
     },
     saveDetail(state, action) {
       return {
         ...state,
-        appDetail: action.payload,
+        appDetail: action.payload
       };
     },
     saveBuild_upgrade(state, action) {
       return {
         ...state,
-        build_upgrade: action.build_upgrade,
+        build_upgrade: action.build_upgrade
       };
-    },
-  },
+    }
+  }
 };

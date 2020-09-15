@@ -130,5 +130,9 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 10"
-  ]
+  ],  
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none"
+  }
 }
