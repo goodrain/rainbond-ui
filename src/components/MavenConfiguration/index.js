@@ -406,7 +406,7 @@ export default class AddAdmin extends PureComponent {
                       },
                       {
                         pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
-                        message: '必须由小写的字母数字字符组成，‘-’，并且必须以字母数字字符开始和结束'
+                        message: '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
                       }
                     ]
                   })(
