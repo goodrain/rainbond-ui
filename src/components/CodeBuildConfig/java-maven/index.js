@@ -34,6 +34,7 @@ class Index extends PureComponent {
   }
 
   onCancel = () => {
+    this.fetchMavensettings();
     this.setState({
       mavenVisible: false
     });
