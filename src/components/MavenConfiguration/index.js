@@ -129,6 +129,7 @@ export default class AddAdmin extends PureComponent {
   };
 
   handleClick = e => {
+    this.handleEditorConfiguration();
     this.setState(
       {
         contentLoading: true
