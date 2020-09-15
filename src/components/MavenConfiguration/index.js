@@ -75,11 +75,18 @@ export default class AddAdmin extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
+          if (res.list && res.list.length === 0) {
+            this.setState({ isEditor: false });
+          } else {
+            this.handleEditorConfiguration();
+          }
           if (Initialize && res.list && res.list.length > 0) {
             if (activeMaven) {
               const list = res.list.filter(item => item.name === activeMaven);
               if (list && list.length > 0) {
                 this.setState({ mavenInfo: list[0] });
+              } else {
+                this.setState({ isEditor: false });
               }
             } else {
               setFieldsValue({ content: res.list[0].content });
@@ -87,11 +94,7 @@ export default class AddAdmin extends PureComponent {
               this.setState({ mavenInfo: res.list[0] });
             }
           }
-          if (res.list && res.list.length === 0) {
-            this.setState({ isEditor: false });
-          } else {
-            this.handleEditorConfiguration();
-          }
+
           this.setState({
             mavenList: res.list,
             loading: false,
@@ -126,6 +129,7 @@ export default class AddAdmin extends PureComponent {
   };
 
   handleClick = e => {
+    this.handleEditorConfiguration();
     this.setState(
       {
         contentLoading: true
@@ -221,7 +225,7 @@ export default class AddAdmin extends PureComponent {
                 contentLoading: true
               });
               this.fetchMavensettings();
-              notification.success({ message: '编辑成功' });
+              notification.success({ message: '保存成功' });
             }
           }
         });
@@ -248,8 +252,9 @@ export default class AddAdmin extends PureComponent {
 
   render() {
     const {
-      onCancel,
+      // eslint-disable-next-line no-shadow
       form,
+      onCancel,
       AddMavensettingsLoading,
       EditMavensettingsLoading,
       DeleteMavensettingsLoading
@@ -263,7 +268,15 @@ export default class AddAdmin extends PureComponent {
       toDelete,
       contentLoading
     } = this.state;
-    const footer = [<Button onClick={onCancel}>取消</Button>];
+    const footer = [
+      <Button
+        onClick={() => {
+          onCancel();
+        }}
+      >
+        取消
+      </Button>
+    ];
 
     if (isEditor) {
       footer.unshift(
@@ -272,7 +285,7 @@ export default class AddAdmin extends PureComponent {
           loading={EditMavensettingsLoading}
           onClick={this.handleEditSubmit}
         >
-          编辑
+          保存
         </Button>
       );
     } else {
@@ -290,11 +303,11 @@ export default class AddAdmin extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: 23, offset: 1 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 }
+        sm: { span: 23, offset: 1 }
       }
     };
 
@@ -374,7 +387,7 @@ export default class AddAdmin extends PureComponent {
               )}
             </Sider>
             <Content>
-              <Form onSubmit={this.handleSubmit}>
+              <Form onSubmit={this.handleSubmit} labelAlign="left">
                 <FormItem {...formItemLayout} label="配置名称">
                   {getFieldDecorator('name', {
                     initialValue: mavenInfo.name || '',
@@ -409,7 +422,7 @@ export default class AddAdmin extends PureComponent {
                     mode="application/xml"
                     label="配置文件内容"
                     message="请编辑内容"
-                    width="322px"
+                    width="529px"
                     Form={Form}
                     setFieldsValue={setFieldsValue}
                     formItemLayout={formItemLayout}
