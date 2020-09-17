@@ -7,6 +7,7 @@ import CertificateForm from '../../components/CertificateForm';
 import CloudBackupForm from '../../components/CloudBackupForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import ImageHubForm from '../../components/ImageHubForm';
+import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
 import OauthTable from './oauthTable';
@@ -37,6 +38,7 @@ export default class Infrastructure extends PureComponent {
       openImageHub: false,
       openCloudBackup: false,
       closeCloudBackup: false,
+      openBasicInformation: false,
       israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise),
       isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
         enterprise
@@ -235,7 +237,12 @@ export default class Infrastructure extends PureComponent {
   handelCloseCloudBackup = () => {
     this.setState({ closeCloudBackup: false, openCloudBackup: false });
   };
-
+  handelOpenBasicInformation = () => {
+    this.setState({ openBasicInformation: true });
+  };
+  handelCloseBasicInformation = () => {
+    this.setState({ openBasicInformation: false });
+  };
   createClusters = values => {
     const {
       dispatch,
@@ -328,31 +335,30 @@ export default class Infrastructure extends PureComponent {
       closeImageHub,
       openCloudBackup,
       closeCloudBackup,
-      providers
+      providers,
+      openBasicInformation
     } = this.state;
-    const userRegistered = (
-      <div>
-        <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
-          <Row type="flex" align="middle">
-            <Col span={3}>用户注册</Col>
-            <Col span={17}>
-              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                控制用户是否可以注册功能
-              </span>
-            </Col>
+    const UserRegistered = (
+      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+        <Row type="flex" align="middle">
+          <Col span={3}>用户注册</Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              控制用户是否可以注册功能
+            </span>
+          </Col>
 
-            <Col span={4} style={{ textAlign: 'right' }}>
-              <Switch
-                onChange={this.onRegistChange}
-                className={styles.automaTictelescopingSwitch}
-                checked={this.props.isRegist}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </div>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <Switch
+              onChange={this.onRegistChange}
+              className={styles.automaTictelescopingSwitch}
+              checked={this.props.isRegist}
+            />
+          </Col>
+        </Row>
+      </Card>
     );
-    const oauth = (
+    const Oauth = (
       <div>
         <Card
           style={{ borderTop: '1px solid  #ccc' }}
@@ -487,6 +493,28 @@ export default class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+
+    const BasicInformation = (
+      <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
+        <Row type="flex" align="middle">
+          <Col span={3}>基础信息</Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              可以修改平台的标题、企业名称、LOGO
+            </span>
+          </Col>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <a
+              onClick={this.handelOpenBasicInformation}
+              style={{ marginRight: '10px' }}
+            >
+              查看配置
+            </a>
+          </Col>
+        </Row>
+      </Card>
+    );
+
     return (
       <Fragment>
         {openCertificate && (
@@ -519,15 +547,22 @@ export default class Infrastructure extends PureComponent {
         {openCloudBackup && (
           <CloudBackupForm
             eid={eid}
-            title={
-              !isEnableObjectStorage
-                ? '开通对象存储'
-                : '对象存储'
-            }
+            title={!isEnableObjectStorage ? '开通对象存储' : '对象存储'}
             loading={objectStorageLongin}
             onCancel={this.handelCloseCloudBackup}
             data={ObjectStorageValue}
             providers={providers}
+            onOk={values => {
+              this.handelIsOpenCloudBackup(true, values);
+            }}
+          />
+        )}
+        {openBasicInformation && (
+          <PlatformBasicInformationForm
+            eid={eid}
+            title="基础信息"
+            loading={objectStorageLongin}
+            onCancel={this.handelCloseBasicInformation}
             onOk={values => {
               this.handelIsOpenCloudBackup(true, values);
             }}
@@ -603,9 +638,10 @@ export default class Infrastructure extends PureComponent {
           </div>
         ) : (
           <div>
-            {userRegistered}
+            {BasicInformation}
+            {UserRegistered}
             {AutomaticIssueCertificate}
-            {oauth}
+            {Oauth}
             {MirrorWarehouseInformation}
             {CloudBackup}
           </div>
