@@ -239,6 +239,61 @@ export async function getTeamAppList(body = {}) {
   });
 }
 
+export async function getConfigurationList(body = {}) {
+  return request(
+    `https://doc.goodrain.org/mock/18/console/teams/{team_name}/groups/{group_id}/configgroups`,
+    // `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/configgroups`,
+    {
+      method: 'get',
+      params: {
+        page: body.page,
+        page_size: body.page_size,
+        query: body.query
+      }
+    }
+  );
+}
+
+export async function addConfiguration(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/configgroups`,
+    {
+      method: 'post',
+      data: body
+    }
+  );
+}
+
+export async function editConfiguration(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/configgroups/${body.name}`,
+    {
+      method: 'put',
+      data: {
+        page: body.page,
+        page_size: body.page_size,
+        query: body.query,
+        config_items: body.config_items,
+        service_ids: body.service_ids
+      }
+    }
+  );
+}
+
+export async function deleteConfiguration(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/configgroups/${body.name}`,
+    {
+      method: 'DELETE',
+      data: {
+        page: body.page,
+        page_size: body.page_size,
+        query: body.query
+      }
+    }
+  );
+}
+
 /* 获取团队应用模块 */
 export async function getGuideState(body = {}) {
   return request(
