@@ -59,31 +59,33 @@ class Parameterinput extends Component {
           values.length > 0 &&
           values.map((item, index) => {
             return (
-              <Row key={item.key}>
-                <Col span={9}>
-                  <TextArea
-                    name="key"
-                    rows={3}
-                    maxLength={255}
-                    onChange={this.onKeyChange.bind(this, index)}
-                    value={item.key}
-                    placeholder={keyPlaceholder}
-                  />
-                </Col>
-                <Col span={2} style={{ textAlign: 'center' }}>
+              <Row
+                key={item.key}
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
+                <Input
+                  style={{ width: '370px' }}
+                  name="key"
+                  maxLength={255}
+                  onChange={this.onKeyChange.bind(this, index)}
+                  value={item.key}
+                  placeholder={keyPlaceholder}
+                />
+                <span style={{ textAlign: 'center', padding: '0 10px' }}>
                   :
-                </Col>
-                <Col span={9}>
+                </span>
+                <div>
                   <TextArea
                     name="value"
-                    rows={3}
+                    rows={1}
+                    style={{ width: '370px', marginRight: '10px' }}
                     maxLength={65533}
                     onChange={this.onValueChange.bind(this, index)}
                     value={item.value}
                     placeholder={valuePlaceholder}
                   />
-                </Col>
-                <Col span={4} style={{ textAlign: 'center' }}>
+                </div>
+                <div style={{ textAlign: 'center' }}>
                   {index === 0 ? (
                     <Icon
                       type="plus-circle"
@@ -97,7 +99,7 @@ class Parameterinput extends Component {
                       onClick={this.remove.bind(this, index)}
                     />
                   )}
-                </Col>
+                </div>
               </Row>
             );
           })}

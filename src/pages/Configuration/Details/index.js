@@ -13,15 +13,20 @@ import {
   notification,
   Modal
 } from 'antd';
+import ConfigurationHeader from '../Header';
 import Parameterinput from '@/components/Parameterinput';
+import { createEnterprise, createTeam } from '@/utils/breadcrumb';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { confirm } = Modal;
 
-@connect(({ loading }) => ({
+@connect(({ loading, teamControl, enterprise }) => ({
   AddConfigurationLoading: loading.effects['groupControl/AddConfiguration'],
-  EditConfigurationLoading: loading.effects['groupControl/EditConfiguration']
+  EditConfigurationLoading: loading.effects['groupControl/EditConfiguration'],
+  currentTeam: teamControl.currentTeam,
+  currentRegionName: teamControl.currentRegionName,
+  currentEnterprise: enterprise.currentEnterprise
 }))
 @Form.create()
 export default class ConfigurationDetails extends PureComponent {
@@ -180,7 +185,10 @@ export default class ConfigurationDetails extends PureComponent {
     const {
       form,
       AddConfigurationLoading,
-      EditConfigurationLoading
+      EditConfigurationLoading,
+      currentEnterprise,
+      currentTeam,
+      currentRegionName
     } = this.props;
     const { apps, info } = this.state;
     const { getFieldDecorator } = form;
@@ -213,27 +221,33 @@ export default class ConfigurationDetails extends PureComponent {
     }
 
     const { id } = this.handleParameter();
+    let breadcrumbList = [];
+    breadcrumbList = createTeam(
+      createEnterprise(breadcrumbList, currentEnterprise),
+      currentTeam,
+      currentRegionName
+    );
     return (
-      <Card
-        style={{ minHeight: '600px' }}
-        title={id === 'add' ? '添加配置组' : '修改配置组'}
-        extra={[
-          <Button onClick={this.onCancel} style={{ marginRight: '20px' }}>
-            取消
-          </Button>,
-          <Button
-            type="primary"
-            onClick={this.onOk}
-            loading={AddConfigurationLoading || EditConfigurationLoading}
-          >
-            {id === 'add' ? '确定' : '保存'}
-          </Button>
-        ]}
-      >
-        <Form onSubmit={this.onOk}>
-          <Row>
-            <Col span={12}>
-              <FormItem {...formItemLayouts} label="配置组名称">
+      <ConfigurationHeader breadcrumbList={breadcrumbList}>
+        <Card
+          style={{ minHeight: '600px' }}
+          title={id === 'add' ? '添加配置组' : '修改配置组'}
+          extra={[
+            <Button onClick={this.onCancel} style={{ marginRight: '20px' }}>
+              取消
+            </Button>,
+            <Button
+              type="primary"
+              onClick={this.onOk}
+              loading={AddConfigurationLoading || EditConfigurationLoading}
+            >
+              {id === 'add' ? '确定' : '保存'}
+            </Button>
+          ]}
+        >
+          <Form onSubmit={this.onOk} style={{ margin: '0 auto',width:'820px' }}>
+            <Row style={{ display: 'flex', alignItems: 'center' }}>
+              <FormItem style={{ width: '370px' }} label="配置组名称">
                 {getFieldDecorator('config_group_name', {
                   initialValue: (info && info.config_group_name) || '',
                   rules: [
@@ -254,53 +268,57 @@ export default class ConfigurationDetails extends PureComponent {
                   ]
                 })(
                   <Input
+                    style={{ width: '370px' }}
                     disabled={info && info.config_group_name}
                     placeholder="请填写配置组名称"
                   />
                 )}
               </FormItem>
-            </Col>
-            <Col span={8} style={{ marginLeft: '-30px' }}>
-              <Form.Item {...formItemLayout} label="状态">
+              <Form.Item
+                style={{ width: '370px', marginLeft: '24px' }}
+                label="状态"
+              >
                 {getFieldDecorator('state', {
                   initialValue: (info && info.state) || true,
                   rules: [{ required: true }]
                 })(<Switch />)}
               </Form.Item>
-            </Col>
-          </Row>
-          <FormItem {...formItemLayout} label="配置项">
-            {getFieldDecorator('config_items', {
-              initialValue: (info && info.config_items) || '',
-              rules: [
-                { required: true, message: '请填写配置项' },
-                {
-                  validator: this.checkConfiguration
-                }
-              ]
-            })(<Parameterinput editInfo={(info && info.config_items) || ''} />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="组件">
-            {getFieldDecorator('service_ids', {
-              initialValue: serviceIds,
-              rules: [{ required: true, message: '请选择组件' }]
-            })(
-              <Checkbox.Group className={styles.setCheckbox}>
-                <Row span={24}>
-                  {apps.map(item => {
-                    const { service_cname: name, service_id: id } = item;
-                    return (
-                      <Checkbox key={id} value={id}>
-                        {name}
-                      </Checkbox>
-                    );
-                  })}
-                </Row>
-              </Checkbox.Group>
-            )}
-          </FormItem>
-        </Form>
-      </Card>
+            </Row>
+            <FormItem label="配置项">
+              {getFieldDecorator('config_items', {
+                initialValue: (info && info.config_items) || '',
+                rules: [
+                  { required: true, message: '请填写配置项' },
+                  {
+                    validator: this.checkConfiguration
+                  }
+                ]
+              })(
+                <Parameterinput editInfo={(info && info.config_items) || ''} />
+              )}
+            </FormItem>
+            <FormItem label="生效组件">
+              {getFieldDecorator('service_ids', {
+                initialValue: serviceIds,
+                rules: [{ required: true, message: '请选择生效组件' }]
+              })(
+                <Checkbox.Group className={styles.setCheckbox}>
+                  <Row span={24}>
+                    {apps.map(item => {
+                      const { service_cname: name, service_id: id } = item;
+                      return (
+                        <Checkbox key={id} value={id}>
+                          {name}
+                        </Checkbox>
+                      );
+                    })}
+                  </Row>
+                </Checkbox.Group>
+              )}
+            </FormItem>
+          </Form>
+        </Card>
+      </ConfigurationHeader>
     );
   }
 }

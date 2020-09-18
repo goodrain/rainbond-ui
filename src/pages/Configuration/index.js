@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ConfigurationHeader from './Header';
 import ConfigurationTable from './Table';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 /* eslint react/no-array-index-key: 0 */
@@ -31,15 +31,12 @@ export default class Configuration extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: '应用列表' });
     return (
-      <PageHeaderLayout
+      <ConfigurationHeader
         breadcrumbList={breadcrumbList}
-        title="应用配置组管理"
-        content="配置组通过环境变量，文件挂载等方式注入到指定到组件运行环境中"
       >
         <ConfigurationTable {...parameter} />
-      </PageHeaderLayout>
+      </ConfigurationHeader>
     );
   }
 }
