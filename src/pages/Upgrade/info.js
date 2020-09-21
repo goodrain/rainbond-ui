@@ -1,3 +1,8 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable react/jsx-indent */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable camelcase */
+/* eslint-disable no-nested-ternary */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -11,7 +16,7 @@ import {
   Form,
   Tooltip,
   Icon,
-  Spin,
+  Spin
 } from 'antd';
 import globalUtil from '../../utils/global';
 import infoUtil from './info-util';
@@ -37,7 +42,9 @@ export default class AppList extends PureComponent {
       upgradeText: '升级',
       textState: 1,
       service_id: [],
-      conshow: true,
+      upgradeLoading: false,
+      rollbackLoading: false,
+      conshow: true
     };
   }
   componentDidMount() {
@@ -52,52 +59,52 @@ export default class AppList extends PureComponent {
   // 生成升级订单
   // eslint-disable-next-line react/sort-comp
   generateUpdateOrder = () => {
-    const { group_id } = this.props;
+    const { group_id, data, activeKey, dispatch } = this.props;
     const { infoObj } = this.state;
     const payload = {
       team_name: globalUtil.getCurrTeamName(),
       group_id,
-      group_key: infoObj.group_key,
+      group_key: infoObj.group_key
     };
     if (infoObj && (infoObj.source === 'market' || infoObj.is_from_cloud)) {
       payload.marketName = infoObj.market_name;
       payload.isFromCloud = true;
     }
-    this.props.dispatch({
+    dispatch({
       type: 'global/CloudAppUpdateOrder',
       payload,
       callback: res => {
         if (res && res._code == 200) {
-          if (this.props.activeKey != 2) {
+          if (activeKey != 2) {
             this.setState({
-              infoObj: res.bean ? res.bean : this.props.data,
+              infoObj: res.bean ? res.bean : data
             });
           } else {
             this.setState({
-              textState: this.props.data.status,
+              textState: data.status
             });
           }
-          if (this.props.activeKey == 2 && infoObj.status == 4) {
+          if (activeKey == 2 && infoObj.status == 4) {
             this.setState(
               {
-                record_id: infoObj.ID,
+                record_id: infoObj.ID
               },
               () => {
                 this.getUpgradeRecordsInfo('Rollback');
               }
             );
-          } else if (this.props.activeKey == 2 && infoObj.status == 2) {
+          } else if (activeKey == 2 && infoObj.status == 2) {
             this.setState(
               {
-                record_id: infoObj.ID,
+                record_id: infoObj.ID
               },
               () => {
                 this.getUpgradeRecordsInfo();
               }
             );
-          } else if (this.props.activeKey == 2) {
+          } else if (activeKey == 2) {
             this.setState({
-              text: infoUtil.getStatusCNS(infoObj.status),
+              text: infoUtil.getStatusCNS(infoObj.status)
             });
           }
 
@@ -108,7 +115,7 @@ export default class AppList extends PureComponent {
             ) {
               this.setState(
                 {
-                  record_id: infoObj.not_upgrade_record_id,
+                  record_id: infoObj.not_upgrade_record_id
                 },
                 () => {
                   this.getUpgradeRecordsInfo();
@@ -117,7 +124,7 @@ export default class AppList extends PureComponent {
             }
           }
         }
-      },
+      }
     });
   };
 
@@ -131,13 +138,13 @@ export default class AppList extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id,
-        group_key: infoObj.group_key,
+        group_key: infoObj.group_key
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState(
             {
-              upgradeVersions: res.list,
+              upgradeVersions: res.list
             },
             () => {
               if (!Rollback && this.props.activeKey == 2) {
@@ -160,7 +167,7 @@ export default class AppList extends PureComponent {
                     type,
                     upgrade_info,
                     service_id: service_ids,
-                    conshow: null,
+                    conshow: null
                   });
                 }
               } else {
@@ -169,7 +176,7 @@ export default class AppList extends PureComponent {
             }
           );
         }
-      },
+      }
     });
   };
 
@@ -182,7 +189,7 @@ export default class AppList extends PureComponent {
       team_name: globalUtil.getCurrTeamName(),
       group_id,
       group_key: infoObj.group_key,
-      version: versions || version,
+      version: versions || version
     };
     if (infoObj && infoObj.is_from_cloud) {
       payload.marketName = infoObj.market_name;
@@ -212,11 +219,11 @@ export default class AppList extends PureComponent {
               type,
               upgrade_info,
               conshow: null,
-              service_id,
+              service_id
             });
           }
         }
-      },
+      }
     });
   };
 
@@ -234,7 +241,7 @@ export default class AppList extends PureComponent {
       this.setState({
         type: type.service_id,
         indexs: index,
-        upgrade_info: upgradeInfo[index],
+        upgrade_info: upgradeInfo[index]
       });
       // this.setState({ type: type.service_id, indexs: index, upgrade_info: service.type=="upgrade"? upgradeInfo[index]:{type:"add"} });
     }
@@ -242,18 +249,24 @@ export default class AppList extends PureComponent {
   handleSubmit = () => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.createUpgradeTasks(values);
+        this.setState(
+          {
+            upgradeLoading: true
+          },
+          () => {
+            this.createUpgradeTasks(values);
+          }
+        );
       }
     });
   };
   // 创建升级任务
   createUpgradeTasks = values => {
-    const { group_id } = this.props;
+    const { group_id, form, dispatch } = this.props;
     const { infoObj, upgradeInfo } = this.state;
-    const version = this.props.form.getFieldValue('upgradeVersions');
+    const version = form.getFieldValue('upgradeVersions');
     const arr = [];
     const indexc = [];
-
     for (let i = 0; i < upgradeInfo.length; i++) {
       // eslint-disable-next-line no-plusplus
       for (let k = 0; k < values.services.length; k++) {
@@ -263,8 +276,7 @@ export default class AppList extends PureComponent {
         }
       }
     }
-
-    this.props.dispatch({
+    dispatch({
       type: 'global/CloudAppUpdatedTasks',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -272,20 +284,20 @@ export default class AppList extends PureComponent {
         group_key: infoObj.group_key,
         version,
         services: arr,
-        upgrade_record_id: infoObj.ID,
+        upgrade_record_id: infoObj.ID
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState(
             {
-              record_id: res.bean.ID,
+              record_id: res.bean.ID
             },
             () => {
               this.getUpgradeRecordsInfo();
             }
           );
         }
-      },
+      }
     });
   };
 
@@ -322,44 +334,47 @@ export default class AppList extends PureComponent {
 
   // 查询某应用的更新记录详情
   getUpgradeRecordsInfo = Rollback => {
-    const { group_id } = this.props;
-    const { record_id } = this.state;
-    this.props.dispatch({
+    const { group_id, dispatch } = this.props;
+    const { record_id, upgradeText } = this.state;
+    dispatch({
       type: 'global/CloudAppUpdateRecordsInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id,
-        record_id,
+        record_id
       },
       callback: res => {
         if (res && res._code == 200) {
+          const info = res.bean;
           this.setState(
             {
-              upgradeRecords: res.bean.service_record,
-              textState: res.bean.status,
-              text: infoUtil.getStatusCNS(res.bean.status),
+              upgradeRecords: info.service_record,
+              textState: info.status,
+              text: infoUtil.getStatusCNS(info.status),
               upgradeText: Rollback
-                ? this.state.upgradeText
-                : res.bean.status == 1
+                ? upgradeText
+                : info.status == 1
                 ? '未升级'
-                : res.bean.status == 2
+                : info.status == 2
                 ? '升级中'
-                : res.bean.status == 3
+                : info.status == 3
                 ? '升级完成'
-                : res.bean.status == 6
+                : info.status == 6
                 ? '部分升级'
-                : res.bean.status == 8
+                : info.status == 8
                 ? '升级失败'
                 : '升级',
+              upgradeLoading: false,
+              rollbackLoading: false
             },
             () => {
               if (
-                res.bean.status != 3 &&
-                res.bean.status != 5 &&
-                res.bean.status != 6 &&
-                res.bean.status != 7 &&
-                res.bean.status != 8 &&
-                res.bean.status != 9
+                info.status != 3 &&
+                info.status != 5 &&
+                info.status != 6 &&
+                info.status != 7 &&
+                info.status != 8 &&
+                info.status != 9
               ) {
                 setTimeout(() => {
                   this.getUpgradeRecordsInfo(Rollback);
@@ -368,7 +383,7 @@ export default class AppList extends PureComponent {
             }
           );
         }
-      },
+      }
     });
   };
 
@@ -388,13 +403,13 @@ export default class AppList extends PureComponent {
                 style={{
                   textAlign: 'center',
                   lineHeight: '300px',
-                  fontSize: '25px',
+                  fontSize: '25px'
                 }}
               >
                 新增组件
               </div>
-            ),
-          },
+            )
+          }
         ];
       } else if (upgrade_info && JSON.stringify(upgrade_info) != '{}') {
         return this.setData(upgrade_info);
@@ -409,13 +424,13 @@ export default class AppList extends PureComponent {
               style={{
                 textAlign: 'center',
                 lineHeight: '300px',
-                fontSize: '25px',
+                fontSize: '25px'
               }}
             >
               组件无变更，无需升级
             </div>
-          ),
-        },
+          )
+        }
       ];
 
       // if (service.type == "add") {
@@ -487,13 +502,13 @@ export default class AppList extends PureComponent {
             style={{
               textAlign: 'center',
               lineHeight: '300px',
-              fontSize: '25px',
+              fontSize: '25px'
             }}
           >
             组件无变更，无需升级
           </div>
-        ),
-      },
+        )
+      }
     ];
   };
 
@@ -506,7 +521,7 @@ export default class AppList extends PureComponent {
       dep_services,
       dep_volumes,
       plugins,
-      envs,
+      envs
     } = data;
 
     const images = {
@@ -521,7 +536,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
       // actions: [<a>删除</a>],
     };
     const envss = {
@@ -539,7 +554,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
     const portss = {
       title: '端口',
@@ -556,7 +571,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
 
     const volumess = {
@@ -586,7 +601,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
 
     const yl = {
@@ -618,7 +633,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
 
     const dep_volumess = {
@@ -636,7 +651,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
 
     const pluginss = {
@@ -654,7 +669,7 @@ export default class AppList extends PureComponent {
             <div>暂无变化</div>
           )}
         </div>
-      ),
+      )
     };
 
     const arr = [volumess, dep_volumess, envss, images, yl, portss, pluginss];
@@ -669,33 +684,34 @@ export default class AppList extends PureComponent {
 
   //  回滚某次更新Rollback
   getUpgradeRollback = () => {
-    const services = this.props.form.getFieldValue('services');
-    const { group_id } = this.props;
-    this.props.dispatch({
+    const { group_id, form, dispatch } = this.props;
+    const services = form.getFieldValue('services');
+    dispatch({
       type: 'global/CloudAppUpdateRollback',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id,
         record_id: this.state.infoObj.ID,
-        service_ids: services,
+        service_ids: services
       },
       callback: res => {
         if (res && res._code == 200) {
           this.setState(
             {
-              record_id: res.bean.ID,
+              record_id: res.bean.ID
             },
             () => {
               this.getUpgradeRecordsInfo('Rollback');
             }
           );
         }
-      },
+      }
     });
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const { dispatch, activeKey, group_id, rollbackLoading, form } = this.props;
+    const { getFieldDecorator } = form;
     const {
       type,
       infoObj,
@@ -707,16 +723,18 @@ export default class AppList extends PureComponent {
       textState,
       service_id,
       conshow,
+      upgradeLoading
     } = this.state;
+    const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`;
     const formItemLayout = {
       labelCol: {
         xs: { span: 6 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 16 },
-        sm: { span: 16 },
-      },
+        sm: { span: 16 }
+      }
     };
     const arr = this.getData();
 
@@ -728,7 +746,7 @@ export default class AppList extends PureComponent {
             lg={{ span: 6, offset: 0 }}
             style={{
               background: '#fff',
-              borderRight: '1px solid #E8E8E8',
+              borderRight: '1px solid #E8E8E8'
             }}
             className={styles.zslbor}
           >
@@ -746,7 +764,7 @@ export default class AppList extends PureComponent {
                         : upgradeVersions &&
                           upgradeVersions.length > 0 &&
                           upgradeVersions[0],
-                    rules: [{ required: false, message: '请选择' }],
+                    rules: [{ required: false, message: '请选择' }]
                   })(
                     <Select
                       disabled={textState != 1}
@@ -774,8 +792,8 @@ export default class AppList extends PureComponent {
                     initialValue: service_id,
                     force: true,
                     rules: [
-                      { required: true, message: '请选择需要升级的云市应用' },
-                    ],
+                      { required: true, message: '请选择需要升级的云市应用' }
+                    ]
                   })(
                     <Checkbox.Group
                       onChange={this.onChange}
@@ -789,6 +807,11 @@ export default class AppList extends PureComponent {
                           upgradeInfo.length > 0 &&
                           upgradeInfo.map((item, index) => {
                             const { service, upgrade_info, update } = item;
+                            const upgradeRecordsStatus =
+                              upgradeRecords &&
+                              upgradeRecords.length > 0 &&
+                              upgradeRecords[index] &&
+                              upgradeRecords[index].status;
                             return (
                               <Col
                                 span={24}
@@ -832,84 +855,74 @@ export default class AppList extends PureComponent {
                                   {upgradeRecords &&
                                   upgradeRecords.length > 0 &&
                                   (upgrade_info != null || update != null) &&
-                                  JSON.stringify(upgrade_info || update) !=
-                                    '{}' ? (
-                                    <div>
-                                        {(upgradeRecords[index] &&
-                                        upgradeRecords[index].status == 1) ||
-                                      (upgradeRecords[index] &&
-                                        upgradeRecords[index].status == 2) ||
-                                      (upgradeRecords[index] &&
-                                        upgradeRecords[index].status == 4) ? (
-                                        <Icon
-                                            type="sync"
-                                            style={{ color: '#1890ff' }}
-                                            spin
-                                          />
-                                      ) : (upgradeRecords[index] &&
-                                          upgradeRecords[index].status == 3) ||
-                                        (upgradeRecords[index] &&
-                                          upgradeRecords[index].status == 6) ||
-                                        (upgradeRecords[index] &&
-                                          upgradeRecords[index].status == 5) ||
-                                        (upgradeRecords[index] &&
-                                          upgradeRecords[index].status == 7) ? (
-                                        <Tooltip title="成功">
-                                              <Icon
-                                            type="check"
-                                            style={{ color: '#239B24' }}
-                                          />
-                                            </Tooltip>
-                                      ) : upgradeRecords[index] &&
-                                        upgradeRecords[index].status == 8 ? (
-                                        <Tooltip title="失败">
+                                  JSON.stringify(upgrade_info || update) != '{}'
+                                    ? upgradeRecords[index] && (
+                                        <div>
+                                          {upgradeRecordsStatus == 1 ||
+                                          upgradeRecordsStatus == 2 ||
+                                          upgradeRecordsStatus == 4 ? (
                                             <Icon
-                                            type="close"
-                                            style={{ color: 'red' }}
-                                          />
-                                          </Tooltip>
-                                      ) : (
-                                        <Tooltip title="成功">
-                                          <Icon
-                                            type="check"
-                                            style={{ color: '#239B24' }}
-                                          />
-                                        </Tooltip>
-                                      )}
-                                      </div>
-                                  ) : (
-                                    service &&
-                                    service.type && (
-                                      <div>
-                                        {service.type == 'upgrade' &&
-                                        (upgrade_info != null ||
-                                          update != null) &&
-                                        JSON.stringify(
-                                          upgrade_info || update
-                                        ) != '{}' ? (
-                                          <Tooltip title="可升级">
-                                            <Icon
-                                              type="up"
-                                              style={{ color: '#239B24' }}
+                                              type="sync"
+                                              style={{ color: '#1890ff' }}
+                                              spin
                                             />
-                                          </Tooltip>
-                                        ) : (upgrade_info != null ||
+                                          ) : upgradeRecordsStatus == 3 ||
+                                            (upgradeRecordsStatus == 5 &&
+                                              upgradeRecordsStatus <= 7) ? (
+                                            <Tooltip title="成功">
+                                              <Icon
+                                                type="check"
+                                                style={{ color: '#239B24' }}
+                                              />
+                                            </Tooltip>
+                                          ) : upgradeRecordsStatus == 8 ? (
+                                            <Tooltip title="失败">
+                                              <Icon
+                                                type="close"
+                                                style={{ color: 'red' }}
+                                              />
+                                            </Tooltip>
+                                          ) : (
+                                            <Tooltip title="成功">
+                                              <Icon
+                                                type="check"
+                                                style={{ color: '#239B24' }}
+                                              />
+                                            </Tooltip>
+                                          )}
+                                        </div>
+                                      )
+                                    : service &&
+                                      service.type && (
+                                        <div>
+                                          {service.type == 'upgrade' &&
+                                          (upgrade_info != null ||
                                             update != null) &&
                                           JSON.stringify(
                                             upgrade_info || update
                                           ) != '{}' ? (
-                                          <Tooltip title="新增组件">
+                                            <Tooltip title="可升级">
                                               <Icon
-                                              type="plus"
-                                              style={{ color: '#239B24' }}
-                                            />
+                                                type="up"
+                                                style={{ color: '#239B24' }}
+                                              />
                                             </Tooltip>
-                                        ) : (
-                                          ''
-                                        )}
-                                      </div>
-                                    )
-                                  )}
+                                          ) : (upgrade_info != null ||
+                                              update != null) &&
+                                            JSON.stringify(
+                                              upgrade_info || update
+                                            ) != '{}' ? (
+                                            <Tooltip title="新增组件">
+                                              <Icon
+                                                type="plus"
+                                                style={{ color: '#239B24' }}
+                                              />
+                                            </Tooltip>
+                                          ) : (
+                                            ''
+                                          )}
+                                        </div>
+                                      )}
                                 </div>
                               </Col>
                             );
@@ -933,7 +946,7 @@ export default class AppList extends PureComponent {
                 style={{
                   margin: '10px 20px 20px',
                   height: '400px',
-                  overflow: 'auto',
+                  overflow: 'auto'
                 }}
               >
                 {conshow ? (
@@ -970,61 +983,57 @@ export default class AppList extends PureComponent {
             返回
           </Button>
 
-          {this.props.activeKey == 1 && (
+          {activeKey == 1 && (
             <Button
               type="primary"
               onClick={() => {
-                textState != 1 && textState != 2 && textState != 4
-                  ? this.props.dispatch(
-                      routerRedux.push(
-                        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                          this.props.group_id
-                        }`
-                      )
-                    )
-                  : this.handleSubmit();
+                if (textState != 1 && textState != 2 && textState != 4) {
+                  dispatch(routerRedux.push(JumpAddress));
+                } else {
+                  this.handleSubmit();
+                }
               }}
               // disabled={textState != 1 ? true : false}
-              loading={textState == 2}
+              loading={upgradeLoading || textState == 2}
               style={{ marginRight: '5px' }}
             >
               {upgradeText}
             </Button>
           )}
 
-          {((textState != 1 && textState != 2) ||
-            this.props.activeKey == 2) && (
+          {((textState != 1 && textState != 2) || activeKey == 2) && (
             <Button
               type="primary"
               onClick={() => {
-                this.props.activeKey == 1 &&
-                textState != 3 &&
-                textState != 6 &&
-                textState != 4 &&
-                textState != 8
-                  ? this.props.dispatch(
-                      routerRedux.push(
-                        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                          this.props.group_id
-                        }`
-                      )
-                    )
-                  : this.props.activeKey == 2 &&
-                    textState != 1 &&
-                    textState != 2 &&
-                    textState != 3 &&
-                    textState != 4
-                  ? this.props.dispatch(
-                      routerRedux.push(
-                        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
-                          this.props.group_id
-                        }`
-                      )
-                    )
-                  : this.getUpgradeRollback();
+                if (
+                  activeKey == 1 &&
+                  textState != 3 &&
+                  textState != 6 &&
+                  textState != 4 &&
+                  textState != 8
+                ) {
+                  dispatch(routerRedux.push(JumpAddress));
+                } else if (
+                  activeKey == 2 &&
+                  textState != 1 &&
+                  textState != 2 &&
+                  textState != 3 &&
+                  textState != 4
+                ) {
+                  dispatch(routerRedux.push(JumpAddress));
+                } else {
+                  this.setState(
+                    {
+                      rollbackLoading: true
+                    },
+                    () => {
+                      this.getUpgradeRollback();
+                    }
+                  );
+                }
               }}
               style={{ marginRight: '5px' }}
-              loading={!!(textState == 2 || textState == 4)}
+              loading={!!(textState == 2 || textState == 4) || rollbackLoading}
             >
               {textState == 3 || textState == 6 || textState == 8
                 ? '回滚'
