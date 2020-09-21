@@ -64,18 +64,11 @@ export default class PlatformBasicInformationForm extends PureComponent {
   };
 
   render() {
-    const {
-      title,
-      onCancel,
-      data = {},
-      form,
-      loading = false,
-      appInfo = {}
-    } = this.props;
+    const { title, onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
     const { imageBase64, imageUrl } = this.state;
     const uploadButton = (
-      <div>
+      <div style={{ width: '284px', height: '44px' }}>
         <Icon type="plus" />
         <div className="ant-upload-text">上传图标</div>
       </div>
@@ -114,6 +107,10 @@ export default class PlatformBasicInformationForm extends PureComponent {
                 {
                   required: true,
                   message: '请输入标题'
+                },
+                {
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input placeholder="请输入标题" />)}
@@ -125,14 +122,22 @@ export default class PlatformBasicInformationForm extends PureComponent {
                 {
                   required: true,
                   message: '请输入企业名称'
+                },
+                {
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input placeholder="请输入企业名称" />)}
           </FormItem>
 
-          <Form.Item {...formItemLayout} label="LOGO">
+          <Form.Item
+            {...formItemLayout}
+            label="LOGO"
+            extra="请上传宽度300px、高64px的图片"
+          >
             {getFieldDecorator('pic', {
-              initialValue: appInfo ? appInfo.pic : '',
+              initialValue: data.pic || '',
               rules: [
                 {
                   required: false,
@@ -141,9 +146,9 @@ export default class PlatformBasicInformationForm extends PureComponent {
               ]
             })(
               <Upload
-                className="logo-uploader"
                 name="file"
                 accept="image/jpg,image/jpeg,image/png"
+                className={styles.customUpload}
                 action={apiconfig.imageUploadUrl}
                 listType="picture-card"
                 headers={myheaders}
@@ -156,7 +161,7 @@ export default class PlatformBasicInformationForm extends PureComponent {
                   <img
                     src={imageBase64 || imageUrl}
                     alt="avatar"
-                    style={{ width: '100%' }}
+                    style={{ width: '300px', height: '64px' }}
                   />
                 ) : (
                   uploadButton

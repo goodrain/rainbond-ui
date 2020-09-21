@@ -315,10 +315,24 @@ export default class Infrastructure extends PureComponent {
       certificateLongin,
       imageHubLongin,
       objectStorageLongin,
+      rainbondInfo,
       match: {
         params: { eid }
       }
     } = this.props;
+    let infos = {};
+    if (rainbondInfo) {
+      const logo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+      const title =
+        rainbondInfo && rainbondInfo.title && rainbondInfo.title.value;
+      const enterpriseTitle = rainbondInfo.enterprise_alias;
+      // eslint-disable-next-line no-const-assign
+      infos = {
+        pic: logo,
+        name: title,
+        enterpriseName: enterpriseTitle
+      };
+    }
 
     const {
       enterpriseAdminLoading,
@@ -562,6 +576,7 @@ export default class Infrastructure extends PureComponent {
             eid={eid}
             title="基础信息"
             loading={objectStorageLongin}
+            data={infos}
             onCancel={this.handelCloseBasicInformation}
             onOk={values => {
               this.handelIsOpenCloudBackup(true, values);
