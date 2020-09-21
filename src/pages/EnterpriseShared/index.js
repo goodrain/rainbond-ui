@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/alt-text */
 import {
@@ -146,7 +147,7 @@ export default class EnterpriseShared extends PureComponent {
     const { marketTab } = this.state;
     let arr = [];
     arr = marketTab.filter(item => {
-      return item.ID == tabID;
+      return item.ID === Number(tabID);
     });
     const isArr = arr && arr.length > 0;
     this.setState(
@@ -164,7 +165,7 @@ export default class EnterpriseShared extends PureComponent {
         }
       },
       () => {
-        if (tabID !== "local" && isArr && arr[0].status == 1) {
+        if (tabID !== "local" && isArr && arr[0].status === 1) {
           this.getMarkets(arr[0].name);
         }
       }
@@ -849,7 +850,7 @@ export default class EnterpriseShared extends PureComponent {
                 Cols={
                   <div className={styles.h70}>
                     <Col span={3} style={{ display: "flex" }}>
-                      <div className={styles.lt}>
+                      <div className={styles.lt} title="安装量">
                         <p>
                           <Icon type="arrow-down" />
                           {installNumber}
@@ -1065,7 +1066,6 @@ export default class EnterpriseShared extends PureComponent {
                         )}
                       </div>
                     </Col>
-
                     <Col span={4} className={styles.tags}>
                       {tags &&
                         tags.length > 0 &&
