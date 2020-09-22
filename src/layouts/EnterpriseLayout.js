@@ -286,7 +286,6 @@ class EnterpriseLayout extends PureComponent {
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
@@ -301,7 +300,8 @@ class EnterpriseLayout extends PureComponent {
               {globalUtil.fetchSvg(enterpriseServiceInfo.type)}
             </Tooltip>
           )} */}
-          {enterpriseInfo && enterpriseInfo.enterprise_alias}
+          {(enterprise && enterprise.enterprise_alias) ||
+            (enterpriseInfo && enterpriseInfo.enterprise_alias)}
         </div>
       );
     };

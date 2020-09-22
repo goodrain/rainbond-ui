@@ -244,6 +244,25 @@ export default class Infrastructure extends PureComponent {
   handelCloseBasicInformation = () => {
     this.setState({ openBasicInformation: false });
   };
+  handelIsOpenBasicInformation = value => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/putBasicInformation',
+      payload: {
+        ...value,
+        enterprise_id: eid
+      },
+      callback: () => {
+        this.handelCloseBasicInformation();
+        this.fetchEnterpriseInfo();
+      }
+    });
+  };
   createClusters = values => {
     const {
       dispatch,
@@ -330,9 +349,9 @@ export default class Infrastructure extends PureComponent {
       const enterpriseTitle = rainbondInfo.enterprise_alias;
       // eslint-disable-next-line no-const-assign
       infos = {
-        pic: fetchLogo,
-        name: title,
-        enterpriseName: enterpriseTitle
+        logo: fetchLogo,
+        title,
+        enterprise_alias: enterpriseTitle
       };
     }
 
@@ -575,14 +594,12 @@ export default class Infrastructure extends PureComponent {
         )}
         {openBasicInformation && (
           <PlatformBasicInformationForm
-            eid={eid}
             title="基础信息"
+            eid={eid}
             loading={objectStorageLongin}
             data={infos}
             onCancel={this.handelCloseBasicInformation}
-            onOk={values => {
-              this.handelIsOpenCloudBackup(true, values);
-            }}
+            onOk={this.handelIsOpenBasicInformation}
           />
         )}
 
