@@ -8,7 +8,8 @@ import {
   Modal,
   notification,
   Row,
-  Spin
+  Spin,
+  Badge
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -558,62 +559,134 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
+    const BtnDisabled = !(jsonDataLength > 0);
+    const MR = { marginRight: '10px' };
 
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>
-        <div style={{ display: 'flex' }}>
-          <div style={{ marginTop: '3px' }}>
-            {globalUtil.fetchSvg('application')}
-          </div>
-          <div className={styles.content}>
+        <div className={styles.contentl}>
+          <div className={styles.conBoxt}>
             <div className={styles.contentTitle}>
-              {currApp.group_name || '-'}
+              <span>{currApp.group_name || '-'}</span>
               {isEdit && (
                 <Icon
                   style={{
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginLeft: '5px'
                   }}
                   onClick={this.toEdit}
                   type="edit"
                 />
               )}
             </div>
-            <div className={styles.content_Box}>
-              {isCreate && (
-                <a onClick={this.toAdd} href="javascript:;">
-                  新增
-                </a>
+            <div className={styles.extraContent}>
+              {isUpdate && (
+                <Button
+                  style={MR}
+                  onClick={() => {
+                    this.handleTopology('upgrade');
+                  }}
+                  disabled={BtnDisabled}
+                >
+                  更新
+                </Button>
               )}
-              {isDelete && (
-                <span>
-                  <Divider type="vertical" />
+              {isConstruct && isComponentConstruct && (
+                <Button
+                  style={MR}
+                  disabled={BtnDisabled}
+                  onClick={() => {
+                    this.handleTopology('deploy');
+                  }}
+                >
+                  构建
+                </Button>
+              )}
+              {isCopy && (
+                <Button
+                  style={MR}
+                  disabled={BtnDisabled}
+                  onClick={this.handleOpenRapidCopy}
+                >
+                  快速复制
+                </Button>
+              )}
+              {linkList.length > 0 && <VisterBtn linkList={linkList} />}
+            </div>
+          </div>
+          <div className={styles.content_Box}>
+            <Badge className={styles.states} status="success" text="运行中" />
+            {isStart && (
+              <a
+                onClick={() => {
+                  this.handleTopology('start');
+                }}
+                disabled={BtnDisabled}
+              >
+                启动
+              </a>
+            )}
+            {isCreate && (
+              <span>
+                <Divider type="vertical" />
+                <a onClick={this.toAdd}>新增</a>
+              </span>
+            )}
+            {isDelete && (
+              <span>
+                <Divider type="vertical" />
 
-                  <a onClick={this.toDelete} href="javascript:;">
-                    删除
-                  </a>
-                </span>
-              )}
-              {isStop && (
-                <span>
-                  <Divider type="vertical" />
-                  <a
-                    onClick={() => {
-                      this.handleTopology('stop');
-                    }}
-                    href="javascript:;"
-                  >
-                    停用
-                  </a>
-                </span>
-              )}
+                <a onClick={this.toDelete}>删除</a>
+              </span>
+            )}
+            {isStop && (
+              <span>
+                <Divider type="vertical" />
+                <a
+                  onClick={() => {
+                    this.handleTopology('stop');
+                  }}
+                >
+                  停用
+                </a>
+              </span>
+            )}
+          </div>
+          <div className={styles.connect_Bot}>
+            <div className={styles.connect_Box}>
+              <div className={styles.connect_Boxs}>
+                <div>使用内存</div>
+                <div>1.6GB</div>
+              </div>
+              <div className={styles.connect_Boxs}>
+                <div>使用CPU</div>
+                <div>400</div>
+              </div>
+            </div>
+            <div className={styles.connect_Box}>
+              <div className={styles.connect_Boxs}>
+                <div>使用磁盘</div>
+                <div>300MB</div>
+              </div>
+              <div className={styles.connect_Boxs}>
+                <div>组件数量</div>
+                <div>10</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={styles.contentr}>
+          <div className={styles.conrHeader}>
+            <div>
+              <span>创建时间</span> <span>2020-09-22 18:00:00</span>
+            </div>
+            <div>
+              <span>更新时间</span> <span>2020-09-22 18:00:00</span>
             </div>
           </div>
         </div>
       </div>
     );
-
-    const BtnDisabled = !(jsonDataLength > 0);
-    const MR = { marginRight: '10px' };
 
     const extraContent = (
       <div className={styles.extraContent}>
@@ -679,15 +752,19 @@ class Main extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
-        content={pageHeaderContent}
-        extraContent={
-          <Row>
-            <Col span={24} style={{ paddingTop: '10px' }}>
-              {extraContent}
-            </Col>
-          </Row>
-        }
+        // content={pageHeaderContent}
+        // extraContent={
+        //   <Row>
+        //     <Col span={24} >
+        //       {extraContent}
+        //     </Col>
+        //   </Row>
+        // }
       >
+        <Row>
+          <div>{pageHeaderContent}</div>
+          <div></div>
+        </Row>
         <Row
           style={{
             display: 'flex',
