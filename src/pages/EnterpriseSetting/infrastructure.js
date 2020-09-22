@@ -9,6 +9,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import ImageHubForm from '../../components/ImageHubForm';
 import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
 import rainbondUtil from '../../utils/rainbond';
+import defaultLogo from '../../../public/logo.png';
 import styles from './index.less';
 import OauthTable from './oauthTable';
 
@@ -322,13 +323,14 @@ export default class Infrastructure extends PureComponent {
     } = this.props;
     let infos = {};
     if (rainbondInfo) {
-      const logo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+      const fetchLogo =
+        rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
       const title =
         rainbondInfo && rainbondInfo.title && rainbondInfo.title.value;
       const enterpriseTitle = rainbondInfo.enterprise_alias;
       // eslint-disable-next-line no-const-assign
       infos = {
-        pic: logo,
+        pic: fetchLogo,
         name: title,
         enterpriseName: enterpriseTitle
       };

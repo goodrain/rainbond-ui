@@ -16,6 +16,13 @@ export default class PlatformBasicInformationForm extends PureComponent {
       loading: false
     };
   }
+  componentDidMount() {
+    const { data } = this.props;
+    // eslint-disable-next-line react/no-did-mount-set-state
+    this.setState({
+      imageUrl: data.pic
+    });
+  }
   onOk = e => {
     e.preventDefault();
     const { onOk, form } = this.props;
@@ -134,7 +141,7 @@ export default class PlatformBasicInformationForm extends PureComponent {
           <Form.Item
             {...formItemLayout}
             label="LOGO"
-            extra="请上传宽度300px、高64px的图片"
+            extra="请上传宽度236px、高35px的图片"
           >
             {getFieldDecorator('pic', {
               initialValue: data.pic || '',

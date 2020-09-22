@@ -16,7 +16,6 @@ import PageLoading from '../components/PageLoading';
 import headerStype from '../components/GlobalHeader/index.less';
 import Authorized from '../utils/Authorized';
 import rainbondUtil from '../utils/rainbond';
-
 import logo from '../../public/logo.png';
 
 const { Content } = Layout;
@@ -119,7 +118,7 @@ class AccountLayout extends PureComponent {
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     if (!ready || !enterprise) {
       return <PageLoading />;
     }
