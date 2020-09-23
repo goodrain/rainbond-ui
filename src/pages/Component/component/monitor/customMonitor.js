@@ -175,16 +175,16 @@ export default class customMonitor extends PureComponent {
             </Button>
           )}
         </Row>
+        {addCustomMonitor && (
+          <AddCustomMonitor
+            parameter={this.handleParameter()}
+            data={editorData}
+            loading={updateServiceMonitorLoading || addServiceMonitorLoading}
+            onCancel={this.cancelAddCustomMonitor}
+            onOk={this.handleAddCustomMonitor}
+          />
+        )}
         <Card loading={loading}>
-          {addCustomMonitor && (
-            <AddCustomMonitor
-              parameter={this.handleParameter()}
-              data={editorData}
-              loading={updateServiceMonitorLoading || addServiceMonitorLoading}
-              onCancel={this.cancelAddCustomMonitor}
-              onOk={this.handleAddCustomMonitor}
-            />
-          )}
           {dleCustomMonitor && (
             <ConfirmModal
               title="删除配置"

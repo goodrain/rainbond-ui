@@ -53,7 +53,7 @@ export function getComponentNetworkRange(body = {}) {
 
 export function getServiceMonitor(body = {}) {
   return request(
-    `${apiconfig.seturl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor`,
     {
       method: 'get',
       params: body
@@ -62,7 +62,7 @@ export function getServiceMonitor(body = {}) {
 }
 export async function postServiceMonitor(params) {
   return request(
-    `${apiconfig.seturl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor`,
     {
       method: 'post',
       data: params
@@ -72,7 +72,7 @@ export async function postServiceMonitor(params) {
 
 export async function deleteServiceMonitor(params) {
   return request(
-    `${apiconfig.seturl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor/${params.name}`,
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor/${params.name}`,
     {
       method: 'delete'
     }
@@ -80,7 +80,7 @@ export async function deleteServiceMonitor(params) {
 }
 export async function updateServiceMonitor(body) {
   return request(
-    `${apiconfig.seturl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor/${body.name}`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/service_monitor/${body.name}`,
     {
       method: 'put',
       data: body

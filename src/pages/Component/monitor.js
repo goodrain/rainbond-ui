@@ -60,7 +60,7 @@ export default class Index extends PureComponent {
   };
 
   renderPM() {
-    const { type, anaPlugins, showMenu } = this.state;
+    const { type, anaPlugins } = this.state;
     const { appDetail } = this.props;
     const showPerformance = anaPlugins && anaPlugins.length > 0;
     if (showPerformance) {
@@ -130,7 +130,10 @@ export default class Index extends PureComponent {
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { showMenu } = this.state;
-    const { appDetail } = this.props;
+    const {
+      appDetail,
+      componentPermissions: { isServiceMonitor }
+    } = this.props;
     const defaultShow = ['pm'];
     const enablePM =
       appDetail.service.language &&
@@ -147,7 +150,7 @@ export default class Index extends PureComponent {
               <Menu.Item key="pm">性能分析</Menu.Item>
               <Menu.Item key="resource">资源监控</Menu.Item>
               {enablePM && <Menu.Item key="trace">链路追踪</Menu.Item>}
-              <Menu.Item key="custom">业务监控</Menu.Item>
+              {isServiceMonitor && <Menu.Item key="custom">业务监控</Menu.Item>}
             </Menu>
           </div>
         </Col>
