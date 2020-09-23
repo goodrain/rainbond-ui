@@ -19,6 +19,7 @@ import styless from '../../components/CreateTeam/index.less';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import ApplicationGovernance from '@/components/ApplicationGovernance';
 import {
   createApp,
   createEnterprise,
@@ -143,7 +144,8 @@ class Main extends PureComponent {
       currApp: {},
       loadingDetail: true,
       rapidCopy: false,
-      componentTimer: true
+      componentTimer: true,
+      customSwitch: false
     };
   }
 
@@ -156,7 +158,11 @@ class Main extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'groupControl/clearGroupDetail' });
   }
-
+  onCancel = () => {
+    this.setState({
+      customSwitch: false
+    });
+  };
   getGroupId() {
     return this.props.appID;
   }
@@ -508,6 +514,14 @@ class Main extends PureComponent {
     this.setState({ size: e.target.value });
   };
 
+  handleSwitch = () => {
+    this.setState({
+      customSwitch: true
+    });
+  };
+
+  handleOKSwitch = () => {};
+
   render() {
     const {
       groupDetail,
@@ -547,7 +561,8 @@ class Main extends PureComponent {
       promptModal,
       toEdit,
       toDelete,
-      type
+      type,
+      customSwitch
     } = this.state;
     if (groupDetail.group_id != appID && !loadingDetail) {
       this.fetchAppDetail();
@@ -684,60 +699,59 @@ class Main extends PureComponent {
               <span>更新时间</span> <span>2020-09-22 18:00:00</span>
             </div>
           </div>
+          <div className={styles.conrHeader}>
+            <div>
+              <span>治理模式</span>
+              <span>内置ServiceMesh模式</span>
+              <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
+                切换
+              </a>
+            </div>
+            <div>
+              <span>负责人</span>
+              <span>张一飞</span>
+            </div>
+          </div>
+          <div className={styles.conrBot}>
+            <div className={styles.conrBox}>
+              <div>备份</div>
+              <div>
+                <a>2</a>
+              </div>
+            </div>
+
+            <div className={styles.conrBox}>
+              <div>模型发布</div>
+              <div>
+                <a>2</a>
+              </div>
+            </div>
+
+            <div className={styles.conrBox}>
+              <div>网关策略</div>
+              <div>
+                <a>2</a>
+              </div>
+            </div>
+
+            <div className={styles.conrBox}>
+              <div>代升级</div>
+              <div>
+                <a>2</a>
+              </div>
+            </div>
+
+            <div className={styles.conrBox}>
+              <div>配置组</div>
+              <div>
+                <a>2</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
-
-    const extraContent = (
-      <div className={styles.extraContent}>
-        {isStart && (
-          <Button
-            style={MR}
-            onClick={() => {
-              this.handleTopology('start');
-            }}
-            disabled={BtnDisabled}
-          >
-            启动
-          </Button>
-        )}
-
-        {isUpdate && (
-          <Button
-            style={MR}
-            onClick={() => {
-              this.handleTopology('upgrade');
-            }}
-            disabled={BtnDisabled}
-          >
-            更新
-          </Button>
-        )}
-        {isConstruct && isComponentConstruct && (
-          <Button
-            style={MR}
-            disabled={BtnDisabled}
-            onClick={() => {
-              this.handleTopology('deploy');
-            }}
-          >
-            构建
-          </Button>
-        )}
-        {isCopy && (
-          <Button
-            style={MR}
-            disabled={BtnDisabled}
-            onClick={this.handleOpenRapidCopy}
-          >
-            快速复制
-          </Button>
-        )}
-        {linkList.length > 0 && <VisterBtn linkList={linkList} />}
-      </div>
-    );
     let breadcrumbList = [];
-
     breadcrumbList = createApp(
       createTeam(
         createEnterprise(breadcrumbList, currentEnterprise),
@@ -749,22 +763,14 @@ class Main extends PureComponent {
       { appName: groupDetail.group_name, appID: groupDetail.group_id }
     );
     return (
-      <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-        loading={loadingDetail}
-        // content={pageHeaderContent}
-        // extraContent={
-        //   <Row>
-        //     <Col span={24} >
-        //       {extraContent}
-        //     </Col>
-        //   </Row>
-        // }
-      >
-        <Row>
-          <div>{pageHeaderContent}</div>
-          <div></div>
-        </Row>
+      <PageHeaderLayout breadcrumbList={breadcrumbList} loading={loadingDetail}>
+        <Row>{pageHeaderContent}</Row>
+        {customSwitch && (
+          <ApplicationGovernance
+            onCancel={this.onCancel}
+            onOk={this.handleOKSwitch}
+          />
+        )}
         <Row
           style={{
             display: 'flex',

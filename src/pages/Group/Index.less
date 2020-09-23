@@ -62,6 +62,9 @@
   }
   .contentr {
     background: #fff;
+    & > div:nth-of-type(2) {
+      margin: 31px 0;
+    }
     .conrHeader {
       display: flex;
       div {
@@ -73,6 +76,22 @@
           margin-right: 24px;
           color: rgba(0, 0, 0, 0.45);
         }
+      }
+    }
+    .conrBot {
+      display: flex;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      & > div:nth-of-type(1) {
+        font-size: 14px;
+      }
+      .conrBox {
+        & > div:nth-of-type(2) {
+          margin-top: 10px;
+        }
+        text-align: center;
+        width: 25%;
       }
     }
   }
