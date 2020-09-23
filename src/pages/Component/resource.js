@@ -1,3 +1,6 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-nested-ternary */
 import React, { PureComponent, Fragment } from "react";
 import { connect } from "dva";
 import { Link } from "dva/router";
