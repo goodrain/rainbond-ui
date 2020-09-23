@@ -10,12 +10,11 @@ class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isRender: false,
+      isRender: false
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
-
     // 初始化 获取RainbondInfo信息
     dispatch({
       type: 'global/fetchRainbondInfo',
@@ -36,12 +35,12 @@ class UserLayout extends React.PureComponent {
             this.isRender(true);
           }
         }
-      },
+      }
     });
   }
   isRender = isRender => {
     this.setState({
-      isRender,
+      isRender
     });
   };
   render() {
@@ -66,7 +65,6 @@ class UserLayout extends React.PureComponent {
                   </h1>
                 </Link>
               </div>
-              <div className={styles.desc}></div>
             </div>
           )}
           <div>{children}</div>
@@ -78,5 +76,5 @@ class UserLayout extends React.PureComponent {
 
 export default connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse,
+  nouse: global.nouse
 }))(UserLayout);
