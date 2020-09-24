@@ -9,7 +9,7 @@ export async function getPermissions() {
     `${apiconfig.baseUrl}/console/perms`,
     // `https://doc.goodrain.org/mock/18/console/perms`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -23,8 +23,8 @@ export async function getAllRegionFee(body = { team_name, date }) {
     {
       method: 'get',
       params: {
-        date: body.date,
-      },
+        date: body.date
+      }
     }
   );
 }
@@ -40,8 +40,8 @@ export async function fetchEnterpriseApps(body = { enterprise_id }) {
       params: {
         page: body.page,
         page_size: body.page_size,
-        name: body.name,
-      },
+        name: body.name
+      }
     }
   );
 }
@@ -58,8 +58,8 @@ export async function fetchAppComponents(body = {}) {
       params: {
         page: body.page,
         page_size: body.page_size,
-        name: body.name,
-      },
+        name: body.name
+      }
     }
   );
 }
@@ -71,7 +71,7 @@ export async function getUserCanJoinTeams(body = { enterpriseID }) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseID}/jointeams`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -83,8 +83,8 @@ export async function joinTeam(body = { team_name }) {
   return request(`${apiconfig.baseUrl}/console/user/applicants/join`, {
     method: 'post',
     data: {
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
 
@@ -95,8 +95,8 @@ export async function getJoinTeam(body = { user_id }) {
   return request(`${apiconfig.baseUrl}/console/user/applicants/join`, {
     method: 'get',
     params: {
-      user_id: body.user_id,
-    },
+      user_id: body.user_id
+    }
   });
 }
 
@@ -109,8 +109,8 @@ export async function deleteJoinTeam(body = { user_id, is_pass, team_name }) {
     data: {
       user_id: body.user_id,
       is_pass: body.is_pass,
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
 
@@ -121,8 +121,8 @@ export async function deleteMarketPlugin(body = { plugin_id }) {
     {
       method: 'post',
       data: {
-        plugin_id: body.plugin_id,
-      },
+        plugin_id: body.plugin_id
+      }
     }
   );
 }
@@ -130,7 +130,7 @@ export async function deleteMarketPlugin(body = { plugin_id }) {
 /* 云端同步插件 */
 export async function syncCloudPlugin() {
   return request(`${apiconfig.baseUrl}/console/market/plugins/sync`, {
-    method: 'post',
+    method: 'post'
   });
 }
 
@@ -141,8 +141,8 @@ export async function getCloudPlugin(body = { plugin_name, page }) {
     params: {
       plugin_name: body.plugin_name,
       page: body.page,
-      limit: body.limit,
-    },
+      limit: body.limit
+    }
   });
 }
 
@@ -155,7 +155,7 @@ export async function getPayHistory(
     start,
     end,
     page,
-    page_size,
+    page_size
   }
 ) {
   return request(
@@ -166,8 +166,8 @@ export async function getPayHistory(
         start: body.start,
         end: body.end,
         page: body.page,
-        page_size: body.page_size,
-      },
+        page_size: body.page_size
+      }
     }
   );
 }
@@ -180,8 +180,8 @@ export async function complatePluginShare(body = { team_name, share_id }) {
       method: 'post',
       data: {
         plugin_key: body.plugin_key,
-        version: body.version,
-      },
+        version: body.version
+      }
     }
   );
 }
@@ -192,15 +192,15 @@ export async function syncMarketPluginTmp(body = { plugin_key, version }) {
     method: 'post',
     data: {
       plugin_key: body.plugin_key,
-      version: body.version,
-    },
+      version: body.version
+    }
   });
 }
 
 /* 同步云市插件 */
 export async function syncMarketPlugins() {
   return request(`${apiconfig.baseUrl}/console/market/plugins/sync`, {
-    method: 'post',
+    method: 'post'
   });
 }
 
@@ -211,8 +211,8 @@ export async function getMarketPlugins(body = { plugin_name, page }) {
     params: {
       plugin_name: body.plugin_name,
       page: body.page,
-      limit: body.limit,
-    },
+      limit: body.limit
+    }
   });
 }
 
@@ -222,7 +222,7 @@ export async function getMarketPlugins(body = { plugin_name, page }) {
 export async function InitTeam(body = { team_alias, region_name }) {
   return request(`${apiconfig.baseUrl}/console/teams/init`, {
     method: 'post',
-    data: body,
+    data: body
   });
 }
 
@@ -232,8 +232,8 @@ export async function getRegionSource(body = { team_name, region }) {
     method: 'get',
     params: {
       team_name: body.team_name,
-      region: body.region,
-    },
+      region: body.region
+    }
   });
 }
 /* 获取团队应用模块 */
@@ -243,7 +243,7 @@ export async function getTeamAppList(
     region,
     page,
     page_size,
-    query,
+    query
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps`, {
@@ -251,21 +251,21 @@ export async function getTeamAppList(
     params: {
       page: body.page,
       page_size: body.page_size,
-      query: body.query,
-    },
+      query: body.query
+    }
   });
 }
 
 /* 获取团队应用模块 */
 export async function getGuideState(
   body = {
-    team_name,
+    team_name
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/base-guidance`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -284,9 +284,9 @@ export async function getDomainName(body = {}, handleError) {
         start: body.start,
         step: body.step,
         page: body.page,
-        page_size: body.page_size,
+        page_size: body.page_size
       },
-      handleError,
+      handleError
     }
   );
 }
@@ -303,8 +303,8 @@ export async function getService(
         // query:`sort_desc(sum(ceil(increase(app_request{method="total"}[1h])))by (service_id))`,
         // query: `sort_desc(sum( ceil(increase(gateway_requests[1h]))) by (service))`,
         page: body.page,
-        page_size: body.page_size,
-      },
+        page_size: body.page_size
+      }
     }
   );
 }
@@ -316,7 +316,7 @@ export async function getDomainTime(
   body = {
     team_name,
     app_alias,
-    tenant_id,
+    tenant_id
   }
 ) {
   return request(
@@ -325,8 +325,8 @@ export async function getDomainTime(
       method: 'get',
       showMessage: false,
       params: {
-        query: `ceil(sum(increase(gateway_requests{namespace=”${body.tenant_id}”}[1h])))`,
-      },
+        query: `ceil(sum(increase(gateway_requests{namespace=”${body.tenant_id}”}[1h])))`
+      }
     }
   );
 }
@@ -336,7 +336,7 @@ export async function getApplication(body = { team_name, group_id }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/apps`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -346,8 +346,8 @@ export async function getCompanyInfo(body = { team_name }) {
   return request(`${apiconfig.baseUrl}/console/enterprise/account`, {
     method: 'get',
     params: {
-      team_name: body.team_name,
-    },
+      team_name: body.team_name
+    }
   });
 }
 
@@ -359,8 +359,8 @@ export async function getRegionOneDayMoney(body = { team_name, date, region }) {
       method: 'get',
       params: {
         date: body.date,
-        region: body.region,
-      },
+        region: body.region
+      }
     }
   );
 }
@@ -369,7 +369,7 @@ export async function getRegionOneDayMoney(body = { team_name, date, region }) {
 export async function authEnterprise(
   body = {
     enterprise_id,
-    market_info,
+    market_info
   },
   handleError
 ) {
@@ -379,8 +379,8 @@ export async function authEnterprise(
       method: 'post',
       handleError,
       data: {
-        market_info: body.market_info.replace(/\s+/g, ''),
-      },
+        market_info: body.market_info.replace(/\s+/g, '')
+      }
     }
   );
 }
@@ -388,7 +388,7 @@ export async function authEnterprise(
 /* 获取当前团队的企业ID */
 export async function getTeamOverview(
   body = {
-    team_name,
+    team_name
   },
   handleError
 ) {
@@ -396,7 +396,7 @@ export async function getTeamOverview(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
       method: 'get',
-      handleError,
+      handleError
     }
   );
 }
@@ -407,7 +407,7 @@ export async function postUpdateOrder(
   body = {
     team_name,
     group_id,
-    group_key,
+    group_key
   }
 ) {
   return request(
@@ -417,8 +417,8 @@ export async function postUpdateOrder(
       data: {
         group_key: body.group_key,
         market_name: body.marketName,
-        is_from_cloud: body.isFromCloud,
-      },
+        is_from_cloud: body.isFromCloud
+      }
     }
   );
 }
@@ -432,7 +432,7 @@ export async function postUpdatedTasks(
     group_key,
     services,
     version,
-    upgrade_record_id,
+    upgrade_record_id
   }
 ) {
   return request(
@@ -443,8 +443,8 @@ export async function postUpdatedTasks(
         upgrade_record_id: body.upgrade_record_id,
         group_key: body.group_key,
         version: body.version,
-        services: body.services,
-      },
+        services: body.services
+      }
     }
   );
 }
@@ -453,7 +453,7 @@ export async function postUpdatedTasks(
 
 export async function getUpdatedVersion(
   body = {
-    group_key,
+    group_key
   }
 ) {
   return request(
@@ -461,8 +461,8 @@ export async function getUpdatedVersion(
     {
       method: 'get',
       params: {
-        group_key: body.group_key,
-      },
+        group_key: body.group_key
+      }
     }
   );
 }
@@ -477,8 +477,8 @@ export async function getUpdatedInfo(body = {}) {
       params: {
         group_key: body.group_key,
         version: body.version,
-        market_name: body.marketName,
-      },
+        market_name: body.marketName
+      }
     }
   );
 }
@@ -493,7 +493,7 @@ export async function getUpdateRecordsList(
     version,
     page,
     pageSize,
-    status__gt,
+    status__gt
   }
 ) {
   return request(
@@ -505,8 +505,8 @@ export async function getUpdateRecordsList(
         version: body.version ? body.version : null,
         page: body.page ? body.page : '',
         page_size: body.pageSize ? body.pageSize : '',
-        status__gt: body.status__gt ? body.status__gt : 1,
-      },
+        status__gt: body.status__gt ? body.status__gt : 1
+      }
     }
   );
 }
@@ -517,14 +517,14 @@ export async function getUpdateRecordsInfo(
   body = {
     team_name,
     group_id,
-    record_id,
+    record_id
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
     {
       method: 'get',
-      params: {},
+      params: {}
     }
   );
 }
@@ -535,7 +535,7 @@ export async function getUpdateRollback(
     team_name,
     group_id,
     record_id,
-    service_ids,
+    service_ids
   }
 ) {
   return request(
@@ -543,8 +543,8 @@ export async function getUpdateRollback(
     {
       method: 'post',
       data: {
-        service_ids: body.service_ids,
-      },
+        service_ids: body.service_ids
+      }
     }
   );
 }
@@ -554,7 +554,7 @@ export async function getVersion(
   body = {
     app_name,
     version,
-    group_key,
+    group_key
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/app_market/version`, {
@@ -562,8 +562,8 @@ export async function getVersion(
     params: {
       app_name: body.app_name,
       version: body.version,
-      group_key: body.group_key,
-    },
+      group_key: body.group_key
+    }
   });
 }
 
@@ -573,7 +573,7 @@ export async function deleteAppModel(body = { app_id, enterprise_id }) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
-      method: 'DELETE',
+      method: 'DELETE'
     }
   );
 }
@@ -582,14 +582,14 @@ export async function deleteAppModel(body = { app_id, enterprise_id }) {
 export async function syncMarketAppDetail(
   body = {
     enterprise_id,
-    body,
+    body
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/download`,
     {
       method: 'post',
-      data: body.body,
+      data: body.body
     }
   );
 }
@@ -600,7 +600,7 @@ export async function getMarketApp(
     app_name,
     page,
     pageSize,
-    is_complete,
+    is_complete
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/app_market/all`, {
@@ -609,8 +609,8 @@ export async function getMarketApp(
       app_name: body.app_name,
       page: body.page,
       page_size: body.pageSize,
-      is_complete: body.is_complete,
-    },
+      is_complete: body.is_complete
+    }
   });
 }
 
@@ -619,13 +619,13 @@ export async function getMarketApp(
 */
 export async function syncMarketApp(
   body = {
-    team_name,
+    team_name
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/all_apps`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -636,7 +636,7 @@ export async function syncMarketApp(
 export function getRainbondInfo() {
   //
   return request(`${apiconfig.baseUrl}/console/config/info`, {
-    passAuthorization: false,
+    passAuthorization: false
   });
 }
 
@@ -646,15 +646,15 @@ export function getRainbondInfo() {
 export async function bindGithub(
   body = {
     code,
-    state,
+    state
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/github/callback`, {
     method: 'post',
     data: {
       code: body.code,
-      state: body.state,
-    },
+      state: body.state
+    }
   });
 }
 
@@ -674,8 +674,8 @@ export function getAllRegion(param) {
     {
       method: 'get',
       params: {
-        status: param.status,
-      },
+        status: param.status
+      }
     }
   );
 }
@@ -697,8 +697,8 @@ export async function removeRule(params) {
     method: 'POST',
     body: {
       ...params,
-      method: 'delete',
-    },
+      method: 'delete'
+    }
   });
 }
 
@@ -707,15 +707,15 @@ export async function addRule(params) {
     method: 'POST',
     body: {
       ...params,
-      method: 'post',
-    },
+      method: 'post'
+    }
   });
 }
 
 export async function fakeSubmitForm(params) {
   return request('/api/forms', {
     method: 'POST',
-    body: params,
+    body: params
   });
 }
 
@@ -742,14 +742,14 @@ export async function queryFakeList(params) {
 export async function fakeAccountLogin(params) {
   return request('/api/login/account', {
     method: 'POST',
-    body: params,
+    body: params
   });
 }
 
 export async function fakeRegister(params) {
   return request('/api/register', {
     method: 'POST',
-    body: params,
+    body: params
   });
 }
 
@@ -764,7 +764,7 @@ export async function getuserMessage(
     page_num,
     page_size,
     msg_type,
-    is_read,
+    is_read
   }
 ) {
   return request(
@@ -775,8 +775,8 @@ export async function getuserMessage(
         page_num: body.page_num,
         page_size: body.page_size,
         msg_type: body.msg_type,
-        is_read: body.is_read,
-      },
+        is_read: body.is_read
+      }
     }
   );
 }
@@ -789,8 +789,8 @@ export async function putMsgAction(body = { team_name, msg_ids, action }) {
       method: 'put',
       data: {
         action: body.action,
-        msg_ids: body.msg_ids,
-      },
+        msg_ids: body.msg_ids
+      }
     }
   );
 }
@@ -802,8 +802,8 @@ export async function deleteMsg(body = { team_name, msg_ids }) {
     {
       method: 'delete',
       data: {
-        msg_ids: body.msg_ids,
-      },
+        msg_ids: body.msg_ids
+      }
     }
   );
 }
@@ -815,7 +815,7 @@ export async function resPrice(
     region_name,
     memory,
     disk,
-    rent_time,
+    rent_time
   }
 ) {
   return request(
@@ -827,8 +827,8 @@ export async function resPrice(
         region_name: body.region_name,
         memory: body.memory,
         disk: body.disk,
-        rent_time: body.rent_time,
-      },
+        rent_time: body.rent_time
+      }
     }
   );
 }
@@ -840,7 +840,7 @@ export async function buyPurchase(
     region_name,
     memory,
     disk,
-    rent_time,
+    rent_time
   }
 ) {
   return request(
@@ -852,8 +852,8 @@ export async function buyPurchase(
         region_name: body.region_name,
         memory: body.memory,
         disk: body.disk,
-        rent_time: body.rent_time,
-      },
+        rent_time: body.rent_time
+      }
     }
   );
 }
@@ -863,7 +863,7 @@ export async function fetchEnterpriseInfo(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/info`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -872,7 +872,7 @@ export async function fetchEnterpriseInfo(param) {
 export async function saveLog(body = {}) {
   return request(`${apiconfig.baseUrl}/console/errlog`, {
     method: 'post',
-    data: body,
+    data: body
   });
 }
 /* 查询企业下所有团队 */
@@ -886,8 +886,8 @@ export async function fetchEnterpriseTeams(param) {
       params: {
         page: param.page,
         page_size: param.page_size,
-        name: param.name,
-      },
+        name: param.name
+      }
     }
   );
 }
@@ -898,7 +898,7 @@ export async function fetchEnterpriseAdmin(param) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -913,8 +913,8 @@ export async function fetchEnterpriseUsers(param) {
       params: {
         page: param.page,
         page_size: param.page_size,
-        query: param.name,
-      },
+        query: param.name
+      }
     }
   );
 }
@@ -927,8 +927,8 @@ export async function addEnterpriseAdminTeams(param) {
     {
       method: 'post',
       data: {
-        user_id: param.user_id,
-      },
+        user_id: param.user_id
+      }
     }
   );
 }
@@ -940,7 +940,7 @@ export async function deleteEnterpriseAdmin(param) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/admin/user/${param.user_id}`,
     {
-      method: 'delete',
+      method: 'delete'
     }
   );
 }
@@ -955,8 +955,8 @@ export async function fetchUserTeams(param) {
       params: {
         page: param.page,
         page_size: param.page_size,
-        name: param.name,
-      },
+        name: param.name
+      }
     }
   );
 }
@@ -967,7 +967,7 @@ export async function fetchEnterpriseList() {
     // `http://doc.goodrain.org/mock/18/enterprises`,
     `${apiconfig.baseUrl}/console/enterprises`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -977,7 +977,7 @@ export async function fetchOverviewApp(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview/app`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -987,7 +987,7 @@ export async function fetchOverview(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -998,7 +998,7 @@ export async function fetchOverviewTeam(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/overview/team`,
     // `http://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/overview/team`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -1008,7 +1008,7 @@ export async function fetchOverviewMonitor(param) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/monitor`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -1017,18 +1017,18 @@ export async function fetchOverviewMonitor(param) {
 export async function setRegist(body = { isRegist }) {
   return request(`${apiconfig.baseUrl}/console/enterprise/registerstatus`, {
     method: 'put',
-    data: { is_regist: body.isRegist },
+    data: { is_regist: body.isRegist }
   });
 }
 
- /* 设置签发证书类型功能 */
+/* 设置签发证书类型功能 */
 export async function setCertificateType(body = {}) {
   const { enterprise_id } = body;
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/info?key=auto_ssl`,
     {
       method: 'put',
-      data: body,
+      data: body
     }
   );
 }
@@ -1036,7 +1036,7 @@ export async function setCertificateType(body = {}) {
 /* 设置注册功能 */
 export async function getRegist(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/registerstatus`, {
-    method: 'get',
+    method: 'get'
   });
 }
 
@@ -1045,7 +1045,7 @@ export async function queryOauthInfo(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/oauth/oauth-services`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -1057,8 +1057,8 @@ export async function toCreatOauth(params) {
     {
       method: 'post',
       data: {
-        oauth_services: params.arr,
-      },
+        oauth_services: params.arr
+      }
     }
   );
 }
@@ -1068,8 +1068,8 @@ export async function toEditOauth(params) {
   return request(`${apiconfig.baseUrl}/console/oauth/oauth-config`, {
     method: 'put',
     data: {
-      oauth_services: params.arr,
-    },
+      oauth_services: params.arr
+    }
   });
 }
 
@@ -1081,8 +1081,8 @@ export async function deleteOauth(body = { service_id }) {
     {
       method: 'delete',
       data: {
-        service_id: body.service_id,
-      },
+        service_id: body.service_id
+      }
     }
   );
 }
@@ -1095,8 +1095,8 @@ export async function queryCodeWarehouseInfo(params) {
       method: 'get',
       params: {
         page: params.page || 1,
-        search: params.search || null,
-      },
+        search: params.search || null
+      }
     }
   );
 }
@@ -1108,8 +1108,8 @@ export async function queryCodeWarehouseType(params) {
       method: 'get',
       params: {
         type: params.type || 'tags',
-        full_name: params.full_name,
-      },
+        full_name: params.full_name
+      }
     }
   );
 }
@@ -1120,7 +1120,7 @@ export async function queryThirdInfo(params) {
   return request(
     `${apiconfig.baseUrl}/console/oauth/service/${params.oauth_service_id}/user/repository/${params.full_name}`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -1135,8 +1135,8 @@ export async function queryTestCode(params) {
         region_name: params.region_name,
         tenant_name: params.tenant_name,
         project_url: params.project_url,
-        version: params.version,
-      },
+        version: params.version
+      }
     }
   );
 }
@@ -1150,8 +1150,8 @@ export async function queryDetectionTestCode(params) {
       params: {
         region: params.region,
         tenant_name: params.tenant_name,
-        check_uuid: params.check_uuid,
-      },
+        check_uuid: params.check_uuid
+      }
     }
   );
 }
@@ -1172,8 +1172,8 @@ export async function toCeateSourceCode(params) {
       oauth_type: params.oauth_type,
       group_id: params.group_id,
       service_cname: params.service_cname,
-      is_auto_construct: params.is_auto_construct,
-    },
+      is_auto_construct: params.is_auto_construct
+    }
   });
 }
 
@@ -1192,8 +1192,8 @@ export async function toCreatUser(params, handleError) {
         email: params.email,
         password: params.password,
         re_password: params.password,
-        role_ids: params.role_ids,
-      },
+        role_ids: params.role_ids
+      }
     }
   );
 }
@@ -1212,8 +1212,8 @@ export async function upEnterpriseUsers(params) {
         email: params.email,
         password: params.password,
         re_password: params.password,
-        role_ids: params.role_ids,
-      },
+        role_ids: params.role_ids
+      }
     }
   );
 }
@@ -1223,7 +1223,7 @@ export async function deleteEnterpriseUsers(params) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/user/${params.user_id}`,
     {
-      method: 'DELETE',
+      method: 'DELETE'
     }
   );
 }
@@ -1237,8 +1237,49 @@ export async function toBuildShape(params) {
       data: {
         tenantName: params.tenantName,
         group_id: params.group_id,
-        action: params.action,
-      },
+        action: params.action
+      }
+    }
+  );
+}
+
+export async function setGovernancemode(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
+    {
+      method: 'put',
+      data: {
+        governance_mode: params.governance_mode
+      }
+    }
+  );
+}
+export async function getServiceNameList(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sServiceNames `
+  );
+}
+export async function CheckK8sServiceName(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/checkK8sServiceName `,
+    {
+      method: 'post',
+      data: {
+        service_alias: params.service_alias,
+        k8s_service_name: params.k8s_service_name
+      }
+    }
+  );
+}
+export async function SetCheckK8sServiceName(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sServiceNames `,
+    {
+      method: 'put',
+      data: {
+        service_alias: params.service_alias,
+        k8s_service_name: params.k8s_service_name
+      }
     }
   );
 }
@@ -1249,7 +1290,7 @@ export async function toQueryTopology(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -1260,7 +1301,7 @@ export async function toQueryLinks(params, handleError) {
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/group/service/visit?service_alias=${params.service_alias}`,
     {
       method: 'get',
-      handleError,
+      handleError
     }
   );
 }
@@ -1273,8 +1314,8 @@ export async function toSearchTenant(params) {
       params: {
         name: params.tenant,
         page_num: params.page_num || 1,
-        page_size: params.page_size || 1000,
-      },
+        page_size: params.page_size || 1000
+      }
     }
   );
 }

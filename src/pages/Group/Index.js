@@ -12,6 +12,7 @@ import {
   Badge
 } from 'antd';
 import { connect } from 'dva';
+import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -145,7 +146,8 @@ class Main extends PureComponent {
       loadingDetail: true,
       rapidCopy: false,
       componentTimer: true,
-      customSwitch: false
+      customSwitch: false,
+      resources: {}
     };
   }
 
@@ -178,16 +180,16 @@ class Main extends PureComponent {
 
   loadTopology(isCycle) {
     const { dispatch } = this.props;
-    const team_name = globalUtil.getCurrTeamName();
-    const region_name = globalUtil.getCurrRegionName();
-    cookie.set('team_name', team_name);
-    cookie.set('region_name', region_name);
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
 
     dispatch({
       type: 'global/fetAllTopology',
       payload: {
-        region_name,
-        team_name,
+        region_name: regionName,
+        team_name: teamName,
         groupId: this.getGroupId()
       },
       callback: res => {
@@ -215,12 +217,12 @@ class Main extends PureComponent {
     });
   }
 
-  loadLinks(service_alias, isCycle) {
+  loadLinks(serviceAlias, isCycle) {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/queryLinks',
       payload: {
-        service_alias,
+        service_alias: serviceAlias,
         team_name: globalUtil.getCurrTeamName()
       },
       callback: res => {
@@ -307,6 +309,38 @@ class Main extends PureComponent {
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps`
             )
           );
+        }
+      }
+    });
+  };
+
+  fetchAppDetailState = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID } = this.props.match.params;
+    dispatch({
+      type: 'groupControl/fetchAppDetailState',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {}
+    });
+  };
+
+  fetchAppResourcesStatistics = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID } = this.props.match.params;
+    dispatch({
+      type: 'groupControl/fetchAppResourcesStatistics',
+      payload: {
+        team_name: teamName,
+        group_id: appID
+      },
+      callback: res => {
+        if (res && res.bean) {
+          this.setState({
+            resources: res.bean
+          });
         }
       }
     });
@@ -553,6 +587,7 @@ class Main extends PureComponent {
     const {
       loadingDetail,
       currApp,
+      resources,
       rapidCopy,
       jsonDataLength,
       linkList,
@@ -671,21 +706,21 @@ class Main extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用内存</div>
-                <div>1.6GB</div>
+                <div>{resources.memory}M</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>使用CPU</div>
-                <div>400</div>
+                <div>{resources.cpu}M</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用磁盘</div>
-                <div>300MB</div>
+                <div>{resources.disk}MB</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>组件数量</div>
-                <div>10</div>
+                <div>{currApp.service_num}</div>
               </div>
             </div>
           </div>
@@ -693,23 +728,35 @@ class Main extends PureComponent {
         <div className={styles.contentr}>
           <div className={styles.conrHeader}>
             <div>
-              <span>创建时间</span> <span>2020-09-22 18:00:00</span>
+              <span>创建时间</span>
+              <span>
+                {moment(currApp.create_time)
+                  .locale('zh-cn')
+                  .format('YYYY-MM-DD')}
+              </span>
             </div>
             <div>
-              <span>更新时间</span> <span>2020-09-22 18:00:00</span>
+              <span>更新时间</span>
+              <span>
+                {moment(currApp.update_time)
+                  .locale('zh-cn')
+                  .format('YYYY-MM-DD')}
+              </span>
             </div>
           </div>
           <div className={styles.conrHeader}>
             <div>
               <span>治理模式</span>
-              <span>内置ServiceMesh模式</span>
+              <span>
+                {globalUtil.fetchGovernanceMode(currApp.governance_mode)}
+              </span>
               <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
                 切换
               </a>
             </div>
             <div>
               <span>负责人</span>
-              <span>张一飞</span>
+              <span>{currApp.principal}</span>
             </div>
           </div>
           <div className={styles.conrBot}>
@@ -767,6 +814,7 @@ class Main extends PureComponent {
         <Row>{pageHeaderContent}</Row>
         {customSwitch && (
           <ApplicationGovernance
+            appID={this.getGroupId()}
             onCancel={this.onCancel}
             onOk={this.handleOKSwitch}
           />
