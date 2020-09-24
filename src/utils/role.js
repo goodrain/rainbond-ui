@@ -112,7 +112,8 @@ export default {
           'isSource',
           'isDeploytype',
           'isCharacteristic',
-          'isHealth'
+          'isHealth',
+          'isServiceMonitor'
         ]
       ];
 
@@ -132,7 +133,8 @@ export default {
           'source',
           'deploy_type',
           'characteristic',
-          'health'
+          'health',
+          'service_monitor'
         ]
       ];
     }
