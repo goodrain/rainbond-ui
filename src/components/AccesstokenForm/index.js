@@ -134,7 +134,7 @@ class AccesstokenForm extends PureComponent {
     return (
       <Modal
         visible
-        loading={loading}
+        confirmLoading={loading}
         className={styles.TelescopicModal}
         title={ID || accessKey ? '请保存AccessKey' : '新增访问令牌'}
         onOk={this.handleSubmit}

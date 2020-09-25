@@ -34,8 +34,26 @@ export default {
     (bean &&
       bean.appstore_image_hub &&
       bean.appstore_image_hub.enable &&
-      "支持") ||
-    "不支持",
+      '支持') ||
+    '不支持',
+  // 判断企业是否配置了镜像仓库信息
+  isEnableAppstoreImageHub: (bean = {}) =>
+    (bean && bean.appstore_image_hub && bean.appstore_image_hub.enable) ||
+    false,
+  // 获取镜像仓库信息
+  fetchAppstoreImageHub: (bean = {}) =>
+    (bean && bean.appstore_image_hub && bean.appstore_image_hub.value) || false,
+
+  // 判断企业是否配置了对象存储
+  isEnableObjectStorage: (bean = {}) =>
+    (bean &&
+      bean.object_storage &&
+      bean.object_storage.enable &&
+      bean.object_storage.value) ||
+    false,
+  // 获取对象存储
+  fetchObjectStorage: (bean = {}) =>
+    (bean && bean.object_storage && bean.object_storage.value) || false,
 
   // 判断企业是否配置了自动签发证书
   CertificateIssuedByEnable: (bean = {}) =>
@@ -103,24 +121,24 @@ export default {
       bean.document &&
       bean.document.enable &&
       bean.document.value.platform_url) ||
-    "",
-  OauthParameter: (paraName = "") => {
+    '',
+  OauthParameter: (paraName = '') => {
     const url = document.location.toString();
-    const arrObj = url.split("?");
+    const arrObj = url.split('?');
 
     if (arrObj.length > 1) {
-      const arrPara = arrObj[1].split("&");
+      const arrPara = arrObj[1].split('&');
       let arr;
 
       for (let i = 0; i < arrPara.length; i++) {
-        arr = arrPara[i].split("=");
+        arr = arrPara[i].split('=');
 
         if (arr != null && arr[0] == paraName) {
           return arr[1];
         }
       }
-      return "";
+      return '';
     }
-    return "";
+    return '';
   }
 };

@@ -1,14 +1,12 @@
 /* eslint-disable no-nested-ternary */
 import {
   Card,
-
-  Col, Divider, Form, Modal,
-
-
+  Col,
+  Divider,
+  Form,
+  Modal,
   Popconfirm,
-
   Row,
-
   Tooltip
 } from 'antd';
 import { connect } from 'dva';
@@ -27,7 +25,7 @@ class Index extends PureComponent {
       logVisible: false,
       LogHistoryList: [],
       showHighlighted: '',
-      EventID: '',
+      EventID: ''
     };
   }
   componentDidMount() {}
@@ -35,19 +33,19 @@ class Index extends PureComponent {
   showModal = EventID => {
     this.setState({
       EventID,
-      logVisible: true,
+      logVisible: true
     });
   };
 
   handleOk = () => {
     this.setState({
-      logVisible: false,
+      logVisible: false
     });
   };
 
   handleCancel = () => {
     this.setState({
-      logVisible: false,
+      logVisible: false
     });
   };
 
@@ -60,42 +58,37 @@ class Index extends PureComponent {
 
     handleDel && handleDel(item);
   };
-  showStatus = (status) => {
-    switch (status){
+  showStatus = status => {
+    switch (status) {
       case '':
-        return "构建中"
+        return '构建中';
       case 'success':
-        return "构建成功"
+        return '构建成功';
       case 'failure':
-        return "构建失败"
+        return '构建失败';
       default:
-        return "未知"  
+        return '未知';
     }
-  }
+  };
 
   render() {
     const {
       dataList,
       beanData,
       current_version,
-      componentPermissions: { isRollback, isDelete },
+      componentPermissions: { isRollback, isDelete }
     } = this.props;
     const { LogHistoryList, showHighlighted, EventID, logVisible } = this.state;
     return (
       <Row gutter={24}>
         {logVisible && (
-          <Modal
-            className={styles.logModal}
+          <LogShow
             title="构建日志"
-            visible={logVisible}
+            EventID={EventID}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
             width="1200px"
-            bodyStyle={{ background: '#222222', color: '#fff' }}
-            footer={null}
-          >
-            <LogShow EventID={EventID} />
-          </Modal>
+          />
         )}
         <Col xs={24} xm={24} md={24} lg={24} xl={24}>
           <Card
@@ -122,7 +115,7 @@ class Index extends PureComponent {
                       image_repo,
                       code_branch,
                       image_tag,
-                      kind,
+                      kind
                     } = item;
 
                     return (
@@ -153,7 +146,7 @@ class Index extends PureComponent {
                                       textAlign: 'center',
                                       color: '#db4545',
                                       display: 'inline-block',
-                                      lineHeight: 1,
+                                      lineHeight: 1
                                     }}
                                   >
                                     !
@@ -174,7 +167,7 @@ class Index extends PureComponent {
                                         ? '#39aa56'
                                         : status === 'failure'
                                         ? '#db4545'
-                                        : '#9d9d9d',
+                                        : '#9d9d9d'
                                   }}
                                 >
                                   {build_version}
@@ -214,7 +207,7 @@ class Index extends PureComponent {
                                 <span
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: '90%',
+                                    width: '90%'
                                   }}
                                 >
                                   {kind &&
@@ -231,19 +224,19 @@ class Index extends PureComponent {
                           >
                             <div
                               style={{
-                                width: '210px',
+                                width: '210px'
                               }}
                             >
                               <a
                                 style={{
                                   width: '100%',
-                                  cursor: 'auto',
+                                  cursor: 'auto'
                                 }}
                               >
                                 <font
                                   className={styles.nowarpCorolText}
                                   style={{
-                                    width: '90%',
+                                    width: '90%'
                                   }}
                                 >
                                   {build_user && ` @&nbsp;${build_user}`}
@@ -257,7 +250,7 @@ class Index extends PureComponent {
                                 className={`${styles.alcen}`}
                                 style={{
                                   width: '50%',
-                                  cursor: 'auto',
+                                  cursor: 'auto'
                                 }}
                               >
                                 <Tooltip
@@ -285,7 +278,7 @@ class Index extends PureComponent {
                                   <span
                                     className={styles.nowarpCorolText}
                                     style={{
-                                      width: '90%',
+                                      width: '90%'
                                     }}
                                   >
                                     {kind &&
@@ -299,7 +292,7 @@ class Index extends PureComponent {
                                 className={` ${styles.alcen} `}
                                 style={{
                                   width: '50%',
-                                  cursor: 'auto',
+                                  cursor: 'auto'
                                 }}
                               >
                                 <Tooltip
@@ -332,7 +325,7 @@ class Index extends PureComponent {
                                   <font
                                     className={styles.nowarpCorolText}
                                     style={{
-                                      width: '90%',
+                                      width: '90%'
                                     }}
                                   >
                                     {kind &&
@@ -360,8 +353,8 @@ class Index extends PureComponent {
                               {globalUtil.fetchSvg(
                                 'logState',
                                 status === 'failure'
-                                      ? '#39AA56#db4545'
-                                      : '#39AA56',
+                                  ? '#39AA56#db4545'
+                                  : '#39AA56'
                               )}
                               <font
                                 style={{
@@ -369,7 +362,7 @@ class Index extends PureComponent {
                                   color:
                                     status === 'failure'
                                       ? '#39AA56#db4545'
-                                      : '#39AA56',
+                                      : '#39AA56'
                                 }}
                               >
                                 {this.showStatus(status)}
@@ -391,7 +384,7 @@ class Index extends PureComponent {
                                 <font
                                   style={{
                                     display: 'inline-block',
-                                    color: 'rgba(0,0,0,0.45)',
+                                    color: 'rgba(0,0,0,0.45)'
                                   }}
                                 >
                                   {globalUtil.fetchTime(
@@ -417,7 +410,7 @@ class Index extends PureComponent {
                                 <font
                                   style={{
                                     display: 'inline-block',
-                                    color: 'rgba(0,0,0,0.45)',
+                                    color: 'rgba(0,0,0,0.45)'
                                   }}
                                 >
                                   {create_time &&
@@ -457,17 +450,17 @@ class Index extends PureComponent {
                             build_version != current_version &&
                             isRollback &&
                             current_version ? (
-                              <Popconfirm
-                                title="确定要回滚到此版本吗?"
-                                onConfirm={() => {
+                            <Popconfirm
+                              title="确定要回滚到此版本吗?"
+                              onConfirm={() => {
                                 this.handleRolback(item);
                               }}
-                              >
-                                <span>
-                                  <Divider type="vertical" />
-                                  <a style={{ fontSize: '12px' }}>回滚</a>
-                                </span>
-                              </Popconfirm>
+                            >
+                              <span>
+                                <Divider type="vertical" />
+                                <a style={{ fontSize: '12px' }}>回滚</a>
+                              </span>
+                            </Popconfirm>
                           ) : (
                             ''
                           )}
