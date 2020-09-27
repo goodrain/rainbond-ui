@@ -43,6 +43,7 @@ import {
   getService,
   getTeamAppList,
   getConfigurationList,
+  getConfigurationDetails,
   addConfiguration,
   editConfiguration,
   deleteConfiguration,
@@ -268,6 +269,12 @@ export default {
     },
     *fetchConfigurationList({ payload, callback }, { call }) {
       const data = yield call(getConfigurationList, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *fetchConfigurationDetails({ payload, callback }, { call }) {
+      const data = yield call(getConfigurationDetails, payload);
       if (data && callback) {
         callback(data);
       }

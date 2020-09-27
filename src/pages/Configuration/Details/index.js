@@ -22,8 +22,8 @@ const FormItem = Form.Item;
 const { confirm } = Modal;
 
 @connect(({ loading, teamControl, enterprise }) => ({
-  AddConfigurationLoading: loading.effects['groupControl/AddConfiguration'],
-  EditConfigurationLoading: loading.effects['groupControl/EditConfiguration'],
+  AddConfigurationLoading: loading.effects['global/AddConfiguration'],
+  EditConfigurationLoading: loading.effects['global/EditConfiguration'],
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise
@@ -34,11 +34,13 @@ export default class ConfigurationDetails extends PureComponent {
     super(props);
     this.state = {
       apps: [],
-      info: {}
+      info: {},
+      loading: true
     };
   }
   componentDidMount() {
     this.loadComponents();
+    this.loadConfigurationDetails();
   }
   onOk = e => {
     e.preventDefault();
@@ -69,10 +71,9 @@ export default class ConfigurationDetails extends PureComponent {
       ...vals
     };
     const { service_ids: serviceIds } = vals;
-    const { info } = this.state;
-    if (id === 'add') {
+    if (`${id}` === 'add') {
       dispatch({
-        type: 'groupControl/AddConfiguration',
+        type: 'global/AddConfiguration',
         payload: {
           ...parameter
         },
@@ -85,9 +86,9 @@ export default class ConfigurationDetails extends PureComponent {
           }
         }
       });
-    } else if (info) {
+    } else {
       dispatch({
-        type: 'groupControl/EditConfiguration',
+        type: 'global/EditConfiguration',
         payload: {
           ...parameter
         },
@@ -104,14 +105,17 @@ export default class ConfigurationDetails extends PureComponent {
   };
 
   showRemind = () => {
+    const _th = this;
     confirm({
-      title: '更新组件',
+      title: '需更新组件立即生效',
       content: '是否立即更新组件',
+      okText: '更新',
+      cancelText: '取消',
       onOk() {
-        this.handlePromptModalOpen();
+        _th.handlePromptModalOpen();
       },
       onCancel() {
-        this.onCancel();
+        _th.onCancel();
       }
     });
   };
@@ -126,9 +130,9 @@ export default class ConfigurationDetails extends PureComponent {
         group_id: appID,
         action: 'upgrade'
       },
-      callback: data => {
+      callback: () => {
         notification.success({
-          message: data.msg_show,
+          message: '更新成功',
           duration: '3'
         });
         this.onCancel();
@@ -138,7 +142,7 @@ export default class ConfigurationDetails extends PureComponent {
 
   loadComponents = () => {
     const { dispatch } = this.props;
-    const { teamName, regionName, appID } = this.handleParameter();
+    const { teamName, regionName, appID, id } = this.handleParameter();
     dispatch({
       type: 'groupControl/fetchApps',
       payload: {
@@ -148,26 +152,53 @@ export default class ConfigurationDetails extends PureComponent {
         page: 1,
         page_size: 999
       },
-      callback: data => {
-        if (data && data._code == 200) {
+      callback: res => {
+        if (res && res._code == 200) {
           this.setState({
-            apps: data.list || []
+            apps: res.list || []
           });
+          if (id === 'add') {
+            this.setState({
+              loading: false
+            });
+          }
         }
       }
     });
   };
+
+  loadConfigurationDetails = () => {
+    const { dispatch } = this.props;
+    const { teamName, appID, id } = this.handleParameter();
+    if (id !== 'add') {
+      dispatch({
+        type: 'global/fetchConfigurationDetails',
+        payload: {
+          team_name: teamName,
+          group_id: appID,
+          name: id
+        },
+        callback: res => {
+          if (res && res._code == 200) {
+            this.setState({
+              info: res.bean,
+              loading: false
+            });
+          }
+        }
+      });
+    }
+  };
+
   checkConfiguration = (rule, value, callback) => {
-    const visit = this.props.form.getFieldValue('configuration');
-    if (visit && visit.length > 0) {
-      const arr = visit.filter(item => item.key === '' || item.value === '');
+    if (value && value.length > 0) {
+      const arr = value.filter(item => item.key === '' || item.value === '');
       if (arr && arr.length > 0) {
         callback('配置项不能为空');
+      } else {
+        callback();
       }
-      callback();
-      return;
     }
-
     callback();
   };
 
@@ -190,36 +221,14 @@ export default class ConfigurationDetails extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-    const { apps, info } = this.state;
+    const { apps, info, loading } = this.state;
     const { getFieldDecorator } = form;
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 3 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 19 }
-      }
-    };
-    const formItemLayouts = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 6 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 14 }
-      }
-    };
-
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
       info.services.map(item => {
         serviceIds.push(item.service_id);
       });
     }
-
     const { id } = this.handleParameter();
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -230,6 +239,7 @@ export default class ConfigurationDetails extends PureComponent {
     return (
       <ConfigurationHeader breadcrumbList={breadcrumbList}>
         <Card
+          loading={loading}
           style={{ minHeight: '600px' }}
           title={id === 'add' ? '添加配置组' : '修改配置组'}
           extra={[
@@ -245,7 +255,10 @@ export default class ConfigurationDetails extends PureComponent {
             </Button>
           ]}
         >
-          <Form onSubmit={this.onOk} style={{ margin: '0 auto',width:'820px' }}>
+          <Form
+            onSubmit={this.onOk}
+            style={{ margin: '0 auto', width: '820px' }}
+          >
             <Row style={{ display: 'flex', alignItems: 'center' }}>
               <FormItem style={{ width: '370px' }} label="配置组名称">
                 {getFieldDecorator('config_group_name', {
@@ -278,10 +291,14 @@ export default class ConfigurationDetails extends PureComponent {
                 style={{ width: '370px', marginLeft: '24px' }}
                 label="状态"
               >
-                {getFieldDecorator('state', {
-                  initialValue: (info && info.state) || true,
+                {getFieldDecorator('deploy_status', {
+                  initialValue: (info && info.deploy_status) || true,
                   rules: [{ required: true }]
-                })(<Switch />)}
+                })(
+                  <Switch
+                    defaultChecked={(info && info.deploy_status) || true}
+                  />
+                )}
               </Form.Item>
             </Row>
             <FormItem label="配置项">
@@ -305,9 +322,12 @@ export default class ConfigurationDetails extends PureComponent {
                 <Checkbox.Group className={styles.setCheckbox}>
                   <Row span={24}>
                     {apps.map(item => {
-                      const { service_cname: name, service_id: id } = item;
+                      const {
+                        service_cname: name,
+                        service_id: serviceId
+                      } = item;
                       return (
-                        <Checkbox key={id} value={id}>
+                        <Checkbox key={id} value={serviceId}>
                           {name}
                         </Checkbox>
                       );

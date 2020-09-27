@@ -11,6 +11,7 @@ import {
   notification,
   Badge
 } from 'antd';
+// eslint-disable-next-line import/extensions
 import ConfirmModal from '@/components/ConfirmModal';
 
 const FormItem = Form.Item;
@@ -182,13 +183,11 @@ export default class ConfigurationTable extends PureComponent {
               {
                 title: '配置组名称',
                 dataIndex: 'config_group_name',
-                width: '300px'
               },
               {
                 title: '生效组件数',
                 dataIndex: 'services_num',
                 align: 'center',
-                width: '150px',
                 render: (_, data) => {
                   return (
                     <p style={{ marginBottom: 0 }}>{data.services.length}</p>
@@ -197,20 +196,25 @@ export default class ConfigurationTable extends PureComponent {
               },
               {
                 title: '状态',
-                dataIndex: 'state',
+                dataIndex: 'deploy_status',
                 align: 'center',
-                width: '200px',
                 render: val => {
                   return (
                     <div>
-                      <Badge status="processing" text='生效中' />
+                      <Badge
+                        status={val ? 'success' : 'error'}
+                        text={
+                          <span>
+                            {val ? '生效中' : '不生效'}
+                          </span>
+                        }
+                      />
                     </div>
                   );
                 }
               },
               {
                 title: '操作',
-                width: '200px',
                 dataIndex: 'action',
                 align: 'center',
 

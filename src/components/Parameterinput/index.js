@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 import React, { Component } from 'react';
-import { Row, Col, Input, Icon } from 'antd';
+import { Row, Input, Icon } from 'antd';
 const { TextArea } = Input;
 
 class Parameterinput extends Component {
@@ -9,6 +9,15 @@ class Parameterinput extends Component {
     this.state = {
       values: [{ key: '', value: '' }]
     };
+  }
+  componentDidMount() {
+    const { editInfo } = this.props;
+    if (editInfo) {
+      // eslint-disable-next-line react/no-did-mount-set-state
+      this.setState({
+        values: editInfo
+      });
+    }
   }
   onKeyChange = (index, e) => {
     const { values } = this.state;
@@ -59,17 +68,14 @@ class Parameterinput extends Component {
           values.length > 0 &&
           values.map((item, index) => {
             return (
-              <Row
-                key={item.key}
-                style={{ display: 'flex', alignItems: 'center' }}
-              >
+              <Row style={{ display: 'flex', alignItems: 'center' }}>
                 <Input
-                  style={{ width: '370px' }}
                   name="key"
-                  maxLength={255}
-                  onChange={this.onKeyChange.bind(this, index)}
                   value={item.key}
+                  maxLength={255}
+                  style={{ width: '370px' }}
                   placeholder={keyPlaceholder}
+                  onChange={this.onKeyChange.bind(this, index)}
                 />
                 <span style={{ textAlign: 'center', padding: '0 10px' }}>
                   :
@@ -78,11 +84,11 @@ class Parameterinput extends Component {
                   <TextArea
                     name="value"
                     rows={1}
-                    style={{ width: '370px', marginRight: '10px' }}
-                    maxLength={65533}
-                    onChange={this.onValueChange.bind(this, index)}
                     value={item.value}
+                    maxLength={65533}
+                    style={{ width: '370px', marginRight: '10px' }}
                     placeholder={valuePlaceholder}
+                    onChange={this.onValueChange.bind(this, index)}
                   />
                 </div>
                 <div style={{ textAlign: 'center' }}>
