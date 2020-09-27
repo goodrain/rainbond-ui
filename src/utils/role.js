@@ -5,7 +5,7 @@ const actionMaps = {
   developer: '开发者',
   viewer: '观察者',
   access: '访问者',
-  owner: '拥有者',
+  owner: '拥有者'
 };
 const AccessText = {
   component: '组件管理',
@@ -15,7 +15,7 @@ const AccessText = {
   plugin: '插件管理',
   teamMember: '团队成员管理',
   teamRole: '团队角色管理',
-  teamRegion: '团队集群管理',
+  teamRegion: '团队集群管理'
 };
 
 let arr = [
@@ -24,7 +24,7 @@ let arr = [
   'isEdit',
   'isDelete',
   'isInstall',
-  'isUninstall',
+  'isUninstall'
 ];
 let targetArr = [
   'describe',
@@ -32,7 +32,7 @@ let targetArr = [
   'edit',
   'delete',
   'install',
-  'uninstall',
+  'uninstall'
 ];
 const operationArr = ['isStart', 'isStop', 'isUpdate', 'isConstruct'];
 const targetOperationArr = ['start', 'stop', 'update', 'construct'];
@@ -76,8 +76,8 @@ export default {
           'isUpgrade',
           'isCopy',
           'isImport',
-          'isExport',
-        ],
+          'isExport'
+        ]
       ];
       targetArr = [
         ...targetArr,
@@ -90,8 +90,8 @@ export default {
           'upgrade',
           'copy',
           'import',
-          'export',
-        ],
+          'export'
+        ]
       ];
     }
 
@@ -113,7 +113,8 @@ export default {
           'isDeploytype',
           'isCharacteristic',
           'isHealth',
-        ],
+          'isServiceMonitor'
+        ]
       ];
 
       targetArr = [
@@ -133,7 +134,8 @@ export default {
           'deploy_type',
           'characteristic',
           'health',
-        ],
+          'service_monitor'
+        ]
       ];
     }
     const obj = {};
@@ -216,7 +218,7 @@ export default {
         });
       }
     });
-  },
+  }
 
   // team permissions
 };
