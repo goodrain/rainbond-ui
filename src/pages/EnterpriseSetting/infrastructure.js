@@ -260,6 +260,22 @@ export default class Infrastructure extends PureComponent {
       callback: () => {
         this.handelCloseBasicInformation();
         this.fetchEnterpriseInfo();
+        // 初始化 获取RainbondInfo信息
+        dispatch({
+          type: 'global/fetchRainbondInfo',
+          callback: info => {
+            if (info) {
+              const fetchFavicon = rainbondUtil.fetchFavicon(info);
+              let link =
+                document.querySelector("link[rel*='icon']") ||
+                document.createElement('link');
+              link.type = 'image/x-icon';
+              link.rel = 'shortcut icon';
+              link.href = fetchFavicon;
+              document.getElementsByTagName('head')[0].appendChild(link);
+            }
+          }
+        });
       }
     });
   };
@@ -341,9 +357,12 @@ export default class Infrastructure extends PureComponent {
       }
     } = this.props;
     let infos = {};
+
     if (rainbondInfo) {
       const fetchLogo =
         rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
+      const fetchFavicon = rainbondUtil.fetchFavicon(enterprise);
+
       const title =
         rainbondInfo && rainbondInfo.title && rainbondInfo.title.value;
       const enterpriseTitle = rainbondInfo.enterprise_alias;
@@ -351,9 +370,11 @@ export default class Infrastructure extends PureComponent {
       infos = {
         logo: fetchLogo,
         title,
-        enterprise_alias: enterpriseTitle
+        enterprise_alias: enterpriseTitle,
+        favicon: fetchFavicon
       };
     }
+    const fetchIsSource = rainbondUtil.fetchIsSource();
 
     const {
       enterpriseAdminLoading,
@@ -535,7 +556,7 @@ export default class Infrastructure extends PureComponent {
           <Col span={3}>基础信息</Col>
           <Col span={17}>
             <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-              可以修改平台的标题、企业名称、LOGO
+              可以修改平台的标题、企业名称、LOGO、网页图标
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
@@ -672,7 +693,7 @@ export default class Infrastructure extends PureComponent {
           </div>
         ) : (
           <div>
-            {BasicInformation}
+            {fetchIsSource && BasicInformation}
             {UserRegistered}
             {AutomaticIssueCertificate}
             {Oauth}

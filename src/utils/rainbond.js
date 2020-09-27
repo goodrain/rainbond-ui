@@ -17,6 +17,15 @@ export default {
       enterpriseInfo.logo &&
       enterpriseInfo.logo.enable &&
       enterpriseInfo.logo.value),
+  // 获取网页图标
+  fetchFavicon: enterpriseInfo =>
+    (enterpriseInfo &&
+      enterpriseInfo.favicon &&
+      enterpriseInfo.favicon.enable &&
+      enterpriseInfo.favicon.value) ||
+    '/static/dists/favicon.png',
+  // 获取当前版本
+  fetchIsSource: () => true,
   // BillingFunction
   isEnableBillingFunction: () => false,
   // footer

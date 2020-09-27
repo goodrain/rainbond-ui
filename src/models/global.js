@@ -89,6 +89,7 @@ import {
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
+import rainbondUtil from '../utils/rainbond';
 
 export default {
   namespace: 'global',
@@ -373,6 +374,10 @@ export default {
             ? data.bean.document.value.platform_url
             : 'https://www.rainbond.com/'
         );
+        window.localStorage.setItem(
+          'faviconurl',
+          rainbondUtil.fetchFavicon(data.bean)
+        );
         yield put({ type: 'saveRainBondInfo', payload: data.bean });
         if (callback) {
           setTimeout(() => {
@@ -525,6 +530,7 @@ export default {
           type: 'saveEnterpriseInfo',
           payload: response.bean
         });
+
         if (callback) {
           callback(response);
         }
@@ -891,6 +897,7 @@ export default {
         'newbie_guide',
         payload && payload.newbie_guide && payload.newbie_guide.enable
       );
+
       return {
         ...state,
         enterprise: payload
