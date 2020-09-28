@@ -34,6 +34,7 @@ export default class ThirdLogin extends Component {
       const token = cookie.get('token');
       // if user login
       if (token) {
+        dispatch({ type: 'global/hideNeedLogin' });
         dispatch({
           type: 'user/fetchThirdLoginBinding',
           payload: {

@@ -1,14 +1,15 @@
-import React, { Component } from "react";
-import { connect } from "dva";
-import { Divider, Row, Col } from "antd";
-import styles from "./Login.less";
-import rainbondUtil from "../../utils/rainbond";
-import LoginComponent from "./loginComponent";
-import oauthUtil from "../../utils/oauth";
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Divider, Row, Col } from 'antd';
+import styles from './Login.less';
+import rainbondUtil from '../../utils/rainbond';
+import globalUtil from '../../utils/global';
+import LoginComponent from './loginComponent';
+import oauthUtil from '../../utils/oauth';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo,
+  rainbondInfo: global.rainbondInfo
 }))
 export default class LoginPage extends Component {
   constructor(props) {
@@ -19,7 +20,8 @@ export default class LoginPage extends Component {
   }
   componentWillMount() {
     const { dispatch, rainbondInfo } = this.props;
-    dispatch({ type: "global/hideNeedLogin" });
+    dispatch({ type: 'global/hideNeedLogin' });
+    globalUtil.removeCookie();
     // if (rainbondInfo.enterprise_id) {
     //   this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
     // }
@@ -27,14 +29,14 @@ export default class LoginPage extends Component {
   handleSubmit = values => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
-    const redirect = query_params.get("redirect");
+    const redirect = query_params.get('redirect');
     dispatch({
-      type: "user/login",
+      type: 'user/login',
       payload: {
         ...values
       },
       callback: () => {
-        let url = "/";
+        let url = '/';
         if (redirect) {
           url = redirect;
         }
@@ -45,7 +47,7 @@ export default class LoginPage extends Component {
   fetchEnterpriseInfo = eid => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/fetchEnterpriseInfo",
+      type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid
       },
