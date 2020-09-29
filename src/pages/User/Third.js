@@ -1,7 +1,9 @@
+/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import rainbondUtil from '../../utils/rainbond';
+import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
 import Result from '../../components/Result';
 import { message } from 'antd';
@@ -13,9 +15,10 @@ export default class ThirdLogin extends Component {
     this.state = {
       resultState: 'ing',
       title: '第三方认证中...',
-      desc: '此过程可能比较耗时，请耐心等待',
+      desc: '此过程可能比较耗时，请耐心等待'
     };
   }
+  // eslint-disable-next-line consistent-return
   componentWillMount() {
     const code = rainbondUtil.OauthParameter('code');
     const service_id = rainbondUtil.OauthParameter('service_id');
@@ -31,11 +34,12 @@ export default class ThirdLogin extends Component {
       const token = cookie.get('token');
       // if user login
       if (token) {
+        dispatch({ type: 'global/hideNeedLogin' });
         dispatch({
           type: 'user/fetchThirdLoginBinding',
           payload: {
             code,
-            service_id,
+            service_id
           },
           callback: resdata => {
             if (resdata && resdata.status && resdata.status === 400) {
@@ -43,7 +47,7 @@ export default class ThirdLogin extends Component {
                 {
                   resultState: 'error',
                   title: '第三方认证未通过',
-                  desc: '认证失败,请重新认证',
+                  desc: '认证失败,请重新认证'
                 },
                 () => {
                   dispatch(routerRedux.push(`/`));
@@ -54,7 +58,7 @@ export default class ThirdLogin extends Component {
                 {
                   resultState: 'success',
                   title: '第三方认证通过',
-                  desc: '',
+                  desc: ''
                 },
                 () => {
                   dispatch(routerRedux.push(`/`));
@@ -65,24 +69,23 @@ export default class ThirdLogin extends Component {
           handleError: res => {
             if (res && res.status === 500) {
               message.warning('第三方认证失败，请重新认证', 1, () => {
-                this.props.dispatch(
+                dispatch(
                   routerRedux.push(`/user/login?disable_auto_login=true`)
                 );
               });
             }
-          },
+          }
         });
         return null;
       }
-
+      globalUtil.removeCookie();
       // if not login
-
       dispatch({
         type: 'user/fetchThirdCertification',
         payload: {
           code,
           service_id,
-          domain: window.location.host,
+          domain: window.location.host
         },
         callback: res => {
           if (res && res.status && res.status === 400) {
@@ -90,7 +93,7 @@ export default class ThirdLogin extends Component {
               {
                 resultState: 'error',
                 title: '第三方认证未通过',
-                desc: '未成功获取access_token,请重新认证。',
+                desc: '未成功获取access_token,请重新认证。'
               },
               () => {
                 dispatch(
@@ -126,17 +129,14 @@ export default class ThirdLogin extends Component {
         handleError: res => {
           if (res && res.status === 500) {
             message.warning('第三方认证失败，请重新认证', 1, () => {
-              this.props.dispatch(
-                routerRedux.push(`/user/login?disable_auto_login=true`)
-              );
+              dispatch(routerRedux.push(`/user/login?disable_auto_login=true`));
             });
           }
-        },
+        }
       });
     } else {
-      this.props.dispatch(
-        routerRedux.replace('/user/login?disable_auto_login=true')
-      );
+      globalUtil.removeCookie();
+      dispatch(routerRedux.replace('/user/login?disable_auto_login=true'));
     }
   }
 
@@ -149,7 +149,7 @@ export default class ThirdLogin extends Component {
         description={desc}
         style={{
           marginTop: '20%',
-          marginBottom: 16,
+          marginBottom: 16
         }}
       />
     );

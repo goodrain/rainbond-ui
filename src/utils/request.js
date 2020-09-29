@@ -1,3 +1,4 @@
+/* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 import { notification } from "antd";
