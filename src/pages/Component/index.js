@@ -90,7 +90,7 @@ class MoveGroup extends PureComponent {
     const initValue = currGroup.toString();
     return (
       <Modal
-        title="修改应用所属组"
+        title="修改所属应用"
         visible
         className={styless.TelescopicModal}
         onOk={this.handleSubmit}
