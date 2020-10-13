@@ -41,6 +41,7 @@ import {
   setRegist,
   getRegist,
   setCertificateType,
+  setBasicInformation,
   saveLog,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
@@ -508,7 +509,12 @@ export default {
         callback && callback(response);
       }
     },
-
+    *putBasicInformation({ payload, callback }, { call }) {
+      const response = yield call(setBasicInformation, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
