@@ -30,6 +30,7 @@ import userUtil from "../utils/user";
 import AppHeader from "./components/AppHeader";
 import TeamHeader from "./components/TeamHeader";
 import Context from "./MenuContext";
+import logo from '../../public/logo.png';
 
 const qs = require("query-string");
 
@@ -366,6 +367,7 @@ class TeamLayout extends PureComponent {
       // enterpriseServiceInfo,
       collapsed,
       children,
+      location,
       location: { pathname },
       nouse,
       rainbondInfo,
@@ -479,7 +481,7 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion =
@@ -647,7 +649,7 @@ class TeamLayout extends PureComponent {
 }
 
 export default connect(
-  ({ user, global, index, loading, teamControl, order }) => ({
+  ({ user, global, index, loading, teamControl }) => ({
     currentUser: user.currentUser,
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,

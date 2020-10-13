@@ -161,7 +161,7 @@ class EnterpriseLayout extends PureComponent {
     return { location, breadcrumbNameMap: this.breadcrumbNameMap };
   };
 
-  getPageTitle = pathname => {
+  getPageTitle = () => {
     const { rainbondInfo } = this.props;
     const title =
       (rainbondInfo &&
@@ -287,7 +287,8 @@ class EnterpriseLayout extends PureComponent {
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-
+    const fetchLogo =
+      rainbondUtil.fetchLogo(enterpriseInfo, enterprise) || logo;
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
@@ -374,8 +375,7 @@ class EnterpriseLayout extends PureComponent {
         </Layout>
       );
     };
-    const fetchLogo =
-      rainbondUtil.fetchLogo(enterpriseInfo, enterprise) || '';
+
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>

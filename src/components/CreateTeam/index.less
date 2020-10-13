@@ -6,7 +6,14 @@
   }
 
   :global {
-
+    .ant-layout-content,
+    .ant-layout-sider {
+      background: #ffffff !important;
+    }
+    .ant-spin-container,
+    .ant-spin-nested-loading {
+      height: 100%;
+    }
     .ant-form-item-label {
       height: 40px;
 
@@ -57,4 +64,11 @@
   font-weight: 400;
   color      : rgba(153, 153, 153, 1);
   line-height: 14px;
+}
+.customUpload {
+  :global {
+    .ant-upload {
+      height: 64px !important;
+    }
+  }
 }
