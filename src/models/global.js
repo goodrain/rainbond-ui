@@ -378,6 +378,7 @@ export default {
           'faviconurl',
           rainbondUtil.fetchFavicon(data.bean)
         );
+        cookie.setGuide("enterprise_edition", rainbondUtil.isEnterpriseEdition(data.bean));
         yield put({ type: 'saveRainBondInfo', payload: data.bean });
         setTimeout(() => {
           callback && callback(data.bean);

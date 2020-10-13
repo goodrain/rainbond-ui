@@ -376,7 +376,7 @@ export default class Infrastructure extends PureComponent {
         favicon: fetchFavicon
       };
     }
-    const fetchIsSource = rainbondUtil.fetchIsSource();
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(enterprise);
 
     const {
       enterpriseAdminLoading,
@@ -397,7 +397,11 @@ export default class Infrastructure extends PureComponent {
       openBasicInformation
     } = this.state;
     const UserRegistered = (
-      <Card hoverable bordered={false} style={{ borderTop: '1px solid  #ccc' }}>
+      <Card
+        hoverable
+        bordered={false}
+        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' }}
+      >
         <Row type="flex" align="middle">
           <Col span={3}>用户注册</Col>
           <Col span={17}>
@@ -695,7 +699,7 @@ export default class Infrastructure extends PureComponent {
           </div>
         ) : (
           <div>
-            {fetchIsSource && BasicInformation}
+            {enterpriseEdition && BasicInformation}
             {UserRegistered}
             {AutomaticIssueCertificate}
             {Oauth}
