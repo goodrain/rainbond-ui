@@ -365,7 +365,9 @@ export default class Infrastructure extends PureComponent {
 
       const title =
         rainbondInfo && rainbondInfo.title && rainbondInfo.title.value;
-      const enterpriseTitle = rainbondInfo.enterprise_alias;
+      const enterpriseTitle =
+        (enterprise && enterprise.enterprise_alias) ||
+        (rainbondInfo && rainbondInfo.enterprise_alias);
       // eslint-disable-next-line no-const-assign
       infos = {
         logo: fetchLogo,
