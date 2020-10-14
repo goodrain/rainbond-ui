@@ -41,6 +41,7 @@ import {
   setRegist,
   getRegist,
   setCertificateType,
+  setBasicInformation,
   saveLog,
   fetchEnterpriseInfo,
   fetchEnterpriseTeams,
@@ -82,10 +83,11 @@ import {
   getUpdateRollback,
   fetchEnterpriseApps,
   fetchAppComponents,
-  getPermissions,
+  getPermissions
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import cookie from '../utils/cookie';
+import rainbondUtil from '../utils/rainbond';
 
 export default {
   namespace: 'global',
@@ -106,7 +108,7 @@ export default {
     payTip: false,
     noMoneyTip: false,
     showAuthCompany: false,
-    orders:false,
+    orders: false,
     // 更新头部信息
     upDataHeader: false,
     // enterprise info
@@ -116,7 +118,7 @@ export default {
     memoryTip: '',
     is_enterprise_version: false,
     nouse: false,
-    needLogin: false,
+    needLogin: false
   },
 
   effects: {
@@ -132,7 +134,7 @@ export default {
     *setNouse({ payload }, { call, put }) {
       yield put({
         type: 'saveIsisNouse',
-        payload: payload.isNouse,
+        payload: payload.isNouse
       });
     },
     *getUserCanJoinTeams({ payload, callback }, { call, put }) {
@@ -372,6 +374,11 @@ export default {
             ? data.bean.document.value.platform_url
             : 'https://www.rainbond.com/'
         );
+        window.localStorage.setItem(
+          'faviconurl',
+          rainbondUtil.fetchFavicon(data.bean)
+        );
+        cookie.setGuide("enterprise_edition", rainbondUtil.isEnterpriseEdition(data.bean));
         yield put({ type: 'saveRainBondInfo', payload: data.bean });
         setTimeout(() => {
           callback && callback(data.bean);
@@ -382,7 +389,7 @@ export default {
       const data = yield call(isPubCloud);
       yield put({
         type: 'saveIsPubCloud',
-        payload: !!(data.bean.is_public && data.bean.is_public.enable),
+        payload: !!(data.bean.is_public && data.bean.is_public.enable)
       });
     },
     *fetchNotices(_, { call, put }) {
@@ -403,7 +410,7 @@ export default {
         });
         yield put({
           type: 'saveGroups',
-          payload: response.list || [],
+          payload: response.list || []
         });
       }
     },
@@ -483,7 +490,7 @@ export default {
         callback && callback();
         yield put({
           type: 'saveIsRegist',
-          payload: payload.isRegist,
+          payload: payload.isRegist
         });
       }
     },
@@ -493,7 +500,7 @@ export default {
         callback && callback();
         yield put({
           type: 'saveIsRegist',
-          payload: response.bean && response.bean.is_regist,
+          payload: response.bean && response.bean.is_regist
         });
       }
     },
@@ -503,13 +510,18 @@ export default {
         callback && callback(response);
       }
     },
-
+    *putBasicInformation({ payload, callback }, { call }) {
+      const response = yield call(setBasicInformation, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
       const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
         yield put({
           type: 'saveEnterpriseInfo',
-          payload: response.bean,
+          payload: response.bean
         });
         callback && callback(response);
       }
@@ -583,7 +595,7 @@ export default {
     *IsUpDataHeader({ payload }, { put }) {
       yield put({
         type: 'isUpDataHeader',
-        payload: payload.isUpData,
+        payload: payload.isUpData
       });
     },
     *fetchOverviewApp({ payload, callback }, { put, call }) {
@@ -710,153 +722,153 @@ export default {
       if (callback) {
         callback(response);
       }
-    },
+    }
   },
   reducers: {
     isUpDataHeader(state, action) {
       return {
         ...state,
-        upDataHeader: action.payload,
+        upDataHeader: action.payload
       };
     },
     showPayTip(state) {
       return {
         ...state,
-        payTip: true,
+        payTip: true
       };
     },
     showMemoryTip(state, action) {
       return {
         ...state,
-        memoryTip: action.payload.message,
+        memoryTip: action.payload.message
       };
     },
     hideMemoryTip(state, action) {
       return {
         ...state,
-        memoryTip: '',
+        memoryTip: ''
       };
     },
     showNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: true,
+        noMoneyTip: true
       };
     },
     hideNoMoneyTip(state) {
       return {
         ...state,
-        noMoneyTip: false,
+        noMoneyTip: false
       };
     },
     hidePayTip(state) {
       return {
         ...state,
-        payTip: false,
+        payTip: false
       };
     },
     saveRainBondInfo(state, { payload }) {
       return {
         ...state,
         rainbondInfo: payload,
-        isRegist: payload.is_regist.enable,
+        isRegist: payload.is_regist.enable
       };
     },
     saveIsPubCloud(state, { payload }) {
       return {
         ...state,
-        isPubCloud: payload,
+        isPubCloud: payload
       };
     },
     changeLayoutCollapsed(state, { payload }) {
       return {
         ...state,
-        collapsed: payload,
+        collapsed: payload
       };
     },
     saveNotices(state, { payload }) {
       return {
         ...state,
-        notices: payload,
+        notices: payload
       };
     },
     saveClearedNotices(state, { payload }) {
       return {
         ...state,
-        notices: state.notices.filter(item => item.type !== payload),
+        notices: state.notices.filter(item => item.type !== payload)
       };
     },
     saveGroups(state, { payload }) {
       return {
         ...state,
-        groups: payload,
+        groups: payload
       };
     },
 
     saveCurrTeamAndRegion(state, { payload }) {
       return {
         ...state,
-        ...payload,
+        ...payload
       };
     },
     showLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum + 1,
+        apploadingnum: state.apploadingnum + 1
       };
     },
     hiddenLoading(state, {}) {
       return {
         ...state,
-        apploadingnum: state.apploadingnum - 1,
+        apploadingnum: state.apploadingnum - 1
       };
     },
-    showOrders(state,{payload}){
+    showOrders(state, { payload }) {
       return {
         ...state,
-        orders:payload.code
-      }
+        orders: payload.code
+      };
     },
     hideOrders(state, {}) {
       return {
         ...state,
-        orders: false,
+        orders: false
       };
     },
     showAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: true,
+        showAuthCompany: true
       };
     },
     hideAuthCompany(state, {}) {
       return {
         ...state,
-        showAuthCompany: false,
+        showAuthCompany: false
       };
     },
     showNeedLogin(state, {}) {
       return {
         ...state,
-        needLogin: true,
+        needLogin: true
       };
     },
     hideNeedLogin(state, {}) {
       return {
         ...state,
-        needLogin: false,
+        needLogin: false
       };
     },
     saveIsRegist(state, { payload }) {
       return {
         ...state,
-        isRegist: payload,
+        isRegist: payload
       };
     },
     saveIsisNouse(state, { payload }) {
       return {
         ...state,
-        nouse: payload,
+        nouse: payload
       };
     },
     saveEnterpriseInfo(state, { payload }) {
@@ -866,9 +878,9 @@ export default {
       );
       return {
         ...state,
-        enterprise: payload,
+        enterprise: payload
       };
-    },
+    }
   },
 
   subscriptions: {
@@ -879,6 +891,6 @@ export default {
           window.ga('send', 'pageview', pathname + search);
         }
       });
-    },
-  },
+    }
+  }
 };

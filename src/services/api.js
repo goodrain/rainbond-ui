@@ -902,7 +902,16 @@ export async function fetchEnterpriseAdmin(param) {
     }
   );
 }
-
+/* 设置签发证书类型功能 */
+export async function setBasicInformation(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/configs`,
+    {
+      method: 'put',
+      data: body
+    }
+  );
+}
 /* 获取企业用户列表 */
 export async function fetchEnterpriseUsers(param) {
   return request(

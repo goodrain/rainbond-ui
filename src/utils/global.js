@@ -23,6 +23,7 @@ const global = {
     cookie.remove("token", { domain: "" });
     cookie.remove("appStore", { domain: "" });
     cookie.remove("newbie_guide", { domain: "" });
+    cookie.remove("enterprise_edition", { domain: "" });
     cookie.remove("platform_url", { domain: "" });
   },
   putLog(info) {

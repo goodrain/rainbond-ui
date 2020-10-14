@@ -11,22 +11,23 @@ import {
   notification,
   Spin,
   Tooltip
-} from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import Debounce from "lodash-decorators/debounce";
-import React, { PureComponent } from "react";
-import userIcon from "../../../public/images/user-icon-small.png";
-import rainbondUtil from "../../utils/rainbond";
-import ChangePassword from "../ChangePassword";
-import styles from "./index.less";
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import Debounce from 'lodash-decorators/debounce';
+import React, { PureComponent } from 'react';
+import userIcon from '../../../public/images/user-icon-small.png';
+import rainbondUtil from '../../utils/rainbond';
+import ChangePassword from '../ChangePassword';
+import styles from './index.less';
 
 const { Header } = Layout;
 
-@connect(({ user, global, appControl, order }) => ({
+@connect(({ user, global, appControl }) => ({
   rainbondInfo: global.rainbondInfo,
   appDetail: appControl.appDetail,
   currentUser: user.currentUser,
+  enterprise: global.enterprise
   // enterpriseServiceInfo: order.enterpriseServiceInfo
 }))
 export default class GlobalHeader extends PureComponent {
@@ -39,14 +40,14 @@ export default class GlobalHeader extends PureComponent {
 
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
-    if (key === "userCenter") {
+    if (key === 'userCenter') {
       dispatch(routerRedux.replace(`/account/center`));
     }
-    if (key === "cpw") {
+    if (key === 'cpw') {
       this.showChangePass();
     }
-    if (key === "logout") {
-      dispatch({ type: "user/logout" });
+    if (key === 'logout') {
+      dispatch({ type: 'user/logout' });
     }
   };
   showChangePass = () => {
@@ -57,12 +58,12 @@ export default class GlobalHeader extends PureComponent {
   };
   handleChangePass = vals => {
     this.props.dispatch({
-      type: "user/changePass",
+      type: 'user/changePass',
       payload: {
         ...vals
       },
       callback: () => {
-        notification.success({ message: "修改成功，请重新登录" });
+        notification.success({ message: '修改成功，请重新登录' });
       }
     });
   };
@@ -83,9 +84,10 @@ export default class GlobalHeader extends PureComponent {
       customHeader,
       rainbondInfo,
       collapsed,
+      enterprise
       // enterpriseServiceInfo
     } = this.props;
-    if (!currentUser ) {
+    if (!currentUser) {
       return null;
     }
     const handleUserSvg = () => (
@@ -125,18 +127,20 @@ export default class GlobalHeader extends PureComponent {
     const menu = (
       <div className={styles.uesrInfo}>
         <Menu selectedKeys={[]} onClick={this.handleMenuClick}>
-          {MenuItems("userCenter", handleUserSvg, "个人中心")}
-          {MenuItems("cpw", handleEditSvg, "修改密码")}
-          {MenuItems("logout", handleLogoutSvg, "退出登录")}
+          {MenuItems('userCenter', handleUserSvg, '个人中心')}
+          {MenuItems('cpw', handleEditSvg, '修改密码')}
+          {MenuItems('logout', handleLogoutSvg, '退出登录')}
         </Menu>
       </div>
     );
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(enterprise);
+
     return (
       <Header className={styles.header}>
         <Icon
           className={styles.trigger}
-          type={!collapsed ? "menu-unfold" : "menu-fold"}
-          style={{ color: "#ffffff", float: "left" }}
+          type={!collapsed ? 'menu-unfold' : 'menu-fold'}
+          style={{ color: '#ffffff', float: 'left' }}
           onClick={this.toggle}
         />
         {customHeader && customHeader()}
@@ -159,7 +163,30 @@ export default class GlobalHeader extends PureComponent {
               </a>
             </Tooltip>
           )} */}
-
+          
+          {enterpriseEdition ? (
+            <span className={styles.action} style={{ color: '#fff' }}>
+              企业版
+            </span>
+          ) : (
+            <a
+              className={styles.action}
+              style={{ color: '#fff' }}
+              href="https://cloud.goodrain.com/page/price"
+              // eslint-disable-next-line react/jsx-no-target-blank
+              target="_blank"
+            >
+              开源版
+            </a>
+          )}
+          <a
+            className={styles.action}
+            style={{ color: '#fff' }}
+            href={`${rainbondUtil.documentPlatform_url(rainbondInfo)}docs/`}
+            target="_blank"
+          >
+            参考手册
+          </a>
           {currentUser ? (
             <Dropdown overlay={menu}>
               <span className={`${styles.action} ${styles.account}`}>
