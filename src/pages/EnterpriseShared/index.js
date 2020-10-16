@@ -1058,7 +1058,7 @@ export default class EnterpriseShared extends PureComponent {
 
                         {versions && versions.length > 0 ? (
                           <p className={styles.dev_version}>
-                            {versions[versions.length-1].app_version}
+                            {versions[0].app_version}
                           </p>
                         ) : (
                           <p className={styles.dev_version}>无版本</p>
