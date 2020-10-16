@@ -92,8 +92,6 @@ class EnterpriseLayout extends PureComponent {
       isInit: false,
       showWelcomeCreateTeam: false,
       canCancelOpenRegion: true,
-      market_info: '',
-      showAuthCompany: false,
       enterpriseList: [],
       enterpriseInfo: false,
       ready: false
@@ -149,11 +147,6 @@ class EnterpriseLayout extends PureComponent {
       this.setState({ isMobile: mobile });
     });
     // 连接云应用市场
-    this.setState({ showAuthCompany: this.props.showAuthCompany });
-    const query = qs.parse(this.props.location.search);
-    if (query && query.market_info) {
-      this.setState({ market_info: query.market_info, showAuthCompany: true });
-    }
   };
 
   getChildContext = () => {
@@ -265,6 +258,7 @@ class EnterpriseLayout extends PureComponent {
     const {
       currentUser,
       collapsed,
+      location,
       location: { pathname },
       match: {
         params: { eid }
@@ -272,7 +266,8 @@ class EnterpriseLayout extends PureComponent {
       orders,
       children,
       rainbondInfo,
-      enterprise
+      enterprise,
+      showAuthCompany
     } = this.props;
 
     const { enterpriseList, enterpriseInfo, ready } = this.state;
@@ -376,7 +371,6 @@ class EnterpriseLayout extends PureComponent {
         </Layout>
       );
     };
-
     return (
       <Fragment>
         <DocumentTitle title={this.getPageTitle(pathname)}>
@@ -392,21 +386,8 @@ class EnterpriseLayout extends PureComponent {
         <Loading />
 
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
-          <AuthCompany
-            eid={eid}
-            market_info={this.state.market_info}
-            onOk={() => {
-              const jumpPath = this.props.location.pathname;
-              const query = this.props.location.search.replace(
-                `market_info=${this.state.market_info}`,
-                ''
-              );
-              this.setState({ market_info: '', showAuthCompany: false });
-              this.props.dispatch(routerRedux.replace(jumpPath + query));
-              window.location.reload();
-            }}
-          />
+        {showAuthCompany && (
+          <AuthCompany eid={eid} marketName={showAuthCompany} currStep={0} />
         )}
 
         {orders && BillingFunction && (
@@ -420,7 +401,7 @@ class EnterpriseLayout extends PureComponent {
     );
   }
 }
-export default connect(({ user, global, index, loading, order }) => ({
+export default connect(({ user, global, index, loading }) => ({
   currentUser: user.currentUser,
   notifyCount: user.notifyCount,
   collapsed: global.collapsed,

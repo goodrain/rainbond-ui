@@ -8,7 +8,7 @@ export async function fetchAppModelsTags(param) {
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
 
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -21,8 +21,8 @@ export async function fetchMarkets(params = {}) {
       params: {
         page_size: pageSize,
         page,
-        query,
-      },
+        query
+      }
     }
   );
 }
@@ -32,8 +32,8 @@ export async function fetchMarketsTab(param) {
     {
       method: 'get',
       params: {
-        extend: true,
-      },
+        extend: true
+      }
     }
   );
 }
@@ -47,8 +47,8 @@ export async function createTag(param) {
     {
       method: 'post',
       data: {
-        name: param.name,
-      },
+        name: param.name
+      }
     }
   );
 }
@@ -61,8 +61,8 @@ export async function upDataTag(param) {
     {
       method: 'PUT',
       data: {
-        name: param.name,
-      },
+        name: param.name
+      }
     }
   );
 }
@@ -76,8 +76,8 @@ export async function deleteTag(param) {
     {
       method: 'DELETE',
       data: {
-        tag_id: param.tag_id,
-      },
+        tag_id: param.tag_id
+      }
     }
   );
 }
@@ -95,8 +95,8 @@ export async function fetchAppModels(param) {
         scope: param.scope,
         app_name: param.app_name,
         is_complete: param.is_complete,
-        tags: JSON.stringify(param.tags),
-      },
+        tags: JSON.stringify(param.tags)
+      }
     }
   );
 }
@@ -117,8 +117,8 @@ export async function upAppModel(body) {
         describe: body.describe,
         tag_ids: body.tag_ids,
         dev_status: body.dev_status ? body.dev_status : '',
-        details: 'This is a default description',
-      },
+        details: 'This is a default description'
+      }
     }
   );
 }
@@ -128,7 +128,7 @@ export async function deleteAppMarket(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
     {
-      method: 'DELETE',
+      method: 'DELETE'
     }
   );
 }
@@ -139,18 +139,49 @@ export async function upAppMarket(body) {
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.marketName}`,
     {
       method: 'PUT',
-      data: body,
+      data: body
+    }
+  );
+}
+/* get  App  Market Info */
+export async function getAppMarketInfo(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets/${body.name}`,
+    {
+      method: 'get'
+    }
+  );
+}
+/* get  Binding  Markets */
+export async function postBindingMarkets(body, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/bind-markets`,
+    {
+      method: 'post',
+      handleError,
+      data: body
     }
   );
 }
 
+/* get  Binding  Market List */
+export async function getBindingMarketsList(body,handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/bindable-markets`,
+    {
+      method: 'get',
+      handleError,
+      params: body
+    }
+  );
+}
 /* create  App  Market */
 export async function createAppMarket(body) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/markets`,
     {
       method: 'post',
-      data: body,
+      data: body
     }
   );
 }
@@ -173,8 +204,8 @@ export async function createAppModel(body) {
         pic: body.pic,
         details: 'This is a default description',
         describe: body.describe,
-        tag_ids: body.tag_ids,
-      },
+        tag_ids: body.tag_ids
+      }
     }
   );
 }
@@ -184,7 +215,7 @@ export async function createMarketAppModel(data) {
     `${apiconfig.baseUrl}/console/enterprise/${data.enterprise_id}/cloud/markets/${data.marketName}/app-models`,
     {
       method: 'post',
-      data,
+      data
     }
   );
 }
@@ -200,8 +231,8 @@ export async function getMarketApp(param) {
         page: param.page,
         page_size: param.page_size,
         open_query: param.open_query,
-        app_name: param.app_name,
-      },
+        app_name: param.app_name
+      }
     }
   );
 }
@@ -216,7 +247,7 @@ export function queryExport(body = {}) {
 
     {
       method: 'get',
-      params: body.body,
+      params: body.body
     }
   );
 }
@@ -235,8 +266,8 @@ export function appExport(
       data: {
         app_id: body.app_id,
         app_versions: body.app_versions,
-        format: body.format,
-      },
+        format: body.format
+      }
     }
   );
 }
@@ -250,7 +281,7 @@ export function importApp(
     tenant_name,
     event_id,
     scope,
-    file_name,
+    file_name
   }
 ) {
   return request(
@@ -262,8 +293,8 @@ export function importApp(
         event_id: body.event_id,
         file_name: body.file_name,
         scope: body.scope,
-        tenant_name: body.tenant_name,
-      },
+        tenant_name: body.tenant_name
+      }
     }
   );
 }
@@ -277,7 +308,7 @@ export function queryImportApp(body = { team_name, event_id }) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -291,7 +322,7 @@ export function importDir(body = { team_name }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/dir`,
     {
-      method: 'post',
+      method: 'post'
     }
   );
 }
@@ -307,8 +338,8 @@ export function queryImportDirApp(body = { enterprise_id, event_id }) {
     {
       method: 'get',
       params: {
-        event_id: body.event_id,
-      },
+        event_id: body.event_id
+      }
     }
   );
 }
@@ -322,7 +353,7 @@ export function queryImportingApp(body = { team_name }) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${team_name}/apps/import/importing-apps`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -335,7 +366,7 @@ export function queryImportRecord(body = { enterprise_id }) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import`,
     {
-      method: 'post',
+      method: 'post'
     }
   );
 }
@@ -348,7 +379,7 @@ export function cancelImportApp(body = { enterprise_id, event_id }) {
     // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
-      method: 'delete',
+      method: 'delete'
     }
   );
 }
@@ -360,7 +391,7 @@ export async function getRecommendMarketAppList(
     page,
     page_size,
     is_complete,
-    enterprise_id,
+    enterprise_id
   }
 ) {
   return request(
@@ -370,8 +401,8 @@ export async function getRecommendMarketAppList(
       params: {
         app_name: body.app_name,
         page: body.page,
-        page_size: body.page_size,
-      },
+        page_size: body.page_size
+      }
     }
   );
 }
@@ -379,7 +410,7 @@ export async function getRecommendMarketAppList(
 /* 获取企业开通的商店列表 */
 export async function getStoreList(
   body = {
-    enterprise_id,
+    enterprise_id
   }
 ) {
   return request(
@@ -387,8 +418,8 @@ export async function getStoreList(
     {
       method: 'get',
       params: {
-        extend: true,
-      },
+        extend: true
+      }
     }
   );
 }
@@ -401,8 +432,8 @@ export async function getShareModelList(body) {
       method: 'get',
       params: {
         scope: body.scope,
-        market_id: body.market_id,
-      },
+        market_id: body.market_id
+      }
     }
   );
 }
