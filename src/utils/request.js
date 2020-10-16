@@ -211,7 +211,10 @@ export default function request(url, options) {
         if (resData.code === 10407) {
           cookie.setGuide("appStore", "true");
           window.g_app._store.dispatch({
-            type: "global/showAuthCompany"
+            type: "global/showAuthCompany",
+            payload: {
+              market_name: resData.data.bean.name
+            }
           });
 
           return;
@@ -255,7 +258,7 @@ export default function request(url, options) {
           );
           return;
         }
-
+        
         // 访问资源所属团队与当前团队不一致
         if (resData.code === 10403) {
           location.href = globalUtil.replaceUrlTeam(

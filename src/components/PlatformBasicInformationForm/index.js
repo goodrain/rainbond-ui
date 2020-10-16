@@ -89,7 +89,7 @@ export default class PlatformBasicInformationForm extends PureComponent {
         onOk={this.onOk}
       >
         <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="标题">
+          <FormItem {...formItemLayout} label="网站标题">
             {getFieldDecorator('title', {
               initialValue: data.title || '',
               rules: [
@@ -123,17 +123,19 @@ export default class PlatformBasicInformationForm extends PureComponent {
             {...parameters}
             name="logo"
             label="LOGO"
-            extra="请上传宽度236px、高35px的图片"
+            extra="请上传236 ✖️ 35的图片"
             initialValue={data.logo}
-            uploadBtnStyle={{ width: '284px', height: '44px' }}
-            imgstyle={{ width: '300px', height: '64px' }}
+            required={false}
+            uploadBtnStyle={{ width: '236px', height: '35px' }}
+            imgstyle={{ width: '236px', height: '35px' }}
           />
           <UploadForm
             {...parameters}
             name="favicon"
             label="网页图标"
-            extra="请上传宽度33px、高33px的图片"
+            extra="请上传33 ✖️ 33的图片"
             initialValue={data.favicon}
+            required={false}
             uploadBtnStyle={{ width: '33px', height: '33px' }}
             imgstyle={{ width: '33px', height: '33px' }}
           />

@@ -133,7 +133,7 @@ export default class GlobalHeader extends PureComponent {
         </Menu>
       </div>
     );
-    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(enterprise);
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
 
     return (
       <Header className={styles.header}>

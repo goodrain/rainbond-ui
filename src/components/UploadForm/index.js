@@ -65,7 +65,8 @@ class UploadForm extends PureComponent {
       uploadBtnStyle,
       formItemLayout,
       name,
-      message
+      message,
+      required = true
     } = this.props;
     const { getFieldDecorator } = form;
     const { loading, imageUrl } = this.state;
@@ -87,7 +88,7 @@ class UploadForm extends PureComponent {
           initialValue,
           rules: [
             {
-              required: true,
+              required,
               message: message || '请上传图标'
             }
           ]

@@ -743,7 +743,7 @@ export default {
         memoryTip: action.payload.message
       };
     },
-    hideMemoryTip(state, action) {
+    hideMemoryTip(state) {
       return {
         ...state,
         memoryTip: ''
@@ -811,13 +811,13 @@ export default {
         ...payload
       };
     },
-    showLoading(state, {}) {
+    showLoading(state) {
       return {
         ...state,
         apploadingnum: state.apploadingnum + 1
       };
     },
-    hiddenLoading(state, {}) {
+    hiddenLoading(state) {
       return {
         ...state,
         apploadingnum: state.apploadingnum - 1
@@ -829,31 +829,31 @@ export default {
         orders: payload.code
       };
     },
-    hideOrders(state, {}) {
+    hideOrders(state) {
       return {
         ...state,
         orders: false
       };
     },
-    showAuthCompany(state, {}) {
+    showAuthCompany(state, { payload }) {
       return {
         ...state,
-        showAuthCompany: true
+        showAuthCompany: payload.market_name
       };
     },
-    hideAuthCompany(state, {}) {
+    hideAuthCompany(state) {
       return {
         ...state,
         showAuthCompany: false
       };
     },
-    showNeedLogin(state, {}) {
+    showNeedLogin(state) {
       return {
         ...state,
         needLogin: true
       };
     },
-    hideNeedLogin(state, {}) {
+    hideNeedLogin(state) {
       return {
         ...state,
         needLogin: false

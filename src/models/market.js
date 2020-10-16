@@ -8,6 +8,9 @@ import {
   deleteAppMarket,
   deleteTag,
   fetchAppModels,
+  getAppMarketInfo,
+  postBindingMarkets,
+  getBindingMarketsList,
   fetchAppModelsTags,
   fetchMarkets,
   fetchMarketsTab,
@@ -23,14 +26,32 @@ import {
   upAppMarket,
   upAppModel,
   upDataTag
-} from "../services/market";
+} from '../services/market';
 
 export default {
-  namespace: "market",
+  namespace: 'market',
   state: {},
   effects: {
     *fetchAppModels({ payload, callback }, { call }) {
       const response = yield call(fetchAppModels, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppMarketInfo({ payload, callback }, { call }) {
+      const response = yield call(getAppMarketInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addBindingMarkets({ payload, callback, handleError }, { call }) {
+      const response = yield call(postBindingMarkets, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchBindingMarketsList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getBindingMarketsList, payload, handleError);
       if (response && callback) {
         callback(response);
       }
