@@ -282,8 +282,7 @@ class EnterpriseLayout extends PureComponent {
     if (!currentUser || !rainbondInfo || enterpriseList.length === 0) {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-    const fetchLogo =
-      rainbondUtil.fetchLogo(enterpriseInfo, enterprise) || logo;
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const customHeader = () => {
       return (
         <div className={headerStype.enterprise}>
