@@ -36,16 +36,7 @@ export default class Index extends PureComponent {
       loading: false,
       marketUrl: '',
       accessKey: '',
-      marketList: [
-        // {
-        //   desc:
-        //     '蚂蚁笔记，有极客范的云笔记！前所未有的文档体验，近乎完美的平台覆盖，支持团队协同，企业级私有云蚂蚁笔记 = 笔记 + 博客 + 协作 + 私有云',
-        //   domain: 'test',
-        //   logo: '',
-        //   name: '好雨科技测试商店',
-        //   url: 'http://8080.gr9a105c.2c9v614j.17f4cc.grapps.cn'
-        // }
-      ]
+      marketList: []
     };
   }
   componentWillMount() {
@@ -164,15 +155,14 @@ export default class Index extends PureComponent {
           const arr = [];
           marketList.map(item => {
             values.markets.map(items => {
-              if (item.name === items) {
-                item.type = 'rainstore';
-                item.name = 'a' + this.uuid(8, 16);
-                item.access_key = accessKey;
-                if (item.url === marketUrl && marketName) {
-                  item.name = marketName;
-                }
-                arr.push(item);
+              if (item.domain === items && marketName) {
+                item.name = marketName;
+              } else {
+                item.name = 'a' + this.uuid(16, 16);
               }
+              item.access_key = accessKey;
+              item.type = 'rainstore';
+              arr.push(item);
             });
           });
           const { dispatch, eid, onCancel } = this.props;
@@ -197,7 +187,6 @@ export default class Index extends PureComponent {
                   message: '绑定成功',
                   duration: 1
                 });
-
                 setTimeout(() => {
                   window.location.reload();
                 }, 1000);
@@ -385,14 +374,14 @@ export default class Index extends PureComponent {
                           <Checkbox.Group style={{ width: '450px' }}>
                             <Row gutter={[24, 24]}>
                               {marketList.map(item => {
-                                const { name, url, logo, desc } = item;
+                                const { name, url, logo, desc, domain } = item;
                                 return (
                                   <Col
                                     span={24}
                                     key={url}
                                     style={{ position: 'relative', padding: 0 }}
                                   >
-                                    <Checkbox value={name}>
+                                    <Checkbox value={domain}>
                                       <Card className={PluginStyles.cards}>
                                         <Card.Meta
                                           className={PluginStyles.cardsMetas}
