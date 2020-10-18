@@ -248,7 +248,8 @@ export default class Index extends PureComponent {
     const { currStep: step, loading, marketList, marketUrl } = this.state;
     const {
       title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
-      onCancel
+      onCancel,
+      rainbondInfo
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
@@ -259,7 +260,7 @@ export default class Index extends PureComponent {
         span: 24
       }
     };
-
+    const defaultMarketUrl = rainbondInfo && rainbondInfo.default_market_url;
     return (
       <Modal
         width={530}
@@ -329,7 +330,7 @@ export default class Index extends PureComponent {
                     <Form>
                       <Form.Item {...formItemLayout} label="">
                         {getFieldDecorator('url', {
-                          initialValue: '',
+                          initialValue: defaultMarketUrl || '',
                           rules: [
                             {
                               required: true,
