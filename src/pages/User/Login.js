@@ -22,9 +22,9 @@ export default class LoginPage extends Component {
     const { dispatch, rainbondInfo } = this.props;
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
-    // if (rainbondInfo.enterprise_id) {
-    //   this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
-    // }
+    if (rainbondInfo.enterprise_id) {
+      this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
+    }
   }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
