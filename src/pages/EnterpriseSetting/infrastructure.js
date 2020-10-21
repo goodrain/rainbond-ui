@@ -26,7 +26,7 @@ import OauthTable from './oauthTable';
   objectStorageLongin: loading.effects['global/editCloudBackup'],
   overviewInfo: index.overviewInfo
 }))
-export default class Infrastructure extends PureComponent {
+class Infrastructure extends PureComponent {
   constructor(props) {
     super(props);
     const { enterprise } = this.props;
@@ -53,7 +53,6 @@ export default class Infrastructure extends PureComponent {
       ]
     };
   }
-
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
@@ -357,7 +356,6 @@ export default class Infrastructure extends PureComponent {
       }
     } = this.props;
     let infos = {};
-
     if (rainbondInfo) {
       const fetchLogo =
         rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
@@ -709,5 +707,19 @@ export default class Infrastructure extends PureComponent {
         )}
       </Fragment>
     );
+  }
+}
+
+// eslint-disable-next-line react/no-multi-comp
+@connect(({ global }) => ({
+  enterprise: global.enterprise
+}))
+export default class Index extends PureComponent {
+  render() {
+    const { enterprise } = this.props;
+    if (enterprise) {
+      return <Infrastructure {...this.props} />;
+    }
+    return null;
   }
 }
