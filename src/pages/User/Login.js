@@ -71,14 +71,22 @@ export default class LoginPage extends Component {
 
   render() {
     const { rainbondInfo } = this.props;
-    const { oauthServicesList } = this.state;
     const oauthInfo =
       rainbondInfo &&
       rainbondInfo.enterprise_center_oauth &&
       rainbondInfo.enterprise_center_oauth.value;
     const url = oauthInfo && oauthUtil.getAuthredictURL(oauthInfo);
     const icon = oauthInfo && oauthUtil.getIcon(oauthInfo);
-
+    let oauthServicesList = [];
+    if (
+      rainbondInfo &&
+      rainbondInfo.oauth_services &&
+      rainbondInfo.oauth_services.enable &&
+      rainbondInfo.oauth_services.value &&
+      rainbondInfo.oauth_services.value.length > 0
+    ) {
+      oauthServicesList = rainbondInfo.oauth_services.value;
+    }
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />
