@@ -35,7 +35,8 @@ export default class ConfigurationDetails extends PureComponent {
     this.state = {
       apps: [],
       info: {},
-      loading: true
+      loading: true,
+      helpfulVisable: false
     };
   }
   componentDidMount() {
@@ -45,11 +46,21 @@ export default class ConfigurationDetails extends PureComponent {
   onOk = e => {
     e.preventDefault();
     const { form } = this.props;
+    const { id } = this.handleParameter();
+
     form.validateFields({ force: true }, (err, vals) => {
       if (!err) {
-        this.handleConfiguration(
-          Object.assign({}, vals, { deploy_type: 'env' })
-        );
+        // if(vals.enable ===undefined)
+        if (vals.enable === undefined) {
+          vals.enable = false;
+        }
+        const parameter = Object.assign({}, vals, { deploy_type: 'env' });
+        this.handleHelpfulVisable(parameter);
+        // if (id !== 'add') {
+        //   this.handleHelpfulVisable(parameter);
+        // } else {
+        //   this.handleConfiguration(parameter);
+        // }
       }
     });
   };
@@ -82,6 +93,8 @@ export default class ConfigurationDetails extends PureComponent {
             notification.success({ message: '添加成功' });
             if (serviceIds && serviceIds.length > 0) {
               this.showRemind();
+            } else {
+              this.onCancel();
             }
           }
         }
@@ -90,13 +103,17 @@ export default class ConfigurationDetails extends PureComponent {
       dispatch({
         type: 'global/EditConfiguration',
         payload: {
+          name: id,
           ...parameter
         },
         callback: res => {
           if (res) {
             notification.success({ message: '保存成功' });
+            this.handleClose();
             if (serviceIds && serviceIds.length > 0) {
               this.showRemind();
+            } else {
+              this.onCancel();
             }
           }
         }
@@ -192,14 +209,34 @@ export default class ConfigurationDetails extends PureComponent {
 
   checkConfiguration = (rule, value, callback) => {
     if (value && value.length > 0) {
-      const arr = value.filter(item => item.key === '' || item.value === '');
+      const arr = value.filter(
+        item => item.item_key === '' || item.item_value === ''
+      );
       if (arr && arr.length > 0) {
         callback('配置项不能为空');
       } else {
+        let judge = false;
+        value.map(item => {
+          const { item_key } = item;
+          if (!/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(item_key)) {
+            judge = true;
+          }
+        });
+        if (judge) {
+          callback('请输入合法的变量名、不支持中文');
+          return;
+        }
+
         callback();
       }
     }
     callback();
+  };
+  handleHelpfulVisable = parameter => {
+    this.setState({ helpfulVisable: parameter });
+  };
+  handleClose = () => {
+    this.setState({ helpfulVisable: false });
   };
 
   handleParameter = () => {
@@ -221,7 +258,7 @@ export default class ConfigurationDetails extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-    const { apps, info, loading } = this.state;
+    const { apps, info, loading, helpfulVisable } = this.state;
     const { getFieldDecorator } = form;
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
@@ -229,19 +266,34 @@ export default class ConfigurationDetails extends PureComponent {
         serviceIds.push(item.service_id);
       });
     }
+
     const { id } = this.handleParameter();
+    const isCreate = id === 'add';
     let breadcrumbList = [];
     breadcrumbList = createTeam(
       createEnterprise(breadcrumbList, currentEnterprise),
       currentTeam,
       currentRegionName
     );
+
     return (
       <ConfigurationHeader breadcrumbList={breadcrumbList}>
+        {helpfulVisable && (
+          <Modal
+            title="友情提示"
+            visible
+            onOk={() => {
+              this.handleConfiguration(helpfulVisable);
+            }}
+            onCancel={this.handleClose}
+          >
+            <p>是否保存已修改的配置组</p>
+          </Modal>
+        )}
         <Card
           loading={loading}
           style={{ minHeight: '600px' }}
-          title={id === 'add' ? '添加配置组' : '修改配置组'}
+          title={isCreate ? '添加配置组' : '修改配置组'}
           extra={[
             <Button onClick={this.onCancel} style={{ marginRight: '20px' }}>
               取消
@@ -251,7 +303,7 @@ export default class ConfigurationDetails extends PureComponent {
               onClick={this.onOk}
               loading={AddConfigurationLoading || EditConfigurationLoading}
             >
-              {id === 'add' ? '确定' : '保存'}
+              {isCreate ? '确定' : '保存'}
             </Button>
           ]}
         >
@@ -289,16 +341,12 @@ export default class ConfigurationDetails extends PureComponent {
               </FormItem>
               <Form.Item
                 style={{ width: '370px', marginLeft: '24px' }}
-                label="状态"
+                label="生效状态"
               >
-                {getFieldDecorator('deploy_status', {
-                  initialValue: (info && info.deploy_status) || true,
-                  rules: [{ required: true }]
-                })(
-                  <Switch
-                    defaultChecked={(info && info.deploy_status) || true}
-                  />
-                )}
+                {getFieldDecorator('enable', {
+                  initialValue: info && info.enable,
+                  rules: [{ required: false }]
+                })(<Switch defaultChecked={info && info.enable} />)}
               </Form.Item>
             </Row>
             <FormItem label="配置项">
@@ -317,7 +365,7 @@ export default class ConfigurationDetails extends PureComponent {
             <FormItem label="生效组件">
               {getFieldDecorator('service_ids', {
                 initialValue: serviceIds,
-                rules: [{ required: true, message: '请选择生效组件' }]
+                rules: [{ required: false, message: '请选择生效组件' }]
               })(
                 <Checkbox.Group className={styles.setCheckbox}>
                   <Row span={24}>

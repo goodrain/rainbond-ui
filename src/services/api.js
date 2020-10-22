@@ -282,6 +282,7 @@ export async function editConfiguration(body = {}) {
         page: 1,
         page_size: 10,
         query: body.query,
+        enable: body.enable,
         config_items: body.config_items,
         service_ids: body.service_ids,
         deploy_status: body.deploy_status,

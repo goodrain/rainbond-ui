@@ -64,7 +64,7 @@ export default class ConfigurationTable extends PureComponent {
           this.setState({
             loading: false,
             apps: res.list,
-            total: res.bean && res.bean.total
+            total: res.total
           });
         }
       }
@@ -118,6 +118,7 @@ export default class ConfigurationTable extends PureComponent {
       callback: res => {
         if (res && res._code === 200) {
           this.fetchConfigurationList();
+          this.cancelDeleteVariabl();
           notification.success({
             message: '删除成功'
           });
@@ -195,8 +196,8 @@ export default class ConfigurationTable extends PureComponent {
                 }
               },
               {
-                title: '状态',
-                dataIndex: 'deploy_status',
+                title: '生效状态',
+                dataIndex: 'enable',
                 align: 'center',
                 render: val => {
                   return (

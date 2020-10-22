@@ -7,7 +7,7 @@ class Parameterinput extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      values: [{ key: '', value: '' }]
+      values: [{ item_key: '', item_value: '' }]
     };
   }
   componentDidMount() {
@@ -21,26 +21,26 @@ class Parameterinput extends Component {
   }
   onKeyChange = (index, e) => {
     const { values } = this.state;
-    values[index].key = e.target.value;
+    values[index].item_key = e.target.value;
     this.triggerChange(values);
     this.setValues(values);
   };
   onValueChange = (index, e) => {
     const { values } = this.state;
-    values[index].value = e.target.value;
+    values[index].item_value = e.target.value;
     this.triggerChange(values);
     this.setValues(values);
   };
 
   setValues(arr = []) {
     if (!arr.length) {
-      arr.push({ key: '', value: '' });
+      arr.push({ item_key: '', item_value: '' });
     }
     this.setState({ values: arr });
   }
   add = () => {
     const { values } = this.state;
-    this.setState({ values: values.concat({ key: '', value: '' }) });
+    this.setState({ values: values.concat({ item_key: '', item_value: '' }) });
   };
   remove = index => {
     const { values } = this.state;
@@ -70,8 +70,8 @@ class Parameterinput extends Component {
             return (
               <Row style={{ display: 'flex', alignItems: 'center' }}>
                 <Input
-                  name="key"
-                  value={item.key}
+                  name="item_key"
+                  value={item.item_key}
                   maxLength={255}
                   style={{ width: '370px' }}
                   placeholder={keyPlaceholder}
@@ -82,9 +82,9 @@ class Parameterinput extends Component {
                 </span>
                 <div>
                   <TextArea
-                    name="value"
+                    name="item_value"
                     rows={1}
-                    value={item.value}
+                    value={item.item_value}
                     maxLength={65533}
                     style={{ width: '370px', marginRight: '10px' }}
                     placeholder={valuePlaceholder}
