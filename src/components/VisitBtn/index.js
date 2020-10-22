@@ -1,11 +1,23 @@
-import { Alert, Button, Card, Dropdown, Icon, Menu, Modal, notification, Table, Tooltip } from 'antd';
-import { connect } from 'dva';
-import { Link } from 'dva/router';
-import React, { Fragment, PureComponent } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import globalUtil from '../../utils/global';
-import { openInNewTab } from '../../utils/utils';
-import styles from './index.less';
+/* eslint-disable react/sort-comp */
+import {
+  Alert,
+  Button,
+  Card,
+  Dropdown,
+  Icon,
+  Menu,
+  Modal,
+  notification,
+  Table,
+  Tooltip
+} from "antd";
+import { connect } from "dva";
+import { Link } from "dva/router";
+import React, { Fragment, PureComponent } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import globalUtil from "../../utils/global";
+import { openInNewTab } from "../../utils/utils";
+import styles from "./index.less";
 
 /*
   access_type : no_port|无端口、
@@ -18,14 +30,14 @@ import styles from './index.less';
 
 @connect(({ user, appControl, global }) => ({
   visitInfo: appControl.visitInfo,
-  currUser: user.currentUser,
+  currUser: user.currentUser
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       showModal: false,
-      componentTimers: this.props.timers,
+      componentTimers: this.props.timers
     };
     this.mount = false;
   }
@@ -40,7 +52,7 @@ export default class Index extends PureComponent {
     if (newTimers !== timers) {
       this.setState(
         {
-          componentTimers: newTimers,
+          componentTimers: newTimers
         },
         () => {
           if (newTimers) {
@@ -55,13 +67,15 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.closeTimer();
     this.mount = false;
-    this.props.dispatch({ type: 'appControl/clearVisitInfo' });
+    this.props.dispatch({ type: "appControl/clearVisitInfo" });
   }
 
   getHttpLinks = accessInfo => {
     let res = [];
-    for (let i = 0; i < accessInfo.length; i++) {
-      res = res.concat(accessInfo[i].access_urls || []);
+    if (accessInfo.length > 0) {
+      for (let i = 0; i < accessInfo.length; i++) {
+        res = res.concat(accessInfo[i].access_urls || []);
+      }
     }
     return res;
   };
@@ -76,15 +90,15 @@ export default class Index extends PureComponent {
     if (!this.mount) return;
     const { app_alias: appAlias, dispatch } = this.props;
     dispatch({
-      type: 'appControl/fetchVisitInfo',
+      type: "appControl/fetchVisitInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       callback: res => {
         if (res && res._code == 200) {
           this.handleTimers(
-            'timer',
+            "timer",
             () => {
               this.fetchVisitInfo();
             },
@@ -95,13 +109,13 @@ export default class Index extends PureComponent {
       handleError: err => {
         this.handleError(err);
         this.handleTimers(
-          'timer',
+          "timer",
           () => {
             this.fetchVisitInfo();
           },
           10000
         );
-      },
+      }
     });
   };
   handleError = err => {
@@ -112,7 +126,7 @@ export default class Index extends PureComponent {
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
-        description: err.data.msg_show,
+        description: err.data.msg_show
       });
     }
   };
@@ -139,7 +153,7 @@ export default class Index extends PureComponent {
     <div>
       <span
         style={{
-          marginRight: 16,
+          marginRight: 16
         }}
       >
         访问地址：{item.access_urls[0]}
@@ -170,8 +184,8 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: 'center',
-                fontSize: 16,
+                textAlign: "center",
+                fontSize: 16
               }}
             >
               如需要提供访问服务, 请
@@ -196,23 +210,23 @@ export default class Index extends PureComponent {
         bordered
         columns={[
           {
-            title: '变量名',
-            dataIndex: 'attr_name',
-            key: 'attr_name',
-            align: 'center',
+            title: "变量名",
+            dataIndex: "attr_name",
+            key: "attr_name",
+            align: "center"
           },
           {
-            title: '变量值',
-            dataIndex: 'attr_value',
-            key: 'attr_value',
-            align: 'center',
+            title: "变量值",
+            dataIndex: "attr_value",
+            key: "attr_value",
+            align: "center"
           },
           {
-            title: '说明',
-            dataIndex: 'name',
-            key: 'name',
-            align: 'center',
-          },
+            title: "说明",
+            dataIndex: "name",
+            key: "name",
+            align: "center"
+          }
         ]}
         pagination={false}
         dataSource={infoArr}
@@ -259,8 +273,8 @@ export default class Index extends PureComponent {
             >
               <div
                 style={{
-                  textAlign: 'center',
-                  fontSize: 16,
+                  textAlign: "center",
+                  fontSize: 16
                 }}
               >
                 http协议端口需打开外部访问服务, 去
@@ -320,8 +334,8 @@ export default class Index extends PureComponent {
           >
             <div
               style={{
-                textAlign: 'center',
-                fontSize: 16,
+                textAlign: "center",
+                fontSize: 16
               }}
             >
               需要配置端口信息, 去
@@ -369,12 +383,16 @@ export default class Index extends PureComponent {
           >
             {res.map((item, i) => {
               const connect_info = item.connect_info || [];
+              const accessUrls =
+                item.access_urls &&
+                item.access_urls.length > 0 &&
+                item.access_urls[0];
               // connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
               return (
                 <Card
                   type="inner"
                   style={{
-                    marginBottom: 24,
+                    marginBottom: 24
                   }}
                   // title={this.renderNoHttpOuterTitle(item)}
                 >
@@ -383,12 +401,12 @@ export default class Index extends PureComponent {
                   ) : ( */}
                   <Fragment>
                     <ul className={styles.ul}>
-                      {item.protocol == 'tcp' || item.protocol == 'udp' ? (
-                        <li style={{ fontWeight: 'bold' }}>
+                      {item.protocol == "tcp" || item.protocol == "udp" ? (
+                        <li style={{ fontWeight: "bold" }}>
                           您当前的访问协议是{item.protocol}
                         </li>
                       ) : (
-                        <li style={{ fontWeight: 'bold' }}>
+                        <li style={{ fontWeight: "bold" }}>
                           您当前的访问协议是{item.protocol},打开MySQL客户端访问
                         </li>
                       )}
@@ -396,30 +414,34 @@ export default class Index extends PureComponent {
                         推荐访问地址&nbsp;
                         <a
                           href="javascript:void(0)"
-                          style={{ marginRight: '10px' }}
+                          style={{ marginRight: "10px" }}
                         >
-                          {item.access_urls[0].indexOf('0.0.0.0') > -1 &&
+                          {accessUrls &&
+                          accessUrls.indexOf("0.0.0.0") > -1 &&
                           currentRegion &&
                           currentRegion.length > 0
-                            ? item.access_urls[0].replace(
+                            ? accessUrls &&
+                              accessUrls.replace(
                                 /0.0.0.0/g,
                                 currentRegion[0].tcpdomain
                               )
-                            : item.access_urls[0].replace(/\s+/g, '')}
+                            : accessUrls && accessUrls.replace(/\s+/g, "")}
                         </a>
                         <CopyToClipboard
                           text={
-                            item.access_urls[0].indexOf('0.0.0.0') > -1 &&
+                            accessUrls &&
+                            accessUrls.indexOf("0.0.0.0") > -1 &&
                             currentRegion &&
                             currentRegion.length > 0
-                              ? item.access_urls[0].replace(
+                              ? accessUrls &&
+                                accessUrls.replace(
                                   /0.0.0.0/g,
                                   currentRegion[0].tcpdomain
                                 )
-                              : item.access_urls[0].replace(/\s+/g, '')
+                              : accessUrls && accessUrls.replace(/\s+/g, "")
                           }
                           onCopy={() => {
-                            notification.success({ message: '复制成功' });
+                            notification.success({ message: "复制成功" });
                           }}
                         >
                           <Button size="small" type="primary">
@@ -505,31 +527,31 @@ export default class Index extends PureComponent {
         <Card
           type="inner"
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title={renderTitle(item)}
         >
           {!item.connect_info.length ? (
-            '-'
+            "-"
           ) : (
             <Fragment>
               <table
                 style={{
-                  width: '100%',
+                  width: "100%"
                 }}
               >
                 <thead>
                   <tr>
                     <th
                       style={{
-                        width: '33%',
+                        width: "33%"
                       }}
                     >
                       变量名
                     </th>
                     <th
                       style={{
-                        width: '33%',
+                        width: "33%"
                       }}
                     >
                       变量值
@@ -550,7 +572,7 @@ export default class Index extends PureComponent {
                       <td
                         colSpan="3"
                         style={{
-                          textAlign: 'center',
+                          textAlign: "center"
                         }}
                       >
                         暂无数据
@@ -585,11 +607,11 @@ export default class Index extends PureComponent {
           >
             <Alert
               style={{
-                marginBottom: 16,
+                marginBottom: 16
               }}
               message="其他组件依赖此组件后来访问"
               type="info"
-            />{' '}
+            />{" "}
             {res.map((item, i) => renderCard(item, i))}
           </Modal>
         )}
@@ -601,20 +623,20 @@ export default class Index extends PureComponent {
     if (!visitInfo) {
       return null;
     }
-    if (visitInfo.access_type == 'no_port') {
+    if (visitInfo.access_type == "no_port") {
       return this.renderNoPort(visitInfo);
     }
 
-    if (visitInfo.access_type === 'http_port') {
+    if (visitInfo.access_type === "http_port") {
       return this.renderHttpPort(visitInfo);
     }
 
-    if (visitInfo.access_type === 'not_http_outer') {
+    if (visitInfo.access_type === "not_http_outer") {
       return this.renderNofHttpOuter(visitInfo);
     }
     if (
-      visitInfo.access_type === 'not_http_inner' ||
-      visitInfo.access_type === 'http_inner'
+      visitInfo.access_type === "not_http_inner" ||
+      visitInfo.access_type === "http_inner"
     ) {
       return this.renderNotHttpInner(visitInfo);
     }

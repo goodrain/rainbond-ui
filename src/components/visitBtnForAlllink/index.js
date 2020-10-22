@@ -14,14 +14,16 @@ import { Button, Dropdown, Menu, Tooltip } from 'antd';
 export default class Index extends PureComponent {
   renderHttpPort = visitInfo => {
     const linksMap = visitInfo.map(item => {
+      const accessInfo =
+        (item.access_info.length > 0 && item.access_info) || {};
       return {
-        url: item.access_info[0].access_urls,
-        service_cname: item.access_info[0].service_cname,
+        url: accessInfo.access_urls,
+        service_cname: accessInfo.service_cname
       };
     });
 
     /** 筛选出里面有必须url */
-    const links = linksMap.filter(item => item.url[0]);
+    const links = linksMap.filter(item => item.url && item.url[0]);
     if (links.length === 0) {
       return null;
     }
