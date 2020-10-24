@@ -122,7 +122,11 @@ export default {
     (bean && bean.official_demo && bean.official_demo.enable) || false,
   // 判断平台是否是企业版
   isEnterpriseEdition: (bean = {}) =>
-    (bean && bean.enterprise_edition && bean.enterprise_edition.enable) || false,
+    (bean &&
+      bean.enterprise_edition &&
+      (bean.enterprise_edition.value === 'true' ||
+        bean.enterprise_edition.value === true)) ||
+    false,
 
   // 判断平台是否配置了具有文档权限
   documentEnable: (bean = {}) =>
@@ -152,5 +156,5 @@ export default {
       return '';
     }
     return '';
-  }
+  },
 };
