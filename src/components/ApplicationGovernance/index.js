@@ -1,6 +1,15 @@
 /* eslint-disable prettier/prettier */
 import React, { PureComponent } from 'react';
-import { Form, Modal, Select, Input, Alert, Table, notification } from 'antd';
+import {
+  Form,
+  Modal,
+  Select,
+  Input,
+  Alert,
+  Table,
+  notification,
+  Button
+} from 'antd';
 import { connect } from 'dva';
 import globalUtil from '../../utils/global';
 
@@ -26,7 +35,7 @@ export default class ApplicationGovernance extends PureComponent {
   }
 
   componentDidMount() {
-    this.fetchServiceNameList();
+    // this.fetchServiceNameList();
   }
 
   onPageChange = page => {
@@ -37,12 +46,34 @@ export default class ApplicationGovernance extends PureComponent {
 
   setK8sServiceNames = value => {
     const { dispatch, appID, onCancel } = this.props;
+    const arr = [];
+    const apps = this.getSelected();
+    apps.map(item => {
+      const {
+        service_id: id,
+        port_alias: alias,
+        service_cname: serviceCname,
+        k8s_service_name: name,
+        port
+      } = item;
+      const setAlias = `${id}/${alias}`;
+      const k8ServiceName = `${id}/${name}`;
+      if (setAlias && k8ServiceName) {
+        arr.push({
+          service_cname: serviceCname,
+          service_id: id,
+          port,
+          port_alias: value[setAlias],
+          k8s_service_name: value[k8ServiceName]
+        });
+      }
+    });
     dispatch({
       type: 'global/setCheckK8sServiceName',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
-        k8s_service_names: value
+        arr
       },
       callback: res => {
         if (res && res.bean) {
@@ -58,18 +89,16 @@ export default class ApplicationGovernance extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form } = this.props;
+    const { step } = this.state;
     form.validateFields((err, value) => {
+      console.log('value', value);
       if (!err) {
-        this.handleGovernancemode(value);
-      }
-    });
-  };
-
-  handleSubmitk8sServiceNames = () => {
-    const { form } = this.props;
-    form.validateFields((err, value) => {
-      if (!err) {
-        this.checkK8sServiceName(value);
+        if (step) {
+          // this.checkK8sServiceName({ k8s_service_name: 'graca965_80' });
+          this.setK8sServiceNames(value);
+        } else {
+          this.handleGovernancemode(value);
+        }
       }
     });
   };
@@ -84,11 +113,11 @@ export default class ApplicationGovernance extends PureComponent {
         governance_mode: value.governance_mode
       },
       callback: () => {
-        if (value.governance_mode === 'BuiltInServiceMesh') {
-          notification.success({
-            message: '切换成功',
-            duration: '3'
-          });
+        notification.success({
+          message: '切换成功',
+          duration: '3'
+        });
+        if (value.governance_mode === 'BUILD_IN_SERVICE_MESH') {
           onCancel();
         } else {
           this.fetchServiceNameList();
@@ -109,7 +138,7 @@ export default class ApplicationGovernance extends PureComponent {
         if (res && res.bean) {
           this.setState({
             step: true,
-            ServiceNameList: res.bean.k8s_service_names
+            ServiceNameList: res.list
           });
         }
       }
@@ -126,17 +155,56 @@ export default class ApplicationGovernance extends PureComponent {
         k8s_service_name: value.k8s_service_name
       },
       callback: res => {
-        if (res && res.bean && res.bean.is_valid) {
+        if (res && res.bean && !res.bean.is_valid) {
           this.setK8sServiceNames();
         }
       }
     });
   };
 
+  getSelected() {
+    const key = this.state.selectedRowKeys;
+    const res = key.map(item => this.state.ServiceNameList[item]);
+    return res;
+  }
+
+  isDisabled = () => {
+    const app = this.getSelected();
+    return app.length > 0;
+  };
+
+  checkServiceName = (rule, value, callback) => {
+    const { dispatch, appID } = this.props;
+    const { ServiceNameList } = this.stata;
+    console.log('valuevalue', value);
+    try {
+      dispatch({
+        type: 'global/checkK8sServiceName',
+        payload: {
+          tenantName: globalUtil.getCurrTeamName(),
+          group_id: appID,
+          service_alias: ServiceNameList[0].service_alias,
+          k8s_service_name: ServiceNameList[0].k8s_service_name
+        },
+        callback: res => {
+          if (res && res.bean && !res.bean.is_valid) {
+            callback(); // +
+          } else {
+            throw new Error('格式错误!');
+          }
+        }
+      });
+    } catch (err) {
+      callback(err);
+      return; // +
+    }
+    callback(); // +
+  };
+
   render() {
     const list = [
-      { key: 'KubernetesNativeService', name: 'Kubernetes原生 service 模式' },
-      { key: 'BuiltInServiceMesh', name: '内置 ServiceMesh 模式' }
+      { key: 'KUBERNETES_NATIVE_SERVICE', name: 'Kubernetes原生 service 模式' },
+      { key: 'BUILD_IN_SERVICE_MESH', name: '内置 ServiceMesh 模式' }
     ];
     const { loading = false, onCancel, form } = this.props;
     const { step, ServiceNameList } = this.state;
@@ -173,6 +241,16 @@ export default class ApplicationGovernance extends PureComponent {
         onOk={this.handleSubmit}
         onCancel={onCancel}
         width={800}
+        footer={[
+          <Button onClick={onCancel}> 取消 </Button>,
+          <Button
+            type="primary"
+            disabled={step && !this.isDisabled()}
+            onClick={this.handleSubmit}
+          >
+            确定
+          </Button>
+        ]}
       >
         <Alert
           style={{ marginBottom: '20px' }}
@@ -197,31 +275,51 @@ export default class ApplicationGovernance extends PureComponent {
                 dataIndex: 'service_alias',
                 render: (_, data) => (
                   <div>
-                    {data.service_alias}/{data.port}
+                    {data.service_cname}/{data.port}
                   </div>
                 )
               },
               {
                 title: '别名',
+                dataIndex: 'port_alias',
+                render: (val, data) => (
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    {form.getFieldDecorator(
+                      `${data.service_id}/${data.port_alias}`,
+                      {
+                        initialValue: val || '',
+                        rules: [
+                          {
+                            required: true,
+                            message: '不能为空'
+                          }
+                        ]
+                      }
+                    )(<Input  size="small" />)}
+                  </Form.Item>
+                )
+              },
+              {
+                title: '内部域名',
                 dataIndex: 'k8s_service_name',
                 render: (val, data) => (
-                  <Form onSubmit={this.handleSubmitk8sServiceNames}>
-                    <Form.Item>
-                      {form.getFieldDecorator(
-                        `${data.service_alias}_${data.b2cSalesOrdItemId}`,
-                        {
-                          initialValue: val,
-                          rules: [
-                            {
-                              required: true,
-                              // pattern: REG_ONLY_INTEGER,
-                              message: '不能为空'
-                            }
-                          ]
-                        }
-                      )(<Input maxLength="6" size="small" />)}
-                    </Form.Item>
-                  </Form>
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    {form.getFieldDecorator(
+                      `${data.service_id}/${data.k8s_service_name}`,
+                      {
+                        initialValue: val || '',
+                        rules: [
+                          {
+                            required: true,
+                            message: '不能为空'
+                          },
+                          {
+                            validator: this.checkServiceName
+                          }
+                        ]
+                      }
+                    )(<Input  size="small" />)}
+                  </Form.Item>
                 )
               }
             ]}
@@ -230,7 +328,7 @@ export default class ApplicationGovernance extends PureComponent {
           <Form onSubmit={this.handleSubmit}>
             <FormItem {...formItemLayout} label="治理模式选择">
               {getFieldDecorator('governance_mode', {
-                initialValue: 'KubernetesNativeService',
+                initialValue: 'KUBERNETES_NATIVE_SERVICE',
                 rules: [
                   {
                     required: true,
@@ -254,7 +352,7 @@ export default class ApplicationGovernance extends PureComponent {
                 initialValue: '',
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '请输入模式说明'
                   }
                 ]

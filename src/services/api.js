@@ -1155,16 +1155,15 @@ export async function setGovernancemode(params) {
 }
 export async function getServiceNameList(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sServiceNames `
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
   );
 }
 export async function CheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/checkK8sServiceName `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
     {
       method: 'post',
       data: {
-        service_alias: params.service_alias,
         k8s_service_name: params.k8s_service_name
       }
     }
@@ -1172,13 +1171,10 @@ export async function CheckK8sServiceName(params) {
 }
 export async function SetCheckK8sServiceName(params) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sServiceNames `,
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
     {
       method: 'put',
-      data: {
-        service_alias: params.service_alias,
-        k8s_service_name: params.k8s_service_name
-      }
+      data: params.arr
     }
   );
 }

@@ -777,6 +777,7 @@ export async function editPortAlias(
       method: 'put',
       data: {
         action: 'change_port_alias',
+        k8s_service_name: body.k8s_service_name,
         port_alias: body.port_alias
       }
     }

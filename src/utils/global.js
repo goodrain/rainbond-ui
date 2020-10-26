@@ -773,8 +773,8 @@ const global = {
   },
   fetchGovernanceMode(state) {
     const GovernanceMode = {
-      KubernetesNativeService: '原生 service 模式',
-      BuiltInServiceMesh: '内置 ServiceMesh 模式'
+      KUBERNETES_NATIVE_SERVICE: '原生 service 模式',
+      BUILD_IN_SERVICE_MESH: '内置 ServiceMesh 模式'
     };
     return GovernanceMode[state] || '-';
   },

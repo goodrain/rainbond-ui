@@ -62,7 +62,7 @@ class EditGroupName extends PureComponent {
       form,
       loading = false,
       group_name: groupName,
-      group_note: groupNote
+      mode: groupNote
     } = this.props;
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -105,7 +105,7 @@ class EditGroupName extends PureComponent {
             })(<Input placeholder="请填写应用名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="应用备注">
-            {getFieldDecorator('group_note', {
+            {getFieldDecorator('mode', {
               initialValue: groupNote || ''
             })(<Input.TextArea placeholder="请填写应用备注信息" />)}
           </FormItem>
@@ -176,6 +176,7 @@ class Main extends PureComponent {
   loading = () => {
     this.fetchAppDetail();
     this.loadTopology(true);
+    this.fetchAppDetailState();
   };
 
   loadTopology(isCycle) {
@@ -323,28 +324,32 @@ class Main extends PureComponent {
         team_name: teamName,
         group_id: appID
       },
-      callback: res => {}
-    });
-  };
-
-  fetchAppResourcesStatistics = () => {
-    const { dispatch } = this.props;
-    const { teamName, appID } = this.props.match.params;
-    dispatch({
-      type: 'groupControl/fetchAppResourcesStatistics',
-      payload: {
-        team_name: teamName,
-        group_id: appID
-      },
       callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            resources: res.bean
-          });
-        }
+        this.setState({
+          resources: res.list
+        });
       }
     });
   };
+
+  // fetchAppResourcesStatistics = () => {
+  //   const { dispatch } = this.props;
+  //   const { teamName, appID } = this.props.match.params;
+  //   dispatch({
+  //     type: 'groupControl/fetchAppResourcesStatistics',
+  //     payload: {
+  //       team_name: teamName,
+  //       group_id: appID
+  //     },
+  //     callback: res => {
+  //       if (res && res.bean) {
+  //         this.setState({
+  //           resources: res.bean
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
 
   handleFormReset = () => {
     const { form } = this.props;
@@ -446,7 +451,7 @@ class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
         group_name: vals.group_name,
-        group_note: vals.group_note
+        mode: vals.mode
       },
       callback: () => {
         this.handleUpDataHeader();
@@ -482,7 +487,7 @@ class Main extends PureComponent {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
-        group_note: vals.group_note
+        mode: vals.mode
       },
       callback: () => {
         notification.success({ message: '添加成功' });
@@ -599,9 +604,9 @@ class Main extends PureComponent {
       type,
       customSwitch
     } = this.state;
-    if (groupDetail.group_id != appID && !loadingDetail) {
-      this.fetchAppDetail();
-    }
+    // if (groupDetail.group_id != appID && !loadingDetail) {
+    //   this.fetchAppDetail();
+    // }
 
     const codeObj = {
       start: '启动',
@@ -956,7 +961,7 @@ class Main extends PureComponent {
         {toEdit && (
           <EditGroupName
             group_name={groupDetail.group_name}
-            group_note={groupDetail.group_note}
+            mode={groupDetail.mode}
             loading={editGroupLoading}
             title="修改应用信息"
             onCancel={this.cancelEdit}
