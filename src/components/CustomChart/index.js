@@ -13,7 +13,8 @@ const FormItem = Form.Item;
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail
+  appDetail: appControl.appDetail,
+  baseInfo: appControl.baseInfo,
 }))
 @Form.create()
 export default class ChartTitle extends PureComponent {
@@ -87,6 +88,7 @@ export default class ChartTitle extends PureComponent {
       dispatch,
       form,
       moduleName,
+      baseInfo,
       RangeData = [],
       appAlias = ""
     } = this.props;
@@ -116,6 +118,7 @@ export default class ChartTitle extends PureComponent {
       end,
       dispatch,
       appDetail,
+      baseInfo,
       appAlias
     };
     return (
