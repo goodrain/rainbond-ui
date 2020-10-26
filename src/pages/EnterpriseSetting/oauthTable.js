@@ -1,9 +1,20 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 /* eslint-disable prefer-const */
 /*
   挂载共享目录组件
 */
-import { Button, Col, Modal, notification, Row, Table, Tooltip } from 'antd';
+import {
+  Alert,
+  Button,
+  Col,
+  Modal,
+  notification,
+  Row,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -24,8 +35,6 @@ export default class OauthTable extends PureComponent {
     super(props);
     this.state = {
       loading: true,
-      oauthVisible: false,
-      oauthList: [],
       oauthInfo: false,
       oauthTable: [],
       openOauth: false,
@@ -40,11 +49,6 @@ export default class OauthTable extends PureComponent {
   handleSubmit = () => {
     const { onOk } = this.props;
     onOk && onOk();
-  };
-  handleCreate = () => {
-    this.setState({
-      oauthVisible: true,
-    });
   };
 
   handleDiv = data => {
@@ -99,6 +103,7 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       home_url,
       redirect_domain,
+      is_auto_login,
     } = values;
     oauth_type = oauth_type.toLowerCase();
     if (oauth_type === 'github') {
@@ -108,7 +113,7 @@ export default class OauthTable extends PureComponent {
       name,
       client_id,
       client_secret,
-      is_auto_login: false,
+      is_auto_login,
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
@@ -210,6 +215,14 @@ export default class OauthTable extends PureComponent {
       oauthInfo,
       showDeleteDomain,
     } = this.state;
+    let autoLoginOAuth = null;
+    oauthTable.map(item => {
+      if (item.is_auto_login) {
+        autoLoginOAuth = item;
+        return item;
+      }
+      return null;
+    });
     return (
       <Modal
         title="OAuth服务配置"
@@ -247,7 +260,17 @@ export default class OauthTable extends PureComponent {
           )}
 
           <Row gutter={12}>
-            <Col span={24} style={{ textAlign: 'right', marginBottom: '10px' }}>
+            <Col span={12}>
+              {autoLoginOAuth && (
+                <Alert
+                  message={`${
+                    autoLoginOAuth.name
+                  } 服务已开启自动登录，登录流程将自动导航到该服务。`}
+                  type="success"
+                />
+              )}
+            </Col>
+            <Col span={12} style={{ textAlign: 'right', marginBottom: '10px' }}>
               <Button
                 onClick={() => {
                   this.handleOpen(false);

@@ -10,7 +10,7 @@ class UserLayout extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isRender: false
+      isRender: false,
     };
   }
   componentWillMount() {
@@ -22,9 +22,19 @@ class UserLayout extends React.PureComponent {
         if (info) {
           globalUtil.putLog(info);
           // check auto login
-          const isOauth = rainbondUtil.OauthbEnable(info);
-          const oauthInfo =
+          const isOauth =
+            rainbondUtil.OauthbEnable(info) ||
+            rainbondUtil.OauthEnterpriseEnable(info);
+          let oauthInfo =
             info.enterprise_center_oauth && info.enterprise_center_oauth.value;
+          if (!oauthInfo && info.oauth_services && info.oauth_services.value) {
+            info.oauth_services.value.map(item => {
+              if (item.is_auto_login) {
+                oauthInfo = item;
+              }
+              return null;
+            });
+          }
           if (isOauth && oauthInfo) {
             if (oauthInfo.is_auto_login) {
               globalUtil.removeCookie();
@@ -35,12 +45,12 @@ class UserLayout extends React.PureComponent {
             this.isRender(true);
           }
         }
-      }
+      },
     });
   }
   isRender = isRender => {
     this.setState({
-      isRender
+      isRender,
     });
   };
   render() {
@@ -76,5 +86,5 @@ class UserLayout extends React.PureComponent {
 
 export default connect(({ global }) => ({
   rainbondInfo: global.rainbondInfo,
-  nouse: global.nouse
+  nouse: global.nouse,
 }))(UserLayout);

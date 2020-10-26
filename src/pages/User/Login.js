@@ -1,30 +1,27 @@
-import React, { Component } from 'react';
+/* eslint-disable compat/compat */
+/* eslint-disable camelcase */
+import { Col, Divider, Row } from 'antd';
 import { connect } from 'dva';
-import { Divider, Row, Col } from 'antd';
-import styles from './Login.less';
-import rainbondUtil from '../../utils/rainbond';
+import React, { Component } from 'react';
 import globalUtil from '../../utils/global';
-import LoginComponent from './loginComponent';
 import oauthUtil from '../../utils/oauth';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './Login.less';
+import LoginComponent from './loginComponent';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
 }))
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      oauthServicesList: []
-    };
+    this.state = {};
   }
   componentWillMount() {
-    const { dispatch, rainbondInfo } = this.props;
+    const { dispatch } = this.props;
     dispatch({ type: 'global/hideNeedLogin' });
     globalUtil.removeCookie();
-    // if (rainbondInfo.enterprise_id) {
-    //   this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
-    // }
   }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
@@ -33,7 +30,7 @@ export default class LoginPage extends Component {
     dispatch({
       type: 'user/login',
       payload: {
-        ...values
+        ...values,
       },
       callback: () => {
         let url = '/';
@@ -41,7 +38,7 @@ export default class LoginPage extends Component {
           url = redirect;
         }
         window.location.href = url;
-      }
+      },
     });
   };
   fetchEnterpriseInfo = eid => {
@@ -49,7 +46,7 @@ export default class LoginPage extends Component {
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
@@ -61,11 +58,11 @@ export default class LoginPage extends Component {
               oauthServicesList:
                 oauth_services.value &&
                 oauth_services.value.length > 0 &&
-                oauth_services.value
+                oauth_services.value,
             });
           }
         }
-      }
+      },
     });
   };
 
