@@ -1,7 +1,7 @@
 {
   "name": "rainbond-ui",
-  "version": "5.2.1",
-  "description": "rainbond front-end project. ",
+  "version": "5.2.2",
+  "description": "rainbond front-end project.",
   "private": true,
   "scripts": {
     "start": "umi dev",
