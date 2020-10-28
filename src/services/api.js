@@ -1081,7 +1081,39 @@ export async function toEditOauth(params) {
     },
   });
 }
-
+/** 修改镜像仓库信息 */
+export async function toEditImageHub(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/appstoreimagehub`,
+    {
+      method: 'put',
+      data: {
+        enable: params.enable,
+        hub_url: params.hub_url || '',
+        namespace: params.namespace || '',
+        hub_user: params.hub_user || '',
+        hub_password: params.hub_password || ''
+      }
+    }
+  );
+}
+/** 修改云端备份配置 */
+export async function toEditCloudBackup(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/objectstorage`,
+    {
+      method: 'put',
+      data: {
+        enable: params.enable,
+        provider: params.provider || '',
+        endpoint: params.endpoint || '',
+        bucket_name: params.bucket_name || '',
+        access_key: params.access_key || '',
+        secret_key: params.secret_key || ''
+      }
+    }
+  );
+}
 /* 删除 oath信息 */
 
 export async function deleteOauth(body = { service_id }) {
