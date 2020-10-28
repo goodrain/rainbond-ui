@@ -625,7 +625,7 @@ class CreateAppModels extends PureComponent {
               )}
             </Form.Item>
 
-            {appInfo && (
+            {/* {appInfo && (
               <FormItem {...formItemLayout} label="是否Release">
                 {getFieldDecorator('dev_status', {
                   initialValue: appInfo && appInfo.dev_status ? true : '',
@@ -641,7 +641,7 @@ class CreateAppModels extends PureComponent {
                   请选择当前应用的开发状态
                 </div>
               </FormItem>
-            )}
+            )} */}
           </Form>
         </Modal>
       </div>
