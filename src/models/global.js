@@ -68,6 +68,8 @@ import {
   toCreatCluster,
   toCeateSourceCode,
   toCreatOauth,
+  toEditCloudBackup,
+  toEditImageHub,
   toEditOauth,
   toBuildShape,
   toQueryTopology,
@@ -680,7 +682,18 @@ export default {
         callback(response);
       }
     },
-
+    *editImageHub({ payload, callback }, { call }) {
+      const response = yield call(toEditImageHub, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editCloudBackup({ payload, callback }, { call }) {
+      const response = yield call(toEditCloudBackup, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *codeWarehouseInfo({ payload, callback }, { call }) {
       const response = yield call(queryCodeWarehouseInfo, payload);
       if (callback) {

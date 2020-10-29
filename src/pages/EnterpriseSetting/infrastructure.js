@@ -191,7 +191,13 @@ class Infrastructure extends PureComponent {
             isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
               info.bean
             ),
-            isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(info.bean)
+            isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(
+              info.bean
+            ),
+            AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(
+              info.bean
+            ),
+            ObjectStorageValue: rainbondUtil.fetchObjectStorage(info.bean)
           });
         }
       }
