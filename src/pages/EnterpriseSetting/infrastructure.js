@@ -721,7 +721,6 @@ export default class Index extends PureComponent {
   render() {
     const { enterprise } = this.props;
     if (enterprise) {
-      console.log('enterprise', enterprise);
       return <Infrastructure {...this.props} />;
     }
     return null;

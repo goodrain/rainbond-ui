@@ -57,11 +57,17 @@ export default class EditAppVersion extends PureComponent {
           <FormItem {...formItemLayout} label="版本别名">
             {getFieldDecorator('version_alias', {
               initialValue: (appInfo && appInfo.version_alias) || '',
-              rules: [{ required: true, message: '请填写版本别名' }]
+              rules: [
+                { required: true, message: '请填写版本别名' },
+                {
+                  max: 64,
+                  message: '最大长度64位'
+                }
+              ]
             })(<Input placeholder="请填写版本别名" />)}
           </FormItem>
 
-          <FormItem {...formItemLayout} label="是否Release">
+          <FormItem {...formItemLayout} label="状态">
             {getFieldDecorator('dev_status', {
               initialValue: appInfo && appInfo.dev_status ? true : ''
             })(
@@ -69,22 +75,27 @@ export default class EditAppVersion extends PureComponent {
                 onChange={this.onChangeCheckbox}
                 checked={Checkboxvalue}
               >
-                release
+                Release
               </Checkbox>
             )}
-            <div className={styles.conformDesc}>请选择当前应用的开发状态</div>
+            <div className={styles.conformDesc}>
+              release代表版本测试完成，可以进行交付。
+            </div>
           </FormItem>
-          <FormItem {...formItemLayout} label="描述信息">
+          <FormItem {...formItemLayout} label="版本简介">
             {getFieldDecorator('app_version_info', {
               initialValue: (appInfo && appInfo.app_version_info) || '',
               rules: [
                 {
                   required: false,
-                  message: '请输入描述信息'
+                  message: '请输入版本简介'
+                },
+                {
+                  max: 255,
+                  message: '最大长度255位'
                 }
               ]
-            })(<TextArea placeholder="请输入描述信息" />)}
-            <div className={styles.conformDesc}>请输入应用模版描述</div>
+            })(<TextArea placeholder="请输入版本简介" />)}
           </FormItem>
         </Form>
       </Modal>

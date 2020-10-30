@@ -40,7 +40,7 @@ export async function delAppVersion(param) {
     // `https://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     {
-      method: 'get'
+      method: 'DELETE'
     }
   );
 }

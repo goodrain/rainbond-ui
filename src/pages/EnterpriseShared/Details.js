@@ -14,27 +14,32 @@ import {
   Card,
   notification,
   Table,
-  Button
+  Button,
+  Modal
 } from 'antd';
 import { connect } from 'dva';
+import moment from 'moment';
 import { routerRedux } from 'dva/router';
-import userUtil from '../../utils/user';
-import styles from '../../components/CreateTeam/index.less';
 import apiconfig from '../../../config/api.config';
-import cookie from '../../utils/cookie';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditAppVersion from '../../components/EditAppVersion';
-import moment from 'moment';
 import editClusterInfo from '@/components/Cluster/BaseAddCluster';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-
+import BraftEditor from 'braft-editor';
+import { object } from 'prop-types';
+import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
+import userUtil from '../../utils/user';
+import 'braft-editor/dist/index.css';
 import styless from './index.less';
+import detailstyles from '../../components/MarketAppDetailShow/index.less';
+import styles from '../../components/CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
+const { confirm } = Modal;
 
-@Form.create()
 @connect(({ user, groupControl, enterprise, teamControl, loading }) => ({
   currUser: user.currentUser,
   apps: groupControl.apps,
@@ -62,7 +67,8 @@ export default class Main extends PureComponent {
       appList: [],
       toDelete: false,
       editAppVersion: false,
-      isEdit: false
+      isEdit: false,
+      isAppDetails: false
     };
   }
   componentWillMount() {
@@ -70,6 +76,7 @@ export default class Main extends PureComponent {
     this.getEnterpriseTeams();
     this.getAppModelsDetails();
   }
+  componentDidMount() {}
   getLogoBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -133,7 +140,8 @@ export default class Main extends PureComponent {
       dispatch,
       match: {
         params: { eid, appId }
-      }
+      },
+      form
     } = this.props;
 
     dispatch({
@@ -144,6 +152,15 @@ export default class Main extends PureComponent {
       },
       callback: res => {
         if (res && res._code === 200) {
+          // 异步设置编辑器内容
+          const text = res.bean && res.bean.details;
+          const details = form.getFieldValue('details');
+          if (details) {
+            form.setFieldsValue({
+              details: BraftEditor.createEditorState(text)
+            });
+          }
+
           this.setState({
             imageUrl: res.bean.pic,
             appInfo: res.bean,
@@ -174,6 +191,31 @@ export default class Main extends PureComponent {
           this.handleCloseEditAppVersion();
           this.getAppModelsDetails();
           notification.success({ message: '编辑成功' });
+        }
+      }
+    });
+  };
+  handleRelease = value => {
+    const {
+      dispatch,
+      match: {
+        params: { eid, appId }
+      }
+    } = this.props;
+    const parameter = Object.assign(value, {
+      dev_status: value.dev_status ? '' : 'release'
+    });
+    dispatch({
+      type: 'market/upDataAppVersionInfo',
+      payload: {
+        enterprise_id: eid,
+        appId,
+        ...value
+      },
+      callback: res => {
+        if (res && res._code === 200) {
+          this.handleCloseEditAppVersion();
+          this.getAppModelsDetails();
         }
       }
     });
@@ -243,6 +285,7 @@ export default class Main extends PureComponent {
         if (res && res._code === 200) {
           notification.success({ message: '删除成功' });
           this.handleCancelDelete();
+          this.getAppModelsDetails();
         }
       }
     });
@@ -258,7 +301,7 @@ export default class Main extends PureComponent {
       }
     );
   };
-  upAppModel = () => {
+  upAppModel = (appInfo, tagId) => {
     const {
       dispatch,
       match: {
@@ -266,7 +309,7 @@ export default class Main extends PureComponent {
       },
       form
     } = this.props;
-    const { imageUrl, tagList } = this.state;
+    const { imageUrl, tagList, isEdit, isAppDetails } = this.state;
     form.validateFields((err, values) => {
       if (!err) {
         const arr = [];
@@ -286,13 +329,13 @@ export default class Main extends PureComponent {
         }
         const parameter = {
           enterprise_id: eid,
-          name: values.name,
+          name: appInfo ? appInfo.app_name : values.name,
           pic: imageUrl,
-          tag_ids: arr,
+          tag_ids: tagId ? tagId : arr,
           app_id: appId,
-          describe: values.describe,
-          details: values.details,
-          scope: values.scope
+          describe: appInfo ? appInfo.describe : values.describe,
+          details: values.details.toHTML(),
+          scope: appInfo ? appInfo.scope : values.scope
         };
         dispatch({
           type: 'market/upAppModel',
@@ -300,6 +343,11 @@ export default class Main extends PureComponent {
           callback: res => {
             if (res && res._code === 200) {
               notification.success({ message: '保存成功' });
+              if (appInfo) {
+                this.handleAppDetails(!isAppDetails);
+              } else {
+                this.handleIsEdit(!isEdit);
+              }
               this.getAppModelsDetails();
             }
           }
@@ -310,6 +358,18 @@ export default class Main extends PureComponent {
   handleIsEdit = isEdit => {
     this.setState({ isEdit });
   };
+  handleAppDetails = isAppDetails => {
+    const { appInfo } = this.state;
+    const { form } = this.props;
+    const text = appInfo && appInfo.details;
+    this.setState({ isAppDetails }, () => {
+      if (isAppDetails) {
+        form.setFieldsValue({
+          details: BraftEditor.createEditorState(text)
+        });
+      }
+    });
+  };
   handleCancel = () => {
     const {
       dispatch,
@@ -318,6 +378,20 @@ export default class Main extends PureComponent {
       }
     } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
+  };
+  handleIsRelease = record => {
+    const _th = this;
+    confirm({
+      title: record.dev_status
+        ? '确定取消Release状态?'
+        : '确定设为Release状态?',
+      content: '',
+      okText: '确认',
+      cancelText: '取消',
+      onOk() {
+        _th.handleRelease(record);
+      }
+    });
   };
 
   render() {
@@ -340,7 +414,8 @@ export default class Main extends PureComponent {
       appList,
       toDelete,
       editAppVersion,
-      isEdit
+      isEdit,
+      isAppDetails
     } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
     const formItemLayout = {
@@ -364,8 +439,19 @@ export default class Main extends PureComponent {
       }
     };
     const token = cookie.get('token');
+    const controls = [
+      'bold',
+      'italic',
+      'underline',
+      'text-color',
+      'separator',
+      'link',
+      'separator'
+    ];
     const myheaders = {};
     const arr = [];
+    const tagId = [];
+
     if (
       appInfo &&
       appInfo.tags &&
@@ -375,6 +461,7 @@ export default class Main extends PureComponent {
     ) {
       appInfo.tags.map(items => {
         arr.push(items.name);
+        tagId.push(items.tag_id);
       });
     }
 
@@ -387,6 +474,8 @@ export default class Main extends PureComponent {
         <div className="ant-upload-text">上传图标</div>
       </div>
     );
+    const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
+
     return (
       <div>
         {toDelete && (
@@ -412,22 +501,9 @@ export default class Main extends PureComponent {
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
             <Card
-              extra={
-                <div>
-                  <a
-                    style={{ marginRight: '20px' }}
-                    onClick={() => {
-                      this.handleIsEdit(!isEdit);
-                    }}
-                  >
-                    {isEdit ? '切换到展示模式' : '切换到编辑模式'}
-                  </a>
-                </div>
-              }
               style={{
                 marginBottom: 24
               }}
-              title="基础信息"
               bordered={false}
               bodyStyle={{
                 padding: 0
@@ -438,10 +514,16 @@ export default class Main extends PureComponent {
                   padding: '24px'
                 }}
               >
-                <Row gutter={24}>
-                  <Col span="12">
-                    <FormItem {...formItemLayout} label="名称">
-                      {isEdit ? (
+                <div
+                  style={{
+                    textAlign: 'right',
+                    margin: '-14px 0 10px 0'
+                  }}
+                ></div>
+                {isEdit && (
+                  <Row gutter={24}>
+                    <Col span="12">
+                      <FormItem {...formItemLayout} label="名称">
                         <div>
                           {getFieldDecorator('name', {
                             initialValue: (appInfo && appInfo.app_name) || '',
@@ -449,6 +531,10 @@ export default class Main extends PureComponent {
                               {
                                 required: true,
                                 message: '请输入名称'
+                              },
+                              {
+                                max: 64,
+                                message: '最大长度64位'
                               }
                             ]
                           })(<Input placeholder="请输入名称" />)}
@@ -456,204 +542,236 @@ export default class Main extends PureComponent {
                             请输入应用模版名称，最多64字.
                           </div>
                         </div>
-                      ) : (
-                        appInfo && appInfo.app_name
-                      )}
-                    </FormItem>
-                  </Col>
-                  <Col span="12">
-                    <FormItem {...formItemLayout} label="发布范围">
-                      {isEdit ? (
-                        <div>
-                          {getFieldDecorator('scope', {
-                            initialValue:
-                              (appInfo && appInfo.scope) || 'enterprise',
-                            rules: [
-                              {
-                                required: true,
-                                message: '请输入名称'
-                              }
-                            ]
-                          })(
-                            isShared ? (
-                              <Select
-                                placeholder="请选择发布范围"
-                                dropdownRender={menu => (
+                      </FormItem>
+                    </Col>
+                    <Col span="12">
+                      <FormItem {...formItemLayout} label="发布范围">
+                        {getFieldDecorator('scope', {
+                          initialValue:
+                            (appInfo && appInfo.scope) || 'enterprise',
+                          rules: [
+                            {
+                              required: true,
+                              message: '请输入名称'
+                            }
+                          ]
+                        })(
+                          <Select
+                            placeholder="请选择发布范围"
+                            dropdownRender={menu => (
+                              <div>
+                                {menu}
+                                {isAddLicense && (
                                   <div>
-                                    {menu}
-                                    {isAddLicense && (
-                                      <div>
-                                        <Divider style={{ margin: '4px 0' }} />
-                                        {enterpriseTeamsLoading ? (
-                                          <Spin size="small" />
-                                        ) : (
-                                          <div
-                                            style={{
-                                              padding: '4px 8px',
-                                              cursor: 'pointer'
-                                            }}
-                                            onMouseDown={e =>
-                                              e.preventDefault()
-                                            }
-                                            onClick={() => {
-                                              this.addTeams();
-                                            }}
-                                          >
-                                            <Icon type="plus" /> 加载更多
-                                          </div>
-                                        )}
+                                    <Divider style={{ margin: '4px 0' }} />
+                                    {enterpriseTeamsLoading ? (
+                                      <Spin size="small" />
+                                    ) : (
+                                      <div
+                                        style={{
+                                          padding: '4px 8px',
+                                          cursor: 'pointer'
+                                        }}
+                                        onMouseDown={e => e.preventDefault()}
+                                        onClick={() => {
+                                          this.addTeams();
+                                        }}
+                                      >
+                                        <Icon type="plus" /> 加载更多
                                       </div>
                                     )}
                                   </div>
                                 )}
-                              >
-                                <Option value="enterprise" key="enterprise">
-                                  <div
-                                    style={{ borderBottom: '1px solid #ccc' }}
-                                  >
-                                    当前企业
-                                  </div>
-                                </Option>
+                              </div>
+                            )}
+                          >
+                            <Option value="enterprise" key="enterprise">
+                              <div style={{ borderBottom: '1px solid #ccc' }}>
+                                当前企业
+                              </div>
+                            </Option>
 
-                                {teamList &&
-                                  teamList.map(item => {
-                                    return (
-                                      <Option
-                                        key={item.team_name}
-                                        value={item.team_name}
-                                      >
-                                        {item.team_alias}
-                                      </Option>
-                                    );
-                                  })}
-                              </Select>
-                            ) : (
-                              <Radio.Group name="scope">
-                                <Radio value="team">当前团队</Radio>
-                                <Radio value="enterprise">企业</Radio>
-                              </Radio.Group>
-                            )
-                          )}
-                          <div className={styles.conformDesc}>
-                            发布模型的可视范围
-                          </div>
-                        </div>
-                      ) : (
-                        appInfo && appInfo.scope
-                      )}
-                    </FormItem>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="分类标签">
-                      {isEdit ? (
-                        <div>
-                          {getFieldDecorator('tag_ids', {
-                            initialValue: arr,
-                            rules: [
-                              {
-                                required: false,
-                                message: '请添加标签'
-                              }
-                            ]
-                          })(
-                            <Select
-                              mode="tags"
-                              style={{ width: '100%' }}
-                              // onSelect={this.handleOnSelect}
-                              tokenSeparators={[',']}
-                              placeholder="请选择分类标签"
-                            >
-                              {tagList.map(item => {
-                                const { tag_id, name } = item;
+                            {teamList &&
+                              teamList.map(item => {
                                 return (
                                   <Option
-                                    key={tag_id}
-                                    value={name}
-                                    label={name}
+                                    key={item.team_name}
+                                    value={item.team_name}
                                   >
-                                    {name}
+                                    {item.team_alias}
                                   </Option>
                                 );
                               })}
-                            </Select>
-                          )}
-                          <div className={styles.conformDesc}>
-                            请选择分类标签
-                          </div>
+                          </Select>
+                        )}
+                        <div className={styles.conformDesc}>
+                          发布模型的可视范围
                         </div>
-                      ) : (
-                        arr
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="12">
-                    <FormItem {...formItemLayout} label="简介">
-                      {isEdit ? (
-                        <div>
-                          {getFieldDecorator('describe', {
-                            initialValue: (appInfo && appInfo.describe) || '',
-                            rules: [
-                              {
-                                required: false,
-                                message: '请输入简介'
-                              }
-                            ]
-                          })(<TextArea placeholder="请输入简介" />)}
-                          <div className={styles.conformDesc}>
-                            请输入应用模版简介
-                          </div>
+                      </FormItem>
+                    </Col>
+                    <Col span="12">
+                      <Form.Item {...formItemLayout} label="分类标签">
+                        {getFieldDecorator('tag_ids', {
+                          initialValue: arr,
+                          rules: [
+                            {
+                              required: false,
+                              message: '请添加标签'
+                            }
+                          ]
+                        })(
+                          <Select
+                            mode="tags"
+                            style={{ width: '100%' }}
+                            // onSelect={this.handleOnSelect}
+                            tokenSeparators={[',']}
+                            placeholder="请选择分类标签"
+                          >
+                            {tagList.map(item => {
+                              const { tag_id, name } = item;
+                              return (
+                                <Option key={tag_id} value={name} label={name}>
+                                  {name}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        )}
+                        <div className={styles.conformDesc}>请选择分类标签</div>
+                      </Form.Item>
+                    </Col>
+                    <Col span="12">
+                      <FormItem {...formItemLayout} label="简介">
+                        {getFieldDecorator('describe', {
+                          initialValue: (appInfo && appInfo.describe) || '',
+                          rules: [
+                            {
+                              required: false,
+                              message: '请输入简介'
+                            },
+                            {
+                              max: 255,
+                              message: '最大长度255位'
+                            }
+                          ]
+                        })(<TextArea placeholder="请输入简介" />)}
+                        <div className={styles.conformDesc}>
+                          请输入应用模版简介
                         </div>
-                      ) : (
-                        appInfo && appInfo.describe
-                      )}
-                    </FormItem>
-                  </Col>
-                  <Col span="12">
-                    <Form.Item {...formItemLayout} label="LOGO">
-                      {isEdit ? (
-                        <div>
-                          {getFieldDecorator('pic', {
-                            initialValue: (appInfo && appInfo.pic) || '',
-                            rules: [
-                              {
-                                required: false,
-                                message: '请上传图标'
-                              }
-                            ]
-                          })(
-                            <Upload
-                              className="logo-uploader"
-                              name="file"
-                              accept="image/jpg,image/jpeg,image/png"
-                              action={apiconfig.imageUploadUrl}
-                              listType="picture-card"
-                              headers={myheaders}
-                              showUploadList={false}
-                              onChange={this.handleLogoChange}
-                              onRemove={this.handleLogoRemove}
-                            >
-                              {imageUrl ? (
-                                <img
-                                  src={imageBase64 || imageUrl}
-                                  alt="LOGO"
-                                  style={{ width: '100%' }}
-                                />
-                              ) : (
-                                uploadButton
-                              )}
-                            </Upload>
-                          )}
-                        </div>
-                      ) : (
+                      </FormItem>
+                    </Col>
+                    <Col span="12">
+                      <Form.Item {...formItemLayout} label="LOGO">
+                        {getFieldDecorator('pic', {
+                          initialValue: (appInfo && appInfo.pic) || '',
+                          rules: [
+                            {
+                              required: false,
+                              message: '请上传图标'
+                            }
+                          ]
+                        })(
+                          <Upload
+                            className="logo-uploader"
+                            name="file"
+                            accept="image/jpg,image/jpeg,image/png"
+                            action={apiconfig.imageUploadUrl}
+                            listType="picture-card"
+                            headers={myheaders}
+                            showUploadList={false}
+                            onChange={this.handleLogoChange}
+                            onRemove={this.handleLogoRemove}
+                          >
+                            {imageUrl ? (
+                              <img
+                                src={imageBase64 || imageUrl}
+                                alt="LOGO"
+                                style={{ width: '100%' }}
+                              />
+                            ) : (
+                              uploadButton
+                            )}
+                          </Upload>
+                        )}
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                )}
+                {isEdit && (
+                  <div style={{ textAlign: 'center' }}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={false}
+                      disabled={loading.effects['market/upAppModel']}
+                      style={{ marginRight: '20px' }}
+                      onClick={() => {
+                        this.upAppModel(false);
+                      }}
+                    >
+                      保存
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        this.handleIsEdit(!isEdit);
+                      }}
+                    >
+                      取消
+                    </Button>
+                  </div>
+                )}
+                {appInfo && !isEdit && (
+                  <div className={styless.appBoxs}>
+                    <div>
+                      <Icon type="arrow-left" onClick={this.handleCancel} />
+                    </div>
+                    <div>
+                      {imageBase64 || imageUrl ? (
                         <img
                           src={imageBase64 || imageUrl}
                           alt="LOGO"
-                          style={{ width: '86px', height: '86px' }}
+                          style={{
+                            margin: '0 30px',
+                            maxWidth: '60px',
+                            maxHeight: '60px'
+                          }}
                         />
+                      ) : (
+                        appInfo &&
+                        appInfo.app_name && (
+                          <div
+                            style={{
+                              margin: '0 30px'
+                            }}
+                          >
+                            {defaulAppImg}
+                          </div>
+                        )
                       )}
-                    </Form.Item>
-                  </Col>
-                </Row>
+                    </div>
+
+                    <div style={{ marginRight: '30px' }}>
+                      <h3 style={{ marginBottom: '5px' }}>
+                        {appInfo.app_name}
+                      </h3>
+                      <div>{appInfo.describe}</div>
+                    </div>
+                    <div>
+                      {arr.map(item => {
+                        return <div className={styless.appVersion}>{item}</div>;
+                      })}
+                    </div>
+                    {!isEdit && (
+                      <a
+                        onClick={() => {
+                          this.handleIsEdit(!isEdit);
+                        }}
+                      >
+                        编辑
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
             <Card
@@ -687,8 +805,38 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
+                      title: '状态',
+                      dataIndex: 'dev_status',
+                      align: 'center',
+                      width: '100px',
+                      render: val => {
+                        return (
+                          <div>
+                            {val ? (
+                              <span className={styless.devStatus}>Release</span>
+                            ) : (
+                              '-'
+                            )}
+                          </div>
+                        );
+                      }
+                    },
+                    {
+                      title: '发布人',
+                      dataIndex: 'share_user',
+                      align: 'center',
+                      width: '150px',
+                    },
+                    {
+                      title: '版本简介',
+                      dataIndex: 'app_version_info',
+                      width: '220px',
+                    },
+                    {
                       title: '发布时间',
                       dataIndex: 'create_time',
+                      width: '190px',
+                      align: 'center',
                       render: val => {
                         return (
                           <span>
@@ -700,64 +848,52 @@ export default class Main extends PureComponent {
                       }
                     },
                     {
-                      title: '发布人',
-                      dataIndex: 'share_user',
-                      align: 'center'
-                    },
-                    {
-                      title: '状态',
-                      dataIndex: 'dev_status',
+                      title: '更新时间',
+                      dataIndex: 'update_time',
+                      width: '190px',
                       align: 'center',
                       render: val => {
                         return (
-                          <div>
-                            {val ? (
-                              <span className={styless.devStatus}>release</span>
-                            ) : (
-                              '无'
-                            )}
-                          </div>
+                          <span>
+                            {moment(val)
+                              .locale('zh-cn')
+                              .format('YYYY-MM-DD HH:mm:ss')}
+                          </span>
                         );
                       }
                     },
                     {
-                      title: '负责人',
-                      dataIndex: 'release_user',
-                      align: 'center'
-                    },
-                    {
-                      title: '描述',
-                      dataIndex: 'app_version_info',
-                      width: '300px'
-                    },
-                    {
                       title: '操作',
                       dataIndex: 'action',
-                      key: 'action',
+                      width: '230px',
                       align: 'center',
                       render: (_data, record) => (
                         <div>
-                          <a style={{ marginRight: '10px' }} onClick={() => {}}>
-                            同步
-                          </a>
                           <a
-                            style={{ marginRight: '10px' }}
+                            style={{ marginRight: '5px' }}
                             onClick={() => {
                               this.handleEditAppVersionInfo(record);
                             }}
                           >
                             编辑
                           </a>
-                          {appList && appList.length > 1 && (
-                            <a
-                              style={{ marginRight: '10px' }}
-                              onClick={() => {
-                                this.handleToDelete(record);
-                              }}
-                            >
-                              删除
-                            </a>
-                          )}
+                          <a
+                            style={{ marginRight: '5px' }}
+                            onClick={() => {
+                              this.handleIsRelease(record);
+                            }}
+                          >
+                            {record.dev_status
+                              ? '取消Release状态'
+                              : '设为Release状态'}
+                          </a>
+                          <a
+                            onClick={() => {
+                              this.handleToDelete(record);
+                            }}
+                          >
+                            删除
+                          </a>
                         </div>
                       )
                     }
@@ -771,6 +907,15 @@ export default class Main extends PureComponent {
               }}
               title="应用详情"
               bordered={false}
+              extra={
+                <div>
+                  {!isAppDetails && (
+                    <a onClick={() => this.handleAppDetails(!isAppDetails)}>
+                      编辑
+                    </a>
+                  )}
+                </div>
+              }
               bodyStyle={{
                 padding: 0
               }}
@@ -781,49 +926,69 @@ export default class Main extends PureComponent {
                 }}
               >
                 <Row gutter={24}>
-                  <FormItem {...formItemLayouts} label="详情">
-                    {isEdit ? (
-                      <div>
-                        {getFieldDecorator('details', {
-                          initialValue: (appInfo && appInfo.details) || '',
-                          rules: [
-                            {
-                              required: false,
-                              message: '请输入详情'
+                  {isAppDetails ? (
+                    <FormItem
+                      labelCol={{ span: 0 }}
+                      wrapperCol={{ span: 24 }}
+                      label=""
+                    >
+                      {getFieldDecorator('details', {
+                        validateTrigger: 'onBlur',
+                        rules: [
+                          {
+                            required: true,
+                            validator: (_, value, callback) => {
+                              if (value.isEmpty()) {
+                                callback('请输入详情');
+                              } else {
+                                callback();
+                              }
                             }
-                          ]
-                        })(
-                          <TextArea
-                            placeholder="请输入详情"
-                            autosize={{ minRows: 3, maxRows: 6 }}
-                          />
-                        )}
-                        <div className={styles.conformDesc}>
-                          请输入应用详情.
-                        </div>
-                      </div>
-                    ) : (
-                      appInfo && appInfo.details
-                    )}
-                  </FormItem>
+                          }
+                        ]
+                      })(
+                        <BraftEditor
+                          className="my-editor"
+                          controls={controls}
+                          placeholder="请输入详情"
+                        />
+                      )}
+                    </FormItem>
+                  ) : (
+                    <div
+                      className={detailstyles.markdown}
+                      style={{ minHeight: '490px' }}
+                      dangerouslySetInnerHTML={{
+                        __html: appInfo && appInfo.details
+                      }}
+                    />
+                  )}
+                  {isAppDetails && (
+                    <div style={{ textAlign: 'center' }}>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={false}
+                        disabled={loading.effects['market/upAppModel']}
+                        style={{ marginRight: '20px' }}
+                        onClick={() => {
+                          this.upAppModel(appInfo, tagId);
+                        }}
+                      >
+                        保存
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          this.handleAppDetails(!isAppDetails);
+                        }}
+                      >
+                        取消
+                      </Button>
+                    </div>
+                  )}
                 </Row>
               </div>
             </Card>
-            <div style={{ textAlign: 'center' }}>
-              {isEdit && (
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={false}
-                  disabled={loading.effects['market/upAppModel']}
-                  style={{ marginRight: '20px' }}
-                  onClick={this.upAppModel}
-                >
-                  保存
-                </Button>
-              )}
-              <Button onClick={this.handleCancel}>返回</Button>
-            </div>
           </Form>
         </PageHeaderLayout>
       </div>
