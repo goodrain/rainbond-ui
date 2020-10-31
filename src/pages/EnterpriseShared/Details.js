@@ -301,7 +301,7 @@ export default class Main extends PureComponent {
       }
     );
   };
-  upAppModel = (appInfo, tagId) => {
+  upAppModel = (appInfo, tagId, details) => {
     const {
       dispatch,
       match: {
@@ -334,7 +334,7 @@ export default class Main extends PureComponent {
           tag_ids: tagId ? tagId : arr,
           app_id: appId,
           describe: appInfo ? appInfo.describe : values.describe,
-          details: values.details.toHTML(),
+          details: details ? details : values.details.toHTML(),
           scope: appInfo ? appInfo.scope : values.scope
         };
         dispatch({
@@ -706,7 +706,11 @@ export default class Main extends PureComponent {
                       disabled={loading.effects['market/upAppModel']}
                       style={{ marginRight: '20px' }}
                       onClick={() => {
-                        this.upAppModel(false);
+                        this.upAppModel(
+                          false,
+                          false,
+                          appInfo && appInfo.details
+                        );
                       }}
                     >
                       保存
@@ -825,12 +829,12 @@ export default class Main extends PureComponent {
                       title: '发布人',
                       dataIndex: 'share_user',
                       align: 'center',
-                      width: '150px',
+                      width: '150px'
                     },
                     {
                       title: '版本简介',
                       dataIndex: 'app_version_info',
-                      width: '220px',
+                      width: '220px'
                     },
                     {
                       title: '发布时间',
