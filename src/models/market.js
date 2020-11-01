@@ -12,6 +12,8 @@ import {
   postBindingMarkets,
   getBindingMarketsList,
   fetchAppModelsTags,
+  getAppModelsDetails,
+  delAppVersion,
   fetchMarkets,
   fetchMarketsTab,
   getMarketApp,
@@ -25,7 +27,8 @@ import {
   queryImportRecord,
   upAppMarket,
   upAppModel,
-  upDataTag
+  upDataTag,
+  upDataAppVersionInfo
 } from '../services/market';
 
 export default {
@@ -94,6 +97,24 @@ export default {
     },
     *fetchAppModelsTags({ payload, callback }, { call }) {
       const response = yield call(fetchAppModelsTags, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppModelsDetails({ payload, callback }, { call }) {
+      const response = yield call(getAppModelsDetails, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *upDataAppVersionInfo({ payload, callback }, { call }) {
+      const response = yield call(upDataAppVersionInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *deleteAppVersion({ payload, callback }, { call }) {
+      const response = yield call(delAppVersion, payload);
       if (response && callback) {
         callback(response);
       }
