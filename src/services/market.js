@@ -7,7 +7,6 @@ import request from '../utils/request';
 /* 获取本地标签s（搜索） */
 export async function fetchAppModelsTags(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
 
     {
@@ -17,7 +16,6 @@ export async function fetchAppModelsTags(param) {
 }
 export async function getAppModelsDetails(param) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/app-model/${param.appId}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-model/${param.appId}`,
 
     {
@@ -27,7 +25,6 @@ export async function getAppModelsDetails(param) {
 }
 export async function upDataAppVersionInfo(param) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     {
       method: 'put',
@@ -37,7 +34,6 @@ export async function upDataAppVersionInfo(param) {
 }
 export async function delAppVersion(param) {
   return request(
-    // `https://doc.goodrain.org/mock/18/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-model/${param.appId}/version/${param.version}`,
     {
       method: 'DELETE'
@@ -73,7 +69,6 @@ export async function fetchMarketsTab(param) {
 /* 添加本地标签 */
 export async function createTag(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag`,
 
     {
@@ -87,9 +82,7 @@ export async function createTag(param) {
 /* 更新本地标签 */
 export async function upDataTag(param) {
   return request(
-    `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/tag/{tag_id}`,
-    // `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag/${param.tag_id}`,
-
+    `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/tag/${param.tag_id}`,
     {
       method: 'PUT',
       data: {
@@ -102,7 +95,6 @@ export async function upDataTag(param) {
 /* 删除本地标签 */
 export async function deleteTag(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{app_id}/tag`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models/${param.app_id}/tag`,
 
     {
@@ -117,7 +109,6 @@ export async function deleteTag(param) {
 /* 获取本地应用列表（搜索） */
 export async function fetchAppModels(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/app-models`,
     {
       method: 'get',
@@ -136,7 +127,6 @@ export async function fetchAppModels(param) {
 /* 编辑本地应用 */
 export async function upAppModel(body) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-model/{app_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
       method: 'PUT',
@@ -220,7 +210,6 @@ export async function createAppMarket(body) {
 /* 创建本地应用 */
 export async function createAppModel(body) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models`,
     {
       method: 'post',
@@ -254,7 +243,6 @@ export async function createMarketAppModel(data) {
 /* 获取云端应用列表（搜索） */
 export async function getMarketApp(param) {
   return request(
-    // `http://doc.goodrain.org/mock/18/enterprise/{enterprise_id}/cloud/app-models`,
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/cloud/app-models`,
     {
       method: 'get',
@@ -274,7 +262,6 @@ export async function getMarketApp(param) {
 export function queryExport(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/export`,
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
 
     {
       method: 'get',
@@ -290,7 +277,6 @@ export function appExport(
   body = { enterprise_id, app_id, format, app_versions }
 ) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/export`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/export`,
     {
       method: 'post',
@@ -307,16 +293,8 @@ export function appExport(
      导入应用包
   */
 
-export function importApp(
-  body = {
-    tenant_name,
-    event_id,
-    scope,
-    file_name
-  }
-) {
+export function importApp(body = {}) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'post',
@@ -336,7 +314,6 @@ export function importApp(
 
 export function queryImportApp(body = { team_name, event_id }) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'get'
@@ -364,7 +341,6 @@ export function importDir(body = { team_name }) {
 
 export function queryImportDirApp(body = { enterprise_id, event_id }) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/{event_id}/dir`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}/dir`,
     {
       method: 'get',
@@ -394,7 +370,6 @@ export function queryImportingApp(body = { team_name }) {
 */
 export function queryImportRecord(body = { enterprise_id }) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import`,
     {
       method: 'post'
@@ -407,7 +382,6 @@ export function queryImportRecord(body = { enterprise_id }) {
 */
 export function cancelImportApp(body = { enterprise_id, event_id }) {
   return request(
-    // `http://doc.goodrain.org/mock/18/console/enterprise/{enterprise_id}/app-models/import/{event_id}`,
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-models/import/${body.event_id}`,
     {
       method: 'delete'
@@ -416,15 +390,7 @@ export function cancelImportApp(body = { enterprise_id, event_id }) {
 }
 
 /* 查询所有同步的应用 */
-export async function getRecommendMarketAppList(
-  body = {
-    app_name,
-    page,
-    page_size,
-    is_complete,
-    enterprise_id
-  }
-) {
+export async function getRecommendMarketAppList(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/cloud/app-models/recommend`,
     {

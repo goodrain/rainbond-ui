@@ -143,9 +143,6 @@ class Infrastructure extends PureComponent {
     } = this.props;
     const { ObjectStorageValue, isEnableObjectStorage } = this.state;
     const params = value || ObjectStorageValue || {};
-    console.log('params',params)
-    console.log('enable',enable)
-    console.log('value',value)
     dispatch({
       type: 'global/editCloudBackup',
       payload: {

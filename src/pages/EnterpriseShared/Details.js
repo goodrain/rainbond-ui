@@ -800,6 +800,7 @@ export default class Main extends PureComponent {
                     {
                       title: '版本号',
                       dataIndex: 'version',
+                      width: '220px',
                       render: (val, data) => {
                         return (
                           <span>
@@ -833,8 +834,7 @@ export default class Main extends PureComponent {
                     },
                     {
                       title: '版本简介',
-                      dataIndex: 'app_version_info',
-                      width: '220px'
+                      dataIndex: 'app_version_info'
                     },
                     {
                       title: '发布时间',
