@@ -4,7 +4,7 @@ import apiconfig from '../../config/api.config';
 /* Gets the access token data */
 export async function fetchAccessToken() {
   return request(`${apiconfig.baseUrl}/console/users/access-token`, {
-    method: 'get',
+    method: 'get'
   });
 }
 /* New access to token data */
@@ -12,7 +12,7 @@ export async function fetchAccessToken() {
 export async function addAccessToken(data) {
   return request(`${apiconfig.baseUrl}/console/users/access-token`, {
     method: 'post',
-    data,
+    data
   });
 }
 /* Update access token data */
@@ -21,7 +21,7 @@ export async function putAccessToken(data) {
   return request(
     `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
     {
-      method: 'put',
+      method: 'put'
     }
   );
 }
@@ -32,7 +32,7 @@ export async function deleteAccessToke(data) {
   return request(
     `${apiconfig.baseUrl}/console/users/access-token/${data.user_id}`,
     {
-      method: 'delete',
+      method: 'delete'
     }
   );
 }
@@ -42,7 +42,7 @@ export async function getTeamByName(body = { team_name }) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/detail`,
     {
       method: 'get',
-      showMessage: false,
+      showMessage: false
     }
   );
 }
@@ -56,15 +56,15 @@ export async function queryCurrent() {
 }
 
 /* 新增收藏视图 */
-export async function addCollectionView(body = { name, url }) {
+export async function addCollectionView(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`,
     {
       method: 'post',
       data: {
         name: body.name,
-        url: body.url,
-      },
+        url: body.url
+      }
     }
   );
 }
@@ -75,7 +75,7 @@ export async function queryCollectionViewInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite`,
     {
-      method: 'get',
+      method: 'get'
     }
   );
 }
@@ -85,7 +85,7 @@ export async function putCollectionViewInfo(body = { favorite_id }) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite/${body.favorite_id}`,
     {
-      method: 'put',
+      method: 'put'
     }
   );
 }
@@ -94,13 +94,13 @@ export async function putCollectionViewInfo(body = { favorite_id }) {
 */
 export async function deleteCollectionViewInfo(
   body = {
-    favorite_id,
+    favorite_id
   }
 ) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/user/favorite/${body.favorite_id}`,
     {
-      method: 'delete',
+      method: 'delete'
     }
   );
 }
@@ -112,15 +112,15 @@ export async function queryThirdCertification(body = {}, handleError) {
     params: body,
     handleError,
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
   });
 }
 /* oauth认证 */
 export async function queryOauthType(body = {}) {
   return request(`${apiconfig.baseUrl}/console/oauth/type`, {
     method: 'get',
-    params: body,
+    params: body
   });
 }
 
@@ -130,8 +130,8 @@ export async function queryThirdInfo(body = {}) {
     method: 'get',
     params: body,
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
   });
 }
 
@@ -143,8 +143,8 @@ export async function queryCertificationThird(body = { service_id }) {
       method: 'post',
       data: {
         service_id: body.service_id,
-        id: body.id,
-      },
+        id: body.id
+      }
     }
   );
 }
@@ -155,8 +155,8 @@ export async function queryThirdBinding(body = { service_id, oauth_user_id }) {
     method: 'post',
     data: {
       service_id: body.service_id,
-      oauth_user_id: body.oauth_user_id,
-    },
+      oauth_user_id: body.oauth_user_id
+    }
   });
 }
 
@@ -169,9 +169,9 @@ export async function queryThirdLoginBinding(
     method: 'post',
     data: {
       service_id: body.service_id,
-      code: body.code,
+      code: body.code
     },
-    handleError,
+    handleError
   });
 }
 
@@ -179,31 +179,31 @@ export async function queryThirdLoginBinding(
 export async function login(
   body = {
     nick_name,
-    password,
+    password
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/login`, {
     method: 'post',
     data: body,
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-      function(data) {
+      function (data) {
         let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
         }
         return ret;
-      },
-    ],
+      }
+    ]
   });
 }
 
 /* 退出登录 */
 export async function logout() {
   return request(`${apiconfig.baseUrl}/console/users/logout`, {
-    method: 'get',
+    method: 'get'
   });
 }
 
@@ -214,36 +214,36 @@ export async function register(
     email,
     password,
     password_repeat,
-    captcha_code,
+    captcha_code
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/register`, {
     method: 'post',
     data: body,
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-      function(data) {
+      function (data) {
         let ret = '';
         for (const it in data) {
           ret += `${encodeURIComponent(it)}=${encodeURIComponent(data[it])}&`;
         }
         return ret;
-      },
-    ],
+      }
+    ]
   });
 }
 
 /* 发送找回密码邮件 */
 export async function send_backpassword_email(
   body = {
-    email,
+    email
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/send_reset_email`, {
     method: 'post',
-    data: body,
+    data: body
   });
 }
 
@@ -251,12 +251,12 @@ export async function send_backpassword_email(
 export async function reset_password(
   body = {
     password,
-    password_repeat,
+    password_repeat
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/begin_password_reset`, {
     method: 'post',
-    data: body,
+    data: body
   });
 }
 
@@ -265,12 +265,12 @@ export async function changePass(
   body = {
     password,
     new_password,
-    new_password2,
+    new_password2
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/users/changepwd`, {
     method: 'post',
-    data: body,
+    data: body
   });
 }
 
@@ -292,8 +292,8 @@ export async function fetchEnterpriseNoTeamUser(body = {}) {
       params: {
         query: body.query,
         page: body.page,
-        page_size: body.page_size,
-      },
+        page_size: body.page_size
+      }
     }
   );
 }
@@ -303,7 +303,7 @@ export async function fetchEnterpriseNoTeamUser(body = {}) {
 */
 export async function joinedTeams() {
   return request(`${apiconfig.baseUrl}/console/users/teams/query`, {
-    method: 'get',
+    method: 'get'
   });
 }
 
@@ -315,15 +315,15 @@ export async function joinedTeams() {
 export async function gitlabRegister(
   body = {
     email,
-    password,
+    password
   }
 ) {
   return request(`${apiconfig.baseUrl}/console/gitlab/register`, {
     method: 'post',
     data: {
       email: body.email,
-      password: body.password,
-    },
+      password: body.password
+    }
   });
 }
 
@@ -333,7 +333,7 @@ export async function gitlabRegister(
 export async function createGitlabProject(
   body = {
     team_name,
-    project_name,
+    project_name
   }
 ) {
   return request(
@@ -341,8 +341,8 @@ export async function createGitlabProject(
     {
       method: 'post',
       data: {
-        project_name: body.project_name,
-      },
+        project_name: body.project_name
+      }
     }
   );
 }
