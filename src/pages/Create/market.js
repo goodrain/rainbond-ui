@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/jsx-indent */
@@ -42,7 +43,7 @@ const { TabPane } = Tabs;
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
   null,
@@ -52,13 +53,7 @@ const { TabPane } = Tabs;
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const {
-      handleType = '',
-      match,
-      scope = '',
-      enterprise,
-      moreState,
-    } = this.props;
+    const { handleType = '', match, scope = '', moreState } = this.props;
     const appName = decodeURIComponent(
       handleType === 'Service'
         ? ''
@@ -89,7 +84,7 @@ export default class Main extends PureComponent {
       moreState: moreState || null,
       is_deploy: true,
       marketTab: [],
-      currentKey: '',
+      currentKey: ''
     };
     this.mount = false;
   }
@@ -110,7 +105,7 @@ export default class Main extends PureComponent {
   onCancelCreate = () => {
     this.setState({ showCreate: null });
   };
-  getCloudRecommendApps = v => {
+  getCloudRecommendApps = (v) => {
     const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
@@ -120,14 +115,14 @@ export default class Main extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         query: v ? '' : this.state.cloudApp_name || '',
         pageSize: v ? 9 : this.state.cloudPageSize,
-        page: v ? 1 : this.state.cloudPage,
+        page: v ? 1 : this.state.cloudPage
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
               cloudList: data.list || [],
-              cloudTotal: data.total,
+              cloudTotal: data.total
             },
             () => {
               if (
@@ -138,11 +133,11 @@ export default class Main extends PureComponent {
               ) {
                 this.setState({
                   isSpincloudList: -1,
-                  networkText: data.msg_show,
+                  networkText: data.msg_show
                 });
               } else {
                 this.setState({
-                  isSpincloudList: false,
+                  isSpincloudList: false
                 });
               }
             }
@@ -150,10 +145,10 @@ export default class Main extends PureComponent {
         } else {
           this.setState({ isSpincloudList: false });
         }
-      },
+      }
     });
   };
-  getApps = v => {
+  getApps = (v) => {
     const { currentEnterprise } = this.props;
     this.props.dispatch({
       type: 'market/fetchAppModels',
@@ -163,46 +158,46 @@ export default class Main extends PureComponent {
         scope: v ? '' : this.state.scope,
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
-        is_complete: 1,
+        is_complete: 1
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
               list: data.list || [],
-              total: data.total,
+              total: data.total
             },
             () => {
               this.setState({
-                isSpinList: false,
+                isSpinList: false
               });
             }
           );
         } else {
           this.setState({ isSpinList: false });
         }
-      },
+      }
     });
   };
   getMarketsTab = () => {
-    const { dispatch, currentEnterprise } = this.props;
+    const { dispatch, currentEnterprise, scopeProMax } = this.props;
     const tabListMax = [
       {
         key: 'localApplication',
-        tab: '本地组件库',
-      },
+        tab: '本地组件库'
+      }
     ];
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
-        enterprise_id: currentEnterprise.enterprise_id,
+        enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const arr = res.list;
           const arryNew = [];
           if (arr && arr.length > 0) {
-            res.list.map(item => {
+            res.list.map((item) => {
               const { name, status, alias } = item;
               if (status === 1) {
                 arryNew.push(
@@ -213,27 +208,28 @@ export default class Main extends PureComponent {
             });
           }
           const scopeMaxs =
-            arryNew.length > 0 ? arryNew[0].key : 'localApplication';
+            scopeProMax ||
+            (arryNew.length > 0 ? arryNew[0].key : 'localApplication');
           this.setState({
-            marketTab: [...arryNew, ...tabListMax],
+            marketTab: [...arryNew, ...tabListMax]
           });
           this.handleTabMaxChange(scopeMaxs);
         } else {
           this.setState({
             marketTab: tabListMax,
-            scopeMax: 'localApplication',
+            scopeMax: 'localApplication'
           });
         }
-      },
+      }
     });
   };
-  handleSearch = v => {
+  handleSearch = (v) => {
     const { scopeMax } = this.state;
     if (scopeMax === 'localApplication') {
       this.setState(
         {
           app_name: v,
-          page: 1,
+          page: 1
         },
         () => {
           this.getApps();
@@ -243,7 +239,7 @@ export default class Main extends PureComponent {
       this.setState(
         {
           cloudApp_name: v,
-          cloudPage: 1,
+          cloudPage: 1
         },
         () => {
           this.getCloudRecommendApps();
@@ -252,10 +248,10 @@ export default class Main extends PureComponent {
     }
   };
 
-  hanldePageChange = page => {
+  hanldePageChange = (page) => {
     this.setState(
       {
-        page,
+        page
       },
       () => {
         this.getApps();
@@ -263,10 +259,10 @@ export default class Main extends PureComponent {
     );
   };
 
-  hanldeCloudPageChange = page => {
+  hanldeCloudPageChange = (page) => {
     this.setState(
       {
-        cloudPage: page,
+        cloudPage: page
       },
       () => {
         this.getCloudRecommendApps();
@@ -274,11 +270,11 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabChange = key => {
+  handleTabChange = (key) => {
     this.setState(
       {
         scope: key,
-        page: 1,
+        page: 1
       },
       () => {
         this.getApps();
@@ -286,15 +282,17 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabMaxChange = key => {
+  handleTabMaxChange = (key) => {
     this.setState(
       {
+        page: 1,
+        cloudPage: 1,
         currentKey: key,
         scopeMax: key,
         isSpinList: true,
         isSpincloudList: true,
         app_name: '',
-        cloudApp_name: '',
+        cloudApp_name: ''
       },
       () => {
         if (key === 'localApplication') {
@@ -306,7 +304,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  showCreate = app => {
+  showCreate = (app) => {
     const { handleType } = this.state;
     if (handleType) {
       this.setState({ installBounced: app });
@@ -314,7 +312,7 @@ export default class Main extends PureComponent {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = e => {
+  handleInstallBounced = (e) => {
     e.preventDefault();
     const { form, dispatch, groupId, refreshCurrent } = this.props;
     const {
@@ -322,7 +320,7 @@ export default class Main extends PureComponent {
       is_deploy,
       scopeMax,
       handleType,
-      currentKey,
+      currentKey
     } = this.state;
     const teamName = globalUtil.getCurrTeamName();
 
@@ -338,15 +336,15 @@ export default class Main extends PureComponent {
           group_key: installBounced.ID,
           app_version: Value.group_version,
           marketName: currentKey,
-          install_from_cloud: scopeMax !== 'localApplication',
+          install_from_cloud: scopeMax !== 'localApplication'
         },
         callback: () => {
           // 刷新左侧按钮
           dispatch({
             type: 'global/fetchGroups',
             payload: {
-              team_name: teamName,
-            },
+              team_name: teamName
+            }
           });
 
           // 关闭弹框
@@ -356,11 +354,12 @@ export default class Main extends PureComponent {
           }
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                groupId || 0
+              }`
             )
           );
-        },
+        }
       });
     });
   };
@@ -377,14 +376,14 @@ export default class Main extends PureComponent {
         is_deploy,
         group_key: app.group_key,
         app_version: vals.group_version,
-        marketName: currentKey,
+        marketName: currentKey
       },
       callback: () => {
         // 刷新左侧按钮
         dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: teamName,
+            team_name: teamName
           },
           callback: () => {
             dispatch(
@@ -394,9 +393,9 @@ export default class Main extends PureComponent {
                 }`
               )
             );
-          },
+          }
         });
-      },
+      }
     });
   };
 
@@ -414,14 +413,14 @@ export default class Main extends PureComponent {
         group_key: app.app_key_id,
         app_version: vals.group_version,
         install_from_cloud: scopeMax !== 'localApplication',
-        marketName: currentKey,
+        marketName: currentKey
       },
       callback: () => {
         // 刷新左侧按钮
         this.props.dispatch({
           type: 'global/fetchGroups',
           payload: {
-            team_name: globalUtil.getCurrTeamName(),
+            team_name: globalUtil.getCurrTeamName()
           },
           callback: () => {
             // 关闭弹框
@@ -434,9 +433,9 @@ export default class Main extends PureComponent {
                 }`
               )
             );
-          },
+          }
         });
-      },
+      }
     });
   };
 
@@ -447,7 +446,7 @@ export default class Main extends PureComponent {
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
   };
-  showMarketAppDetail = app => {
+  showMarketAppDetail = (app) => {
     // cloud app
     if (app && app.app_detail_url) {
       window.open(app.app_detail_url, '_blank');
@@ -455,17 +454,18 @@ export default class Main extends PureComponent {
     }
     this.setState({
       showApp: app,
-      showMarketAppDetail: true,
+      showMarketAppDetail: true
     });
   };
   hideMarketAppDetail = () => {
     this.setState({
       showApp: {},
-      showMarketAppDetail: false,
+      showMarketAppDetail: false
     });
   };
   loadMore = () => {
-    this.props.handleServiceComponent();
+    const { scopeMax } = this.state;
+    this.props.handleServiceComponent(scopeMax);
   };
 
   handleTabs = (tabList, cardList) => {
@@ -476,10 +476,10 @@ export default class Main extends PureComponent {
         onChange={this.handleTabChange}
         style={{
           background: '#fff',
-          padding: handleType ? '0 20px 20px' : '20px ',
+          padding: handleType ? '0 20px 20px' : '20px '
         }}
       >
-        {tabList.map(item => {
+        {tabList.map((item) => {
           const { key, tab } = item;
           return (
             <TabPane tab={tab} key={key}>
@@ -500,14 +500,14 @@ export default class Main extends PureComponent {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
 
-    const title = item => (
+    const title = (item) => (
       <div
         title={item.app_name || ''}
         style={{
           maxWidth: '200px',
           overflow: 'hidden',
           whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis',
+          textOverflow: 'ellipsis'
         }}
       >
         <a
@@ -567,7 +567,7 @@ export default class Main extends PureComponent {
           {isInstall && <span>安装</span>}
         </div>
         {versionBox}
-      </div>,
+      </div>
     ];
 
     const defaultActions = isInstall
@@ -578,7 +578,7 @@ export default class Main extends PureComponent {
             }}
           >
             安装
-          </span>,
+          </span>
         ]
       : [];
 
@@ -599,7 +599,7 @@ export default class Main extends PureComponent {
                 overflow: 'hidden',
                 display: 'flex',
                 justifyContent: 'center',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }
             }
             avatar={
@@ -632,7 +632,7 @@ export default class Main extends PureComponent {
                       display: 'block',
                       color: 'rgb(200, 200, 200)',
                       marginBottom: 2,
-                      fontSize: 12,
+                      fontSize: 12
                     }}
                   >
                     {versionBox}
@@ -656,17 +656,17 @@ export default class Main extends PureComponent {
   };
   renderSuccessOnChange = () => {
     this.setState({
-      is_deploy: !this.state.is_deploy,
+      is_deploy: !this.state.is_deploy
     });
   };
   renderFormComponent = () => {
     const formItemLayout = {
       labelCol: {
-        span: 5,
+        span: 5
       },
       wrapperCol: {
-        span: 19,
-      },
+        span: 19
+      }
     };
     const { form } = this.props;
     const { getFieldDecorator } = form;
@@ -685,9 +685,9 @@ export default class Main extends PureComponent {
             rules: [
               {
                 required: true,
-                message: '请选择版本',
-              },
-            ],
+                message: '请选择版本'
+              }
+            ]
           })(
             <Select style={{ width: '220px' }}>
               {versionList.map((item, index) => {
@@ -704,19 +704,18 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleCertification = marketName => {
+  handleCertification = (marketName) => {
     this.setState({
-      authorizations: marketName,
+      authorizations: marketName
     });
   };
 
   render() {
     const {
       loading,
-      enterprise,
       currentEnterprise,
       currentTeam,
-      currentRegionName,
+      currentRegionName
     } = this.props;
 
     const {
@@ -738,28 +737,34 @@ export default class Main extends PureComponent {
       marketTab,
       currentKey,
       authorizations,
+      showCreate,
+      showMarketAppDetail,
+      showApp,
+      is_deploy: isDeploy,
+      app_name: appName,
+      cloudApp_name: cloudAppName
     } = this.state;
 
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldePageChange(v);
-      },
+      }
     };
     const cloudPaginationProps = {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldeCloudPageChange(v);
-      },
+      }
     };
     let isInstall = true;
 
     if (marketTab && marketTab.length > 0) {
-      const arr = marketTab.filter(item => {
+      const arr = marketTab.filter((item) => {
         return item.name == currentKey;
       });
       if (arr && arr.length > 0) {
@@ -774,7 +779,7 @@ export default class Main extends PureComponent {
           lg: 3,
           md: 2,
           sm: 1,
-          xs: 1,
+          xs: 1
         }}
         locale={{
           emptyText: !isSpinList && list && list.length <= 0 && (
@@ -784,11 +789,11 @@ export default class Main extends PureComponent {
               <br />
               发布应用模型
             </p>
-          ),
+          )
         }}
         pagination={paginationProps}
         dataSource={list}
-        renderItem={item => (
+        renderItem={(item) => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, true)}
           </List.Item>
@@ -804,49 +809,43 @@ export default class Main extends PureComponent {
           lg: 3,
           md: 2,
           sm: 1,
-          xs: 1,
+          xs: 1
         }}
         pagination={cloudPaginationProps}
         dataSource={cloudList}
-        renderItem={item => (
+        renderItem={(item) => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, isInstall)}
           </List.Item>
         )}
       />
     );
-
+    const defaultValue =
+      scopeMax == 'localApplication' ? appName : cloudAppName;
     const mainSearch = (
       <div
         style={{
-          textAlign: 'center',
+          textAlign: 'center'
         }}
       >
         <span id="searchWrap" style={{ display: 'inline-block' }}>
           <Input.Search
+            // eslint-disable-next-line react/no-string-refs
             ref="searchs"
             placeholder="请输入应用名称"
             enterButton="搜索"
             size="large"
-            value={
-              this.state.scopeMax == 'localApplication'
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
-            onChange={event => {
+            value={defaultValue}
+            onChange={(event) => {
               this.setState({
                 app_name: event.target.value,
-                cloudApp_name: event.target.value,
+                cloudApp_name: event.target.value
               });
             }}
-            defaultValue={
-              this.state.scopeMax == 'localApplication'
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
+            defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
-              width: 500,
+              width: 500
             }}
           />
         </span>
@@ -856,18 +855,18 @@ export default class Main extends PureComponent {
     const tabAllList = [
       {
         key: '',
-        tab: '全部',
-      },
+        tab: '全部'
+      }
     ];
     const tabComponentList = [
       {
         key: 'enterprise',
-        tab: '公司分享',
+        tab: '公司分享'
       },
       {
         key: 'team',
-        tab: '团队分享',
-      },
+        tab: '团队分享'
+      }
     ];
     const tabList = tabAllList.concat(tabComponentList);
 
@@ -884,7 +883,7 @@ export default class Main extends PureComponent {
         style={{
           height: '300px',
           lineHeight: '300px',
-          textAlign: 'center',
+          textAlign: 'center'
         }}
       >
         <Spin size="large" />
@@ -904,7 +903,7 @@ export default class Main extends PureComponent {
           />
         )}
 
-        {this.state.showCreate && (
+        {showCreate && (
           <CreateAppFromMarketForm
             disabled={loading.effects['createApp/installApp']}
             onSubmit={
@@ -915,15 +914,15 @@ export default class Main extends PureComponent {
                 : this.handleCloudCreate
             }
             onCancel={this.onCancelCreate}
-            showCreate={this.state.showCreate}
+            showCreate={showCreate}
           />
         )}
 
-        {this.state.showMarketAppDetail && (
+        {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
+            app={showApp}
           />
         )}
 
@@ -942,7 +941,7 @@ export default class Main extends PureComponent {
                   onClick={() => {
                     this.setState({
                       installBounced: false,
-                      is_deploy: true,
+                      is_deploy: true
                     });
                   }}
                 >
@@ -959,7 +958,7 @@ export default class Main extends PureComponent {
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
-                  checked={this.state.is_deploy}
+                  checked={isDeploy}
                 >
                   并构建启动
                 </Radio>
@@ -1013,7 +1012,7 @@ export default class Main extends PureComponent {
                         className={PluginStyles.cardList}
                         style={{
                           paddingBottom: '20px',
-                          marginBottom: !moreState ? '40px' : '0px',
+                          marginBottom: !moreState ? '40px' : '0px'
                         }}
                       >
                         {isSpincloudList !== -1 && cloudCardList}
@@ -1040,7 +1039,7 @@ export default class Main extends PureComponent {
                     background: 'white',
                     width: '100%',
                     right: 0,
-                    bottom: '-10px',
+                    bottom: '-10px'
                   }}
                 >
                   <a onClick={this.loadMore}>查看更多...</a>
