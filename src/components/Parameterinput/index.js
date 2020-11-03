@@ -12,7 +12,7 @@ class Parameterinput extends Component {
   }
   componentDidMount() {
     const { editInfo } = this.props;
-    if (editInfo) {
+    if (editInfo && editInfo.length > 0 && editInfo[0].item_key) {
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState({
         values: editInfo
@@ -42,7 +42,7 @@ class Parameterinput extends Component {
     const { values } = this.state;
     this.setState({ values: values.concat({ item_key: '', item_value: '' }) });
   };
-  remove = index => {
+  remove = (index) => {
     const { values } = this.state;
     values.splice(index, 1);
     this.setValues(values);

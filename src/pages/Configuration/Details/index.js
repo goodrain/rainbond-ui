@@ -16,6 +16,8 @@ import {
 import ConfigurationHeader from '../Header';
 import Parameterinput from '@/components/Parameterinput';
 import { createEnterprise, createTeam } from '@/utils/breadcrumb';
+import { batchOperation } from '@/services/app';
+import globalUtil from '@/utils/global';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -43,24 +45,26 @@ export default class ConfigurationDetails extends PureComponent {
     this.loadComponents();
     this.loadConfigurationDetails();
   }
-  onOk = e => {
+  onOk = (e) => {
     e.preventDefault();
     const { form } = this.props;
     const { id } = this.handleParameter();
 
     form.validateFields({ force: true }, (err, vals) => {
       if (!err) {
-        // if(vals.enable ===undefined)
         if (vals.enable === undefined) {
           vals.enable = false;
         }
+        if (
+          vals.config_items &&
+          vals.config_items.length === 1 &&
+          vals.config_items[0].item_key === '' &&
+          vals.config_items[0].item_value === ''
+        ) {
+          vals.config_items = [];
+        }
         const parameter = Object.assign({}, vals, { deploy_type: 'env' });
         this.handleHelpfulVisable(parameter);
-        // if (id !== 'add') {
-        //   this.handleHelpfulVisable(parameter);
-        // } else {
-        //   this.handleConfiguration(parameter);
-        // }
       }
     });
   };
@@ -73,10 +77,12 @@ export default class ConfigurationDetails extends PureComponent {
       )
     );
   };
-  handleConfiguration = vals => {
+  handleConfiguration = (vals) => {
     const { dispatch } = this.props;
-    const { teamName, appID, id } = this.handleParameter();
+    const { teamName, regionName, appID, id } = this.handleParameter();
+
     const parameter = {
+      region_name: regionName,
       team_name: teamName,
       group_id: appID,
       ...vals
@@ -88,11 +94,12 @@ export default class ConfigurationDetails extends PureComponent {
         payload: {
           ...parameter
         },
-        callback: res => {
+        callback: (res) => {
           if (res) {
+            this.handleClose();
             notification.success({ message: '添加成功' });
             if (serviceIds && serviceIds.length > 0) {
-              this.showRemind();
+              this.showRemind(serviceIds);
             } else {
               this.onCancel();
             }
@@ -106,12 +113,12 @@ export default class ConfigurationDetails extends PureComponent {
           name: id,
           ...parameter
         },
-        callback: res => {
+        callback: (res) => {
           if (res) {
             notification.success({ message: '保存成功' });
             this.handleClose();
             if (serviceIds && serviceIds.length > 0) {
-              this.showRemind();
+              this.showRemind(serviceIds);
             } else {
               this.onCancel();
             }
@@ -121,33 +128,32 @@ export default class ConfigurationDetails extends PureComponent {
     }
   };
 
-  showRemind = () => {
-    const _th = this;
+  showRemind = (serviceIds) => {
+    const th = this;
     confirm({
       title: '需更新组件立即生效',
       content: '是否立即更新组件',
       okText: '更新',
       cancelText: '取消',
       onOk() {
-        _th.handlePromptModalOpen();
+        th.handleBatchOperation(serviceIds);
+        return new Promise((resolve, reject) => {
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 2000);
+        }).catch(() => console.log('Oops errors!'));
       },
       onCancel() {
-        _th.onCancel();
+        th.onCancel();
       }
     });
   };
-
-  handlePromptModalOpen = () => {
-    const { teamName, appID } = this.handleParameter();
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/buildShape',
-      payload: {
-        tenantName: teamName,
-        group_id: appID,
-        action: 'upgrade'
-      },
-      callback: () => {
+  handleBatchOperation = (serviceIds) => {
+    const { teamName } = this.handleParameter();
+    batchOperation({
+      action: 'upgrade',
+      team_name: teamName,
+      serviceIds: serviceIds && serviceIds.join(',')
+    }).then((data) => {
+      if (data) {
         notification.success({
           message: '更新成功',
           duration: '3'
@@ -169,7 +175,7 @@ export default class ConfigurationDetails extends PureComponent {
         page: 1,
         page_size: 999
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           this.setState({
             apps: res.list || []
@@ -195,7 +201,7 @@ export default class ConfigurationDetails extends PureComponent {
           group_id: appID,
           name: id
         },
-        callback: res => {
+        callback: (res) => {
           if (res && res._code == 200) {
             this.setState({
               info: res.bean,
@@ -210,13 +216,15 @@ export default class ConfigurationDetails extends PureComponent {
   checkConfiguration = (rule, value, callback) => {
     if (value && value.length > 0) {
       const arr = value.filter(
-        item => item.item_key === '' || item.item_value === ''
+        (item) => item.item_key === '' || item.item_value === ''
       );
-      if (arr && arr.length > 0) {
+      if (value[0].item_key === '' && value[0].item_value === '') {
+        callback();
+      } else if (arr && arr.length > 0) {
         callback('配置项不能为空');
       } else {
         let judge = false;
-        value.map(item => {
+        value.map((item) => {
           const { item_key } = item;
           if (!/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(item_key)) {
             judge = true;
@@ -232,7 +240,7 @@ export default class ConfigurationDetails extends PureComponent {
     }
     callback();
   };
-  handleHelpfulVisable = parameter => {
+  handleHelpfulVisable = (parameter) => {
     this.setState({ helpfulVisable: parameter });
   };
   handleClose = () => {
@@ -262,7 +270,7 @@ export default class ConfigurationDetails extends PureComponent {
     const { getFieldDecorator } = form;
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
-      info.services.map(item => {
+      info.services.map((item) => {
         serviceIds.push(item.service_id);
       });
     }
@@ -280,8 +288,9 @@ export default class ConfigurationDetails extends PureComponent {
       <ConfigurationHeader breadcrumbList={breadcrumbList}>
         {helpfulVisable && (
           <Modal
-            title="友情提示"
             visible
+            title="友情提示"
+            confirmLoading={AddConfigurationLoading || EditConfigurationLoading}
             onOk={() => {
               this.handleConfiguration(helpfulVisable);
             }}
@@ -351,9 +360,9 @@ export default class ConfigurationDetails extends PureComponent {
             </Row>
             <FormItem label="配置项">
               {getFieldDecorator('config_items', {
-                initialValue: (info && info.config_items) || '',
+                initialValue: (info && info.config_items) || [],
                 rules: [
-                  { required: true, message: '请填写配置项' },
+                  { required: false, message: '请填写配置项' },
                   {
                     validator: this.checkConfiguration
                   }
@@ -369,7 +378,7 @@ export default class ConfigurationDetails extends PureComponent {
               })(
                 <Checkbox.Group className={styles.setCheckbox}>
                   <Row span={24}>
-                    {apps.map(item => {
+                    {apps.map((item) => {
                       const {
                         service_cname: name,
                         service_id: serviceId

@@ -136,7 +136,7 @@ export default class ConfigurationTable extends PureComponent {
           <Form layout="inline" style={{ display: 'inline-block' }}>
             <FormItem>
               <Input
-                placeholder="搜索应用"
+                placeholder="搜索配置组名称"
                 onChange={this.handelChange}
                 onPressEnter={this.handleEnter}
                 style={{ width: 250 }}
