@@ -178,6 +178,27 @@ export function updateRolling(
   );
 }
 /*
+	批量部署应用
+*/
+export function batchDeploy(
+  body = {
+    team_name,
+    serviceIds
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
+    {
+      method: 'post',
+      data: {
+        action: 'deploy',
+        service_ids: body.serviceIds
+      }
+    }
+  );
+}
+
+/*
 	应用重启
 */
 export function restart(
@@ -2161,6 +2182,53 @@ export async function fetchLogContent(
     }
   );
 }
+
+export async function getMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings`,
+    {
+      method: 'get',
+      params: {
+        onlyname: body.onlyname
+      }
+    }
+  );
+}
+
+export async function addMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings`,
+    {
+      method: 'post',
+      data: {
+        name: body.name,
+        content: body.content
+      }
+    }
+  );
+}
+
+export async function editMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings/${body.name}`,
+    {
+      method: 'put',
+      data: {
+        content: body.content
+      }
+    }
+  );
+}
+
+export async function deleteMavensettings(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/mavensettings/${body.name}`,
+    {
+      method: 'delete'
+    }
+  );
+}
+
 /*
 	设置用户权限
 */
