@@ -101,13 +101,13 @@ class EditAlias extends PureComponent {
                   required: true,
                   message: '请填写内部域名'
                 },
-                // {
-                //   max: 63,
-                //   message: '内部域名最多63个位'
-                // },
                 {
-                  pattern: /^[a-z0-9]([-a_z0-9]*[-a-z0-9]*[a-z0-9])?$/,
-                  message: '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
+                  max: 63,
+                  message: '内部域名最多63个位'
+                },
+                {
+                  pattern: /^[a-z0-9]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
+                  message: '必须由小写的字母、数字和- _组成，并且必须以字母数字开始和结束'
                 }
               ]
             })(<Input placeholder="请填写内部域名" />)}

@@ -711,21 +711,21 @@ class Main extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用内存</div>
-                <div>{resources.memory}M</div>
+                <div>{resources.memory || 0}M</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>使用CPU</div>
-                <div>{resources.cpu}M</div>
+                <div>{resources.cpu || 0}M</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用磁盘</div>
-                <div>{resources.disk}MB</div>
+                <div>{resources.disk || 0}MB</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>组件数量</div>
-                <div>{currApp.service_num}</div>
+                <div>{currApp.service_num || 0}</div>
               </div>
             </div>
           </div>
