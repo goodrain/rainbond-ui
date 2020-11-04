@@ -1,43 +1,43 @@
-@import "~antd/lib/style/themes/default.less";
-@import "../../utils/utils.less";
+@import '~antd/lib/style/themes/default.less';
+@import '../../utils/utils.less';
 
 .pageHeaderContent {
   display: flex;
 
   .avatar {
-    flex         : 0 1 72px;
+    flex: 0 1 72px;
     margin-bottom: 8px;
 
-    &>span {
+    & > span {
       border-radius: 72px;
-      display      : block;
-      width        : 72px;
-      height       : 72px;
+      display: block;
+      width: 72px;
+      height: 72px;
     }
   }
 
   .content {
-    position   : relative;
-    top        : 4px;
+    position: relative;
+    top: 4px;
     margin-left: 14px;
-    flex       : 1 1 auto;
-    color      : @text-color-secondary;
+    flex: 1 1 auto;
+    color: @text-color-secondary;
     line-height: 22px;
 
     .contentTitle {
-      line-height   : 28px;
-      font-weight   : 500;
-      color         : @heading-color;
-      margin-bottom : 12px;
-      font-family   : 'PingFangSC-Medium';
-      font-size     : 24px;
+      line-height: 28px;
+      font-weight: 500;
+      color: @heading-color;
+      margin-bottom: 12px;
+      font-family: 'PingFangSC-Medium';
+      font-size: 24px;
       letter-spacing: 0;
     }
   }
 
   .content_Box a {
     font-size: 14px;
-    color    : rgba(0, 0, 0, .45);
+    color: rgba(0, 0, 0, 0.45);
   }
 
   .content_Box a:hover {
@@ -46,14 +46,14 @@
 }
 
 .ServiceTitle {
-  height       : 22px;
-  line-height  : 22px;
-  border-left  : 4px solid rgba(187, 187, 187, 1);
-  padding-left : 10px;
-  color        : rgba(16, 16, 16, 1);
-  font-size    : 14px;
-  text-align   : left;
-  font-family  : SourceHanSansSC-regular;
+  height: 22px;
+  line-height: 22px;
+  border-left: 4px solid rgba(187, 187, 187, 1);
+  padding-left: 10px;
+  color: rgba(16, 16, 16, 1);
+  font-size: 14px;
+  text-align: left;
+  font-family: SourceHanSansSC-regular;
   margin-bottom: 10px;
 }
 
@@ -62,35 +62,35 @@
 }
 
 .ServiceBox {
-  margin-bottom: 10px
+  margin-bottom: 10px;
 }
 
 .connect {
-  width      : 210px;
-  text-align : center;
-  border     : 1px solid #d9d9d9;
-  position   : relative;
-  left       : 90px;
-  top        : 6px;
+  width: 210px;
+  text-align: center;
+  border: 1px solid #d9d9d9;
+  position: relative;
+  left: 90px;
+  top: 6px;
   line-height: 26px;
 
   .icon {
-    position : absolute;
-    top      : -17px;
+    position: absolute;
+    top: -17px;
     font-size: 25px;
-    color    : #d9d9d9;
-    left     : 40%;
+    color: #d9d9d9;
+    left: 40%;
   }
 }
 
 .ServiceDiv {
-  color      : rgba(16, 16, 16, 1);
-  font-size  : 15px;
+  color: rgba(16, 16, 16, 1);
+  font-size: 15px;
   font-family: SourceHanSansSC-regular;
-  margin     : 5px 0;
-  text-align : center;
-  cursor     : pointer;
-
+  margin: 5px 0;
+  text-align: center;
+  cursor: pointer;
+  min-height: 110px;
   p {
     margin: 10px 0;
   }
@@ -101,10 +101,10 @@
 }
 
 .prompt {
-  display   : flex;
-  flex-wrap : wrap;
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 2px;
-  font-size : 12px;
+  font-size: 12px;
 
   a {
     margin: 0 2px;
@@ -113,41 +113,41 @@
 
 .extraContent {
   .clearfix();
-  float      : right;
+  float: right;
   white-space: nowrap;
 
   .statItem {
-    padding : 0 32px;
+    padding: 0 32px;
     position: relative;
-    display : inline-block;
+    display: inline-block;
 
-    >p:first-child {
-      color        : @text-color-secondary;
-      font-size    : @font-size-base;
-      line-height  : 22px;
+    > p:first-child {
+      color: @text-color-secondary;
+      font-size: @font-size-base;
+      line-height: 22px;
       margin-bottom: 4px;
     }
 
-    >p {
-      color      : @heading-color;
-      font-size  : 30px;
+    > p {
+      color: @heading-color;
+      font-size: 30px;
       line-height: 38px;
-      margin     : 0;
+      margin: 0;
 
-      >span {
-        color    : @text-color-secondary;
+      > span {
+        color: @text-color-secondary;
         font-size: 20px;
       }
     }
 
     &:after {
       background-color: @border-color-split;
-      position        : absolute;
-      top             : 8px;
-      right           : 0;
-      width           : 1px;
-      height          : 40px;
-      content         : '';
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 1px;
+      height: 40px;
+      content: '';
     }
 
     &:last-child {
@@ -162,7 +162,8 @@
   .ant-btn-group {
     margin-right: 10px;
 
-    .right-btn {}
+    .right-btn {
+    }
   }
 }
 
@@ -194,11 +195,11 @@
   }
 
   .extraContent {
-    float       : none;
+    float: none;
     margin-right: 0;
 
     .statItem {
-      padding   : 0 16px;
+      padding: 0 16px;
       text-align: left;
 
       &:after {
