@@ -149,7 +149,6 @@ export async function getAppResourcesStatistics(body = {}) {
   );
 }
 
-
 /*
 	获取某个应用组的应用列表
 */
@@ -218,21 +217,15 @@ export async function deleteCompose(
 /*
   修改组
 */
-export async function editGroup(
-  body = {
-    team_name,
-    group_id,
-    group_name,
-    group_note
-  }
-) {
+export async function editGroup(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
     {
       method: 'put',
       data: {
-        group_name: body.group_name,
-        group_note: body.group_note
+        app_name: body.group_name,
+        group_note: body.group_note,
+        username: body.username
       }
     }
   );

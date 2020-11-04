@@ -9,7 +9,8 @@ import {
   notification,
   Row,
   Spin,
-  Badge
+  Badge,
+  Select
 } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -37,10 +38,25 @@ import EditorTopology from './EditorTopology';
 import styles from './Index.less';
 
 const FormItem = Form.Item;
+const { Option } = Select;
 
 @Form.create()
+@connect()
 class EditGroupName extends PureComponent {
-  onOk = e => {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fetching: false,
+      page: 1,
+      pageSize: 99,
+      members: []
+    };
+  }
+  componentWillMount() {
+    this.fetchTeamMember();
+  }
+
+  onOk = (e) => {
     e.preventDefault();
     const { form, onOk } = this.props;
 
@@ -55,15 +71,44 @@ class EditGroupName extends PureComponent {
       }
     );
   };
+  fetchTeamMember = (value) => {
+    const { dispatch } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    this.setState({
+      fetching: true
+    });
+    dispatch({
+      type: 'teamControl/fetchMember',
+      payload: {
+        query: value,
+        team_name: teamName,
+        region_name: regionName,
+        page_size: this.state.pageSize,
+        page: this.state.page
+      },
+      callback: (data) => {
+        if (data) {
+          this.setState({
+            members: data.list || [],
+            fetching: false
+          });
+        }
+      }
+    });
+  };
+
   render() {
     const {
       title,
       onCancel,
       form,
+      principal,
       loading = false,
       group_name: groupName,
       mode: groupNote
     } = this.props;
+    const { members, fetching } = this.state;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -104,6 +149,32 @@ class EditGroupName extends PureComponent {
               ]
             })(<Input placeholder="请填写应用名称" />)}
           </FormItem>
+          <FormItem {...formItemLayout} label="选择负责人">
+            {getFieldDecorator('username', {
+              initialValue: principal || '',
+              rules: [
+                {
+                  required: true,
+                  message: '请选择负责人'
+                }
+              ]
+            })(
+              <Select
+                showSearch
+                labelInValue
+                placeholder="输入用户名称进行搜索"
+                notFoundContent={fetching ? <Spin size="small" /> : null}
+                filterOption={false}
+                onSearch={this.fetchTeamMember}
+                style={{ width: '100%' }}
+              >
+                {members.map((d) => (
+                  <Option key={d.user_name}>{d.user_name}</Option>
+                ))}
+              </Select>
+            )}
+          </FormItem>
+
           <FormItem {...formItemLayout} label="应用备注">
             {getFieldDecorator('mode', {
               initialValue: groupNote || ''
@@ -135,7 +206,6 @@ class Main extends PureComponent {
       type: 'shape',
       toDelete: false,
       toEdit: false,
-      toAdd: false,
       service_alias: [],
       linkList: [],
       jsonDataLength: 0,
@@ -193,7 +263,7 @@ class Main extends PureComponent {
         team_name: teamName,
         groupId: this.getGroupId()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           const data = res.bean;
           if (JSON.stringify(data) === '{}') {
@@ -202,7 +272,7 @@ class Main extends PureComponent {
           const service_alias = [];
           const { json_data } = data;
           this.setState({ jsonDataLength: Object.keys(json_data).length });
-          Object.keys(json_data).map(key => {
+          Object.keys(json_data).map((key) => {
             if (
               json_data[key].cur_status == 'running' &&
               json_data[key].is_internet == true
@@ -226,7 +296,7 @@ class Main extends PureComponent {
         service_alias: serviceAlias,
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState(
             {
@@ -246,7 +316,7 @@ class Main extends PureComponent {
           );
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.handleError(err);
         this.handleTimers(
           'timer',
@@ -258,7 +328,7 @@ class Main extends PureComponent {
       }
     });
   }
-  handleError = err => {
+  handleError = (err) => {
     const { componentTimer } = this.state;
     if (!componentTimer) {
       return null;
@@ -291,7 +361,7 @@ class Main extends PureComponent {
         region_name: regionName,
         group_id: appID
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             currApp: res.bean,
@@ -299,7 +369,7 @@ class Main extends PureComponent {
           });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
@@ -324,7 +394,7 @@ class Main extends PureComponent {
         team_name: teamName,
         group_id: appID
       },
-      callback: res => {
+      callback: (res) => {
         this.setState({
           resources: res.list
         });
@@ -356,11 +426,11 @@ class Main extends PureComponent {
     form.resetFields();
     this.loadApps();
   };
-  handleSearch = e => {
+  handleSearch = (e) => {
     e.preventDefault();
     this.loadApps();
   };
-  changeType = type => {
+  changeType = (type) => {
     this.setState({ type });
   };
   toDelete = () => {
@@ -392,7 +462,7 @@ class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId()
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '删除成功' });
           this.closeComponentTimer();
@@ -407,13 +477,13 @@ class Main extends PureComponent {
     });
   };
 
-  newAddress = grid => {
+  newAddress = (grid) => {
     this.props.dispatch({
       type: 'global/fetchGroups',
       payload: {
         team_name: globalUtil.getCurrTeamName()
       },
-      callback: list => {
+      callback: (list) => {
         if (list && list.length) {
           if (grid == list[0].group_id) {
             this.newAddress(grid);
@@ -443,7 +513,7 @@ class Main extends PureComponent {
   cancelEdit = () => {
     this.setState({ toEdit: false });
   };
-  handleEdit = vals => {
+  handleEdit = (vals) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'groupControl/editGroup',
@@ -451,7 +521,8 @@ class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
         group_name: vals.group_name,
-        mode: vals.mode
+        group_note: vals.mode,
+        username: vals.username&&vals.username.key
       },
       callback: () => {
         this.handleUpDataHeader();
@@ -473,37 +544,9 @@ class Main extends PureComponent {
       payload: { isUpData: true }
     });
   };
-  toAdd = () => {
-    this.setState({ toAdd: true });
-  };
-  cancelAdd = () => {
-    this.setState({ toAdd: false });
-  };
-
-  handleAdd = vals => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'groupControl/addGroup',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_name: vals.group_name,
-        mode: vals.mode
-      },
-      callback: () => {
-        notification.success({ message: '添加成功' });
-        this.cancelAdd();
-        dispatch({
-          type: 'global/fetchGroups',
-          payload: {
-            team_name: globalUtil.getCurrTeamName()
-          }
-        });
-      }
-    });
-  };
 
   /** 构建拓扑图 */
-  handleTopology = code => {
+  handleTopology = (code) => {
     this.setState({
       promptModal: true,
       code
@@ -532,7 +575,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
         action: code
       },
-      callback: data => {
+      callback: (data) => {
         notification.success({
           message: data.msg_show || '构建成功',
           duration: '3'
@@ -549,7 +592,7 @@ class Main extends PureComponent {
       code: ''
     });
   };
-  handleSizeChange = e => {
+  handleSizeChange = (e) => {
     this.setState({ size: e.target.value });
   };
 
@@ -561,6 +604,14 @@ class Main extends PureComponent {
 
   handleOKSwitch = () => {};
 
+  handleJump = (target) => {
+    const { dispatch, appID } = this.props;
+    dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/${target}`
+      )
+    );
+  };
   render() {
     const {
       groupDetail,
@@ -597,7 +648,6 @@ class Main extends PureComponent {
       jsonDataLength,
       linkList,
       code,
-      toAdd,
       promptModal,
       toEdit,
       toDelete,
@@ -614,6 +664,13 @@ class Main extends PureComponent {
       stop: '停用',
       deploy: '构建'
     };
+
+    const appState = {
+      RUNNING:'运行中',
+      CLOSED:'已关闭',
+      ABNORMAL:'异常',
+      PARTIAL_ABNORMAL:'部分异常',
+    }
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
 
@@ -680,12 +737,6 @@ class Main extends PureComponent {
               >
                 启动
               </a>
-            )}
-            {isCreate && (
-              <span>
-                <Divider type="vertical" />
-                <a onClick={this.toAdd}>新增</a>
-              </span>
             )}
             {isDelete && (
               <span>
@@ -761,42 +812,74 @@ class Main extends PureComponent {
             </div>
             <div>
               <span>负责人</span>
-              <span>{currApp.principal}</span>
+              <span>
+                {currApp.principal}{' '}
+                {isEdit && (
+                  <Icon
+                    style={{
+                      cursor: 'pointer',
+                      marginLeft: '5px'
+                    }}
+                    onClick={this.toEdit}
+                    type="edit"
+                  />
+                )}
+              </span>
             </div>
           </div>
           <div className={styles.conrBot}>
             <div className={styles.conrBox}>
               <div>备份</div>
-              <div>
-                <a>2</a>
+              <div
+                onClick={() => {
+                  this.handleJump('backup');
+                }}
+              >
+                <a>{currApp.backup_num || 0}</a>
               </div>
             </div>
 
             <div className={styles.conrBox}>
               <div>模型发布</div>
-              <div>
-                <a>2</a>
+              <div
+                onClick={() => {
+                  this.handleJump('publish');
+                }}
+              >
+                <a>{currApp.share_num || 0}</a>
               </div>
             </div>
 
             <div className={styles.conrBox}>
               <div>网关策略</div>
-              <div>
-                <a>2</a>
+              <div
+                onClick={() => {
+                  this.handleJump('gateway');
+                }}
+              >
+                <a>{currApp.service_num || 0}</a>
               </div>
             </div>
 
             <div className={styles.conrBox}>
               <div>代升级</div>
-              <div>
-                <a>2</a>
+              <div
+                onClick={() => {
+                  this.handleJump('upgrade');
+                }}
+              >
+                <a>{currApp.upgradable_num || 0}</a>
               </div>
             </div>
 
             <div className={styles.conrBox}>
               <div>配置组</div>
-              <div>
-                <a>2</a>
+              <div
+                onClick={() => {
+                  this.handleJump('configuration');
+                }}
+              >
+                <a>{currApp.config_group_num || 0}</a>
               </div>
             </div>
           </div>
@@ -942,7 +1025,7 @@ class Main extends PureComponent {
         {type === 'spin' && <Spin />}
         {type === 'shapes' && (
           <EditorTopology
-            changeType={types => {
+            changeType={(types) => {
               this.changeType(types);
             }}
             group_id={this.getGroupId()}
@@ -963,17 +1046,10 @@ class Main extends PureComponent {
             group_name={groupDetail.group_name}
             mode={groupDetail.mode}
             loading={editGroupLoading}
+            principal={currApp.principal}
             title="修改应用信息"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
-          />
-        )}
-        {toAdd && (
-          <EditGroupName
-            title="添加新应用"
-            loading={addGroupLoading}
-            onCancel={this.cancelAdd}
-            onOk={this.handleAdd}
           />
         )}
         {promptModal && (
@@ -1025,7 +1101,7 @@ export default class Index extends PureComponent {
     const { params } = this.props.match;
     return params.appID;
   }
-  handlePermissions = type => {
+  handlePermissions = (type) => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
