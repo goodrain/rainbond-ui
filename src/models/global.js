@@ -42,6 +42,11 @@ import {
   getRegist,
   getService,
   getTeamAppList,
+  getConfigurationList,
+  getConfigurationDetails,
+  addConfiguration,
+  editConfiguration,
+  deleteConfiguration,
   getTeamOverview,
   getUpdatedInfo,
   getUpdatedVersion,
@@ -258,6 +263,36 @@ export default {
     },
     *getTeamAppList({ payload, callback }, { call }) {
       const data = yield call(getTeamAppList, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *fetchConfigurationList({ payload, callback }, { call }) {
+      const data = yield call(getConfigurationList, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *fetchConfigurationDetails({ payload, callback }, { call }) {
+      const data = yield call(getConfigurationDetails, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *AddConfiguration({ payload, callback }, { call }) {
+      const data = yield call(addConfiguration, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *EditConfiguration({ payload, callback }, { call }) {
+      const data = yield call(editConfiguration, payload);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *DeleteConfiguration({ payload, callback }, { call }) {
+      const data = yield call(deleteConfiguration, payload);
       if (data && callback) {
         callback(data);
       }

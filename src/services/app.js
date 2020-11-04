@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
-import apiconfig from "../../config/api.config";
-import request from "../utils/request";
+import apiconfig from '../../config/api.config';
+import request from '../utils/request';
 
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
@@ -214,20 +214,21 @@ export function restart(
 }
 
 /*
-	批量重启
+  批量操作
+  stop: 停止组件
+  start: 启动组件
+  restart: 重启组件
+  move: 移动组件
+  upgrade: 更新组件
+  deploy: 构建组件
 */
-export function batchReStart(
-  body = {
-    team_name,
-    serviceIds
-  }
-) {
+export function batchOperation(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
       method: 'post',
       data: {
-        action: 'restart',
+        action: body.action,
         service_ids: body.serviceIds
       }
     }
@@ -250,26 +251,6 @@ export function start(
     }
   );
 }
-/*
-	批量应用启动
-*/
-export function batchStart(
-  body = {
-    team_name,
-    serviceIds
-  }
-) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
-    {
-      method: 'post',
-      data: {
-        action: 'start',
-        service_ids: body.serviceIds
-      }
-    }
-  );
-}
 
 /*
 	应用关闭
@@ -284,27 +265,6 @@ export function stop(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`,
     {
       method: 'post'
-    }
-  );
-}
-
-/*
-	批量应用关闭
-*/
-export function batchStop(
-  body = {
-    team_name,
-    serviceIds
-  }
-) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
-    {
-      method: 'post',
-      data: {
-        action: 'stop',
-        service_ids: body.serviceIds
-      }
     }
   );
 }
@@ -592,7 +552,7 @@ export function getMnt(
       },
       paramsSerializer(params) {
         const yourNewParams = params.volume_types
-          .map(_ => `volume_types=${_}`)
+          .map((_) => `volume_types=${_}`)
           .join('&');
         const str = `query=${params.query}&page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`;
         return str;
@@ -1579,7 +1539,7 @@ export function getPerformanceAnalysis(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.teamName}/apps/${body.app_alias}/monitor/query_range`,
     {
-      method: "get",
+      method: 'get',
       showMessage: false,
       params: {
         query: body.query,
@@ -2346,9 +2306,9 @@ export async function getVariableList(body = {}, handleError) {
       method: 'get',
       params: {
         attr_name: body.attr_name ? body.attr_name : '',
-        attr_value: body.attr_value ? body.attr_value : '',
+        attr_value: body.attr_value ? body.attr_value : ''
       },
-      handleError,
+      handleError
     }
   );
 }

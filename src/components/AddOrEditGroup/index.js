@@ -8,24 +8,31 @@ const FormItem = Form.Item;
 export default class EditGroupName extends PureComponent {
   onOk = e => {
     e.preventDefault();
-    this.props.form.validateFields({ force: true }, (err, vals) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(vals);
+    const { form, onOk } = this.props;
+    form.validateFields({ force: true }, (err, vals) => {
+      if (!err && onOk) {
+        onOk(vals);
       }
     });
   };
   render() {
-    const { title, onCancel, onOk, group_name, group_note } = this.props;
-    const { getFieldDecorator, getFieldValue } = this.props.form;
+    const {
+      title,
+      onCancel,
+      form,
+      group_name: groupName,
+      group_note: groupNote
+    } = this.props;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 },
-      },
+        sm: { span: 16 }
+      }
     };
     return (
       <Modal
@@ -38,13 +45,13 @@ export default class EditGroupName extends PureComponent {
         <Form onSubmit={this.onOk}>
           <FormItem {...formItemLayout} label="应用名称">
             {getFieldDecorator('group_name', {
-              initialValue: group_name || '',
-              rules: [{ required: true, message: '请填写应用名称' }],
+              initialValue: groupName || '',
+              rules: [{ required: true, message: '请填写应用名称' }]
             })(<Input placeholder="请填写应用名称" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="应用备注">
             {getFieldDecorator('group_note', {
-              initialValue: group_note || '',
+              initialValue: groupNote || ''
             })(<Input.TextArea placeholder="请填写应用备注信息" />)}
           </FormItem>
         </Form>

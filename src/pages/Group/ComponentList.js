@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { Fragment, Component } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -8,24 +9,23 @@ import styles from './ComponentList.less';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import {
-  batchReStart,
-  batchStart,
-  batchStop,
+  batchOperation,
   batchMove,
   restart,
   start,
-  stop,
+  stop
 } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+
 @connect(
   ({ global }) => ({
-    groups: global.groups,
+    groups: global.groups
   }),
   null,
   null,
   {
-    pure: false,
+    pure: false
   }
 )
 export default class ComponentList extends Component {
@@ -40,6 +40,7 @@ export default class ComponentList extends Component {
       moveGroupShow: false,
       batchDeleteApps: [],
       batchDeleteShow: false,
+      operationState: false
     };
   }
   componentDidMount() {
@@ -54,22 +55,22 @@ export default class ComponentList extends Component {
   componentWillUnmount() {
     clearInterval(this.timer);
     this.props.dispatch({
-      type: 'groupControl/clearApps',
+      type: 'groupControl/clearApps'
     });
   }
-  onSelectChange = selectedRowKeys => {
+  onSelectChange = (selectedRowKeys) => {
     this.setState({
-      selectedRowKeys,
+      selectedRowKeys
     });
   };
   getSelectedKeys() {
     const selected = this.getSelected();
-    return selected.map(item => item.service_id);
+    return selected.map((item) => item.service_id);
   }
 
   getSelected() {
     const key = this.state.selectedRowKeys;
-    const res = key.map(item => this.state.apps[item]);
+    const res = key.map((item) => this.state.apps[item]);
     return res;
   }
   updateApp = () => {
@@ -91,16 +92,16 @@ export default class ComponentList extends Component {
         region_name: globalUtil.getCurrRegionName(),
         group_id,
         page: current,
-        page_size,
+        page_size
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data._code == 200) {
           this.setState({
             apps: data.list || [],
-            total: data.total || 0,
+            total: data.total || 0
           });
         }
-      },
+      }
     });
   };
 
@@ -114,14 +115,14 @@ export default class ComponentList extends Component {
         region_name: globalUtil.getCurrRegionName(),
         group_id,
         page: current,
-        page_size,
+        page_size
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data._code == 200) {
           this.setState(
             {
               apps: data.list || [],
-              total: data.total || 0,
+              total: data.total || 0
             },
             () => {
               this.handleBatchDeletes();
@@ -129,86 +130,73 @@ export default class ComponentList extends Component {
             }
           );
         }
-      },
+      }
     });
   };
 
-  handleReStart = data => {
+  handleReStart = (data) => {
     restart({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias,
-    }).then(data => {
+      app_alias: data.service_alias
+    }).then((data) => {
       if (data) {
         notification.success({
-          message: '操作成功，重启中',
+          message: '操作成功，重启中'
         });
       }
     });
   };
-  handleStart = data => {
+  handleStart = (data) => {
     start({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias,
-    }).then(data => {
+      app_alias: data.service_alias
+    }).then((data) => {
       if (data) {
         notification.success({
-          message: '操作成功，启动中',
+          message: '操作成功，启动中'
         });
       }
     });
   };
-  handleStop = data => {
+  handleStop = (data) => {
     stop({
       team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias,
-    }).then(data => {
+      app_alias: data.service_alias
+    }).then((data) => {
       if (data) {
         notification.success({
-          message: '操作成功，关闭中',
+          message: '操作成功，关闭中'
         });
       }
     });
   };
 
-  handleBatchRestart = () => {
+  handleOperationState = (operationState) => {
+    this.setState({ operationState });
+  };
+  handleBatchOperation = (action) => {
     const ids = this.getSelectedKeys();
-    batchReStart({
+    const map = {
+      stop: '批量关闭中',
+      start: '批量启动中',
+      restart: '批量重启中',
+      upgrade: '批量更新中',
+      deploy: '批量构建中'
+    };
+    batchOperation({
+      action,
       team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(','),
-    }).then(data => {
-      if (data) {
+      serviceIds: ids && ids.join(',')
+    }).then((data) => {
+      this.handleOperationState(false);
+      if (data && map[action]) {
         notification.success({
-          message: '批量重启中',
+          message: map[action]
         });
       }
     });
   };
-  handleBatchStart = () => {
-    const ids = this.getSelectedKeys();
-    batchStart({
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(','),
-    }).then(data => {
-      if (data) {
-        notification.success({
-          message: '批量启动中',
-        });
-      }
-    });
-  };
-  handleBatchStop = () => {
-    const ids = this.getSelectedKeys();
-    batchStop({
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(','),
-    }).then(data => {
-      if (data) {
-        notification.success({
-          message: '批量关闭中',
-        });
-      }
-    });
-  };
+
   handleBatchDelete = () => {
     const apps = this.getSelected();
     this.setState({ batchDeleteApps: apps, batchDeleteShow: true });
@@ -222,7 +210,7 @@ export default class ComponentList extends Component {
     this.setState({
       batchDeleteApps: [],
       batchDeleteShow: false,
-      selectedRowKeys: [],
+      selectedRowKeys: []
     });
   };
   updateGroupMenu = () => {
@@ -230,20 +218,20 @@ export default class ComponentList extends Component {
       type: 'global/fetchGroups',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-      },
+        region_name: globalUtil.getCurrRegionName()
+      }
     });
   };
-  handleBatchMove = groupID => {
+  handleBatchMove = (groupID) => {
     const ids = this.getSelectedKeys();
     batchMove({
       team_name: globalUtil.getCurrTeamName(),
       serviceIds: ids.join(','),
-      move_group_id: groupID,
-    }).then(data => {
+      move_group_id: groupID
+    }).then((data) => {
       if (data) {
         notification.success({
-          message: '批量移动中',
+          message: '批量移动中'
         });
         this.hideBatchDelete();
       }
@@ -255,59 +243,56 @@ export default class ComponentList extends Component {
   showBatchMove = () => {
     this.setState({ moveGroupShow: true });
   };
-  // 是否可以批量重启
-  canBatchRestart = () => {
-    const selectedRowKeys = this.getSelected();
-    const hasSelected = selectedRowKeys.length > 0;
-    return hasSelected;
-  };
-  // 是否可以批量启动
-  canBatchStart = () => {
-    const selectedRowKeys = this.getSelected();
-    const hasSelected = selectedRowKeys.length > 0;
-    return hasSelected;
-  };
-  // 是否可以批量关闭
-  canBatchStop = () => {
-    const selectedRowKeys = this.getSelected();
-    const hasSelected = selectedRowKeys.length > 0;
-    return hasSelected;
-  };
-  canBatchMove = () => {
-    const selectedRowKeys = this.getSelected();
-    const hasSelected = selectedRowKeys.length > 0;
-    return hasSelected;
-  };
-  canBatchDelete = () => {
-    const selectedRowKeys = this.getSelected();
-    const hasSelected = selectedRowKeys.length > 0;
-    return hasSelected;
+  // 是否可以批量操作
+  CanBatchOperation = () => {
+    const arr = this.getSelected();
+    return arr && arr.length > 0;
   };
 
   render() {
     const {
-      componentPermissions: { isStart, isRestart, isStop, isDelete, isEdit },
+      componentPermissions: {
+        isStart,
+        isRestart,
+        isStop,
+        isDelete,
+        isEdit,
+        isUpdate,
+        isConstruct
+      },
+      groupId,
+      groups
     } = this.props;
-    const { selectedRowKeys, current, total, apps, pageSize } = this.state;
+    const {
+      selectedRowKeys,
+      current,
+      total,
+      apps,
+      pageSize,
+      batchDeleteShow,
+      batchDeleteApps,
+      moveGroupShow,
+      operationState
+    } = this.state;
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
+      onChange: this.onSelectChange
     };
     const pagination = {
       pageSize,
       current,
       total,
-      onChange: page => {
+      onChange: (page) => {
         this.setState(
           {
             current: page,
-            selectedRowKeys: [],
+            selectedRowKeys: []
           },
           () => {
             this.loadComponents();
           }
         );
-      },
+      }
     };
     const columns = [
       {
@@ -331,7 +316,7 @@ export default class ComponentList extends Component {
                       display: 'inline-block',
                       background: '#1890ff',
                       verticalAlign: 'top',
-                      marginRight: '3px',
+                      marginRight: '3px'
                     }}
                   >
                     <span
@@ -340,7 +325,7 @@ export default class ComponentList extends Component {
                         color: '#FFFFFF',
                         height: '20px',
                         lineHeight: '20px',
-                        textAlign: 'center',
+                        textAlign: 'center'
                       }}
                     >
                       3
@@ -353,7 +338,7 @@ export default class ComponentList extends Component {
               <span>{val}</span>
             )}{' '}
           </Link>
-        ),
+        )
       },
       {
         title: '内存',
@@ -364,7 +349,7 @@ export default class ComponentList extends Component {
               ? '-'
               : `${val}MB`}
           </span>
-        ),
+        )
       },
       {
         title: '状态',
@@ -388,15 +373,13 @@ export default class ComponentList extends Component {
               status={appUtil.appStatusToBadgeStatus(data.status)}
               text={val}
             />
-          ),
+          )
       },
       {
         title: '更新时间',
         dataIndex: 'update_time',
-        render: val =>
-          moment(val)
-            .locale('zh-cn')
-            .format('YYYY-MM-DD HH:mm:ss'),
+        render: (val) =>
+          moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')
       },
       {
         title: '操作',
@@ -412,7 +395,7 @@ export default class ComponentList extends Component {
                     }}
                     href="javascript:;"
                     style={{
-                      marginRight: 10,
+                      marginRight: 10
                     }}
                   >
                     重启
@@ -425,7 +408,7 @@ export default class ComponentList extends Component {
                     }}
                     href="javascript:;"
                     style={{
-                      marginRight: 10,
+                      marginRight: 10
                     }}
                   >
                     启动
@@ -444,52 +427,72 @@ export default class ComponentList extends Component {
               </Fragment>
             )}
           </Fragment>
-        ),
+        )
+      }
+    ];
+    const customBox = [
+      {
+        permissions: isConstruct,
+        name: '批量构建',
+        action: 'deploy'
       },
+      {
+        permissions: isUpdate,
+        name: '批量更新',
+        action: 'upgrade'
+      },
+      {
+        permissions: isRestart,
+        name: '批量重启',
+        action: 'restart'
+      },
+      {
+        permissions: isStop,
+        name: '批量关闭',
+        action: 'stop'
+      },
+      {
+        permissions: isStart,
+        name: '批量启动',
+        action: 'start'
+      },
+      {
+        permissions: isEdit,
+        name: '批量移动',
+        action: false,
+        customMethods: this.showBatchMove
+      },
+      {
+        permissions: isDelete,
+        name: '批量删除',
+        action: false,
+        customMethods: this.handleBatchDelete
+      }
     ];
     const footer = (
       <div className={styles.tableList}>
         <div className={styles.tableListOperator}>
-          {isRestart && (
-            <Button
-              disabled={!this.canBatchRestart()}
-              onClick={this.handleBatchRestart}
-            >
-              批量重启
-            </Button>
-          )}
-          {isStop && (
-            <Button
-              disabled={!this.canBatchStop()}
-              onClick={this.handleBatchStop}
-            >
-              批量关闭
-            </Button>
-          )}
-          {isStart && (
-            <Button
-              disabled={!this.canBatchStart()}
-              onClick={this.handleBatchStart}
-            >
-              批量启动
-            </Button>
-          )}
-          {isEdit && (
-            <Button
-              disabled={!this.canBatchMove()}
-              onClick={this.showBatchMove}
-            >
-              批量移动
-            </Button>
-          )}
-          {isDelete && (
-            <Button
-              disabled={!this.canBatchDelete()}
-              onClick={this.handleBatchDelete}
-            >
-              批量删除
-            </Button>
-          )}
+          {customBox.map((item) => {
+            const { permissions, name, action, customMethods } = item;
+            return (
+              permissions && (
+                <Button
+                  loading={operationState === action ? operationState : false}
+                  disabled={!this.CanBatchOperation()}
+                  onClick={() => {
+                    if (action) {
+                      this.handleOperationState(action);
+                      this.handleBatchOperation(action);
+                    } else {
+                      customMethods();
+                    }
+                  }}
+                >
+                  {name}
+                </Button>
+              )
+            );
+          })}
         </div>
       </div>
     );
@@ -497,32 +500,32 @@ export default class ComponentList extends Component {
       <div>
         <Card
           style={{
-            minHeight: 400,
+            minHeight: 400
           }}
           bordered={false}
           bodyStyle={{ padding: '10px 10px' }}
         >
           <ScrollerX sm={750}>
             <Table
+              style={{ position: 'relative' }}
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
               dataSource={apps || []}
               footer={() => footer}
-              style={{ position: 'relative' }}
             />
           </ScrollerX>
-          {this.state.batchDeleteShow && (
+          {batchDeleteShow && (
             <BatchDelete
-              batchDeleteApps={this.state.batchDeleteApps}
+              batchDeleteApps={batchDeleteApps}
               onCancel={this.hideBatchDelete}
               onOk={this.hideBatchDelete}
             />
           )}
-          {this.state.moveGroupShow && (
+          {moveGroupShow && (
             <MoveGroup
-              currGroupID={this.props.groupId}
-              groups={this.props.groups}
+              currGroupID={groupId}
+              groups={groups}
               onOk={this.handleBatchMove}
               onCancel={this.hideMoveGroup}
             />
