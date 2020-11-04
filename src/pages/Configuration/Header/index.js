@@ -10,7 +10,7 @@ export default class Configuration extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         title="应用配置组管理"
-        content="配置组通过环境变量，文件挂载等方式注入到指定到组件运行环境中"
+        content="配置组是通过环境变量注入到当前应用指定的组件运行环境中"
       >
         {children}
       </PageHeaderLayout>
