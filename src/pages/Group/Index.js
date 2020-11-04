@@ -597,7 +597,7 @@ class Main extends PureComponent {
             )}
             {resources.status && resources.status !== 'CLOSED' && isStop && (
               <span>
-                <Divider type="vertical" />
+                {resources.status !== 'RUNNING' && <Divider type="vertical" />}
                 <a
                   onClick={() => {
                     this.handleTopology('stop');
