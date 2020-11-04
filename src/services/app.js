@@ -215,15 +215,21 @@ export function restart(
 }
 
 /*
-	批量重启
+  批量操作
+  stop: 停止组件
+  start: 启动组件
+  restart: 重启组件
+  move: 移动组件
+  upgrade: 更新组件
+  deploy: 构建组件
 */
-export function batchReStart(body = {}) {
+export function batchOperation(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
       method: 'post',
       data: {
-        action: 'restart',
+        action: body.action,
         service_ids: body.serviceIds
       }
     }
@@ -588,7 +594,7 @@ export function getMnt(
       },
       paramsSerializer(params) {
         const yourNewParams = params.volume_types
-          .map(_ => `volume_types=${_}`)
+          .map((_) => `volume_types=${_}`)
           .join('&');
         const str = `query=${params.query}&page=${params.page}&page_size=${params.page_size}&type=${params.type}&${yourNewParams}`;
         return str;

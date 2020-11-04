@@ -572,9 +572,7 @@ export async function getJoinTeamUsers(body = { team_name }) {
 /*
   审批用户加入
  */
-export async function setJoinTeamUsers(
-  body = { team_name, user_id, action, role_ids }
-) {
+export async function setJoinTeamUsers(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/applicants`,
     {
