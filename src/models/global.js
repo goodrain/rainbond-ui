@@ -86,10 +86,6 @@ import {
   toEditCloudBackup,
   toEditImageHub,
   toEditOauth,
-  setGovernancemode,
-  getServiceNameList,
-  CheckK8sServiceName,
-  SetCheckK8sServiceName,
   toQueryTopology,
   toQueryLinks,
   toSearchTenant,
@@ -753,30 +749,10 @@ export default {
         callback(response);
       }
     },
-    *setgovernancemode({ payload, callback }, { call }) {
-      const response = yield call(setGovernancemode, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *fetchServiceNameList({ payload, callback }, { call }) {
-      const response = yield call(getServiceNameList, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *checkK8sServiceName({ payload, callback }, { call }) {
-      const response = yield call(CheckK8sServiceName, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
-    *setCheckK8sServiceName({ payload, callback }, { call }) {
-      const response = yield call(SetCheckK8sServiceName, payload);
-      if (callback) {
-        callback(response);
-      }
-    },
+ 
+
+
+
     *fetAllTopology({ payload, callback }, { call }) {
       const response = yield call(toQueryTopology, payload);
       if (callback) {

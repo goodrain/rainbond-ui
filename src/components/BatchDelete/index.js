@@ -16,7 +16,6 @@ import globalUtil from '../../utils/global';
   }
 )
 
-/* 转移到其他应用组 */
 export default class MoveGroup extends PureComponent {
   constructor(props) {
     super(props);

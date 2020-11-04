@@ -36,10 +36,10 @@ import {
   getPluginShareEventInShareApp,
   queryAllBackup,
   queryRestoreState
-} from '../services/group';
+} from '../services/component';
 
 export default {
-  namespace: 'groupControl',
+  namespace: 'componentControl',
   state: {
     // app detail
     groupDetail: {},

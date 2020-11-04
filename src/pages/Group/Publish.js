@@ -65,7 +65,7 @@ export default class AppPublishList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: 'groupControl/fetchGroupDetail',
+      type: 'componentControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -97,7 +97,7 @@ export default class AppPublishList extends PureComponent {
     const { dispatch } = this.props;
     const { page, pageSize } = this.state;
     dispatch({
-      type: 'groupControl/fetchShareRecords',
+      type: 'componentControl/fetchShareRecords',
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -116,7 +116,7 @@ export default class AppPublishList extends PureComponent {
     const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/ShareGroup',
+      type: 'componentControl/ShareGroup',
       payload: {
         team_name: teamName,
         group_id: appID,
@@ -144,7 +144,7 @@ export default class AppPublishList extends PureComponent {
     const { teamName, appID } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/deleteShareRecord',
+      type: 'componentControl/deleteShareRecord',
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -164,7 +164,7 @@ export default class AppPublishList extends PureComponent {
     const { teamName } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/giveupShare',
+      type: 'componentControl/giveupShare',
       payload: {
         team_name: teamName,
         share_id: recordID,

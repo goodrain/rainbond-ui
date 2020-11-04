@@ -136,11 +136,14 @@ import {
   unbindDomain,
   unInstallPlugin,
   updateComponentDeployType,
-  updateServiceName
-  // onlyOpenPortOuter,
+  updateServiceName,
+  setGovernancemode,
+  SetCheckK8sServiceName,
+  getServiceNameList,
+  CheckK8sServiceName,
 } from '../services/app';
 
-import { getGroupApps } from '../services/group';
+import { getGroupApps } from '../services/component';
 import { addCertificate, getCertificates } from '../services/team';
 
 export default {
@@ -202,6 +205,30 @@ export default {
     build_upgrade: ''
   },
   effects: {
+    *checkK8sServiceName({ payload, callback }, { call }) {
+      const response = yield call(CheckK8sServiceName, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchServiceNameList({ payload, callback }, { call }) {
+      const response = yield call(getServiceNameList, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *setCheckK8sServiceName({ payload, callback }, { call }) {
+      const response = yield call(SetCheckK8sServiceName, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *setgovernancemode({ payload, callback }, { call }) {
+      const response = yield call(setGovernancemode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *fetchOperationLog({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchOperationLog, payload, handleError);
       if (response && callback) {

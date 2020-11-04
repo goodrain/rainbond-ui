@@ -224,7 +224,7 @@ export async function editGroup(body = {}) {
       method: 'put',
       data: {
         app_name: body.group_name,
-        group_note: body.group_note,
+        note: body.note,
         username: body.username
       }
     }
@@ -243,7 +243,7 @@ export async function addGroup(body = {}) {
         team_name: body.team_name,
         region_name: body.region_name,
         group_name: body.group_name,
-        group_note: body.group_note
+        note: body.note
       }
     }
   );

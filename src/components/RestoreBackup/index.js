@@ -51,7 +51,7 @@ export default class Index extends PureComponent {
     this.mount = true;
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/queryRestoreState',
+      type: 'componentControl/queryRestoreState',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId,
@@ -75,7 +75,7 @@ export default class Index extends PureComponent {
   handleRestore = e => {
     const { propsParams, backupId, groupId, dispatch } = this.props;
     dispatch({
-      type: 'groupControl/migrateApp',
+      type: 'componentControl/migrateApp',
       payload: {
         team_name: propsParams && propsParams.teamName,
         region: propsParams && propsParams.regionName,
@@ -101,7 +101,7 @@ export default class Index extends PureComponent {
     const { restore } = this.state;
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/delRestore',
+      type: 'componentControl/delRestore',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.props.groupId,
@@ -125,7 +125,7 @@ export default class Index extends PureComponent {
     const team_name = propsParams && propsParams.teamName;
     const region_name = propsParams && propsParams.regionName;
     dispatch({
-      type: 'groupControl/queryMigrateApp',
+      type: 'componentControl/queryMigrateApp',
       payload: {
         team_name,
         restore_id,

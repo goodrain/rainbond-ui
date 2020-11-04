@@ -27,10 +27,10 @@ const FormItem = Form.Item;
 const { Option } = Select;
 
 @Form.create()
-@connect(({ user, enterprise, groupControl }) => ({
+@connect(({ user, enterprise, componentControl }) => ({
   currentUser: user.currentUser,
   currentEnterprise: enterprise.currentEnterprise,
-  groupDetail: groupControl.groupDetail || {}
+  groupDetail: componentControl.groupDetail || {}
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -140,7 +140,7 @@ export default class Index extends PureComponent {
   fetchCopyComponent = () => {
     const { dispatch, groupDetail } = this.props;
     dispatch({
-      type: "groupControl/fetchCopyComponent",
+      type: "componentControl/fetchCopyComponent",
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: groupDetail.group_id
@@ -180,7 +180,7 @@ export default class Index extends PureComponent {
     }
     this.handleOpenLoging();
     this.props.dispatch({
-      type: "groupControl/addGroup",
+      type: "componentControl/addGroup",
       payload: {
         team_name: teamName || globalUtil.getCurrTeamName(),
         region_name: regionName || globalUtil.getCurrRegionName(),
@@ -258,7 +258,7 @@ export default class Index extends PureComponent {
     });
     obj.services = arr;
     dispatch({
-      type: "groupControl/addCopyTeamApps",
+      type: "componentControl/addCopyTeamApps",
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: groupDetail.group_id,

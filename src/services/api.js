@@ -1208,43 +1208,6 @@ export async function toBuildShape(params) {
   );
 }
 
-export async function setGovernancemode(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
-    {
-      method: 'put',
-      data: {
-        governance_mode: params.governance_mode
-      }
-    }
-  );
-}
-export async function getServiceNameList(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
-  );
-}
-export async function CheckK8sServiceName(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
-    {
-      method: 'post',
-      data: {
-        k8s_service_name: params.k8s_service_name
-      }
-    }
-  );
-}
-export async function SetCheckK8sServiceName(params) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
-    {
-      method: 'put',
-      data: params.arr
-    }
-  );
-}
-
 /** 获取所有的拓扑图 */
 export async function toQueryTopology(params) {
   const { team_name: teamName, groupId, region_name: regionName } = params;

@@ -19,8 +19,8 @@ import styles from './index.less';
 
 const { TabPane } = Tabs;
 
-@connect(({ user, global, groupControl, teamControl, enterprise }) => ({
-  groupDetail: groupControl.groupDetail || {},
+@connect(({ user, global, componentControl, teamControl, enterprise }) => ({
+  groupDetail: componentControl.groupDetail || {},
   currUser: user.pageUser,
   groups: global.groups || [],
   currentTeam: teamControl.currentTeam,
@@ -112,7 +112,7 @@ export default class AppList extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: 'groupControl/fetchGroupDetail',
+      type: 'componentControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,

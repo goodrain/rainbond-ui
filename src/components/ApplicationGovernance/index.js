@@ -16,12 +16,11 @@ import globalUtil from '../../utils/global';
 const FormItem = Form.Item;
 const { Option } = Select;
 
-/* 转移到其他应用组 */
 
 @Form.create()
 @connect(({ loading }) => ({
-  checkK8sLoading: loading.effects['global/setCheckK8sServiceName'],
-  governanceLoading: loading.effects['global/setgovernancemode']
+  checkK8sLoading: loading.effects['appControl/setCheckK8sServiceName'],
+  governanceLoading: loading.effects['appControl/setgovernancemode']
 }))
 export default class ApplicationGovernance extends PureComponent {
   constructor(props) {
@@ -67,7 +66,7 @@ export default class ApplicationGovernance extends PureComponent {
       }
     });
     dispatch({
-      type: 'global/setCheckK8sServiceName',
+      type: 'appControl/setCheckK8sServiceName',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -116,7 +115,7 @@ export default class ApplicationGovernance extends PureComponent {
   handleGovernancemode = (value) => {
     const { dispatch, appID, onCancel } = this.props;
     dispatch({
-      type: 'global/setgovernancemode',
+      type: 'appControl/setgovernancemode',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -139,7 +138,7 @@ export default class ApplicationGovernance extends PureComponent {
   fetchServiceNameList = () => {
     const { dispatch, appID } = this.props;
     dispatch({
-      type: 'global/fetchServiceNameList',
+      type: 'appControl/fetchServiceNameList',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID
@@ -157,7 +156,7 @@ export default class ApplicationGovernance extends PureComponent {
   checkK8sServiceName = (value) => {
     const { dispatch, appID } = this.props;
     dispatch({
-      type: 'global/checkK8sServiceName',
+      type: 'appControl/checkK8sServiceName',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -182,7 +181,7 @@ export default class ApplicationGovernance extends PureComponent {
     const { ServiceNameList } = this.stata;
     try {
       dispatch({
-        type: 'global/checkK8sServiceName',
+        type: 'appControl/checkK8sServiceName',
         payload: {
           tenantName: globalUtil.getCurrTeamName(),
           group_id: appID,

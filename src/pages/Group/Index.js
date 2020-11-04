@@ -2,26 +2,25 @@ import {
   Button,
   Col,
   Divider,
-  Form,
   Icon,
-  Input,
   Modal,
   notification,
   Row,
   Spin,
-  Badge,
-  Select
+  Badge
 } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
-import styless from '../../components/CreateTeam/index.less';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
+import EditGroupName from '@/components/AddOrEditGroup';
+import AppDirector from '@/components/AppDirector';
+
 import {
   createApp,
   createEnterprise,
@@ -37,173 +36,15 @@ import ComponentList from './ComponentList';
 import EditorTopology from './EditorTopology';
 import styles from './Index.less';
 
-const FormItem = Form.Item;
-const { Option } = Select;
-
-@Form.create()
-@connect()
-class EditGroupName extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fetching: false,
-      page: 1,
-      pageSize: 99,
-      members: []
-    };
-  }
-  componentWillMount() {
-    this.fetchTeamMember();
-  }
-
-  onOk = (e) => {
-    e.preventDefault();
-    const { form, onOk } = this.props;
-
-    form.validateFields(
-      {
-        force: true
-      },
-      (err, vals) => {
-        if (!err && onOk) {
-          onOk(vals);
-        }
-      }
-    );
-  };
-  fetchTeamMember = (value) => {
-    const { dispatch } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    this.setState({
-      fetching: true
-    });
-    dispatch({
-      type: 'teamControl/fetchMember',
-      payload: {
-        query: value,
-        team_name: teamName,
-        region_name: regionName,
-        page_size: this.state.pageSize,
-        page: this.state.page
-      },
-      callback: (data) => {
-        if (data) {
-          this.setState({
-            members: data.list || [],
-            fetching: false
-          });
-        }
-      }
-    });
-  };
-
-  render() {
-    const {
-      title,
-      onCancel,
-      form,
-      principal,
-      loading = false,
-      group_name: groupName,
-      mode: groupNote
-    } = this.props;
-    const { members, fetching } = this.state;
-    const { getFieldDecorator } = form;
-    const formItemLayout = {
-      labelCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 6
-        }
-      },
-      wrapperCol: {
-        xs: {
-          span: 24
-        },
-        sm: {
-          span: 16
-        }
-      }
-    };
-    return (
-      <Modal
-        title={title || ''}
-        visible
-        onCancel={onCancel}
-        onOk={this.onOk}
-        confirmLoading={loading}
-        className={styless.TelescopicModal}
-      >
-        <Form onSubmit={this.onOk}>
-          <FormItem {...formItemLayout} label="应用名称">
-            {getFieldDecorator('group_name', {
-              initialValue: groupName || '',
-              rules: [
-                {
-                  required: true,
-                  message: '请填写应用名称'
-                },
-                {
-                  max: 64,
-                  message: '最大长度64位'
-                }
-              ]
-            })(<Input placeholder="请填写应用名称" />)}
-          </FormItem>
-          <FormItem {...formItemLayout} label="负责人">
-            {getFieldDecorator('username', {
-              initialValue: principal || '',
-              rules: [
-                {
-                  required: false,
-                  message: '请选择负责人'
-                }
-              ]
-            })(
-              <Select
-                showSearch
-                placeholder="输入用户名称进行搜索"
-                notFoundContent={fetching ? <Spin size="small" /> : null}
-                filterOption={false}
-                onSearch={this.fetchTeamMember}
-                style={{ width: '100%' }}
-              >
-                {members.map((d) => (
-                  <Option key={d.user_name}>{d.user_name}</Option>
-                ))}
-              </Select>
-            )}
-          </FormItem>
-
-          <FormItem {...formItemLayout} label="应用备注">
-            {getFieldDecorator('mode', {
-              initialValue: groupNote || '',
-              rules: [
-                {
-                  max: 255,
-                  message: '最大长度255位'
-                }
-              ]
-            })(<Input.TextArea placeholder="请填写应用备注信息" />)}
-          </FormItem>
-        </Form>
-      </Modal>
-    );
-  }
-}
-
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user, groupControl, teamControl, enterprise, loading }) => ({
+@connect(({ user, componentControl, teamControl, enterprise, loading }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
-  addGroupLoading: loading.effects['groupControl/addGroup'],
-  editGroupLoading: loading.effects['groupControl/editGroup'],
-  deleteLoading: loading.effects['groupControl/delete'],
+  addGroupLoading: loading.effects['componentControl/addGroup'],
+  editGroupLoading: loading.effects['componentControl/editGroup'],
+  deleteLoading: loading.effects['componentControl/delete'],
   currUser: user.currentUser,
-  apps: groupControl.apps,
-  groupDetail: groupControl.groupDetail || {},
+  apps: componentControl.apps,
+  groupDetail: componentControl.groupDetail || {},
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise
@@ -215,6 +56,7 @@ class Main extends PureComponent {
       type: 'shape',
       toDelete: false,
       toEdit: false,
+      toEditAppDirector: false,
       service_alias: [],
       linkList: [],
       jsonDataLength: 0,
@@ -237,7 +79,7 @@ class Main extends PureComponent {
   componentWillUnmount() {
     this.closeTimer();
     const { dispatch } = this.props;
-    dispatch({ type: 'groupControl/clearGroupDetail' });
+    dispatch({ type: 'componentControl/clearGroupDetail' });
   }
   onCancel = () => {
     this.setState({
@@ -364,7 +206,7 @@ class Main extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: 'groupControl/fetchGroupDetail',
+      type: 'componentControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -398,7 +240,7 @@ class Main extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
     dispatch({
-      type: 'groupControl/fetchAppDetailState',
+      type: 'componentControl/fetchAppDetailState',
       payload: {
         team_name: teamName,
         group_id: appID
@@ -410,25 +252,6 @@ class Main extends PureComponent {
       }
     });
   };
-
-  // fetchAppResourcesStatistics = () => {
-  //   const { dispatch } = this.props;
-  //   const { teamName, appID } = this.props.match.params;
-  //   dispatch({
-  //     type: 'groupControl/fetchAppResourcesStatistics',
-  //     payload: {
-  //       team_name: teamName,
-  //       group_id: appID
-  //     },
-  //     callback: res => {
-  //       if (res && res.bean) {
-  //         this.setState({
-  //           resources: res.bean
-  //         });
-  //       }
-  //     }
-  //   });
-  // };
 
   handleFormReset = () => {
     const { form } = this.props;
@@ -466,7 +289,7 @@ class Main extends PureComponent {
   handleDelete = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/delete',
+      type: 'componentControl/delete',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId()
@@ -515,27 +338,33 @@ class Main extends PureComponent {
       }
     });
   };
-
   toEdit = () => {
     this.setState({ toEdit: true });
   };
   cancelEdit = () => {
     this.setState({ toEdit: false });
   };
+  handleToEditAppDirector = () => {
+    this.setState({ toEditAppDirector: true });
+  };
+  cancelEditAppDirector = () => {
+    this.setState({ toEditAppDirector: false });
+  };
   handleEdit = (vals) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'groupControl/editGroup',
+      type: 'componentControl/editGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),
         group_name: vals.group_name,
-        group_note: vals.mode,
+        note: vals.note,
         username: vals.username
       },
       callback: () => {
         this.handleUpDataHeader();
         this.cancelEdit();
+        this.cancelEditAppDirector();
         this.fetchAppDetail();
         dispatch({
           type: 'global/fetchGroups',
@@ -659,6 +488,7 @@ class Main extends PureComponent {
       code,
       promptModal,
       toEdit,
+      toEditAppDirector,
       toDelete,
       type,
       customSwitch
@@ -682,7 +512,7 @@ class Main extends PureComponent {
     };
     const appStateColor = {
       RUNNING: 'success',
-      CLOSED: 'default',
+      CLOSED: 'error',
       ABNORMAL: 'error',
       PARTIAL_ABNORMAL: 'error'
     };
@@ -848,7 +678,7 @@ class Main extends PureComponent {
                       cursor: 'pointer',
                       marginLeft: '5px'
                     }}
-                    onClick={this.toEdit}
+                    onClick={this.handleToEditAppDirector}
                     type="edit"
                   />
                 )}
@@ -890,7 +720,7 @@ class Main extends PureComponent {
             </div>
 
             <div className={styles.conrBox}>
-              <div>代升级</div>
+              <div>待升级</div>
               <div
                 onClick={() => {
                   this.handleJump('upgrade');
@@ -925,6 +755,8 @@ class Main extends PureComponent {
       currentRegionName,
       { appName: groupDetail.group_name, appID: groupDetail.group_id }
     );
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList} loading={loadingDetail}>
         <Row>{pageHeaderContent}</Row>
@@ -1072,14 +904,26 @@ class Main extends PureComponent {
         {toEdit && (
           <EditGroupName
             group_name={groupDetail.group_name}
-            mode={groupDetail.mode}
+            note={groupDetail.note}
             loading={editGroupLoading}
-            principal={currApp.principal}
             title="修改应用信息"
             onCancel={this.cancelEdit}
             onOk={this.handleEdit}
           />
         )}
+        {toEditAppDirector && (
+          <AppDirector
+            teamName={teamName}
+            regionName={regionName}
+            group_name={groupDetail.group_name}
+            note={groupDetail.note}
+            loading={editGroupLoading}
+            principal={currApp.principal}
+            onCancel={this.cancelEditAppDirector}
+            onOk={this.handleEdit}
+          />
+        )}
+
         {promptModal && (
           <Modal
             title="友情提示"

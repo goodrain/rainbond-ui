@@ -64,7 +64,6 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 
-/* 转移到其他应用组 */
 @Form.create()
 @connect(null, null, null, { withRef: true })
 class MoveGroup extends PureComponent {
@@ -77,7 +76,7 @@ class MoveGroup extends PureComponent {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.group_id === currGroup) {
-        notification.warning({ message: '不能选择当前所在组' });
+        notification.warning({ message: '不能选择当前所在应用' });
         return;
       }
       this.props.onOk(fieldsValue);
@@ -90,7 +89,7 @@ class MoveGroup extends PureComponent {
     const initValue = currGroup.toString();
     return (
       <Modal
-        title="修改应用所属组"
+        title="修改组件所属应用"
         visible
         className={styless.TelescopicModal}
         onOk={this.handleSubmit}
