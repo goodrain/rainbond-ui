@@ -154,7 +154,7 @@ class EditGroupName extends PureComponent {
               initialValue: principal || '',
               rules: [
                 {
-                  required: true,
+                  required: false,
                   message: '请选择负责人'
                 }
               ]
@@ -522,7 +522,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
         group_name: vals.group_name,
         group_note: vals.mode,
-        username: vals.username&&vals.username.key
+        username: vals.username && vals.username.key
       },
       callback: () => {
         this.handleUpDataHeader();
@@ -666,11 +666,17 @@ class Main extends PureComponent {
     };
 
     const appState = {
-      RUNNING:'运行中',
-      CLOSED:'已关闭',
-      ABNORMAL:'异常',
-      PARTIAL_ABNORMAL:'部分异常',
-    }
+      RUNNING: '运行中',
+      CLOSED: '已关闭',
+      ABNORMAL: '异常',
+      PARTIAL_ABNORMAL: '部分异常'
+    };
+    const appStateColor = {
+      RUNNING: 'success',
+      CLOSED: 'default',
+      ABNORMAL: 'error',
+      PARTIAL_ABNORMAL: 'error'
+    };
     const BtnDisabled = !(jsonDataLength > 0);
     const MR = { marginRight: '10px' };
 
@@ -691,61 +697,66 @@ class Main extends PureComponent {
                 />
               )}
             </div>
-            <div className={styles.extraContent}>
-              {isUpdate && (
-                <Button
-                  style={MR}
-                  onClick={() => {
-                    this.handleTopology('upgrade');
-                  }}
-                  disabled={BtnDisabled}
-                >
-                  更新
-                </Button>
-              )}
-              {isConstruct && isComponentConstruct && (
-                <Button
-                  style={MR}
-                  disabled={BtnDisabled}
-                  onClick={() => {
-                    this.handleTopology('deploy');
-                  }}
-                >
-                  构建
-                </Button>
-              )}
-              {isCopy && (
-                <Button
-                  style={MR}
-                  disabled={BtnDisabled}
-                  onClick={this.handleOpenRapidCopy}
-                >
-                  快速复制
-                </Button>
-              )}
-              {linkList.length > 0 && <VisterBtn linkList={linkList} />}
-            </div>
+            {resources.status && (
+              <div className={styles.extraContent}>
+                {resources.status !== 'CLOSED' && isUpdate && (
+                  <Button
+                    style={MR}
+                    onClick={() => {
+                      this.handleTopology('upgrade');
+                    }}
+                    disabled={BtnDisabled}
+                  >
+                    更新
+                  </Button>
+                )}
+                {isConstruct && isComponentConstruct && (
+                  <Button
+                    style={MR}
+                    disabled={BtnDisabled}
+                    onClick={() => {
+                      this.handleTopology('deploy');
+                    }}
+                  >
+                    构建
+                  </Button>
+                )}
+                {isCopy && (
+                  <Button
+                    style={MR}
+                    disabled={BtnDisabled}
+                    onClick={this.handleOpenRapidCopy}
+                  >
+                    快速复制
+                  </Button>
+                )}
+                {linkList.length > 0 && <VisterBtn linkList={linkList} />}
+              </div>
+            )}
           </div>
           <div className={styles.content_Box}>
-            <Badge className={styles.states} status="success" text="运行中" />
-            {isStart && (
-              <a
-                onClick={() => {
-                  this.handleTopology('start');
-                }}
-                disabled={BtnDisabled}
-              >
-                启动
-              </a>
-            )}
-            {isDelete && (
+            <Badge
+              className={styles.states}
+              status={appStateColor[resources.status] || 'default'}
+              text={appState[resources.status] || '未知'}
+            />
+            {resources.status && isStart && resources.status !== 'RUNNING' && (
               <span>
+                <a
+                  onClick={() => {
+                    this.handleTopology('start');
+                  }}
+                  disabled={BtnDisabled}
+                >
+                  启动
+                </a>
                 <Divider type="vertical" />
-
-                <a onClick={this.toDelete}>删除</a>
               </span>
             )}
-            {isStop && (
+            {isDelete && resources.status !== 'RUNNING' && (
+              <a onClick={this.toDelete}>删除</a>
+            )}
+            {resources.status && resources.status !== 'CLOSED' && isStop && (
               <span>
                 <Divider type="vertical" />
                 <a
@@ -876,7 +887,7 @@ class Main extends PureComponent {
               <div>配置组</div>
               <div
                 onClick={() => {
-                  this.handleJump('configuration');
+                  this.handleJump('configgroups');
                 }}
               >
                 <a>{currApp.config_group_num || 0}</a>
