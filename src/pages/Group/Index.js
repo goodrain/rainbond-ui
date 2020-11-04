@@ -577,7 +577,7 @@ class Main extends PureComponent {
             <Badge
               className={styles.states}
               status={appStateColor[resources.status] || 'default'}
-              text={appState[resources.status] || '未知'}
+              text={appState[resources.status] || '-'}
             />
             {resources.status && isStart && resources.status !== 'RUNNING' && (
               <span>
