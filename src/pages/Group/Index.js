@@ -145,11 +145,15 @@ class EditGroupName extends PureComponent {
                 {
                   required: true,
                   message: '请填写应用名称'
+                },
+                {
+                  max: 64,
+                  message: '最大长度64位'
                 }
               ]
             })(<Input placeholder="请填写应用名称" />)}
           </FormItem>
-          <FormItem {...formItemLayout} label="选择负责人">
+          <FormItem {...formItemLayout} label="负责人">
             {getFieldDecorator('username', {
               initialValue: principal || '',
               rules: [
@@ -161,7 +165,6 @@ class EditGroupName extends PureComponent {
             })(
               <Select
                 showSearch
-                labelInValue
                 placeholder="输入用户名称进行搜索"
                 notFoundContent={fetching ? <Spin size="small" /> : null}
                 filterOption={false}
@@ -177,7 +180,13 @@ class EditGroupName extends PureComponent {
 
           <FormItem {...formItemLayout} label="应用备注">
             {getFieldDecorator('mode', {
-              initialValue: groupNote || ''
+              initialValue: groupNote || '',
+              rules: [
+                {
+                  max: 255,
+                  message: '最大长度255位'
+                }
+              ]
             })(<Input.TextArea placeholder="请填写应用备注信息" />)}
           </FormItem>
         </Form>
@@ -522,7 +531,7 @@ class Main extends PureComponent {
         group_id: this.getGroupId(),
         group_name: vals.group_name,
         group_note: vals.mode,
-        username: vals.username && vals.username.key
+        username: vals.username
       },
       callback: () => {
         this.handleUpDataHeader();
@@ -797,17 +806,21 @@ class Main extends PureComponent {
             <div>
               <span>创建时间</span>
               <span>
-                {moment(currApp.create_time)
-                  .locale('zh-cn')
-                  .format('YYYY-MM-DD')}
+                {currApp.create_time
+                  ? moment(currApp.create_time)
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD')
+                  : '-'}
               </span>
             </div>
             <div>
               <span>更新时间</span>
               <span>
-                {moment(currApp.update_time)
-                  .locale('zh-cn')
-                  .format('YYYY-MM-DD')}
+                {currApp.update_time
+                  ? moment(currApp.update_time)
+                      .locale('zh-cn')
+                      .format('YYYY-MM-DD')
+                  : '-'}
               </span>
             </div>
           </div>
@@ -815,17 +828,21 @@ class Main extends PureComponent {
             <div>
               <span>治理模式</span>
               <span>
-                {globalUtil.fetchGovernanceMode(currApp.governance_mode)}
+                {currApp.governance_mode
+                  ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
+                  : '-'}
               </span>
-              <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
-                切换
-              </a>
+              {currApp.governance_mode && (
+                <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
+                  切换
+                </a>
+              )}
             </div>
             <div>
               <span>负责人</span>
               <span>
-                {currApp.principal}{' '}
-                {isEdit && (
+                {currApp.principal || '-'}
+                {isEdit && currApp.principal && (
                   <Icon
                     style={{
                       cursor: 'pointer',
