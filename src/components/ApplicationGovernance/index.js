@@ -16,7 +16,6 @@ import globalUtil from '../../utils/global';
 const FormItem = Form.Item;
 const { Option } = Select;
 
-
 @Form.create()
 @connect(({ loading }) => ({
   checkK8sLoading: loading.effects['application/setCheckK8sServiceName'],
@@ -113,7 +112,7 @@ export default class ApplicationGovernance extends PureComponent {
   };
 
   handleGovernancemode = (value) => {
-    const { dispatch, appID, onCancel } = this.props;
+    const { dispatch, appID, onCancel, onOk } = this.props;
     dispatch({
       type: 'application/setgovernancemode',
       payload: {
@@ -126,6 +125,7 @@ export default class ApplicationGovernance extends PureComponent {
           message: '切换成功',
           duration: '3'
         });
+        onOk();
         if (value.governance_mode === 'BUILD_IN_SERVICE_MESH') {
           onCancel();
         } else {
@@ -214,12 +214,13 @@ export default class ApplicationGovernance extends PureComponent {
       onCancel,
       form,
       checkK8sLoading,
-      governanceLoading
+      governanceLoading,
+      mode
     } = this.props;
     const { step, ServiceNameList } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
     const type =
-      getFieldValue('governance_mode') || 'KUBERNETES_NATIVE_SERVICE';
+      getFieldValue('governance_mode') || mode || 'KUBERNETES_NATIVE_SERVICE';
     const rowSelection = {
       onChange: (selectedRowKeys) => {
         this.setState({ selectedRowKeys });
@@ -345,7 +346,7 @@ export default class ApplicationGovernance extends PureComponent {
                 label="治理模式选择"
               >
                 {getFieldDecorator('governance_mode', {
-                  initialValue: 'KUBERNETES_NATIVE_SERVICE',
+                  initialValue: mode || 'KUBERNETES_NATIVE_SERVICE',
                   rules: [
                     {
                       required: true,
