@@ -76,7 +76,7 @@ class DrawerForm extends PureComponent {
     const team_name = globalUtil.getCurrTeamName();
     /** 获取对应的group_name */
     dispatch({
-      type: 'componentControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         group_id: groupObj.key,
         team_name,

@@ -1,6 +1,45 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+export async function getServiceNameList(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `
+  );
+}
+
+export async function CheckK8sServiceName(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/checkK8sServiceName `,
+    {
+      method: 'post',
+      data: {
+        k8s_service_name: params.k8s_service_name
+      }
+    }
+  );
+}
+
+export async function SetCheckK8sServiceName(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices `,
+    {
+      method: 'put',
+      data: params.arr
+    }
+  );
+}
+export async function setGovernancemode(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/governancemode `,
+    {
+      method: 'put',
+      data: {
+        governance_mode: params.governance_mode
+      }
+    }
+  );
+}
+
 /*
    查询备份状态
 */

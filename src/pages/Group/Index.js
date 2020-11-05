@@ -37,14 +37,14 @@ import EditorTopology from './EditorTopology';
 import styles from './Index.less';
 
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user, componentControl, teamControl, enterprise, loading }) => ({
+@connect(({ user, application, teamControl, enterprise, loading }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
-  addGroupLoading: loading.effects['componentControl/addGroup'],
-  editGroupLoading: loading.effects['componentControl/editGroup'],
-  deleteLoading: loading.effects['componentControl/delete'],
+  addGroupLoading: loading.effects['application/addGroup'],
+  editGroupLoading: loading.effects['application/editGroup'],
+  deleteLoading: loading.effects['application/delete'],
   currUser: user.currentUser,
-  apps: componentControl.apps,
-  groupDetail: componentControl.groupDetail || {},
+  apps: application.apps,
+  groupDetail: application.groupDetail || {},
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise
@@ -79,7 +79,7 @@ class Main extends PureComponent {
   componentWillUnmount() {
     this.closeTimer();
     const { dispatch } = this.props;
-    dispatch({ type: 'componentControl/clearGroupDetail' });
+    dispatch({ type: 'application/clearGroupDetail' });
   }
   onCancel = () => {
     this.setState({
@@ -206,7 +206,7 @@ class Main extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: 'componentControl/fetchGroupDetail',
+      type: 'application/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -240,7 +240,7 @@ class Main extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, appID } = this.props.match.params;
     dispatch({
-      type: 'componentControl/fetchAppDetailState',
+      type: 'application/fetchAppDetailState',
       payload: {
         team_name: teamName,
         group_id: appID
@@ -289,7 +289,7 @@ class Main extends PureComponent {
   handleDelete = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'componentControl/delete',
+      type: 'application/delete',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId()
@@ -353,7 +353,7 @@ class Main extends PureComponent {
   handleEdit = (vals) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'componentControl/editGroup',
+      type: 'application/editGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getGroupId(),

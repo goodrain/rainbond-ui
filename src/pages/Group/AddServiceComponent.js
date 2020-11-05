@@ -12,10 +12,10 @@ import { languageObj } from '../../utils/utils';
 import oauthUtil from '../../utils/oauth';
 import CodeGitRepostory from '../../components/GitRepostory';
 
-@connect(({ user, componentControl, global }) => ({
+@connect(({ user, application, global }) => ({
   currUser: user.currentUser,
-  apps: componentControl.apps,
-  groupDetail: componentControl.groupDetail || {},
+  apps: application.apps,
+  groupDetail: application.groupDetail || {},
   groups: global.groups || [],
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,

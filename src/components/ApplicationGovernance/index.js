@@ -19,8 +19,8 @@ const { Option } = Select;
 
 @Form.create()
 @connect(({ loading }) => ({
-  checkK8sLoading: loading.effects['appControl/setCheckK8sServiceName'],
-  governanceLoading: loading.effects['appControl/setgovernancemode']
+  checkK8sLoading: loading.effects['application/setCheckK8sServiceName'],
+  governanceLoading: loading.effects['application/setgovernancemode']
 }))
 export default class ApplicationGovernance extends PureComponent {
   constructor(props) {
@@ -66,7 +66,7 @@ export default class ApplicationGovernance extends PureComponent {
       }
     });
     dispatch({
-      type: 'appControl/setCheckK8sServiceName',
+      type: 'application/setCheckK8sServiceName',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -115,7 +115,7 @@ export default class ApplicationGovernance extends PureComponent {
   handleGovernancemode = (value) => {
     const { dispatch, appID, onCancel } = this.props;
     dispatch({
-      type: 'appControl/setgovernancemode',
+      type: 'application/setgovernancemode',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -138,7 +138,7 @@ export default class ApplicationGovernance extends PureComponent {
   fetchServiceNameList = () => {
     const { dispatch, appID } = this.props;
     dispatch({
-      type: 'appControl/fetchServiceNameList',
+      type: 'application/fetchServiceNameList',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID
@@ -156,7 +156,7 @@ export default class ApplicationGovernance extends PureComponent {
   checkK8sServiceName = (value) => {
     const { dispatch, appID } = this.props;
     dispatch({
-      type: 'appControl/checkK8sServiceName',
+      type: 'application/checkK8sServiceName',
       payload: {
         tenantName: globalUtil.getCurrTeamName(),
         group_id: appID,
@@ -181,7 +181,7 @@ export default class ApplicationGovernance extends PureComponent {
     const { ServiceNameList } = this.stata;
     try {
       dispatch({
-        type: 'appControl/checkK8sServiceName',
+        type: 'application/checkK8sServiceName',
         payload: {
           tenantName: globalUtil.getCurrTeamName(),
           group_id: appID,

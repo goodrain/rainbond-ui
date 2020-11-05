@@ -129,7 +129,7 @@ class DrawerForm extends PureComponent {
       this.setState({ group_name: group_obj[0].group_name });
     }
     dispatch({
-      type: 'componentControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         group_id: groupObj.key,
         team_name,

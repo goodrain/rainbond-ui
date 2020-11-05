@@ -56,7 +56,7 @@ export default class SelectApp extends PureComponent {
   handleCreateApp = vals => {
     const { dispatch, currentTeam } = this.props;
     dispatch({
-      type: 'componentControl/addGroup',
+      type: 'application/addGroup',
       payload: {
         team_name: currentTeam.team_name,
         group_name: vals.group_name,

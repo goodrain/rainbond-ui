@@ -538,7 +538,7 @@ export default class Index extends PureComponent {
   handleOkApplication = vals => {
     const { dispatch } = this.props;
     dispatch({
-      type: "componentControl/addGroup",
+      type: "application/addGroup",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,

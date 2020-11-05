@@ -35,11 +35,15 @@ import {
   startPluginShareEventInShareApp,
   getPluginShareEventInShareApp,
   queryAllBackup,
-  queryRestoreState
-} from '../services/component';
+  queryRestoreState,
+  setGovernancemode,
+  SetCheckK8sServiceName,
+  CheckK8sServiceName,
+  getServiceNameList,
+} from '../services/application';
 
 export default {
-  namespace: 'componentControl',
+  namespace: 'application',
   state: {
     // app detail
     groupDetail: {},
@@ -49,6 +53,30 @@ export default {
     plugins: []
   },
   effects: {
+    *fetchServiceNameList({ payload, callback }, { call }) {
+      const response = yield call(getServiceNameList, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *checkK8sServiceName({ payload, callback }, { call }) {
+      const response = yield call(CheckK8sServiceName, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *setCheckK8sServiceName({ payload, callback }, { call }) {
+      const response = yield call(SetCheckK8sServiceName, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *setgovernancemode({ payload, callback }, { call }) {
+      const response = yield call(setGovernancemode, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
     *fetchBackupStatus({ payload, callback }, { call }) {
       const response = yield call(getBackupStatus, payload);
       if (response && callback) {

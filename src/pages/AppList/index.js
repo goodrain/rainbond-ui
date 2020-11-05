@@ -102,7 +102,7 @@ export default class AppList extends PureComponent {
   handleAddGroup = vals => {
     const { teamName } = this.props.match.params;
     this.props.dispatch({
-      type: 'componentControl/addGroup',
+      type: 'application/addGroup',
       payload: {
         team_name: teamName,
         ...vals,

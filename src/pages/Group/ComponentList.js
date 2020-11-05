@@ -56,7 +56,7 @@ export default class ComponentList extends Component {
   componentWillUnmount() {
     clearInterval(this.timer);
     this.props.dispatch({
-      type: 'componentControl/clearApps'
+      type: 'application/clearApps'
     });
   }
   onSelectChange = (selectedRowKeys) => {
@@ -87,7 +87,7 @@ export default class ComponentList extends Component {
     const { dispatch, groupId } = this.props;
     const { current, pageSize } = this.state;
     dispatch({
-      type: 'componentControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -110,7 +110,7 @@ export default class ComponentList extends Component {
     const { dispatch, groupId } = this.props;
     const { current, pageSize } = this.state;
     dispatch({
-      type: 'componentControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
