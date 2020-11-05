@@ -491,10 +491,7 @@ class Main extends PureComponent {
       type,
       customSwitch
     } = this.state;
-    // if (groupDetail.group_id != appID && !loadingDetail) {
-    //   this.fetchAppDetail();
-    // }
-
+    
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -751,7 +748,7 @@ class Main extends PureComponent {
       ),
       currentTeam,
       currentRegionName,
-      { appName: groupDetail.group_name, appID: groupDetail.group_id }
+      { appName: groupDetail.group_name, appID: groupDetail.app_id }
     );
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
