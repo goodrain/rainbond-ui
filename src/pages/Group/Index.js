@@ -440,8 +440,6 @@ class Main extends PureComponent {
     });
   };
 
-  handleOKSwitch = () => {};
-
   handleJump = (target) => {
     const { dispatch, appID } = this.props;
     dispatch(
@@ -762,9 +760,10 @@ class Main extends PureComponent {
         <Row>{pageHeaderContent}</Row>
         {customSwitch && (
           <ApplicationGovernance
+            mode={currApp && currApp.governance_mode}
             appID={this.getGroupId()}
             onCancel={this.onCancel}
-            onOk={this.handleOKSwitch}
+            onOk={this.fetchAppDetail}
           />
         )}
         <Row

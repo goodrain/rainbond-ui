@@ -281,7 +281,7 @@ export async function addGroup(body = {}) {
       data: {
         team_name: body.team_name,
         region_name: body.region_name,
-        group_name: body.group_name,
+        app_name: body.group_name,
         note: body.note
       }
     }
