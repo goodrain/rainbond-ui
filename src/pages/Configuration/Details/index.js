@@ -167,7 +167,7 @@ export default class ConfigurationDetails extends PureComponent {
     const { dispatch } = this.props;
     const { teamName, regionName, appID, id } = this.handleParameter();
     dispatch({
-      type: 'groupControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         team_name: teamName,
         region_name: regionName,

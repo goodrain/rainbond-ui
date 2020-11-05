@@ -1,4 +1,5 @@
 /* eslint-disable no-nested-ternary */
+/* eslint-disable prettier/prettier */
 import React, { Fragment, Component } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -10,17 +11,17 @@ import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
 import {
   batchOperation,
-  batchMove,
-  restart,
-  start,
-  stop
 } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 
 @connect(
-  ({ global }) => ({
-    groups: global.groups
+  ({ global, loading }) => ({
+    groups: global.groups,
+    batchMoveLoading: loading.effects['appControl/putBatchMove'],
+    reStartLoading: loading.effects['appControl/putReStart'],
+    startLoading: loading.effects['appControl/putStart'],
+    stopLoading: loading.effects['appControl/putStop']
   }),
   null,
   null,
@@ -55,7 +56,7 @@ export default class ComponentList extends Component {
   componentWillUnmount() {
     clearInterval(this.timer);
     this.props.dispatch({
-      type: 'groupControl/clearApps'
+      type: 'application/clearApps'
     });
   }
   onSelectChange = (selectedRowKeys) => {
@@ -83,16 +84,16 @@ export default class ComponentList extends Component {
     }, 5000);
   };
   loadComponents = () => {
-    const { dispatch, groupId: group_id } = this.props;
-    const { current, pageSize: page_size } = this.state;
+    const { dispatch, groupId } = this.props;
+    const { current, pageSize } = this.state;
     dispatch({
-      type: 'groupControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
-        group_id,
+        group_id: groupId,
         page: current,
-        page_size
+        page_size: pageSize
       },
       callback: (data) => {
         if (data && data._code == 200) {
@@ -106,16 +107,16 @@ export default class ComponentList extends Component {
   };
 
   deleteData = () => {
-    const { dispatch, groupId: group_id } = this.props;
-    const { current, pageSize: page_size } = this.state;
+    const { dispatch, groupId } = this.props;
+    const { current, pageSize } = this.state;
     dispatch({
-      type: 'groupControl/fetchApps',
+      type: 'application/fetchApps',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
-        group_id,
+        group_id: groupId,
         page: current,
-        page_size
+        page_size: pageSize
       },
       callback: (data) => {
         if (data && data._code == 200) {
@@ -133,40 +134,25 @@ export default class ComponentList extends Component {
       }
     });
   };
-
-  handleReStart = (data) => {
-    restart({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias
-    }).then((data) => {
-      if (data) {
-        notification.success({
-          message: '操作成功，重启中'
-        });
-      }
-    });
-  };
-  handleStart = (data) => {
-    start({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias
-    }).then((data) => {
-      if (data) {
-        notification.success({
-          message: '操作成功，启动中'
-        });
-      }
-    });
-  };
-  handleStop = (data) => {
-    stop({
-      team_name: globalUtil.getCurrTeamName(),
-      app_alias: data.service_alias
-    }).then((data) => {
-      if (data) {
-        notification.success({
-          message: '操作成功，关闭中'
-        });
+  handleOperation = (state, data) => {
+    const { dispatch } = this.props;
+    const operationMap = {
+      putReStart: '操作成功，重启中',
+      putStart: '操作成功，启动中',
+      putStop: '操作成功，关闭中'
+    };
+    dispatch({
+      type: `appControl/${state}`,
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: data.service_alias
+      },
+      callback: (res) => {
+        if (res) {
+          notification.success({
+            message: operationMap[state]
+          });
+        }
       }
     });
   };
@@ -224,16 +210,21 @@ export default class ComponentList extends Component {
   };
   handleBatchMove = (groupID) => {
     const ids = this.getSelectedKeys();
-    batchMove({
-      team_name: globalUtil.getCurrTeamName(),
-      serviceIds: ids.join(','),
-      move_group_id: groupID
-    }).then((data) => {
-      if (data) {
-        notification.success({
-          message: '批量移动中'
-        });
-        this.hideBatchDelete();
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'appControl/putBatchMove',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        serviceIds: ids.join(','),
+        move_group_id: groupID
+      },
+      callback: (data) => {
+        if (data) {
+          notification.success({
+            message: '批量移动中'
+          });
+          this.hideBatchDelete();
+        }
       }
     });
   };
@@ -260,6 +251,10 @@ export default class ComponentList extends Component {
         isUpdate,
         isConstruct
       },
+      batchMoveLoading,
+      reStartLoading,
+      startLoading,
+      stopLoading,
       groupId,
       groups
     } = this.props;
@@ -389,40 +384,34 @@ export default class ComponentList extends Component {
             {data.service_source && data.service_source !== 'third_party' && (
               <Fragment>
                 {isRestart && (
-                  <a
+                  <Button
+                    type="link"
                     onClick={() => {
-                      this.handleReStart(data);
-                    }}
-                    href="javascript:;"
-                    style={{
-                      marginRight: 10
+                      this.handleOperation('putReStart', data);
                     }}
                   >
                     重启
-                  </a>
+                  </Button>
                 )}
                 {isStart && (
-                  <a
+                  <Button
+                    type="link"
                     onClick={() => {
-                      this.handleStart(data);
-                    }}
-                    href="javascript:;"
-                    style={{
-                      marginRight: 10
+                      this.handleOperation('putStart', data);
                     }}
                   >
                     启动
-                  </a>
+                  </Button>
                 )}
                 {isStop && (
-                  <a
+                  <Button
+                    type="link"
                     onClick={() => {
-                      this.handleStop(data);
+                      this.handleOperation('putStop', data);
                     }}
-                    href="javascript:;"
                   >
                     关闭
-                  </a>
+                  </Button>
                 )}
               </Fragment>
             )}
@@ -511,6 +500,7 @@ export default class ComponentList extends Component {
               pagination={pagination}
               rowSelection={rowSelection}
               columns={columns}
+              loading={reStartLoading || startLoading || stopLoading}
               dataSource={apps || []}
               footer={() => footer}
             />
@@ -524,6 +514,7 @@ export default class ComponentList extends Component {
           )}
           {moveGroupShow && (
             <MoveGroup
+              loading={batchMoveLoading}
               currGroupID={groupId}
               groups={groups}
               onOk={this.handleBatchMove}

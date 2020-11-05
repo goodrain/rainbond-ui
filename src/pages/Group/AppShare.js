@@ -340,13 +340,13 @@ class AppInfo extends PureComponent {
   }
 }
 
-@connect(({ user, groupControl, loading, enterprise, teamControl }) => ({
+@connect(({ user, application, loading, enterprise, teamControl }) => ({
   currUser: user.currentUser,
-  apps: groupControl.apps,
+  apps: application.apps,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  groupDetail: groupControl.groupDetail || {},
+  groupDetail: application.groupDetail || {},
   loading
 }))
 @Form.create()
@@ -483,7 +483,7 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getParams();
     dispatch({
-      type: "groupControl/getShareInfo",
+      type: "application/getShareInfo",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params
@@ -533,7 +533,7 @@ export default class Main extends PureComponent {
     const { teamName, appID, shareId } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/fetchShareRecord",
+      type: "application/fetchShareRecord",
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -626,7 +626,7 @@ export default class Main extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: "application/fetchGroupDetail",
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -747,7 +747,7 @@ export default class Main extends PureComponent {
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
         dispatch({
-          type: "groupControl/subShareInfo",
+          type: "application/subShareInfo",
           payload: {
             team_name: teamName,
             share_id: shareId,
@@ -786,7 +786,7 @@ export default class Main extends PureComponent {
 
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/giveupShare",
+      type: "application/giveupShare",
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         share_id: this.props.match.params.shareId
@@ -1332,7 +1332,7 @@ export default class Main extends PureComponent {
               提交
             </Button>
             <Button
-              disabled={loading.effects["groupControl/giveupShare"]}
+              disabled={loading.effects["application/giveupShare"]}
               onClick={this.handleGiveup}
             >
               放弃分享

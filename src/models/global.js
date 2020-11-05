@@ -86,8 +86,8 @@ import {
   toEditCloudBackup,
   toEditImageHub,
   toEditOauth,
-  toQueryLinks,
   toQueryTopology,
+  toQueryLinks,
   toSearchTenant,
   upEnterpriseUsers
 } from '../services/api';
@@ -749,6 +749,10 @@ export default {
         callback(response);
       }
     },
+ 
+
+
+
     *fetAllTopology({ payload, callback }, { call }) {
       const response = yield call(toQueryTopology, payload);
       if (callback) {

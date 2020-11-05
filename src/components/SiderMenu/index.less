@@ -8,6 +8,7 @@
   overflow-x: hidden;
 }
 .addCollection {
+  display: none;
   float: right;
 }
 .checkIcon {
@@ -18,20 +19,27 @@
 .viewContent {
   width: 100%;
   padding-top : 1rem;
-
   .tit {
-    padding : 0 2rem;
+    padding : 5px 2rem;
     font-family    : PingFangSC-Medium;
     font-size      : 16px;
     color          : #BCC7D2;
     letter-spacing : 0.5px;
-    margin-bottom  : 16px;
+    margin-bottom  : 10px;
     display        : flex;
     align-items    : center;
     justify-content: space-between;
+    background: #374551;
+    .addCollection{
+      display: inline-block;
+    }
   }
   .con:hover {
-    background: #BCC7D2;
+    background: #475164;
+    // 475164 5a6fd3
+    .addCollection{
+      display: inline-block;
+    }
   }
   .con {
     font-weight: 600;
@@ -42,6 +50,9 @@
     letter-spacing: 0.88px;
     margin-bottom : 15px;
     cursor        : pointer;
+    .addCollection{
+     margin-top: 4px;
+    }
   }
 }
 

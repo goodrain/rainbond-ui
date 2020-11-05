@@ -1,4 +1,5 @@
-import React, { PureComponent, Fragment } from 'react';
+/* eslint-disable prettier/prettier */
+import React from 'react';
 import { connect } from 'dva';
 import EnvironmentVariable from '../../components/EnvironmentVariable';
 

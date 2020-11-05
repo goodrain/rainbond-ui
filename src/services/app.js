@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
@@ -251,6 +252,26 @@ export function start(
     }
   );
 }
+/*
+	批量应用启动
+*/
+export function batchStart(
+  body = {
+    team_name,
+    serviceIds
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
+    {
+      method: 'post',
+      data: {
+        action: 'start',
+        service_ids: body.serviceIds
+      }
+    }
+  );
+}
 
 /*
 	应用关闭
@@ -265,6 +286,27 @@ export function stop(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`,
     {
       method: 'post'
+    }
+  );
+}
+
+/*
+	批量应用关闭
+*/
+export function batchStop(
+  body = {
+    team_name,
+    serviceIds
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
+    {
+      method: 'post',
+      data: {
+        action: 'stop',
+        service_ids: body.serviceIds
+      }
     }
   );
 }
@@ -568,8 +610,7 @@ export function getMnt(
 export function addMnt(
   body = {
     team_name,
-    app_alias,
-    body
+    app_alias
   }
 ) {
   return request(
@@ -742,6 +783,7 @@ export async function editPortAlias(
       method: 'put',
       data: {
         action: 'change_port_alias',
+        k8s_service_name: body.k8s_service_name,
         port_alias: body.port_alias
       }
     }
@@ -926,16 +968,7 @@ export async function deleteVariable(
  添加应用的自定义环境变量
  name ： 说明
 */
-export async function addInnerEnvs(
-  body = {
-    team_name,
-    app_alias,
-    name,
-    attr_name,
-    attr_value,
-    scope
-  }
-) {
+export async function addInnerEnvs(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
     {
@@ -983,15 +1016,7 @@ export async function getOuterEnvs(
  添加应用的自定义环境变量
  name ： 说明
 */
-export async function addOuterEnvs(
-  body = {
-    team_name,
-    app_alias,
-    name,
-    attr_name,
-    attr_value
-  }
-) {
+export async function addOuterEnvs(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
     {
@@ -1010,15 +1035,7 @@ export async function addOuterEnvs(
  修改应用的环境变量
  name ： 说明
 */
-export async function editEvns(
-  body = {
-    team_name,
-    app_alias,
-    name,
-    ID,
-    attr_value
-  }
-) {
+export async function editEvns(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs/${body.ID}`,
     {
@@ -2111,12 +2128,7 @@ export async function getMembers(
 /*
 	获取团队成员
 */
-export async function getPermissions(
-  body = {
-    team_name,
-    app_alias
-  }
-) {
+export async function getPermissions() {
   return request(
     `${apiconfig.baseUrl}/console/teams/three_service/operate_options`,
     {
