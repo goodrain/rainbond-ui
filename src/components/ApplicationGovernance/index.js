@@ -249,7 +249,7 @@ export default class ApplicationGovernance extends PureComponent {
       >
         <Alert
           style={{ marginBottom: '20px' }}
-          message="应用治理模式主要指组件见通信模式，目前支持内置ServiceMesh模式和Kubernetes原生Service模式"
+          message="应用治理模式主要指组件间通信模式的治理，目前支持内置ServiceMesh模式和Kubernetes原生Service模式"
           type="info"
           showIcon
         />
