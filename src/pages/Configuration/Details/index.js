@@ -59,7 +59,8 @@ export default class ConfigurationDetails extends PureComponent {
           vals.config_items &&
           vals.config_items.length === 1 &&
           vals.config_items[0].item_key === '' &&
-          vals.config_items[0].item_value === ''
+          (vals.config_items[0].item_value === '' ||
+            vals.config_items[0].item_value)
         ) {
           vals.config_items = [];
         }
@@ -79,6 +80,7 @@ export default class ConfigurationDetails extends PureComponent {
   };
   handleConfiguration = (vals) => {
     const { dispatch } = this.props;
+    const { info } = this.state;
     const { teamName, regionName, appID, id } = this.handleParameter();
 
     const parameter = {
@@ -115,10 +117,23 @@ export default class ConfigurationDetails extends PureComponent {
         },
         callback: (res) => {
           if (res) {
+            const arr = [];
+            let UpDataList = [];
+            if (info && info.services && info.services.length > 0) {
+              info.services.map((item) => {
+                if (item.service_id) {
+                  arr.push(item.service_id);
+                }
+              });
+            }
+            if ((serviceIds && serviceIds.length > 0) || arr.length > 0) {
+              UpDataList = Array.from(new Set([...serviceIds, ...arr]));
+            }
+
             notification.success({ message: '保存成功' });
             this.handleClose();
-            if (serviceIds && serviceIds.length > 0) {
-              this.showRemind(serviceIds);
+            if (UpDataList.length > 0) {
+              this.showRemind(UpDataList);
             } else {
               this.onCancel();
             }
@@ -151,7 +166,8 @@ export default class ConfigurationDetails extends PureComponent {
     batchOperation({
       action: 'upgrade',
       team_name: teamName,
-      serviceIds: serviceIds && serviceIds.join(',')
+      serviceIds:
+        serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
     }).then((data) => {
       if (data) {
         notification.success({
@@ -177,9 +193,14 @@ export default class ConfigurationDetails extends PureComponent {
       },
       callback: (res) => {
         if (res && res._code == 200) {
-          this.setState({
-            apps: res.list || []
-          });
+          if (res.list && res.list.length > 0) {
+            const arr = res.list.filter(
+              (item) => item.service_source !== 'third_party'
+            );
+            this.setState({
+              apps: arr
+            });
+          }
           if (id === 'add') {
             this.setState({
               loading: false
@@ -216,12 +237,13 @@ export default class ConfigurationDetails extends PureComponent {
   checkConfiguration = (rule, value, callback) => {
     if (value && value.length > 0) {
       const arr = value.filter(
-        (item) => item.item_key === '' || item.item_value === ''
+        (item) =>
+          item.item_key === '' || (item.item_key === '' && item.item_value)
       );
       if (value[0].item_key === '' && value[0].item_value === '') {
         callback();
       } else if (arr && arr.length > 0) {
-        callback('配置项不能为空');
+        callback('配置项key值不能为空');
       } else {
         let judge = false;
         value.map((item) => {
