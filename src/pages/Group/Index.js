@@ -634,7 +634,7 @@ class Main extends PureComponent {
                 {currApp.create_time
                   ? moment(currApp.create_time)
                       .locale('zh-cn')
-                      .format('YYYY-MM-DD')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -644,7 +644,7 @@ class Main extends PureComponent {
                 {currApp.update_time
                   ? moment(currApp.update_time)
                       .locale('zh-cn')
-                      .format('YYYY-MM-DD')
+                      .format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </span>
             </div>
@@ -667,7 +667,7 @@ class Main extends PureComponent {
               <span>负责人</span>
               <span>
                 {currApp.principal || '-'}
-                {isEdit && currApp.principal && (
+                {isEdit  && (
                   <Icon
                     style={{
                       cursor: 'pointer',
