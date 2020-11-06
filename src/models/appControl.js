@@ -137,6 +137,7 @@ import {
   unInstallPlugin,
   updateComponentDeployType,
   updateServiceName,
+  getComponentMetrics,
 } from '../services/app';
 
 import { getGroupApps } from '../services/application';
@@ -201,6 +202,12 @@ export default {
     build_upgrade: ''
   },
   effects: {
+    *fetchComponentMetrics({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentMetrics, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchOperationLog({ payload, callback, handleError }, { call }) {
       const response = yield call(fetchOperationLog, payload, handleError);
       if (response && callback) {

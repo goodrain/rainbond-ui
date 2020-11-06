@@ -4,13 +4,13 @@
 /* eslint-disable import/extensions */
 /* eslint-disable react/sort-comp */
 // eslint-disable-next-line react/no-multi-comp
-import React, { Fragment, PureComponent } from "react";
-import moment from "moment";
-import { Card, Spin } from "antd";
-import { Axis, Chart, Geom, Legend, Tooltip } from "bizcharts";
-import globalUtil from "@/utils/global";
-import monitorDataUtil from "@/utils/monitorDataUtil";
-import { start } from "@/services/app";
+import React, { Fragment, PureComponent } from 'react';
+import moment from 'moment';
+import { Card, Spin } from 'antd';
+import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
+import globalUtil from '@/utils/global';
+import monitorDataUtil from '@/utils/monitorDataUtil';
+import { start } from '@/services/app';
 
 export default class RangeChart extends PureComponent {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class RangeChart extends PureComponent {
 
   componentDidMount() {
     const { moduleName } = this.props;
-    if (moduleName === "PerformanceAnalysis") {
+    if (moduleName === 'PerformanceAnalysis') {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
@@ -33,22 +33,22 @@ export default class RangeChart extends PureComponent {
     const { start, end, step, moduleName } = this.props;
     const { start: newStart, end: newEnd, step: newStep } = nextProps;
     const isUpData = start !== newStart || end !== newEnd || step !== newStep;
-    if (moduleName === "PerformanceAnalysis" && isUpData) {
+    if (moduleName === 'PerformanceAnalysis' && isUpData) {
       this.loadPerformanceAnalysis(nextProps);
     } else if (isUpData) {
       this.loadRangeData(nextProps);
     }
   }
 
-  loadPerformanceAnalysis = props => {
+  loadPerformanceAnalysis = (props) => {
     this.setState({ loading: true });
     const { dispatch, appAlias } = props;
     dispatch({
-      type: "appControl/fetchPerformanceAnalysis",
+      type: 'appControl/fetchPerformanceAnalysis',
       payload: Object.assign({}, this.handleParameter(props), {
         app_alias: appAlias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ performanceObj: re.bean });
@@ -56,15 +56,15 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  loadRangeData = props => {
+  loadRangeData = (props) => {
     this.setState({ loading: true });
     const { appDetail, dispatch } = props;
     dispatch({
-      type: "monitor/getMonitorRangeData",
+      type: 'monitor/getMonitorRangeData',
       payload: Object.assign({}, this.handleParameter(props), {
         componentAlias: appDetail.service.service_alias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ memoryRange: re.bean.result });
@@ -72,7 +72,7 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  handleParameter = props => {
+  handleParameter = (props) => {
     const { type, start, end } = props;
     return {
       query: this.getQueryByType(type),
@@ -83,23 +83,23 @@ export default class RangeChart extends PureComponent {
     };
   };
 
-  getQueryByType = T => {
+  getQueryByType = (T) => {
     const { appDetail } = this.props;
     const serviceId = appDetail.service.service_id;
     switch (T) {
-      case "containerMem":
+      case 'containerMem':
         return `container_memory_rss{name=~"k8s_${serviceId}.*"}/1024/1024`;
-      case "containerCpu":
+      case 'containerCpu':
         return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${serviceId}.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${serviceId}.*"}/container_spec_cpu_period{name=~"k8s_${serviceId}.*"}) by (pod, namespace)) * 100`;
-      case "containerNetR":
+      case 'containerNetR':
         return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${serviceId}.*"}[1m])/1024`;
-      case "containerNetT":
+      case 'containerNetT':
         return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${serviceId}.*"}[1m])/1024`;
-      case "responseTime":
+      case 'responseTime':
         return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
-      case "throughput":
+      case 'throughput':
         return `sum(ceil(increase(app_request{service_id="${serviceId}",method="total"}[1m])/12))`;
-      case "numberOnline":
+      case 'numberOnline':
         return `max(app_requestclient{service_id="${serviceId}"})`;
       default:
         return ``;
@@ -108,31 +108,31 @@ export default class RangeChart extends PureComponent {
   getMeta = () => {
     const { type } = this.props;
     switch (type) {
-      case "containerMem":
-        return { title: "内存使用量", label: "内存（MB）", unit: " MB" };
-      case "containerCpu":
-        return { title: "CPU使用率", label: "CPU使用率（%）", unit: "%" };
-      case "containerNetR":
-        return { title: "传入流量", label: "流量（KB/s）", unit: " KB/s" };
-      case "containerNetT":
-        return { title: "传出流量", label: "流量（KB/s）", unit: " KB/s" };
-      case "responseTime":
-        return { title: "响应时间", label: "响应时间（ms）", unit: " ms" };
-      case "throughput":
-        return { title: "吞吐率", label: "吞吐率（dps）", unit: " dps" };
-      case "numberOnline":
-        return { title: "在线人数", label: "在线人数", unit: "" };
+      case 'containerMem':
+        return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
+      case 'containerCpu':
+        return { title: 'CPU使用率', label: 'CPU使用率（%）', unit: '%' };
+      case 'containerNetR':
+        return { title: '传入流量', label: '流量（KB/s）', unit: ' KB/s' };
+      case 'containerNetT':
+        return { title: '传出流量', label: '流量（KB/s）', unit: ' KB/s' };
+      case 'responseTime':
+        return { title: '响应时间', label: '响应时间（ms）', unit: ' ms' };
+      case 'throughput':
+        return { title: '吞吐率', label: '吞吐率（dps）', unit: ' dps' };
+      case 'numberOnline':
+        return { title: '在线人数', label: '在线人数', unit: '' };
       default:
-        return { title: "", label: "", unit: "" };
+        return { title: '', label: '', unit: '' };
     }
   };
-  converData = dataRange => {
+  converData = (dataRange) => {
     const rangedata = [];
     if (dataRange) {
-      dataRange.map(item => {
+      dataRange.map((item) => {
         const cid = item.metric.pod;
         if (item.values) {
-          item.values.map(v => {
+          item.values.map((v) => {
             rangedata.push({
               cid,
               time: v[0] * 1000,
@@ -147,7 +147,7 @@ export default class RangeChart extends PureComponent {
 
   loadRefresh = () => {
     const { moduleName } = this.props;
-    if (moduleName === "PerformanceAnalysis") {
+    if (moduleName === 'PerformanceAnalysis') {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
@@ -159,25 +159,24 @@ export default class RangeChart extends PureComponent {
     const { memoryRange, performanceObj, loading } = this.state;
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === "PerformanceAnalysis"
+      moduleName === 'PerformanceAnalysis'
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
+    console.log('memoryRange',memoryRange);
+    console.log('performanceObj',performanceObj);
     const cols = {
       time: {
-        alias: "时间",
+        alias: '时间',
         tickCount: 10,
-        type: "time",
-        formatter: v =>
-          moment(new Date(v))
-            .locale("zh-cn")
-            .format("HH:mm")
+        type: 'time',
+        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
       },
       value: {
         alias: { label },
         tickCount: 5
       },
       cid: {
-        type: "cat"
+        type: 'cat'
       }
     };
     return (
@@ -192,13 +191,13 @@ export default class RangeChart extends PureComponent {
               <Axis
                 name="value"
                 label={{
-                  formatter: val => `${val}${unit}`
+                  formatter: (val) => `${val}${unit}`
                 }}
               />
               <Axis name="time" />
               <Tooltip
                 crosshairs={{
-                  type: "y"
+                  type: 'y'
                 }}
               />
               <Geom

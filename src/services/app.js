@@ -3,6 +3,18 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+export function getComponentMetrics(body = {}) {
+  return request(
+    `https://doc.goodrain.org/mock/18/console/monitor/metrics`,{
+    // `${apiconfig.baseUrl}/console/monitor/metrics`, {
+    method: 'get',
+    params: {
+      target: 'component',
+      component_id: body.serviceId
+    }
+  });
+}
+
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
   return request(
