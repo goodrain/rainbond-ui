@@ -19,6 +19,7 @@ import {
 } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import styless from './index.less';
+import ConfirmModal from '@/components/ConfirmModal';
 import monitorDataUtil from '@/utils/monitorDataUtil';
 import { start } from '@/services/app';
 
@@ -32,7 +33,8 @@ export default class CustomMonitoring extends PureComponent {
       indicators: [],
       memoryRange: [],
       performanceObj: {},
-      loading: false
+      loading: false,
+      showDelete: false
     };
   }
   componentWillMount() {
@@ -104,6 +106,19 @@ export default class CustomMonitoring extends PureComponent {
       }
     });
   };
+  onDelete = () => {
+    this.setState({
+      showDelete: true
+    });
+  };
+  cancalDelete = () => {
+    this.setState({
+      showDelete: false
+    });
+  };
+  handleSubmitDelete = () => {
+    this.cancalDelete();
+  };
   render() {
     const { moduleName, form, onCancel } = this.props;
     const { getFieldDecorator } = form;
@@ -131,6 +146,15 @@ export default class CustomMonitoring extends PureComponent {
 
     return (
       <Fragment>
+        {this.state.showDelete && (
+          <ConfirmModal
+            title="业务监控视图删除"
+            desc="确定要删除此视图吗？"
+            subDesc="此操作不可恢复"
+            onOk={this.handleSubmitDelete}
+            onCancel={this.cancalDelete}
+          />
+        )}
         <Form onSubmit={this.onOk}>
           <Spin spinning={loading}>
             <Col span={12}>
@@ -161,6 +185,7 @@ export default class CustomMonitoring extends PureComponent {
                     <a style={{ marginRight: '5px' }} onClick={onCancel}>
                       取消
                     </a>
+                    <a onClick={this.onDelete}>删除</a>
                     <a onClick={this.onOk}>保存</a>
                   </div>
                 }

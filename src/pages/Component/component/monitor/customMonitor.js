@@ -20,7 +20,7 @@ export default class customMonitor extends PureComponent {
     super(props);
     this.state = {
       isMonitoryPoint: false,
-      isCustomMonitoring: true
+      isCustomMonitoring: false
     };
   }
   componentWillMount() {
@@ -47,7 +47,7 @@ export default class customMonitor extends PureComponent {
           <Row>
             <CustomChart
               moduleName="PerformanceAnalysis"
-              RangeData={['responseTime']}
+              // RangeData={['responseTime']}
               operation={
                 <div style={{ display: 'inline-block', width: '88%' }}>
                   <Button
@@ -58,6 +58,15 @@ export default class customMonitor extends PureComponent {
                     }}
                   >
                     添加图表
+                  </Button>
+                  <Button
+                    icon="plus"
+                    style={{ marginLeft: '5px' }}
+                    onClick={() => {
+                      this.handleCustomMonitoring(true);
+                    }}
+                  >
+                    一键导入
                   </Button>
                   <Button
                     style={{ float: 'right', marginTop: '4px' }}
@@ -72,6 +81,14 @@ export default class customMonitor extends PureComponent {
             />
           </Row>
         )}
+        {!isMonitoryPoint && (
+          <Alert
+            style={{ textAlign: 'center' }}
+            message="暂无业务监控图、请先添加管理监控点"
+            type="info"
+          />
+        )}
+
         {isCustomMonitoring && (
           <CustomMonitoring
             serviceId={serviceId}
