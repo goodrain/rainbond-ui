@@ -258,7 +258,7 @@ export default class ConfigurationTable extends PureComponent {
                 }
               },
               {
-                title: '生效组件',
+                title: '生效组件数',
                 dataIndex: 'services_num',
                 align: 'center',
                 render: (val, data) => {
