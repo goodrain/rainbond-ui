@@ -9,6 +9,7 @@ import CustomMonitoring from '@/components/CustomMonitoring';
 import CustomChart from '@/components/CustomChart';
 import globalUtil from '@//utils/global';
 import roleUtil from '@/utils/role';
+import Result from '@/components/Result';
 
 /* eslint react/no-array-index-key: 0 */
 
@@ -60,7 +61,6 @@ export default class customMonitor extends PureComponent {
                     添加图表
                   </Button>
                   <Button
-                    icon="plus"
                     style={{ marginLeft: '5px' }}
                     onClick={() => {
                       this.handleCustomMonitoring(true);
@@ -81,11 +81,11 @@ export default class customMonitor extends PureComponent {
             />
           </Row>
         )}
-        {!isMonitoryPoint && (
-          <Alert
-            style={{ textAlign: 'center' }}
-            message="暂无业务监控图、请先添加管理监控点"
-            type="info"
+        {!isMonitoryPoint && !isCustomMonitoring && (
+          <Result
+            style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
+            type="warning"
+            description="暂无业务监控图、请先添加管理监控点"
           />
         )}
 
