@@ -18,27 +18,29 @@ import {
   Select,
   Table,
   Tabs
-} from "antd";
-import { connect } from "dva";
-import { routerRedux } from "dva/router";
-import React, { Fragment, PureComponent } from "react";
-import CreateAppModels from "../../components/CreateAppModels";
-import FooterToolbar from "../../components/FooterToolbar";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import CreateAppModels from '../../components/CreateAppModels';
+import FooterToolbar from '../../components/FooterToolbar';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import {
   createApp,
   createEnterprise,
   createTeam
-} from "../../utils/breadcrumb";
-import cookie from "../../utils/cookie";
-import globalUtil from "../../utils/global";
-import pluginUtil from "../../utils/plugin";
-import mytabcss from "./mytab.less";
+} from '../../utils/breadcrumb';
+import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
+import pluginUtil from '../../utils/plugin';
+import mytabcss from './mytab.less';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
+const { confirm } = Modal;
+
 const formItemLayout = {
   labelCol: {
     span: 8
@@ -48,7 +50,7 @@ const formItemLayout = {
   }
 };
 
-const token = cookie.get("token");
+const token = cookie.get('token');
 const myheaders = {};
 if (token) {
   myheaders.Authorization = `GRJWT ${token}`;
@@ -75,7 +77,7 @@ class AppInfo extends PureComponent {
   handleCheckChange = (appname, val, e) => {
     const name = {};
     const thisval = val;
-    name[appname] = "**None**";
+    name[appname] = '**None**';
     if (e.target.checked) {
       this.props.form.setFieldsValue(name);
     } else {
@@ -113,13 +115,13 @@ class AppInfo extends PureComponent {
                     rules: [
                       {
                         required: true,
-                        message: "不能为空"
+                        message: '不能为空'
                       }
                     ]
                   })(<Input placeholder={item.attr_value} />)}
                   {getFieldDecorator(`connect||${item.attr_name}||random`, {
-                    valuePropName: "checked",
-                    initialValue: item.attr_value == "**None**"
+                    valuePropName: 'checked',
+                    initialValue: item.attr_value == '**None**'
                   })(
                     <Checkbox
                       // eslint-disable-next-line react/jsx-no-bind
@@ -133,7 +135,7 @@ class AppInfo extends PureComponent {
                     </Checkbox>
                   )}
                   {getFieldDecorator(`connect||${item.attr_name}||is_change`, {
-                    valuePropName: "checked",
+                    valuePropName: 'checked',
                     initialValue: item.is_change
                   })(<Checkbox>可修改</Checkbox>)}
                 </FormItem>
@@ -182,7 +184,7 @@ class AppInfo extends PureComponent {
                         rules: [
                           {
                             required: true,
-                            message: "不能为空"
+                            message: '不能为空'
                           }
                         ]
                       }
@@ -190,12 +192,12 @@ class AppInfo extends PureComponent {
                     {getFieldDecorator(
                       `env||${attr_name}||is_change||${attr_value}`,
                       {
-                        valuePropName: "checked",
+                        valuePropName: 'checked',
                         initialValue: is_change,
                         rules: [
                           {
                             required: false,
-                            message: ""
+                            message: ''
                           }
                         ]
                       }
@@ -211,7 +213,7 @@ class AppInfo extends PureComponent {
     return null;
   };
   renderExtend = () => {
-    const { app = {}, ID = "extend", form } = this.props;
+    const { app = {}, ID = 'extend', form } = this.props;
 
     const { getFieldDecorator, getFieldValue } = form;
 
@@ -239,12 +241,12 @@ class AppInfo extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: "输入格式不正确"
+                      message: '输入格式不正确'
                     }
                   ]
                 })(
                   <InputNumber
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     placeholder="请输入最小节点"
                     min={1}
                     step={steps || app.extend_method_map.step_node}
@@ -259,12 +261,12 @@ class AppInfo extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: "输入格式不正确"
+                      message: '输入格式不正确'
                     }
                   ]
                 })(
                   <InputNumber
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     placeholder="请输入最大节点"
                     min={1}
                     step={steps || app.extend_method_map.step_node}
@@ -279,12 +281,12 @@ class AppInfo extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: "输入格式不正确"
+                      message: '输入格式不正确'
                     }
                   ]
                 })(
                   <InputNumber
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     placeholder="请输入节点步长"
                     min={app.extend_method_map.min_node}
                     max={app.extend_method_map.max_node}
@@ -299,12 +301,12 @@ class AppInfo extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: "输入格式不正确"
+                      message: '输入格式不正确'
                     }
                   ]
                 })(
                   <InputNumber
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                     placeholder="请输入最小内存"
                     min={64}
                     // min={app.extend_method_map.min_memory}
@@ -347,26 +349,26 @@ export default class Main extends PureComponent {
     super(arg);
     this.state = {
       previewVisible: false,
-      previewImage: "",
+      previewImage: '',
       toDelete: false,
       recordShare: false,
       checkShare: true,
       ShareStep: 0,
       ID: 0,
       info: null,
-      selectedApp: "",
+      selectedApp: '',
       service: null,
-      key: "",
+      key: '',
       fileList: [],
       shareList: [],
       sharearrs: [],
       shareModal: null,
-      isShare: "false",
-      service_cname: "",
+      isShare: 'false',
+      service_cname: '',
       dep_service_name: [],
       share_service_list: [],
       ShareTypeShow: false,
-      scopeValue: "goodrain:private",
+      scopeValue: 'goodrain:private',
       appDetail: {},
       record: {},
       model: {},
@@ -391,7 +393,7 @@ export default class Main extends PureComponent {
     this.setState({
       shareModal: null,
       isShare: isShare || this.state.isShare,
-      service_cname: "",
+      service_cname: '',
       dep_service_name: []
     });
   };
@@ -420,7 +422,7 @@ export default class Main extends PureComponent {
       });
 
       let show = false;
-      let name = "";
+      let name = '';
       if (newArray.length > 0 && dep_service_key.length > 0) {
         newArray.map(item => {
           share_service_data.map(option => {
@@ -453,7 +455,7 @@ export default class Main extends PureComponent {
         );
       }
     } else {
-      notification.warning({ message: "分享组件不能少于1个" });
+      notification.warning({ message: '分享组件不能少于1个' });
     }
   };
   getParams() {
@@ -475,13 +477,13 @@ export default class Main extends PureComponent {
     const { dispatch } = this.props;
     const params = this.getParams();
     dispatch({
-      type: "groupControl/getShareInfo",
+      type: 'groupControl/getShareInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         ...params
       },
       callback: data => {
-        let selectedApp = "";
+        let selectedApp = '';
         if (data) {
           if (data.bean.share_service_list[0]) {
             selectedApp = data.bean.share_service_list[0].service_alias;
@@ -525,7 +527,7 @@ export default class Main extends PureComponent {
     const { teamName, appID, shareId } = this.props.match.params;
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/fetchShareRecord",
+      type: 'groupControl/fetchShareRecord',
       payload: {
         team_name: teamName,
         app_id: appID,
@@ -554,17 +556,17 @@ export default class Main extends PureComponent {
       team_name: teamName,
       app_id: appID
     };
-    if (scope == "goodrain" && scopeTarget) {
-      body.scope = "goodrain";
+    if (scope == 'goodrain' && scopeTarget) {
+      body.scope = 'goodrain';
       body.market_id = scopeTarget.store_id;
     } else {
-      body.scope = "local";
+      body.scope = 'local';
     }
     // const isMarket = scopeTarget && scopeTarget.store_id;
 
     this.setState({ loadingModels: true });
     dispatch({
-      type: "enterprise/fetchShareModels",
+      type: 'enterprise/fetchShareModels',
       payload: body,
       callback: res => {
         if (res && res._code === 200) {
@@ -583,7 +585,7 @@ export default class Main extends PureComponent {
                   });
                   if (info && info.length > 0) {
                     setFieldsValue({
-                      describe: info[0].app_describe || ""
+                      describe: info[0].app_describe || ''
                     });
                     this.setState({
                       model: info[0]
@@ -596,12 +598,12 @@ export default class Main extends PureComponent {
                     app_id: res.list[0].app_id
                   });
                 }
-                if (JSON.stringify(res.bean) === "{}") {
+                if (JSON.stringify(res.bean) === '{}') {
                   this.changeCurrentModel(res.list[0].app_id);
                 } else {
                   this.changeCurrentModel(
                     isCreate ? res.list[0].app_id : res.bean && res.bean.app_id,
-                    isCreate ? "" : res.bean && res.bean.version,
+                    isCreate ? '' : res.bean && res.bean.version,
                     isCreate
                   );
                 }
@@ -618,7 +620,7 @@ export default class Main extends PureComponent {
     const { teamName, regionName, appID } = this.props.match.params;
     this.setState({ loadingDetail: true });
     dispatch({
-      type: "groupControl/fetchGroupDetail",
+      type: 'groupControl/fetchGroupDetail',
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -643,6 +645,34 @@ export default class Main extends PureComponent {
       }
     });
   };
+  handleSubmitConditions = () => {
+    const { record, versionInfo } = this.state;
+    const { form } = this.props;
+    const _th = this;
+    form.validateFields((err, values) => {
+      if (!err) {
+        if (
+          record.scope !== 'goodrain' &&
+          versionInfo &&
+          values.version === versionInfo.version &&
+          versionInfo.dev_status
+        ) {
+          confirm({
+            title:
+              '当前发布版本是Release状态，发布成功后该版本将取消Release状态',
+            content: '',
+            okText: '确认',
+            cancelText: '取消',
+            onOk() {
+              _th.handleSubmit();
+            }
+          });
+        } else {
+          _th.handleSubmit();
+        }
+      }
+    });
+  };
   handleSubmit = () => {
     const { dispatch, form } = this.props;
     const { record, sharearrs } = this.state;
@@ -657,12 +687,12 @@ export default class Main extends PureComponent {
           version: values.version,
           version_alias: values.version_alias
         };
-        if (record.scope == "goodrain") {
+        if (record.scope == 'goodrain') {
           appVersionInfo.scope_target = record.scope_target;
           appVersionInfo.scope = record.scope;
           appVersionInfo.market_id =
             record.scope_target && record.scope_target.store_id;
-          appVersionInfo.template_type = "RAM";
+          appVersionInfo.template_type = 'RAM';
         }
         const share_service_data = this.share_service_list;
 
@@ -705,17 +735,17 @@ export default class Main extends PureComponent {
           share_service_data.map(option => {
             if (option.service_alias == apptab) {
               for (var index in appvalue) {
-                const indexname = "";
+                const indexname = '';
                 var indexarr = [];
-                indexarr = index.split("||");
-                if (indexarr[0] == "connect" && indexarr[2] != "random") {
+                indexarr = index.split('||');
+                if (indexarr[0] == 'connect' && indexarr[2] != 'random') {
                   option.service_connect_info_map_list.map(serapp => {
                     if (serapp.attr_name == indexarr[1]) {
                       serapp[indexarr[2]] = appvalue[index];
                     }
                   });
                 }
-                if (indexarr[0] == "env") {
+                if (indexarr[0] == 'env') {
                   option.service_env_map_list.map(serapp => {
                     if (
                       serapp.attr_name == indexarr[1] &&
@@ -725,7 +755,7 @@ export default class Main extends PureComponent {
                     }
                   });
                 }
-                if (indexarr[0] == "extend") {
+                if (indexarr[0] == 'extend') {
                   option.extend_method_map[indexarr[1]] = appvalue[index];
                 }
               }
@@ -739,7 +769,7 @@ export default class Main extends PureComponent {
         const teamName = globalUtil.getCurrTeamName();
         const { appID, shareId } = this.props.match.params;
         dispatch({
-          type: "groupControl/subShareInfo",
+          type: 'groupControl/subShareInfo',
           payload: {
             team_name: teamName,
             share_id: shareId,
@@ -749,7 +779,7 @@ export default class Main extends PureComponent {
           callback: data => {
             this.setState({ submitLoading: false });
             if (data) {
-              this.onCancels("false");
+              this.onCancels('false');
               dispatch(
                 routerRedux.push(
                   `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/share/${shareId}/two`
@@ -762,11 +792,11 @@ export default class Main extends PureComponent {
             const data = err && err.data;
             const msg = data && data.msg_show;
             if (data && data.code && data.code === 10501) {
-              notification.warning({ message: "提示", description: msg });
-              this.setState({ isShare: "true" });
+              notification.warning({ message: '提示', description: msg });
+              this.setState({ isShare: 'true' });
               return null;
             }
-            notification.warning({ message: "请求错误", description: msg });
+            notification.warning({ message: '请求错误', description: msg });
           }
         });
       }
@@ -778,7 +808,7 @@ export default class Main extends PureComponent {
 
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/giveupShare",
+      type: 'groupControl/giveupShare',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         share_id: this.props.match.params.shareId
@@ -809,7 +839,7 @@ export default class Main extends PureComponent {
 
   handleSubmits = () => {
     this.setState(
-      { sharearrs: this.state.shareModal, isShare: "true", shareModal: null },
+      { sharearrs: this.state.shareModal, isShare: 'true', shareModal: null },
       () => {
         this.handleTabList();
       }
@@ -843,7 +873,7 @@ export default class Main extends PureComponent {
     const { setFieldsValue } = this.props.form;
     const { value } = e.target;
     this.setState({
-      ShareTypeShow: value == "goodrain"
+      ShareTypeShow: value == 'goodrain'
     });
     setFieldsValue({ scope: value });
   };
@@ -871,7 +901,7 @@ export default class Main extends PureComponent {
     this.setState({ showCreateAppModel: false });
   };
   handleCreateAppModel = () => {
-    notification.success({ message: "创建成功" });
+    notification.success({ message: '创建成功' });
     this.fetchModels(true);
     this.hideCreateAppModel();
   };
@@ -918,20 +948,20 @@ export default class Main extends PureComponent {
     const { setFieldsValue } = this.props.form;
     this.setState({ versionInfo });
     setFieldsValue({
-      version: isCreate ? "0.1" : versionInfo ? versionInfo.version : ""
+      version: isCreate ? '0.1' : versionInfo ? versionInfo.version : ''
     });
     setFieldsValue({
-      version_alias: versionInfo ? versionInfo.version_alias : ""
+      version_alias: versionInfo ? versionInfo.version_alias : ''
     });
     setFieldsValue({
       describe: versionInfo
         ? versionInfo.describe || versionInfo.app_describe
-        : ""
+        : ''
     });
   };
 
   handleEditorAppModel = info => {
-    notification.success({ message: "编辑成功" });
+    notification.success({ message: '编辑成功' });
     this.fetchModels(false, info);
     this.hideEditorAppModel();
   };
@@ -955,12 +985,12 @@ export default class Main extends PureComponent {
 
   // 验证上传文件方式
   checkVersion = (rules, value, callback) => {
-    if (value === "" || !value) {
-      callback("版本不能为空, 请选择或添加版本");
+    if (value === '' || !value) {
+      callback('版本不能为空, 请选择或添加版本');
     }
     if (value) {
       if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(value)) {
-        callback("只允许输入数字、版本格式:1.0或1.0.0");
+        callback('只允许输入数字、版本格式:1.0或1.0.0');
         return;
       }
     }
@@ -998,7 +1028,7 @@ export default class Main extends PureComponent {
       submitLoading,
       appModelInfo
     } = this.state;
-    const Application = getFieldValue("app_id");
+    const Application = getFieldValue('app_id');
     let breadcrumbList = [];
     breadcrumbList = createApp(
       createTeam(
@@ -1011,15 +1041,16 @@ export default class Main extends PureComponent {
       { appName: appDetail.group_name, appID: appDetail.group_id }
     );
     breadcrumbList.push({
-      title: "发布记录列表",
+      title: '发布记录列表',
       href: `/team/${currentTeam.team_name}/region/${currentRegionName}/apps/${appDetail.group_id}/publish`
     });
-    if (record && record.scope == "goodrain") {
-      breadcrumbList.push({ title: "发布到云应用商店" });
+    if (record && record.scope == 'goodrain') {
+      breadcrumbList.push({ title: '发布到云应用商店' });
     } else {
-      breadcrumbList.push({ title: "发布到组件库" });
+      breadcrumbList.push({ title: '发布到组件库' });
     }
     const market_id = record.scope_target && record.scope_target.store_id;
+    console.log('versionInfo', versionInfo && versionInfo.dev_status);
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1035,19 +1066,19 @@ export default class Main extends PureComponent {
           >
             <div
               style={{
-                padding: "24px"
+                padding: '24px'
               }}
             >
               {/* <Form layout="horizontal" className={styles.stepForm}> */}
               <Row gutter={24}>
                 <Col span="12">
                   <Form.Item {...formItemLayout} label="应用模版">
-                    {getFieldDecorator("app_id", {
+                    {getFieldDecorator('app_id', {
                       initialValue: model.app_id,
                       rules: [
                         {
                           required: true,
-                          message: "应用模版选择是必须的"
+                          message: '应用模版选择是必须的'
                         }
                       ]
                     })(
@@ -1058,12 +1089,12 @@ export default class Main extends PureComponent {
                         dropdownRender={menu => (
                           <div>
                             {menu}
-                            <Divider style={{ margin: "4px 0" }} />
+                            <Divider style={{ margin: '4px 0' }} />
                             <div
                               style={{
-                                padding: "4px 8px",
-                                cursor: "pointer",
-                                textAlign: "center"
+                                padding: '4px 8px',
+                                cursor: 'pointer',
+                                textAlign: 'center'
                               }}
                               onMouseDown={e => e.preventDefault()}
                               onClick={this.showCreateAppModel}
@@ -1080,7 +1111,7 @@ export default class Main extends PureComponent {
                     )}
                     {Application && models && models.length > 0 && !market_id && (
                       <a
-                        style={{ marginLeft: "10px" }}
+                        style={{ marginLeft: '10px' }}
                         onClick={() => {
                           this.showEditorAppModel(Application);
                         }}
@@ -1092,8 +1123,8 @@ export default class Main extends PureComponent {
                 </Col>
                 <Col span="12">
                   <Form.Item {...formItemLayout} label="版本号">
-                    {getFieldDecorator("version", {
-                      initialValue: (versionInfo && versionInfo.version) || "",
+                    {getFieldDecorator('version', {
+                      initialValue: (versionInfo && versionInfo.version) || '',
                       rules: [
                         {
                           required: true,
@@ -1125,9 +1156,9 @@ export default class Main extends PureComponent {
                 </Col>
                 <Col span="12">
                   <Form.Item {...formItemLayout} label="版本别名">
-                    {getFieldDecorator("version_alias", {
+                    {getFieldDecorator('version_alias', {
                       initialValue:
-                        (versionInfo && versionInfo.version_alias) || ""
+                        (versionInfo && versionInfo.version_alias) || ''
                     })(
                       <Input
                         style={{ width: 280 }}
@@ -1136,23 +1167,23 @@ export default class Main extends PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col span="12" style={{ height: "104px" }}>
+                <Col span="12" style={{ height: '104px' }}>
                   <Form.Item {...formItemLayout} label="版本说明">
-                    {getFieldDecorator("describe", {
+                    {getFieldDecorator('describe', {
                       initialValue:
                         (versionInfo &&
                           (versionInfo.describe || versionInfo.app_describe)) ||
-                        "",
+                        '',
                       rules: [
                         {
                           required: false,
-                          message: "请输入版本说明"
+                          message: '请输入版本说明'
                         }
                       ]
                     })(
                       <TextArea
                         placeholder="请输入版本说明"
-                        style={{ height: "70px" }}
+                        style={{ height: '70px' }}
                       />
                     )}
                   </Form.Item>
@@ -1173,7 +1204,7 @@ export default class Main extends PureComponent {
           >
             <div
               style={{
-                padding: "24px"
+                padding: '24px'
               }}
             >
               <div className={mytabcss.mytab}>
@@ -1189,7 +1220,7 @@ export default class Main extends PureComponent {
                   <Checkbox.Group
                     onChange={this.onFileChange}
                     value={sharearrs}
-                    style={{ display: "block", marginTop: "9px" }}
+                    style={{ display: 'block', marginTop: '9px' }}
                   >
                     <Tabs activeKey={tabk} onChange={this.tabClick}>
                       {apps.map((apptit, index) => {
@@ -1201,7 +1232,7 @@ export default class Main extends PureComponent {
                                 <Checkbox
                                   onChange={this.onChange}
                                   value={apptit.service_share_uuid}
-                                  style={{ marginRight: "10px" }}
+                                  style={{ marginRight: '10px' }}
                                 />
                                 <a
                                   tab={apptit.service_cname}
@@ -1244,19 +1275,19 @@ export default class Main extends PureComponent {
               dataSource={plugins}
               columns={[
                 {
-                  title: "插件名",
-                  dataIndex: "plugin_alias"
+                  title: '插件名',
+                  dataIndex: 'plugin_alias'
                 },
                 {
-                  title: "分类",
-                  dataIndex: "category",
+                  title: '分类',
+                  dataIndex: 'category',
                   render: (v, data) => {
                     return pluginUtil.getCategoryCN(v);
                   }
                 },
                 {
-                  title: "版本",
-                  dataIndex: "build_version"
+                  title: '版本',
+                  dataIndex: 'build_version'
                 }
               ]}
             />
@@ -1277,13 +1308,13 @@ export default class Main extends PureComponent {
                   this.state.dep_service_name.length > 0 &&
                   this.state.dep_service_name.map((item, index) => {
                     return (
-                      <a style={{ marginLeft: "5px" }} key={index}>
+                      <a style={{ marginLeft: '5px' }} key={index}>
                         {item}组件
                       </a>
                     );
                   })}
                 依赖,
-                <p style={{ marginTop: "5px" }}>
+                <p style={{ marginTop: '5px' }}>
                   是否确定取消分享<a>{this.state.service_cname}</a>组件
                 </p>
                 .
@@ -1319,12 +1350,12 @@ export default class Main extends PureComponent {
               type="primary"
               htmlType="submit"
               loading={submitLoading}
-              onClick={this.handleSubmit}
+              onClick={this.handleSubmitConditions}
             >
               提交
             </Button>
             <Button
-              disabled={loading.effects["groupControl/giveupShare"]}
+              disabled={loading.effects['groupControl/giveupShare']}
               onClick={this.handleGiveup}
             >
               放弃分享

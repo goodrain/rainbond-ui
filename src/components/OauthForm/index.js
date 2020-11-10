@@ -1,12 +1,13 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable no-empty-pattern */
+import { Button, Form, Input, Modal, Select, Switch } from 'antd';
 import { connect } from 'dva';
-import { Form, Input, Select, Modal, Switch, Button } from 'antd';
-import Branches from '../../../public/images/branches.svg';
+import React, { PureComponent } from 'react';
 import Application from '../../../public/images/application.svg';
-import styles from './Index.less';
+import Branches from '../../../public/images/branches.svg';
 import styless from '../CreateTeam/index.less';
+import styles from './Index.less';
 
-const Option = Select.Option;
+const { Option } = Select;
 
 @connect(({}) => ({}))
 class CreateOAuthForm extends PureComponent {
@@ -14,7 +15,6 @@ class CreateOAuthForm extends PureComponent {
     super(props);
     this.state = {
       oauthList: [],
-      tenant_name: '',
       edit: false,
     };
   }
@@ -47,13 +47,10 @@ class CreateOAuthForm extends PureComponent {
     });
   };
 
-  handleChange = tenant_name => {
-    this.setState({ tenant_name });
-  };
   handleSubmit = () => {
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.onOk && this.props.onOk(values);
+      if (!err && this.props.onOk) {
+        this.props.onOk(values);
       }
     });
   };
@@ -74,7 +71,7 @@ class CreateOAuthForm extends PureComponent {
     return (
       <Modal
         visible
-        title="OAuth"
+        title={edit ? 'OAuth配置编辑' : '添加Oauth服务'}
         maskClosable={false}
         onOk={this.handleSubmit}
         onCancel={onCancel}
@@ -234,7 +231,31 @@ class CreateOAuthForm extends PureComponent {
               ],
             })(<Input placeholder="请输入平台访问域名" />)}
             <div className={styles.conformDesc}>
-              平台访问域名是用于OAuth认证完回跳时的访问地址
+              平台访问域名是用于OAuth认证完回跳时的访问地址，回跳路径为：/console/oauth/redirect
+            </div>
+          </Form.Item>
+          <Form.Item
+            className={styles.clearConform}
+            {...formItemLayout}
+            label={
+              <div className={styles.clearConformMinTitle}>
+                <img src={Branches} alt="" />
+                自动登录
+              </div>
+            }
+          >
+            {getFieldDecorator('is_auto_login', {
+              initialValue: oauthInfo ? oauthInfo.is_auto_login : false,
+              rules: [{ required: true, message: '设置是否开启自动登录选项' }],
+            })(
+              <Switch
+                checkedChildren="开启"
+                unCheckedChildren="关闭"
+                defaultChecked={oauthInfo ? oauthInfo.is_auto_login : false}
+              />
+            )}
+            <div className={styles.conformDesc}>
+              开启自动登录即需要登录时将自动跳转到该Oauth服务进行认证，实现单点登录效果
             </div>
           </Form.Item>
         </Form>

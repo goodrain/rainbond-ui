@@ -40,7 +40,6 @@ export default class ACKBuyConfig extends PureComponent {
         },
         callback: data => {
           if (data) {
-            console.log(data)
             // to load create event
             this.setState({ loading: false, showTask: data}, () => {
               this.showCreateDetail();

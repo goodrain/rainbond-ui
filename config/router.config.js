@@ -107,6 +107,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/shared/app/:appId',
+            component: './EnterpriseShared/Details',
+            name: 'AppTemplate',
+            authority: ['admin', 'user'],
+          },
+          {
             path: '/enterprise/:eid/shared/cloudMarket',
             component: './EnterpriseCloudMarket',
             name: 'EnterpriseCloudMarket',

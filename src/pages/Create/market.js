@@ -1,34 +1,37 @@
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/jsx-indent-props */
+/* eslint-disable react/jsx-indent */
 import {
+  Alert,
+  Button,
   Card,
   Form,
-  List,
   Input,
+  List,
   Modal,
-  Button,
-  Tabs,
   Radio,
   Select,
-  Tag,
   Spin,
-  Alert
+  Tabs,
+  Tag
 } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
 import AuthCompany from '../../components/AuthCompany';
+import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
+import styles from '../../components/CreateTeam/index.less';
 import Ellipsis from '../../components/Ellipsis';
-import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import GoodrainRZ from '../../components/GoodrainRenzheng';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
-import rainbondUtil from '../../utils/rainbond';
 import sourceUtil from '../../utils/source-unit';
-import { fetchMarketAuthority } from '../../utils/authority';
 import PluginStyles from '../Plugin/Index.less';
-import styles from '../../components/CreateTeam/index.less';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -50,13 +53,7 @@ const { TabPane } = Tabs;
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const {
-      handleType = '',
-      match,
-      scope = '',
-      enterprise,
-      moreState
-    } = this.props;
+    const { handleType = '', match, scope = '', moreState } = this.props;
     const appName = decodeURIComponent(
       handleType === 'Service'
         ? ''
@@ -108,7 +105,7 @@ export default class Main extends PureComponent {
   onCancelCreate = () => {
     this.setState({ showCreate: null });
   };
-  getCloudRecommendApps = v => {
+  getCloudRecommendApps = (v) => {
     const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
@@ -120,7 +117,7 @@ export default class Main extends PureComponent {
         pageSize: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
@@ -151,7 +148,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  getApps = v => {
+  getApps = (v) => {
     const { currentEnterprise } = this.props;
     this.props.dispatch({
       type: 'market/fetchAppModels',
@@ -163,7 +160,7 @@ export default class Main extends PureComponent {
         page: v ? 1 : this.state.page,
         is_complete: 1
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
@@ -183,10 +180,7 @@ export default class Main extends PureComponent {
     });
   };
   getMarketsTab = () => {
-    const { dispatch, currentEnterprise, enterprise } = this.props;
-    // if (!rainbondUtil.cloudMarketEnable(enterprise)) {
-    //   return null;
-    // }
+    const { dispatch, currentEnterprise, scopeProMax } = this.props;
     const tabListMax = [
       {
         key: 'localApplication',
@@ -198,22 +192,24 @@ export default class Main extends PureComponent {
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const arr = res.list;
           const arryNew = [];
           if (arr && arr.length > 0) {
-            res.list.map(item => {
+            res.list.map((item) => {
               const { name, status, alias } = item;
-              if (status == 1) {
+              if (status === 1) {
                 arryNew.push(
                   Object.assign({}, item, { tab: alias || name, key: name })
                 );
               }
+              return null;
             });
           }
           const scopeMaxs =
-            arryNew.length > 0 ? arryNew[0].key : 'localApplication';
+            scopeProMax ||
+            (arryNew.length > 0 ? arryNew[0].key : 'localApplication');
           this.setState({
             marketTab: [...arryNew, ...tabListMax]
           });
@@ -227,9 +223,9 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleSearch = v => {
+  handleSearch = (v) => {
     const { scopeMax } = this.state;
-    if (scopeMax == 'localApplication') {
+    if (scopeMax === 'localApplication') {
       this.setState(
         {
           app_name: v,
@@ -252,7 +248,7 @@ export default class Main extends PureComponent {
     }
   };
 
-  hanldePageChange = page => {
+  hanldePageChange = (page) => {
     this.setState(
       {
         page
@@ -263,7 +259,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  hanldeCloudPageChange = page => {
+  hanldeCloudPageChange = (page) => {
     this.setState(
       {
         cloudPage: page
@@ -274,7 +270,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabChange = key => {
+  handleTabChange = (key) => {
     this.setState(
       {
         scope: key,
@@ -286,9 +282,11 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabMaxChange = key => {
+  handleTabMaxChange = (key) => {
     this.setState(
       {
+        page: 1,
+        cloudPage: 1,
         currentKey: key,
         scopeMax: key,
         isSpinList: true,
@@ -297,7 +295,7 @@ export default class Main extends PureComponent {
         cloudApp_name: ''
       },
       () => {
-        if (key == 'localApplication') {
+        if (key === 'localApplication') {
           this.getApps('reset');
         } else {
           this.getCloudRecommendApps('reset');
@@ -306,7 +304,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  showCreate = app => {
+  showCreate = (app) => {
     const { handleType } = this.state;
     if (handleType) {
       this.setState({ installBounced: app });
@@ -314,7 +312,7 @@ export default class Main extends PureComponent {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = e => {
+  handleInstallBounced = (e) => {
     e.preventDefault();
     const { form, dispatch, groupId, refreshCurrent } = this.props;
     const {
@@ -356,8 +354,9 @@ export default class Main extends PureComponent {
           }
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                groupId || 0
+              }`
             )
           );
         }
@@ -447,7 +446,7 @@ export default class Main extends PureComponent {
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
   };
-  showMarketAppDetail = app => {
+  showMarketAppDetail = (app) => {
     // cloud app
     if (app && app.app_detail_url) {
       window.open(app.app_detail_url, '_blank');
@@ -465,7 +464,8 @@ export default class Main extends PureComponent {
     });
   };
   loadMore = () => {
-    this.props.handleServiceComponent();
+    const { scopeMax } = this.state;
+    this.props.handleServiceComponent(scopeMax);
   };
 
   handleTabs = (tabList, cardList) => {
@@ -479,7 +479,7 @@ export default class Main extends PureComponent {
           padding: handleType ? '0 20px 20px' : '20px '
         }}
       >
-        {tabList.map(item => {
+        {tabList.map((item) => {
           const { key, tab } = item;
           return (
             <TabPane tab={tab} key={key}>
@@ -500,7 +500,7 @@ export default class Main extends PureComponent {
     const { scopeMax, handleType } = this.state;
     const cloud = scopeMax != 'localApplication';
 
-    const title = item => (
+    const title = (item) => (
       <div
         title={item.app_name || ''}
         style={{
@@ -704,7 +704,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleCertification = marketName => {
+  handleCertification = (marketName) => {
     this.setState({
       authorizations: marketName
     });
@@ -713,7 +713,6 @@ export default class Main extends PureComponent {
   render() {
     const {
       loading,
-      enterprise,
       currentEnterprise,
       currentTeam,
       currentRegionName
@@ -737,14 +736,20 @@ export default class Main extends PureComponent {
       total,
       marketTab,
       currentKey,
-      authorizations
+      authorizations,
+      showCreate,
+      showMarketAppDetail,
+      showApp,
+      is_deploy: isDeploy,
+      app_name: appName,
+      cloudApp_name: cloudAppName
     } = this.state;
 
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldePageChange(v);
       }
     };
@@ -752,14 +757,14 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldeCloudPageChange(v);
       }
     };
     let isInstall = true;
 
     if (marketTab && marketTab.length > 0) {
-      const arr = marketTab.filter(item => {
+      const arr = marketTab.filter((item) => {
         return item.name == currentKey;
       });
       if (arr && arr.length > 0) {
@@ -788,7 +793,7 @@ export default class Main extends PureComponent {
         }}
         pagination={paginationProps}
         dataSource={list}
-        renderItem={item => (
+        renderItem={(item) => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, true)}
           </List.Item>
@@ -808,14 +813,15 @@ export default class Main extends PureComponent {
         }}
         pagination={cloudPaginationProps}
         dataSource={cloudList}
-        renderItem={item => (
+        renderItem={(item) => (
           <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, isInstall)}
           </List.Item>
         )}
       />
     );
-
+    const defaultValue =
+      scopeMax == 'localApplication' ? appName : cloudAppName;
     const mainSearch = (
       <div
         style={{
@@ -824,26 +830,19 @@ export default class Main extends PureComponent {
       >
         <span id="searchWrap" style={{ display: 'inline-block' }}>
           <Input.Search
+            // eslint-disable-next-line react/no-string-refs
             ref="searchs"
             placeholder="请输入应用名称"
             enterButton="搜索"
             size="large"
-            value={
-              this.state.scopeMax == 'localApplication'
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
-            onChange={event => {
+            value={defaultValue}
+            onChange={(event) => {
               this.setState({
                 app_name: event.target.value,
                 cloudApp_name: event.target.value
               });
             }}
-            defaultValue={
-              this.state.scopeMax == 'localApplication'
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
+            defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
               width: 500
@@ -904,7 +903,7 @@ export default class Main extends PureComponent {
           />
         )}
 
-        {this.state.showCreate && (
+        {showCreate && (
           <CreateAppFromMarketForm
             disabled={loading.effects['createApp/installApp']}
             onSubmit={
@@ -915,15 +914,15 @@ export default class Main extends PureComponent {
                 : this.handleCloudCreate
             }
             onCancel={this.onCancelCreate}
-            showCreate={this.state.showCreate}
+            showCreate={showCreate}
           />
         )}
 
-        {this.state.showMarketAppDetail && (
+        {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
+            app={showApp}
           />
         )}
 
@@ -959,7 +958,7 @@ export default class Main extends PureComponent {
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
-                  checked={this.state.is_deploy}
+                  checked={isDeploy}
                 >
                   并构建启动
                 </Radio>
@@ -981,7 +980,7 @@ export default class Main extends PureComponent {
               onTabChange={this.handleTabMaxChange}
               isFooter={!!handleType}
             >
-              {scopeMax != 'localApplication' && !isInstall && (
+              {scopeMax !== 'localApplication' && !isInstall && (
                 <Alert
                   message={
                     <div>
@@ -999,7 +998,7 @@ export default class Main extends PureComponent {
                   style={{ margin: '-10px 0 15px 0' }}
                 />
               )}
-              {scopeMax == 'localApplication' ? (
+              {scopeMax === 'localApplication' ? (
                 <div>
                   {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
                 </div>

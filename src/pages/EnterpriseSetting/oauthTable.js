@@ -1,43 +1,45 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable camelcase */
+/* eslint-disable prefer-const */
 /*
   挂载共享目录组件
 */
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
 import {
-  Table,
-  Modal,
+  Alert,
   Button,
-  Tooltip,
-  Row,
   Col,
+  Modal,
   notification,
-  Popconfirm
+  Row,
+  Table,
+  Tooltip
 } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
 import OauthForm from '../../components/OauthForm';
-import ConfirmModal from '../../components/ConfirmModal';
 
 const { confirm } = Modal;
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ loading, global, index }) => ({
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
 }))
 export default class OauthTable extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
-      oauthVisible: false,
-      oauthList: [],
       oauthInfo: false,
       oauthTable: [],
       openOauth: false,
       isOpen: false,
-      showDeleteDomain: false
+      showDeleteDomain: false,
     };
   }
   componentDidMount() {
@@ -48,11 +50,6 @@ export default class OauthTable extends PureComponent {
     const { onOk } = this.props;
     onOk && onOk();
   };
-  handleCreate = () => {
-    this.setState({
-      oauthVisible: true
-    });
-  };
 
   handleDiv = data => {
     return (
@@ -60,7 +57,7 @@ export default class OauthTable extends PureComponent {
         <span
           style={{
             wordBreak: 'break-all',
-            wordWrap: 'break-word'
+            wordWrap: 'break-word',
           }}
         >
           {data}
@@ -78,7 +75,7 @@ export default class OauthTable extends PureComponent {
       cancelText: '取消',
       onOk() {
         _th.handleDeleteOauth(record);
-      }
+      },
     });
   };
 
@@ -87,14 +84,14 @@ export default class OauthTable extends PureComponent {
     dispatch({
       type: 'global/deleteOauthInfo',
       payload: {
-        service_id: data.service_id
+        service_id: data.service_id,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res._code === 200) {
           notification.success({ message: '删除成功' });
           this.handelOauthInfo();
         }
-      }
+      },
     });
   };
 
@@ -105,7 +102,8 @@ export default class OauthTable extends PureComponent {
       client_secret,
       oauth_type,
       home_url,
-      redirect_domain
+      redirect_domain,
+      is_auto_login,
     } = values;
     oauth_type = oauth_type.toLowerCase();
     if (oauth_type === 'github') {
@@ -115,11 +113,11 @@ export default class OauthTable extends PureComponent {
       name,
       client_id,
       client_secret,
-      is_auto_login: false,
+      is_auto_login,
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
-      is_console: true
+      is_console: true,
     };
     this.handelRequest(obj);
   };
@@ -147,7 +145,7 @@ export default class OauthTable extends PureComponent {
       type: 'global/creatOauth',
       payload: {
         enterprise_id: eid,
-        arr
+        arr,
       },
       callback: data => {
         if (data && data._code === 200) {
@@ -158,11 +156,11 @@ export default class OauthTable extends PureComponent {
               ? '关闭成功'
               : oauthInfo
               ? '编辑成功'
-              : '添加成功'
+              : '添加成功',
           });
           this.handelOauthInfo();
         }
-      }
+      },
     });
   };
 
@@ -170,14 +168,14 @@ export default class OauthTable extends PureComponent {
     this.setState({
       openOauth: true,
       oauthInfo,
-      isOpen
+      isOpen,
     });
   };
 
   handleOpenDomain = oauthInfo => {
     this.setState({
       oauthInfo,
-      showDeleteDomain: true
+      showDeleteDomain: true,
     });
   };
 
@@ -186,7 +184,7 @@ export default class OauthTable extends PureComponent {
       isOpen: false,
       openOauth: false,
       oauthInfo: false,
-      showDeleteDomain: false
+      showDeleteDomain: false,
     });
   };
   handelOauthInfo = () => {
@@ -194,18 +192,18 @@ export default class OauthTable extends PureComponent {
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code == 200) {
           const lists = res.list && res.list.length > 0 && res.list;
           this.setState({
             loading: false,
-            oauthTable: lists || []
+            oauthTable: lists || [],
           });
           this.handelClone();
         }
-      }
+      },
     });
   };
   render() {
@@ -215,11 +213,19 @@ export default class OauthTable extends PureComponent {
       loading,
       openOauth,
       oauthInfo,
-      showDeleteDomain
+      showDeleteDomain,
     } = this.state;
+    let autoLoginOAuth = null;
+    oauthTable.map(item => {
+      if (item.is_auto_login) {
+        autoLoginOAuth = item;
+        return item;
+      }
+      return null;
+    });
     return (
       <Modal
-        title="OAuth"
+        title="OAuth服务配置"
         loading={loading}
         className={styles.TelescopicModal}
         width={1150}
@@ -229,7 +235,7 @@ export default class OauthTable extends PureComponent {
         footer={[
           <Button style={{ marginTop: '20px' }} onClick={this.handleSubmit}>
             关闭
-          </Button>
+          </Button>,
         ]}
       >
         <div>
@@ -254,7 +260,17 @@ export default class OauthTable extends PureComponent {
           )}
 
           <Row gutter={12}>
-            <Col span={24} style={{ textAlign: 'right', marginBottom: '10px' }}>
+            <Col span={12}>
+              {autoLoginOAuth && (
+                <Alert
+                  message={`${
+                    autoLoginOAuth.name
+                  } 服务已开启自动登录，登录流程将自动导航到该服务。`}
+                  type="success"
+                />
+              )}
+            </Col>
+            <Col span={12} style={{ textAlign: 'right', marginBottom: '10px' }}>
               <Button
                 onClick={() => {
                   this.handleOpen(false);
@@ -274,34 +290,34 @@ export default class OauthTable extends PureComponent {
                 title: 'OAuth类型',
                 dataIndex: 'oauth_type',
                 key: '1',
-                width: '10%'
+                width: '10%',
               },
               {
                 title: '名称',
                 dataIndex: 'name',
                 key: '2',
-                width: '15%'
+                width: '15%',
               },
               {
                 title: '客户端ID',
                 dataIndex: 'client_id',
                 key: '3',
                 width: '15%',
-                render: data => this.handleDiv(data)
+                render: data => this.handleDiv(data),
               },
               {
                 title: '客户端密钥',
                 dataIndex: 'client_secret',
                 key: '4',
                 width: '15%',
-                render: data => this.handleDiv(data)
+                render: data => this.handleDiv(data),
               },
               {
-                title: '平台访问域名',
+                title: '服务地址',
                 dataIndex: 'home_url',
                 key: '5',
                 width: '15%',
-                render: data => this.handleDiv(data)
+                render: data => this.handleDiv(data),
               },
               {
                 title: '操作',
@@ -337,8 +353,8 @@ export default class OauthTable extends PureComponent {
                       {record.enable ? '关闭' : '开启'}
                     </a>
                   </div>
-                )
-              }
+                ),
+              },
             ]}
           />
         </div>

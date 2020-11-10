@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-multi-assign */
 /* eslint-disable no-undef */
@@ -5,27 +6,27 @@
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
-import React, { PureComponent, Fragment } from 'react';
-import { connect } from 'dva';
 import {
+  Alert,
   Button,
-  Modal,
-  Form,
-  Checkbox,
-  Row,
-  Col,
-  Input,
-  notification,
   Card,
-  Alert
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Row
 } from 'antd';
-import cookie from '../../utils/cookie';
+import { connect } from 'dva';
+import React, { Fragment, PureComponent } from 'react';
 import PluginStyles from '../../pages/Create/Index.less';
+import cookie from '../../utils/cookie';
 import Ellipsis from '../Ellipsis';
 
 @connect(({ user, global }) => ({
   currUser: user.currentUser,
-  rainbondInfo: global.rainbondInfo
+  rainbondInfo: global.rainbondInfo,
 }))
 @Form.create()
 export default class Index extends PureComponent {
@@ -36,7 +37,7 @@ export default class Index extends PureComponent {
       loading: false,
       marketUrl: '',
       accessKey: '',
-      marketList: []
+      marketList: [],
     };
   }
   componentWillMount() {
@@ -60,7 +61,7 @@ export default class Index extends PureComponent {
       {},
       {
         name: marketName,
-        enterprise_id: eid
+        enterprise_id: eid,
       }
     );
     dispatch({
@@ -70,17 +71,15 @@ export default class Index extends PureComponent {
         if (res && res._code === 200) {
           if (res.list && res.list.url) {
             this.setState({
-              marketUrl: res.list.url
+              marketUrl: res.list.url,
             });
-            // this.handleNextStep(3, '5dc3162dfcca4ccb8d4d19bd2575f89d');
-            // this.handleCurrStep(1);
             this.handleCurrStep(2);
           } else {
             this.handleCurrStep(1);
           }
           this.handleClose();
         }
-      }
+      },
     });
   };
   handleBindingMarketsList = accessKey => {
@@ -92,7 +91,7 @@ export default class Index extends PureComponent {
         market_name: marketName,
         market_url: marketUrl,
         access_key: accessKey,
-        enterprise_id: eid
+        enterprise_id: eid,
       }
     );
     dispatch({
@@ -102,7 +101,7 @@ export default class Index extends PureComponent {
         if (res && res._code === 200) {
           this.setState({
             marketList: res.list,
-            accessKey
+            accessKey,
           });
           this.handleCurrStep(4);
           this.handleClose();
@@ -110,7 +109,7 @@ export default class Index extends PureComponent {
       },
       handleError: () => {
         this.handleClose();
-      }
+      },
     });
   };
   handleNextStep = (stpe, parameter) => {
@@ -127,7 +126,7 @@ export default class Index extends PureComponent {
 
   handleCurrStep = step => {
     this.setState({
-      currStep: step
+      currStep: step,
     });
   };
   handleMarketUrl = () => {
@@ -137,7 +136,7 @@ export default class Index extends PureComponent {
         this.setState(
           {
             marketUrl: values.url,
-            currStep: 2
+            currStep: 2,
           },
           () => {
             this.handleClose();
@@ -158,7 +157,7 @@ export default class Index extends PureComponent {
               if (item.domain === items && marketName) {
                 item.name = marketName;
               } else {
-                item.name = 'a' + this.uuid(16, 16);
+                item.name = `a${this.uuid(16, 16)}`;
               }
               item.access_key = accessKey;
               item.type = 'rainstore';
@@ -170,7 +169,7 @@ export default class Index extends PureComponent {
             {},
             {
               markets: arr,
-              enterprise_id: eid
+              enterprise_id: eid,
             }
           );
           dispatch({
@@ -185,7 +184,7 @@ export default class Index extends PureComponent {
                 }
                 notification.success({
                   message: '绑定成功',
-                  duration: 1
+                  duration: 1,
                 });
                 setTimeout(() => {
                   window.location.reload();
@@ -195,7 +194,7 @@ export default class Index extends PureComponent {
             },
             handleError: () => {
               this.handleClose();
-            }
+            },
           });
         });
       }
@@ -205,7 +204,7 @@ export default class Index extends PureComponent {
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split(
       ''
     );
-    let uuid = [];
+    const uuid = [];
     const radixs = radix || chars.length;
 
     if (len) {
@@ -237,7 +236,7 @@ export default class Index extends PureComponent {
   };
   handleClose = () => {
     this.setState({
-      loading: false
+      loading: false,
     });
   };
   hidden = () => {
@@ -249,18 +248,27 @@ export default class Index extends PureComponent {
     const {
       title = '企业尚未绑定云端应用商店, 按以下步骤进行绑定认证',
       onCancel,
-      rainbondInfo
+      rainbondInfo,
     } = this.props;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
-        span: 0
+        span: 0,
       },
       wrapperCol: {
-        span: 24
-      }
+        span: 24,
+      },
     };
     const defaultMarketUrl = rainbondInfo && rainbondInfo.default_market_url;
+    const message = (
+      <span>
+        正在访问
+        <a target="_blank" rel="noopener noreferrer" href={marketUrl}>
+          云应用商店
+        </a>
+        进行用户授权，完成后可获取安装应用的权限。
+      </span>
+    );
     return (
       <Modal
         width={530}
@@ -273,16 +281,15 @@ export default class Index extends PureComponent {
           {step === 2 && !loading && (
             <div>
               <Alert
-                message="正在访问公网进行云端授权"
+                message={message}
                 type="success"
                 style={{ marginBottom: '24px' }}
               />
               <iframe
-                // src="http://localhost:8090/certification/login"
                 src={`${marketUrl}/certification/login`}
                 style={{
                   width: '100%',
-                  height: '400px'
+                  height: '400px',
                 }}
                 sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                 scrolling="auto"
@@ -298,12 +305,12 @@ export default class Index extends PureComponent {
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}
             >
               <div
                 style={{
-                  textAlign: 'center'
+                  textAlign: 'center',
                 }}
               >
                 {step === 0 && (
@@ -334,9 +341,9 @@ export default class Index extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请填写需要进行绑定的应用市场的URL'
-                            }
-                          ]
+                              message: '请填写需要进行绑定的应用市场的URL',
+                            },
+                          ],
                         })(
                           <Input
                             type="text"
@@ -368,9 +375,9 @@ export default class Index extends PureComponent {
                           rules: [
                             {
                               required: true,
-                              message: '请选择需要绑定的商店'
-                            }
-                          ]
+                              message: '请选择需要绑定的商店',
+                            },
+                          ],
                         })(
                           <Checkbox.Group style={{ width: '450px' }}>
                             <Row gutter={[24, 24]}>
@@ -391,7 +398,7 @@ export default class Index extends PureComponent {
                                               style={{
                                                 width: 110,
                                                 height: 110,
-                                                margin: ' 0 auto'
+                                                margin: ' 0 auto',
                                               }}
                                               alt={name}
                                               src={

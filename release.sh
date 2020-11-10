@@ -16,9 +16,8 @@ docker push "rainbond/rainbond-ui:$VERSION"
 
 if [ ${BUILD_RBD_APP_UI} == "true" ];
 then
-	sed -i "s/VERSION/$VERSION/g" ./build/Dockerfile
 	mv dist build/dist
-	docker build -t "rainbond/rbd-app-ui:$VERSION" ./build
+	docker build --build-arg VERSION="${VERSION}" -t "rainbond/rbd-app-ui:$VERSION" ./build
 	docker push "rainbond/rbd-app-ui:$VERSION"
 
 	if [ ${DOMESTIC_BASE_NAME} ];
