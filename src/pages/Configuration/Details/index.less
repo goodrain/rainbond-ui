@@ -1,23 +1,39 @@
 .setCheckbox {
   width: 100%;
   margin-top: 8px;
+  &>div{
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    top: -21px;
+  }
   :global {
-    .ant-checkbox-wrapper + .ant-checkbox-wrapper {
-      margin-bottom: 8px;
+    .ant-form-item-control{
+      top: -25px;
     }
     .ant-checkbox + span {
       display: inline-block;
       text-align: center;
-      min-width: 60px;
+      width: 100px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
     .ant-checkbox-checked + span {
       color: rgb(24, 144, 255) !important;
     }
 
     .ant-checkbox-wrapper {
+      margin-left: 0;
+      margin-right: 8px;
       border: 1px solid #ccc;
       border-radius: 5px;
       padding: 8px;
+      width: 138px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
       &:hover {
         border-color: rgb(24, 144, 255) !important;
         .ant-checkbox + span {
@@ -30,4 +46,12 @@
       border-color: rgb(24, 144, 255) !important;
     }
   }
+}
+.over {
+  width: 200px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
