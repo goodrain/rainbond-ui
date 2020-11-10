@@ -20,7 +20,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
-
+import sourceUtil from '../../utils/source-unit';
 import {
   createApp,
   createEnterprise,
@@ -491,7 +491,7 @@ class Main extends PureComponent {
       type,
       customSwitch
     } = this.state;
-    
+
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -607,17 +607,17 @@ class Main extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用内存</div>
-                <div>{resources.memory || 0}M</div>
+                <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>使用CPU</div>
-                <div>{resources.cpu || 0}M</div>
+                <div>{(resources.cpu && resources.cpu / 1000) || 0}核</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用磁盘</div>
-                <div>{resources.disk || 0}MB</div>
+                <div>{`${sourceUtil.unit(resources.disk || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>组件数量</div>
@@ -667,7 +667,7 @@ class Main extends PureComponent {
               <span>负责人</span>
               <span>
                 {currApp.principal || '-'}
-                {isEdit  && (
+                {isEdit && (
                   <Icon
                     style={{
                       cursor: 'pointer',
