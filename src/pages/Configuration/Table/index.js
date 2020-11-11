@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
+import { routerRedux, Link } from 'dva/router';
 import {
   Card,
   Table,
@@ -9,11 +9,15 @@ import {
   Form,
   Input,
   notification,
-  Badge
+  Badge,
+  Popover,
+  Modal
 } from 'antd';
+import moment from 'moment';
+import { batchOperation } from '@/services/app';
 // eslint-disable-next-line import/extensions
 import ConfirmModal from '@/components/ConfirmModal';
-
+const { confirm } = Modal;
 const FormItem = Form.Item;
 /* eslint react/no-array-index-key: 0 */
 
@@ -33,6 +37,7 @@ export default class ConfigurationTable extends PureComponent {
       page: 1,
       query: '',
       pageSize: 10,
+      info: {},
       deleteVar: false
     };
   }
@@ -40,7 +45,7 @@ export default class ConfigurationTable extends PureComponent {
   componentDidMount() {
     this.fetchConfigurationList();
   }
-  onPageChange = page => {
+  onPageChange = (page) => {
     this.setState({ page }, () => {
       this.fetchConfigurationList();
     });
@@ -59,7 +64,7 @@ export default class ConfigurationTable extends PureComponent {
         page,
         page_size: pageSize
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             loading: false,
@@ -83,42 +88,58 @@ export default class ConfigurationTable extends PureComponent {
   handleSearch = () => {
     this.fetchConfigurationList();
   };
-  handelChange = e => {
+  handelChange = (e) => {
     this.setState({ query: e.target.value });
   };
   handleEnter = () => {
     this.handleSearch();
   };
-  handleDelete = data => {
+  handleDelete = (data) => {
     this.setState({
-      deleteVar: data
+      deleteVar: true,
+      info: data
     });
   };
-
   cancelDeleteVariabl = () => {
     this.setState({
       deleteVar: false
     });
   };
-
+  handleResetInfo = () => {
+    this.setState({
+      info: {}
+    });
+  };
   handleDeleteVariabl = () => {
     const { dispatch, regionName, teamName, appID } = this.props;
-    const { page, pageSize, query, deleteVar } = this.state;
+    const { page, pageSize, query, info } = this.state;
+    const serviceIds = [];
+    if (info && info.services && info.services.length > 0) {
+      info.services.map((item) => {
+        serviceIds.push(item.service_id);
+      });
+    }
+
     dispatch({
       type: 'global/DeleteConfiguration',
       payload: {
         region_name: regionName,
         team_name: teamName,
         group_id: appID,
-        name: deleteVar.config_group_name,
+        name: info.config_group_name,
         query,
         page,
         page_size: pageSize
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.fetchConfigurationList();
           this.cancelDeleteVariabl();
+          if (serviceIds.length > 0) {
+            this.showRemind(serviceIds);
+          } else {
+            this.handleResetInfo();
+          }
           notification.success({
             message: '删除成功'
           });
@@ -127,8 +148,49 @@ export default class ConfigurationTable extends PureComponent {
     });
   };
 
+  showRemind = (serviceIds) => {
+    const th = this;
+    confirm({
+      title: '需更新组件立即生效',
+      content: '是否立即更新组件',
+      okText: '更新',
+      cancelText: '取消',
+      onOk() {
+        th.handleBatchOperation(serviceIds);
+        return new Promise((resolve, reject) => {
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 2000);
+        }).catch(() => console.log('Oops errors!'));
+      },
+      onCancel() {
+        th.handleResetInfo();
+      }
+    });
+  };
+  handleBatchOperation = (serviceIds) => {
+    const { teamName } = this.props;
+    batchOperation({
+      action: 'upgrade',
+      team_name: teamName,
+      serviceIds:
+        serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
+    }).then((data) => {
+      if (data) {
+        notification.success({
+          message: '更新成功',
+          duration: '3'
+        });
+        this.handleResetInfo();
+      }
+    });
+  };
   render() {
-    const { deleteConfigurationLoading } = this.props;
+    const {
+      deleteConfigurationLoading,
+      regionName,
+      teamName,
+      appID
+    } = this.props;
+
     const { apps, loading, page, pageSize, total, deleteVar } = this.state;
     return (
       <div>
@@ -183,15 +245,55 @@ export default class ConfigurationTable extends PureComponent {
             columns={[
               {
                 title: '配置组名称',
-                dataIndex: 'config_group_name',
+                dataIndex: 'config_group_name'
+              },
+              {
+                title: '创建时间',
+                dataIndex: 'create_time',
+                align: 'center',
+                render: (val) => {
+                  return `${moment(val)
+                    .locale('zh-cn')
+                    .format('YYYY-MM-DD HH:mm:ss')}`;
+                }
               },
               {
                 title: '生效组件数',
                 dataIndex: 'services_num',
                 align: 'center',
-                render: (_, data) => {
+                render: (val, data) => {
                   return (
-                    <p style={{ marginBottom: 0 }}>{data.services.length}</p>
+                    <div>
+                      {val ? (
+                        <Popover
+                          placement="top"
+                          title="生效组件"
+                          content={
+                            <div>
+                              {data.services.map((item) => {
+                                const {
+                                  service_cname: name,
+                                  service_alias: alias
+                                } = item;
+                                return (
+                                  <Link
+                                    key={alias}
+                                    to={`/team/${teamName}/region/${regionName}/components/${alias}/overview`}
+                                  >
+                                    {name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          }
+                          trigger="click"
+                        >
+                          <a>{val}</a>
+                        </Popover>
+                      ) : (
+                        0
+                      )}
+                    </div>
                   );
                 }
               },
@@ -199,16 +301,12 @@ export default class ConfigurationTable extends PureComponent {
                 title: '生效状态',
                 dataIndex: 'enable',
                 align: 'center',
-                render: val => {
+                render: (val) => {
                   return (
                     <div>
                       <Badge
                         status={val ? 'success' : 'error'}
-                        text={
-                          <span>
-                            {val ? '生效中' : '不生效'}
-                          </span>
-                        }
+                        text={<span>{val ? '生效中' : '不生效'}</span>}
                       />
                     </div>
                   );
@@ -218,8 +316,7 @@ export default class ConfigurationTable extends PureComponent {
                 title: '操作',
                 dataIndex: 'action',
                 align: 'center',
-
-                render: (val, data) => {
+                render: (_, data) => {
                   return [
                     <a
                       onClick={() => {
