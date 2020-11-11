@@ -1,54 +1,192 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable import/extensions */
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Table, Button, Row, notification, Alert, Col } from 'antd';
+import { Button, Row, notification } from 'antd';
 import MonitoryPoint from './monitoryPoint';
 import ConfirmModal from '@/components/ConfirmModal';
 import CustomMonitoring from '@/components/CustomMonitoring';
 import CustomChart from '@/components/CustomChart';
 import globalUtil from '@//utils/global';
-import roleUtil from '@/utils/role';
 import Result from '@/components/Result';
 
 /* eslint react/no-array-index-key: 0 */
 
-@connect(({ appControl }) => ({
-  appDetail: appControl.appDetail
+@connect(({ appControl, loading }) => ({
+  appDetail: appControl.appDetail,
+  delServiceMonitorFigureLoading:
+    loading.effects['monitor/delServiceMonitorFigure']
 }))
 export default class customMonitor extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      isMonitorFigure: false,
+      monitorFigureList: [],
       isMonitoryPoint: false,
-      isCustomMonitoring: false
+      isCustomMonitoring: false,
+      showDelete: false,
+      info: {}
     };
   }
-  componentWillMount() {
-    const { dispatch } = this.props;
+  componentDidMount() {
+    this.fetchServiceMonitorFigure();
   }
+  onCancelCustomMonitoring = () => {
+    this.setState({
+      info: {},
+      isCustomMonitoring: false
+    });
+  };
+  onEdit = (val) => {
+    this.setState({
+      info: val,
+      isCustomMonitoring: true
+    });
+  };
+  onDelete = (val) => {
+    this.setState({
+      showDelete: val.graph_id
+    });
+  };
   handleMonitoryPoint = (isMonitoryPoint) => {
     this.setState({
       isMonitoryPoint
     });
   };
+
   handleCustomMonitoring = (isCustomMonitoring) => {
     this.setState({
       isCustomMonitoring
     });
   };
+  fetchServiceMonitorFigure = () => {
+    const { dispatch } = this.props;
+    const parameter = this.handleParameter();
+    dispatch({
+      type: 'monitor/fetchServiceMonitorFigure',
+      payload: {
+        ...parameter
+      },
+      callback: (res) => {
+        if (res && res._code === 200) {
+          if (res.list.length > 0) {
+            this.setState({
+              monitorFigureList: res.list,
+              isMonitorFigure: false
+            });
+          } else {
+            this.setState({
+              isMonitorFigure: true
+            });
+          }
+        }
+      }
+    });
+  };
+
+  handleSubmit = (vals) => {
+    const { dispatch } = this.props;
+    const { info } = this.state;
+    const parameter = this.handleParameter();
+    if (info && info.graph_id) {
+      dispatch({
+        type: 'monitor/editServiceMonitorFigure',
+        payload: {
+          ...parameter,
+          ...vals,
+          graph_id: info.graph_id,
+          sequence: info.sequence
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: '保存成功'
+            });
+            this.fetchServiceMonitorFigure();
+            this.onCancelCustomMonitoring();
+          }
+        }
+      });
+    } else {
+      dispatch({
+        type: 'monitor/addServiceMonitorFigure',
+        payload: {
+          ...parameter,
+          ...vals
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: '添加成功'
+            });
+            this.fetchServiceMonitorFigure();
+            this.onCancelCustomMonitoring();
+          }
+        }
+      });
+    }
+  };
+  handleSubmitDelete = () => {
+    const { dispatch } = this.props;
+    const { showDelete } = this.state;
+    const parameter = this.handleParameter();
+    dispatch({
+      type: 'monitor/delServiceMonitorFigure',
+      payload: {
+        ...parameter,
+        graph_id: showDelete
+      },
+      callback: (res) => {
+        if (res && res._code === 200) {
+          notification.success({
+            message: '删除成功'
+          });
+          this.fetchServiceMonitorFigure();
+          this.cancalDelete();
+        }
+      }
+    });
+  };
+  handleParameter = () => {
+    const { appDetail } = this.props;
+    return {
+      team_name: globalUtil.getCurrTeamName(),
+      app_alias: appDetail.service.service_alias
+    };
+  };
+
+  cancalDelete = () => {
+    this.setState({
+      showDelete: false
+    });
+  };
 
   render() {
-    const { appDetail } = this.props;
+    const { appDetail, delServiceMonitorFigureLoading } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const appAlias = appDetail.service.service_alias;
     const serviceId = appDetail.service.service_id;
-    const { isMonitoryPoint, isCustomMonitoring } = this.state;
+    const {
+      isMonitoryPoint,
+      isCustomMonitoring,
+      isMonitorFigure,
+      monitorFigureList,
+      showDelete,
+      info
+    } = this.state;
     return (
       <div>
         {!isMonitoryPoint && (
           <Row>
             <CustomChart
-              moduleName="PerformanceAnalysis"
-              // RangeData={['responseTime']}
+              moduleName="CustomMonitor"
+              onDelete={this.onDelete}
+              onEdit={this.onEdit}
+              appAlias={appAlias}
+              RangeData={
+                isCustomMonitoring || isMonitorFigure ? [] : monitorFigureList
+              }
               operation={
                 <div style={{ display: 'inline-block', width: '88%' }}>
                   <Button
@@ -81,23 +219,52 @@ export default class customMonitor extends PureComponent {
             />
           </Row>
         )}
-        {!isMonitoryPoint && !isCustomMonitoring && (
+        {!isMonitoryPoint && !isCustomMonitoring && isMonitorFigure && (
           <Result
             style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
             type="warning"
-            description="暂无业务监控图、请先添加管理监控点"
+            description={
+              <div>
+                暂无业务监控图、请先添加
+                <a
+                  onClick={() => {
+                    this.handleMonitoryPoint(true);
+                  }}
+                >
+                  管理监控点
+                </a>
+              </div>
+            }
           />
         )}
-
+        {showDelete && (
+          <ConfirmModal
+            loading={delServiceMonitorFigureLoading}
+            title="删除监控视图"
+            desc="确定要删除此视图吗？"
+            subDesc="此操作不可恢复"
+            onOk={this.handleSubmitDelete}
+            onCancel={this.cancalDelete}
+          />
+        )}
         {isCustomMonitoring && (
           <CustomMonitoring
             serviceId={serviceId}
+            teamName={teamName}
+            appAlias={appAlias}
+            info={info}
+            onOk={this.handleSubmit}
+            onCancel={this.onCancelCustomMonitoring}
+          />
+        )}
+        {isMonitoryPoint && (
+          <MonitoryPoint
+            {...this.props}
             onCancel={() => {
-              this.handleCustomMonitoring(false);
+              this.handleMonitoryPoint(false);
             }}
           />
         )}
-        {isMonitoryPoint && <MonitoryPoint {...this.props} />}
       </div>
     );
   }

@@ -23,7 +23,7 @@ export default class customMonitor extends PureComponent {
     super(props);
     this.state = {
       monitors: [],
-      addCustomMonitor: false,
+      addCustomMonitor: true,
       loading: true,
       editorData: {},
       dleCustomMonitor: false,
@@ -54,7 +54,7 @@ export default class customMonitor extends PureComponent {
     dispatch({
       type: 'monitor/fetchServiceMonitor',
       payload: parameter,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             loading: false,
@@ -64,7 +64,7 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-  handlePermissions = type => {
+  handlePermissions = (type) => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
@@ -75,7 +75,7 @@ export default class customMonitor extends PureComponent {
     this.setState({ addCustomMonitor: false, editorData: {} });
   };
 
-  handleDelete = data => {
+  handleDelete = (data) => {
     this.setState({
       dleCustomMonitor: data
     });
@@ -91,7 +91,7 @@ export default class customMonitor extends PureComponent {
         ...parameter,
         name: dleCustomMonitor
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           notification.success({ message: '删除成功' });
           this.fetchServiceMonitor();
@@ -103,13 +103,13 @@ export default class customMonitor extends PureComponent {
   cancelDeleteCustomMonitor = () => {
     this.setState({ dleCustomMonitor: false });
   };
-  handleEditor = data => {
+  handleEditor = (data) => {
     this.setState({
       editorData: data,
       addCustomMonitor: true
     });
   };
-  handleAddCustomMonitor = vals => {
+  handleAddCustomMonitor = (vals) => {
     const { dispatch } = this.props;
     const { editorData } = this.state;
     const parameter = this.handleParameter();
@@ -121,10 +121,10 @@ export default class customMonitor extends PureComponent {
         ...parameter,
         ...vals
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           notification.success({
-            message: editorData.name ? '编辑成功' : '添加成功'
+            message: editorData.name ? '保存成功' : '添加成功'
           });
           this.fetchServiceMonitor();
           this.cancelAddCustomMonitor();
@@ -144,7 +144,8 @@ export default class customMonitor extends PureComponent {
     const {
       deleteServiceMonitorLoading,
       updateServiceMonitorLoading,
-      addServiceMonitorLoading
+      addServiceMonitorLoading,
+      onCancel
     } = this.props;
     const {
       monitors,
@@ -174,6 +175,12 @@ export default class customMonitor extends PureComponent {
               添加配置
             </Button>
           )}
+          <Button
+            style={{ float: 'right', margin: '0 10px 20px 0' }}
+            onClick={onCancel}
+          >
+            返回监控图
+          </Button>
         </Row>
         {addCustomMonitor && (
           <AddCustomMonitor

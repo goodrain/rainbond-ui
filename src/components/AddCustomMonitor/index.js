@@ -22,7 +22,7 @@ export default class AddCustomMonitor extends PureComponent {
     this.handlePorts();
   }
 
-  onOk = e => {
+  onOk = (e) => {
     e.preventDefault();
     const { form, onOk } = this.props;
     const { unit, portList } = this.state;
@@ -31,7 +31,7 @@ export default class AddCustomMonitor extends PureComponent {
         // eslint-disable-next-line no-param-reassign
         vals.interval += `${unit}`;
         vals.port = Number(vals.port);
-        const portInfo = portList.filter(item => {
+        const portInfo = portList.filter((item) => {
           return `${vals.port}` === `${item.container_port}`;
         })[0];
         if (!portInfo.is_outer_service && !portInfo.is_inner_service) {
@@ -43,7 +43,7 @@ export default class AddCustomMonitor extends PureComponent {
     });
   };
 
-  handleOpenInner = vals => {
+  handleOpenInner = (vals) => {
     const { dispatch, parameter, onOk: onPropOk } = this.props;
     confirm({
       title: '开通端口',
@@ -71,7 +71,7 @@ export default class AddCustomMonitor extends PureComponent {
     });
   };
 
-  handleChange = unit => {
+  handleChange = (unit) => {
     this.setState({
       // eslint-disable-next-line react/no-unused-state
       unit
@@ -84,7 +84,7 @@ export default class AddCustomMonitor extends PureComponent {
     dispatch({
       type: 'appControl/fetchPorts',
       payload: parameter,
-      callback: res => {
+      callback: (res) => {
         if (res) {
           this.setState({
             portList: res.list
@@ -133,13 +133,13 @@ export default class AddCustomMonitor extends PureComponent {
     };
     return (
       <Modal
-        title={title || '添加配置'}
+        title={title || data.name ? '编辑配置' : '添加配置'}
         visible
         confirmLoading={loading}
         className={styles.TelescopicModal}
         onCancel={onCancel}
         onOk={this.onOk}
-        okText='添加'
+        okText={data.name ? '保存' : '添加'}
       >
         <Form onSubmit={this.onOk}>
           <FormItem {...formItemLayout} label="配置名">
@@ -150,7 +150,7 @@ export default class AddCustomMonitor extends PureComponent {
                 letterPattern,
                 max64
               ]
-            })(<Input placeholder="请填写配置名" />)}
+            })(<Input disabled={data.name} placeholder="请填写配置名" />)}
           </FormItem>
           <FormItem {...formItemLayout} label="收集任务名称">
             {getFieldDecorator('service_show_name', {
@@ -190,10 +190,10 @@ export default class AddCustomMonitor extends PureComponent {
               rules: [{ required: true, message: '请选择端口号' }]
             })(
               <Select placeholder="请选择端口号">
-                {portList.map(items => {
+                {portList.map((items) => {
                   const { container_port: containerPort, ID } = items;
                   return (
-                    <Option value={ID} key={ID}>
+                    <Option value={containerPort} key={ID}>
                       {containerPort}
                     </Option>
                   );

@@ -5,7 +5,6 @@
 /* eslint-disable react/sort-comp */
 // eslint-disable-next-line react/no-multi-comp
 import React, { Fragment, PureComponent } from 'react';
-import moment from 'moment';
 import { connect } from 'dva';
 import {
   Card,
@@ -17,84 +16,45 @@ import {
   Button,
   AutoComplete
 } from 'antd';
-import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import styless from './index.less';
-import ConfirmModal from '@/components/ConfirmModal';
-import monitorDataUtil from '@/utils/monitorDataUtil';
+import RangeChart from '@/components/CustomChart/rangeChart';
 import { start } from '@/services/app';
 
 const FormItem = Form.Item;
 @Form.create()
-@connect()
+@connect(({ user, appControl, loading }) => ({
+  currUser: user.currentUser,
+  appDetail: appControl.appDetail,
+  addLoading: loading.effects['monitor/addServiceMonitorFigure'],
+  editLoading: loading.effects['monitor/editServiceMonitorFigure']
+}))
 export default class CustomMonitoring extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       indicators: [],
-      memoryRange: [],
-      performanceObj: {},
-      loading: false,
-      showDelete: false
+      RangeData: this.props.info.graph_id ? [this.props.info] : [],
+      loading: false
     };
   }
-  componentWillMount() {
+  componentDidMount() {
     this.fetchComponentMetrics();
   }
   fetchComponentMetrics = () => {
-    const { dispatch, serviceId } = this.props;
+    const { dispatch, serviceId, teamName, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchComponentMetrics',
       payload: {
+        team_name: teamName,
+        service_alias: appAlias,
         serviceId
       },
       callback: (res) => {
         this.setState({
           indicators: res.list
         });
-        console.log('res serviceId', res);
       }
     });
-  };
-
-  getMeta = () => {
-    const { type } = this.props;
-    switch (type) {
-      case 'containerMem':
-        return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
-      case 'containerCpu':
-        return { title: 'CPU使用率', label: 'CPU使用率（%）', unit: '%' };
-      case 'containerNetR':
-        return { title: '传入流量', label: '流量（KB/s）', unit: ' KB/s' };
-      case 'containerNetT':
-        return { title: '传出流量', label: '流量（KB/s）', unit: ' KB/s' };
-      case 'responseTime':
-        return { title: '响应时间', label: '响应时间（ms）', unit: ' ms' };
-      case 'throughput':
-        return { title: '吞吐率', label: '吞吐率（dps）', unit: ' dps' };
-      case 'numberOnline':
-        return { title: '在线人数', label: '在线人数', unit: '' };
-      default:
-        return { title: '', label: '', unit: '' };
-    }
-  };
-
-  converData = (dataRange) => {
-    const rangedata = [];
-    if (dataRange) {
-      dataRange.map((item) => {
-        const cid = item.metric.pod;
-        if (item.values) {
-          item.values.map((v) => {
-            rangedata.push({
-              cid,
-              time: v[0] * 1000,
-              value: Math.floor(Number(v[1]) * 100) / 100
-            });
-          });
-        }
-      });
-    }
-    return rangedata;
   };
 
   onOk = (e) => {
@@ -106,65 +66,53 @@ export default class CustomMonitoring extends PureComponent {
       }
     });
   };
-  onDelete = () => {
-    this.setState({
-      showDelete: true
+  handleSearch = () => {
+    const { form } = this.props;
+    form.validateFields({ force: true }, (err, vals) => {
+      if (!err) {
+        this.setState({
+          RangeData: [vals]
+        });
+      }
     });
   };
-  cancalDelete = () => {
-    this.setState({
-      showDelete: false
-    });
-  };
+
   handleSubmitDelete = () => {
     this.cancalDelete();
   };
   render() {
-    const { moduleName, form, onCancel } = this.props;
+    const {
+      form,
+      onCancel,
+      dispatch,
+      appDetail,
+      appAlias,
+      info={},
+      addLoading,
+      editLoading
+    } = this.props;
     const { getFieldDecorator } = form;
-    const { memoryRange, performanceObj, loading, indicators } = this.state;
-    const { title, label, unit } = this.getMeta();
-    const data =
-      moduleName === 'PerformanceAnalysis'
-        ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
-        : this.converData(memoryRange);
-    const cols = {
-      time: {
-        alias: '时间',
-        tickCount: 10,
-        type: 'time',
-        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
-      },
-      value: {
-        alias: { label },
-        tickCount: 5
-      },
-      cid: {
-        type: 'cat'
-      }
+    const { loading, indicators, RangeData } = this.state;
+    const parameter = {
+      moduleName: 'CustomMonitor',
+      start: new Date().getTime() / 1000 - 60 * 60,
+      end: new Date().getTime() / 1000,
+      dispatch,
+      appDetail,
+      appAlias
     };
-
     return (
       <Fragment>
-        {this.state.showDelete && (
-          <ConfirmModal
-            title="业务监控视图删除"
-            desc="确定要删除此视图吗？"
-            subDesc="此操作不可恢复"
-            onOk={this.handleSubmitDelete}
-            onCancel={this.cancalDelete}
-          />
-        )}
         <Form onSubmit={this.onOk}>
           <Spin spinning={loading}>
-            <Col span={12}>
+            <Col span={24}>
               <Card
                 className={styless.customCard}
                 headStyle={{ padding: '0 24px' }}
                 title={
                   <FormItem>
-                    {getFieldDecorator('name', {
-                      initialValue: '',
+                    {getFieldDecorator('title', {
+                      initialValue: info.title || '',
                       rules: [
                         { required: true, message: '请填写标题' },
                         {
@@ -174,7 +122,7 @@ export default class CustomMonitoring extends PureComponent {
                       ]
                     })(
                       <Input
-                        style={{ width: '350px' }}
+                        style={{ width:'calc(100% - 15px)' }}
                         placeholder="请填写标题"
                       />
                     )}
@@ -185,8 +133,9 @@ export default class CustomMonitoring extends PureComponent {
                     <a style={{ marginRight: '5px' }} onClick={onCancel}>
                       取消
                     </a>
-                    <a onClick={this.onDelete}>删除</a>
-                    <a onClick={this.onOk}>保存</a>
+                    <a onClick={this.onOk} loading={addLoading || editLoading}>
+                      {info.graph_id ? '保存' : '添加'}
+                    </a>
                   </div>
                 }
               >
@@ -198,8 +147,8 @@ export default class CustomMonitoring extends PureComponent {
                     showIcon
                   />
                   <FormItem>
-                    {getFieldDecorator('query', {
-                      initialValue: '',
+                    {getFieldDecorator('promql', {
+                      initialValue: info.promql || '',
                       rules: [
                         { required: true, message: '请填写查询条件' },
                         {
@@ -209,7 +158,7 @@ export default class CustomMonitoring extends PureComponent {
                       ]
                     })(
                       <AutoComplete
-                        style={{ width: '350px', marginRight: '5px' }}
+                        style={{ width: 'calc(100% - 75px)', marginRight: '5px' }}
                         placeholder="请填写查询条件"
                       >
                         {indicators &&
@@ -227,30 +176,23 @@ export default class CustomMonitoring extends PureComponent {
                           })}
                       </AutoComplete>
                     )}
-                    <Button onClick={this.onOk}>查询</Button>
+                    <Button onClick={this.handleSearch}>查询</Button>
                   </FormItem>
-                  <Chart height={400} data={data} scale={cols} forceFit>
-                    <Legend />
-                    <Axis
-                      name="value"
-                      label={{
-                        formatter: (val) => `${val}${unit}`
-                      }}
-                    />
-                    <Axis name="time" />
-                    <Tooltip
-                      crosshairs={{
-                        type: 'y'
-                      }}
-                    />
-                    <Geom
-                      type="line"
-                      position="time*value"
-                      color="cid"
-                      shape="smooth"
-                      size={2}
-                    />
-                  </Chart>
+                  <div style={{ minHeight: '300px' }}>
+                    {RangeData.length > 0 &&
+                      RangeData.map((item) => {
+                        const { title, promql } = item;
+                        return (
+                          <RangeChart
+                            isEdit={false}
+                            key={title}
+                            {...parameter}
+                            title={title}
+                            type={promql}
+                          />
+                        );
+                      })}
+                  </div>
                 </div>
               </Card>
             </Col>

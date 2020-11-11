@@ -60,6 +60,7 @@ export function getServiceMonitor(body = {}) {
     }
   );
 }
+
 export async function postServiceMonitor(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/service_monitor`,
@@ -84,6 +85,51 @@ export async function updateServiceMonitor(body) {
     {
       method: 'put',
       data: body
+    }
+  );
+}
+
+export function getServiceMonitorFigure(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+export function getServiceMonitorFigureInfo(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    {
+      method: 'get'
+    }
+  );
+}
+export function addServiceMonitorFigure(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    {
+      method: 'post',
+      data: body
+    }
+  );
+}
+export async function updataServiceMonitorFigure(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    {
+      method: 'put',
+      data: body
+    }
+  );
+}
+
+export async function deleteServiceMonitorFigure(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
+    {
+      method: 'delete'
     }
   );
 }

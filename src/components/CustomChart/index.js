@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
 /* eslint-disable prettier/prettier */
@@ -88,6 +89,8 @@ export default class ChartTitle extends PureComponent {
       form,
       moduleName,
       operation,
+      onDelete,
+      onEdit,
       RangeData = [],
       appAlias = ''
     } = this.props;
@@ -173,6 +176,22 @@ export default class ChartTitle extends PureComponent {
               );
             })}
           </Row>
+        ) : moduleName === 'CustomMonitor' ? (
+          RangeData.map((item) => {
+            const { promql, ID, title } = item;
+            return (
+              <Col span={12} key={ID} style={{ padding: '8px' }}>
+                <RangeChart
+                  {...parameter}
+                  CustomMonitorInfo={item}
+                  title={title}
+                  type={promql}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              </Col>
+            );
+          })
         ) : (
           RangeData.map((item) => {
             return <RangeChart key={item} {...parameter} type={item} />;
