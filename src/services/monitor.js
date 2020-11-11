@@ -97,7 +97,14 @@ export function getServiceMonitorFigure(body = {}) {
     }
   );
 }
-
+export function getComponentMetrics(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/metrics`,
+    {
+      method: 'get'
+    }
+  );
+}
 export function getServiceMonitorFigureInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,

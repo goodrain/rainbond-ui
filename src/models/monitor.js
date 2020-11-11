@@ -16,7 +16,8 @@ import {
   updateServiceMonitor,
   updataServiceMonitorFigure,
   deleteServiceMonitorFigure,
-  getServiceMonitorFigureInfo
+  getServiceMonitorFigureInfo,
+  getComponentMetrics,
 } from '../services/monitor';
 
 export default {
@@ -27,6 +28,12 @@ export default {
   },
 
   effects: {
+    *fetchComponentMetrics({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentMetrics, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchTags(_, { call, put }) {
       const response = yield call(queryTags);
       yield put({

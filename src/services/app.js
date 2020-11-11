@@ -3,15 +3,6 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
-export function getComponentMetrics(body = {}) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/metrics`,
-    {
-      method: 'get'
-    }
-  );
-}
-
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
   return request(

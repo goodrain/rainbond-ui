@@ -43,7 +43,7 @@ export default class CustomMonitoring extends PureComponent {
   fetchComponentMetrics = () => {
     const { dispatch, serviceId, teamName, appAlias } = this.props;
     dispatch({
-      type: 'appControl/fetchComponentMetrics',
+      type: 'monitor/fetchComponentMetrics',
       payload: {
         team_name: teamName,
         service_alias: appAlias,
