@@ -40,7 +40,7 @@ export default class ConfigurationTable extends PureComponent {
   componentDidMount() {
     this.fetchConfigurationList();
   }
-  onPageChange = page => {
+  onPageChange = (page) => {
     this.setState({ page }, () => {
       this.fetchConfigurationList();
     });
@@ -59,7 +59,7 @@ export default class ConfigurationTable extends PureComponent {
         page,
         page_size: pageSize
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             loading: false,
@@ -83,13 +83,13 @@ export default class ConfigurationTable extends PureComponent {
   handleSearch = () => {
     this.fetchConfigurationList();
   };
-  handelChange = e => {
+  handelChange = (e) => {
     this.setState({ query: e.target.value });
   };
   handleEnter = () => {
     this.handleSearch();
   };
-  handleDelete = data => {
+  handleDelete = (data) => {
     this.setState({
       deleteVar: data
     });
@@ -115,7 +115,7 @@ export default class ConfigurationTable extends PureComponent {
         page,
         page_size: pageSize
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.fetchConfigurationList();
           this.cancelDeleteVariabl();
@@ -128,7 +128,10 @@ export default class ConfigurationTable extends PureComponent {
   };
 
   render() {
-    const { deleteConfigurationLoading } = this.props;
+    const {
+      deleteConfigurationLoading,
+      appConfigGroupPermissions: { isCreate, isDelete, isEdit }
+    } = this.props;
     const { apps, loading, page, pageSize, total, deleteVar } = this.state;
     return (
       <div>
@@ -148,16 +151,18 @@ export default class ConfigurationTable extends PureComponent {
               </Button>
             </FormItem>
           </Form>
-          <Button
-            type="primary"
-            icon="plus"
-            style={{ float: 'right', marginBottom: '20px' }}
-            onClick={() => {
-              this.handleConfigurationOperation();
-            }}
-          >
-            添加配置组
-          </Button>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              style={{ float: 'right', marginBottom: '20px' }}
+              onClick={() => {
+                this.handleConfigurationOperation();
+              }}
+            >
+              添加配置组
+            </Button>
+          )}
         </Row>
         {deleteVar && (
           <ConfirmModal
@@ -183,7 +188,7 @@ export default class ConfigurationTable extends PureComponent {
             columns={[
               {
                 title: '配置组名称',
-                dataIndex: 'config_group_name',
+                dataIndex: 'config_group_name'
               },
               {
                 title: '生效组件数',
@@ -199,16 +204,12 @@ export default class ConfigurationTable extends PureComponent {
                 title: '生效状态',
                 dataIndex: 'enable',
                 align: 'center',
-                render: val => {
+                render: (val) => {
                   return (
                     <div>
                       <Badge
                         status={val ? 'success' : 'error'}
-                        text={
-                          <span>
-                            {val ? '生效中' : '不生效'}
-                          </span>
-                        }
+                        text={<span>{val ? '生效中' : '不生效'}</span>}
                       />
                     </div>
                   );
@@ -220,22 +221,28 @@ export default class ConfigurationTable extends PureComponent {
                 align: 'center',
 
                 render: (val, data) => {
-                  return [
-                    <a
-                      onClick={() => {
-                        this.handleConfigurationOperation(data);
-                      }}
-                    >
-                      编辑
-                    </a>,
-                    <a
-                      onClick={() => {
-                        this.handleDelete(data);
-                      }}
-                    >
-                      删除
-                    </a>
-                  ];
+                  return (
+                    <div>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleConfigurationOperation(data);
+                          }}
+                        >
+                          编辑
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDelete(data);
+                          }}
+                        >
+                          删除
+                        </a>
+                      )}
+                    </div>
+                  );
                 }
               }
             ]}

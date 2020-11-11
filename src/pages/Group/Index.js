@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import {
   Button,
   Col,
@@ -20,7 +21,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import ApplicationGovernance from '@/components/ApplicationGovernance';
 import EditGroupName from '@/components/AddOrEditGroup';
 import AppDirector from '@/components/AppDirector';
-
+import sourceUtil from '../../utils/source-unit';
 import {
   createApp,
   createEnterprise,
@@ -39,7 +40,6 @@ import styles from './Index.less';
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
-  addGroupLoading: loading.effects['application/addGroup'],
   editGroupLoading: loading.effects['application/editGroup'],
   deleteLoading: loading.effects['application/delete'],
   currUser: user.currentUser,
@@ -456,7 +456,9 @@ class Main extends PureComponent {
       currentTeam,
       currentRegionName,
       appPermissions: {
-        isCreate,
+        isShare,
+        isBackup,
+        isUpgrade,
         isEdit,
         isDelete,
         isStart,
@@ -466,10 +468,11 @@ class Main extends PureComponent {
         isCopy
       },
       buildShapeLoading,
-      addGroupLoading,
       editGroupLoading,
       deleteLoading,
+      appConfigGroupPermissions: { isAccess: isConfigGroup },
       componentPermissions,
+      operationPermissions: { isAccess: isControl },
       componentPermissions: {
         isAccess: isComponentDescribe,
         isCreate: isComponentCreate,
@@ -491,7 +494,6 @@ class Main extends PureComponent {
       type,
       customSwitch
     } = this.state;
-    
     const codeObj = {
       start: '启动',
       restart: '重启',
@@ -607,17 +609,17 @@ class Main extends PureComponent {
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用内存</div>
-                <div>{resources.memory || 0}M</div>
+                <div>{`${sourceUtil.unit(resources.memory || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>使用CPU</div>
-                <div>{resources.cpu || 0}M</div>
+                <div>{(resources.cpu && resources.cpu / 1000) || 0}核</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
               <div className={styles.connect_Boxs}>
                 <div>使用磁盘</div>
-                <div>{resources.disk || 0}MB</div>
+                <div>{`${sourceUtil.unit(resources.disk || 0, 'MB')}`}</div>
               </div>
               <div className={styles.connect_Boxs}>
                 <div>组件数量</div>
@@ -657,17 +659,18 @@ class Main extends PureComponent {
                   ? globalUtil.fetchGovernanceMode(currApp.governance_mode)
                   : '-'}
               </span>
-              {currApp.governance_mode && (
+              {currApp.governance_mode && isEdit && (
                 <a style={{ marginLeft: '5px' }} onClick={this.handleSwitch}>
                   切换
                 </a>
               )}
             </div>
+
             <div>
               <span>负责人</span>
               <span>
                 {currApp.principal || '-'}
-                {isEdit  && (
+                {isEdit && (
                   <Icon
                     style={{
                       cursor: 'pointer',
@@ -685,7 +688,7 @@ class Main extends PureComponent {
               <div>备份</div>
               <div
                 onClick={() => {
-                  this.handleJump('backup');
+                  isBackup && this.handleJump('backup');
                 }}
               >
                 <a>{currApp.backup_num || 0}</a>
@@ -696,7 +699,7 @@ class Main extends PureComponent {
               <div>模型发布</div>
               <div
                 onClick={() => {
-                  this.handleJump('publish');
+                  isShare && this.handleJump('publish');
                 }}
               >
                 <a>{currApp.share_num || 0}</a>
@@ -707,7 +710,7 @@ class Main extends PureComponent {
               <div>网关策略</div>
               <div
                 onClick={() => {
-                  this.handleJump('gateway');
+                  isControl && this.handleJump('gateway');
                 }}
               >
                 <a>{currApp.service_num || 0}</a>
@@ -718,7 +721,7 @@ class Main extends PureComponent {
               <div>待升级</div>
               <div
                 onClick={() => {
-                  this.handleJump('upgrade');
+                  isUpgrade && this.handleJump('upgrade');
                 }}
               >
                 <a>{currApp.upgradable_num || 0}</a>
@@ -729,7 +732,7 @@ class Main extends PureComponent {
               <div>配置组</div>
               <div
                 onClick={() => {
-                  this.handleJump('configgroups');
+                  isConfigGroup && this.handleJump('configgroups');
                 }}
               >
                 <a>{currApp.config_group_num || 0}</a>
@@ -952,7 +955,11 @@ export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      operationPermissions: this.handlePermissions('queryControlInfo'),
       appPermissions: this.handlePermissions('queryAppInfo'),
+      appConfigGroupPermissions: this.handlePermissions(
+        'queryAppConfigGroupInfo'
+      ),
       componentPermissions: this.handlePermissions('queryComponentInfo')
     };
   }

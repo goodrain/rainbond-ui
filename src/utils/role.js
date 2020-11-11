@@ -154,6 +154,9 @@ export default {
   queryComponentInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'component', targets);
   },
+  queryAppConfigGroupInfo(data, targets) {
+    return this.queryTeamUserPermissionsInfo(data, 'app_config_group', targets);
+  },
   queryControlInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'gatewayRule', targets);
   },

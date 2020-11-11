@@ -8,7 +8,6 @@ import {
   Switch,
   Checkbox,
   Row,
-  Col,
   Button,
   notification,
   Modal
@@ -18,6 +17,7 @@ import Parameterinput from '@/components/Parameterinput';
 import { createEnterprise, createTeam } from '@/utils/breadcrumb';
 import { batchOperation } from '@/services/app';
 import globalUtil from '@/utils/global';
+import roleUtil from '@/utils/role';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -28,7 +28,8 @@ const { confirm } = Modal;
   EditConfigurationLoading: loading.effects['global/EditConfiguration'],
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise
+  currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 @Form.create()
 export default class ConfigurationDetails extends PureComponent {
@@ -38,13 +39,26 @@ export default class ConfigurationDetails extends PureComponent {
       apps: [],
       info: {},
       loading: true,
-      helpfulVisable: false
+      helpfulVisable: false,
+      appConfigGroupPermissions: this.handlePermissions(
+        'queryAppConfigGroupInfo'
+      )
     };
+  }
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const {
+      appConfigGroupPermissions: { isCreate, isEdit }
+    } = this.state;
+    if (!isCreate && !isEdit) {
+      globalUtil.withoutPermission(dispatch);
+    }
   }
   componentDidMount() {
     this.loadComponents();
     this.loadConfigurationDetails();
   }
+
   onOk = (e) => {
     e.preventDefault();
     const { form } = this.props;
@@ -68,6 +82,7 @@ export default class ConfigurationDetails extends PureComponent {
       }
     });
   };
+
   onCancel = () => {
     const { dispatch } = this.props;
     const { regionName, teamName, appID } = this.handleParameter();
@@ -75,6 +90,13 @@ export default class ConfigurationDetails extends PureComponent {
       routerRedux.push(
         `/team/${teamName}/region/${regionName}/apps/${appID}/configgroups`
       )
+    );
+  };
+  handlePermissions = (type) => {
+    const { currentTeamPermissionsInfo } = this.props;
+    return roleUtil.querySpecifiedPermissionsInfo(
+      currentTeamPermissionsInfo,
+      type
     );
   };
   handleConfiguration = (vals) => {
