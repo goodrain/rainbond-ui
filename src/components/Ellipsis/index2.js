@@ -132,7 +132,6 @@ class EditableTable extends React.Component {
       if (error) {
         return;
       }
-      console.log('row',row)
       const newData = [...this.state.data];
       const index = newData.findIndex(item => key === item.key);
       if (index > -1) {

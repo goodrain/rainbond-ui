@@ -1,33 +1,37 @@
-import React, { PureComponent, Fragment } from "react";
-import { connect } from "dva";
-import { Link, routerRedux } from "dva/router";
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/jsx-indent-props */
+/* eslint-disable react/jsx-indent */
 import {
+  Alert,
+  Button,
   Card,
   Form,
-  List,
   Input,
+  List,
   Modal,
-  Button,
-  Tabs,
   Radio,
   Select,
-  Tag,
   Spin,
-  Alert
-} from "antd";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import CreateAppFromMarketForm from "../../components/CreateAppFromMarketForm";
-import Ellipsis from "../../components/Ellipsis";
-import MarketAppDetailShow from "../../components/MarketAppDetailShow";
-import GoodrainRZ from "../../components/GoodrainRenzheng";
-import { createEnterprise, createTeam } from "../../utils/breadcrumb";
-import globalUtil from "../../utils/global";
-import roleUtil from "../../utils/role";
-import rainbondUtil from "../../utils/rainbond";
-import sourceUtil from "../../utils/source-unit";
-import { fetchMarketAuthority } from "../../utils/authority";
-import PluginStyles from "../Plugin/Index.less";
-import styles from "../../components/CreateTeam/index.less";
+  Tabs,
+  Tag
+} from 'antd';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
+import React, { Fragment, PureComponent } from 'react';
+import AuthCompany from '../../components/AuthCompany';
+import CreateAppFromMarketForm from '../../components/CreateAppFromMarketForm';
+import styles from '../../components/CreateTeam/index.less';
+import Ellipsis from '../../components/Ellipsis';
+import GoodrainRZ from '../../components/GoodrainRenzheng';
+import MarketAppDetailShow from '../../components/MarketAppDetailShow';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { fetchMarketAuthority } from '../../utils/authority';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import globalUtil from '../../utils/global';
+import roleUtil from '../../utils/role';
+import sourceUtil from '../../utils/source-unit';
+import PluginStyles from '../Plugin/Index.less';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -49,44 +53,38 @@ const { TabPane } = Tabs;
 export default class Main extends PureComponent {
   constructor(arg) {
     super(arg);
-    const {
-      handleType = "",
-      match,
-      scope = "",
-      enterprise,
-      moreState
-    } = this.props;
+    const { handleType = '', match, scope = '', moreState } = this.props;
     const appName = decodeURIComponent(
-      handleType === "Service"
-        ? ""
-        : (match && match.params && match.params.keyword) || ""
+      handleType === 'Service'
+        ? ''
+        : (match && match.params && match.params.keyword) || ''
     );
     this.state = {
       list: [],
+      authorizations: false,
       app_name: appName,
       page: 1,
       pageSize: 9,
       total: 0,
       isSpinList: true,
       isSpincloudList: true,
-      networkText: "",
+      networkText: '',
       cloudList: [],
-      cloudApp_name: "",
+      cloudApp_name: '',
       cloudPage: 1,
       cloudPageSize: 9,
       cloudTotal: 0,
       showCreate: null,
       scope,
-      scopeMax: "localApplication",
+      scopeMax: '',
       showApp: {},
       showMarketAppDetail: false,
       installBounced: false,
       handleType: handleType || null,
       moreState: moreState || null,
       is_deploy: true,
-      marketTabLoading: false,
       marketTab: [],
-      currentKey: ""
+      currentKey: ''
     };
     this.mount = false;
   }
@@ -107,19 +105,19 @@ export default class Main extends PureComponent {
   onCancelCreate = () => {
     this.setState({ showCreate: null });
   };
-  getCloudRecommendApps = v => {
+  getCloudRecommendApps = (v) => {
     const { currentKey } = this.state;
     const { currentEnterprise } = this.props;
     this.props.dispatch({
-      type: "market/fetchMarkets",
+      type: 'market/fetchMarkets',
       payload: {
         name: currentKey,
         enterprise_id: currentEnterprise.enterprise_id,
-        query: v ? "" : this.state.cloudApp_name || "",
+        query: v ? '' : this.state.cloudApp_name || '',
         pageSize: v ? 9 : this.state.cloudPageSize,
         page: v ? 1 : this.state.cloudPage
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
@@ -150,19 +148,19 @@ export default class Main extends PureComponent {
       }
     });
   };
-  getApps = v => {
+  getApps = (v) => {
     const { currentEnterprise } = this.props;
     this.props.dispatch({
-      type: "market/fetchAppModels",
+      type: 'market/fetchAppModels',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id,
-        app_name: v ? "" : this.state.app_name || "",
-        scope: v ? "" : this.state.scope,
+        app_name: v ? '' : this.state.app_name || '',
+        scope: v ? '' : this.state.scope,
         page_size: v ? 9 : this.state.pageSize,
         page: v ? 1 : this.state.page,
         is_complete: 1
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           this.setState(
             {
@@ -182,41 +180,52 @@ export default class Main extends PureComponent {
     });
   };
   getMarketsTab = () => {
-    const { dispatch, currentEnterprise, enterprise } = this.props;
-    // if (!rainbondUtil.cloudMarketEnable(enterprise)) {
-    //   return null;
-    // }
-    this.setState({ marketTabLoading: true });
+    const { dispatch, currentEnterprise, scopeProMax } = this.props;
+    const tabListMax = [
+      {
+        key: 'localApplication',
+        tab: '本地组件库'
+      }
+    ];
     dispatch({
-      type: "market/fetchMarketsTab",
+      type: 'market/fetchMarketsTab',
       payload: {
         enterprise_id: currentEnterprise.enterprise_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const arr = res.list;
           const arryNew = [];
           if (arr && arr.length > 0) {
-            res.list.map(item => {
+            res.list.map((item) => {
               const { name, status, alias } = item;
-              if (status == 1) {
+              if (status === 1) {
                 arryNew.push(
                   Object.assign({}, item, { tab: alias || name, key: name })
                 );
               }
+              return null;
             });
           }
+          const scopeMaxs =
+            scopeProMax ||
+            (arryNew.length > 0 ? arryNew[0].key : 'localApplication');
           this.setState({
-            marketTabLoading: false,
-            marketTab: arryNew
+            marketTab: [...arryNew, ...tabListMax]
+          });
+          this.handleTabMaxChange(scopeMaxs);
+        } else {
+          this.setState({
+            marketTab: tabListMax,
+            scopeMax: 'localApplication'
           });
         }
       }
     });
   };
-  handleSearch = v => {
+  handleSearch = (v) => {
     const { scopeMax } = this.state;
-    if (scopeMax == "localApplication") {
+    if (scopeMax === 'localApplication') {
       this.setState(
         {
           app_name: v,
@@ -239,7 +248,7 @@ export default class Main extends PureComponent {
     }
   };
 
-  hanldePageChange = page => {
+  hanldePageChange = (page) => {
     this.setState(
       {
         page
@@ -250,7 +259,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  hanldeCloudPageChange = page => {
+  hanldeCloudPageChange = (page) => {
     this.setState(
       {
         cloudPage: page
@@ -261,7 +270,7 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabChange = key => {
+  handleTabChange = (key) => {
     this.setState(
       {
         scope: key,
@@ -273,27 +282,29 @@ export default class Main extends PureComponent {
     );
   };
 
-  handleTabMaxChange = key => {
+  handleTabMaxChange = (key) => {
     this.setState(
       {
+        page: 1,
+        cloudPage: 1,
         currentKey: key,
         scopeMax: key,
         isSpinList: true,
         isSpincloudList: true,
-        app_name: "",
-        cloudApp_name: ""
+        app_name: '',
+        cloudApp_name: ''
       },
       () => {
-        if (key == "localApplication") {
-          this.getApps("reset");
+        if (key === 'localApplication') {
+          this.getApps('reset');
         } else {
-          this.getCloudRecommendApps("reset");
+          this.getCloudRecommendApps('reset');
         }
       }
     );
   };
 
-  showCreate = app => {
+  showCreate = (app) => {
     const { handleType } = this.state;
     if (handleType) {
       this.setState({ installBounced: app });
@@ -301,7 +312,7 @@ export default class Main extends PureComponent {
       this.setState({ showCreate: app });
     }
   };
-  handleInstallBounced = e => {
+  handleInstallBounced = (e) => {
     e.preventDefault();
     const { form, dispatch, groupId, refreshCurrent } = this.props;
     const {
@@ -316,7 +327,7 @@ export default class Main extends PureComponent {
     form.validateFields((err, Value) => {
       if (err) return;
       dispatch({
-        type: "createApp/installApp",
+        type: 'createApp/installApp',
         payload: {
           team_name: teamName,
           group_id: groupId || 0,
@@ -325,12 +336,12 @@ export default class Main extends PureComponent {
           group_key: installBounced.ID,
           app_version: Value.group_version,
           marketName: currentKey,
-          install_from_cloud: scopeMax !== "localApplication"
+          install_from_cloud: scopeMax !== 'localApplication'
         },
         callback: () => {
           // 刷新左侧按钮
           dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: teamName
             }
@@ -343,8 +354,9 @@ export default class Main extends PureComponent {
           }
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${groupId ||
-                0}`
+              `/team/${teamName}/region/${globalUtil.getCurrRegionName()}/apps/${
+                groupId || 0
+              }`
             )
           );
         }
@@ -356,7 +368,7 @@ export default class Main extends PureComponent {
     const { showCreate: app, currentKey } = this.state;
     const teamName = globalUtil.getCurrTeamName();
     dispatch({
-      type: "createApp/installApp",
+      type: 'createApp/installApp',
       payload: {
         team_name: teamName,
         ...vals,
@@ -369,7 +381,7 @@ export default class Main extends PureComponent {
       callback: () => {
         // 刷新左侧按钮
         dispatch({
-          type: "global/fetchGroups",
+          type: 'global/fetchGroups',
           payload: {
             team_name: teamName
           },
@@ -391,7 +403,7 @@ export default class Main extends PureComponent {
     const { scopeMax, currentKey } = this.state;
     const app = this.state.showCreate;
     this.props.dispatch({
-      type: "createApp/installApp",
+      type: 'createApp/installApp',
       payload: {
         app_id: app.app_id,
         team_name: globalUtil.getCurrTeamName(),
@@ -400,13 +412,13 @@ export default class Main extends PureComponent {
         app_versions: app.app_versions,
         group_key: app.app_key_id,
         app_version: vals.group_version,
-        install_from_cloud: scopeMax !== "localApplication",
+        install_from_cloud: scopeMax !== 'localApplication',
         marketName: currentKey
       },
       callback: () => {
         // 刷新左侧按钮
         this.props.dispatch({
-          type: "global/fetchGroups",
+          type: 'global/fetchGroups',
           payload: {
             team_name: globalUtil.getCurrTeamName()
           },
@@ -434,10 +446,10 @@ export default class Main extends PureComponent {
     this.setState({ visiblebox: newvisible });
     this.queryExport(item);
   };
-  showMarketAppDetail = app => {
+  showMarketAppDetail = (app) => {
     // cloud app
     if (app && app.app_detail_url) {
-      window.open(app.app_detail_url, "_blank");
+      window.open(app.app_detail_url, '_blank');
       return;
     }
     this.setState({
@@ -452,7 +464,8 @@ export default class Main extends PureComponent {
     });
   };
   loadMore = () => {
-    this.props.handleServiceComponent();
+    const { scopeMax } = this.state;
+    this.props.handleServiceComponent(scopeMax);
   };
 
   handleTabs = (tabList, cardList) => {
@@ -462,17 +475,17 @@ export default class Main extends PureComponent {
         defaultActiveKey=""
         onChange={this.handleTabChange}
         style={{
-          background: "#fff",
-          padding: handleType ? "0 20px 20px" : "20px "
+          background: '#fff',
+          padding: handleType ? '0 20px 20px' : '20px '
         }}
       >
-        {tabList.map(item => {
+        {tabList.map((item) => {
           const { key, tab } = item;
           return (
             <TabPane tab={tab} key={key}>
               <div
                 className={PluginStyles.cardList}
-                style={{ paddingBottom: "20px" }}
+                style={{ paddingBottom: '20px' }}
               >
                 {cardList}
               </div>
@@ -482,18 +495,19 @@ export default class Main extends PureComponent {
       </Tabs>
     );
   };
+  // eslint-disable-next-line react/sort-comp
   renderApp = (item, isInstall) => {
     const { scopeMax, handleType } = this.state;
-    const cloud = scopeMax != "localApplication";
+    const cloud = scopeMax != 'localApplication';
 
-    const title = item => (
+    const title = (item) => (
       <div
-        title={item.app_name || ""}
+        title={item.app_name || ''}
         style={{
-          maxWidth: "200px",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis"
+          maxWidth: '200px',
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis'
         }}
       >
         <a
@@ -558,13 +572,13 @@ export default class Main extends PureComponent {
 
     const defaultActions = isInstall
       ? [
-        <span
-          onClick={() => {
+          <span
+            onClick={() => {
               this.showCreate(item);
             }}
-        >
-          安装
-        </span>
+          >
+            安装
+          </span>
         ]
       : [];
 
@@ -582,24 +596,24 @@ export default class Main extends PureComponent {
             style={
               handleType && {
                 height: 80,
-                overflow: "hidden",
-                display: "flex",
-                justifyContent: "center",
-                cursor: "pointer"
+                overflow: 'hidden',
+                display: 'flex',
+                justifyContent: 'center',
+                cursor: 'pointer'
               }
             }
             avatar={
               <img
                 style={
                   handleType
-                    ? { width: 80, height: 80, margin: " 0 auto" }
-                    : { width: 110, height: 110, margin: " 0 auto" }
+                    ? { width: 80, height: 80, margin: ' 0 auto' }
+                    : { width: 110, height: 110, margin: ' 0 auto' }
                 }
                 alt={item.title}
                 src={
                   cloud
                     ? item.logo
-                    : item.pic || require("../../../public/images/app_icon.jpg")
+                    : item.pic || require('../../../public/images/app_icon.jpg')
                 }
                 height={handleType ? 154 : 80}
                 onClick={() => {
@@ -607,16 +621,16 @@ export default class Main extends PureComponent {
                 }}
               />
             }
-            title={handleType ? "" : title(item)}
+            title={handleType ? '' : title(item)}
             description={
               handleType ? (
-                ""
+                ''
               ) : (
                 <Fragment>
                   <span
                     style={{
-                      display: "block",
-                      color: "rgb(200, 200, 200)",
+                      display: 'block',
+                      color: 'rgb(200, 200, 200)',
                       marginBottom: 2,
                       fontSize: 12
                     }}
@@ -625,7 +639,7 @@ export default class Main extends PureComponent {
                     {!cloud && (
                       <div className={PluginStyles.memoryStyle}>
                         <span>内存: </span>
-                        {sourceUtil.unit(item.min_memory || 128, "MB")}
+                        {sourceUtil.unit(item.min_memory || 128, 'MB')}
                       </div>
                     )}
                   </span>
@@ -666,16 +680,16 @@ export default class Main extends PureComponent {
         hideRequiredMark
       >
         <Form.Item {...formItemLayout} label="安装版本">
-          {getFieldDecorator("group_version", {
+          {getFieldDecorator('group_version', {
             initialValue: versionList[0].version || versionList[0].app_version,
             rules: [
               {
                 required: true,
-                message: "请选择版本"
+                message: '请选择版本'
               }
             ]
           })(
-            <Select style={{ width: "220px" }}>
+            <Select style={{ width: '220px' }}>
               {versionList.map((item, index) => {
                 return (
                   <Option key={index} value={item.version || item.app_version}>
@@ -689,10 +703,16 @@ export default class Main extends PureComponent {
       </Form>
     );
   };
+
+  handleCertification = (marketName) => {
+    this.setState({
+      authorizations: marketName
+    });
+  };
+
   render() {
     const {
       loading,
-      enterprise,
       currentEnterprise,
       currentTeam,
       currentRegionName
@@ -715,14 +735,21 @@ export default class Main extends PureComponent {
       pageSize,
       total,
       marketTab,
-      currentKey
+      currentKey,
+      authorizations,
+      showCreate,
+      showMarketAppDetail,
+      showApp,
+      is_deploy: isDeploy,
+      app_name: appName,
+      cloudApp_name: cloudAppName
     } = this.state;
 
     const paginationProps = {
       current: moreState ? 1 : page,
       pageSize: moreState ? 3 : pageSize,
       total: moreState ? 1 : total,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldePageChange(v);
       }
     };
@@ -730,18 +757,18 @@ export default class Main extends PureComponent {
       current: moreState ? 1 : cloudPage,
       pageSize: moreState ? 3 : cloudPageSize,
       total: moreState ? 1 : cloudTotal,
-      onChange: v => {
+      onChange: (v) => {
         this.hanldeCloudPageChange(v);
       }
     };
     let isInstall = true;
 
     if (marketTab && marketTab.length > 0) {
-      const arr = marketTab.filter(item => {
+      const arr = marketTab.filter((item) => {
         return item.name == currentKey;
       });
       if (arr && arr.length > 0) {
-        isInstall = fetchMarketAuthority(arr[0], "ReadInstall");
+        isInstall = fetchMarketAuthority(arr[0], 'ReadInstall');
       }
     }
     const cardList = (
@@ -766,8 +793,8 @@ export default class Main extends PureComponent {
         }}
         pagination={paginationProps}
         dataSource={list}
-        renderItem={item => (
-          <List.Item style={{ border: "none" }}>
+        renderItem={(item) => (
+          <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, true)}
           </List.Item>
         )}
@@ -786,42 +813,36 @@ export default class Main extends PureComponent {
         }}
         pagination={cloudPaginationProps}
         dataSource={cloudList}
-        renderItem={item => (
-          <List.Item style={{ border: "none" }}>
+        renderItem={(item) => (
+          <List.Item style={{ border: 'none' }}>
             {this.renderApp(item, isInstall)}
           </List.Item>
         )}
       />
     );
-
+    const defaultValue =
+      scopeMax == 'localApplication' ? appName : cloudAppName;
     const mainSearch = (
       <div
         style={{
-          textAlign: "center"
+          textAlign: 'center'
         }}
       >
-        <span id="searchWrap" style={{ display: "inline-block" }}>
+        <span id="searchWrap" style={{ display: 'inline-block' }}>
           <Input.Search
+            // eslint-disable-next-line react/no-string-refs
             ref="searchs"
             placeholder="请输入应用名称"
             enterButton="搜索"
             size="large"
-            value={
-              this.state.scopeMax == "localApplication"
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
-            onChange={event => {
+            value={defaultValue}
+            onChange={(event) => {
               this.setState({
                 app_name: event.target.value,
                 cloudApp_name: event.target.value
               });
             }}
-            defaultValue={
-              this.state.scopeMax == "localApplication"
-                ? this.state.app_name
-                : this.state.cloudApp_name
-            }
+            defaultValue={defaultValue}
             onSearch={this.handleSearch}
             style={{
               width: 500
@@ -833,27 +854,21 @@ export default class Main extends PureComponent {
 
     const tabAllList = [
       {
-        key: "",
-        tab: "全部"
+        key: '',
+        tab: '全部'
       }
     ];
     const tabComponentList = [
       {
-        key: "enterprise",
-        tab: "公司分享"
+        key: 'enterprise',
+        tab: '公司分享'
       },
       {
-        key: "team",
-        tab: "团队分享"
+        key: 'team',
+        tab: '团队分享'
       }
     ];
     const tabList = tabAllList.concat(tabComponentList);
-    const tabListMax = [
-      {
-        key: "localApplication",
-        tab: "本地组件库"
-      }
-    ].concat(marketTab);
 
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -861,42 +876,53 @@ export default class Main extends PureComponent {
       currentTeam,
       currentRegionName
     );
-    breadcrumbList.push({ title: "创建组件" });
+    breadcrumbList.push({ title: '创建组件' });
 
     const SpinBox = (
       <div
         style={{
-          height: "300px",
-          lineHeight: "300px",
-          textAlign: "center"
+          height: '300px',
+          lineHeight: '300px',
+          textAlign: 'center'
         }}
       >
         <Spin size="large" />
       </div>
     );
-
     return (
       <div>
-        {this.state.showCreate && (
+        {authorizations && (
+          <AuthCompany
+            eid={currentEnterprise.enterprise_id}
+            marketName={authorizations}
+            title="获取云应用商店授权"
+            onCancel={() => {
+              this.setState({ authorizations: false });
+            }}
+            currStep={2}
+          />
+        )}
+
+        {showCreate && (
           <CreateAppFromMarketForm
-            disabled={loading.effects["createApp/installApp"]}
+            disabled={loading.effects['createApp/installApp']}
             onSubmit={
               handleType
                 ? this.handleCreate
-                : scopeMax == "localApplication"
+                : scopeMax == 'localApplication'
                 ? this.handleCreate
                 : this.handleCloudCreate
             }
             onCancel={this.onCancelCreate}
-            showCreate={this.state.showCreate}
+            showCreate={showCreate}
           />
         )}
 
-        {this.state.showMarketAppDetail && (
+        {showMarketAppDetail && (
           <MarketAppDetailShow
             onOk={this.hideMarketAppDetail}
             onCancel={this.hideMarketAppDetail}
-            app={this.state.showApp}
+            app={showApp}
           />
         )}
 
@@ -924,15 +950,15 @@ export default class Main extends PureComponent {
                 <Button
                   onClick={this.handleInstallBounced}
                   type="primary"
-                  style={{ marginRight: "5px" }}
-                  loading={loading.effects["createApp/installApp"]}
+                  style={{ marginRight: '5px' }}
+                  loading={loading.effects['createApp/installApp']}
                 >
                   安装
                 </Button>
                 <Radio
                   size="small"
                   onClick={this.renderSuccessOnChange}
-                  checked={this.state.is_deploy}
+                  checked={isDeploy}
                 >
                   并构建启动
                 </Radio>
@@ -944,71 +970,84 @@ export default class Main extends PureComponent {
           </Modal>
         )}
 
-        <div>
-          <PageHeaderLayout
-            breadcrumbList={breadcrumbList}
-            content={handleType ? (!moreState ? mainSearch : "") : mainSearch}
-            tabList={tabListMax}
-            tabActiveKey={scopeMax}
-            onTabChange={this.handleTabMaxChange}
-            isFooter={!!handleType}
-          >
-            {scopeMax != "localApplication" && !isInstall && (
-              <Alert
-                message="当前市场没有安装权限，请联系企业管理员更新市场AccessKey"
-                type="success"
-                style={{ margin: "-10px 0 15px 0" }}
-              />
-            )}
-            {scopeMax == "localApplication" ? (
-              <div>
-                {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
-              </div>
-            ) : (
-              <div>
-                {isSpincloudList && isSpincloudList !== -1 ? (
-                  SpinBox
-                ) : (
-                  <div>
-                    <div
-                      className={PluginStyles.cardList}
-                      style={{
-                        paddingBottom: "20px",
-                        marginBottom: !moreState ? "40px" : "0px"
-                      }}
-                    >
-                      {isSpincloudList !== -1 && cloudCardList}
-                      {networkText && (
-                        <Alert
-                          style={{ textAlign: "center", marginBottom: 16 }}
-                          message={networkText}
-                          type="warning"
-                        />
-                      )}
+        {marketTab && marketTab.length > 0 && (
+          <div>
+            <PageHeaderLayout
+              breadcrumbList={breadcrumbList}
+              content={handleType ? (!moreState ? mainSearch : '') : mainSearch}
+              tabList={marketTab}
+              tabActiveKey={scopeMax}
+              onTabChange={this.handleTabMaxChange}
+              isFooter={!!handleType}
+            >
+              {scopeMax !== 'localApplication' && !isInstall && (
+                <Alert
+                  message={
+                    <div>
+                      当前市场没有安装权限，
+                      <a
+                        onClick={() => {
+                          this.handleCertification(scopeMax);
+                        }}
+                      >
+                        去授权
+                      </a>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  }
+                  type="success"
+                  style={{ margin: '-10px 0 15px 0' }}
+                />
+              )}
+              {scopeMax === 'localApplication' ? (
+                <div>
+                  {isSpinList ? SpinBox : this.handleTabs(tabList, cardList)}
+                </div>
+              ) : (
+                <div>
+                  {isSpincloudList && isSpincloudList !== -1 ? (
+                    SpinBox
+                  ) : (
+                    <div>
+                      <div
+                        className={PluginStyles.cardList}
+                        style={{
+                          paddingBottom: '20px',
+                          marginBottom: !moreState ? '40px' : '0px'
+                        }}
+                      >
+                        {isSpincloudList !== -1 && cloudCardList}
+                        {networkText && (
+                          <Alert
+                            style={{ textAlign: 'center', marginBottom: 16 }}
+                            message={networkText}
+                            type="warning"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {handleType && moreState && list && list.length > 0 && (
-              <div
-                style={{
-                  textAlign: "right",
-                  zIndex: 9,
-                  position: "absolute",
-                  height: "70px",
-                  background: "white",
-                  width: "100%",
-                  right: 0,
-                  bottom: "-10px"
-                }}
-              >
-                <a onClick={this.loadMore}>查看更多...</a>
-              </div>
-            )}
-          </PageHeaderLayout>
-        </div>
+              {handleType && moreState && list && list.length > 0 && (
+                <div
+                  style={{
+                    textAlign: 'right',
+                    zIndex: 9,
+                    position: 'absolute',
+                    height: '70px',
+                    background: 'white',
+                    width: '100%',
+                    right: 0,
+                    bottom: '-10px'
+                  }}
+                >
+                  <a onClick={this.loadMore}>查看更多...</a>
+                </div>
+              )}
+            </PageHeaderLayout>
+          </div>
+        )}
       </div>
     );
   }

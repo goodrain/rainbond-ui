@@ -3,55 +3,55 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable react/sort-comp */
 /* eslint-disable no-nested-ternary */
-import { Icon, Layout, notification } from "antd";
-import classNames from "classnames";
-import { connect } from "dva";
-import { Redirect, routerRedux } from "dva/router";
-import { enquireScreen } from "enquire-js";
-import memoizeOne from "memoize-one";
-import PropTypes from "prop-types";
-import { Fragment, PureComponent } from "react";
-import { ContainerQuery } from "react-container-query";
-import DocumentTitle from "react-document-title";
-import { getAppMenuData } from "../common/appMenu";
-import { getMenuData } from "../common/teamMenu";
-import AuthCompany from "../components/AuthCompany";
-import GlobalHeader from "../components/GlobalHeader";
-import GlobalRouter from "../components/GlobalRouter";
-import PageLoading from "../components/PageLoading";
-import ServiceOrder from "../components/ServiceOrder";
-import SiderMenu from "../components/SiderMenu";
-import Authorized from "../utils/Authorized";
-import cookie from "../utils/cookie";
-import globalUtil from "../utils/global";
-import rainbondUtil from "../utils/rainbond";
-import roleUtil from "../utils/role";
-import userUtil from "../utils/user";
-import AppHeader from "./components/AppHeader";
-import TeamHeader from "./components/TeamHeader";
-import Context from "./MenuContext";
-
-const qs = require("query-string");
+import { Icon, Layout, notification } from 'antd';
+import classNames from 'classnames';
+import { connect } from 'dva';
+import { Redirect, routerRedux } from 'dva/router';
+import { enquireScreen } from 'enquire-js';
+import memoizeOne from 'memoize-one';
+import PropTypes from 'prop-types';
+import { Fragment, PureComponent } from 'react';
+import { ContainerQuery } from 'react-container-query';
+import DocumentTitle from 'react-document-title';
+import { getAppMenuData } from '../common/appMenu';
+import { getMenuData } from '../common/teamMenu';
+import AuthCompany from '../components/AuthCompany';
+import GlobalHeader from '../components/GlobalHeader';
+import GlobalRouter from '../components/GlobalRouter';
+import PageLoading from '../components/PageLoading';
+import ServiceOrder from '../components/ServiceOrder';
+import SiderMenu from '../components/SiderMenu';
+import Authorized from '../utils/Authorized';
+import cookie from '../utils/cookie';
+import globalUtil from '../utils/global';
+import rainbondUtil from '../utils/rainbond';
+import roleUtil from '../utils/role';
+import userUtil from '../utils/user';
+import AppHeader from './components/AppHeader';
+import TeamHeader from './components/TeamHeader';
+import Context from './MenuContext';
+import logo from '../../public/logo.png';
+const qs = require('query-string');
 
 const { Content } = Layout;
 
 const query = {
-  "screen-xs": {
+  'screen-xs': {
     maxWidth: 575
   },
-  "screen-sm": {
+  'screen-sm': {
     minWidth: 576,
     maxWidth: 767
   },
-  "screen-md": {
+  'screen-md': {
     minWidth: 768,
     maxWidth: 991
   },
-  "screen-lg": {
+  'screen-lg': {
     minWidth: 992,
     maxWidth: 1199
   },
-  "screen-xl": {
+  'screen-xl': {
     minWidth: 1200
   }
 };
@@ -74,14 +74,12 @@ class TeamLayout extends PureComponent {
     this.getPageTitle = memoizeOne(this.getPageTitle);
     this.state = {
       isMobile,
-      market_info: "",
-      showAuthCompany: false,
       enterpriseList: [],
       ready: false,
       currentTeam: false,
       currentEnterprise: false,
       currentComponent: null,
-      eid: "",
+      eid: '',
       teamView: true
     };
   }
@@ -95,7 +93,7 @@ class TeamLayout extends PureComponent {
     const { dispatch, currentUser } = this.props;
 
     dispatch({
-      type: "global/fetchEnterpriseList",
+      type: 'global/fetchEnterpriseList',
       callback: res => {
         if (res && res._code === 200) {
           this.setState(
@@ -123,7 +121,7 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     if (teamName && regionName) {
       dispatch({
-        type: "user/fetchCurrent",
+        type: 'user/fetchCurrent',
         callback: res => {
           if (res && res._code === 200) {
             this.getTeamOverview(res.bean.user_id);
@@ -138,10 +136,10 @@ class TeamLayout extends PureComponent {
     const { dispatch } = this.props;
     const { enterpriseList } = this.state;
     const { teamName, regionName } = this.props.match.params;
-    cookie.set("team_name", teamName);
-    cookie.set("region_name", regionName);
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
     dispatch({
-      type: "global/getTeamOverview",
+      type: 'global/getTeamOverview',
       payload: {
         team_name: teamName
       },
@@ -161,9 +159,9 @@ class TeamLayout extends PureComponent {
         if (err && err.data && err.data.code) {
           const errtext =
             err.data.code === 10411
-              ? "当前集群不可用"
+              ? '当前集群不可用'
               : err.data.code === 10412
-              ? "当前集群不存在"
+              ? '当前集群不存在'
               : false;
           if (errtext && enterpriseList.length > 0) {
             notification.warning({ message: errtext });
@@ -173,7 +171,7 @@ class TeamLayout extends PureComponent {
               )
             );
           } else {
-            notification.warning({ message: "请求错误" });
+            notification.warning({ message: '请求错误' });
           }
         }
       }
@@ -183,14 +181,14 @@ class TeamLayout extends PureComponent {
   loadPermissions = (ID, teamName, regionName) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "teamControl/fetchTeamUserPermissions",
+      type: 'teamControl/fetchTeamUserPermissions',
       payload: { user_id: ID, team_name: teamName },
       callback: res => {
         if (res && res._code === 200) {
           const results = roleUtil.queryTeamUserPermissionsInfo(
             res.bean,
-            "teamBasicInfo",
-            "describe"
+            'teamBasicInfo',
+            'describe'
           );
           this.setState({ teamView: results });
           if (!results) {
@@ -211,24 +209,24 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
 
-    dispatch({ type: "teamControl/fetchCurrentTeam", payload: team });
+    dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
     dispatch({
-      type: "teamControl/fetchCurrentTeamPermissions",
+      type: 'teamControl/fetchCurrentTeamPermissions',
       payload: team && team.tenant_actions
     });
 
     dispatch({
-      type: "teamControl/fetchCurrentRegionName",
+      type: 'teamControl/fetchCurrentRegionName',
       payload: { currentRegionName: regionName }
     });
     dispatch({
-      type: "region/fetchProtocols",
+      type: 'region/fetchProtocols',
       payload: { team_name: teamName, region_name: regionName }
     });
     const region = userUtil.hasTeamAndRegion(currentUser, teamName, regionName);
     enterpriseList.map(item => {
       if (eid === item.enterprise_id) {
-        dispatch({ type: "enterprise/fetchCurrentEnterprise", payload: item });
+        dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: item });
         this.setState({
           currentEnterprise: item,
           currentTeam: team,
@@ -243,19 +241,13 @@ class TeamLayout extends PureComponent {
       this.setState({ isMobile: mobile });
     });
     // 连接云应用市场
-    this.setState({ showAuthCompany: this.props.showAuthCompany });
-    const query = qs.parse(this.props.location.search);
-    if (query && query.market_info) {
-      this.setState({ market_info: query.market_info });
-      this.setState({ showAuthCompany: true });
-    }
     this.queryComponentDeatil();
     this.handleUpDataHeader();
   };
   handleUpDataHeader = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/IsUpDataHeader",
+      type: 'global/IsUpDataHeader',
       payload: { isUpData: false }
     });
   };
@@ -264,7 +256,7 @@ class TeamLayout extends PureComponent {
     const componentID = globalUtil.getComponentID();
     if (componentID) {
       this.props.dispatch({
-        type: "appControl/fetchDetail",
+        type: 'appControl/fetchDetail',
         payload: {
           team_name: teamName,
           app_alias: componentID
@@ -290,7 +282,7 @@ class TeamLayout extends PureComponent {
   fetchTeamApps = () => {
     const { teamName, regionName } = this.props.match.params;
     this.props.dispatch({
-      type: "global/fetchGroups",
+      type: 'global/fetchGroups',
       payload: {
         team_name: teamName,
         region_name: regionName
@@ -305,7 +297,7 @@ class TeamLayout extends PureComponent {
     // this.fetchEnterpriseService(eid);
     const { dispatch } = this.props;
     dispatch({
-      type: "global/fetchEnterpriseInfo",
+      type: 'global/fetchEnterpriseInfo',
       payload: {
         enterprise_id: eid
       }
@@ -315,7 +307,7 @@ class TeamLayout extends PureComponent {
   fetchEnterpriseService = eid => {
     const { dispatch } = this.props;
     dispatch({
-      type: "order/fetchEnterpriseService",
+      type: 'order/fetchEnterpriseService',
       payload: {
         enterprise_id: eid
       }
@@ -334,14 +326,14 @@ class TeamLayout extends PureComponent {
         rainbondInfo.title &&
         rainbondInfo.title.enable &&
         rainbondInfo.title.value) ||
-      "Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.";
+      'Rainbond | Serverless PaaS , A new generation of easy-to-use cloud management platforms based on kubernetes.';
     return title;
   };
 
   handleMenuCollapse = collapsed => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/changeLayoutCollapsed",
+      type: 'global/changeLayoutCollapsed',
       payload: collapsed
     });
   };
@@ -355,9 +347,9 @@ class TeamLayout extends PureComponent {
   }
   getMode(appID) {
     if (appID) {
-      return "app";
+      return 'app';
     }
-    return "team";
+    return 'team';
   }
 
   render() {
@@ -366,12 +358,14 @@ class TeamLayout extends PureComponent {
       // enterpriseServiceInfo,
       collapsed,
       children,
+      location,
       location: { pathname },
       nouse,
       rainbondInfo,
       enterprise,
       orders,
       upDataHeader,
+      showAuthCompany,
       currentTeamPermissionsInfo
     } = this.props;
     const {
@@ -385,7 +379,7 @@ class TeamLayout extends PureComponent {
     } = this.state;
 
     const { teamName, regionName } = this.props.match.params;
-    const autoWidth = collapsed ? "calc(100% - 416px)" : "calc(100% - 116px)";
+    const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     // Parameters of the abnormal
     if (!teamName || !regionName) {
       return <Redirect to="/" />;
@@ -408,8 +402,8 @@ class TeamLayout extends PureComponent {
     if (upDataHeader) {
       this.upData();
     }
-    cookie.set("team_name", teamName);
-    cookie.set("region_name", regionName);
+    cookie.set('team_name', teamName);
+    cookie.set('region_name', regionName);
     const componentID = globalUtil.getComponentID();
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     let appID = globalUtil.getAppID();
@@ -438,7 +432,7 @@ class TeamLayout extends PureComponent {
     // );
 
     const customHeader = () => {
-      if (mode == "team") {
+      if (mode == 'team') {
         return (
           <TeamHeader
             nobleIcon={BillingFunction}
@@ -471,7 +465,7 @@ class TeamLayout extends PureComponent {
       regionName,
       currentTeam.tenant_actions
     );
-    if (mode === "app") {
+    if (mode === 'app') {
       menuData = getAppMenuData(
         teamName,
         regionName,
@@ -479,7 +473,7 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion =
@@ -487,7 +481,7 @@ class TeamLayout extends PureComponent {
       let isRegionMaintain = false;
       if (hasRegion) {
         isRegionMaintain =
-          currentRegion.region_status === "3" &&
+          currentRegion.region_status === '3' &&
           !userUtil.isSystemAdmin(currentUser);
       } else {
         return <Redirect to="/" />;
@@ -496,19 +490,19 @@ class TeamLayout extends PureComponent {
         // 集群维护中
         if (isRegionMaintain || nouse) {
           return (
-            <div style={{ textAlign: "center", padding: "200px 0" }}>
+            <div style={{ textAlign: 'center', padding: '200px 0' }}>
               <Icon
-                style={{ fontSize: 40, marginBottom: 32, color: "red" }}
+                style={{ fontSize: 40, marginBottom: 32, color: 'red' }}
                 type="warning"
               />
               <h1
                 style={{
                   fontSize: 40,
-                  color: "rgba(0, 0, 0, 0.65)",
+                  color: 'rgba(0, 0, 0, 0.65)',
                   marginBottom: 20
                 }}
               >
-                {nouse ? "当前授权已过期" : "集群维护中"}
+                {nouse ? '当前授权已过期' : '集群维护中'}
               </h1>
               <p
                 style={{
@@ -516,18 +510,18 @@ class TeamLayout extends PureComponent {
                 }}
               >
                 {nouse
-                  ? "请联系 010-64666786 获取更多商业服务。"
-                  : "请稍后访问当前集群"}
+                  ? '请联系 010-64666786 获取更多商业服务。'
+                  : '请稍后访问当前集群'}
               </p>
             </div>
           );
         }
 
         return (
-          <div style={{ height: "100%" }}>
+          <div style={{ height: '100%' }}>
             <Authorized
               logined
-              authority={["admin", "user"]}
+              authority={['admin', 'user']}
               noMatch={<Redirect to="/user/login" />}
             >
               {children}
@@ -570,7 +564,7 @@ class TeamLayout extends PureComponent {
               isMobile={this.state.isMobile}
               customHeader={teamView && customHeader}
             />
-            <Layout style={{ flexDirection: "row" }}>
+            <Layout style={{ flexDirection: 'row' }}>
               {teamView && (
                 <GlobalRouter
                   enterpriseList={enterpriseList}
@@ -593,8 +587,8 @@ class TeamLayout extends PureComponent {
               )}
               <Content
                 style={{
-                  margin: "24px 24px 0",
-                  height: "100%",
+                  margin: '24px 24px 0',
+                  height: '100%',
                   width: autoWidth
                 }}
               >
@@ -618,20 +612,11 @@ class TeamLayout extends PureComponent {
           </ContainerQuery>
         </DocumentTitle>
         {/* 企业尚未认证 */}
-        {(this.props.showAuthCompany || this.state.showAuthCompany) && (
+        {showAuthCompany && (
           <AuthCompany
             eid={this.state.eid}
-            market_info={this.state.market_info}
-            onOk={() => {
-              const jumpPath = this.props.location.pathname;
-              const query = this.props.location.search.replace(
-                `market_info=${this.state.market_info}`,
-                ""
-              );
-              this.setState({ market_info: "", showAuthCompany: false });
-              this.props.dispatch(routerRedux.replace(jumpPath + query));
-              window.location.reload();
-            }}
+            marketName={showAuthCompany}
+            currStep={0}
           />
         )}
         {orders && BillingFunction && (
@@ -647,7 +632,7 @@ class TeamLayout extends PureComponent {
 }
 
 export default connect(
-  ({ user, global, index, loading, teamControl, order }) => ({
+  ({ user, global, index, loading, teamControl }) => ({
     currentUser: user.currentUser,
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,

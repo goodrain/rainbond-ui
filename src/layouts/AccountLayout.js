@@ -119,7 +119,7 @@ class AccountLayout extends PureComponent {
     } = this.props;
 
     const { enterpriseList, isMobiles, ready } = this.state;
-    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || '';
+    const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, enterprise) || logo;
     if (!ready || !enterprise) {
       return <PageLoading />;
     }

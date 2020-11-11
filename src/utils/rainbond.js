@@ -17,6 +17,15 @@ export default {
       enterpriseInfo.logo &&
       enterpriseInfo.logo.enable &&
       enterpriseInfo.logo.value),
+  // 获取网页图标
+  fetchFavicon: enterpriseInfo =>
+    (enterpriseInfo &&
+      enterpriseInfo.favicon &&
+      enterpriseInfo.favicon.enable &&
+      enterpriseInfo.favicon.value) ||
+    '/static/dists/favicon.png',
+  // 获取当前版本
+  fetchIsSource: () => true,
   // BillingFunction
   isEnableBillingFunction: () => false,
   // footer
@@ -111,6 +120,13 @@ export default {
   // 判断平台是否配置了官方Demo
   officialDemoEnable: (bean = {}) =>
     (bean && bean.official_demo && bean.official_demo.enable) || false,
+  // 判断平台是否是企业版
+  isEnterpriseEdition: (bean = {}) =>
+    (bean &&
+      bean.enterprise_edition &&
+      (bean.enterprise_edition.value === 'true' ||
+        bean.enterprise_edition.value === true)) ||
+    false,
 
   // 判断平台是否配置了具有文档权限
   documentEnable: (bean = {}) =>
@@ -140,5 +156,5 @@ export default {
       return '';
     }
     return '';
-  }
+  },
 };

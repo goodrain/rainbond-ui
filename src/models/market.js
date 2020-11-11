@@ -8,7 +8,12 @@ import {
   deleteAppMarket,
   deleteTag,
   fetchAppModels,
+  getAppMarketInfo,
+  postBindingMarkets,
+  getBindingMarketsList,
   fetchAppModelsTags,
+  getAppModelsDetails,
+  delAppVersion,
   fetchMarkets,
   fetchMarketsTab,
   getMarketApp,
@@ -22,15 +27,34 @@ import {
   queryImportRecord,
   upAppMarket,
   upAppModel,
-  upDataTag
-} from "../services/market";
+  upDataTag,
+  upDataAppVersionInfo
+} from '../services/market';
 
 export default {
-  namespace: "market",
+  namespace: 'market',
   state: {},
   effects: {
     *fetchAppModels({ payload, callback }, { call }) {
       const response = yield call(fetchAppModels, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppMarketInfo({ payload, callback }, { call }) {
+      const response = yield call(getAppMarketInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *addBindingMarkets({ payload, callback, handleError }, { call }) {
+      const response = yield call(postBindingMarkets, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchBindingMarketsList({ payload, callback, handleError }, { call }) {
+      const response = yield call(getBindingMarketsList, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -73,6 +97,24 @@ export default {
     },
     *fetchAppModelsTags({ payload, callback }, { call }) {
       const response = yield call(fetchAppModelsTags, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAppModelsDetails({ payload, callback }, { call }) {
+      const response = yield call(getAppModelsDetails, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *upDataAppVersionInfo({ payload, callback }, { call }) {
+      const response = yield call(upDataAppVersionInfo, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *deleteAppVersion({ payload, callback }, { call }) {
+      const response = yield call(delAppVersion, payload);
       if (response && callback) {
         callback(response);
       }

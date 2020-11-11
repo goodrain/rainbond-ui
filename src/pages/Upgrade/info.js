@@ -247,8 +247,10 @@ export default class AppList extends PureComponent {
     }
   };
   handleSubmit = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
+    const { form } = this.props;
+    const { upgradeLoading } = this.state;
+    form.validateFields((err, values) => {
+      if (!err && !upgradeLoading) {
         this.setState(
           {
             upgradeLoading: true
@@ -685,32 +687,43 @@ export default class AppList extends PureComponent {
   //  回滚某次更新Rollback
   getUpgradeRollback = () => {
     const { group_id, form, dispatch } = this.props;
-    const services = form.getFieldValue('services');
-    dispatch({
-      type: 'global/CloudAppUpdateRollback',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id,
-        record_id: this.state.infoObj.ID,
-        service_ids: services
-      },
-      callback: res => {
-        if (res && res._code == 200) {
-          this.setState(
-            {
-              record_id: res.bean.ID
-            },
-            () => {
-              this.getUpgradeRecordsInfo('Rollback');
-            }
-          );
-        }
+    const { rollbackLoading } = this.state;
+    form.validateFields((err, values) => {
+      if (!err && !rollbackLoading) {
+        this.setState(
+          {
+            rollbackLoading: true
+          },
+          () => {
+            dispatch({
+              type: 'global/CloudAppUpdateRollback',
+              payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                group_id,
+                record_id: this.state.infoObj.ID,
+                service_ids: values.services
+              },
+              callback: res => {
+                if (res && res._code == 200) {
+                  this.setState(
+                    {
+                      record_id: res.bean.ID
+                    },
+                    () => {
+                      this.getUpgradeRecordsInfo('Rollback');
+                    }
+                  );
+                }
+              }
+            });
+          }
+        );
       }
     });
   };
 
   render() {
-    const { dispatch, activeKey, group_id, rollbackLoading, form } = this.props;
+    const { dispatch, activeKey, group_id, form } = this.props;
     const { getFieldDecorator } = form;
     const {
       type,
@@ -723,7 +736,8 @@ export default class AppList extends PureComponent {
       textState,
       service_id,
       conshow,
-      upgradeLoading
+      upgradeLoading,
+      rollbackLoading
     } = this.state;
     const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}`;
     const formItemLayout = {
@@ -737,7 +751,9 @@ export default class AppList extends PureComponent {
       }
     };
     const arr = this.getData();
-
+    const UpgradeLoading = upgradeLoading || textState == 2;
+    const RollbackLoading =
+      !!(textState == 2 || textState == 4) || rollbackLoading;
     return (
       <div style={{ padding: '10px', background: '#fff' }}>
         <Row gutter={24} style={{ margin: '0px' }}>
@@ -956,7 +972,6 @@ export default class AppList extends PureComponent {
                     itemLayout="horizontal"
                     dataSource={arr}
                     renderItem={(item, index) => (
-                      // <List.Item actions={item.actions} key={index}>
                       <List.Item key={index}>
                         <List.Item.Meta
                           title={item.title}
@@ -970,10 +985,7 @@ export default class AppList extends PureComponent {
             </div>
           </Col>
         </Row>
-        <Row
-          gutter={24}
-          style={{ textAlign: 'center', width: '100%', marginTop: '5px' }}
-        >
+        <Row gutter={24} className={styles.customBtn}>
           <Button
             style={{ marginRight: '5px' }}
             onClick={() => {
@@ -993,8 +1005,8 @@ export default class AppList extends PureComponent {
                   this.handleSubmit();
                 }
               }}
-              // disabled={textState != 1 ? true : false}
-              loading={upgradeLoading || textState == 2}
+              disabled={UpgradeLoading}
+              loading={UpgradeLoading}
               style={{ marginRight: '5px' }}
             >
               {upgradeText}
@@ -1006,39 +1018,24 @@ export default class AppList extends PureComponent {
               type="primary"
               onClick={() => {
                 if (
-                  activeKey == 1 &&
                   textState != 3 &&
-                  textState != 6 &&
                   textState != 4 &&
-                  textState != 8
-                ) {
-                  dispatch(routerRedux.push(JumpAddress));
-                } else if (
-                  activeKey == 2 &&
-                  textState != 1 &&
-                  textState != 2 &&
-                  textState != 3 &&
-                  textState != 4
+                  textState != 8 &&
+                  ((activeKey == 1 && textState != 6) ||
+                    (activeKey == 2 && textState != 1 && textState != 2))
                 ) {
                   dispatch(routerRedux.push(JumpAddress));
                 } else {
-                  this.setState(
-                    {
-                      rollbackLoading: true
-                    },
-                    () => {
-                      this.getUpgradeRollback();
-                    }
-                  );
+                  this.getUpgradeRollback();
                 }
               }}
               style={{ marginRight: '5px' }}
-              loading={!!(textState == 2 || textState == 4) || rollbackLoading}
+              disabled={RollbackLoading}
+              loading={RollbackLoading}
             >
               {textState == 3 || textState == 6 || textState == 8
                 ? '回滚'
-                : //    (this.props.activeKey == 2 && (textState == 3 || textState == 6 || textState == 8)) ? "回滚" :
-                  text}
+                : text}
             </Button>
           )}
         </Row>

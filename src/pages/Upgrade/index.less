@@ -1,13 +1,24 @@
-@import "~antd/lib/style/themes/default.less";
-@import "../../utils/utils.less";
+@import '~antd/lib/style/themes/default.less';
+@import '../../utils/utils.less';
 
+.customBtn {
+  text-align: center;
+  width: 100%;
+  margin-top: 5px;
+  :global {
+    .ant-btn-primary[disabled] {
+      color: #fff !important;
+      background-color: #1890ff !important;
+      border-color: #1890ff !important;
+    }
+  }
+}
 .cardList {
   margin-bottom: -4px;
-  padding      : 10px 25px;
+  padding: 10px 25px;
 
   .card {
     :global {
-
       .ant-card-meta-avatar {
         margin-left: -7px;
       }
@@ -15,10 +26,10 @@
       .ant-card-meta-title {
         margin-bottom: 12px;
 
-        &>a {
-          display  : inline-block;
+        & > a {
+          display: inline-block;
           max-width: 100%;
-          color    : @heading-color;
+          color: @heading-color;
         }
       }
 
@@ -27,13 +38,12 @@
       }
 
       .ant-card-body:hover {
-        .ant-card-meta-title>a {
+        .ant-card-meta-title > a {
           color: @primary-color;
         }
       }
     }
   }
-
 
   .item {
     height: 64px;
@@ -45,11 +55,9 @@
     }
 
     .ant-list-item-meta {
-      flex : inherit;
+      flex: inherit;
       width: 35%;
     }
-
-
   }
 }
 
@@ -66,7 +74,7 @@
       border-bottom: 1px solid #e8e8e8;
     }
 
-    .ant-list-item-meta-title>a {
+    .ant-list-item-meta-title > a {
       color: rgb(24, 144, 255) !important;
     }
 
@@ -81,23 +89,22 @@
   span {
     display: inline-block;
     margin: 0 2px;
-    color       : #1990FF !important;
+    color: #1990ff !important;
   }
 }
 
-
 .zsldis {
-  display        : flex;
+  display: flex;
   justify-content: space-around;
-  align-items    : center;
-  font-size      : 14px;
-  line-height    : 50px;
-  border-bottom  : 1px solid #666;
+  align-items: center;
+  font-size: 14px;
+  line-height: 50px;
+  border-bottom: 1px solid #666;
 
   span {
-    color      : rgba(0, 0, 0, 0.85);
-    display    : inline-block;
-    height     : 50px;
+    color: rgba(0, 0, 0, 0.85);
+    display: inline-block;
+    height: 50px;
     line-height: 50px;
   }
 
@@ -119,18 +126,16 @@
 .zslbor,
 .zsllbor {
   // border   : 1px solid #666;
-  height      : 500px;
+  height: 500px;
   // overflow : auto;
 }
-
 
 .zsllbor {
   padding: 20px;
 }
 
-
 .extraImg {
-  width     : 195px;
+  width: 195px;
   margin-top: -60px;
   text-align: center;
 
@@ -140,17 +145,17 @@
 }
 
 .newButton {
-  width           : 100%;
-  height          : 188px;
-  color           : @text-color-secondary;
+  width: 100%;
+  height: 188px;
+  color: @text-color-secondary;
   background-color: #fff;
-  border-color    : @border-color-base;
-  border-radius   : @border-radius-sm;
+  border-color: @border-color-base;
+  border-radius: @border-radius-sm;
 }
 
 .cardAvatar {
-  width        : 48px;
-  height       : 48px;
+  width: 48px;
+  height: 48px;
   border-radius: 48px;
 }
 
@@ -174,13 +179,13 @@
   }
 
   img {
-    margin-right  : 8px;
+    margin-right: 8px;
     vertical-align: middle;
   }
 }
 
 .zslcheck {
-  display        : flex;
+  display: flex;
   justify-content: center;
 
   .zslIcon {
@@ -191,11 +196,11 @@
     // height    : 20px;
     // background: #fff;
     // z-index   : 999;
-    margin-right : 5px;
+    margin-right: 5px;
   }
 
   .zslIcon i {
-    color: #FF9800;
+    color: #ff9800;
   }
 
   :global {
@@ -203,32 +208,27 @@
       width: 100%;
     }
   }
-
 }
 
 .zslGroup {
-  font-size : 14px;
+  font-size: 14px;
   margin-top: 20px;
-  width     : 100%;
+  width: 100%;
 }
 
 .zslMt {
-  display        : flex;
+  display: flex;
   justify-content: space-between;
-  align-items    : center;
-  height         : 60px;
-  line-height    : 60px;
+  align-items: center;
+  height: 60px;
+  line-height: 60px;
 }
-
-
-
-
 
 .active {
   // width    : calc(100% + 1px);
-  background  : #e6f7ff;
-  z-index     : 1;
-  color       : #1990FF !important;
+  background: #e6f7ff;
+  z-index: 1;
+  color: #1990ff !important;
   border-right: 3px solid #1890ff;
 
   :global {
@@ -237,67 +237,62 @@
     }
 
     .ant-checkbox-wrapper {
-      color: #1990FF !important;
+      color: #1990ff !important;
     }
   }
-
 }
 
 .zslcen {
-  font-size   : 16px;
-  font-weight : 500;
-  text-align  : left;
-  color       : rgba(0, 0, 0, 0.85);
-  width       : 100%;
-  height      : 50px;
-  line-height : 50px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.85);
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
   padding-left: 20px;
 }
 
 .zslborl {
   border-bottom: 1px solid #666;
-  text-align   : center;
-  margin       : 0px !important;
-
+  text-align: center;
+  margin: 0px !important;
 }
 
 .zslborr {
   border-right: 1px solid #666;
-  height      : 60px;
-  line-height : 60px;
+  height: 60px;
+  line-height: 60px;
 }
 
 .zslh {
-  height     : 60px;
+  height: 60px;
   line-height: 60px;
-
 }
-
 
 .listContent {
   font-size: 0;
-  width    : 55%;
+  width: 55%;
 
   .listContentItem {
-    display       : inline-block;
-    margin-left   : 40px;
-    color         : @text-color-secondary;
-    font-size     : @font-size-base;
+    display: inline-block;
+    margin-left: 40px;
+    color: @text-color-secondary;
+    font-size: @font-size-base;
     vertical-align: top;
-    width         : 24%;
+    width: 24%;
 
-    >span {
+    > span {
       line-height: 20px;
     }
 
-    >p {
-      margin-top   : 4px;
+    > p {
+      margin-top: 4px;
       margin-bottom: 0;
-      line-height  : 22px;
+      line-height: 22px;
     }
   }
 }
-
 
 .standardList {
   :global {
@@ -306,7 +301,7 @@
     }
 
     .ant-card-head-title {
-      padding    : 24px 0;
+      padding: 24px 0;
       line-height: 32px;
     }
 
@@ -320,43 +315,43 @@
     }
 
     .ant-avatar-lg {
-      width      : 48px;
-      height     : 48px;
+      width: 48px;
+      height: 48px;
       line-height: 48px;
     }
   }
 
   .headerInfo {
-    position  : relative;
+    position: relative;
     text-align: center;
 
-    &>span {
-      display      : inline-block;
+    & > span {
+      display: inline-block;
       margin-bottom: 4px;
-      color        : @text-color-secondary;
-      font-size    : @font-size-base;
-      line-height  : 22px;
+      color: @text-color-secondary;
+      font-size: @font-size-base;
+      line-height: 22px;
     }
 
-    &>p {
-      margin     : 0;
-      color      : @heading-color;
-      font-size  : 24px;
+    & > p {
+      margin: 0;
+      color: @heading-color;
+      font-size: 24px;
       line-height: 32px;
     }
 
-    &>em {
-      position        : absolute;
-      top             : 0;
-      right           : 0;
-      width           : 1px;
-      height          : 56px;
+    & > em {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 1px;
+      height: 56px;
       background-color: @border-color-split;
     }
   }
 
   .extraContentSearch {
-    width      : 272px;
+    width: 272px;
     margin-left: 16px;
   }
 }
@@ -366,8 +361,8 @@
     :global {
       .ant-list-item-content {
         display: block;
-        flex   : none;
-        width  : 100%;
+        flex: none;
+        width: 100%;
       }
 
       .ant-list-item-action {
@@ -378,7 +373,7 @@
     .listContent {
       margin-left: 0;
 
-      &>div {
+      & > div {
         margin-left: 0;
       }
     }
@@ -396,14 +391,14 @@
 @media screen and (max-width: @screen-sm) {
   .standardList {
     .extraContentSearch {
-      width      : 100%;
+      width: 100%;
       margin-left: 0;
     }
 
     .headerInfo {
       margin-bottom: 16px;
 
-      &>em {
+      & > em {
         display: none;
       }
     }
@@ -413,12 +408,12 @@
 @media screen and (max-width: @screen-md) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         display: block;
       }
 
-      &>div:last-child {
-        top  : 0;
+      & > div:last-child {
+        top: 0;
         width: 100%;
       }
     }
@@ -427,7 +422,7 @@
   .listCard {
     :global {
       .ant-radio-group {
-        display      : block;
+        display: block;
         margin-bottom: 8px;
       }
     }
@@ -441,7 +436,7 @@
 
       &:last-child {
         margin-bottom: 32px;
-        padding-top  : 4px;
+        padding-top: 4px;
       }
     }
   }
@@ -454,10 +449,6 @@
     margin-bottom: 8px;
   }
 }
-
-
-
-
 
 @media screen and (max-width: @screen-lg) {
   .contentLink {
@@ -480,9 +471,9 @@
 
   .contentLink {
     position: absolute;
-    bottom  : -4px;
-    left    : 0;
-    width   : 1000px;
+    bottom: -4px;
+    left: 0;
+    width: 1000px;
 
     a {
       margin-right: 16px;
@@ -494,16 +485,15 @@
   }
 }
 
-
 @media screen and (max-width: @screen-lg) and (min-width: @screen-md) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         display: block;
       }
 
-      &>div:last-child {
-        top  : 0;
+      & > div:last-child {
+        top: 0;
         width: 100%;
       }
     }
@@ -513,11 +503,11 @@
 @media screen and (max-width: @screen-xl) {
   .standardList {
     .listContent {
-      &>div {
+      & > div {
         margin-left: 24px;
       }
 
-      &>div:last-child {
+      & > div:last-child {
         top: 0;
       }
     }
@@ -529,7 +519,7 @@
     .listContent {
       text-align: right;
 
-      &>div:last-child {
+      & > div:last-child {
         top: 0;
       }
     }
