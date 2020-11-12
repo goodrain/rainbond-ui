@@ -189,7 +189,7 @@ export default class AppExporter extends PureComponent {
   handleRelease = (type) => {
     const { versionInfo } = this.state;
     const th = this;
-    if (!versionInfo.dev_status) {
+    if (versionInfo.dev_status === '') {
       confirm({
         title: '当前导出版本非Release状态',
         content: '是否继续导出',
