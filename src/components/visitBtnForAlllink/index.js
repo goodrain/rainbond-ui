@@ -13,18 +13,28 @@ import { Button, Dropdown, Menu, Tooltip } from 'antd';
 // @connect(({ user, appControl, global }) => ({ visitInfo: appControl.visitInfo }))
 export default class Index extends PureComponent {
   renderHttpPort = visitInfo => {
-    const linksMap = visitInfo.map(item => {
-      return {
-        url: item.access_info[0].access_urls,
-        service_cname: item.access_info[0].service_cname,
-      };
+    /** 筛选出里面有必须url */
+    const links = [];
+    const isAccessUrls = visitInfo.filter(item => {
+      const { access_info: accessInfo } = item;
+      const isUrls =
+        accessInfo &&
+        accessInfo.length > 0 &&
+        accessInfo[0].access_urls &&
+        accessInfo[0].access_urls.length > 0;
+      if (isUrls) {
+        links.push({
+          url: accessInfo[0].access_urls,
+          service_cname: accessInfo[0].service_cname
+        });
+      }
+      return isUrls;
     });
 
-    /** 筛选出里面有必须url */
-    const links = linksMap.filter(item => item.url[0]);
-    if (links.length === 0) {
+    if (isAccessUrls.length === 0) {
       return null;
     }
+
     if (links.length === 1) {
       let singleLink;
       if (links[0] && links[0].url && links[0].url[0])

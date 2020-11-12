@@ -10,6 +10,6 @@ if (process.env.NODE_ENV === 'dev') {
 imageUploadUrl = `${baseUrl}/console/files/upload`;
 const config = {
   baseUrl,
-  imageUploadUrl,
+  imageUploadUrl
 };
 export default config;

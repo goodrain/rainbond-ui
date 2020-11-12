@@ -1,4 +1,16 @@
-import { Alert, Button, Card, Dropdown, Icon, Menu, Modal, notification, Table, Tooltip } from 'antd';
+/* eslint-disable react/sort-comp */
+import {
+  Alert,
+  Button,
+  Card,
+  Dropdown,
+  Icon,
+  Menu,
+  Modal,
+  notification,
+  Table,
+  Tooltip
+} from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -18,14 +30,14 @@ import styles from './index.less';
 
 @connect(({ user, appControl, global }) => ({
   visitInfo: appControl.visitInfo,
-  currUser: user.currentUser,
+  currUser: user.currentUser
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       showModal: false,
-      componentTimers: this.props.timers,
+      componentTimers: this.props.timers
     };
     this.mount = false;
   }
@@ -40,7 +52,7 @@ export default class Index extends PureComponent {
     if (newTimers !== timers) {
       this.setState(
         {
-          componentTimers: newTimers,
+          componentTimers: newTimers
         },
         () => {
           if (newTimers) {
@@ -60,8 +72,10 @@ export default class Index extends PureComponent {
 
   getHttpLinks = accessInfo => {
     let res = [];
-    for (let i = 0; i < accessInfo.length; i++) {
-      res = res.concat(accessInfo[i].access_urls || []);
+    if (accessInfo.length > 0) {
+      for (let i = 0; i < accessInfo.length; i++) {
+        res = res.concat(accessInfo[i].access_urls || []);
+      }
     }
     return res;
   };
@@ -79,7 +93,7 @@ export default class Index extends PureComponent {
       type: 'appControl/fetchVisitInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias,
+        app_alias: appAlias
       },
       callback: res => {
         if (res && res._code == 200) {
@@ -101,7 +115,7 @@ export default class Index extends PureComponent {
           },
           10000
         );
-      },
+      }
     });
   };
   handleError = err => {
@@ -112,7 +126,7 @@ export default class Index extends PureComponent {
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
-        description: err.data.msg_show,
+        description: err.data.msg_show
       });
     }
   };
@@ -139,7 +153,7 @@ export default class Index extends PureComponent {
     <div>
       <span
         style={{
-          marginRight: 16,
+          marginRight: 16
         }}
       >
         访问地址：{item.access_urls[0]}
@@ -171,7 +185,7 @@ export default class Index extends PureComponent {
             <div
               style={{
                 textAlign: 'center',
-                fontSize: 16,
+                fontSize: 16
               }}
             >
               如需要提供访问服务, 请
@@ -199,20 +213,20 @@ export default class Index extends PureComponent {
             title: '变量名',
             dataIndex: 'attr_name',
             key: 'attr_name',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '变量值',
             dataIndex: 'attr_value',
             key: 'attr_value',
-            align: 'center',
+            align: 'center'
           },
           {
             title: '说明',
             dataIndex: 'name',
             key: 'name',
-            align: 'center',
-          },
+            align: 'center'
+          }
         ]}
         pagination={false}
         dataSource={infoArr}
@@ -260,7 +274,7 @@ export default class Index extends PureComponent {
               <div
                 style={{
                   textAlign: 'center',
-                  fontSize: 16,
+                  fontSize: 16
                 }}
               >
                 http协议端口需打开外部访问服务, 去
@@ -321,7 +335,7 @@ export default class Index extends PureComponent {
             <div
               style={{
                 textAlign: 'center',
-                fontSize: 16,
+                fontSize: 16
               }}
             >
               需要配置端口信息, 去
@@ -369,12 +383,16 @@ export default class Index extends PureComponent {
           >
             {res.map((item, i) => {
               const connect_info = item.connect_info || [];
+              const accessUrls =
+                item.access_urls &&
+                item.access_urls.length > 0 &&
+                item.access_urls[0];
               // connect_info = connect_info.filter((d, i) => d.attr_name.indexOf("_PORT") === -1 && d.attr_name.indexOf("_HOST") === -1);
               return (
                 <Card
                   type="inner"
                   style={{
-                    marginBottom: 24,
+                    marginBottom: 24
                   }}
                   // title={this.renderNoHttpOuterTitle(item)}
                 >
@@ -398,25 +416,29 @@ export default class Index extends PureComponent {
                           href="javascript:void(0)"
                           style={{ marginRight: '10px' }}
                         >
-                          {item.access_urls[0].indexOf('0.0.0.0') > -1 &&
+                          {accessUrls &&
+                          accessUrls.indexOf('0.0.0.0') > -1 &&
                           currentRegion &&
                           currentRegion.length > 0
-                            ? item.access_urls[0].replace(
+                            ? accessUrls &&
+                              accessUrls.replace(
                                 /0.0.0.0/g,
                                 currentRegion[0].tcpdomain
                               )
-                            : item.access_urls[0].replace(/\s+/g, '')}
+                            : accessUrls && accessUrls.replace(/\s+/g, '')}
                         </a>
                         <CopyToClipboard
                           text={
-                            item.access_urls[0].indexOf('0.0.0.0') > -1 &&
+                            accessUrls &&
+                            accessUrls.indexOf('0.0.0.0') > -1 &&
                             currentRegion &&
                             currentRegion.length > 0
-                              ? item.access_urls[0].replace(
+                              ? accessUrls &&
+                                accessUrls.replace(
                                   /0.0.0.0/g,
                                   currentRegion[0].tcpdomain
                                 )
-                              : item.access_urls[0].replace(/\s+/g, '')
+                              : accessUrls && accessUrls.replace(/\s+/g, '')
                           }
                           onCopy={() => {
                             notification.success({ message: '复制成功' });
@@ -505,7 +527,7 @@ export default class Index extends PureComponent {
         <Card
           type="inner"
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           title={renderTitle(item)}
         >
@@ -515,21 +537,21 @@ export default class Index extends PureComponent {
             <Fragment>
               <table
                 style={{
-                  width: '100%',
+                  width: '100%'
                 }}
               >
                 <thead>
                   <tr>
                     <th
                       style={{
-                        width: '33%',
+                        width: '33%'
                       }}
                     >
                       变量名
                     </th>
                     <th
                       style={{
-                        width: '33%',
+                        width: '33%'
                       }}
                     >
                       变量值
@@ -550,7 +572,7 @@ export default class Index extends PureComponent {
                       <td
                         colSpan="3"
                         style={{
-                          textAlign: 'center',
+                          textAlign: 'center'
                         }}
                       >
                         暂无数据
@@ -585,7 +607,7 @@ export default class Index extends PureComponent {
           >
             <Alert
               style={{
-                marginBottom: 16,
+                marginBottom: 16
               }}
               message="其他组件依赖此组件后来访问"
               type="info"
