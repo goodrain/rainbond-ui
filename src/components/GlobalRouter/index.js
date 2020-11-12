@@ -253,18 +253,11 @@ export default class GlobalRouter extends PureComponent {
   render() {
     const { showMenu, collapsed, pathname, menuData } = this.props;
     const { openKeys } = this.state;
-    // Don't show popup menu when it is been collapsed
-    const menuProps = collapsed
-      ? {}
-      : {
-          openKeys,
-        };
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
     if (!selectedKeys.length) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
-    // console.log(selectedKeys);
     return (
       <div
         style={{
@@ -278,7 +271,6 @@ export default class GlobalRouter extends PureComponent {
           key="Menu"
           theme="dark"
           mode="inline"
-          {...menuProps}
           onOpenChange={this.handleOpenChange}
           selectedKeys={selectedKeys}
           inlineCollapsed="menu-fold"
