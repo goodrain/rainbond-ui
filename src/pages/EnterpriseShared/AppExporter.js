@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 /* eslint-disable consistent-return */
-import React, { PureComponent } from "react";
-import { connect } from "dva";
-import { Modal, Alert, Button, notification, Select } from "antd";
-import styles from "../../components/CreateTeam/index.less";
-import DescriptionList from "../../components/DescriptionList";
-
+import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { Modal, Alert, Button, notification, Select } from 'antd';
+import styles from '../../components/CreateTeam/index.less';
+import DescriptionList from '../../components/DescriptionList';
+const { confirm } = Modal;
 const { Option } = Select;
 const { Description } = DescriptionList;
 
@@ -19,18 +19,18 @@ export default class AppExporter extends PureComponent {
     this.state = {
       app_exporte_status: null,
       exportVersionList: app.versions_info || [],
+      versionInfo: {},
       exportVersion:
         (app.versions_info &&
           app.versions_info.length > 0 && [
             app.versions_info[app.versions_info.length - 1].version
           ]) ||
-        ""
+        ''
     };
   }
   componentDidMount() {
     this.queryExport();
   }
-
   getDockerComposeAppShow = () => {
     const { app_exporte_status } = this.state;
     if (!app_exporte_status || !app_exporte_status.docker_compose) {
@@ -46,7 +46,7 @@ export default class AppExporter extends PureComponent {
         <Description term="导出状态">
           {this.getStatus(compose_app_status)}
         </Description>
-        {this.getAction(compose_app_status, "docker-compose")}
+        {this.getAction(compose_app_status, 'docker-compose')}
       </DescriptionList>
     );
   };
@@ -65,11 +65,10 @@ export default class AppExporter extends PureComponent {
         <Description term="导出状态">
           {this.getStatus(rainbond_app_status)}
         </Description>
-        {this.getAction(rainbond_app_status, "rainbond-app")}
+        {this.getAction(rainbond_app_status, 'rainbond-app')}
       </DescriptionList>
     );
   };
-
   getAction = (app_status, type) => {
     if (!app_status.is_export_before) {
       return (
@@ -77,7 +76,7 @@ export default class AppExporter extends PureComponent {
           type="primary"
           size="small"
           onClick={() => {
-            this.handleExporter(type);
+            this.handleRelease(type);
           }}
         >
           导出
@@ -85,7 +84,7 @@ export default class AppExporter extends PureComponent {
       );
     }
 
-    if (app_status.status == "success") {
+    if (app_status.status == 'success') {
       return (
         <div>
           <Button
@@ -99,8 +98,9 @@ export default class AppExporter extends PureComponent {
           </Button>
           <Button
             style={{ marginLeft: 16 }}
+            size="small"
             onClick={() => {
-              this.handleExporter(type);
+              this.handleRelease(type);
             }}
           >
             重新导出
@@ -108,7 +108,7 @@ export default class AppExporter extends PureComponent {
         </div>
       );
     }
-    if (app_status.status == "exporting") {
+    if (app_status.status == 'exporting') {
       return (
         <div>
           <Button
@@ -134,7 +134,7 @@ export default class AppExporter extends PureComponent {
         </div>
       );
     }
-    if (app_status.status == "failed") {
+    if (app_status.status == 'failed') {
       return (
         <div>
           <Button
@@ -160,18 +160,50 @@ export default class AppExporter extends PureComponent {
       );
     }
   };
-  getStatus = status => {
+  getStatus = (status) => {
     if (!status.is_export_before) {
-      return "未导出";
+      return '未导出';
     }
-    if (status.status == "success") {
-      return "成功";
+    if (status.status == 'success') {
+      return '成功';
     }
-    if (status.status == "failed") {
-      return "失败";
+    if (status.status == 'failed') {
+      return '失败';
     }
-    if (status.status == "exporting") {
-      return "进行中";
+    if (status.status == 'exporting') {
+      return '进行中';
+    }
+  };
+  handleVersionInfo = () => {
+    const { exportVersionList, exportVersion } = this.state;
+    const currentVersionInfo = exportVersionList.filter(
+      (item) => item.version === exportVersion
+    );
+    if (currentVersionInfo.length > 0) {
+      this.setState({
+        versionInfo: currentVersionInfo[0]
+      });
+    }
+  };
+
+  handleRelease = (type) => {
+    const { versionInfo } = this.state;
+    const th = this;
+    if (versionInfo.dev_status === '') {
+      confirm({
+        title: '当前导出版本非Release状态',
+        content: '是否继续导出',
+        okText: '确认',
+        cancelText: '取消',
+        onOk() {
+          th.handleExporter(type);
+          return new Promise((resolve, reject) => {
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+          }).catch(() => console.log('Oops errors!'));
+        }
+      });
+    } else {
+      th.handleExporter(type);
     }
   };
 
@@ -181,20 +213,20 @@ export default class AppExporter extends PureComponent {
       onCancel();
     }
   };
-  handleExporter = format => {
+  handleExporter = (format) => {
     const { app, eid, dispatch } = this.props;
     const { exportVersion } = this.state;
     dispatch({
-      type: "market/appExport",
+      type: 'market/appExport',
       payload: {
         app_id: app.app_id,
         enterprise_id: eid,
         app_versions: exportVersion,
         format
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data.bean) {
-          notification.success({ message: "操作成功，开始导出，请稍等！" });
+          notification.success({ message: '操作成功，开始导出，请稍等！' });
           this.queryExport();
         }
       }
@@ -206,7 +238,7 @@ export default class AppExporter extends PureComponent {
     let group_version = this.state.exportVersion;
     group_version = group_version.join();
     dispatch({
-      type: "market/queryExport",
+      type: 'market/queryExport',
       payload: {
         enterprise_id: eid,
         body: {
@@ -214,17 +246,17 @@ export default class AppExporter extends PureComponent {
           app_version: group_version
         }
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
           if (
             (data.list &&
               data.list.length > 0 &&
               data.list[0].rainbond_app &&
-              data.list[0].rainbond_app.status == "exporting") ||
+              data.list[0].rainbond_app.status == 'exporting') ||
             (data.list &&
               data.list.length > 0 &&
               data.list[0].docker_compose &&
-              data.list[0].docker_compose.status == "exporting")
+              data.list[0].docker_compose.status == 'exporting')
           ) {
             setIsExporting(true);
             setTimeout(() => {
@@ -236,11 +268,11 @@ export default class AppExporter extends PureComponent {
             (data.list &&
               data.list.length > 0 &&
               data.list[0].rainbond_app &&
-              data.list[0].rainbond_app.status != "exporting") ||
+              data.list[0].rainbond_app.status != 'exporting') ||
             (data.list &&
               data.list.length > 0 &&
               data.list[0].docker_compose &&
-              data.list[0].docker_compose.status != "exporting")
+              data.list[0].docker_compose.status != 'exporting')
           ) {
             setIsExporting(false);
           }
@@ -252,29 +284,30 @@ export default class AppExporter extends PureComponent {
       }
     });
   };
-  download = downloadPath => {
-    let aEle = document.querySelector("#down-a-element");
+  download = (downloadPath) => {
+    let aEle = document.querySelector('#down-a-element');
     if (!aEle) {
-      aEle = document.createElement("a");
-      aEle.setAttribute("download", "filename");
+      aEle = document.createElement('a');
+      aEle.setAttribute('download', 'filename');
       document.body.appendChild(aEle);
     }
     aEle.href = downloadPath;
     if (document.all) {
       aEle.click();
     } else {
-      const e = document.createEvent("MouseEvents");
-      e.initEvent("click", true, true);
+      const e = document.createEvent('MouseEvents');
+      e.initEvent('click', true, true);
       aEle.dispatchEvent(e);
     }
   };
 
-  handleChange = value => {
+  handleChange = (value) => {
     this.setState(
       {
         exportVersion: [value]
       },
       () => {
+        this.handleVersionInfo();
         this.queryExport();
       }
     );
@@ -282,6 +315,7 @@ export default class AppExporter extends PureComponent {
 
   render() {
     const { onOk, onCancel, loading } = this.props;
+    const { exportVersion, exportVersionList } = this.state;
     return (
       <Modal
         title="导出云市应用"
@@ -297,18 +331,18 @@ export default class AppExporter extends PureComponent {
         ]}
       >
         <Alert
-          style={{ textAlign: "center", marginBottom: 16 }}
+          style={{ textAlign: 'center', marginBottom: 16 }}
           message="导出云市应用适用于交付环境"
           type="success"
         />
-        <div style={{ marginBottom: "30px" }}>
+        <div style={{ marginBottom: '30px' }}>
           导出版本：
           <Select
-            defaultValue={this.state.exportVersion}
+            defaultValue={exportVersion}
             onChange={this.handleChange}
             size="small"
           >
-            {this.state.exportVersionList.map(item => {
+            {exportVersionList.map((item) => {
               const { version } = item;
               return (
                 <Option key={`key:${version}`} value={version}>
@@ -319,7 +353,7 @@ export default class AppExporter extends PureComponent {
           </Select>
         </div>
         {this.getRainbondAppShow()}
-        {!(this.props.app.source == "market") && this.getDockerComposeAppShow()}
+        {!(this.props.app.source == 'market') && this.getDockerComposeAppShow()}
       </Modal>
     );
   }
