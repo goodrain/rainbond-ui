@@ -105,6 +105,23 @@ export function getComponentMetrics(body = {}) {
     }
   );
 }
+export async function addKeyImport(params) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.app_alias}/internal-graphs`,
+    {
+      method: 'post',
+      data: { graph_name: params.graph_name }
+    }
+  );
+}
+export function getKeyImport(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/internal-graphs`,
+    {
+      method: 'get'
+    }
+  );
+}
 export function getServiceMonitorFigureInfo(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs/${body.graph_id}`,
