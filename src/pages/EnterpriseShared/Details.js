@@ -40,13 +40,13 @@ const { Option } = Select;
 const { TextArea } = Input;
 const { confirm } = Modal;
 
-@connect(({ user, groupControl, enterprise, teamControl, loading }) => ({
+@connect(({ user, application, enterprise, teamControl, loading }) => ({
   currUser: user.currentUser,
-  apps: groupControl.apps,
+  apps: application.apps,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  groupDetail: groupControl.groupDetail || {},
+  groupDetail: application.groupDetail || {},
   loading
 }))
 @Form.create()
