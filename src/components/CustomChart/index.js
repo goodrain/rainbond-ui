@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
 /* eslint-disable prettier/prettier */
@@ -143,6 +144,9 @@ export default class ChartTitle extends PureComponent {
       dispatch,
       form,
       moduleName,
+      operation,
+      onDelete,
+      onEdit,
       baseInfo,
       RangeData = [],
       appAlias = ''
@@ -214,8 +218,9 @@ export default class ChartTitle extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col span={6} style={{ lineHeight: '39.99px' }}>
+          <Col span={12} style={{ lineHeight: '39.99px' }}>
             <Button onClick={this.queryAll}>查询</Button>
+            {operation}
           </Col>
         </Row>
         {moduleName === 'ResourceMonitoring' ? (
@@ -228,6 +233,22 @@ export default class ChartTitle extends PureComponent {
               );
             })}
           </Row>
+        ) : moduleName === 'CustomMonitor' ? (
+          RangeData.map((item) => {
+            const { promql, ID, title } = item;
+            return (
+              <Col span={12} key={ID} style={{ padding: '8px' }}>
+                <RangeChart
+                  {...parameter}
+                  CustomMonitorInfo={item}
+                  title={title}
+                  type={promql}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              </Col>
+            );
+          })
         ) : (
           RangeData.map((item) => {
             return <RangeChart key={item} {...parameter} type={item} />;

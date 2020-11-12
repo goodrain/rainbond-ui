@@ -9,9 +9,15 @@ import {
 import {
   getMonitorRangeData,
   getServiceMonitor,
+  addServiceMonitorFigure,
+  getServiceMonitorFigure,
   postServiceMonitor,
   deleteServiceMonitor,
-  updateServiceMonitor
+  updateServiceMonitor,
+  updataServiceMonitorFigure,
+  deleteServiceMonitorFigure,
+  getServiceMonitorFigureInfo,
+  getComponentMetrics,
 } from '../services/monitor';
 
 export default {
@@ -22,6 +28,12 @@ export default {
   },
 
   effects: {
+    *fetchComponentMetrics({ payload, callback, handleError }, { call }) {
+      const response = yield call(getComponentMetrics, payload, handleError);
+      if (response && callback) {
+        callback(response);
+      }
+    },
     *fetchTags(_, { call, put }) {
       const response = yield call(queryTags);
       yield put({
@@ -31,6 +43,36 @@ export default {
     },
     *fetchServiceMonitor({ payload, callback }, { call }) {
       const response = yield call(getServiceMonitor, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchServiceMonitorFigureInfo({ payload, callback }, { call }) {
+      const response = yield call(getServiceMonitorFigureInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(addServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *editServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(updataServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *delServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(deleteServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(getServiceMonitorFigure, payload);
       if (callback) {
         callback(response);
       }
