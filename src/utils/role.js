@@ -15,7 +15,8 @@ const AccessText = {
   plugin: '插件管理',
   teamMember: '团队成员管理',
   teamRole: '团队角色管理',
-  teamRegion: '团队集群管理'
+  teamRegion: '团队集群管理',
+  app_config_group: '应用配置组管理'
 };
 
 let arr = [
@@ -154,6 +155,9 @@ export default {
   queryComponentInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'component', targets);
   },
+  queryAppConfigGroupInfo(data, targets) {
+    return this.queryTeamUserPermissionsInfo(data, 'app_config_group', targets);
+  },
   queryControlInfo(data, targets) {
     return this.queryTeamUserPermissionsInfo(data, 'gatewayRule', targets);
   },
@@ -179,7 +183,7 @@ export default {
     if (permissionsInfo && moduleName && targets) {
       const teamInfo = permissionsInfo.team;
       if (moduleName === 'teamBasicInfo') {
-        teamInfo.perms.map(item => {
+        teamInfo.perms.map((item) => {
           const name = Object.keys(item)[0];
           if (name === targets) results.push(item[targets]);
         });
@@ -199,7 +203,7 @@ export default {
   },
   // eslint-disable-next-line consistent-return
   queryPermissionsChildren(data, moduleName, targets, results) {
-    return data.map(item => {
+    return data.map((item) => {
       const keys = Object.keys(item)[0];
       if (item[keys].sub_models && item[keys].sub_models.length > 0) {
         return this.renderTreeNodes(
@@ -210,7 +214,7 @@ export default {
         );
       }
       if (keys === moduleName) {
-        item[keys].perms.map(item2 => {
+        item[keys].perms.map((item2) => {
           const name = Object.keys(item2)[0];
           if (targets === name) {
             results.push(item2[targets]);

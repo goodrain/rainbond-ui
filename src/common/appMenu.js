@@ -136,9 +136,11 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
   );
 
   const control = roleUtil.queryControlInfo(permissionsInfo, 'describe');
-
+  const isAppConfigGroup = roleUtil.queryAppConfigGroupInfo(
+    permissionsInfo,
+    'describe'
+  );
   const { isShare, isBackup, isUpgrade } = appPermissions;
-
   const menuArr = [
     {
       name: formatMessage({ id: 'menu.app.dashboard' }),
@@ -177,7 +179,6 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
-
   if (isUpgrade) {
     addMenuArr({
       name: formatMessage({ id: 'menu.app.upgrade' }),
@@ -186,18 +187,19 @@ function menuData(teamName, regionName, appID, permissionsInfo) {
       authority: ['admin', 'user']
     });
   }
-  addMenuArr({
-    name: formatMessage({ id: 'menu.app.configgroups' }),
-    icon: 'setting',
-    path: `team/${teamName}/region/${regionName}/apps/${appID}/configgroups`,
-    authority: ['admin', 'user']
-  });
-
+  if (isAppConfigGroup) {
+    addMenuArr({
+      name: formatMessage({ id: 'menu.app.configgroups' }),
+      icon: 'setting',
+      path: `team/${teamName}/region/${regionName}/apps/${appID}/configgroups`,
+      authority: ['admin', 'user']
+    });
+  }
   return menuArr;
 }
 
 function formatter(data, parentPath = '', parentAuthority) {
-  return data.map(item => {
+  return data.map((item) => {
     let { path } = item;
     if (!isUrl(path)) {
       path = parentPath + item.path;

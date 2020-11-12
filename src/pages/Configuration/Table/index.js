@@ -186,6 +186,7 @@ export default class ConfigurationTable extends PureComponent {
   render() {
     const {
       deleteConfigurationLoading,
+      appConfigGroupPermissions: { isCreate, isDelete, isEdit },
       regionName,
       teamName,
       appID
@@ -210,16 +211,18 @@ export default class ConfigurationTable extends PureComponent {
               </Button>
             </FormItem>
           </Form>
-          <Button
-            type="primary"
-            icon="plus"
-            style={{ float: 'right', marginBottom: '20px' }}
-            onClick={() => {
-              this.handleConfigurationOperation();
-            }}
-          >
-            添加配置组
-          </Button>
+          {isCreate && (
+            <Button
+              type="primary"
+              icon="plus"
+              style={{ float: 'right', marginBottom: '20px' }}
+              onClick={() => {
+                this.handleConfigurationOperation();
+              }}
+            >
+              添加配置组
+            </Button>
+          )}
         </Row>
         {deleteVar && (
           <ConfirmModal
@@ -316,23 +319,30 @@ export default class ConfigurationTable extends PureComponent {
                 title: '操作',
                 dataIndex: 'action',
                 align: 'center',
-                render: (_, data) => {
-                  return [
-                    <a
-                      onClick={() => {
-                        this.handleConfigurationOperation(data);
-                      }}
-                    >
-                      编辑
-                    </a>,
-                    <a
-                      onClick={() => {
-                        this.handleDelete(data);
-                      }}
-                    >
-                      删除
-                    </a>
-                  ];
+
+                render: (val, data) => {
+                  return (
+                    <div>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleConfigurationOperation(data);
+                          }}
+                        >
+                          编辑
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDelete(data);
+                          }}
+                        >
+                          删除
+                        </a>
+                      )}
+                    </div>
+                  );
                 }
               }
             ]}
