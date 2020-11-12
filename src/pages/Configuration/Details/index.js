@@ -42,7 +42,8 @@ export default class ConfigurationDetails extends PureComponent {
       helpfulVisable: false,
       appConfigGroupPermissions: this.handlePermissions(
         'queryAppConfigGroupInfo'
-      )
+      ),
+      allChecked: false
     };
   }
   componentWillMount() {
@@ -55,10 +56,13 @@ export default class ConfigurationDetails extends PureComponent {
     }
   }
   componentDidMount() {
-    this.loadComponents();
     this.loadConfigurationDetails();
   }
-
+  onChangeGroup = (checkedValues) => {
+    this.setState({
+      allChecked: this.state.apps.length === checkedValues.length
+    });
+  };
   onOk = (e) => {
     e.preventDefault();
     const { form } = this.props;
@@ -73,7 +77,8 @@ export default class ConfigurationDetails extends PureComponent {
           vals.config_items &&
           vals.config_items.length === 1 &&
           vals.config_items[0].item_key === '' &&
-          vals.config_items[0].item_value === ''
+          (vals.config_items[0].item_value === '' ||
+            vals.config_items[0].item_value)
         ) {
           vals.config_items = [];
         }
@@ -101,6 +106,7 @@ export default class ConfigurationDetails extends PureComponent {
   };
   handleConfiguration = (vals) => {
     const { dispatch } = this.props;
+    const { info } = this.state;
     const { teamName, regionName, appID, id } = this.handleParameter();
 
     const parameter = {
@@ -137,10 +143,23 @@ export default class ConfigurationDetails extends PureComponent {
         },
         callback: (res) => {
           if (res) {
+            const arr = [];
+            let UpDataList = [];
+            if (info && info.services && info.services.length > 0) {
+              info.services.map((item) => {
+                if (item.service_id) {
+                  arr.push(item.service_id);
+                }
+              });
+            }
+            if ((serviceIds && serviceIds.length > 0) || arr.length > 0) {
+              UpDataList = Array.from(new Set([...serviceIds, ...arr]));
+            }
+
             notification.success({ message: '保存成功' });
             this.handleClose();
-            if (serviceIds && serviceIds.length > 0) {
-              this.showRemind(serviceIds);
+            if (UpDataList.length > 0) {
+              this.showRemind(UpDataList);
             } else {
               this.onCancel();
             }
@@ -173,7 +192,8 @@ export default class ConfigurationDetails extends PureComponent {
     batchOperation({
       action: 'upgrade',
       team_name: teamName,
-      serviceIds: serviceIds && serviceIds.join(',')
+      serviceIds:
+        serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
     }).then((data) => {
       if (data) {
         notification.success({
@@ -187,6 +207,7 @@ export default class ConfigurationDetails extends PureComponent {
 
   loadComponents = () => {
     const { dispatch } = this.props;
+    const { info } = this.state;
     const { teamName, regionName, appID, id } = this.handleParameter();
     dispatch({
       type: 'application/fetchApps',
@@ -199,9 +220,19 @@ export default class ConfigurationDetails extends PureComponent {
       },
       callback: (res) => {
         if (res && res._code == 200) {
-          this.setState({
-            apps: res.list || []
-          });
+          if (res.list && res.list.length > 0) {
+            const arr = res.list.filter(
+              (item) => item.service_source !== 'third_party'
+            );
+            this.setState({
+              apps: arr
+            });
+            if (info && info.services && info.services.length > 0) {
+              this.setState({
+                allChecked: arr.length === info.services.length
+              });
+            }
+          }
           if (id === 'add') {
             this.setState({
               loading: false
@@ -225,38 +256,50 @@ export default class ConfigurationDetails extends PureComponent {
         },
         callback: (res) => {
           if (res && res._code == 200) {
-            this.setState({
-              info: res.bean,
-              loading: false
-            });
+            this.setState(
+              {
+                info: res.bean,
+                loading: false
+              },
+              () => {
+                this.loadComponents();
+              }
+            );
           }
         }
       });
+    } else {
+      this.loadComponents();
     }
   };
 
   checkConfiguration = (rule, value, callback) => {
     if (value && value.length > 0) {
-      const arr = value.filter(
-        (item) => item.item_key === '' || item.item_value === ''
-      );
+      const arr = value.filter((item) => item.item_key === '');
       if (value[0].item_key === '' && value[0].item_value === '') {
         callback();
       } else if (arr && arr.length > 0) {
-        callback('配置项不能为空');
+        callback('配置项key值不能为空');
       } else {
         let judge = false;
+        let isMax = false;
         value.map((item) => {
-          const { item_key } = item;
+          const { item_key, item_value } = item;
           if (!/^[-._a-zA-Z][-._a-zA-Z0-9]*$/.test(item_key)) {
             judge = true;
+          }
+          if (item_key.length > 65535 || item_value.length > 65535) {
+            isMax = true;
           }
         });
         if (judge) {
           callback(' 必须由字母、数字和 - . _ 组成，不支持数字开头');
           return;
         }
-
+        if (isMax) {
+          callback('最大长度65535');
+          return;
+        }
         callback();
       }
     }
@@ -279,6 +322,14 @@ export default class ConfigurationDetails extends PureComponent {
       id
     };
   };
+  handleIsAll = () => {
+    const { setFieldsValue } = this.props.form;
+    const { apps, allChecked } = this.state;
+    const serviceId = allChecked ? [] : apps.map((item) => item.service_id);
+    setFieldsValue({ service_ids: serviceId });
+    this.setState({ allChecked: !allChecked });
+  };
+
   render() {
     const {
       form,
@@ -288,7 +339,7 @@ export default class ConfigurationDetails extends PureComponent {
       currentTeam,
       currentRegionName
     } = this.props;
-    const { apps, info, loading, helpfulVisable } = this.state;
+    const { apps, info, loading, helpfulVisable, allChecked } = this.state;
     const { getFieldDecorator } = form;
     const serviceIds = [];
     if (info && info.services && info.services.length > 0) {
@@ -393,28 +444,36 @@ export default class ConfigurationDetails extends PureComponent {
                 <Parameterinput editInfo={(info && info.config_items) || ''} />
               )}
             </FormItem>
-            <FormItem label="生效组件">
-              {getFieldDecorator('service_ids', {
-                initialValue: serviceIds,
-                rules: [{ required: false, message: '请选择生效组件' }]
-              })(
-                <Checkbox.Group className={styles.setCheckbox}>
-                  <Row span={24}>
-                    {apps.map((item) => {
-                      const {
-                        service_cname: name,
-                        service_id: serviceId
-                      } = item;
-                      return (
-                        <Checkbox key={id} value={serviceId}>
-                          {name}
-                        </Checkbox>
-                      );
-                    })}
-                  </Row>
-                </Checkbox.Group>
-              )}
-            </FormItem>
+            {apps.length > 0 && (
+              <FormItem label="生效组件">
+                <Checkbox checked={allChecked} onChange={this.handleIsAll}>
+                  全选
+                </Checkbox>
+                {getFieldDecorator('service_ids', {
+                  initialValue: serviceIds,
+                  rules: [{ required: false, message: '请选择生效组件' }]
+                })(
+                  <Checkbox.Group
+                    className={styles.setCheckbox}
+                    onChange={this.onChangeGroup}
+                  >
+                    <Row span={24}>
+                      {apps.map((item) => {
+                        const {
+                          service_cname: name,
+                          service_id: serviceId
+                        } = item;
+                        return (
+                          <Checkbox key={id} value={serviceId}>
+                            <div title={name}>{name}</div>
+                          </Checkbox>
+                        );
+                      })}
+                    </Row>
+                  </Checkbox.Group>
+                )}
+              </FormItem>
+            )}
           </Form>
         </Card>
       </ConfigurationHeader>
