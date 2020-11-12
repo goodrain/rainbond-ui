@@ -23,7 +23,10 @@ export default class RangeChart extends PureComponent {
 
   componentDidMount() {
     const { moduleName } = this.props;
-    if (moduleName === 'PerformanceAnalysis') {
+    if (
+      moduleName === 'PerformanceAnalysis' ||
+      moduleName === 'CustomMonitor'
+    ) {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
@@ -33,14 +36,18 @@ export default class RangeChart extends PureComponent {
     const { start, end, step, moduleName } = this.props;
     const { start: newStart, end: newEnd, step: newStep } = nextProps;
     const isUpData = start !== newStart || end !== newEnd || step !== newStep;
-    if (moduleName === 'PerformanceAnalysis' && isUpData) {
+    if (
+      (moduleName === 'PerformanceAnalysis' ||
+        moduleName === 'CustomMonitor') &&
+      isUpData
+    ) {
       this.loadPerformanceAnalysis(nextProps);
     } else if (isUpData) {
       this.loadRangeData(nextProps);
     }
   }
 
-  loadPerformanceAnalysis = props => {
+  loadPerformanceAnalysis = (props) => {
     this.setState({ loading: true });
     const { dispatch, appAlias } = props;
     dispatch({
@@ -48,7 +55,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props), {
         app_alias: appAlias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ performanceObj: re.bean });
@@ -56,7 +63,7 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  loadRangeData = props => {
+  loadRangeData = (props) => {
     this.setState({ loading: true });
     const { appDetail, dispatch } = props;
     dispatch({
@@ -64,7 +71,7 @@ export default class RangeChart extends PureComponent {
       payload: Object.assign({}, this.handleParameter(props), {
         componentAlias: appDetail.service.service_alias
       }),
-      callback: re => {
+      callback: (re) => {
         this.setState({ loading: false });
         if (re.bean) {
           this.setState({ memoryRange: re.bean.result });
@@ -72,10 +79,10 @@ export default class RangeChart extends PureComponent {
       }
     });
   };
-  handleParameter = props => {
-    const { type, start, end } = props;
+  handleParameter = (props) => {
+    const { moduleName, type, start, end } = props;
     return {
-      query: this.getQueryByType(type),
+      query: moduleName === 'CustomMonitor' ? type : this.getQueryByType(type),
       start: start || new Date().getTime() / 1000 - 60 * 60,
       end: end || new Date().getTime() / 1000,
       step: Math.ceil((end - start) / 100) || 15,
@@ -117,7 +124,10 @@ export default class RangeChart extends PureComponent {
     return ``;
   };
   getMeta = () => {
-    const { type } = this.props;
+    const { type, title, moduleName } = this.props;
+    if (moduleName === 'CustomMonitor') {
+      return { title, label: title, unit: ' ' };
+    }
     switch (type) {
       case 'containerMem':
         return { title: '内存使用量', label: '内存（MB）', unit: ' MB' };
@@ -137,13 +147,13 @@ export default class RangeChart extends PureComponent {
         return { title: '', label: '', unit: '' };
     }
   };
-  converData = dataRange => {
+  converData = (dataRange) => {
     const rangedata = [];
     if (dataRange) {
-      dataRange.map(item => {
+      dataRange.map((item) => {
         const cid = item.metric.pod;
         if (item.values) {
-          item.values.map(v => {
+          item.values.map((v) => {
             rangedata.push({
               cid,
               time: v[0] * 1000,
@@ -158,7 +168,10 @@ export default class RangeChart extends PureComponent {
 
   loadRefresh = () => {
     const { moduleName } = this.props;
-    if (moduleName === 'PerformanceAnalysis') {
+    if (
+      moduleName === 'PerformanceAnalysis' ||
+      moduleName === 'CustomMonitor'
+    ) {
       this.loadPerformanceAnalysis(this.props);
     } else {
       this.loadRangeData(this.props);
@@ -166,11 +179,17 @@ export default class RangeChart extends PureComponent {
   };
 
   render() {
-    const { moduleName } = this.props;
+    const {
+      moduleName,
+      onDelete,
+      onEdit,
+      CustomMonitorInfo,
+      isEdit = true
+    } = this.props;
     const { memoryRange, performanceObj, loading } = this.state;
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis'
+      moduleName === 'PerformanceAnalysis' || moduleName === 'CustomMonitor'
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
     const cols = {
@@ -178,10 +197,7 @@ export default class RangeChart extends PureComponent {
         alias: '时间',
         tickCount: 10,
         type: 'time',
-        formatter: v =>
-          moment(new Date(v))
-            .locale('zh-cn')
-            .format('HH:mm')
+        formatter: (v) => moment(new Date(v)).locale('zh-cn').format('HH:mm')
       },
       value: {
         alias: { label },
@@ -196,14 +212,40 @@ export default class RangeChart extends PureComponent {
         <Spin spinning={loading}>
           <Card
             title={title}
-            extra={<a onClick={() => this.loadRefresh()}>刷新</a>}
+            extra={
+              isEdit && (
+                <div>
+                  {moduleName === 'CustomMonitor' && (
+                    <span>
+                      <a
+                        onClick={() => {
+                          onEdit(CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        编辑
+                      </a>
+                      <a
+                        onClick={() => {
+                          onDelete(CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        删除
+                      </a>
+                    </span>
+                  )}
+                  <a onClick={this.loadRefresh}>刷新</a>
+                </div>
+              )
+            }
           >
             <Chart height={400} data={data} scale={cols} forceFit>
               <Legend />
               <Axis
                 name="value"
                 label={{
-                  formatter: val => `${val}${unit}`
+                  formatter: (val) => `${val}${unit}`
                 }}
               />
               <Axis name="time" />
