@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Row, notification } from 'antd';
+import { Button, Row, notification, Dropdown, Icon, Menu } from 'antd';
 import MonitoryPoint from './monitoryPoint';
 import ConfirmModal from '@/components/ConfirmModal';
 import CustomMonitoring from '@/components/CustomMonitoring';
@@ -15,7 +15,8 @@ import Result from '@/components/Result';
 @connect(({ appControl, loading }) => ({
   appDetail: appControl.appDetail,
   delServiceMonitorFigureLoading:
-    loading.effects['monitor/delServiceMonitorFigure']
+    loading.effects['monitor/delServiceMonitorFigure'],
+  addKeyImportLoading: loading.effects['monitor/addKeyImport']
 }))
 export default class customMonitor extends PureComponent {
   constructor(props) {
@@ -26,11 +27,13 @@ export default class customMonitor extends PureComponent {
       isMonitoryPoint: false,
       isCustomMonitoring: false,
       showDelete: false,
-      info: {}
+      info: {},
+      KeyImportList: []
     };
   }
   componentDidMount() {
     this.fetchServiceMonitorFigure();
+    this.fetchKeyImport();
   }
   onCancelCustomMonitoring = () => {
     this.setState({
@@ -55,9 +58,9 @@ export default class customMonitor extends PureComponent {
     });
   };
 
-  handleCustomMonitoring = (isCustomMonitoring) => {
+  handleCustomMonitoring = () => {
     this.setState({
-      isCustomMonitoring
+      isCustomMonitoring: true
     });
   };
   fetchServiceMonitorFigure = () => {
@@ -80,6 +83,42 @@ export default class customMonitor extends PureComponent {
               isMonitorFigure: true
             });
           }
+        }
+      }
+    });
+  };
+
+  fetchKeyImport = () => {
+    const { dispatch } = this.props;
+    const parameter = this.handleParameter();
+    dispatch({
+      type: 'monitor/fetchKeyImport',
+      payload: {
+        ...parameter
+      },
+      callback: (res) => {
+        if (res && res._code === 200) {
+          this.setState({
+            KeyImportList: res.list
+          });
+        }
+      }
+    });
+  };
+
+  addKeyImport = (name) => {
+    const { dispatch } = this.props;
+    const parameter = this.handleParameter();
+    dispatch({
+      type: 'monitor/addKeyImport',
+      payload: {
+        graph_name: name,
+        ...parameter
+      },
+      callback: (res) => {
+        if (res && res._code === 200) {
+          this.fetchServiceMonitorFigure();
+          this.fetchKeyImport();
         }
       }
     });
@@ -163,7 +202,11 @@ export default class customMonitor extends PureComponent {
   };
 
   render() {
-    const { appDetail, delServiceMonitorFigureLoading } = this.props;
+    const {
+      appDetail,
+      delServiceMonitorFigureLoading,
+      addKeyImportLoading
+    } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const appAlias = appDetail.service.service_alias;
     const serviceId = appDetail.service.service_id;
@@ -173,8 +216,26 @@ export default class customMonitor extends PureComponent {
       isMonitorFigure,
       monitorFigureList,
       showDelete,
-      info
+      info,
+      KeyImportList
     } = this.state;
+    const menu = (
+      <Menu>
+        {KeyImportList.map((item) => {
+          return (
+            <Menu.Item style={{ textAlign: 'center' }}>
+              <a
+                onClick={() => {
+                  this.addKeyImport(item);
+                }}
+              >
+                {item}
+              </a>
+            </Menu.Item>
+          );
+        })}
+      </Menu>
+    );
     return (
       <div>
         {!isMonitoryPoint && (
@@ -192,20 +253,23 @@ export default class customMonitor extends PureComponent {
                   <Button
                     icon="plus"
                     style={{ marginLeft: '5px' }}
-                    onClick={() => {
-                      this.handleCustomMonitoring(true);
-                    }}
+                    onClick={this.handleCustomMonitoring}
                   >
                     添加图表
                   </Button>
-                  <Button
-                    style={{ marginLeft: '5px' }}
-                    onClick={() => {
-                      this.handleCustomMonitoring(true);
-                    }}
-                  >
-                    一键导入
-                  </Button>
+                  {KeyImportList.length > 0 && (
+                    <Dropdown
+                      overlay={menu}
+                      trigger={['click']}
+                      placement="bottomCenter"
+                      disabled={addKeyImportLoading}
+                    >
+                      <Button>
+                        一键导入 <Icon type="down" />
+                      </Button>
+                    </Dropdown>
+                  )}
+
                   <Button
                     style={{ float: 'right', marginTop: '4px' }}
                     onClick={() => {

@@ -17,7 +17,9 @@ import {
   updataServiceMonitorFigure,
   deleteServiceMonitorFigure,
   getServiceMonitorFigureInfo,
+  getKeyImport,
   getComponentMetrics,
+  addKeyImport
 } from '../services/monitor';
 
 export default {
@@ -49,6 +51,18 @@ export default {
     },
     *fetchServiceMonitorFigureInfo({ payload, callback }, { call }) {
       const response = yield call(getServiceMonitorFigureInfo, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchKeyImport({ payload, callback }, { call }) {
+      const response = yield call(getKeyImport, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addKeyImport({ payload, callback }, { call }) {
+      const response = yield call(addKeyImport, payload);
       if (callback) {
         callback(response);
       }
