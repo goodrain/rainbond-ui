@@ -613,7 +613,7 @@ class Main extends PureComponent {
               </div>
               <div className={styles.connect_Boxs}>
                 <div>使用CPU</div>
-                <div>{(resources.cpu && resources.cpu / 1000) || 0}核</div>
+                <div>{(resources.cpu && resources.cpu / 1000) || 0}Core</div>
               </div>
             </div>
             <div className={styles.connect_Box}>
