@@ -1,3 +1,6 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable guard-for-in */
+/* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable import/first */
@@ -67,7 +70,7 @@ class AppInfo extends PureComponent {
     }
   }
 
-  getValue = fun => {
+  getValue = (fun) => {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         fun(values);
@@ -84,6 +87,10 @@ class AppInfo extends PureComponent {
       name[appname] = thisval;
       this.props.form.setFieldsValue(name);
     }
+  };
+
+  handleIsChange = (name, e) => {
+    this.props.form.setFieldsValue({ [name]: e.target.checked });
   };
   renderConnectInfo = () => {
     const { app = {}, form } = this.props;
@@ -134,10 +141,19 @@ class AppInfo extends PureComponent {
                       生成随机值
                     </Checkbox>
                   )}
-                  {getFieldDecorator(`connect||${item.attr_name}||is_change`, {
+                  {getFieldDecorator(`connectIsChange||${item.attr_name}`, {
                     valuePropName: 'checked',
                     initialValue: item.is_change
-                  })(<Checkbox>可修改</Checkbox>)}
+                  })(
+                    <Checkbox
+                      onChange={this.handleIsChange.bind(
+                        this,
+                        `connectIsChange||${item.attr_name}`
+                      )}
+                    >
+                      可修改
+                    </Checkbox>
+                  )}
                 </FormItem>
               </Col>
             ))}
@@ -147,7 +163,7 @@ class AppInfo extends PureComponent {
     }
     return null;
   };
-  onChange = e => {
+  onChange = (e) => {
     this.setState({
       checked: e.target.checked
     });
@@ -156,7 +172,6 @@ class AppInfo extends PureComponent {
     const { app = {}, form } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
     if (app.service_env_map_list && app.service_env_map_list.length) {
-      // setFieldsValue({ `env||${item.attr_name}||is_change`: item.is_change })
       return (
         <div
           style={{
@@ -172,7 +187,7 @@ class AppInfo extends PureComponent {
           </h4>
           <Divider />
           <Row>
-            {app.service_env_map_list.map(item => {
+            {app.service_env_map_list.map((item) => {
               const { attr_name, attr_value, is_change } = item;
               return (
                 <Col span={8}>
@@ -189,19 +204,19 @@ class AppInfo extends PureComponent {
                         ]
                       }
                     )(<Input />)}
-                    {getFieldDecorator(
-                      `env||${attr_name}||is_change||${attr_value}`,
-                      {
-                        valuePropName: 'checked',
-                        initialValue: is_change,
-                        rules: [
-                          {
-                            required: false,
-                            message: ''
-                          }
-                        ]
-                      }
-                    )(<Checkbox>可修改</Checkbox>)}
+                    {getFieldDecorator(`envIschange||${attr_name}`, {
+                      valuePropName: 'checked',
+                      initialValue: is_change
+                    })(
+                      <Checkbox
+                        onChange={this.handleIsChange.bind(
+                          this,
+                          `envIschange||${attr_name}`
+                        )}
+                      >
+                        可修改
+                      </Checkbox>
+                    )}
                   </FormItem>
                 </Col>
               );
@@ -358,7 +373,7 @@ export default class Main extends PureComponent {
       info: null,
       selectedApp: '',
       service: null,
-      key: '',
+      tabk: '',
       fileList: [],
       shareList: [],
       sharearrs: [],
@@ -389,7 +404,7 @@ export default class Main extends PureComponent {
     this.fetchRecord();
     this.getShareInfo();
   }
-  onCancels = isShare => {
+  onCancels = (isShare) => {
     this.setState({
       shareModal: null,
       isShare: isShare || this.state.isShare,
@@ -398,22 +413,22 @@ export default class Main extends PureComponent {
     });
   };
 
-  onFileChange = e => {
+  onFileChange = (e) => {
     const share_service_data = this.share_service_list;
     const { shareList, sharearrs } = this.state;
     // this.props.form.setFieldsValue({sharing:e})
     if (e.length > 0) {
-      const newArray = sharearrs.filter(item => !e.includes(item));
+      const newArray = sharearrs.filter((item) => !e.includes(item));
 
       const arr = [];
       const dep_service_key = [];
       const dep_service_name = [];
-      e.map(item => {
-        share_service_data.map(option => {
+      e.map((item) => {
+        share_service_data.map((option) => {
           if (item == option.service_share_uuid) {
             option.dep_service_map_list &&
               option.dep_service_map_list.length > 0 &&
-              option.dep_service_map_list.map(items => {
+              option.dep_service_map_list.map((items) => {
                 dep_service_key.push(items.dep_service_key);
                 dep_service_name.push(option.service_cname);
               });
@@ -424,13 +439,13 @@ export default class Main extends PureComponent {
       let show = false;
       let name = '';
       if (newArray.length > 0 && dep_service_key.length > 0) {
-        newArray.map(item => {
-          share_service_data.map(option => {
+        newArray.map((item) => {
+          share_service_data.map((option) => {
             if (item == option.service_share_uuid) {
               name = option.service_cname;
             }
           });
-          dep_service_key.map(items => {
+          dep_service_key.map((items) => {
             if (items == item) {
               show = true;
             }
@@ -464,12 +479,12 @@ export default class Main extends PureComponent {
       shareId: this.props.match.params.shareId
     };
   }
-  getBase64 = file => {
+  getBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -482,7 +497,7 @@ export default class Main extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         ...params
       },
-      callback: data => {
+      callback: (data) => {
         let selectedApp = '';
         if (data) {
           if (data.bean.share_service_list[0]) {
@@ -491,7 +506,7 @@ export default class Main extends PureComponent {
           this.setState({
             info: data.bean,
             selectedApp,
-            key: data.bean.share_service_list[0].service_alias,
+            tabk: data.bean.share_service_list[0].service_share_uuid,
             share_service_list: data.bean.share_service_list
           });
           this.share_service_list = data.bean.share_service_list;
@@ -500,7 +515,7 @@ export default class Main extends PureComponent {
             data.bean.share_service_list &&
             data.bean.share_service_list.length > 0
           ) {
-            data.bean.share_service_list.map(item => {
+            data.bean.share_service_list.map((item) => {
               arr.push(item.service_share_uuid);
             });
             this.setState({
@@ -511,7 +526,7 @@ export default class Main extends PureComponent {
           }
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         if (res && res.status === 404) {
           this.props.dispatch(
             routerRedux.push(
@@ -533,7 +548,7 @@ export default class Main extends PureComponent {
         app_id: appID,
         record_id: shareId
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data.bean && data._code === 200) {
           this.setState({ record: data.bean, loading: false }, () => {
             this.fetchModels();
@@ -568,7 +583,7 @@ export default class Main extends PureComponent {
     dispatch({
       type: 'enterprise/fetchShareModels',
       payload: body,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState(
             {
@@ -580,7 +595,7 @@ export default class Main extends PureComponent {
             () => {
               if (res.list.length > 0) {
                 if (isEditor) {
-                  const info = res.list.filter(item => {
+                  const info = res.list.filter((item) => {
                     return item.app_id === isEditor.app_id;
                   });
                   if (info && info.length > 0) {
@@ -626,7 +641,7 @@ export default class Main extends PureComponent {
         region_name: regionName,
         group_id: appID
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             appDetail: res.bean,
@@ -634,7 +649,7 @@ export default class Main extends PureComponent {
           });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         if (res && res.code === 404) {
           this.props.dispatch(
             routerRedux.push(
@@ -695,11 +710,10 @@ export default class Main extends PureComponent {
           appVersionInfo.template_type = 'RAM';
         }
         const share_service_data = this.share_service_list;
-
         this.share_service_list.map((item, index) => {
           const { extend_method_map, service_id } = item;
           if (extend_method_map) {
-            Object.keys(extend_method_map).forEach(function(key) {
+            Object.keys(extend_method_map).forEach(function (key) {
               if (values[`${service_id}||${key}`]) {
                 share_service_data[index].extend_method_map[key] =
                   values[`${service_id}||${key}`];
@@ -707,24 +721,22 @@ export default class Main extends PureComponent {
             });
           }
         });
-
         const arr = [];
         const dep_service_key = [];
-        sharearrs.map(item => {
-          share_service_data.map(option => {
+        sharearrs.map((item) => {
+          share_service_data.map((option) => {
             if (item == option.service_share_uuid) {
               arr.push(option);
               option.dep_service_map_list &&
                 option.dep_service_map_list.length > 0 &&
-                option.dep_service_map_list.map(items => {
+                option.dep_service_map_list.map((items) => {
                   dep_service_key.push(items.dep_service_key);
                 });
             }
           });
         });
-
         const comdata = this.com;
-        comdata.map(app => {
+        comdata.map((app) => {
           const apptab = app.props.tab;
           let appvalue = null;
           app.props.form.validateFields((err, val) => {
@@ -732,26 +744,44 @@ export default class Main extends PureComponent {
               appvalue = val;
             }
           });
-          share_service_data.map(option => {
+          share_service_data.map((option) => {
             if (option.service_alias == apptab) {
+              // eslint-disable-next-line no-restricted-syntax
               for (var index in appvalue) {
                 const indexname = '';
                 var indexarr = [];
                 indexarr = index.split('||');
                 if (indexarr[0] == 'connect' && indexarr[2] != 'random') {
-                  option.service_connect_info_map_list.map(serapp => {
+                  option.service_connect_info_map_list.map((serapp) => {
                     if (serapp.attr_name == indexarr[1]) {
                       serapp[indexarr[2]] = appvalue[index];
                     }
                   });
                 }
                 if (indexarr[0] == 'env') {
-                  option.service_env_map_list.map(serapp => {
-                    if (
-                      serapp.attr_name == indexarr[1] &&
-                      serapp.attr_value == indexarr[3]
-                    ) {
+                  option.service_env_map_list.map((serapp) => {
+                    const {
+                      attr_name: attrName,
+                      attr_value: attrValue,
+                    } = serapp;
+                    if (attrName == indexarr[1] && attrValue == indexarr[3]) {
                       serapp[indexarr[2]] = appvalue[index];
+                    }
+                  });
+                }
+
+                if (indexarr[0] == 'envIschange') {
+                  option.service_env_map_list.map((serapp) => {
+                    const { attr_name: attrName } = serapp;
+                    if (attrName == indexarr[1]) {
+                      serapp.is_change = appvalue[index];
+                    }
+                  });
+                }
+                if (indexarr[0] == 'connectIsChange') {
+                  option.service_connect_info_map_list.map((serapp) => {
+                    if (serapp.attr_name == indexarr[1]) {
+                      serapp.is_change = appvalue[index];
                     }
                   });
                 }
@@ -762,7 +792,6 @@ export default class Main extends PureComponent {
             }
           });
         });
-
         newinfo.app_version_info = appVersionInfo;
         newinfo.share_service_list = arr;
         newinfo.share_plugin_list = this.state.info.share_plugin_list;
@@ -776,7 +805,7 @@ export default class Main extends PureComponent {
             use_force: this.state.isShare,
             new_info: newinfo
           },
-          callback: data => {
+          callback: (data) => {
             this.setState({ submitLoading: false });
             if (data) {
               this.onCancels('false');
@@ -787,7 +816,7 @@ export default class Main extends PureComponent {
               );
             }
           },
-          handleError: err => {
+          handleError: (err) => {
             this.setState({ submitLoading: false });
             const data = err && err.data;
             const msg = data && data.msg_show;
@@ -830,11 +859,11 @@ export default class Main extends PureComponent {
     this.setState({ fileList: [] });
   };
 
-  save = val => {
+  save = (val) => {
     this.com.push(val);
   };
-  tabClick = val => {
-    this.setState({ key: val });
+  tabClick = (val) => {
+    this.setState({ tabk: val });
   };
 
   handleSubmits = () => {
@@ -850,8 +879,8 @@ export default class Main extends PureComponent {
     const { sharearrs } = this.state;
     const share_service_data = this.share_service_list;
     const arr = [];
-    sharearrs.map(item => {
-      share_service_data.map(items => {
+    sharearrs.map((item) => {
+      share_service_data.map((items) => {
         if (item == items.service_share_uuid) {
           arr.push(items);
         }
@@ -863,13 +892,13 @@ export default class Main extends PureComponent {
       },
       () => {
         if (arr.length > 0) {
-          this.tabClick(arr[0].service_alias);
+          this.tabClick(arr[0].service_share_uuid);
         }
       }
     );
   };
 
-  hanldeShareTypeChange = e => {
+  hanldeShareTypeChange = (e) => {
     const { setFieldsValue } = this.props.form;
     const { value } = e.target;
     this.setState({
@@ -877,14 +906,14 @@ export default class Main extends PureComponent {
     });
     setFieldsValue({ scope: value });
   };
-  hanldeScopeValueChange = e => {
+  hanldeScopeValueChange = (e) => {
     const { value } = e.target;
     this.setState({
       scopeValue: value
     });
   };
 
-  handlePreview = async file => {
+  handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await this.getBase64(file.originFileObj);
     }
@@ -907,10 +936,10 @@ export default class Main extends PureComponent {
   };
 
   handleCancel = () => this.setState({ previewVisible: false });
-  changeCurrentVersion = version => {
+  changeCurrentVersion = (version) => {
     const { model } = this.state;
     if (model && model.versions && model.versions.length > 0) {
-      model.versions.map(item => {
+      model.versions.map((item) => {
         if (version === item.version) {
           this.handleSetFieldsValue(item);
         }
@@ -920,14 +949,14 @@ export default class Main extends PureComponent {
   changeCurrentModel = (modelId, setVersion, isCreate) => {
     const { models } = this.state;
     if (models && models.length > 0) {
-      models.map(item => {
+      models.map((item) => {
         const { app_id: appID, versions } = item;
         if (modelId === appID) {
           this.setState({ model: item, versions }, () => {
             if (versions && versions.length > 0) {
               let versionInfo = versions[0];
               if (setVersion) {
-                versions.map(item => {
+                versions.map((item) => {
                   const { version } = item;
                   if (version === setVersion) {
                     versionInfo = item;
@@ -960,15 +989,15 @@ export default class Main extends PureComponent {
     });
   };
 
-  handleEditorAppModel = info => {
+  handleEditorAppModel = (info) => {
     notification.success({ message: '编辑成功' });
     this.fetchModels(false, info);
     this.hideEditorAppModel();
   };
 
-  showEditorAppModel = app_id => {
+  showEditorAppModel = (app_id) => {
     const { models } = this.state;
-    const info = models.filter(item => {
+    const info = models.filter((item) => {
       return item.app_id === app_id;
     });
     if (info && info.length > 0) {
@@ -998,7 +1027,7 @@ export default class Main extends PureComponent {
   };
 
   render() {
-    const { info, key: tabk } = this.state;
+    const { info, tabk } = this.state;
     if (!info) {
       return null;
     }
@@ -1049,8 +1078,7 @@ export default class Main extends PureComponent {
     } else {
       breadcrumbList.push({ title: '发布到组件库' });
     }
-    const market_id = record.scope_target && record.scope_target.store_id;
-    console.log('versionInfo', versionInfo && versionInfo.dev_status);
+    const marketId = record.scope_target && record.scope_target.store_id;
     return (
       <PageHeaderLayout breadcrumbList={breadcrumbList}>
         <div>
@@ -1069,7 +1097,6 @@ export default class Main extends PureComponent {
                 padding: '24px'
               }}
             >
-              {/* <Form layout="horizontal" className={styles.stepForm}> */}
               <Row gutter={24}>
                 <Col span="12">
                   <Form.Item {...formItemLayout} label="应用模版">
@@ -1086,7 +1113,7 @@ export default class Main extends PureComponent {
                         style={{ width: 280 }}
                         onChange={this.changeCurrentModel}
                         placeholder="选择发布的应用模版"
-                        dropdownRender={menu => (
+                        dropdownRender={(menu) => (
                           <div>
                             {menu}
                             <Divider style={{ margin: '4px 0' }} />
@@ -1096,7 +1123,7 @@ export default class Main extends PureComponent {
                                 cursor: 'pointer',
                                 textAlign: 'center'
                               }}
-                              onMouseDown={e => e.preventDefault()}
+                              onMouseDown={(e) => e.preventDefault()}
                               onClick={this.showCreateAppModel}
                             >
                               <Icon type="plus" /> 新建应用模版
@@ -1104,12 +1131,12 @@ export default class Main extends PureComponent {
                           </div>
                         )}
                       >
-                        {models.map(item => (
+                        {models.map((item) => (
                           <Option key={item.app_id}>{item.app_name}</Option>
                         ))}
                       </Select>
                     )}
-                    {Application && models && models.length > 0 && !market_id && (
+                    {Application && models && models.length > 0 && !marketId && (
                       <a
                         style={{ marginLeft: '10px' }}
                         onClick={() => {
@@ -1189,7 +1216,6 @@ export default class Main extends PureComponent {
                   </Form.Item>
                 </Col>
               </Row>
-              {/* </Form> */}
             </div>
           </Card>
           <Card
@@ -1223,10 +1249,10 @@ export default class Main extends PureComponent {
                     style={{ display: 'block', marginTop: '9px' }}
                   >
                     <Tabs activeKey={tabk} onChange={this.tabClick}>
-                      {apps.map((apptit, index) => {
+                      {apps.map((apptit) => {
                         return (
                           <TabPane
-                            key={apptit.service_alias}
+                            key={apptit.service_share_uuid}
                             tab={
                               <span className={mytabcss.cont}>
                                 <Checkbox
@@ -1237,28 +1263,34 @@ export default class Main extends PureComponent {
                                 <a
                                   tab={apptit.service_cname}
                                   onClick={() => {
-                                    this.tabClick(apptit.service_alias);
+                                    this.tabClick(apptit.service_share_uuid);
                                   }}
                                 >
                                   {apptit.service_cname}
                                 </a>
                               </span>
                             }
-                          >
-                            {sharearrs.includes(apptit.service_share_uuid) && (
-                              <AppInfo
-                                form={form}
-                                app={apptit}
-                                getref={this.save}
-                                tab={apptit.service_alias}
-                                ID={apptit.service_id}
-                              />
-                            )}
-                          </TabPane>
+                          />
                         );
                       })}
                     </Tabs>
                   </Checkbox.Group>
+                  {apps.map((apptit) => {
+                    const id = apptit.service_share_uuid;
+                    return (
+                      sharearrs.includes(tabk) &&
+                      id === tabk && (
+                        <AppInfo
+                          key={id}
+                          form={form}
+                          app={apptit}
+                          getref={this.save}
+                          tab={apptit.service_alias}
+                          ID={apptit.service_id}
+                        />
+                      )
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1281,7 +1313,7 @@ export default class Main extends PureComponent {
                 {
                   title: '分类',
                   dataIndex: 'category',
-                  render: (v, data) => {
+                  render: (v) => {
                     return pluginUtil.getCategoryCN(v);
                   }
                 },
@@ -1328,7 +1360,7 @@ export default class Main extends PureComponent {
               eid={currentEnterprise.enterprise_id}
               onOk={this.handleCreateAppModel}
               defaultScope="team"
-              market_id={market_id}
+              market_id={marketId}
               onCancel={this.hideCreateAppModel}
             />
           )}
