@@ -90,27 +90,38 @@ export default class RangeChart extends PureComponent {
     };
   };
 
-  getQueryByType = (T) => {
-    const { appDetail } = this.props;
-    const serviceId = appDetail.service.service_id;
-    switch (T) {
-      case 'containerMem':
-        return `container_memory_rss{name=~"k8s_${serviceId}.*"}/1024/1024`;
-      case 'containerCpu':
-        return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${serviceId}.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${serviceId}.*"}/container_spec_cpu_period{name=~"k8s_${serviceId}.*"}) by (pod, namespace)) * 100`;
-      case 'containerNetR':
-        return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${serviceId}.*"}[1m])/1024`;
-      case 'containerNetT':
-        return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${serviceId}.*"}[1m])/1024`;
-      case 'responseTime':
-        return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
-      case 'throughput':
-        return `sum(ceil(increase(app_request{service_id="${serviceId}",method="total"}[1m])/12))`;
-      case 'numberOnline':
-        return `max(app_requestclient{service_id="${serviceId}"})`;
-      default:
-        return ``;
+  getQueryByType = T => {
+    const { appDetail, baseInfo } = this.props;
+    if (appDetail && appDetail.service) {
+      const {
+        service_id: serviceId,
+        service_alias: serviceAlias
+      } = appDetail.service;
+
+      const isState = globalUtil.isStateComponent(
+        baseInfo && baseInfo.extend_method
+      );
+      const parameter = isState ? serviceAlias : serviceId;
+      switch (T) {
+        case 'containerMem':
+          return `container_memory_rss{name=~"k8s_${serviceId}.*"}/1024/1024`;
+        case 'containerCpu':
+          return `sum(rate(container_cpu_usage_seconds_total{name=~"k8s_${serviceId}.*"}[1m])) by (pod, namespace) / (sum(container_spec_cpu_quota{name=~"k8s_${serviceId}.*"}/container_spec_cpu_period{name=~"k8s_${serviceId}.*"}) by (pod, namespace)) * 100`;
+        case 'containerNetR':
+          return `rate(container_network_receive_bytes_total{name=~"k8s_POD_${parameter}.*"}[1m])/1024`;
+        case 'containerNetT':
+          return `rate(container_network_transmit_bytes_total{name=~"k8s_POD_${parameter}.*"}[1m])/1024`;
+        case 'responseTime':
+          return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
+        case 'throughput':
+          return `sum(ceil(increase(app_request{service_id="${serviceId}",method="total"}[1m])/12))`;
+        case 'numberOnline':
+          return `max(app_requestclient{service_id="${serviceId}"})`;
+        default:
+          return ``;
+      }
     }
+    return ``;
   };
   getMeta = () => {
     const { type, title, moduleName } = this.props;

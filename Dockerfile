@@ -1,6 +1,4 @@
-FROM rainbond/rbd-ui-base:V5.1
-
-RUN mkdir /dist
-
+ARG VERSION=V5.2
+FROM rainbond/rbd-ui-base:${VERSION}
 ADD dist /dist
 

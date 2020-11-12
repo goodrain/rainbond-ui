@@ -3,10 +3,12 @@
 import { Card, Col, notification, Row, Spin, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
+import defaultLogo from '../../../public/logo.png';
 import CertificateForm from '../../components/CertificateForm';
 import CloudBackupForm from '../../components/CloudBackupForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import ImageHubForm from '../../components/ImageHubForm';
+import PlatformBasicInformationForm from '../../components/PlatformBasicInformationForm';
 import rainbondUtil from '../../utils/rainbond';
 import styles from './index.less';
 import OauthTable from './oauthTable';
@@ -22,9 +24,9 @@ import OauthTable from './oauthTable';
   certificateLongin: loading.effects['global/putCertificateType'],
   imageHubLongin: loading.effects['global/editImageHub'],
   objectStorageLongin: loading.effects['global/editCloudBackup'],
-  overviewInfo: index.overviewInfo
+  overviewInfo: index.overviewInfo,
 }))
-export default class Infrastructure extends PureComponent {
+class Infrastructure extends PureComponent {
   constructor(props) {
     super(props);
     const { enterprise } = this.props;
@@ -37,6 +39,7 @@ export default class Infrastructure extends PureComponent {
       openImageHub: false,
       openCloudBackup: false,
       closeCloudBackup: false,
+      openBasicInformation: false,
       israinbondTird: rainbondUtil.OauthEnterpriseEnable(enterprise),
       isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
         enterprise
@@ -46,15 +49,14 @@ export default class Infrastructure extends PureComponent {
       ObjectStorageValue: rainbondUtil.fetchObjectStorage(enterprise),
       providers: [
         { key: 'alioss', name: '阿里云对象存储' },
-        { key: 's3', name: 'S3' }
-      ]
+        { key: 's3', name: 'S3' },
+      ],
     };
   }
-
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'global/getIsRegist'
+      type: 'global/getIsRegist',
     });
   }
 
@@ -62,8 +64,8 @@ export default class Infrastructure extends PureComponent {
     this.props.dispatch({
       type: 'global/putIsRegist',
       payload: {
-        isRegist: checked
-      }
+        isRegist: checked,
+      },
     });
   };
 
@@ -74,7 +76,7 @@ export default class Infrastructure extends PureComponent {
 
   handleOpenDomain = () => {
     this.setState({
-      showDeleteDomain: true
+      showDeleteDomain: true,
     });
   };
 
@@ -83,16 +85,16 @@ export default class Infrastructure extends PureComponent {
     dispatch({
       type: 'global/editOauth',
       payload: {
-        arr: { enable, value: null }
+        arr: { enable, value: null },
       },
       callback: res => {
         if (res && res._code === 200) {
           notification.success({
-            message: enable ? '开启Oauth2.0认证' : '关闭成功'
+            message: enable ? '开启Oauth2.0认证' : '关闭成功',
           });
           this.fetchEnterpriseInfo();
         }
-      }
+      },
     });
   };
 
@@ -100,8 +102,8 @@ export default class Infrastructure extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     const { AppstoreImageHubValue, isEnableAppstoreImageHub } = this.state;
     const params = value || AppstoreImageHubValue || {};
@@ -113,7 +115,7 @@ export default class Infrastructure extends PureComponent {
         hub_url: params.hub_url,
         namespace: params.namespace,
         hub_user: params.hub_user,
-        hub_password: params.hub_password
+        hub_password: params.hub_password,
       },
 
       callback: res => {
@@ -123,12 +125,12 @@ export default class Infrastructure extends PureComponent {
               ? '开通成功'
               : enable && value
               ? '修改成功'
-              : '关闭成功'
+              : '关闭成功',
           });
           this.fetchEnterpriseInfo();
           this.handelCloseImageHub();
         }
-      }
+      },
     });
   };
 
@@ -136,8 +138,8 @@ export default class Infrastructure extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     const { ObjectStorageValue, isEnableObjectStorage } = this.state;
     const params = value || ObjectStorageValue || {};
@@ -150,7 +152,7 @@ export default class Infrastructure extends PureComponent {
         endpoint: params.endpoint,
         bucket_name: params.bucket_name,
         access_key: params.access_key,
-        secret_key: params.secret_key
+        secret_key: params.secret_key,
       },
 
       callback: res => {
@@ -160,12 +162,12 @@ export default class Infrastructure extends PureComponent {
               ? '开通成功'
               : enable && value
               ? '修改成功'
-              : '关闭成功'
+              : '关闭成功',
           });
           this.fetchEnterpriseInfo();
           this.handelCloseCloudBackup();
         }
-      }
+      },
     });
   };
 
@@ -173,14 +175,14 @@ export default class Infrastructure extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
     const { openCertificate, closeCertificate } = this.state;
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: info => {
         if (info && !openCertificate && !closeCertificate) {
@@ -189,10 +191,16 @@ export default class Infrastructure extends PureComponent {
             isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(
               info.bean
             ),
-            isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(info.bean)
+            isEnableObjectStorage: rainbondUtil.isEnableObjectStorage(
+              info.bean
+            ),
+            AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(
+              info.bean
+            ),
+            ObjectStorageValue: rainbondUtil.fetchObjectStorage(info.bean),
           });
         }
-      }
+      },
     });
     if (openCertificate || closeCertificate) {
       this.handelCloseCertificate();
@@ -204,7 +212,7 @@ export default class Infrastructure extends PureComponent {
 
   handelClone = () => {
     this.setState({
-      showDeleteDomain: false
+      showDeleteDomain: false,
     });
   };
   handelOpenCertificate = () => {
@@ -235,14 +243,54 @@ export default class Infrastructure extends PureComponent {
   handelCloseCloudBackup = () => {
     this.setState({ closeCloudBackup: false, openCloudBackup: false });
   };
-
+  handelOpenBasicInformation = () => {
+    this.setState({ openBasicInformation: true });
+  };
+  handelCloseBasicInformation = () => {
+    this.setState({ openBasicInformation: false });
+  };
+  handelIsOpenBasicInformation = value => {
+    const {
+      dispatch,
+      match: {
+        params: { eid },
+      },
+    } = this.props;
+    dispatch({
+      type: 'global/putBasicInformation',
+      payload: {
+        ...value,
+        enterprise_id: eid,
+      },
+      callback: () => {
+        this.handelCloseBasicInformation();
+        this.fetchEnterpriseInfo();
+        // 初始化 获取RainbondInfo信息
+        dispatch({
+          type: 'global/fetchRainbondInfo',
+          callback: info => {
+            if (info) {
+              const fetchFavicon = rainbondUtil.fetchFavicon(info);
+              const link =
+                document.querySelector("link[rel*='icon']") ||
+                document.createElement('link');
+              link.type = 'image/x-icon';
+              link.rel = 'shortcut icon';
+              link.href = fetchFavicon;
+              document.getElementsByTagName('head')[0].appendChild(link);
+            }
+          },
+        });
+      },
+    });
+  };
   createClusters = values => {
     const {
       dispatch,
       enterprise,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
 
     const AutomaticCertificate = rainbondUtil.CertificateIssuedByEnable(
@@ -260,8 +308,8 @@ export default class Infrastructure extends PureComponent {
         enterprise_id: eid,
         auto_ssl: {
           enable: !!values,
-          value: values ? values.auto_ssl_config : false
-        }
+          value: values ? values.auto_ssl_config : false,
+        },
       },
       callback: res => {
         if (res && res._condition === 200) {
@@ -270,18 +318,18 @@ export default class Infrastructure extends PureComponent {
               ? '关闭成功'
               : !AutomaticCertificate
               ? '开通成功'
-              : '编辑成功'
+              : '编辑成功',
           });
           this.fetchEnterpriseInfo();
         }
-      }
+      },
     });
   };
 
   isJSON = str => {
     const clues = () => {
       notification.warning({
-        message: '格式错误、请输入正确的JSON格式'
+        message: '格式错误、请输入正确的JSON格式',
       });
     };
     if (typeof str === 'string') {
@@ -308,10 +356,31 @@ export default class Infrastructure extends PureComponent {
       certificateLongin,
       imageHubLongin,
       objectStorageLongin,
+      rainbondInfo,
       match: {
-        params: { eid }
-      }
+        params: { eid },
+      },
     } = this.props;
+    let infos = {};
+    if (rainbondInfo) {
+      const fetchLogo =
+        rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
+      const fetchFavicon = rainbondUtil.fetchFavicon(enterprise);
+
+      const title =
+        rainbondInfo && rainbondInfo.title && rainbondInfo.title.value;
+      const enterpriseTitle =
+        (enterprise && enterprise.enterprise_alias) ||
+        (rainbondInfo && rainbondInfo.enterprise_alias);
+      // eslint-disable-next-line no-const-assign
+      infos = {
+        logo: fetchLogo,
+        title,
+        enterprise_alias: enterpriseTitle,
+        favicon: fetchFavicon,
+      };
+    }
+    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
 
     const {
       enterpriseAdminLoading,
@@ -328,31 +397,34 @@ export default class Infrastructure extends PureComponent {
       closeImageHub,
       openCloudBackup,
       closeCloudBackup,
-      providers
+      providers,
+      openBasicInformation,
     } = this.state;
-    const userRegistered = (
-      <div>
-        <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
-          <Row type="flex" align="middle">
-            <Col span={3}>用户注册</Col>
-            <Col span={17}>
-              <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                控制用户是否可以注册功能
-              </span>
-            </Col>
+    const UserRegistered = (
+      <Card
+        hoverable
+        bordered={false}
+        style={{ borderTop: enterpriseEdition ? '1px solid  #ccc' : 'none' }}
+      >
+        <Row type="flex" align="middle">
+          <Col span={3}>用户注册</Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              控制用户是否可以注册功能
+            </span>
+          </Col>
 
-            <Col span={4} style={{ textAlign: 'right' }}>
-              <Switch
-                onChange={this.onRegistChange}
-                className={styles.automaTictelescopingSwitch}
-                checked={this.props.isRegist}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </div>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <Switch
+              onChange={this.onRegistChange}
+              className={styles.automaTictelescopingSwitch}
+              checked={this.props.isRegist}
+            />
+          </Col>
+        </Row>
+      </Card>
     );
-    const oauth = (
+    const Oauth = (
       <div>
         <Card
           style={{ borderTop: '1px solid  #ccc' }}
@@ -487,6 +559,28 @@ export default class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+
+    const BasicInformation = (
+      <Card style={{ marginTop: '10px' }} hoverable bordered={false}>
+        <Row type="flex" align="middle">
+          <Col span={3}>基础信息</Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              可以修改网站的标题、企业名称、LOGO、网页图标
+            </span>
+          </Col>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <a
+              onClick={this.handelOpenBasicInformation}
+              style={{ marginRight: '10px' }}
+            >
+              查看配置
+            </a>
+          </Col>
+        </Row>
+      </Card>
+    );
+
     return (
       <Fragment>
         {openCertificate && (
@@ -519,11 +613,7 @@ export default class Infrastructure extends PureComponent {
         {openCloudBackup && (
           <CloudBackupForm
             eid={eid}
-            title={
-              !isEnableObjectStorage
-                ? '开通对象存储'
-                : '对象存储'
-            }
+            title={!isEnableObjectStorage ? '配置云端备份对象存储' : '对象存储'}
             loading={objectStorageLongin}
             onCancel={this.handelCloseCloudBackup}
             data={ObjectStorageValue}
@@ -531,6 +621,16 @@ export default class Infrastructure extends PureComponent {
             onOk={values => {
               this.handelIsOpenCloudBackup(true, values);
             }}
+          />
+        )}
+        {openBasicInformation && (
+          <PlatformBasicInformationForm
+            title="基础信息"
+            eid={eid}
+            loading={objectStorageLongin}
+            data={infos}
+            onCancel={this.handelCloseBasicInformation}
+            onOk={this.handelIsOpenBasicInformation}
           />
         )}
 
@@ -603,14 +703,29 @@ export default class Infrastructure extends PureComponent {
           </div>
         ) : (
           <div>
-            {userRegistered}
+            {enterpriseEdition && BasicInformation}
+            {UserRegistered}
             {AutomaticIssueCertificate}
-            {oauth}
+            {Oauth}
             {MirrorWarehouseInformation}
             {CloudBackup}
           </div>
         )}
       </Fragment>
     );
+  }
+}
+
+// eslint-disable-next-line react/no-multi-comp
+@connect(({ global }) => ({
+  enterprise: global.enterprise,
+}))
+export default class Index extends PureComponent {
+  render() {
+    const { enterprise } = this.props;
+    if (enterprise) {
+      return <Infrastructure {...this.props} />;
+    }
+    return null;
   }
 }

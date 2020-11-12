@@ -9,7 +9,7 @@ const FormItem = Form.Item;
 @connect(({ user, loading }) => ({
   currUser: user.currentUser,
   addHttpStrategyLoading: loading.effects['gateWay/addHttpStrategy'],
-  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy'],
+  editHttpStrategyLoading: loading.effects['gateWay/editHttpStrategy']
 }))
 class ParameterForm extends PureComponent {
   constructor(props) {
@@ -20,7 +20,7 @@ class ParameterForm extends PureComponent {
         props.editInfo.proxy_buffering &&
         props.editInfo.proxy_buffering === 'on'
       ),
-      WebSocket: !!(props.editInfo && props.editInfo.WebSocket),
+      WebSocket: !!(props.editInfo && props.editInfo.WebSocket)
     };
   }
   onChangeWebSocket = e => {
@@ -39,18 +39,31 @@ class ParameterForm extends PureComponent {
       }
     });
   };
-
+  checkContent = (res, value, callback) => {
+    let num = Number(value);
+    if (num) {
+      if (num < 0) {
+        callback('最小输入值0');
+        return;
+      }
+      if (num > 65535) {
+        callback('最大输入值65535');
+        return;
+      }
+    }
+    callback();
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 8 },
-        sm: { span: 8 },
+        sm: { span: 8 }
       },
       wrapperCol: {
         xs: { span: 16 },
-        sm: { span: 16 },
-      },
+        sm: { span: 16 }
+      }
     };
     const { editInfo } = this.props;
     const { proxyBuffering, WebSocket } = this.state;
@@ -65,7 +78,7 @@ class ParameterForm extends PureComponent {
           visible={this.props.visible}
           maskClosable={false}
           style={{
-            overflow: 'auto',
+            overflow: 'auto'
           }}
         >
           <Form>
@@ -78,10 +91,10 @@ class ParameterForm extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请输入超时时间',
-                  },
+                    message: '请输入超时时间'
+                  }
                 ],
-                initialValue: editInfo ? editInfo.proxy_connect_timeout : '75',
+                initialValue: editInfo ? editInfo.proxy_connect_timeout : '75'
               })(<Input addonAfter="秒" />)}
             </FormItem>
 
@@ -94,10 +107,10 @@ class ParameterForm extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请输入请求超时时间',
-                  },
+                    message: '请输入请求超时时间'
+                  }
                 ],
-                initialValue: editInfo ? editInfo.proxy_send_timeout : '60',
+                initialValue: editInfo ? editInfo.proxy_send_timeout : '60'
               })(<Input addonAfter="秒" />)}
             </FormItem>
 
@@ -110,10 +123,10 @@ class ParameterForm extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请输入响应超时时间',
-                  },
+                    message: '请输入响应超时时间'
+                  }
                 ],
-                initialValue: editInfo ? editInfo.proxy_read_timeout : '60',
+                initialValue: editInfo ? editInfo.proxy_read_timeout : '60'
               })(<Input addonAfter="秒" />)}
             </FormItem>
 
@@ -126,11 +139,43 @@ class ParameterForm extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请输入',
-                  },
+                    message: '请输入'
+                  }
                 ],
-                initialValue: editInfo ? editInfo.proxy_body_size : '1',
+                initialValue: editInfo ? editInfo.proxy_body_size : '1'
               })(<Input addonAfter="Mb" />)}
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="缓冲区数量"
+              className={styles.antd_form}
+            >
+              {getFieldDecorator('proxy_buffer_numbers', {
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                    message: '请输入数字'
+                  },
+                  { validator: this.checkContent }
+                ],
+                initialValue: editInfo ? editInfo.proxy_buffer_numbers : '4'
+              })(<Input />)}
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="缓冲区大小"
+              className={styles.antd_form}
+            >
+              {getFieldDecorator('proxy_buffer_size', {
+                rules: [
+                  {
+                    pattern: new RegExp(/^[0-9]\d*$/, 'g'),
+                    message: '请输入数字'
+                  },
+                  { validator: this.checkContent }
+                ],
+                initialValue: editInfo ? editInfo.proxy_buffer_size : '4'
+              })(<Input addonAfter="K" placeholder="请输入缓冲区大小" />)}
             </FormItem>
             <FormItem
               {...formItemLayout}
@@ -140,10 +185,10 @@ class ParameterForm extends PureComponent {
               {getFieldDecorator('WebSocket', {
                 rules: [
                   {
-                    required: false,
-                  },
+                    required: false
+                  }
                 ],
-                initialValue: WebSocket,
+                initialValue: WebSocket
               })(
                 <Switch
                   checkedChildren="开"
@@ -163,10 +208,10 @@ class ParameterForm extends PureComponent {
               {getFieldDecorator('proxy_buffering', {
                 rules: [
                   {
-                    required: false,
-                  },
+                    required: false
+                  }
                 ],
-                initialValue: proxyBuffering,
+                initialValue: proxyBuffering
               })(
                 <Switch
                   checkedChildren="开"
@@ -181,7 +226,7 @@ class ParameterForm extends PureComponent {
 
             <FormItem {...formItemLayout} label="自定义请求头">
               {getFieldDecorator('set_headers', {
-                initialValue: editInfo ? editInfo.set_headers : '',
+                initialValue: editInfo ? editInfo.set_headers : ''
               })(
                 <Parameterinput
                   editInfo={editInfo ? editInfo.set_headers : ''}
@@ -200,12 +245,12 @@ class ParameterForm extends PureComponent {
               left: 0,
               background: '#fff',
               borderRadius: '0 0 4px 4px',
-              zIndex: 9999,
+              zIndex: 9999
             }}
           >
             <Button
               style={{
-                marginRight: 8,
+                marginRight: 8
               }}
               onClick={this.props.onClose}
             >

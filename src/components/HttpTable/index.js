@@ -249,6 +249,8 @@ export default class HttpTable extends PureComponent {
       { key: 'Upgrade', value: '$http_upgrade' },
     ];
     const value = {
+      proxy_buffer_numbers: Number(values.proxy_buffer_numbers),
+      proxy_buffer_size: Number(values.proxy_buffer_size),
       proxy_body_size: Number(values.proxy_body_size),
       proxy_connect_timeout: Number(values.proxy_connect_timeout),
       proxy_read_timeout: Number(values.proxy_read_timeout),

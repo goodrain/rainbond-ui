@@ -1,25 +1,29 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable camelcase */
+/* eslint-disable prefer-const */
 /*
   挂载共享目录组件
 */
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
 import {
-  Table,
-  Modal,
+  Alert,
   Button,
-  Tooltip,
-  Row,
   Col,
+  Modal,
   notification,
-  Popconfirm,
+  Row,
+  Table,
+  Tooltip
 } from 'antd';
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from '../../components/CreateTeam/index.less';
 import OauthForm from '../../components/OauthForm';
-import ConfirmModal from '../../components/ConfirmModal';
 
 const { confirm } = Modal;
 
-@connect(({ user, list, loading, global, index }) => ({
+@connect(({ loading, global, index }) => ({
   rainbondInfo: global.rainbondInfo,
   enterprise: global.enterprise,
   isRegist: global.isRegist,
@@ -31,8 +35,6 @@ export default class OauthTable extends PureComponent {
     super(props);
     this.state = {
       loading: true,
-      oauthVisible: false,
-      oauthList: [],
       oauthInfo: false,
       oauthTable: [],
       openOauth: false,
@@ -47,11 +49,6 @@ export default class OauthTable extends PureComponent {
   handleSubmit = () => {
     const { onOk } = this.props;
     onOk && onOk();
-  };
-  handleCreate = () => {
-    this.setState({
-      oauthVisible: true,
-    });
   };
 
   handleDiv = data => {
@@ -90,7 +87,7 @@ export default class OauthTable extends PureComponent {
         service_id: data.service_id,
       },
       callback: res => {
-        if (res && res._code == 200) {
+        if (res && res._code === 200) {
           notification.success({ message: '删除成功' });
           this.handelOauthInfo();
         }
@@ -106,6 +103,7 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       home_url,
       redirect_domain,
+      is_auto_login,
     } = values;
     oauth_type = oauth_type.toLowerCase();
     if (oauth_type === 'github') {
@@ -115,7 +113,7 @@ export default class OauthTable extends PureComponent {
       name,
       client_id,
       client_secret,
-      is_auto_login: false,
+      is_auto_login,
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
@@ -126,7 +124,7 @@ export default class OauthTable extends PureComponent {
   handelRequest = (obj = {}, isclone) => {
     const { dispatch, eid } = this.props;
     const { oauthInfo, oauthTable, isOpen } = this.state;
-    const arr = oauthTable;
+    const arr = [...oauthTable];
     obj.eid = eid;
     oauthInfo
       ? (obj.service_id = oauthInfo.service_id)
@@ -191,7 +189,6 @@ export default class OauthTable extends PureComponent {
   };
   handelOauthInfo = () => {
     const { dispatch, eid } = this.props;
-
     dispatch({
       type: 'global/getOauthInfo',
       payload: {
@@ -218,9 +215,17 @@ export default class OauthTable extends PureComponent {
       oauthInfo,
       showDeleteDomain,
     } = this.state;
+    let autoLoginOAuth = null;
+    oauthTable.map(item => {
+      if (item.is_auto_login) {
+        autoLoginOAuth = item;
+        return item;
+      }
+      return null;
+    });
     return (
       <Modal
-        title="OAuth"
+        title="OAuth服务配置"
         loading={loading}
         className={styles.TelescopicModal}
         width={1150}
@@ -255,7 +260,17 @@ export default class OauthTable extends PureComponent {
           )}
 
           <Row gutter={12}>
-            <Col span={24} style={{ textAlign: 'right', marginBottom: '10px' }}>
+            <Col span={12}>
+              {autoLoginOAuth && (
+                <Alert
+                  message={`${
+                    autoLoginOAuth.name
+                  } 服务已开启自动登录，登录流程将自动导航到该服务。`}
+                  type="success"
+                />
+              )}
+            </Col>
+            <Col span={12} style={{ textAlign: 'right', marginBottom: '10px' }}>
               <Button
                 onClick={() => {
                   this.handleOpen(false);
@@ -298,7 +313,7 @@ export default class OauthTable extends PureComponent {
                 render: data => this.handleDiv(data),
               },
               {
-                title: '平台访问域名',
+                title: '服务地址',
                 dataIndex: 'home_url',
                 key: '5',
                 width: '15%',

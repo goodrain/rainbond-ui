@@ -5,28 +5,35 @@ import React, { Fragment, PureComponent } from 'react';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
+import CustomMonitor from './component/monitor/customMonitor';
 import MonitorHistory from './component/monitor/pahistoryshow';
 import MonitorNow from './component/monitor/pashow';
 import ResourceShow from './component/monitor/resourceshow';
-import CustomMonitor from './component/monitor/customMonitor';
 import TraceShow from './component/monitor/trace';
 
 const ButtonGroup = Button.Group;
 
 // eslint-disable-next-line react/no-multi-comp
-@connect(({ user }) => ({ currUser: user.currentUser }), null, null, {
-  withRef: true
-})
+@connect(
+  ({ user }) => ({ currUser: user.currentUser }),
+  null,
+  null,
+  {
+    withRef: true,
+  }
+)
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
       type: 'now',
       showMenu: 'pm',
-      anaPlugins: null
+      anaPlugins: null,
     };
   }
-
+  componentWillMount() {
+    this.fetchBaseInfo();
+  }
   componentDidMount() {
     if (!this.canView()) return;
     this.getAnalyzePlugins();
@@ -37,14 +44,26 @@ export default class Index extends PureComponent {
       type: 'appControl/getAnalyzePlugins',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appAlias
+        app_alias: this.props.appAlias,
       },
       callback: data => {
         const relist = (data && data.list) || [];
         this.setState({ anaPlugins: relist });
-      }
+      },
     });
   }
+
+  fetchBaseInfo = () => {
+    const { dispatch, appAlias } = this.props;
+    dispatch({
+      type: 'appControl/fetchBaseInfo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+      },
+    });
+  };
+
   // 是否可以浏览当前界面
   canView() {
     return appUtil.canManageAppMonitor(this.props.appDetail);
@@ -69,7 +88,7 @@ export default class Index extends PureComponent {
           <div
             style={{
               textAlign: 'left',
-              marginBottom: 25
+              marginBottom: 25,
             }}
           >
             <ButtonGroup>
@@ -105,13 +124,13 @@ export default class Index extends PureComponent {
           style={{
             textAlign: 'center',
             fontSize: 18,
-            padding: '30px 0'
+            padding: '30px 0',
           }}
         >
           尚未开通性能分析插件
           <p
             style={{
-              paddingTop: 8
+              paddingTop: 8,
             }}
           >
             <Link
@@ -132,7 +151,7 @@ export default class Index extends PureComponent {
     const { showMenu } = this.state;
     const {
       appDetail,
-      componentPermissions: { isServiceMonitor }
+      componentPermissions: { isServiceMonitor },
     } = this.props;
     const defaultShow = ['pm'];
     const enablePM =

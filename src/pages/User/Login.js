@@ -1,10 +1,13 @@
-import React, { Component } from "react";
-import { connect } from "dva";
-import { Divider, Row, Col } from "antd";
-import styles from "./Login.less";
-import rainbondUtil from "../../utils/rainbond";
-import LoginComponent from "./loginComponent";
-import oauthUtil from "../../utils/oauth";
+/* eslint-disable compat/compat */
+/* eslint-disable camelcase */
+import { Col, Divider, Row } from 'antd';
+import { connect } from 'dva';
+import React, { Component } from 'react';
+import globalUtil from '../../utils/global';
+import oauthUtil from '../../utils/oauth';
+import rainbondUtil from '../../utils/rainbond';
+import styles from './Login.less';
+import LoginComponent from './loginComponent';
 
 @connect(({ global }) => ({
   isRegist: global.isRegist,
@@ -13,41 +16,37 @@ import oauthUtil from "../../utils/oauth";
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      oauthServicesList: []
-    };
+    this.state = {};
   }
   componentWillMount() {
-    const { dispatch, rainbondInfo } = this.props;
-    dispatch({ type: "global/hideNeedLogin" });
-    // if (rainbondInfo.enterprise_id) {
-    //   this.fetchEnterpriseInfo(rainbondInfo.enterprise_id);
-    // }
+    const { dispatch } = this.props;
+    dispatch({ type: 'global/hideNeedLogin' });
+    globalUtil.removeCookie();
   }
   handleSubmit = values => {
     const { dispatch, location } = this.props;
     const query_params = new URLSearchParams(location.search);
-    const redirect = query_params.get("redirect");
+    const redirect = query_params.get('redirect');
     dispatch({
-      type: "user/login",
+      type: 'user/login',
       payload: {
-        ...values
+        ...values,
       },
       callback: () => {
-        let url = "/";
+        let url = '/';
         if (redirect) {
           url = redirect;
         }
         window.location.href = url;
-      }
+      },
     });
   };
   fetchEnterpriseInfo = eid => {
     const { dispatch } = this.props;
     dispatch({
-      type: "global/fetchEnterpriseInfo",
+      type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
       },
       callback: res => {
         if (res && res._code === 200 && res.bean && res.bean.oauth_services) {
@@ -59,24 +58,32 @@ export default class LoginPage extends Component {
               oauthServicesList:
                 oauth_services.value &&
                 oauth_services.value.length > 0 &&
-                oauth_services.value
+                oauth_services.value,
             });
           }
         }
-      }
+      },
     });
   };
 
   render() {
     const { rainbondInfo } = this.props;
-    const { oauthServicesList } = this.state;
     const oauthInfo =
       rainbondInfo &&
       rainbondInfo.enterprise_center_oauth &&
       rainbondInfo.enterprise_center_oauth.value;
     const url = oauthInfo && oauthUtil.getAuthredictURL(oauthInfo);
     const icon = oauthInfo && oauthUtil.getIcon(oauthInfo);
-
+    let oauthServicesList = [];
+    if (
+      rainbondInfo &&
+      rainbondInfo.oauth_services &&
+      rainbondInfo.oauth_services.enable &&
+      rainbondInfo.oauth_services.value &&
+      rainbondInfo.oauth_services.value.length > 0
+    ) {
+      oauthServicesList = rainbondInfo.oauth_services.value;
+    }
     return (
       <div className={styles.main}>
         <LoginComponent onSubmit={this.handleSubmit} type="login" />

@@ -14,7 +14,8 @@ const FormItem = Form.Item;
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
-  appDetail: appControl.appDetail
+  appDetail: appControl.appDetail,
+  baseInfo: appControl.baseInfo
 }))
 @Form.create()
 export default class ChartTitle extends PureComponent {
@@ -35,15 +36,88 @@ export default class ChartTitle extends PureComponent {
           moment(new Date(new Date().getTime() - 7 * 24 * 1 * 60 * 60 * 1000)))
     );
   };
-
-  disabledDateTime = () => {
-    return {
-      disabledHours: () => this.range(0, 24).splice(4, 20),
-      disabledMinutes: () => this.range(30, 60),
-      disabledSeconds: () => [55, 56]
-    };
+  disabledDates = (current) => {
+    return current < moment(new Date()) || current > moment().endOf('day');
   };
+  disabledDateStartTime = (current) => {
+    const reset = {
+      disabledHours: () => this.range(0, 24),
+      disabledMinutes: () => this.range(0, 60),
+      disabledSeconds: () => this.range(0, 60)
+    };
+    if (current) {
+      const today = moment().date();
+      const currentToday = current.date();
+      const currentHour = current.hour();
+      if (today == currentToday) {
+        const minute = Number(moment().minutes());
+        const hour = Number(moment().hour());
+        if (currentHour < hour) {
+          return {
+            disabledHours: () => this.range(hour + 1, 24)
+          };
+        }
+        return {
+          disabledHours: () => this.range(hour + 1, 24),
+          disabledMinutes: () => this.range(minute + 1, 60)
+        };
+      }
+    } else {
+      return reset;
+    }
+  };
+  disabledDateEndTime = (current) => {
+    const starts = this.props.form.getFieldValue('start');
+    const startMonth = starts.month() + 1;
+    const startDate = starts.date();
+    const startHour = starts.hour();
+    const startMinute = starts.minute();
 
+    const reset = {
+      disabledHours: () => this.range(0, 24),
+      disabledMinutes: () => this.range(0, 60),
+      disabledSeconds: () => this.range(0, 60)
+    };
+    if (current) {
+      const today = moment().date();
+      const currentMonth = current.month() + 1;
+      const currentToday = current.date();
+      const currentHour = current.hour();
+      const currentMinute = current.minute();
+
+      if (startMonth > currentMonth || startDate > currentToday) {
+        return reset;
+      }
+      if (startMonth == currentMonth && startDate == currentToday) {
+        if (startHour > currentHour) {
+          return {
+            disabledHours: () => this.range(0, startHour)
+          };
+        }
+        if (startHour === currentHour && startMinute > currentMinute) {
+          return {
+            disabledHours: () => this.range(0, startHour),
+            disabledMinutes: () => this.range(0, startMinute)
+          };
+        }
+      }
+      if (today == currentToday) {
+        const minute = Number(moment().minutes());
+        const hour = Number(moment().hour());
+        if (currentHour < hour) {
+          return {
+            disabledHours: () => this.range(hour + 1, 24)
+          };
+        }
+        return {
+          disabledHours: () => this.range(hour + 1, 24),
+          disabledMinutes: () => this.range(minute + 1, 60)
+        };
+      }
+    } else {
+      return reset;
+    }
+  };
   range = (start, end) => {
     const result = [];
     for (let i = start; i < end; i++) {
@@ -64,24 +138,6 @@ export default class ChartTitle extends PureComponent {
     });
   };
 
-  handleEndOpenChangeStart = (status) => {
-    const start = this.props.form.getFieldValue('start');
-    if (!status) {
-      this.setState({
-        start: start.valueOf() / 1000
-      });
-    }
-  };
-
-  handleEndOpenChangeEnd = (status) => {
-    const end = this.props.form.getFieldValue('end');
-    if (!status) {
-      this.setState({
-        end: end.valueOf() / 1000
-      });
-    }
-  };
-
   render() {
     const {
       appDetail,
@@ -91,6 +147,7 @@ export default class ChartTitle extends PureComponent {
       operation,
       onDelete,
       onEdit,
+      baseInfo,
       RangeData = [],
       appAlias = ''
     } = this.props;
@@ -120,8 +177,10 @@ export default class ChartTitle extends PureComponent {
       end,
       dispatch,
       appDetail,
+      baseInfo,
       appAlias
     };
+
     return (
       <Fragment>
         <Row>
@@ -136,9 +195,8 @@ export default class ChartTitle extends PureComponent {
                 <DatePicker
                   style={{ width: '100%' }}
                   format="YYYY-MM-DD HH:mm:ss"
-                  onOpenChange={this.handleEndOpenChangeStart}
                   disabledDate={this.disabledDate}
-                  disabledTime={this.disabledDateTime}
+                  disabledTime={this.disabledDateStartTime}
                   showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                 />
               )}
@@ -153,9 +211,8 @@ export default class ChartTitle extends PureComponent {
                 <DatePicker
                   style={{ width: '100%' }}
                   format="YYYY-MM-DD HH:mm:ss"
-                  onOpenChange={this.handleEndOpenChangeEnd}
                   disabledDate={this.disabledDate}
-                  disabledTime={this.disabledDateTime}
+                  disabledTime={this.disabledDateEndTime}
                   showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                 />
               )}

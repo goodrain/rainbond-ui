@@ -10,7 +10,7 @@ import {
   Spin,
   notification,
   Divider,
-  Icon,
+  Icon
 } from 'antd';
 import { connect } from 'dva';
 import styles from '../CreateTeam/index.less';
@@ -20,7 +20,7 @@ const Option = Select.Option;
 
 @Form.create()
 @connect(({ user }) => ({
-  user: user.currentUser,
+  user: user.currentUser
 }))
 export default class Convenient extends PureComponent {
   constructor(arg) {
@@ -38,7 +38,7 @@ export default class Convenient extends PureComponent {
       component_page: 1,
       isAddApps: false,
       isAddComponents: false,
-      Loading: true,
+      Loading: true
     };
   }
   componentDidMount() {
@@ -54,40 +54,40 @@ export default class Convenient extends PureComponent {
     });
   };
 
-  handleCollectionView = values => {
+  handleCollectionView = (values) => {
     const {
       dispatch,
       match: {
-        params: { eid },
+        params: { eid }
       },
-      onOk,
+      onOk
     } = this.props;
     const { userTeamList, apps, components } = this.state;
     const {
       team_name: teamName,
       region: regionName,
       apps: appName,
-      component: componentName,
+      component: componentName
     } = values;
 
     let name = '';
     let result = '';
 
     if (componentName && components && components.length > 0) {
-      components.map(item => {
+      components.map((item) => {
         if (item.service_alias === componentName) {
           const {
             service_alias,
             tenant_name,
             region_name,
-            service_cname,
+            service_cname
           } = item;
           result = `/team/${tenant_name}/region/${region_name}/components/${service_alias}/overview`;
           name = service_cname;
         }
       });
     } else if (appName && apps && apps.length > 0) {
-      apps.map(item => {
+      apps.map((item) => {
         if (item.ID === appName) {
           const { group_name, tenant_name, region_name, ID } = item;
           name = group_name;
@@ -100,7 +100,7 @@ export default class Convenient extends PureComponent {
       userTeamList &&
       userTeamList.length > 0
     ) {
-      userTeamList.map(item => {
+      userTeamList.map((item) => {
         if (item.team_name === teamName) {
           name = item.team_alias;
         }
@@ -108,22 +108,24 @@ export default class Convenient extends PureComponent {
       result = `/team/${teamName}/region/${regionName}/index`;
     } else {
       notification.warning({
-        message: '请至少选择一个',
+        message: '请至少选择一个'
       });
       return null;
     }
+    console.log('resultresult',result)
+
     dispatch({
       type: 'user/addCollectionView',
       payload: {
         enterprise_id: eid,
         name,
-        url: result,
+        url: result
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           onOk && onOk();
         }
-      },
+      }
     });
   };
 
@@ -133,8 +135,8 @@ export default class Convenient extends PureComponent {
       dispatch,
       user,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'global/fetchUserTeams',
@@ -142,23 +144,23 @@ export default class Convenient extends PureComponent {
         enterprise_id: eid,
         user_id: user.user_id,
         page: 1,
-        page_size: 999,
+        page_size: 999
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             userTeamList: res.list,
-            Loading: false,
+            Loading: false
           });
         }
-      },
+      }
     });
   };
 
   addApps = () => {
     this.setState(
       {
-        app_page_size: this.state.app_page_size + 10,
+        app_page_size: this.state.app_page_size + 10
       },
       () => {
         this.fetchTeamApps();
@@ -171,8 +173,8 @@ export default class Convenient extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { app_page, app_page_size } = this.state;
 
@@ -181,15 +183,15 @@ export default class Convenient extends PureComponent {
       payload: {
         enterprise_id: eid,
         page: app_page,
-        page_size: app_page_size,
+        page_size: app_page_size
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const listNum = res.total_count || 0;
           const isAdd = !!(listNum && listNum > app_page_size);
           this.setState({ isAddApps: isAdd, apps: res.list, Loading: false });
         }
-      },
+      }
     });
   };
 
@@ -199,7 +201,7 @@ export default class Convenient extends PureComponent {
     const ID = getFieldValue('apps');
     this.setState(
       {
-        component_page_size: this.state.component_page_size + 10,
+        component_page_size: this.state.component_page_size + 10
       },
       () => {
         this.fetchComponents(ID);
@@ -207,12 +209,12 @@ export default class Convenient extends PureComponent {
     );
   };
   // 组件
-  fetchComponents = ID => {
+  fetchComponents = (ID) => {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { component_page_size, component_page } = this.state;
     dispatch({
@@ -221,28 +223,28 @@ export default class Convenient extends PureComponent {
         app_id: ID,
         enterprise_id: eid,
         page: component_page,
-        page_size: component_page_size,
+        page_size: component_page_size
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const listNum = res.total_count || 0;
           const isAdd = !!(listNum && listNum > component_page_size);
           this.setState({
             isAddComponents: isAdd,
             components: res.list,
-            Loading: false,
+            Loading: false
           });
         }
-      },
+      }
     });
   };
 
-  handleTeamChange = value => {
+  handleTeamChange = (value) => {
     const { form } = this.props;
     const { setFieldsValue } = form;
     const { userTeamList } = this.state;
     let region_list = [];
-    userTeamList.map(item => {
+    userTeamList.map((item) => {
       if (item.team_name === value) {
         region_list = item.region_list;
       }
@@ -250,18 +252,18 @@ export default class Convenient extends PureComponent {
     if (region_list && region_list.length > 0) {
       this.setState({ region_list }, () => {
         setFieldsValue({
-          region: region_list[0].region_name,
+          region: region_list[0].region_name
         });
       });
     }
   };
 
-  handleAppChange = ID => {
+  handleAppChange = (ID) => {
     const { form } = this.props;
     const { setFieldsValue } = form;
     const { apps } = this.state;
     let obj = null;
-    apps.map(item => {
+    apps.map((item) => {
       if (item.ID === ID) {
         obj = item;
       }
@@ -284,7 +286,7 @@ export default class Convenient extends PureComponent {
       region_list,
       Loading,
       isAddApps,
-      isAddComponents,
+      isAddComponents
     } = this.state;
 
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
@@ -293,12 +295,12 @@ export default class Convenient extends PureComponent {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 17 },
-      },
+        sm: { span: 17 }
+      }
     };
 
     return (
@@ -315,7 +317,7 @@ export default class Convenient extends PureComponent {
             <Button type="primary" onClick={this.handleSubmit}>
               添加
             </Button>
-          ),
+          )
         ]}
       >
         <Form onSubmit={this.handleSubmit} layout="horizontal" hideRequiredMark>
@@ -340,7 +342,7 @@ export default class Convenient extends PureComponent {
                       onChange={this.handleTeamChange}
                       placeholder="请选择团队"
                     >
-                      {userTeams.map(item => (
+                      {userTeams.map((item) => (
                         <Option key={item.team_name} value={item.team_name}>
                           {item.team_alias}
                         </Option>
@@ -356,7 +358,7 @@ export default class Convenient extends PureComponent {
                   {getFieldDecorator('region')(
                     <Select placeholder="请选择集群" style={{ width: '100%' }}>
                       {region_list &&
-                        region_list.map(item => (
+                        region_list.map((item) => (
                           <Option
                             key={item.region_name}
                             value={item.region_name}
@@ -376,7 +378,7 @@ export default class Convenient extends PureComponent {
                     <Select
                       style={{ width: '100%' }}
                       placeholder="请选择应用"
-                      dropdownRender={menu => (
+                      dropdownRender={(menu) => (
                         <div>
                           {menu}
                           {isAddApps && (
@@ -385,9 +387,9 @@ export default class Convenient extends PureComponent {
                               <div
                                 style={{
                                   padding: '4px 8px',
-                                  cursor: 'pointer',
+                                  cursor: 'pointer'
                                 }}
-                                onMouseDown={e => e.preventDefault()}
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={this.addApps}
                               >
                                 <Icon type="plus" /> 加载更多
@@ -398,7 +400,7 @@ export default class Convenient extends PureComponent {
                       )}
                       onChange={this.handleAppChange}
                     >
-                      {appList.map(item => (
+                      {appList.map((item) => (
                         <Option key={item.ID} value={item.ID}>
                           {item.group_name}
                         </Option>
@@ -417,7 +419,7 @@ export default class Convenient extends PureComponent {
                   {getFieldDecorator('component')(
                     <Select
                       placeholder="请选择组件"
-                      dropdownRender={menu => (
+                      dropdownRender={(menu) => (
                         <div>
                           {menu}
                           {isAddComponents && (
@@ -426,9 +428,9 @@ export default class Convenient extends PureComponent {
                               <div
                                 style={{
                                   padding: '4px 8px',
-                                  cursor: 'pointer',
+                                  cursor: 'pointer'
                                 }}
-                                onMouseDown={e => e.preventDefault()}
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={this.addComponents}
                               >
                                 <Icon type="plus" /> 加载更多
@@ -439,7 +441,7 @@ export default class Convenient extends PureComponent {
                       )}
                       style={{ width: '100%' }}
                     >
-                      {componentList.map(item => (
+                      {componentList.map((item) => (
                         <Option
                           key={item.service_alias}
                           value={item.service_alias}

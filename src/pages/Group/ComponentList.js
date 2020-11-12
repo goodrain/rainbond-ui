@@ -3,15 +3,23 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Badge, Button, Card, notification, Table, Tooltip } from 'antd';
+import {
+  Badge,
+  Button,
+  Card,
+  notification,
+  Table,
+  Tooltip,
+  Dropdown,
+  Menu,
+  Icon
+} from 'antd';
 import moment from 'moment';
 import ScrollerX from '../../components/ScrollerX';
 import styles from './ComponentList.less';
 import MoveGroup from '../../components/AppMoveGroup';
 import BatchDelete from '../../components/BatchDelete';
-import {
-  batchOperation,
-} from '../../services/app';
+import { batchOperation } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 
@@ -277,11 +285,24 @@ export default class ComponentList extends Component {
       pageSize,
       current,
       total,
+      showSizeChanger:true,
       onChange: (page) => {
         this.setState(
           {
             current: page,
             selectedRowKeys: []
+          },
+          () => {
+            this.loadComponents();
+          }
+        );
+      },
+      // eslint-disable-next-line no-shadow
+      onShowSizeChange: (page, pageSize) => {
+        this.setState(
+          {
+            current: page,
+            pageSize
           },
           () => {
             this.loadComponents();
@@ -422,52 +443,51 @@ export default class ComponentList extends Component {
     const customBox = [
       {
         permissions: isConstruct,
-        name: '批量构建',
+        name: '构建',
         action: 'deploy'
       },
       {
         permissions: isUpdate,
-        name: '批量更新',
+        name: '更新',
         action: 'upgrade'
       },
       {
         permissions: isRestart,
-        name: '批量重启',
+        name: '重启',
         action: 'restart'
       },
       {
         permissions: isStop,
-        name: '批量关闭',
+        name: '关闭',
         action: 'stop'
       },
       {
         permissions: isStart,
-        name: '批量启动',
+        name: '启动',
         action: 'start'
       },
       {
         permissions: isEdit,
-        name: '批量移动',
+        name: '移动',
         action: false,
         customMethods: this.showBatchMove
       },
       {
         permissions: isDelete,
-        name: '批量删除',
+        name: '删除',
         action: false,
         customMethods: this.handleBatchDelete
       }
     ];
-    const footer = (
-      <div className={styles.tableList}>
-        <div className={styles.tableListOperator}>
-          {customBox.map((item) => {
-            const { permissions, name, action, customMethods } = item;
-            return (
-              permissions && (
-                <Button
+    const menu = (
+      <Menu>
+        {customBox.map((item) => {
+          const { permissions, name, action, customMethods } = item;
+          return (
+            permissions && (
+              <Menu.Item style={{ textAlign: 'center' }}>
+                <a
                   loading={operationState === action ? operationState : false}
-                  disabled={!this.CanBatchOperation()}
                   onClick={() => {
                     if (action) {
                       this.handleOperationState(action);
@@ -478,10 +498,26 @@ export default class ComponentList extends Component {
                   }}
                 >
                   {name}
-                </Button>
-              )
-            );
-          })}
+                </a>
+              </Menu.Item>
+            )
+          );
+        })}
+      </Menu>
+    );
+    const footer = (
+      <div className={styles.tableList}>
+        <div className={styles.tableListOperator}>
+          <Dropdown
+            overlay={menu}
+            trigger={['click']}
+            placement="bottomCenter"
+            disabled={!this.CanBatchOperation()}
+          >
+            <Button>
+              批量操作 <Icon type="down" />
+            </Button>
+          </Dropdown>
         </div>
       </div>
     );

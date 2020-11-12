@@ -15,7 +15,6 @@ class UserLayout extends React.PureComponent {
   }
   componentWillMount() {
     const { dispatch } = this.props;
-
     // 初始化 获取RainbondInfo信息
     dispatch({
       type: 'global/fetchRainbondInfo',
@@ -23,9 +22,19 @@ class UserLayout extends React.PureComponent {
         if (info) {
           globalUtil.putLog(info);
           // check auto login
-          const isOauth = rainbondUtil.OauthbEnable(info);
-          const oauthInfo =
+          const isOauth =
+            rainbondUtil.OauthbEnable(info) ||
+            rainbondUtil.OauthEnterpriseEnable(info);
+          let oauthInfo =
             info.enterprise_center_oauth && info.enterprise_center_oauth.value;
+          if (!oauthInfo && info.oauth_services && info.oauth_services.value) {
+            info.oauth_services.value.map(item => {
+              if (item.is_auto_login) {
+                oauthInfo = item;
+              }
+              return null;
+            });
+          }
           if (isOauth && oauthInfo) {
             if (oauthInfo.is_auto_login) {
               globalUtil.removeCookie();
@@ -66,7 +75,6 @@ class UserLayout extends React.PureComponent {
                   </h1>
                 </Link>
               </div>
-              <div className={styles.desc}></div>
             </div>
           )}
           <div>{children}</div>

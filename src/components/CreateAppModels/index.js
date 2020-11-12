@@ -624,24 +624,6 @@ class CreateAppModels extends PureComponent {
                 </Upload>
               )}
             </Form.Item>
-
-            {appInfo && (
-              <FormItem {...formItemLayout} label="是否Release">
-                {getFieldDecorator('dev_status', {
-                  initialValue: appInfo && appInfo.dev_status ? true : '',
-                })(
-                  <Checkbox
-                    onChange={this.onChangeCheckbox}
-                    checked={Checkboxvalue}
-                  >
-                    release
-                  </Checkbox>
-                )}
-                <div className={styles.conformDesc}>
-                  请选择当前应用的开发状态
-                </div>
-              </FormItem>
-            )}
           </Form>
         </Modal>
       </div>
