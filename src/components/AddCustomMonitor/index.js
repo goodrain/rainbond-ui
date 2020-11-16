@@ -93,6 +93,21 @@ export default class AddCustomMonitor extends PureComponent {
       }
     });
   };
+  
+  checkContent = (_, value, callback) => {
+    let num = Number(value);
+    if (num || num === 0) {
+      if (num < 1) {
+        callback('最小输入值1');
+        return;
+      }
+      if (num > 65535) {
+        callback('最大输入值65535');
+        return;
+      }
+    }
+    callback();
+  };
 
   render() {
     const { title, onCancel, form, data = {}, loading = false } = this.props;
@@ -165,7 +180,10 @@ export default class AddCustomMonitor extends PureComponent {
           <FormItem {...formItemLayout} label="收集间隔时间">
             {getFieldDecorator('interval', {
               initialValue: interval || '10',
-              rules: [{ required: true, message: '请填写收集任务名称' }]
+              rules: [
+                { required: true, message: '收集间隔时间' },
+                { validator: this.checkContent }
+              ]
             })(
               <Input
                 type="number"
