@@ -25,7 +25,6 @@ export default class ApplicationGovernance extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRowKeys: [],
       page: 1,
       page_size: 6,
       total: 0,
@@ -42,9 +41,9 @@ export default class ApplicationGovernance extends PureComponent {
 
   setK8sServiceNames = (value) => {
     const { dispatch, appID, onCancel } = this.props;
+    const { ServiceNameList } = this.state;
     const arr = [];
-    const apps = this.getSelected();
-    apps.map((item) => {
+    ServiceNameList.map((item) => {
       const {
         service_id: id,
         port_alias: alias,
@@ -72,28 +71,13 @@ export default class ApplicationGovernance extends PureComponent {
         arr
       },
       callback: (res) => {
-        if (res && res.bean) {
-          this.setState({
-            ServiceNameList: res.bean.k8s_service_names
-          });
+        if (res && res._code === 200) {
+          notification.success({ message: '更新成功' });
           onCancel();
         }
       }
     });
   };
-  getSelected() {
-    const { selectedRowKeys, ServiceNameList } = this.state;
-    let res = [];
-    if (
-      selectedRowKeys &&
-      selectedRowKeys.length > 0 &&
-      ServiceNameList &&
-      ServiceNameList.length > 0
-    ) {
-      res = selectedRowKeys.map((item) => ServiceNameList[item]);
-    }
-    return res;
-  }
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -171,11 +155,6 @@ export default class ApplicationGovernance extends PureComponent {
     });
   };
 
-  isDisabled = () => {
-    const app = this.getSelected();
-    return app.length > 0;
-  };
-
   checkServiceName = (rule, value, callback) => {
     const { dispatch, appID } = this.props;
     const { ServiceNameList } = this.stata;
@@ -221,12 +200,6 @@ export default class ApplicationGovernance extends PureComponent {
     const { getFieldDecorator, getFieldValue } = form;
     const type =
       getFieldValue('governance_mode') || mode || 'KUBERNETES_NATIVE_SERVICE';
-    const rowSelection = {
-      onChange: (selectedRowKeys) => {
-        this.setState({ selectedRowKeys });
-      },
-      selectedRowKeys: this.state.selectedRowKeys
-    };
 
     return (
       <Modal
@@ -241,7 +214,6 @@ export default class ApplicationGovernance extends PureComponent {
           <Button
             type="primary"
             loading={loading || checkK8sLoading || governanceLoading}
-            disabled={step && !this.isDisabled()}
             onClick={this.handleSubmit}
           >
             确定
@@ -266,11 +238,11 @@ export default class ApplicationGovernance extends PureComponent {
                 onChange: this.onPageChange
               }}
               dataSource={ServiceNameList || []}
-              rowSelection={rowSelection}
               columns={[
                 {
                   title: '组件名称/端口',
                   dataIndex: 'service_alias',
+                  width: 200,
                   render: (_, data) => (
                     <div>
                       {data.service_cname}/{data.port}
@@ -280,6 +252,7 @@ export default class ApplicationGovernance extends PureComponent {
                 {
                   title: '别名',
                   dataIndex: 'port_alias',
+                  width: 200,
                   render: (val, data) => (
                     <FormItem style={{ marginBottom: 0 }}>
                       {getFieldDecorator(
@@ -300,6 +273,7 @@ export default class ApplicationGovernance extends PureComponent {
                 {
                   title: '内部域名',
                   dataIndex: 'k8s_service_name',
+                  width: 200,
                   render: (val, data) => (
                     <FormItem style={{ marginBottom: 0 }}>
                       {getFieldDecorator(
@@ -316,9 +290,9 @@ export default class ApplicationGovernance extends PureComponent {
                               message: '内部域名最多63个位'
                             },
                             {
-                              pattern: /^[a-z0-9]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
+                              pattern: /^[a-z]([a-z0-9-_]*[-a-z0-9]*[a-z0-9])?$/,
                               message:
-                                '必须由小写的字母、数字和- _组成，并且必须以字母数字开始和结束'
+                                '必须由小写的字母、数字和- _组成，并且必须以字母开始、数字和字母结束'
                             }
                           ]
                         }
