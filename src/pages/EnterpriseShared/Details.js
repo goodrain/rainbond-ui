@@ -82,7 +82,7 @@ export default class Main extends PureComponent {
     reader.addEventListener('load', () => callback(reader.result));
     reader.readAsDataURL(img);
   };
-  getEnterpriseTeams = name => {
+  getEnterpriseTeams = (name) => {
     const {
       dispatch,
       match: {
@@ -98,7 +98,7 @@ export default class Main extends PureComponent {
         page_size,
         enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (res.bean && res.bean.list) {
             const listNum = (res.bean && res.bean.total_count) || 0;
@@ -126,7 +126,7 @@ export default class Main extends PureComponent {
       payload: {
         enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             tagList: res.list
@@ -150,7 +150,7 @@ export default class Main extends PureComponent {
         enterprise_id: eid,
         appId
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           // 异步设置编辑器内容
           const text = res.bean && res.bean.details;
@@ -170,7 +170,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  upDataAppVersionInfo = value => {
+  upDataAppVersionInfo = (value) => {
     const {
       dispatch,
       match: {
@@ -186,7 +186,7 @@ export default class Main extends PureComponent {
         version: editAppVersion.version,
         ...value
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.handleCloseEditAppVersion();
           this.getAppModelsDetails();
@@ -195,7 +195,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleRelease = value => {
+  handleRelease = (value) => {
     const {
       dispatch,
       match: {
@@ -212,7 +212,7 @@ export default class Main extends PureComponent {
         appId,
         ...value
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.handleCloseEditAppVersion();
           this.getAppModelsDetails();
@@ -220,7 +220,7 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleLogoChange = info => {
+  handleLogoChange = (info) => {
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
@@ -236,7 +236,7 @@ export default class Main extends PureComponent {
         loading: false
       });
 
-      this.getLogoBase64(info.file.originFileObj, imageBase64 =>
+      this.getLogoBase64(info.file.originFileObj, (imageBase64) =>
         this.setState({
           imageBase64
         })
@@ -246,7 +246,7 @@ export default class Main extends PureComponent {
   handleLogoRemove = () => {
     this.setState({ imageUrl: '', imageBase64: '' });
   };
-  handleToDelete = info => {
+  handleToDelete = (info) => {
     this.setState({
       toDelete: info
     });
@@ -261,7 +261,7 @@ export default class Main extends PureComponent {
       editAppVersion: false
     });
   };
-  handleEditAppVersionInfo = info => {
+  handleEditAppVersionInfo = (info) => {
     this.setState({
       editAppVersion: info
     });
@@ -281,7 +281,7 @@ export default class Main extends PureComponent {
         appId,
         version: toDelete.version
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           notification.success({ message: '删除成功' });
           this.handleCancelDelete();
@@ -319,8 +319,8 @@ export default class Main extends PureComponent {
           tagList &&
           tagList.length > 0
         ) {
-          values.tag_ids.map(items => {
-            tagList.map(item => {
+          values.tag_ids.map((items) => {
+            tagList.map((item) => {
               if (items === item.name) {
                 arr.push(parseFloat(item.tag_id));
               }
@@ -340,7 +340,7 @@ export default class Main extends PureComponent {
         dispatch({
           type: 'market/upAppModel',
           payload: parameter,
-          callback: res => {
+          callback: (res) => {
             if (res && res._code === 200) {
               notification.success({ message: '保存成功' });
               if (appInfo) {
@@ -355,10 +355,10 @@ export default class Main extends PureComponent {
       }
     });
   };
-  handleIsEdit = isEdit => {
+  handleIsEdit = (isEdit) => {
     this.setState({ isEdit });
   };
-  handleAppDetails = isAppDetails => {
+  handleAppDetails = (isAppDetails) => {
     const { appInfo } = this.state;
     const { form } = this.props;
     const text = appInfo && appInfo.details;
@@ -379,7 +379,7 @@ export default class Main extends PureComponent {
     } = this.props;
     dispatch(routerRedux.push(`/enterprise/${eid}/shared`));
   };
-  handleIsRelease = record => {
+  handleIsRelease = (record) => {
     const _th = this;
     confirm({
       title: record.dev_status
@@ -459,7 +459,7 @@ export default class Main extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      appInfo.tags.map(items => {
+      appInfo.tags.map((items) => {
         arr.push(items.name);
         tagId.push(items.tag_id);
       });
@@ -558,7 +558,7 @@ export default class Main extends PureComponent {
                         })(
                           <Select
                             placeholder="请选择发布范围"
-                            dropdownRender={menu => (
+                            dropdownRender={(menu) => (
                               <div>
                                 {menu}
                                 {isAddLicense && (
@@ -572,7 +572,7 @@ export default class Main extends PureComponent {
                                           padding: '4px 8px',
                                           cursor: 'pointer'
                                         }}
-                                        onMouseDown={e => e.preventDefault()}
+                                        onMouseDown={(e) => e.preventDefault()}
                                         onClick={() => {
                                           this.addTeams();
                                         }}
@@ -592,7 +592,7 @@ export default class Main extends PureComponent {
                             </Option>
 
                             {teamList &&
-                              teamList.map(item => {
+                              teamList.map((item) => {
                                 return (
                                   <Option
                                     key={item.team_name}
@@ -627,7 +627,7 @@ export default class Main extends PureComponent {
                             tokenSeparators={[',']}
                             placeholder="请选择分类标签"
                           >
-                            {tagList.map(item => {
+                            {tagList.map((item) => {
                               const { tag_id, name } = item;
                               return (
                                 <Option key={tag_id} value={name} label={name}>
@@ -761,7 +761,7 @@ export default class Main extends PureComponent {
                       <div>{appInfo.describe}</div>
                     </div>
                     <div>
-                      {arr.map(item => {
+                      {arr.map((item) => {
                         return <div className={styless.appVersion}>{item}</div>;
                       })}
                     </div>
@@ -795,12 +795,14 @@ export default class Main extends PureComponent {
               >
                 <Table
                   dataSource={appList}
+                  scroll={{ x: 1200 }}
                   style={{ width: '100%', overflowX: 'auto' }}
                   columns={[
                     {
                       title: '版本号',
                       dataIndex: 'version',
-                      width: '220px',
+                      width: 220,
+                      fixed: 'left',
                       render: (val, data) => {
                         return (
                           <span>
@@ -813,8 +815,9 @@ export default class Main extends PureComponent {
                       title: '状态',
                       dataIndex: 'dev_status',
                       align: 'center',
-                      width: '100px',
-                      render: val => {
+                      width: 100,
+                      fixed: 'left',
+                      render: (val) => {
                         return (
                           <div>
                             {val ? (
@@ -830,7 +833,7 @@ export default class Main extends PureComponent {
                       title: '发布人',
                       dataIndex: 'share_user',
                       align: 'center',
-                      width: '150px'
+                      width: 150
                     },
                     {
                       title: '版本简介',
@@ -839,9 +842,9 @@ export default class Main extends PureComponent {
                     {
                       title: '发布时间',
                       dataIndex: 'create_time',
-                      width: '190px',
+                      width: 190,
                       align: 'center',
-                      render: val => {
+                      render: (val) => {
                         return (
                           <span>
                             {moment(val)
@@ -854,9 +857,9 @@ export default class Main extends PureComponent {
                     {
                       title: '更新时间',
                       dataIndex: 'update_time',
-                      width: '190px',
+                      width: 190,
                       align: 'center',
-                      render: val => {
+                      render: (val) => {
                         return (
                           <span>
                             {moment(val)
@@ -869,7 +872,8 @@ export default class Main extends PureComponent {
                     {
                       title: '操作',
                       dataIndex: 'action',
-                      width: '230px',
+                      width: 230,
+                      fixed: 'right',
                       align: 'center',
                       render: (_data, record) => (
                         <div>
