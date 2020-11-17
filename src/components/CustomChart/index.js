@@ -8,7 +8,10 @@ import React, { Fragment, PureComponent } from 'react';
 import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 import RangeChart from './rangeChart';
+import { object } from 'prop-types';
 
 const FormItem = Form.Item;
 // eslint-disable-next-line react/no-multi-comp
@@ -137,6 +140,16 @@ export default class ChartTitle extends PureComponent {
       }
     });
   };
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    const { handleSorting, RangeData = [] } = this.props;
+    if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
+      const RangeList = RangeData.filter((item) => item.sequence === oldIndex);
+      if (RangeList && RangeList.length > 0) {
+        const info = Object.assign({}, RangeList[0], { sequence: newIndex });
+        handleSorting(info, arrayMove(RangeData, oldIndex, newIndex));
+      }
+    }
+  };
 
   render() {
     const {
@@ -180,6 +193,51 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       appAlias
     };
+    const SortableItem = SortableElement(({ value }) => {
+      const { title, promql, sequence } = value;
+      return (
+        <div
+          index={sequence}
+          style={{
+            zIndex: 99999999,
+            cursor: 'all-scroll',
+            height: '522px'
+          }}
+        >
+          <RangeChart
+            style={{ zIndex: 99999999, cursor: 'all-scroll' }}
+            {...parameter}
+            CustomMonitorInfo={value}
+            title={title}
+            type={promql}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        </div>
+      );
+    });
+    const gridStyles = {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridGap: '16px'
+    };
+
+    const SortableList = SortableContainer(({ items }) => {
+      return (
+        <div style={gridStyles}>
+          {items.map((item, index) => {
+            return (
+              <SortableItem
+                style={{ zIndex: 99999999 }}
+                key={`item-${index}`}
+                index={item.sequence}
+                value={item}
+              />
+            );
+          })}
+        </div>
+      );
+    });
 
     return (
       <Fragment>
@@ -234,21 +292,13 @@ export default class ChartTitle extends PureComponent {
             })}
           </Row>
         ) : moduleName === 'CustomMonitor' ? (
-          RangeData.map((item) => {
-            const { promql, ID, title } = item;
-            return (
-              <Col span={12} key={ID} style={{ padding: '8px' }}>
-                <RangeChart
-                  {...parameter}
-                  CustomMonitorInfo={item}
-                  title={title}
-                  type={promql}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              </Col>
-            );
-          })
+          <SortableList
+            axis="xy"
+            // hideSortableGhost={false}
+            style={{ zIndex: 99999999 }}
+            items={RangeData}
+            onSortEnd={this.onSortEnd}
+          />
         ) : (
           RangeData.map((item) => {
             return <RangeChart key={item} {...parameter} type={item} />;

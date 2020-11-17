@@ -123,8 +123,18 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
-
-  handleSubmit = (vals) => {
+  handleSorting = (val, list) => {
+    this.setState(
+      {
+        info: val,
+        monitorFigureList: list
+      },
+      () => {
+        this.handleSubmit(val, false);
+      }
+    );
+  };
+  handleSubmit = (vals, isMessage = true) => {
     const { dispatch } = this.props;
     const { info } = this.state;
     const parameter = this.handleParameter();
@@ -139,9 +149,11 @@ export default class customMonitor extends PureComponent {
         },
         callback: (res) => {
           if (res && res._code === 200) {
-            notification.success({
-              message: '保存成功'
-            });
+            if (isMessage) {
+              notification.success({
+                message: '保存成功'
+              });
+            }
             this.fetchServiceMonitorFigure();
             this.onCancelCustomMonitoring();
           }
@@ -242,6 +254,7 @@ export default class customMonitor extends PureComponent {
           <Row>
             <CustomChart
               moduleName="CustomMonitor"
+              handleSorting={this.handleSorting}
               onDelete={this.onDelete}
               onEdit={this.onEdit}
               appAlias={appAlias}
@@ -269,7 +282,6 @@ export default class customMonitor extends PureComponent {
                       </Button>
                     </Dropdown>
                   )}
-
                   <Button
                     style={{ float: 'right', marginTop: '4px' }}
                     onClick={() => {
