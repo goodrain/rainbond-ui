@@ -158,6 +158,8 @@ class Main extends PureComponent {
                 this.handleTimers(
                   'timer',
                   () => {
+                    this.fetchAppDetailState();
+                    this.fetchAppDetail();
                     this.loadTopology(true);
                   },
                   10000
@@ -172,6 +174,8 @@ class Main extends PureComponent {
         this.handleTimers(
           'timer',
           () => {
+            this.fetchAppDetailState();
+            this.fetchAppDetail();
             this.loadTopology(true);
           },
           20000
@@ -465,7 +469,8 @@ class Main extends PureComponent {
         isStop,
         isUpdate,
         isConstruct,
-        isCopy
+        isCopy,
+        isRestart
       },
       buildShapeLoading,
       editGroupLoading,
@@ -576,7 +581,7 @@ class Main extends PureComponent {
               status={appStateColor[resources.status] || 'default'}
               text={appState[resources.status] || '-'}
             />
-            {resources.status && isStart && resources.status !== 'RUNNING' && (
+            {resources.status && isStart && (
               <span>
                 <a
                   onClick={() => {
@@ -713,7 +718,7 @@ class Main extends PureComponent {
                   isControl && this.handleJump('gateway');
                 }}
               >
-                <a>{currApp.service_num || 0}</a>
+                <a>{currApp.ingress_num || 0}</a>
               </div>
             </div>
 
