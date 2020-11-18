@@ -50,8 +50,9 @@ export default class CustomMonitoring extends PureComponent {
         serviceId
       },
       callback: (res) => {
+        const arr = res.list.map((item) => item.metric);
         this.setState({
-          indicators: res.list
+          indicators: arr
         });
       }
     });
@@ -87,7 +88,8 @@ export default class CustomMonitoring extends PureComponent {
       dispatch,
       appDetail,
       appAlias,
-      info={},
+      info = {},
+      colSpan = 24,
       addLoading,
       editLoading
     } = this.props;
@@ -105,97 +107,102 @@ export default class CustomMonitoring extends PureComponent {
       <Fragment>
         <Form onSubmit={this.onOk}>
           <Spin spinning={loading}>
-            <Col span={24}>
-              <Card
-                className={styless.customCard}
-                headStyle={{ padding: '0 24px' }}
-                title={
-                  <FormItem>
-                    {getFieldDecorator('title', {
-                      initialValue: info.title || '',
-                      rules: [
-                        { required: true, message: '请填写标题' },
-                        {
-                          max: 64,
-                          message: '最大长度64位'
-                        }
-                      ]
-                    })(
-                      <Input
-                        style={{ width:'calc(100% - 15px)' }}
-                        placeholder="请填写标题"
-                      />
-                    )}
-                  </FormItem>
-                }
-                extra={
-                  <div>
-                    <a style={{ marginRight: '5px' }} onClick={onCancel}>
-                      取消
-                    </a>
-                    <a onClick={this.onOk} loading={addLoading || editLoading}>
-                      {info.graph_id ? '保存' : '添加'}
-                    </a>
-                  </div>
-                }
-              >
+            <Card
+              className={styless.customCard}
+              headStyle={{ padding: '0 24px' }}
+              title={
+                <FormItem>
+                  {getFieldDecorator('title', {
+                    initialValue: info.title || '',
+                    rules: [
+                      { required: true, message: '请填写标题' },
+                      {
+                        max: 64,
+                        message: '最大长度64位'
+                      }
+                    ]
+                  })(
+                    <Input
+                      style={{ width: 'calc(100% - 15px)' }}
+                      placeholder="请填写标题"
+                    />
+                  )}
+                </FormItem>
+              }
+              extra={
                 <div>
-                  <Alert
-                    style={{ marginBottom: '10px' }}
-                    message="请输入 标准PromQL 语法进行查询显示图表"
-                    type="info"
-                    showIcon
-                  />
-                  <FormItem>
-                    {getFieldDecorator('promql', {
-                      initialValue: info.promql || '',
-                      rules: [
-                        { required: true, message: '请填写查询条件' },
-                        {
-                          max: 255,
-                          message: '最大长度255位'
-                        }
-                      ]
-                    })(
-                      <AutoComplete
-                        style={{ width: 'calc(100% - 75px)', marginRight: '5px' }}
-                        placeholder="请填写查询条件"
-                      >
-                        {indicators &&
-                          indicators.length > 0 &&
-                          indicators.map((item, index) => {
-                            const { metric } = item;
-                            return (
-                              <AutoComplete.Option
-                                key={`metric${index}`}
-                                value={metric}
-                              >
-                                {metric}
-                              </AutoComplete.Option>
-                            );
-                          })}
-                      </AutoComplete>
-                    )}
-                    <Button onClick={this.handleSearch}>查询</Button>
-                  </FormItem>
-                  <div style={{ minHeight: '300px' }}>
-                    {RangeData.length > 0 &&
-                      RangeData.map((item) => {
-                        const { title, promql } = item;
-                        return (
-                          <RangeChart
-                            isEdit={false}
-                            key={title}
-                            {...parameter}
-                            title={title}
-                            type={promql}
-                          />
-                        );
-                      })}
-                  </div>
+                  <a style={{ marginRight: '5px' }} onClick={onCancel}>
+                    取消
+                  </a>
+                  <a onClick={this.onOk} loading={addLoading || editLoading}>
+                    {info.graph_id ? '保存' : '添加'}
+                  </a>
                 </div>
-              </Card>
-            </Col>
+              }
+            >
+              <div>
+                <Alert
+                  style={{ marginBottom: '10px' }}
+                  message="请输入 标准PromQL 语法进行查询显示图表"
+                  type="info"
+                  showIcon
+                />
+                <FormItem>
+                  {getFieldDecorator('promql', {
+                    initialValue: info.promql || '',
+                    rules: [
+                      { required: true, message: '请填写查询条件' },
+                      {
+                        max: 255,
+                        message: '最大长度255位'
+                      }
+                    ]
+                  })(
+                    <AutoComplete
+                      style={{
+                        width: 'calc(100% - 75px)',
+                        marginRight: '5px'
+                      }}
+                      dataSource={indicators}
+                      filterOption={(inputValue, option) =>
+                        option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                      }
+                      placeholder="请填写查询条件"
+                    >
+                      {/* {indicators &&
+                        indicators.length > 0 &&
+                        indicators.map((item, index) => {
+                          const { metric } = item;
+                          return (
+                            <AutoComplete.Option
+                              key={`metric${index}`}
+                              value={metric}
+                            >
+                              {metric}
+                            </AutoComplete.Option>
+                          );
+                        })} */}
+                    </AutoComplete>
+                  )}
+                  <Button onClick={this.handleSearch}>查询</Button>
+                </FormItem>
+                <div style={{ minHeight: '300px' }}>
+                  {RangeData.length > 0 &&
+                    RangeData.map((item) => {
+                      const { title, promql } = item;
+                      return (
+                        <RangeChart
+                          isEdit={false}
+                          key={title}
+                          {...parameter}
+                          title={title}
+                          type={promql}
+                        />
+                      );
+                    })}
+                </div>
+              </div>
+            </Card>
           </Spin>
         </Form>
       </Fragment>

@@ -6,18 +6,23 @@
 // eslint-disable-next-line react/no-multi-comp
 import React, { Fragment, PureComponent } from 'react';
 import moment from 'moment';
-import { Card, Spin } from 'antd';
+import { connect } from 'dva';
+import { Card, Spin, notification } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
+import CustomMonitoring from '@/components/CustomMonitoring';
+import styless from './index.less';
 import { start } from '@/services/app';
 
+@connect()
 export default class RangeChart extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       memoryRange: [],
-      performanceObj: {}
+      performanceObj: {},
+      isCustomMonitoring: false
     };
   }
 
@@ -90,7 +95,7 @@ export default class RangeChart extends PureComponent {
     };
   };
 
-  getQueryByType = T => {
+  getQueryByType = (T) => {
     const { appDetail, baseInfo } = this.props;
     if (appDetail && appDetail.service) {
       const {
@@ -178,18 +183,63 @@ export default class RangeChart extends PureComponent {
     }
   };
 
+  handleCustomMonitoring = () => {
+    this.setState({
+      isCustomMonitoring: true
+    });
+  };
+
+  onCancelCustomMonitoring = () => {
+    this.setState({
+      isCustomMonitoring: false
+    });
+  };
+
+  handleSubmit = (vals) => {
+    const { dispatch, appAlias, CustomMonitorInfo, upData } = this.props;
+    if (CustomMonitorInfo && CustomMonitorInfo.graph_id && upData) {
+      dispatch({
+        type: 'monitor/editServiceMonitorFigure',
+        payload: {
+          app_alias: appAlias,
+          team_name: globalUtil.getCurrTeamName(),
+          ...vals,
+          graph_id: CustomMonitorInfo.graph_id,
+          sequence: CustomMonitorInfo.sequence
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: '保存成功'
+            });
+            upData();
+            this.onCancelCustomMonitoring();
+          }
+        }
+      });
+    }
+  };
+
   render() {
     const {
       moduleName,
       onDelete,
       onEdit,
       CustomMonitorInfo,
+      appAlias,
+      serviceId = '',
       isEdit = true
     } = this.props;
-    const { memoryRange, performanceObj, loading } = this.state;
+    const {
+      memoryRange,
+      performanceObj,
+      loading,
+      isCustomMonitoring
+    } = this.state;
+    const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis' || moduleName === 'CustomMonitor'
+      moduleName === 'PerformanceAnalysis' || isCustomMonitor
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
     const cols = {
@@ -209,61 +259,78 @@ export default class RangeChart extends PureComponent {
     };
     return (
       <Fragment>
-        <Spin spinning={loading}>
-          <Card
-            title={title}
-            extra={
-              isEdit && (
-                <div>
-                  {moduleName === 'CustomMonitor' && (
-                    <span>
-                      <a
-                        onClick={() => {
-                          onEdit(CustomMonitorInfo);
-                        }}
-                        style={{ marginRight: '10px' }}
-                      >
-                        编辑
-                      </a>
-                      <a
-                        onClick={() => {
-                          onDelete(CustomMonitorInfo);
-                        }}
-                        style={{ marginRight: '10px' }}
-                      >
-                        删除
-                      </a>
-                    </span>
-                  )}
-                  <a onClick={this.loadRefresh}>刷新</a>
-                </div>
-              )
-            }
-          >
-            <Chart height={400} data={data} scale={cols} forceFit>
-              <Legend />
-              <Axis
-                name="value"
-                label={{
-                  formatter: (val) => `${val}${unit}`
-                }}
-              />
-              <Axis name="time" />
-              <Tooltip
-                crosshairs={{
-                  type: 'y'
-                }}
-              />
-              <Geom
-                type="line"
-                position="time*value"
-                color="cid"
-                shape="smooth"
-                size={2}
-              />
-            </Chart>
-          </Card>
-        </Spin>
+        {isCustomMonitoring ? (
+          <CustomMonitoring
+            serviceId={serviceId}
+            teamName={globalUtil.getCurrTeamName()}
+            appAlias={appAlias}
+            info={CustomMonitorInfo}
+            onOk={this.handleSubmit}
+            onCancel={this.onCancelCustomMonitoring}
+          />
+        ) : (
+          <Spin spinning={loading}>
+            <Card
+              className={isCustomMonitor && styless.rangeChart}
+              title={title}
+              extra={
+                isEdit && (
+                  <div>
+                    {isCustomMonitor && (
+                      <span>
+                        <a
+                          onClick={() => {
+                            this.handleCustomMonitoring(CustomMonitorInfo);
+                          }}
+                          style={{ marginRight: '10px' }}
+                        >
+                          编辑
+                        </a>
+                        <a
+                          onClick={() => {
+                            onDelete(CustomMonitorInfo);
+                          }}
+                          style={{ marginRight: '10px' }}
+                        >
+                          删除
+                        </a>
+                      </span>
+                    )}
+                    <a onClick={this.loadRefresh}>刷新</a>
+                  </div>
+                )
+              }
+            >
+              <Chart
+                height={isCustomMonitor ? 200 : 400}
+                data={data}
+                scale={cols}
+                forceFit
+              >
+                <Legend />
+                <Axis
+                  name="value"
+                  label={{
+                    formatter: (val) => `${val}${unit}`
+                  }}
+                />
+                <Axis name="time" />
+                <Tooltip
+                  crosshairs={{
+                    type: 'y'
+                  }}
+                />
+                <Geom
+                  type="line"
+                  position="time*value"
+                  color="cid"
+                  shape="smooth"
+                  size={1}
+                />
+              </Chart>
+            </Card>
+          </Spin>
+        )}
       </Fragment>
     );
   }

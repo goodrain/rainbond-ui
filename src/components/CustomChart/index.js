@@ -160,9 +160,12 @@ export default class ChartTitle extends PureComponent {
       operation,
       onDelete,
       onEdit,
+      upData,
       baseInfo,
+      serviceId = '',
       RangeData = [],
-      appAlias = ''
+      appAlias = '',
+      content = ''
     } = this.props;
     const { getFieldDecorator } = form;
     const { start, end } = this.state;
@@ -201,12 +204,14 @@ export default class ChartTitle extends PureComponent {
           style={{
             zIndex: 99999999,
             cursor: 'all-scroll',
-            height: '522px'
+            minHeight: '278px'
           }}
         >
           <RangeChart
             style={{ zIndex: 99999999, cursor: 'all-scroll' }}
             {...parameter}
+            upData={upData}
+            serviceId={serviceId}
             CustomMonitorInfo={value}
             title={title}
             type={promql}
@@ -221,7 +226,6 @@ export default class ChartTitle extends PureComponent {
       gridTemplateColumns: 'repeat(2, 1fr)',
       gridGap: '16px'
     };
-
     const SortableList = SortableContainer(({ items }) => {
       return (
         <div style={gridStyles}>
@@ -238,7 +242,6 @@ export default class ChartTitle extends PureComponent {
         </div>
       );
     });
-
     return (
       <Fragment>
         <Row>
@@ -281,6 +284,7 @@ export default class ChartTitle extends PureComponent {
             {operation}
           </Col>
         </Row>
+
         {moduleName === 'ResourceMonitoring' ? (
           <Row style={{ padding: '-8px' }}>
             {RangeData.map((item) => {
@@ -292,13 +296,16 @@ export default class ChartTitle extends PureComponent {
             })}
           </Row>
         ) : moduleName === 'CustomMonitor' ? (
-          <SortableList
-            axis="xy"
-            // hideSortableGhost={false}
-            style={{ zIndex: 99999999 }}
-            items={RangeData}
-            onSortEnd={this.onSortEnd}
-          />
+          <div>
+            {content}
+            <SortableList
+              axis="xy"
+              // hideSortableGhost={false}
+              style={{ zIndex: 99999999 }}
+              items={RangeData}
+              onSortEnd={this.onSortEnd}
+            />
+          </div>
         ) : (
           RangeData.map((item) => {
             return <RangeChart key={item} {...parameter} type={item} />;

@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Row, notification, Dropdown, Icon, Menu } from 'antd';
+import { Button, Row, notification, Dropdown, Icon, Menu, Col } from 'antd';
 import MonitoryPoint from './monitoryPoint';
 import ConfirmModal from '@/components/ConfirmModal';
 import CustomMonitoring from '@/components/CustomMonitoring';
@@ -254,13 +254,30 @@ export default class customMonitor extends PureComponent {
           <Row>
             <CustomChart
               moduleName="CustomMonitor"
+              upData={this.fetchServiceMonitorFigure}
               handleSorting={this.handleSorting}
               onDelete={this.onDelete}
               onEdit={this.onEdit}
               appAlias={appAlias}
-              RangeData={
-                isCustomMonitoring || isMonitorFigure ? [] : monitorFigureList
+              serviceId={serviceId}
+              content={
+                isCustomMonitoring ? (
+                  <Col span={12} style={{ marginRight: '10px' }}>
+                    <CustomMonitoring
+                      colSpan={12}
+                      serviceId={serviceId}
+                      teamName={teamName}
+                      appAlias={appAlias}
+                      info={info}
+                      onOk={this.handleSubmit}
+                      onCancel={this.onCancelCustomMonitoring}
+                    />
+                  </Col>
+                ) : (
+                  ''
+                )
               }
+              RangeData={isMonitorFigure ? [] : monitorFigureList}
               operation={
                 <div style={{ display: 'inline-block', width: '88%' }}>
                   <Button
@@ -323,16 +340,7 @@ export default class customMonitor extends PureComponent {
             onCancel={this.cancalDelete}
           />
         )}
-        {isCustomMonitoring && (
-          <CustomMonitoring
-            serviceId={serviceId}
-            teamName={teamName}
-            appAlias={appAlias}
-            info={info}
-            onOk={this.handleSubmit}
-            onCancel={this.onCancelCustomMonitoring}
-          />
-        )}
+
         {isMonitoryPoint && (
           <MonitoryPoint
             {...this.props}
