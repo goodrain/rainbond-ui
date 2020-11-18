@@ -19,14 +19,13 @@ const FormItem = Form.Item;
   enterprise: global.enterprise,
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 export default class EnterpriseUsers extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       page: 1,
       pageSize: 10,
@@ -37,7 +36,7 @@ export default class EnterpriseUsers extends PureComponent {
       userInfo: false,
       text: '',
       delVisible: false,
-      name: '',
+      name: ''
     };
   }
   componentWillMount() {
@@ -54,19 +53,19 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState(
       {
         page,
-        pageSize,
+        pageSize
       },
       () => {
         this.loadUser();
       }
     );
   };
-  handleCreatUser = values => {
+  handleCreatUser = (values) => {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { userInfo } = this.state;
     if (userInfo) {
@@ -77,22 +76,22 @@ export default class EnterpriseUsers extends PureComponent {
       type: 'global/creatUser',
       payload: {
         enterprise_id: eid,
-        ...values,
+        ...values
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data._condition === 200) {
           this.loadUser();
           this.cancelCreatUser();
           notification.success({ message: data.msg_show || '' });
         }
       },
-      handleError: res => {
+      handleError: (res) => {
         cloud.handleCloudAPIError(res);
-      },
+      }
     });
   };
 
-  upUser = values => {
+  upUser = (values) => {
     const { userInfo } = this.state;
     const info = userInfo;
     info.real_name = values.real_name;
@@ -101,22 +100,22 @@ export default class EnterpriseUsers extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'global/upEnterpriseUsers',
       payload: {
         ...info,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._condition === 200) {
           this.cancelCreatUser();
           this.loadUser();
           notification.success({ message: '编辑成功' });
         }
-      },
+      }
     });
   };
 
@@ -125,22 +124,22 @@ export default class EnterpriseUsers extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'global/deleteEnterpriseUsers',
       payload: {
         user_id: userInfo.user_id,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._condition === 200) {
           this.loadUser();
           this.cancelDelUser();
           notification.success({ message: '删除成功' });
         }
-      },
+      }
     });
   };
 
@@ -148,8 +147,8 @@ export default class EnterpriseUsers extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     const { page, pageSize, name } = this.state;
     dispatch({
@@ -158,13 +157,13 @@ export default class EnterpriseUsers extends PureComponent {
         enterprise_id: eid,
         page,
         page_size: pageSize,
-        name,
+        name
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
           this.setState({ adminList: res.list, total: res.total });
         }
-      },
+      }
     });
   };
 
@@ -172,7 +171,7 @@ export default class EnterpriseUsers extends PureComponent {
   addUser = () => {
     this.setState({
       userVisible: true,
-      text: '新增用户',
+      text: '新增用户'
     });
   };
 
@@ -180,34 +179,34 @@ export default class EnterpriseUsers extends PureComponent {
     this.setState({
       userVisible: false,
       text: '',
-      userInfo: false,
+      userInfo: false
     });
   };
 
-  handleEdit = item => {
+  handleEdit = (item) => {
     this.setState({
       userInfo: item,
       userVisible: true,
-      text: '编辑用户',
+      text: '编辑用户'
     });
   };
 
-  delUser = userInfo => {
+  delUser = (userInfo) => {
     this.setState({
       delVisible: true,
-      userInfo,
+      userInfo
     });
   };
   cancelDelUser = () => {
     this.setState({
       delVisible: false,
-      userInfo: false,
+      userInfo: false
     });
   };
-  handleSearch = e => {
+  handleSearch = (e) => {
     this.loadUser();
   };
-  handelChange = e => {
+  handelChange = (e) => {
     this.setState({ name: e.target.value });
   };
   render() {
@@ -220,13 +219,13 @@ export default class EnterpriseUsers extends PureComponent {
       userVisible,
       page,
       pageSize,
-      total,
+      total
     } = this.state;
 
     const {
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
 
     const columns = [
@@ -234,34 +233,32 @@ export default class EnterpriseUsers extends PureComponent {
         title: '用户名称',
         dataIndex: 'nick_name',
         rowKey: 'nick_name',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '姓名',
         dataIndex: 'real_name',
         rowKey: 'real_name',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '邮箱',
         dataIndex: 'email',
         rowKey: 'email',
-        align: 'center',
+        align: 'center'
       },
       {
         title: '创建时间',
         dataIndex: 'create_time',
         rowKey: 'create_time',
         align: 'center',
-        render: val => {
+        render: (val) => {
           return (
             <span>
-              {moment(val)
-                .locale('zh-cn')
-                .format('YYYY-MM-DD HH:mm:ss')}
+              {moment(val).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}
             </span>
           );
-        },
+        }
       },
       {
         title: '操作',
@@ -283,10 +280,10 @@ export default class EnterpriseUsers extends PureComponent {
               }}
             >
               编辑
-            </a>,
+            </a>
           ];
-        },
-      },
+        }
+      }
     ];
 
     return (
@@ -298,7 +295,7 @@ export default class EnterpriseUsers extends PureComponent {
           style={{
             marginBottom: '20px',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'center'
           }}
         >
           <Col span={12}>
@@ -362,7 +359,7 @@ export default class EnterpriseUsers extends PureComponent {
               current: page,
               pageSize,
               total,
-              onChange: this.onPageChange,
+              onChange: this.onPageChange
             }}
             dataSource={adminList}
             columns={columns}

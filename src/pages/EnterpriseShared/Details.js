@@ -53,7 +53,10 @@ const { confirm } = Modal;
 export default class Main extends PureComponent {
   constructor(props) {
     super(props);
+    const { currUser } = this.props;
+    const appStoreAdmin = userUtil.isAppStoreAdmin(currUser);
     this.state = {
+      appStoreAdmin,
       appInfo: {},
       isShared: window.location.href.indexOf('shared') > -1,
       isAddLicense: false,
@@ -415,7 +418,8 @@ export default class Main extends PureComponent {
       toDelete,
       editAppVersion,
       isEdit,
-      isAppDetails
+      isAppDetails,
+      appStoreAdmin
     } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
     const formItemLayout = {
@@ -519,7 +523,7 @@ export default class Main extends PureComponent {
                     textAlign: 'right',
                     margin: '-14px 0 10px 0'
                   }}
-                ></div>
+                />
                 {isEdit && (
                   <Row gutter={24}>
                     <Col span="12">
@@ -765,7 +769,7 @@ export default class Main extends PureComponent {
                         return <div className={styless.appVersion}>{item}</div>;
                       })}
                     </div>
-                    {!isEdit && (
+                    {!isEdit && appStoreAdmin && (
                       <a
                         onClick={() => {
                           this.handleIsEdit(!isEdit);
@@ -877,31 +881,35 @@ export default class Main extends PureComponent {
                       align: 'center',
                       render: (_data, record) => (
                         <div>
-                          <a
-                            style={{ marginRight: '5px' }}
-                            onClick={() => {
-                              this.handleEditAppVersionInfo(record);
-                            }}
-                          >
-                            编辑
-                          </a>
-                          <a
-                            style={{ marginRight: '5px' }}
-                            onClick={() => {
-                              this.handleIsRelease(record);
-                            }}
-                          >
-                            {record.dev_status
-                              ? '取消Release状态'
-                              : '设为Release状态'}
-                          </a>
-                          <a
-                            onClick={() => {
-                              this.handleToDelete(record);
-                            }}
-                          >
-                            删除
-                          </a>
+                          {appStoreAdmin && (
+                            <div>
+                              <a
+                                style={{ marginRight: '5px' }}
+                                onClick={() => {
+                                  this.handleEditAppVersionInfo(record);
+                                }}
+                              >
+                                编辑
+                              </a>
+                              <a
+                                style={{ marginRight: '5px' }}
+                                onClick={() => {
+                                  this.handleIsRelease(record);
+                                }}
+                              >
+                                {record.dev_status
+                                  ? '取消Release状态'
+                                  : '设为Release状态'}
+                              </a>
+                              <a
+                                onClick={() => {
+                                  this.handleToDelete(record);
+                                }}
+                              >
+                                删除
+                              </a>
+                            </div>
+                          )}
                         </div>
                       )
                     }
@@ -917,7 +925,7 @@ export default class Main extends PureComponent {
               bordered={false}
               extra={
                 <div>
-                  {!isAppDetails && (
+                  {!isAppDetails && appStoreAdmin && (
                     <a onClick={() => this.handleAppDetails(!isAppDetails)}>
                       编辑
                     </a>

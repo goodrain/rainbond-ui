@@ -42,15 +42,14 @@ import styles from '../List/BasicList.less';
 @connect(({ user, global, index }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo,
+  overviewInfo: index.overviewInfo
 }))
 export default class Enterprise extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
     const params = this.getParam();
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       showAddTeam: false,
       eid: params ? params.eid : '',
@@ -75,7 +74,7 @@ export default class Enterprise extends PureComponent {
       page: 1,
       total: 0,
       showMarketCloudAuth: false,
-      marketName: '',
+      marketName: ''
     };
   }
   componentDidMount() {
@@ -102,16 +101,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewMonitor',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             overviewMonitorInfo: res.bean,
-            overviewMonitorInfoLoading: false,
+            overviewMonitorInfoLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -122,16 +121,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewTeam',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             overviewTeamInfo: res.bean,
-            overviewTeamInfoLoading: false,
+            overviewTeamInfoLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -142,16 +141,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverview',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             overviewInfo: res.bean,
-            overviewInfoLoading: false,
+            overviewInfoLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -162,17 +161,17 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchOverviewApp',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             overviewAppInfo:
               res.bean && JSON.stringify(res.bean) !== '{}' ? res.bean : false,
-            overviewAppInfoLoading: false,
+            overviewAppInfoLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -183,16 +182,16 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'global/fetchEnterpriseInfo',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false,
+            enterpriseInfoLoading: false
           });
         }
-      },
+      }
     });
   };
 
@@ -218,17 +217,17 @@ export default class Enterprise extends PureComponent {
     dispatch({
       type: 'user/fetchCollectionViewInfo',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
             total: res.list.length,
             collectionInfoLoading: false,
-            collectionList: res.list,
+            collectionList: res.list
           });
         }
-      },
+      }
     });
   };
 
@@ -236,15 +235,15 @@ export default class Enterprise extends PureComponent {
     const {
       dispatch,
       match: {
-        params: { eid },
-      },
+        params: { eid }
+      }
     } = this.props;
     dispatch({
       type: 'market/fetchMarketsTab',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (
             res.list.length > 0 &&
@@ -253,15 +252,15 @@ export default class Enterprise extends PureComponent {
           ) {
             this.setState({
               showMarketCloudAuth: true,
-              marketName: res.list[0].name,
+              marketName: res.list[0].name
             });
           }
         }
-      },
+      }
     });
   };
 
-  handleCreateTeam = values => {
+  handleCreateTeam = (values) => {
     this.props.dispatch({
       type: 'teamControl/createTeam',
       payload: values,
@@ -270,7 +269,7 @@ export default class Enterprise extends PureComponent {
         this.cancelCreateTeam();
         this.getOverviewTeam();
         this.props.dispatch({ type: 'user/fetchCurrent' });
-      },
+      }
     });
   };
   cancelCreateTeam = () => {
@@ -279,12 +278,12 @@ export default class Enterprise extends PureComponent {
 
   handelConsulting = () => {
     this.setState({
-      consulting: true,
+      consulting: true
     });
   };
   cancelConsulting = () => {
     this.setState({
-      consulting: false,
+      consulting: false
     });
   };
 
@@ -301,14 +300,14 @@ export default class Enterprise extends PureComponent {
     return null;
   };
 
-  handleJoinTeam = values => {
+  handleJoinTeam = (values) => {
     this.props.dispatch({
       type: 'global/joinTeam',
       payload: values,
       callback: () => {
         notification.success({ message: '申请成功，请等待审核' });
         this.cancelJoinTeam();
-      },
+      }
     });
   };
 
@@ -334,10 +333,10 @@ export default class Enterprise extends PureComponent {
     this.setState({ editorConvenient: !this.state.editorConvenient });
   };
 
-  deleteConvenient = collectionInfo => {
+  deleteConvenient = (collectionInfo) => {
     this.setState({
       delcollectionVisible: true,
-      collectionInfo,
+      collectionInfo
     });
   };
 
@@ -348,22 +347,22 @@ export default class Enterprise extends PureComponent {
       type: 'user/deleteCollectionViewInfo',
       payload: {
         favorite_id: collectionInfo && collectionInfo.favorite_id,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           notification.success({ message: '删除成功' });
           this.fetchCollectionViewInfo();
           this.handleCloseDelCollectionVisible();
         }
-      },
+      }
     });
   };
   handleCloseDelCollectionVisible = () => {
     this.setState({
       delcollectionVisible: false,
       collectionInfo: false,
-      editorConvenient: false,
+      editorConvenient: false
     });
   };
 
@@ -375,16 +374,16 @@ export default class Enterprise extends PureComponent {
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)',
       color: '#3D54C4',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'center'
     };
 
     const teamBoxList = {
       ...teamBox,
-      ...{ height: '40px', padding: '12px' },
+      ...{ height: '40px', padding: '12px' }
     };
     const teamBoxs = {
       ...teamBox,
-      ...{ height: '68px', padding: '24px', cursor: 'pointer' },
+      ...{ height: '68px', padding: '24px', cursor: 'pointer' }
     };
     const { rainbondInfo } = this.props;
     const {
@@ -406,7 +405,7 @@ export default class Enterprise extends PureComponent {
       eid,
       total,
       page_size,
-      page,
+      page
     } = this.state;
 
     const new_join_team =
@@ -451,7 +450,7 @@ export default class Enterprise extends PureComponent {
         style={{
           width: '100%',
           display: 'flex',
-          justifyContent: this.state.adminer ? 'space-around' : 'center',
+          justifyContent: this.state.adminer ? 'space-around' : 'center'
         }}
       >
         <div
@@ -507,7 +506,7 @@ export default class Enterprise extends PureComponent {
 
         <Card
           style={{
-            marginBottom: 24,
+            marginBottom: 24
           }}
           style={{ marginBottom: '20px' }}
           loading={enterpriseInfoLoading}
@@ -558,7 +557,7 @@ export default class Enterprise extends PureComponent {
           {this.state.adminer && (
             <Row
               style={{
-                marginBottom: 24,
+                marginBottom: 24
               }}
             >
               <Col span={13}>
@@ -742,7 +741,7 @@ export default class Enterprise extends PureComponent {
 
           <Row
             style={{
-              marginBottom: 24,
+              marginBottom: 24
             }}
           >
             <Col span={13}>
@@ -762,7 +761,7 @@ export default class Enterprise extends PureComponent {
                       span={12}
                       style={{
                         display: 'flex',
-                        justifyContent: 'space-between',
+                        justifyContent: 'space-between'
                       }}
                     >
                       常用团队
@@ -776,7 +775,7 @@ export default class Enterprise extends PureComponent {
                       span={12}
                       style={{
                         display: 'flex',
-                        justifyContent: 'flex-end',
+                        justifyContent: 'flex-end'
                       }}
                     >
                       <span style={colors} onClick={this.onJoinTeam}>
@@ -788,7 +787,7 @@ export default class Enterprise extends PureComponent {
                           style={{
                             color: '#3D54C4',
                             marginLeft: '5px',
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                           }}
                           onClick={this.onAddTeam}
                         >
@@ -810,9 +809,7 @@ export default class Enterprise extends PureComponent {
                           onClick={() => {
                             this.props.dispatch(
                               routerRedux.replace(
-                                `/team/${new_join_team[0].team_name}/region/${
-                                  new_join_team[0].region
-                                }/index`
+                                `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
                               )
                             );
                           }}
@@ -822,9 +819,7 @@ export default class Enterprise extends PureComponent {
                               onClick={() => {
                                 this.props.dispatch(
                                   routerRedux.replace(
-                                    `/team/${
-                                      new_join_team[0].team_name
-                                    }/region/${new_join_team[0].region}/index`
+                                    `/team/${new_join_team[0].team_name}/region/${new_join_team[0].region}/index`
                                   )
                                 );
                               }}
@@ -842,9 +837,7 @@ export default class Enterprise extends PureComponent {
 
                           <Tooltip title={new_join_team[0].team_alias}>
                             <div
-                              className={`${styles.overText} ${
-                                styles.teamtest
-                              }`}
+                              className={`${styles.overText} ${styles.teamtest}`}
                             >
                               {new_join_team[0].team_alias}
                             </div>
@@ -859,7 +852,7 @@ export default class Enterprise extends PureComponent {
                       </Card>
                     </Col>
                     <Col span={11} offset={1}>
-                      {active_teams.map(item => {
+                      {active_teams.map((item) => {
                         const { team_name, region, team_alias } = item;
                         return (
                           <Card
@@ -1018,7 +1011,7 @@ export default class Enterprise extends PureComponent {
                         style={{
                           marginRight: '10px',
                           color: '#3D54C4',
-                          cursor: 'pointer',
+                          cursor: 'pointer'
                         }}
                         onClick={() => {
                           this.onConvenientEntrance();
@@ -1070,14 +1063,14 @@ export default class Enterprise extends PureComponent {
                                 bordered={false}
                                 style={{
                                   height: '40px',
-                                  paddingRight: '10px',
+                                  paddingRight: '10px'
                                 }}
                               >
                                 <div
                                   className={styles.overText}
                                   style={{
                                     width: '93%',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                   }}
                                 >
                                   <Tooltip title={name}>{name}</Tooltip>
@@ -1124,7 +1117,7 @@ export default class Enterprise extends PureComponent {
       enterpriseInfo,
       eid,
       showMarketCloudAuth,
-      marketName,
+      marketName
     } = this.state;
     const { rainbondInfo } = this.props;
     return (

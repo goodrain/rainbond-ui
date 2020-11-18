@@ -10,7 +10,7 @@ import {
   Radio,
   Spin,
   Divider,
-  Checkbox,
+  Checkbox
 } from 'antd';
 import { connect } from 'dva';
 import userUtil from '../../utils/user';
@@ -26,14 +26,13 @@ const { TextArea } = Input;
 @connect(({ user, global, teamControl }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  currentTeam: teamControl.currentTeam,
+  currentTeam: teamControl.currentTeam
 }))
 class CreateAppModels extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       isShared: window.location.href.indexOf('shared') > -1,
       previewImage: '',
@@ -48,7 +47,7 @@ class CreateAppModels extends PureComponent {
       teamList: [],
       isAddLicense: false,
       enterpriseTeamsLoading: true,
-      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status),
+      Checkboxvalue: !!(props.appInfo && props.appInfo.dev_status)
     };
   }
   componentDidMount() {
@@ -60,7 +59,7 @@ class CreateAppModels extends PureComponent {
   }
   onChangeCheckbox = () => {
     this.setState({
-      Checkboxvalue: !this.state.Checkboxvalue,
+      Checkboxvalue: !this.state.Checkboxvalue
     });
   };
   getTags = () => {
@@ -68,24 +67,24 @@ class CreateAppModels extends PureComponent {
     dispatch({
       type: 'market/fetchAppModelsTags',
       payload: {
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.setState({
-            tagList: res.list,
+            tagList: res.list
           });
         }
-      },
+      }
     });
   };
 
-  getBase64 = file => {
+  getBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -95,7 +94,7 @@ class CreateAppModels extends PureComponent {
     reader.readAsDataURL(img);
   };
 
-  getEnterpriseTeams = name => {
+  getEnterpriseTeams = (name) => {
     const { dispatch, eid } = this.props;
     const { page, page_size } = this.state;
     dispatch({
@@ -104,9 +103,9 @@ class CreateAppModels extends PureComponent {
         name,
         page,
         page_size,
-        enterprise_id: eid,
+        enterprise_id: eid
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (res.bean && res.bean.list) {
             const listNum = (res.bean && res.bean.total_count) || 0;
@@ -115,18 +114,18 @@ class CreateAppModels extends PureComponent {
             this.setState({
               teamList: res.bean.list,
               isAddLicense: isAdd,
-              enterpriseTeamsLoading: false,
+              enterpriseTeamsLoading: false
             });
           }
         }
-      },
+      }
     });
   };
   addTeams = () => {
     this.setState(
       {
         enterpriseTeamsLoading: true,
-        page_size: this.state.page_size + 10,
+        page_size: this.state.page_size + 10
       },
       () => {
         this.getEnterpriseTeams();
@@ -146,7 +145,7 @@ class CreateAppModels extends PureComponent {
     });
   };
 
-  handleLogoChange = info => {
+  handleLogoChange = (info) => {
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
@@ -159,12 +158,12 @@ class CreateAppModels extends PureComponent {
           info.file.response.data &&
           info.file.response.data.bean &&
           info.file.response.data.bean.file_url,
-        loading: false,
+        loading: false
       });
 
-      this.getLogoBase64(info.file.originFileObj, imageBase64 =>
+      this.getLogoBase64(info.file.originFileObj, (imageBase64) =>
         this.setState({
-          imageBase64,
+          imageBase64
         })
       );
     }
@@ -173,38 +172,38 @@ class CreateAppModels extends PureComponent {
   handleLogoRemove = () => {
     this.setState({ imageUrl: '', imageBase64: '' });
   };
-  handlePreview = async file => {
+  handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await this.getBase64(file.originFileObj);
     }
     this.setState({
       previewImage: file.url || file.preview,
-      previewVisible: true,
+      previewVisible: true
     });
   };
 
   handleCancel = () => this.setState({ previewVisible: false });
 
-  handleClose = removedTagID => {
+  handleClose = (removedTagID) => {
     const tagList = this.state.tagList.filter(
-      item => item.tag_id !== removedTagID
+      (item) => item.tag_id !== removedTagID
     );
     this.setState({ tagList });
   };
 
-  createTag = name => {
+  createTag = (name) => {
     const { dispatch, eid } = this.props;
     dispatch({
       type: 'market/createTag',
       payload: {
         enterprise_id: eid,
-        name,
+        name
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.getTags();
         }
-      },
+      }
     });
   };
 
@@ -225,7 +224,7 @@ class CreateAppModels extends PureComponent {
   //   });
   // };
 
-  upAppModel = values => {
+  upAppModel = (values) => {
     const { dispatch, eid, appInfo, onOk, team_name } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
 
@@ -236,8 +235,8 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      values.tag_ids.map(items => {
-        tagList.map(item => {
+      values.tag_ids.map((items) => {
+        tagList.map((item) => {
           if (items === item.name) {
             arr.push(parseFloat(item.tag_id));
           }
@@ -253,7 +252,7 @@ class CreateAppModels extends PureComponent {
       app_id: appInfo.app_id,
       dev_status: values.dev_status ? 'release' : '',
       describe: values.describe,
-      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope,
+      scope: isShared && values.scope !== 'enterprise' ? 'team' : values.scope
     };
     if (team_name) {
       body.create_team = team_name;
@@ -263,15 +262,15 @@ class CreateAppModels extends PureComponent {
     dispatch({
       type: 'market/upAppModel',
       payload: body,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           onOk && onOk(appInfo);
         }
-      },
+      }
     });
   };
 
-  createAppModel = values => {
+  createAppModel = (values) => {
     const {
       dispatch,
       eid,
@@ -279,7 +278,7 @@ class CreateAppModels extends PureComponent {
       currentTeam,
       market_id,
       team_name,
-      defaultScope = false,
+      defaultScope = false
     } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const arr = [];
@@ -290,8 +289,8 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      values.tag_ids.map(items => {
-        tagList.map(item => {
+      values.tag_ids.map((items) => {
+        tagList.map((item) => {
           if (items === item.name) {
             tags.push(item.name);
             arr.push(parseFloat(item.tag_id));
@@ -313,19 +312,19 @@ class CreateAppModels extends PureComponent {
         team_name: currentTeam && currentTeam.team_name,
         desc: values.describe,
         publish_type: 'private',
-        tags,
+        tags
       };
 
       dispatch({
         type: 'market/createMarketAppModel',
         payload: customBody,
-        callback: res => {
+        callback: (res) => {
           if (res && res._code === 200) {
             if (onOk) {
               onOk();
             }
           }
-        },
+        }
       });
       return null;
     }
@@ -337,7 +336,7 @@ class CreateAppModels extends PureComponent {
       team_name: currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
-      tag_ids: arr,
+      tag_ids: arr
     };
 
     // if (market_id) {
@@ -352,21 +351,21 @@ class CreateAppModels extends PureComponent {
     dispatch({
       type: 'market/createAppModel',
       payload: customBody,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (onOk) {
             onOk();
           }
         }
-      },
+      }
     });
   };
 
-  handleOnSelect = value => {
+  handleOnSelect = (value) => {
     const { tagList } = this.state;
     if (value && tagList.length > 0) {
       let judge = true;
-      tagList.map(item => {
+      tagList.map((item) => {
         if (item.name === value) {
           judge = false;
         }
@@ -388,7 +387,7 @@ class CreateAppModels extends PureComponent {
       appInfo,
       defaultScope,
       market_id,
-      appName,
+      appName
     } = this.props;
     const {
       imageUrl,
@@ -400,18 +399,18 @@ class CreateAppModels extends PureComponent {
       teamList,
       isAddLicense,
       isShared,
-      enterpriseTeamsLoading,
+      enterpriseTeamsLoading
     } = this.state;
 
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 },
+        sm: { span: 5 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 19 },
-      },
+        sm: { span: 19 }
+      }
     };
     const arr = [];
 
@@ -422,7 +421,7 @@ class CreateAppModels extends PureComponent {
       tagList &&
       tagList.length > 0
     ) {
-      appInfo.tags.map(items => {
+      appInfo.tags.map((items) => {
         arr.push(items.name);
       });
     }
@@ -459,7 +458,7 @@ class CreateAppModels extends PureComponent {
             <Button onClick={onCancel}> 取消 </Button>,
             <Button type="primary" onClick={this.handleSubmit}>
               确定
-            </Button>,
+            </Button>
           ]}
         >
           <Form onSubmit={this.handleSubmit} layout="horizontal">
@@ -469,9 +468,9 @@ class CreateAppModels extends PureComponent {
                 rules: [
                   {
                     required: true,
-                    message: '请输入名称',
-                  },
-                ],
+                    message: '请输入名称'
+                  }
+                ]
               })(<Input placeholder="请输入名称" />)}
               <div className={styles.conformDesc}>
                 请输入创建的应用模版名称，最多64字.
@@ -488,14 +487,14 @@ class CreateAppModels extends PureComponent {
                   rules: [
                     {
                       required: true,
-                      message: '请输入名称',
-                    },
-                  ],
+                      message: '请输入名称'
+                    }
+                  ]
                 })(
                   isShared ? (
                     <Select
                       placeholder="请选择发布范围"
-                      dropdownRender={menu => (
+                      dropdownRender={(menu) => (
                         <div>
                           {menu}
                           {isAddLicense && (
@@ -507,9 +506,9 @@ class CreateAppModels extends PureComponent {
                                 <div
                                   style={{
                                     padding: '4px 8px',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                   }}
-                                  onMouseDown={e => e.preventDefault()}
+                                  onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => {
                                     this.addTeams();
                                   }}
@@ -529,7 +528,7 @@ class CreateAppModels extends PureComponent {
                       </Option>
 
                       {teamList &&
-                        teamList.map(item => {
+                        teamList.map((item) => {
                           return (
                             <Option key={item.team_name} value={item.team_name}>
                               {item.team_alias}
@@ -554,9 +553,9 @@ class CreateAppModels extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '请添加标签',
-                  },
-                ],
+                    message: '请添加标签'
+                  }
+                ]
               })(
                 <Select
                   mode="tags"
@@ -565,7 +564,7 @@ class CreateAppModels extends PureComponent {
                   tokenSeparators={[',']}
                   placeholder="请选择分类标签"
                 >
-                  {tagList.map(item => {
+                  {tagList.map((item) => {
                     const { tag_id, name } = item;
                     return (
                       <Option key={tag_id} value={name} label={name}>
@@ -584,9 +583,9 @@ class CreateAppModels extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '请输入描述',
-                  },
-                ],
+                    message: '请输入描述'
+                  }
+                ]
               })(<TextArea placeholder="请输入描述" />)}
               <div className={styles.conformDesc}>请输入创建的应用模版描述</div>
             </FormItem>
@@ -596,9 +595,9 @@ class CreateAppModels extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '请上传图标',
-                  },
-                ],
+                    message: '请上传图标'
+                  }
+                ]
               })(
                 <Upload
                   className="logo-uploader"
