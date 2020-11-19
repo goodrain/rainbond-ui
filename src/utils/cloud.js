@@ -1,222 +1,222 @@
-import { notification } from "antd";
+import { notification } from 'antd';
 
 const aliyunRegionNames = [
   {
-    RegionId: "cn-qingdao",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "华北1（青岛）"
+    RegionId: 'cn-qingdao',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '华北1（青岛）',
   },
   {
-    RegionId: "cn-beijing",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "华北2（北京）"
+    RegionId: 'cn-beijing',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '华北2（北京）',
   },
   {
-    RegionId: "cn-zhangjiakou",
-    RegionEndpoint: "ecs.cn-zhangjiakou.aliyuncs.com",
-    LocalName: "华北3（张家口）"
+    RegionId: 'cn-zhangjiakou',
+    RegionEndpoint: 'ecs.cn-zhangjiakou.aliyuncs.com',
+    LocalName: '华北3（张家口）',
   },
   {
-    RegionId: "cn-huhehaote",
-    RegionEndpoint: "ecs.cn-huhehaote.aliyuncs.com",
-    LocalName: "华北5（呼和浩特）"
+    RegionId: 'cn-huhehaote',
+    RegionEndpoint: 'ecs.cn-huhehaote.aliyuncs.com',
+    LocalName: '华北5（呼和浩特）',
   },
   {
-    RegionId: "cn-hangzhou",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "华东1（杭州）"
+    RegionId: 'cn-hangzhou',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '华东1（杭州）',
   },
   {
-    RegionId: "cn-shanghai",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "华东2（上海）"
+    RegionId: 'cn-shanghai',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '华东2（上海）',
   },
   {
-    RegionId: "cn-shenzhen",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "华南1（深圳）"
+    RegionId: 'cn-shenzhen',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '华南1（深圳）',
   },
   {
-    RegionId: "cn-heyuan",
-    RegionEndpoint: "ecs.cn-heyuan.aliyuncs.com",
-    LocalName: "华南2（河源）"
+    RegionId: 'cn-heyuan',
+    RegionEndpoint: 'ecs.cn-heyuan.aliyuncs.com',
+    LocalName: '华南2（河源）',
   },
   {
-    RegionId: "cn-chengdu",
-    RegionEndpoint: "ecs.cn-chengdu.aliyuncs.com",
-    LocalName: "西南1（成都）"
+    RegionId: 'cn-chengdu',
+    RegionEndpoint: 'ecs.cn-chengdu.aliyuncs.com',
+    LocalName: '西南1（成都）',
   },
   {
-    RegionId: "cn-hongkong",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "中国（香港）"
+    RegionId: 'cn-hongkong',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '中国（香港）',
   },
   {
-    RegionId: "ap-northeast-1",
-    RegionEndpoint: "ecs.ap-northeast-1.aliyuncs.com",
-    LocalName: "日本（东京）"
+    RegionId: 'ap-northeast-1',
+    RegionEndpoint: 'ecs.ap-northeast-1.aliyuncs.com',
+    LocalName: '日本（东京）',
   },
   {
-    RegionId: "ap-southeast-1",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "新加坡"
+    RegionId: 'ap-southeast-1',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '新加坡',
   },
   {
-    RegionId: "ap-southeast-2",
-    RegionEndpoint: "ecs.ap-southeast-2.aliyuncs.com",
-    LocalName: "澳大利亚（悉尼）"
+    RegionId: 'ap-southeast-2',
+    RegionEndpoint: 'ecs.ap-southeast-2.aliyuncs.com',
+    LocalName: '澳大利亚（悉尼）',
   },
   {
-    RegionId: "ap-southeast-3",
-    RegionEndpoint: "ecs.ap-southeast-3.aliyuncs.com",
-    LocalName: "马来西亚（吉隆坡）"
+    RegionId: 'ap-southeast-3',
+    RegionEndpoint: 'ecs.ap-southeast-3.aliyuncs.com',
+    LocalName: '马来西亚（吉隆坡）',
   },
   {
-    RegionId: "ap-southeast-5",
-    RegionEndpoint: "ecs.ap-southeast-5.aliyuncs.com",
-    LocalName: "印度尼西亚（雅加达）"
+    RegionId: 'ap-southeast-5',
+    RegionEndpoint: 'ecs.ap-southeast-5.aliyuncs.com',
+    LocalName: '印度尼西亚（雅加达）',
   },
   {
-    RegionId: "ap-south-1",
-    RegionEndpoint: "ecs.ap-south-1.aliyuncs.com",
-    LocalName: "印度（孟买）"
+    RegionId: 'ap-south-1',
+    RegionEndpoint: 'ecs.ap-south-1.aliyuncs.com',
+    LocalName: '印度（孟买）',
   },
   {
-    RegionId: "us-east-1",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "美国（弗吉尼亚）"
+    RegionId: 'us-east-1',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '美国（弗吉尼亚）',
   },
   {
-    RegionId: "us-west-1",
-    RegionEndpoint: "ecs.aliyuncs.com",
-    LocalName: "美国（硅谷）"
+    RegionId: 'us-west-1',
+    RegionEndpoint: 'ecs.aliyuncs.com',
+    LocalName: '美国（硅谷）',
   },
   {
-    RegionId: "eu-west-1",
-    RegionEndpoint: "ecs.eu-west-1.aliyuncs.com",
-    LocalName: "英国（伦敦）"
+    RegionId: 'eu-west-1',
+    RegionEndpoint: 'ecs.eu-west-1.aliyuncs.com',
+    LocalName: '英国（伦敦）',
   },
   {
-    RegionId: "me-east-1",
-    RegionEndpoint: "ecs.me-east-1.aliyuncs.com",
-    LocalName: "阿联酋（迪拜）"
+    RegionId: 'me-east-1',
+    RegionEndpoint: 'ecs.me-east-1.aliyuncs.com',
+    LocalName: '阿联酋（迪拜）',
   },
   {
-    RegionId: "eu-central-1",
-    RegionEndpoint: "ecs.eu-central-1.aliyuncs.com",
-    LocalName: "德国（法兰克福）"
-  }
+    RegionId: 'eu-central-1',
+    RegionEndpoint: 'ecs.eu-central-1.aliyuncs.com',
+    LocalName: '德国（法兰克福）',
+  },
 ];
 
 const createKubernetesSteps = {
   Init: {
-    Title: "控制器初始化",
-    Description: "检测提供的参数是否正确",
-    Status: ""
+    Title: '控制器初始化',
+    Description: '检测提供的参数是否正确',
+    Status: '',
   },
   SelectZone: {
-    Title: "选择部署可用区",
-    Description: "选择合适的可用区用以购买VPC等资源",
-    Status: ""
+    Title: '选择部署可用区',
+    Description: '选择合适的可用区用以购买VPC等资源',
+    Status: '',
   },
   CreateVPC: {
-    Title: "创建VPC专有网络",
+    Title: '创建VPC专有网络',
     Description:
-      "由于集群购买的限制和资源独立化原则，我们将新创建VPC网络用户部署集群",
-    Status: ""
+      '由于集群购买的限制和资源独立化原则，我们将新创建VPC网络用户部署集群',
+    Status: '',
   },
   CreateVSWitch: {
-    Title: "创建VSwitch交换机",
-    Description: "基于上一步创建的VPC创建交换机",
-    Status: ""
+    Title: '创建VSwitch交换机',
+    Description: '基于上一步创建的VPC创建交换机',
+    Status: '',
   },
   AllocateResource: {
-    Title: "调配资源",
+    Title: '调配资源',
     Description:
-      "确认用户提供的资源类型在指定区域是否可用，若不可用则重新选择同级别可用资源",
-    Status: ""
+      '确认用户提供的资源类型在指定区域是否可用，若不可用则重新选择同级别可用资源',
+    Status: '',
   },
   CreateCluster: {
-    Title: "创建集群",
-    Description: "创建托管集群，创建成功后大概10分钟集群即可使用",
-    Status: ""
-  }
+    Title: '创建集群',
+    Description: '创建托管集群，创建成功后大概10分钟集群即可使用',
+    Status: '',
+  },
 };
 
 const initRainbondSteps = {
   Init: {
-    Title: "控制器初始化",
-    Description: "检测提供的参数是否正确",
-    Status: ""
+    Title: '控制器初始化',
+    Description: '检测提供的参数是否正确',
+    Status: '',
   },
   CheckCluster: {
-    Title: "检测Kubernetes集群",
-    Description: "对选择的Kubernetes集群进行适配性检测",
-    Status: ""
+    Title: '检测Kubernetes集群',
+    Description: '对选择的Kubernetes集群进行适配性检测',
+    Status: '',
   },
   CreateRDS: {
-    Title: "创建RDS资源并初始化(预计2分钟)",
+    Title: '创建RDS资源并初始化(预计2分钟)',
     Description:
-      "用于Rainbond Region数据库，默认创建按需付费的高可用,入门级,通用型2GB实例",
-    Status: ""
+      '用于Rainbond Region数据库，默认创建按需付费的高可用,入门级,通用型2GB实例',
+    Status: '',
   },
   CreateNAS: {
-    Title: "创建NAS资源",
-    Description: "用于集群所有组件的持久化存储，默认使用单个NAS子目录模式",
-    Status: ""
+    Title: '创建NAS资源',
+    Description: '用于集群所有组件的持久化存储，默认使用单个NAS子目录模式',
+    Status: '',
   },
   CreateNASMount: {
-    Title: "创建NAS挂载点",
-    Description: "创建NAS挂载点后即可使用此NAS资源",
-    Status: ""
+    Title: '创建NAS挂载点',
+    Description: '创建NAS挂载点后即可使用此NAS资源',
+    Status: '',
   },
   CreateLoadBalancer: {
-    Title: "创建负载均衡",
-    Description: "负载均衡用于集群控制端和应用网关的流量入口",
-    Status: ""
+    Title: '创建负载均衡',
+    Description: '负载均衡用于集群控制端和应用网关的流量入口',
+    Status: '',
   },
   BoundLoadBalancer: {
-    Title: "创建负载均衡TCP监听",
-    Description: "将所需要的端口负载均衡到所有Rainbond网关节点上",
-    Status: ""
+    Title: '创建负载均衡TCP监听',
+    Description: '将所需要的端口负载均衡到所有Rainbond网关节点上',
+    Status: '',
   },
   SetSecurityGroup: {
-    Title: "设置安全组策略",
-    Description: "默认将打开Rainbond网关节点需要对外暴露的端口安全策略",
-    Status: ""
+    Title: '设置安全组策略',
+    Description: '默认将打开Rainbond网关节点需要对外暴露的端口安全策略',
+    Status: '',
   },
   AssignDefaultDomain: {
-    Title: "分配默认域名",
-    Description: "将为你分配一个泛解析默认域名作为应用访问的默认域名",
-    Status: ""
+    Title: '分配默认域名',
+    Description: '将为你分配一个泛解析默认域名作为应用访问的默认域名',
+    Status: '',
   },
   InitRainbondRegion: {
-    Title: "初始化Rainbond集群完成",
-    Description: "已经完成Rainbond集群初始化",
-    Status: ""
+    Title: '初始化Rainbond集群完成',
+    Description: '已经完成Rainbond集群初始化',
+    Status: '',
   },
   InitRainbondRegionOperator: {
-    Title: "启动集群初始化控制器",
-    Description: "Rainbond Operator创建并启动",
-    Status: ""
+    Title: '启动集群初始化控制器',
+    Description: 'Rainbond Operator创建并启动',
+    Status: '',
   },
   InitRainbondRegionImageHub: {
-    Title: "启动集群本地镜像仓库(预计2分钟)",
+    Title: '启动集群本地镜像仓库(预计2分钟)',
     Description:
-      "本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计2分钟",
-    Status: ""
+      '本地镜像仓库就绪意味着存储、网关等服务已就绪，本阶段预计2分钟',
+    Status: '',
   },
   InitRainbondRegionPackage: {
-    Title: "系统所需所有镜像本地化处理(预计10分钟)",
-    Description: "将Rainbond需要的所有镜像获取完成并推送到本地镜像仓库",
-    Status: ""
+    Title: '系统所需所有镜像本地化处理(预计10分钟)',
+    Description: '将Rainbond需要的所有镜像获取完成并推送到本地镜像仓库',
+    Status: '',
   },
   InitRainbondRegionRegionConfig: {
-    Title: "获取集群访问配置文件(预计1分钟)",
+    Title: '获取集群访问配置文件(预计1分钟)',
     Description:
-      "等待集群服务启动完成，当API服务可以正常访问则集群访问配置文件已获取完成",
-    Status: ""
-  }
+      '等待集群服务启动完成，当API服务可以正常访问则集群访问配置文件已获取完成',
+    Status: '',
+  },
 };
 const aliyunIcon = (
   <svg
@@ -381,27 +381,27 @@ const huaweiIcon = (
 );
 const providers = [
   {
-    id: "ack",
-    name: "阿里云 ACK",
+    id: 'ack',
+    name: '阿里云 ACK',
     icon: aliyunIcon,
     describe:
-      "支持阿里云托管类型集群对接，集群可用性由阿里云负责，Rainbond Cloud负责辅助集群创建、Rainbond集群初始化以及后续的资源调度管理",
-    disable: false
+      '支持阿里云托管类型集群对接，集群可用性由阿里云负责，Rainbond Cloud负责辅助集群创建、Rainbond集群初始化以及后续的资源调度管理',
+    disable: false,
   },
   {
-    id: "eks",
-    name: "Amazon EKS",
+    id: 'eks',
+    name: 'Amazon EKS',
     icon: amzonIcon,
-    describe: "Amazon EKS 即将支持",
-    disable: true
+    describe: 'Amazon EKS 即将支持',
+    disable: true,
   },
   {
-    id: "cce",
-    name: "华为云 CCE",
+    id: 'cce',
+    name: '华为云 CCE',
     icon: huaweiIcon,
-    describe: "华为云 CCE 即将支持",
-    disable: true
-  }
+    describe: '华为云 CCE 即将支持',
+    disable: true,
+  },
 ];
 
 const cloud = {
@@ -421,57 +421,57 @@ const cloud = {
 
   getAliyunClusterName(n) {
     switch (n) {
-      case "ManagedKubernetes":
-        return "托管集群";
-      case "ServerlessKubernetes":
-        return "Serverless集群";
+      case 'ManagedKubernetes':
+        return '托管集群';
+      case 'ServerlessKubernetes':
+        return 'Serverless集群';
       default:
         return n;
     }
   },
   handleCloudAPIError(res) {
     if (!res) {
-      notification.warning({ message: "API请求错误" });
+      notification.warning({ message: 'API请求错误' });
       return;
     }
     const code = res.data ? res.data.code : res.code;
     switch (code) {
       case 4001:
-        notification.warning({ message: "请求Token过期，请尝试重新登录" });
+        notification.warning({ message: '请求Token过期，请尝试重新登录' });
         break;
       case 3000:
-        notification.warning({ message: "用户已存在" });
+        notification.warning({ message: '用户已存在' });
         break;
       case 3003:
-        notification.warning({ message: "邮箱已存在" });
+        notification.warning({ message: '邮箱已存在' });
         break;
       case 3004:
-        notification.warning({ message: "电话已存在" });
+        notification.warning({ message: '电话已存在' });
         break;
       case 7002:
         notification.warning({
-          message: "AccessKey不存在，请确认是否输入正确"
+          message: 'AccessKey不存在，请确认是否输入正确',
         });
         break;
       case 7004:
         notification.warning({
-          message: "AccessKey与Secret不匹配，请确认是否输入正确"
+          message: 'AccessKey与Secret不匹配，请确认是否输入正确',
         });
         break;
       case 7005:
-        notification.warning({ message: "已存在同类型任务" });
+        notification.warning({ message: '已存在同类型任务' });
         break;
       case 7006:
-        notification.warning({ message: "KubernetesAPI无法请求" });
+        notification.warning({ message: 'KubernetesAPI无法请求' });
         break;
       case 7008:
-        notification.warning({ message: "阿里云容器服务默认缺角未创建" });
+        notification.warning({ message: '阿里云容器服务默认缺角未创建' });
         break;
       case 7007:
-        notification.warning({ message: "阿里云API请求故障，请联系我们" });
+        notification.warning({ message: '阿里云API请求故障，请联系我们' });
         break;
       case 400:
-        notification.warning({ message: "请求参数错误" });
+        notification.warning({ message: '请求参数错误' });
         break;
       case undefined:
         notification.warning({ message: `API请求错误` });
@@ -483,10 +483,10 @@ const cloud = {
   },
   showCreateKubernetesSteps(events) {
     const colorMap = {
-      start: "",
-      "": "gray",
-      failure: "red",
-      success: "green"
+      start: '',
+      '': 'gray',
+      failure: 'red',
+      success: 'green',
     };
     let complete = false;
     const steps = [];
@@ -496,7 +496,7 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
-          Status: ""
+          Status: '',
         };
       }
       step.Status = item.status;
@@ -504,8 +504,8 @@ const cloud = {
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
-        item.status == "failure" ||
-        (item.type == "CreateCluster" && item.status == "success")
+        item.status == 'failure' ||
+        (item.type == 'CreateCluster' && item.status == 'success')
       ) {
         complete = true;
       }
@@ -514,10 +514,10 @@ const cloud = {
   },
   showInitRainbondSteps(events) {
     const colorMap = {
-      start: "",
-      "": "gray",
-      failure: "red",
-      success: "green"
+      start: '',
+      '': 'gray',
+      failure: 'red',
+      success: 'green',
     };
     let complete = false;
     const steps = [];
@@ -527,7 +527,7 @@ const cloud = {
         step = {
           Title: item.type,
           Description: item.type,
-          Status: ""
+          Status: '',
         };
       }
       step.Status = item.status;
@@ -535,8 +535,8 @@ const cloud = {
       step.Color = colorMap[item.status];
       steps.push(step);
       if (
-        item.status == "failure" ||
-        (item.type == "InitRainbondRegion" && item.status == "success")
+        item.status == 'failure' ||
+        (item.type == 'InitRainbondRegion' && item.status == 'success')
       ) {
         complete = true;
       }
@@ -544,28 +544,30 @@ const cloud = {
     return { complete, steps };
   },
   getAliyunClusterStatus(status, cluster) {
-    const logURL = `https://cs.console.aliyun.com/#/k8s/cluster/${cluster.cluster_id}/log`;
+    const logURL = `https://cs.console.aliyun.com/#/k8s/cluster/${
+      cluster.cluster_id
+    }/log`;
     switch (status) {
-      case "running":
+      case 'running':
         if (cluster.rainbond_init) {
-          return <span style={{ color: "green" }}>运行中(已对接)</span>;
+          return <span style={{ color: 'green' }}>运行中(已对接)</span>;
         }
-        return <span style={{ color: "green" }}>运行中</span>;
-      case "initial":
+        return <span style={{ color: 'green' }}>运行中</span>;
+      case 'initial':
         return (
-          <span style={{ color: "#1890ff" }}>
-            初始化中{" "}
+          <span style={{ color: '#1890ff' }}>
+            初始化中{' '}
             <a target="_blank" href={logURL}>
               查看日志
             </a>
           </span>
         );
-      case "deleting":
-        return <span style={{ color: "red" }}>删除中</span>;
-      case "failed":
+      case 'deleting':
+        return <span style={{ color: 'red' }}>删除中</span>;
+      case 'failed':
         return (
-          <span style={{ color: "red" }}>
-            创建失败{" "}
+          <span style={{ color: 'red' }}>
+            创建失败{' '}
             <a target="_blank" href={logURL}>
               查看日志
             </a>
@@ -589,42 +591,42 @@ const cloud = {
   },
   getTaskStatus(status) {
     switch (status) {
-      case "start":
-        return "进行中";
-      case "complete":
-        return "已完成";
-      case "inited":
-        return "初始化完成";
+      case 'start':
+        return '进行中';
+      case 'complete':
+        return '已完成';
+      case 'inited':
+        return '初始化完成';
       default:
-        return "未开始";
+        return '未开始';
     }
   },
   getAliyunCountDescribe() {
     return [
       {
-        key: "default-role",
-        title: "创建容器服务默认角色",
+        key: 'default-role',
+        title: '创建容器服务默认角色',
         href:
-          "https://ram.console.aliyun.com/#/role/authorize?request=%7B%22ReturnUrl%22:%22https://cs.console.aliyun.com/%22,%22Service%22:%22CS%22,%22Requests%22:%7B%22request1%22:%7B%22RoleName%22:%22AliyunCSManagedLogRole%22,%22TemplateId%22:%22AliyunCSManagedLogRole%22%7D,%22request2%22:%7B%22RoleName%22:%22AliyunCSManagedCmsRole%22,%22TemplateId%22:%22AliyunCSManagedCmsRole%22%7D,%22request3%22:%7B%22RoleName%22:%22AliyunCSManagedCsiRole%22,%22TemplateId%22:%22AliyunCSManagedCsiRole%22%7D,%22request4%22:%7B%22RoleName%22:%22AliyunCSManagedVKRole%22,%22TemplateId%22:%22AliyunCSManagedVKRole%22%7D,%22request5%22:%7B%22RoleName%22:%22AliyunCSClusterRole%22,%22TemplateId%22:%22Cluster%22%7D,%22request6%22:%7B%22RoleName%22:%22AliyunCSServerlessKubernetesRole%22,%22TemplateId%22:%22ServerlessKubernetes%22%7D,%22request7%22:%7B%22RoleName%22:%22AliyunCSKubernetesAuditRole%22,%22TemplateId%22:%22KubernetesAudit%22%7D,%22request8%22:%7B%22RoleName%22:%22AliyunCSManagedNetworkRole%22,%22TemplateId%22:%22AliyunCSManagedNetworkRole%22%7D,%22request9%22:%7B%22RoleName%22:%22AliyunCSDefaultRole%22,%22TemplateId%22:%22Default%22%7D,%22request10%22:%7B%22RoleName%22:%22AliyunCSManagedKubernetesRole%22,%22TemplateId%22:%22ManagedKubernetes%22%7D,%22request11%22:%7B%22RoleName%22:%22AliyunCSManagedArmsRole%22,%22TemplateId%22:%22AliyunCSManagedArmsRole%22%7D%7D%7D"
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22ReturnUrl%22:%22https://cs.console.aliyun.com/%22,%22Service%22:%22CS%22,%22Requests%22:%7B%22request1%22:%7B%22RoleName%22:%22AliyunCSManagedLogRole%22,%22TemplateId%22:%22AliyunCSManagedLogRole%22%7D,%22request2%22:%7B%22RoleName%22:%22AliyunCSManagedCmsRole%22,%22TemplateId%22:%22AliyunCSManagedCmsRole%22%7D,%22request3%22:%7B%22RoleName%22:%22AliyunCSManagedCsiRole%22,%22TemplateId%22:%22AliyunCSManagedCsiRole%22%7D,%22request4%22:%7B%22RoleName%22:%22AliyunCSManagedVKRole%22,%22TemplateId%22:%22AliyunCSManagedVKRole%22%7D,%22request5%22:%7B%22RoleName%22:%22AliyunCSClusterRole%22,%22TemplateId%22:%22Cluster%22%7D,%22request6%22:%7B%22RoleName%22:%22AliyunCSServerlessKubernetesRole%22,%22TemplateId%22:%22ServerlessKubernetes%22%7D,%22request7%22:%7B%22RoleName%22:%22AliyunCSKubernetesAuditRole%22,%22TemplateId%22:%22KubernetesAudit%22%7D,%22request8%22:%7B%22RoleName%22:%22AliyunCSManagedNetworkRole%22,%22TemplateId%22:%22AliyunCSManagedNetworkRole%22%7D,%22request9%22:%7B%22RoleName%22:%22AliyunCSDefaultRole%22,%22TemplateId%22:%22Default%22%7D,%22request10%22:%7B%22RoleName%22:%22AliyunCSManagedKubernetesRole%22,%22TemplateId%22:%22ManagedKubernetes%22%7D,%22request11%22:%7B%22RoleName%22:%22AliyunCSManagedArmsRole%22,%22TemplateId%22:%22AliyunCSManagedArmsRole%22%7D%7D%7D',
       },
       {
-        key: "open-ess",
-        title: "开通ESS弹性伸缩服务",
+        key: 'open-ess',
+        title: '开通ESS弹性伸缩服务',
         href:
-          "https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D"
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D',
       },
       {
-        key: "perm-ess",
-        title: "授权ESS弹性伸缩服务",
+        key: 'perm-ess',
+        title: '授权ESS弹性伸缩服务',
         href:
-          "https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D"
+          'https://ram.console.aliyun.com/#/role/authorize?request=%7B%22Requests%22:%20%7B%22request1%22:%20%7B%22RoleName%22:%20%22AliyunESSDefaultRole%22,%20%22TemplateId%22:%20%22DefaultRole%22%7D%7D,%20%22ReturnUrl%22:%20%22https:%2F%2Fessnew.console.aliyun.com%2F%22,%20%22Service%22:%20%22ESS%22%7D',
       },
       {
-        key: "open-nas",
-        title: "开通NAS服务",
-        href: "https://common-buy.aliyun.com/?commodityCode=naspost"
-      }
+        key: 'open-nas',
+        title: '开通NAS服务',
+        href: 'https://common-buy.aliyun.com/?commodityCode=naspost',
+      },
     ];
-  }
+  },
 };
 export default cloud;

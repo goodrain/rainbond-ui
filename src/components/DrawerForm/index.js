@@ -1,5 +1,4 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'dva';
+/* eslint-disable camelcase */
 import {
   Button,
   Checkbox,
@@ -9,12 +8,13 @@ import {
   Form,
   Icon,
   Input,
-  Select,
   InputNumber,
   Modal,
   Row,
+  Select
 } from 'antd';
-
+import { connect } from 'dva';
+import React, { PureComponent } from 'react';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
 import teamUtil from '../../utils/team';
@@ -478,8 +478,9 @@ class DrawerForm extends PureComponent {
                     })(
                       <Select placeholder="请选择负载均衡类型">
                         <Option value="round-robin">负载均衡算法：轮询</Option>
-                        {/* <Option value="random">random</Option>
-                                    <Option value="consistence-hash">consistence-hash</Option> */}
+                        <Option value="cookie-session-affinity">
+                          负载均衡算法：会话保持
+                        </Option>
                       </Select>
                     )}
                   </FormItem>
