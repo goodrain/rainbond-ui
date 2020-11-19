@@ -7,7 +7,7 @@
 import React, { Fragment, PureComponent } from 'react';
 import moment from 'moment';
 import { connect } from 'dva';
-import { Card, Spin, notification } from 'antd';
+import { Card, Spin, notification, Checkbox } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
@@ -228,6 +228,7 @@ export default class RangeChart extends PureComponent {
       CustomMonitorInfo,
       appAlias,
       serviceId = '',
+      graphId = '',
       isEdit = true
     } = this.props;
     const {
@@ -272,7 +273,9 @@ export default class RangeChart extends PureComponent {
           <Spin spinning={loading}>
             <Card
               className={isCustomMonitor && styless.rangeChart}
-              title={title}
+              title={
+                graphId ? <Checkbox value={graphId}>{title}</Checkbox> : title
+              }
               extra={
                 isEdit && (
                   <div>

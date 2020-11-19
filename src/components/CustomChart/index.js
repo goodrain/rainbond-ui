@@ -26,7 +26,8 @@ export default class ChartTitle extends PureComponent {
     super(props);
     this.state = {
       start: new Date().getTime() / 1000 - 60 * 60,
-      end: new Date().getTime() / 1000
+      end: new Date().getTime() / 1000,
+      isLoading: true
     };
   }
 
@@ -168,7 +169,7 @@ export default class ChartTitle extends PureComponent {
       content = ''
     } = this.props;
     const { getFieldDecorator } = form;
-    const { start, end } = this.state;
+    const { start, end, isLoading } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -211,10 +212,12 @@ export default class ChartTitle extends PureComponent {
             style={{ zIndex: 99999999, cursor: 'all-scroll' }}
             {...parameter}
             upData={upData}
+            onCancelLoading={this.setState({ isLoading: false })}
+            isLoading={isLoading}
             serviceId={serviceId}
             CustomMonitorInfo={value}
             title={title}
-            type={promql}
+            promql={promql}
             onEdit={onEdit}
             onDelete={onDelete}
           />
@@ -229,6 +232,7 @@ export default class ChartTitle extends PureComponent {
     const SortableList = SortableContainer(({ items }) => {
       return (
         <div style={gridStyles}>
+          {content}
           {items.map((item, index) => {
             return (
               <SortableItem
@@ -297,7 +301,6 @@ export default class ChartTitle extends PureComponent {
           </Row>
         ) : moduleName === 'CustomMonitor' ? (
           <div>
-            {content}
             <SortableList
               axis="xy"
               // hideSortableGhost={false}

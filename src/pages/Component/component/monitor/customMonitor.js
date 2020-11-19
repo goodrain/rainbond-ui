@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { Button, Row, notification, Dropdown, Icon, Menu, Col } from 'antd';
 import MonitoryPoint from './monitoryPoint';
 import ConfirmModal from '@/components/ConfirmModal';
+import BatchDeleteChart from '@/components/BatchDeleteChart';
 import CustomMonitoring from '@/components/CustomMonitoring';
 import CustomChart from '@/components/CustomChart';
 import globalUtil from '@//utils/global';
@@ -16,7 +17,8 @@ import Result from '@/components/Result';
   appDetail: appControl.appDetail,
   delServiceMonitorFigureLoading:
     loading.effects['monitor/delServiceMonitorFigure'],
-  addKeyImportLoading: loading.effects['monitor/addKeyImport']
+  addKeyImportLoading: loading.effects['monitor/addKeyImport'],
+  delLoading: loading.effects['monitor/batchDeleteServiceMonitorFigure']
 }))
 export default class customMonitor extends PureComponent {
   constructor(props) {
@@ -28,14 +30,18 @@ export default class customMonitor extends PureComponent {
       isCustomMonitoring: false,
       showDelete: false,
       info: {},
-      KeyImportList: []
+      KeyImportList: [],
+      BatchDelete: false,
+      isMonitorsLoading: false,
+      isMonitors: false
     };
   }
   componentDidMount() {
     this.fetchServiceMonitorFigure();
     this.fetchKeyImport();
+    this.fetchServiceMonitor();
   }
-  onCancelCustomMonitoring = () => {
+  onCancelCustomMonitoring = (e) => {
     this.setState({
       info: {},
       isCustomMonitoring: false
@@ -83,6 +89,7 @@ export default class customMonitor extends PureComponent {
               isMonitorFigure: true
             });
           }
+          this.cancalBatchDelete();
         }
       }
     });
@@ -199,6 +206,25 @@ export default class customMonitor extends PureComponent {
       }
     });
   };
+
+  fetchServiceMonitor = () => {
+    const { dispatch } = this.props;
+    const parameter = this.handleParameter();
+
+    dispatch({
+      type: 'monitor/fetchServiceMonitor',
+      payload: parameter,
+      callback: (res) => {
+        if (res && res._code === 200) {
+          this.setState({
+            isMonitorsLoading: true,
+            isMonitors: res.list.length > 0
+          });
+        }
+      }
+    });
+  };
+
   handleParameter = () => {
     const { appDetail } = this.props;
     return {
@@ -213,11 +239,22 @@ export default class customMonitor extends PureComponent {
     });
   };
 
+  handleBatchDelete = () => {
+    this.setState({
+      BatchDelete: true
+    });
+  };
+  cancalBatchDelete = () => {
+    this.setState({
+      BatchDelete: false
+    });
+  };
   render() {
     const {
       appDetail,
       delServiceMonitorFigureLoading,
-      addKeyImportLoading
+      addKeyImportLoading,
+      delLoading
     } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const appAlias = appDetail.service.service_alias;
@@ -229,7 +266,10 @@ export default class customMonitor extends PureComponent {
       monitorFigureList,
       showDelete,
       info,
-      KeyImportList
+      KeyImportList,
+      BatchDelete,
+      isMonitors,
+      isMonitorsLoading
     } = this.state;
     const menu = (
       <Menu>
@@ -262,9 +302,8 @@ export default class customMonitor extends PureComponent {
               serviceId={serviceId}
               content={
                 isCustomMonitoring ? (
-                  <Col span={12} style={{ marginRight: '10px' }}>
+                  <Col span={24} style={{ marginRight: '10px' }}>
                     <CustomMonitoring
-                      colSpan={12}
                       serviceId={serviceId}
                       teamName={teamName}
                       appAlias={appAlias}
@@ -279,7 +318,12 @@ export default class customMonitor extends PureComponent {
               }
               RangeData={isMonitorFigure ? [] : monitorFigureList}
               operation={
-                <div style={{ display: 'inline-block', width: '88%' }}>
+                <div
+                  style={{
+                    display: 'inline-block',
+                    width: 'calc(100% - 68px)'
+                  }}
+                >
                   <Button
                     icon="plus"
                     style={{ marginLeft: '5px' }}
@@ -299,6 +343,17 @@ export default class customMonitor extends PureComponent {
                       </Button>
                     </Dropdown>
                   )}
+
+                  {monitorFigureList && monitorFigureList.length > 0 && (
+                    <Button
+                      style={{ marginLeft: '5px' }}
+                      loading={delLoading}
+                      onClick={this.handleBatchDelete}
+                    >
+                      批量删除
+                    </Button>
+                  )}
+
                   <Button
                     style={{ float: 'right', marginTop: '4px' }}
                     onClick={() => {
@@ -312,24 +367,32 @@ export default class customMonitor extends PureComponent {
             />
           </Row>
         )}
-        {!isMonitoryPoint && !isCustomMonitoring && isMonitorFigure && (
-          <Result
-            style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
-            type="warning"
-            description={
-              <div>
-                暂无业务监控图、请先添加
-                <a
-                  onClick={() => {
-                    this.handleMonitoryPoint(true);
-                  }}
-                >
-                  管理监控点
-                </a>
-              </div>
-            }
-          />
-        )}
+        {!isMonitoryPoint &&
+          !isCustomMonitoring &&
+          isMonitorFigure &&
+          isMonitorsLoading && (
+            <Result
+              style={{ background: '#fff', marginTop: '10px', padding: '20px' }}
+              type="warning"
+              description={
+                <div>
+                  暂无业务监控图、请先添加
+                  <a
+                    onClick={() => {
+                      if (isMonitors) {
+                        this.handleCustomMonitoring();
+                      } else {
+                        this.handleMonitoryPoint(true);
+                      }
+                    }}
+                  >
+                    {isMonitors ? ' 添加图表' : '管理监控点'}
+                  </a>
+                </div>
+              }
+            />
+          )}
+
         {showDelete && (
           <ConfirmModal
             loading={delServiceMonitorFigureLoading}
@@ -338,6 +401,17 @@ export default class customMonitor extends PureComponent {
             subDesc="此操作不可恢复"
             onOk={this.handleSubmitDelete}
             onCancel={this.cancalDelete}
+          />
+        )}
+
+        {BatchDelete && (
+          <BatchDeleteChart
+            title="批量删除监控视图"
+            loading={delLoading}
+            data={monitorFigureList}
+            {...this.handleParameter()}
+            onOk={this.fetchServiceMonitorFigure}
+            onCancel={this.cancalBatchDelete}
           />
         )}
 
