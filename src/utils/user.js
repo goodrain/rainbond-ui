@@ -82,6 +82,37 @@ const userUtil = {
       userBean.roles.includes('admin')
     );
   },
+  // 是否有对应的权限
+  isPermissions(userBean, parameter) {
+    if (userBean && userBean.permissions && userBean.permissions.length > 0) {
+      if (parameter === 'app_store') {
+        return this.marketPermissions(userBean.permissions);
+      }
+    }
+    return {};
+  },
+  marketPermissions(parameter) {
+    const arrMap = {
+      'app_store.create_app': 'isCreateApp',
+      'app_store.edit_app': 'isEditApp',
+      'app_store.delete_app': 'isDeleteApp',
+      'app_store.import_app': 'isImportApp',
+      'app_store.export_app': 'isExportApp',
+      'app_store.create_app_store': 'isCreateAppStore',
+      'app_store.edit_app_store': 'isEditAppStore',
+      'app_store.delete_app_store': 'isDeleteAppStore',
+      'app_store.edit_app_version': 'isEditVersionApp',
+      'app_store.delete_app_version': 'isDeleteAppVersion'
+    };
+    const objs = {};
+    // eslint-disable-next-line no-unused-expressions
+    parameter &&
+      parameter.length > 0 &&
+      parameter.map((item) => {
+        objs[arrMap[item]] = true;
+      });
+    return objs;
+  },
   // 获取当前的soketUrl
   getCurrRegionSoketUrl(currUser) {
     const currTeam = this.getTeamByTeamName(

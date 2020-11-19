@@ -54,7 +54,7 @@ export default class Main extends PureComponent {
   constructor(props) {
     super(props);
     const { currUser } = this.props;
-    const appStoreAdmin = userUtil.isAppStoreAdmin(currUser);
+    const appStoreAdmin = userUtil.isPermissions(currUser, 'app_store');
     this.state = {
       appStoreAdmin,
       appInfo: {},
@@ -419,7 +419,7 @@ export default class Main extends PureComponent {
       editAppVersion,
       isEdit,
       isAppDetails,
-      appStoreAdmin
+      appStoreAdmin: { isEditApp, isEditVersionApp, isDeleteAppVersion }
     } = this.state;
     const { getFieldDecorator, getFieldValue } = form;
     const formItemLayout = {
@@ -769,7 +769,7 @@ export default class Main extends PureComponent {
                         return <div className={styless.appVersion}>{item}</div>;
                       })}
                     </div>
-                    {!isEdit && appStoreAdmin && (
+                    {!isEdit && isEditApp && (
                       <a
                         onClick={() => {
                           this.handleIsEdit(!isEdit);
@@ -881,8 +881,8 @@ export default class Main extends PureComponent {
                       align: 'center',
                       render: (_data, record) => (
                         <div>
-                          {appStoreAdmin && (
-                            <div>
+                          <div>
+                            {isEditVersionApp && (
                               <a
                                 style={{ marginRight: '5px' }}
                                 onClick={() => {
@@ -891,6 +891,8 @@ export default class Main extends PureComponent {
                               >
                                 编辑
                               </a>
+                            )}
+                            {isEditVersionApp && (
                               <a
                                 style={{ marginRight: '5px' }}
                                 onClick={() => {
@@ -901,6 +903,8 @@ export default class Main extends PureComponent {
                                   ? '取消Release状态'
                                   : '设为Release状态'}
                               </a>
+                            )}
+                            {isDeleteAppVersion && (
                               <a
                                 onClick={() => {
                                   this.handleToDelete(record);
@@ -908,8 +912,8 @@ export default class Main extends PureComponent {
                               >
                                 删除
                               </a>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       )
                     }
@@ -925,7 +929,7 @@ export default class Main extends PureComponent {
               bordered={false}
               extra={
                 <div>
-                  {!isAppDetails && appStoreAdmin && (
+                  {!isAppDetails && isEditApp && (
                     <a onClick={() => this.handleAppDetails(!isAppDetails)}>
                       编辑
                     </a>
