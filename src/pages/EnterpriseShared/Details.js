@@ -334,9 +334,13 @@ export default class Main extends PureComponent {
           tag_ids: tagId ? tagId : arr,
           app_id: appId,
           describe: appInfo ? appInfo.describe : values.describe,
-          details: details ? details : values.details.toHTML(),
+          details: details || (values.details && values.details.toHTML()),
           scope: appInfo ? appInfo.scope : values.scope
         };
+        if (parameter.scope !== 'enterprise') {
+          parameter.create_team = parameter.scope;
+          parameter.scope = 'team';
+        }
         dispatch({
           type: 'market/upAppModel',
           payload: parameter,
@@ -548,7 +552,11 @@ export default class Main extends PureComponent {
                       <FormItem {...formItemLayout} label="发布范围">
                         {getFieldDecorator('scope', {
                           initialValue:
-                            (appInfo && appInfo.scope) || 'enterprise',
+                            (appInfo &&
+                              appInfo.scope &&
+                              appInfo.scope === 'team' &&
+                              appInfo.create_team) ||
+                            'enterprise',
                           rules: [
                             {
                               required: true,
