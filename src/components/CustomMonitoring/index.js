@@ -1,3 +1,4 @@
+/* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable prettier/prettier */
 /* eslint-disable array-callback-return */
 /* eslint-disable prettier/prettier */
@@ -18,7 +19,6 @@ import {
 } from 'antd';
 import styless from './index.less';
 import RangeChart from '@/components/CustomChart/rangeChart';
-import { start } from '@/services/app';
 
 const FormItem = Form.Item;
 @Form.create()
@@ -34,12 +34,15 @@ export default class CustomMonitoring extends PureComponent {
     this.state = {
       indicators: [],
       RangeData: this.props.info.graph_id ? [this.props.info] : [],
-      loading: false
+      loading: false,
+      isRender: false
     };
   }
+
   componentDidMount() {
     this.fetchComponentMetrics();
   }
+
   fetchComponentMetrics = () => {
     const { dispatch, serviceId, teamName, appAlias } = this.props;
     dispatch({
@@ -81,6 +84,7 @@ export default class CustomMonitoring extends PureComponent {
   handleSubmitDelete = () => {
     this.cancalDelete();
   };
+
   render() {
     const {
       form,
@@ -89,12 +93,11 @@ export default class CustomMonitoring extends PureComponent {
       appDetail,
       appAlias,
       info = {},
-      colSpan = 24,
       addLoading,
       editLoading
     } = this.props;
     const { getFieldDecorator } = form;
-    const { loading, indicators, RangeData } = this.state;
+    const { loading, indicators, RangeData, isRender } = this.state;
     const parameter = {
       moduleName: 'CustomMonitor',
       start: new Date().getTime() / 1000 - 60 * 60,
@@ -165,24 +168,12 @@ export default class CustomMonitoring extends PureComponent {
                       }}
                       dataSource={indicators}
                       filterOption={(inputValue, option) =>
-                        option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                        option.props.children
+                          .toUpperCase()
+                          .indexOf(inputValue.toUpperCase()) !== -1
                       }
                       placeholder="请填写查询条件"
-                    >
-                      {/* {indicators &&
-                        indicators.length > 0 &&
-                        indicators.map((item, index) => {
-                          const { metric } = item;
-                          return (
-                            <AutoComplete.Option
-                              key={`metric${index}`}
-                              value={metric}
-                            >
-                              {metric}
-                            </AutoComplete.Option>
-                          );
-                        })} */}
-                    </AutoComplete>
+                    />
                   )}
                   <Button onClick={this.handleSearch}>查询</Button>
                 </FormItem>
@@ -192,8 +183,10 @@ export default class CustomMonitoring extends PureComponent {
                       const { title, promql } = item;
                       return (
                         <RangeChart
+                          moduleName="CustomMonitor"
                           isEdit={false}
                           key={title}
+                          isRender={isRender}
                           {...parameter}
                           title={title}
                           type={promql}

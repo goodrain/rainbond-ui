@@ -209,6 +209,8 @@ export default class ChartTitle extends PureComponent {
           }}
         >
           <RangeChart
+            isRender={false}
+            moduleName="CustomMonitor"
             style={{ zIndex: 99999999, cursor: 'all-scroll' }}
             {...parameter}
             upData={upData}
@@ -217,7 +219,7 @@ export default class ChartTitle extends PureComponent {
             serviceId={serviceId}
             CustomMonitorInfo={value}
             title={title}
-            promql={promql}
+            type={promql}
             onEdit={onEdit}
             onDelete={onDelete}
           />
