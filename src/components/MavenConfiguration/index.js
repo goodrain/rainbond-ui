@@ -73,7 +73,7 @@ export default class AddAdmin extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         onlyname: false
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           if (res.list && res.list.length === 0) {
             this.setState({ isEditor: false });
@@ -82,7 +82,7 @@ export default class AddAdmin extends PureComponent {
           }
           if (Initialize && res.list && res.list.length > 0) {
             if (activeMaven) {
-              const list = res.list.filter(item => item.name === activeMaven);
+              const list = res.list.filter((item) => item.name === activeMaven);
               if (list && list.length > 0) {
                 this.setState({ mavenInfo: list[0] });
               } else {
@@ -128,7 +128,7 @@ export default class AddAdmin extends PureComponent {
     return true;
   };
 
-  handleClick = e => {
+  handleClick = (e) => {
     this.handleEditorConfiguration();
     this.setState(
       {
@@ -137,7 +137,7 @@ export default class AddAdmin extends PureComponent {
       () => {
         const { mavenList } = this.state;
         const { setFieldsValue } = this.props.form;
-        const list = mavenList.filter(item => item.name === e.key);
+        const list = mavenList.filter((item) => item.name === e.key);
         if (list && list.length > 0) {
           this.setState({ mavenInfo: list[0], contentLoading: false });
           setFieldsValue({ content: list[0].content });
@@ -158,7 +158,7 @@ export default class AddAdmin extends PureComponent {
             enterprise_id: currentEnterprise.enterprise_id,
             ...values
           },
-          callback: res => {
+          callback: (res) => {
             if (res && res._code === 200) {
               this.setState({
                 mavenInfo: res.bean,
@@ -183,7 +183,7 @@ export default class AddAdmin extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         name: mavenInfo.name
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           const { setFieldsValue } = form;
           setFieldsValue({ content: '' });
@@ -217,7 +217,7 @@ export default class AddAdmin extends PureComponent {
             name: mavenInfo.name,
             content: values.content
           },
-          callback: res => {
+          callback: (res) => {
             if (res && res._code === 200) {
               this.setState({
                 mavenInfo: res.bean,
@@ -271,7 +271,7 @@ export default class AddAdmin extends PureComponent {
     const footer = [
       <Button
         onClick={() => {
-          onCancel();
+          onCancel(mavenInfo && mavenInfo.name);
         }}
       >
         取消
@@ -317,7 +317,9 @@ export default class AddAdmin extends PureComponent {
         visible
         width="800px"
         className={styles.TelescopicModal}
-        onCancel={onCancel}
+        onCancel={() => {
+          onCancel(mavenInfo && mavenInfo.name);
+        }}
         footer={footer}
       >
         {toDelete && (
@@ -357,7 +359,7 @@ export default class AddAdmin extends PureComponent {
                   selectedKeys={[`${mavenInfo.name}`]}
                   style={{ height: '100%' }}
                 >
-                  {mavenList.map(item => {
+                  {mavenList.map((item) => {
                     const { name } = item;
                     return (
                       <Menu.Item key={name}>
@@ -406,7 +408,8 @@ export default class AddAdmin extends PureComponent {
                       },
                       {
                         pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
-                        message: '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
+                        message:
+                          '必须由小写的字母、数字和-组成，并且必须以字母数字开始和结束'
                       }
                     ]
                   })(
