@@ -13,11 +13,13 @@ import {
   Form,
   Input,
   Col,
+  Modal,
   Alert,
   Button,
   AutoComplete
 } from 'antd';
 import styless from './index.less';
+import styles from '../CreateTeam/index.less';
 import RangeChart from '@/components/CustomChart/rangeChart';
 
 const FormItem = Form.Item;
@@ -70,6 +72,7 @@ export default class CustomMonitoring extends PureComponent {
       }
     });
   };
+
   handleSearch = () => {
     const { form } = this.props;
     form.validateFields({ force: true }, (err, vals) => {
@@ -107,98 +110,111 @@ export default class CustomMonitoring extends PureComponent {
       appAlias
     };
     return (
-      <Fragment>
-        <Form onSubmit={this.onOk}>
-          <Spin spinning={loading}>
-            <Card
-              className={styless.customCard}
-              headStyle={{ padding: '0 24px' }}
-              title={
-                <FormItem>
-                  {getFieldDecorator('title', {
-                    initialValue: info.title || '',
-                    rules: [
-                      { required: true, message: '请填写标题' },
-                      {
-                        max: 64,
-                        message: '最大长度64位'
-                      }
-                    ]
-                  })(
-                    <Input
-                      style={{ width: 'calc(100% - 15px)' }}
-                      placeholder="请填写标题"
-                    />
-                  )}
-                </FormItem>
-              }
-              extra={
+      <Modal
+        title={info && info.ID ? '编辑图表' : '添加图表'}
+        visible
+        width={600}
+        confirmLoading={loading}
+        className={styles.TelescopicModal}
+        onCancel={onCancel}
+        onOk={this.onOk}
+        footer={[
+          <Button style={{ marginTop: '10px' }} onClick={onCancel}>
+            取消
+          </Button>,
+          <Button
+            style={{ marginTop: '10px' }}
+            type="primary"
+            loading={addLoading || editLoading}
+            onClick={this.onOk}
+          >
+            {info && info.graph_id ? '保存' : '添加'}
+          </Button>
+        ]}
+      >
+        <Fragment>
+          <Form onSubmit={this.onOk}>
+            <Spin spinning={loading}>
+              <Alert
+                style={{ marginBottom: '10px' }}
+                message="请输入 标准PromQL 语法进行查询显示图表"
+                type="info"
+                showIcon
+              />
+              <Card
+                className={styless.customCard}
+                headStyle={{ padding: '0 24px' }}
+                title={
+                  <FormItem>
+                    {getFieldDecorator('title', {
+                      initialValue: info.title || '',
+                      rules: [
+                        { required: true, message: '请填写标题' },
+                        {
+                          max: 64,
+                          message: '最大长度64位'
+                        }
+                      ]
+                    })(
+                      <Input
+                        style={{ width: 'calc(100% - 15px)' }}
+                        placeholder="请填写标题"
+                      />
+                    )}
+                  </FormItem>
+                }
+              >
                 <div>
-                  <a style={{ marginRight: '5px' }} onClick={onCancel}>
-                    取消
-                  </a>
-                  <a onClick={this.onOk} loading={addLoading || editLoading}>
-                    {info.graph_id ? '保存' : '添加'}
-                  </a>
+                  <FormItem>
+                    {getFieldDecorator('promql', {
+                      initialValue: info.promql || '',
+                      rules: [
+                        { required: true, message: '请填写查询条件' },
+                        {
+                          max: 255,
+                          message: '最大长度255位'
+                        }
+                      ]
+                    })(
+                      <AutoComplete
+                        style={{
+                          width: 'calc(100% - 75px)',
+                          marginRight: '5px'
+                        }}
+                        dataSource={indicators}
+                        filterOption={(inputValue, option) =>
+                          option.props.children
+                            .toUpperCase()
+                            .indexOf(inputValue.toUpperCase()) !== -1
+                        }
+                        placeholder="请填写查询条件"
+                      />
+                    )}
+                    <Button onClick={this.handleSearch}>查询</Button>
+                  </FormItem>
+                  <div style={{ minHeight: '300px' }}>
+                    {RangeData.length > 0 &&
+                      RangeData.map((item) => {
+                        const { title, promql } = item;
+                        return (
+                          <RangeChart
+                            moduleName="CustomMonitor"
+                            isEdit={false}
+                            key={title}
+                            isRender={isRender}
+                            {...parameter}
+                            title={title}
+                            type={promql}
+                          />
+                        );
+                      })}
+                  </div>
                 </div>
-              }
-            >
-              <div>
-                <Alert
-                  style={{ marginBottom: '10px' }}
-                  message="请输入 标准PromQL 语法进行查询显示图表"
-                  type="info"
-                  showIcon
-                />
-                <FormItem>
-                  {getFieldDecorator('promql', {
-                    initialValue: info.promql || '',
-                    rules: [
-                      { required: true, message: '请填写查询条件' },
-                      {
-                        max: 255,
-                        message: '最大长度255位'
-                      }
-                    ]
-                  })(
-                    <AutoComplete
-                      style={{
-                        width: 'calc(100% - 75px)',
-                        marginRight: '5px'
-                      }}
-                      dataSource={indicators}
-                      filterOption={(inputValue, option) =>
-                        option.props.children
-                          .toUpperCase()
-                          .indexOf(inputValue.toUpperCase()) !== -1
-                      }
-                      placeholder="请填写查询条件"
-                    />
-                  )}
-                  <Button onClick={this.handleSearch}>查询</Button>
-                </FormItem>
-                <div style={{ minHeight: '300px' }}>
-                  {RangeData.length > 0 &&
-                    RangeData.map((item) => {
-                      const { title, promql } = item;
-                      return (
-                        <RangeChart
-                          moduleName="CustomMonitor"
-                          isEdit={false}
-                          key={title}
-                          isRender={isRender}
-                          {...parameter}
-                          title={title}
-                          type={promql}
-                        />
-                      );
-                    })}
-                </div>
-              </div>
-            </Card>
-          </Spin>
-        </Form>
-      </Fragment>
+              </Card>
+            </Spin>
+          </Form>
+        </Fragment>
+      </Modal>
     );
   }
 }

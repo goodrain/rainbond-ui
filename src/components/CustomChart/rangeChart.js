@@ -21,12 +21,10 @@ export default class RangeChart extends PureComponent {
     super(props);
     this.state = {
       memoryRange: [],
-      performanceObj: {},
-      isCustomMonitoring: false
+      performanceObj: {}
     };
   }
-
-  componentDidMount() {
+  componentWillMount() {
     const { moduleName } = this.props;
     if (
       moduleName === 'PerformanceAnalysis' ||
@@ -37,6 +35,7 @@ export default class RangeChart extends PureComponent {
       this.loadRangeData(this.props);
     }
   }
+
   componentWillReceiveProps(nextProps) {
     const { start: oldStart, end, step, moduleName, isRender } = this.props;
     const {
@@ -189,18 +188,6 @@ export default class RangeChart extends PureComponent {
     }
   };
 
-  handleCustomMonitoring = () => {
-    this.setState({
-      isCustomMonitoring: true
-    });
-  };
-
-  onCancelCustomMonitoring = () => {
-    this.setState({
-      isCustomMonitoring: false
-    });
-  };
-
   handleSubmit = (vals) => {
     const { dispatch, appAlias, CustomMonitorInfo, upData } = this.props;
     if (CustomMonitorInfo && CustomMonitorInfo.graph_id && upData) {
@@ -232,17 +219,9 @@ export default class RangeChart extends PureComponent {
       onDelete,
       onEdit,
       CustomMonitorInfo,
-      appAlias,
-      serviceId = '',
-      graphId = '',
       isEdit = true
     } = this.props;
-    const {
-      memoryRange,
-      performanceObj,
-      loading,
-      isCustomMonitoring
-    } = this.state;
+    const { memoryRange, performanceObj, loading } = this.state;
     const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
@@ -266,80 +245,69 @@ export default class RangeChart extends PureComponent {
     };
     return (
       <Fragment>
-        {isCustomMonitoring ? (
-          <CustomMonitoring
-            serviceId={serviceId}
-            teamName={globalUtil.getCurrTeamName()}
-            appAlias={appAlias}
-            info={CustomMonitorInfo}
-            onOk={this.handleSubmit}
-            onCancel={this.onCancelCustomMonitoring}
-          />
-        ) : (
-          <Spin spinning={loading}>
-            <Card
-              className={isCustomMonitor && styless.rangeChart}
-              title={
-                graphId ? <Checkbox value={graphId}>{title}</Checkbox> : title
-              }
-              extra={
-                isEdit && (
-                  <div>
-                    {isCustomMonitor && (
-                      <span>
-                        <a
-                          onClick={() => {
-                            this.handleCustomMonitoring(CustomMonitorInfo);
-                          }}
-                          style={{ marginRight: '10px' }}
-                        >
-                          编辑
-                        </a>
-                        <a
-                          onClick={() => {
-                            onDelete(CustomMonitorInfo);
-                          }}
-                          style={{ marginRight: '10px' }}
-                        >
-                          删除
-                        </a>
-                      </span>
-                    )}
-                    <a onClick={this.loadRefresh}>刷新</a>
-                  </div>
-                )
-              }
+        <Spin spinning={loading}>
+          <Card
+            className={isCustomMonitor && styless.rangeChart}
+            title={title}
+            extra={
+              isEdit && (
+                <div>
+                  {isCustomMonitor && (
+                    <span>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onEdit(e, CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        编辑
+                      </a>
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onDelete(CustomMonitorInfo);
+                        }}
+                        style={{ marginRight: '10px' }}
+                      >
+                        删除
+                      </a>
+                    </span>
+                  )}
+                  <a onClick={this.loadRefresh}>刷新</a>
+                </div>
+              )
+            }
+          >
+            <Chart
+              height={isCustomMonitor ? 200 : 400}
+              data={data}
+              scale={cols}
+              forceFit
             >
-              <Chart
-                height={isCustomMonitor ? 200 : 400}
-                data={data}
-                scale={cols}
-                forceFit
-              >
-                <Legend />
-                <Axis
-                  name="value"
-                  label={{
-                    formatter: (val) => `${val}${unit}`
-                  }}
-                />
-                <Axis name="time" />
-                <Tooltip
-                  crosshairs={{
-                    type: 'y'
-                  }}
-                />
-                <Geom
-                  type="line"
-                  position="time*value"
-                  color="cid"
-                  shape="smooth"
-                  size={1}
-                />
-              </Chart>
-            </Card>
-          </Spin>
-        )}
+              <Legend />
+              <Axis
+                name="value"
+                label={{
+                  formatter: (val) => `${val}${unit}`
+                }}
+              />
+              <Axis name="time" />
+              <Tooltip
+                crosshairs={{
+                  type: 'y'
+                }}
+              />
+              <Geom
+                type="line"
+                position="time*value"
+                color="cid"
+                shape="smooth"
+                size={1}
+              />
+            </Chart>
+          </Card>
+        </Spin>
       </Fragment>
     );
   }

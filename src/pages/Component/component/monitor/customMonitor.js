@@ -41,13 +41,14 @@ export default class customMonitor extends PureComponent {
     this.fetchKeyImport();
     this.fetchServiceMonitor();
   }
-  onCancelCustomMonitoring = (e) => {
+  onCancelCustomMonitoring = () => {
     this.setState({
       info: {},
       isCustomMonitoring: false
     });
   };
-  onEdit = (val) => {
+  onEdit = (e, val) => {
+    e.preventDefault();
     this.setState({
       info: val,
       isCustomMonitoring: true
@@ -300,22 +301,6 @@ export default class customMonitor extends PureComponent {
               onEdit={this.onEdit}
               appAlias={appAlias}
               serviceId={serviceId}
-              content={
-                isCustomMonitoring ? (
-                  <Col span={24} style={{ marginRight: '10px' }}>
-                    <CustomMonitoring
-                      serviceId={serviceId}
-                      teamName={teamName}
-                      appAlias={appAlias}
-                      info={info}
-                      onOk={this.handleSubmit}
-                      onCancel={this.onCancelCustomMonitoring}
-                    />
-                  </Col>
-                ) : (
-                  ''
-                )
-              }
               RangeData={isMonitorFigure ? [] : monitorFigureList}
               operation={
                 <div
@@ -343,7 +328,18 @@ export default class customMonitor extends PureComponent {
                       </Button>
                     </Dropdown>
                   )}
-
+                  {isCustomMonitoring && (
+                    <Col span={24} style={{ marginRight: '10px' }}>
+                      <CustomMonitoring
+                        serviceId={serviceId}
+                        teamName={teamName}
+                        appAlias={appAlias}
+                        info={info}
+                        onOk={this.handleSubmit}
+                        onCancel={this.onCancelCustomMonitoring}
+                      />
+                    </Col>
+                  )}
                   {monitorFigureList && monitorFigureList.length > 0 && (
                     <Button
                       style={{ marginLeft: '5px' }}

@@ -30,7 +30,6 @@ export default class ChartTitle extends PureComponent {
       isLoading: true
     };
   }
-
   disabledDate = (current) => {
     // Can not select days before today and today
     return (
@@ -141,7 +140,8 @@ export default class ChartTitle extends PureComponent {
       }
     });
   };
-  onSortEnd = ({ oldIndex, newIndex }) => {
+  onSortEnd = ({ oldIndex, newIndex }, e) => {
+    e.preventDefault();
     const { handleSorting, RangeData = [] } = this.props;
     if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
       const RangeList = RangeData.filter((item) => item.sequence === oldIndex);
@@ -165,8 +165,7 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       serviceId = '',
       RangeData = [],
-      appAlias = '',
-      content = ''
+      appAlias = ''
     } = this.props;
     const { getFieldDecorator } = form;
     const { start, end, isLoading } = this.state;
@@ -198,9 +197,10 @@ export default class ChartTitle extends PureComponent {
       appAlias
     };
     const SortableItem = SortableElement(({ value }) => {
-      const { title, promql, sequence } = value;
+      const { title, promql, sequence, ID } = value;
       return (
         <div
+          key={ID}
           index={sequence}
           style={{
             zIndex: 99999999,
@@ -209,6 +209,7 @@ export default class ChartTitle extends PureComponent {
           }}
         >
           <RangeChart
+            key={ID}
             isRender={false}
             moduleName="CustomMonitor"
             style={{ zIndex: 99999999, cursor: 'all-scroll' }}
@@ -234,7 +235,6 @@ export default class ChartTitle extends PureComponent {
     const SortableList = SortableContainer(({ items }) => {
       return (
         <div style={gridStyles}>
-          {content}
           {items.map((item, index) => {
             return (
               <SortableItem
@@ -305,7 +305,7 @@ export default class ChartTitle extends PureComponent {
           <div>
             <SortableList
               axis="xy"
-              // hideSortableGhost={false}
+              distance={1}
               style={{ zIndex: 99999999 }}
               items={RangeData}
               onSortEnd={this.onSortEnd}
