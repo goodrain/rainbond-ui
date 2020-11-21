@@ -157,3 +157,13 @@ export async function deleteServiceMonitorFigure(body) {
     }
   );
 }
+
+export async function batchDeleteServiceMonitorFigure(body) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/graphs`,
+    {
+      method: 'delete',
+      data: body
+    }
+  );
+}

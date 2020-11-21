@@ -23,7 +23,7 @@ export default class customMonitor extends PureComponent {
     super(props);
     this.state = {
       monitors: [],
-      addCustomMonitor: true,
+      addCustomMonitor: false,
       loading: true,
       editorData: {},
       dleCustomMonitor: false,
@@ -56,10 +56,14 @@ export default class customMonitor extends PureComponent {
       payload: parameter,
       callback: (res) => {
         if (res && res._code === 200) {
+          const arr = res.list;
           this.setState({
             loading: false,
-            monitors: res.list
+            monitors: arr
           });
+          if (arr && arr.length === 0) {
+            this.onAddCustomMonitor();
+          }
         }
       }
     });

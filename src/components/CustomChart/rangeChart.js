@@ -6,12 +6,16 @@
 // eslint-disable-next-line react/no-multi-comp
 import React, { Fragment, PureComponent } from 'react';
 import moment from 'moment';
-import { Card, Spin } from 'antd';
+import { connect } from 'dva';
+import { Card, Spin, notification, Checkbox } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import globalUtil from '@/utils/global';
 import monitorDataUtil from '@/utils/monitorDataUtil';
+import CustomMonitoring from '@/components/CustomMonitoring';
+import styless from './index.less';
 import { start } from '@/services/app';
 
+@connect()
 export default class RangeChart extends PureComponent {
   constructor(props) {
     super(props);
@@ -20,8 +24,7 @@ export default class RangeChart extends PureComponent {
       performanceObj: {}
     };
   }
-
-  componentDidMount() {
+  componentWillMount() {
     const { moduleName } = this.props;
     if (
       moduleName === 'PerformanceAnalysis' ||
@@ -32,17 +35,24 @@ export default class RangeChart extends PureComponent {
       this.loadRangeData(this.props);
     }
   }
+
   componentWillReceiveProps(nextProps) {
-    const { start, end, step, moduleName } = this.props;
-    const { start: newStart, end: newEnd, step: newStep } = nextProps;
-    const isUpData = start !== newStart || end !== newEnd || step !== newStep;
-    if (
-      (moduleName === 'PerformanceAnalysis' ||
-        moduleName === 'CustomMonitor') &&
-      isUpData
-    ) {
+    const { start: oldStart, end, step, moduleName, isRender } = this.props;
+    const {
+      start: newStart,
+      end: newEnd,
+      step: newStep,
+      newIsRender
+    } = nextProps;
+
+    const isUpData =
+      oldStart !== newStart || end !== newEnd || step !== newStep;
+    if (moduleName === 'CustomMonitor' && isUpData && newIsRender) {
       this.loadPerformanceAnalysis(nextProps);
-    } else if (isUpData) {
+    }
+    if (moduleName === 'PerformanceAnalysis' && isUpData) {
+      this.loadPerformanceAnalysis(nextProps);
+    } else if (isUpData && moduleName !== 'CustomMonitor') {
       this.loadRangeData(nextProps);
     }
   }
@@ -90,7 +100,7 @@ export default class RangeChart extends PureComponent {
     };
   };
 
-  getQueryByType = T => {
+  getQueryByType = (T) => {
     const { appDetail, baseInfo } = this.props;
     if (appDetail && appDetail.service) {
       const {
@@ -178,6 +188,31 @@ export default class RangeChart extends PureComponent {
     }
   };
 
+  handleSubmit = (vals) => {
+    const { dispatch, appAlias, CustomMonitorInfo, upData } = this.props;
+    if (CustomMonitorInfo && CustomMonitorInfo.graph_id && upData) {
+      dispatch({
+        type: 'monitor/editServiceMonitorFigure',
+        payload: {
+          app_alias: appAlias,
+          team_name: globalUtil.getCurrTeamName(),
+          ...vals,
+          graph_id: CustomMonitorInfo.graph_id,
+          sequence: CustomMonitorInfo.sequence
+        },
+        callback: (res) => {
+          if (res && res._code === 200) {
+            notification.success({
+              message: '保存成功'
+            });
+            upData();
+            this.onCancelCustomMonitoring();
+          }
+        }
+      });
+    }
+  };
+
   render() {
     const {
       moduleName,
@@ -187,9 +222,10 @@ export default class RangeChart extends PureComponent {
       isEdit = true
     } = this.props;
     const { memoryRange, performanceObj, loading } = this.state;
+    const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
     const data =
-      moduleName === 'PerformanceAnalysis' || moduleName === 'CustomMonitor'
+      moduleName === 'PerformanceAnalysis' || isCustomMonitor
         ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
         : this.converData(memoryRange);
     const cols = {
@@ -211,22 +247,25 @@ export default class RangeChart extends PureComponent {
       <Fragment>
         <Spin spinning={loading}>
           <Card
+            className={isCustomMonitor && styless.rangeChart}
             title={title}
             extra={
               isEdit && (
                 <div>
-                  {moduleName === 'CustomMonitor' && (
+                  {isCustomMonitor && (
                     <span>
                       <a
-                        onClick={() => {
-                          onEdit(CustomMonitorInfo);
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onEdit(e, CustomMonitorInfo);
                         }}
                         style={{ marginRight: '10px' }}
                       >
                         编辑
                       </a>
                       <a
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
                           onDelete(CustomMonitorInfo);
                         }}
                         style={{ marginRight: '10px' }}
@@ -240,7 +279,12 @@ export default class RangeChart extends PureComponent {
               )
             }
           >
-            <Chart height={400} data={data} scale={cols} forceFit>
+            <Chart
+              height={isCustomMonitor ? 200 : 400}
+              data={data}
+              scale={cols}
+              forceFit
+            >
               <Legend />
               <Axis
                 name="value"
@@ -259,7 +303,7 @@ export default class RangeChart extends PureComponent {
                 position="time*value"
                 color="cid"
                 shape="smooth"
-                size={2}
+                size={1}
               />
             </Chart>
           </Card>
