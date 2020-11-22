@@ -25,8 +25,7 @@ export default class EnterpriseUsers extends PureComponent {
   constructor(props) {
     super(props);
     const { user } = this.props;
-    const adminer =
-      userUtil.isSystemAdmin(user) || userUtil.isCompanyAdmin(user);
+    const adminer = userUtil.isCompanyAdmin(user);
     this.state = {
       page: 1,
       pageSize: 10,
