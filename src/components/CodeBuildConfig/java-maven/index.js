@@ -33,15 +33,17 @@ class Index extends PureComponent {
     this.fetchMavensettings();
   }
 
-  onCancel = () => {
-    this.fetchMavensettings();
+  onCancel = (MavenName) => {
+    this.fetchMavensettings(MavenName);
     this.setState({
       mavenVisible: false
     });
   };
 
-  fetchMavensettings = () => {
-    const { dispatch, currentEnterprise } = this.props;
+  fetchMavensettings = (MavenName) => {
+    const { dispatch, currentEnterprise, form } = this.props;
+    const { setFieldsValue } = form;
+
     dispatch({
       type: 'appControl/fetchMavensettings',
       payload: {
@@ -49,9 +51,15 @@ class Index extends PureComponent {
         enterprise_id: currentEnterprise.enterprise_id,
         onlyname: true
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
-          this.setState({ MavenList: res.list });
+          this.setState({ MavenList: res.list }, () => {
+            if (MavenName) {
+              setFieldsValue({
+                BUILD_MAVEN_SETTING_NAME: MavenName
+              });
+            }
+          });
         }
       }
     });
@@ -66,7 +74,7 @@ class Index extends PureComponent {
 
   handleSubmit = () => {};
 
-  handleEventPermissions = type => {
+  handleEventPermissions = (type) => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.queryTeamBasicInfo(currentTeamPermissionsInfo, type);
   };
@@ -158,7 +166,7 @@ class Index extends PureComponent {
               placeholder="请选择Maven配置"
               style={{ width: '300px', marginRight: '20px' }}
             >
-              {MavenList.map(item => {
+              {MavenList.map((item) => {
                 return (
                   // eslint-disable-next-line react/no-array-index-key
                   <Option key={item.name}>{item.name}</Option>

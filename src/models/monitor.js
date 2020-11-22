@@ -16,6 +16,7 @@ import {
   updateServiceMonitor,
   updataServiceMonitorFigure,
   deleteServiceMonitorFigure,
+  batchDeleteServiceMonitorFigure,
   getServiceMonitorFigureInfo,
   getKeyImport,
   getComponentMetrics,
@@ -81,6 +82,12 @@ export default {
     },
     *delServiceMonitorFigure({ payload, callback }, { call }) {
       const response = yield call(deleteServiceMonitorFigure, payload);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *batchDeleteServiceMonitorFigure({ payload, callback }, { call }) {
+      const response = yield call(batchDeleteServiceMonitorFigure, payload);
       if (callback) {
         callback(response);
       }

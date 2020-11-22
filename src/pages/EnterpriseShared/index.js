@@ -104,6 +104,7 @@ export default class EnterpriseShared extends PureComponent {
   onChangeRadio = (e) => {
     this.setState(
       {
+        page: 1,
         scope: e.target.value
       },
       () => {

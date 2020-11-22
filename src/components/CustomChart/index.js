@@ -8,7 +8,10 @@ import React, { Fragment, PureComponent } from 'react';
 import { Button, Col, DatePicker, Form, Row } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 import RangeChart from './rangeChart';
+import { object } from 'prop-types';
 
 const FormItem = Form.Item;
 // eslint-disable-next-line react/no-multi-comp
@@ -23,10 +26,10 @@ export default class ChartTitle extends PureComponent {
     super(props);
     this.state = {
       start: new Date().getTime() / 1000 - 60 * 60,
-      end: new Date().getTime() / 1000
+      end: new Date().getTime() / 1000,
+      isLoading: true
     };
   }
-
   disabledDate = (current) => {
     // Can not select days before today and today
     return (
@@ -137,6 +140,17 @@ export default class ChartTitle extends PureComponent {
       }
     });
   };
+  onSortEnd = ({ oldIndex, newIndex }, e) => {
+    e.preventDefault();
+    const { handleSorting, RangeData = [] } = this.props;
+    if (oldIndex !== newIndex && RangeData && RangeData.length > 0) {
+      const RangeList = RangeData.filter((item) => item.sequence === oldIndex);
+      if (RangeList && RangeList.length > 0) {
+        const info = Object.assign({}, RangeList[0], { sequence: newIndex });
+        handleSorting(info, arrayMove(RangeData, oldIndex, newIndex));
+      }
+    }
+  };
 
   render() {
     const {
@@ -147,12 +161,14 @@ export default class ChartTitle extends PureComponent {
       operation,
       onDelete,
       onEdit,
+      upData,
       baseInfo,
+      serviceId = '',
       RangeData = [],
       appAlias = ''
     } = this.props;
     const { getFieldDecorator } = form;
-    const { start, end } = this.state;
+    const { start, end, isLoading } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -180,7 +196,58 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       appAlias
     };
-
+    const SortableItem = SortableElement(({ value }) => {
+      const { title, promql, sequence, ID } = value;
+      return (
+        <div
+          key={ID}
+          index={sequence}
+          style={{
+            zIndex: 99999999,
+            cursor: 'all-scroll',
+            minHeight: '278px'
+          }}
+        >
+          <RangeChart
+            key={ID}
+            isRender={false}
+            moduleName="CustomMonitor"
+            style={{ zIndex: 99999999, cursor: 'all-scroll' }}
+            {...parameter}
+            upData={upData}
+            onCancelLoading={this.setState({ isLoading: false })}
+            isLoading={isLoading}
+            serviceId={serviceId}
+            CustomMonitorInfo={value}
+            title={title}
+            type={promql}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        </div>
+      );
+    });
+    const gridStyles = {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridGap: '16px'
+    };
+    const SortableList = SortableContainer(({ items }) => {
+      return (
+        <div style={gridStyles}>
+          {items.map((item, index) => {
+            return (
+              <SortableItem
+                style={{ zIndex: 99999999 }}
+                key={`item-${index}`}
+                index={item.sequence}
+                value={item}
+              />
+            );
+          })}
+        </div>
+      );
+    });
     return (
       <Fragment>
         <Row>
@@ -223,6 +290,7 @@ export default class ChartTitle extends PureComponent {
             {operation}
           </Col>
         </Row>
+
         {moduleName === 'ResourceMonitoring' ? (
           <Row style={{ padding: '-8px' }}>
             {RangeData.map((item) => {
@@ -234,21 +302,15 @@ export default class ChartTitle extends PureComponent {
             })}
           </Row>
         ) : moduleName === 'CustomMonitor' ? (
-          RangeData.map((item) => {
-            const { promql, ID, title } = item;
-            return (
-              <Col span={12} key={ID} style={{ padding: '8px' }}>
-                <RangeChart
-                  {...parameter}
-                  CustomMonitorInfo={item}
-                  title={title}
-                  type={promql}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              </Col>
-            );
-          })
+          <div>
+            <SortableList
+              axis="xy"
+              distance={1}
+              style={{ zIndex: 99999999 }}
+              items={RangeData}
+              onSortEnd={this.onSortEnd}
+            />
+          </div>
         ) : (
           RangeData.map((item) => {
             return <RangeChart key={item} {...parameter} type={item} />;
