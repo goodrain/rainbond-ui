@@ -18,7 +18,14 @@ export default class CollectionView extends PureComponent {
   };
 
   render() {
-    const { visible, onCancel, form, title, data } = this.props;
+    const {
+      visible,
+      onCancel,
+      form,
+      title,
+      data,
+      loading = false
+    } = this.props;
     const formItemLayout = {
       labelCol: {
         span: 5
@@ -31,6 +38,7 @@ export default class CollectionView extends PureComponent {
     return (
       <Modal
         className={styless.TelescopicModal}
+        confirmLoading={loading}
         title={title}
         visible={visible}
         onOk={this.handleSubmit}
