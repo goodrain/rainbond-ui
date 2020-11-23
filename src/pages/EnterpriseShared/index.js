@@ -606,10 +606,6 @@ export default class EnterpriseShared extends PureComponent {
       visibles,
       bouncedText,
       appStoreAdmin: {
-        isCreateApp,
-        isEditApp,
-        isDeleteApp,
-        isImportApp,
         isExportApp,
         isCreateAppStore,
         isEditAppStore,
@@ -629,7 +625,7 @@ export default class EnterpriseShared extends PureComponent {
     const isMarket = marketInfo && marketInfo.status == 1;
     const defaulAppImg = globalUtil.fetchSvg('defaulAppImg');
     const managementMenu = (info) => {
-      const delApp = isDeleteApp && (
+      const delApp = (
         <Menu.Item>
           <a
             onClick={() => {
@@ -641,7 +637,7 @@ export default class EnterpriseShared extends PureComponent {
         </Menu.Item>
       );
 
-      const editorApp = isEditApp && (
+      const editorApp = (
         <Menu.Item>
           <a
             onClick={() => {
@@ -673,16 +669,12 @@ export default class EnterpriseShared extends PureComponent {
     };
     const operation = (
       <Col span={5} style={{ textAlign: 'right' }} className={styles.btns}>
-        {isImportApp && (
-          <Button style={{ margin: '0 14px 0 10px' }}>
-            <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
-          </Button>
-        )}
-        {isCreateApp && (
-          <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-            创建应用模版
-          </Button>
-        )}
+        <Button style={{ margin: '0 14px 0 10px' }}>
+          <Link to={`/enterprise/${eid}/shared/import`}>离线导入</Link>
+        </Button>
+        <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+          创建应用模版
+        </Button>
       </Col>
     );
 
@@ -709,16 +701,12 @@ export default class EnterpriseShared extends PureComponent {
         <img src={NoComponent} />
         <p>当前无应用模版，请选择方式添加</p>
         <div className={styles.btns}>
-          {isCreateApp && (
-            <Button type="primary" onClick={this.handleOpenCreateAppModel}>
-              创建应用模版
-            </Button>
-          )}
-          {isImportApp && (
-            <Button type="primary">
-              <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
-            </Button>
-          )}
+          <Button type="primary" onClick={this.handleOpenCreateAppModel}>
+            创建应用模版
+          </Button>
+          <Button type="primary">
+            <Link to={`/enterprise/${eid}/shared/import`}>导入应用模版</Link>
+          </Button>
         </div>
       </div>
     );

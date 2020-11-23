@@ -93,10 +93,6 @@ const userUtil = {
   },
   marketPermissions(parameter) {
     const arrMap = {
-      'app_store.create_app': 'isCreateApp',
-      'app_store.edit_app': 'isEditApp',
-      'app_store.delete_app': 'isDeleteApp',
-      'app_store.import_app': 'isImportApp',
       'app_store.export_app': 'isExportApp',
       'app_store.create_app_store': 'isCreateAppStore',
       'app_store.edit_app_store': 'isEditAppStore',
