@@ -18,29 +18,32 @@ import {
   Row,
   Spin,
   Table,
-  Tooltip
-} from "antd";
-import { connect } from "dva";
-import { Link } from "dva/router";
-import moment from "moment";
-import numeral from "numeral";
-import React, { PureComponent } from "react";
-import { FormattedMessage } from "umi-plugin-locale";
-import EditGroupName from "../../components/AddOrEditGroup";
-import { ChartCard, MiniArea } from "../../components/Charts";
-import NumberInfo from "../../components/NumberInfo";
-import Result from "../../components/Result";
-import PageHeaderLayout from "../../layouts/PageHeaderLayout";
-import { createEnterprise, createTeam } from "../../utils/breadcrumb";
-import configureGlobal from "../../utils/configureGlobal";
-import cookie from "../../utils/cookie";
-import globalUtil from "../../utils/global";
-import guideutil from "../../utils/guide";
-import rainbondUtil from "../../utils/rainbond";
-import roleUtil from "../../utils/role";
-import sourceUtil from "../../utils/source-unit";
-import userUtil from "../../utils/user";
-import styles from "./Index.less";
+  Tooltip,
+  Input
+} from 'antd';
+import { connect } from 'dva';
+import { Link } from 'dva/router';
+import moment from 'moment';
+import numeral from 'numeral';
+import React, { PureComponent } from 'react';
+import { FormattedMessage } from 'umi-plugin-locale';
+import EditGroupName from '../../components/AddOrEditGroup';
+import { ChartCard, MiniArea } from '../../components/Charts';
+import NumberInfo from '../../components/NumberInfo';
+import Result from '../../components/Result';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { createEnterprise, createTeam } from '../../utils/breadcrumb';
+import configureGlobal from '../../utils/configureGlobal';
+import cookie from '../../utils/cookie';
+import globalUtil from '../../utils/global';
+import guideutil from '../../utils/guide';
+import rainbondUtil from '../../utils/rainbond';
+import roleUtil from '../../utils/role';
+import sourceUtil from '../../utils/source-unit';
+import userUtil from '../../utils/user';
+import styles from './Index.less';
+
+const { Search } = Input;
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currUser: user.currentUser,
@@ -62,6 +65,7 @@ export default class Index extends PureComponent {
     this.state = {
       addApplication: false,
       teamAppList: [],
+      query: '',
       page: 1,
       page_size: 10,
       total: 0,
@@ -72,7 +76,7 @@ export default class Index extends PureComponent {
       serviceList: [],
       servicePage: 1,
       servicePageSize: 5,
-      num: "",
+      num: '',
       visitData: [],
       current: null,
       guidevisible: false,
@@ -105,13 +109,13 @@ export default class Index extends PureComponent {
     });
   };
 
-  onDomainPageChange = domainPage => {
+  onDomainPageChange = (domainPage) => {
     this.setState({ domainPage }, () => {
       this.getDomainName();
     });
   };
 
-  onServicePageChange = servicePage => {
+  onServicePageChange = (servicePage) => {
     this.setState({ servicePage }, () => {
       this.getService();
     });
@@ -121,14 +125,14 @@ export default class Index extends PureComponent {
   getService = () => {
     const { servicePage, servicePageSize } = this.state;
     this.props.dispatch({
-      type: "global/getService",
+      type: 'global/getService',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
         page: servicePage,
         page_size: servicePageSize
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           this.setState({
             serviceList: res.list
@@ -144,11 +148,21 @@ export default class Index extends PureComponent {
   getStep = () => {
     return 60;
   };
-
+  handleSearchApp = (query) => {
+    this.setState(
+      {
+        query,
+        page: 1
+      },
+      () => {
+        this.getTeamAppList();
+      }
+    );
+  };
   getDomain = () => {
     const { domainPage, domainPageSize } = this.state;
     this.props.dispatch({
-      type: "global/getDomainName",
+      type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -159,7 +173,7 @@ export default class Index extends PureComponent {
         step: this.getStep(),
         end: new Date().getTime() / 1000
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           const visitDatas =
             res.bean &&
@@ -173,8 +187,8 @@ export default class Index extends PureComponent {
             for (let i = 0; i < visitDatas.length; i += 1) {
               arr.push({
                 x: moment(new Date(visitDatas[i][0] * 1000))
-                  .locale("zh-cn")
-                  .format("YYYY-MM-DD HH:mm"),
+                  .locale('zh-cn')
+                  .format('YYYY-MM-DD HH:mm'),
                 y: Math.floor(visitDatas[i][1])
               });
             }
@@ -185,7 +199,7 @@ export default class Index extends PureComponent {
             },
             () => {
               this.handleTimers(
-                "getDomainTimer",
+                'getDomainTimer',
                 () => {
                   this.getDomain();
                 },
@@ -195,10 +209,10 @@ export default class Index extends PureComponent {
           );
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.handleError(err);
         this.handleTimers(
-          "getDomainTimer",
+          'getDomainTimer',
           () => {
             this.getDomain();
           },
@@ -212,7 +226,7 @@ export default class Index extends PureComponent {
   getDomainName = () => {
     const { domainPage, domainPageSize } = this.state;
     this.props.dispatch({
-      type: "global/getDomainName",
+      type: 'global/getDomainName',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName(),
@@ -220,7 +234,7 @@ export default class Index extends PureComponent {
         page_size: domainPageSize,
         id: 1
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           this.setState(
             {
@@ -230,7 +244,7 @@ export default class Index extends PureComponent {
             },
             () => {
               this.handleTimers(
-                "getDomainNameTimer",
+                'getDomainNameTimer',
                 () => {
                   this.getDomainName();
                 },
@@ -240,10 +254,10 @@ export default class Index extends PureComponent {
           );
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.handleError(err);
         this.handleTimers(
-          "getDomainNameTimer",
+          'getDomainNameTimer',
           () => {
             this.getDomainName();
           },
@@ -254,16 +268,17 @@ export default class Index extends PureComponent {
   };
 
   getTeamAppList = () => {
-    const { page, page_size } = this.state;
+    const { page, page_size, query } = this.state;
     this.props.dispatch({
-      type: "global/getTeamAppList",
+      type: 'global/getTeamAppList',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: globalUtil.getCurrRegionName(),
+        query,
         page,
         page_size
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           this.setState({
             teamAppList: res.list,
@@ -276,11 +291,11 @@ export default class Index extends PureComponent {
 
   getGuideState = () => {
     this.props.dispatch({
-      type: "global/getGuideState",
+      type: 'global/getGuideState',
       payload: {
         enterprise_id: this.props.currUser.enterprise_id
       },
-      callback: res => {
+      callback: (res) => {
         if (res && res._code == 200) {
           const { list } = res;
           let current = 7;
@@ -298,9 +313,9 @@ export default class Index extends PureComponent {
             },
             () => {
               const isGuidevisible =
-                this.state.current === 7 ? false : !cookie.get("newbie_guide");
-              if (this.state.current !== 7 && !cookie.get("newbie_guide")) {
-                cookie.setGuide("newbie_guide", "true");
+                this.state.current === 7 ? false : !cookie.get('newbie_guide');
+              if (this.state.current !== 7 && !cookie.get('newbie_guide')) {
+                cookie.setGuide('newbie_guide', 'true');
               }
               this.setState({
                 guidevisible: isGuidevisible
@@ -314,7 +329,7 @@ export default class Index extends PureComponent {
 
   getRegionResource() {
     this.props.dispatch({
-      type: "global/getRegionSource",
+      type: 'global/getRegionSource',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id,
@@ -324,7 +339,7 @@ export default class Index extends PureComponent {
   }
   getCompanyInfo = () => {
     this.props.dispatch({
-      type: "global/getCompanyInfo",
+      type: 'global/getCompanyInfo',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         enterprise_id: this.props.currUser.enterprise_id
@@ -332,7 +347,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  handleError = err => {
+  handleError = (err) => {
     if (err && err.data && err.data.msg_show) {
       notification.warning({
         message: `请求错误`,
@@ -354,11 +369,11 @@ export default class Index extends PureComponent {
       globalUtil.getCurrRegionName()
     );
     if (region) {
-      return region.region_scope === "public";
+      return region.region_scope === 'public';
     }
     return false;
   }
-  handleClearTimeout = timer => {
+  handleClearTimeout = (timer) => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -367,16 +382,16 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     this.setState({ loadingOverview: true });
     dispatch({
-      type: "index/fetchOverview",
+      type: 'index/fetchOverview',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName()
       },
-      callback: res => {
+      callback: (res) => {
         this.setState({ loadingOverview: false, loadedOverview: true });
         if (res && res.bean && res.bean.region_health) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
               isNouse: false
             }
@@ -393,11 +408,11 @@ export default class Index extends PureComponent {
           }
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.setState({ loadingOverview: false, loadedOverview: true });
         if (err && err.code === 10400) {
           dispatch({
-            type: "global/setNouse",
+            type: 'global/setNouse',
             payload: {
               isNouse: true
             }
@@ -410,7 +425,7 @@ export default class Index extends PureComponent {
   loadEvents = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "index/fetchEvents",
+      type: 'index/fetchEvents',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page: 1,
@@ -423,8 +438,8 @@ export default class Index extends PureComponent {
     const { dispatch, form, index } = this.props;
     const { pagination } = index;
     let searchKey = {
-      searchKey: "",
-      service_status: ""
+      searchKey: '',
+      service_status: ''
     };
     // 获取搜索信息
     form.validateFields((err, fieldsValue) => {
@@ -436,18 +451,18 @@ export default class Index extends PureComponent {
       region_name: globalUtil.getCurrRegionName(),
       page: pagination.currentPage,
       page_size: pagination.pageSize,
-      order: (pagination.order || "").replace("end", ""),
+      order: (pagination.order || '').replace('end', ''),
       fields: pagination.fields,
       ...searchKey
     };
 
     dispatch({
-      type: "index/fetchApps",
+      type: 'index/fetchApps',
       payload,
-      callback: res => {
+      callback: (res) => {
         if (res && res._code === 200) {
           this.handleTimers(
-            "loadAppsTimer",
+            'loadAppsTimer',
             () => {
               this.loadApps();
             },
@@ -455,10 +470,10 @@ export default class Index extends PureComponent {
           );
         }
       },
-      handleError: err => {
+      handleError: (err) => {
         this.handleError(err);
         this.handleTimers(
-          "loadAppsTimer",
+          'loadAppsTimer',
           () => {
             this.loadApps();
           },
@@ -475,8 +490,8 @@ export default class Index extends PureComponent {
       return (
         <p
           style={{
-            textAlign: "center",
-            color: "ccc",
+            textAlign: 'center',
+            color: 'ccc',
             paddingTop: 20
           }}
         >
@@ -485,7 +500,7 @@ export default class Index extends PureComponent {
       );
     }
 
-    return list.map(item => {
+    return list.map((item) => {
       const {
         UserName,
         OptType,
@@ -505,11 +520,11 @@ export default class Index extends PureComponent {
               <span>
                 <a className={styles.username}>{UserName}</a>
                 <span className={styles.event}>
-                  {" "}
+                  {' '}
                   {globalUtil.fetchStateOptTypeText(OptType)}
                 </span>
                 &nbsp;
-                {Target && Target === "service" && (
+                {Target && Target === 'service' && (
                   <Link to={linkTo} className={styles.event}>
                     {item.service_name}
                   </Link>
@@ -535,22 +550,22 @@ export default class Index extends PureComponent {
     });
   }
 
-  handleOkApplication = vals => {
+  handleOkApplication = (vals) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "groupControl/addGroup",
+      type: 'groupControl/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         group_name: vals.group_name,
         group_note: vals.group_note
       },
-      callback: res => {
+      callback: (res) => {
         if (res) {
-          notification.success({ message: "添加成功" });
+          notification.success({ message: '添加成功' });
           this.handleCancelApplication();
           this.getTeamAppList();
           dispatch({
-            type: "global/fetchGroups",
+            type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName()
             }
@@ -579,19 +594,19 @@ export default class Index extends PureComponent {
   render() {
     const columns = [
       {
-        title: "域名",
-        dataIndex: "metric",
-        key: "metric",
-        width: "70%",
+        title: '域名',
+        dataIndex: 'metric',
+        key: 'metric',
+        width: '70%',
         render: (text, record) => (
           <Tooltip title={record.metric.host}>
             <div
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                height: "38px",
-                lineHeight: "17px",
-                overflow: "auto"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                height: '38px',
+                lineHeight: '17px',
+                overflow: 'auto'
               }}
             >
               <a href={`http://${record.metric.host}`} target="_blank">
@@ -602,19 +617,19 @@ export default class Index extends PureComponent {
         )
       },
       {
-        title: "请求量/时",
-        dataIndex: "value",
-        key: "value",
-        width: "30%",
+        title: '请求量/时',
+        dataIndex: 'value',
+        key: 'value',
+        width: '30%',
         sorter: (a, b) => a.range - b.range,
         render: (text, record) => (
           // <Trend flag={record.status === 1 ? 'down' : 'up'}>
           <span
             style={{
-              wordBreak: "break-all",
-              wordWrap: "break-word",
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
               marginRight: 4,
-              display: "inline-block"
+              display: 'inline-block'
               // minHeight: "35px"
             }}
           >
@@ -622,16 +637,16 @@ export default class Index extends PureComponent {
           </span>
         ),
         // </Trend>
-        align: "right"
+        align: 'right'
       }
     ];
 
     const columnTwo = [
       {
-        title: "组件名称",
-        dataIndex: "metric",
-        key: "metric",
-        width: "65%",
+        title: '组件名称',
+        dataIndex: 'metric',
+        key: 'metric',
+        width: '65%',
         render: (text, record) => (
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${
@@ -641,40 +656,40 @@ export default class Index extends PureComponent {
             <Tooltip title={record.metric.service_cname}>
               <a
                 style={{
-                  display: "inline-block",
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                  height: "38px",
-                  lineHeight: "17px",
-                  overflow: "auto"
+                  display: 'inline-block',
+                  wordBreak: 'break-all',
+                  wordWrap: 'break-word',
+                  height: '38px',
+                  lineHeight: '17px',
+                  overflow: 'auto'
                 }}
               >
-                {record.metric.service_cname}{" "}
+                {record.metric.service_cname}{' '}
               </a>
             </Tooltip>
           </Link>
         )
       },
       {
-        title: "请求量/时",
-        dataIndex: "value",
-        key: "value",
-        width: "35%",
+        title: '请求量/时',
+        dataIndex: 'value',
+        key: 'value',
+        width: '35%',
         sorter: (a, b) => a.range - b.range,
         render: (text, record) => (
           <span
             style={{
-              display: "inline-block",
+              display: 'inline-block',
               marginRight: 4,
-              wordBreak: "break-all",
-              wordWrap: "break-word",
-              minHeight: "35px"
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
+              minHeight: '35px'
             }}
           >
             {record.value[1]}
           </span>
         ),
-        align: "right"
+        align: 'right'
       }
     ];
     const {
@@ -696,7 +711,7 @@ export default class Index extends PureComponent {
 
     const isCreate = roleUtil.queryAppInfo(
       currentTeamPermissionsInfo,
-      "create"
+      'create'
     );
 
     const extraContent = (
@@ -707,7 +722,7 @@ export default class Index extends PureComponent {
             <FormattedMessage id="team.appNum" />
           </p>
           <div>
-            <div style={{ color: "rgba(0,0,0,.85)" }}>
+            <div style={{ color: 'rgba(0,0,0,.85)' }}>
               {index.overviewInfo.team_app_num || 0}
             </div>
           </div>
@@ -717,7 +732,7 @@ export default class Index extends PureComponent {
             <Badge status="processing" />
             <FormattedMessage id="team.componentNum" />
           </p>
-          <div style={{ color: "rgba(0,0,0,.85)" }}>
+          <div style={{ color: 'rgba(0,0,0,.85)' }}>
             {index.overviewInfo.team_service_num || 0}
           </div>
         </div>
@@ -730,9 +745,9 @@ export default class Index extends PureComponent {
             <Link
               to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control`}
               style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-                color: "#1890ff"
+                wordBreak: 'break-all',
+                wordWrap: 'break-word',
+                color: '#1890ff'
               }}
             >
               {index.overviewInfo.total_http_domain +
@@ -747,15 +762,15 @@ export default class Index extends PureComponent {
           </p>
           <div>
             <Tooltip
-              style={{ color: "rgba(0,0,0,.85)" }}
+              style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
                 index.overviewInfo.team_service_memory_count || 0,
-                "MB"
+                'MB'
               )}`}
             >
               {`${sourceUtil.unit(
                 index.overviewInfo.team_service_memory_count || 0,
-                "MB"
+                'MB'
               )}`}
             </Tooltip>
           </div>
@@ -767,15 +782,15 @@ export default class Index extends PureComponent {
           </p>
           <div>
             <Tooltip
-              style={{ color: "rgba(0,0,0,.85)" }}
+              style={{ color: 'rgba(0,0,0,.85)' }}
               title={`${sourceUtil.unit(
                 index.overviewInfo.team_service_total_disk || 0,
-                "MB"
+                'MB'
               )}`}
             >
               {`${sourceUtil.unit(
                 index.overviewInfo.team_service_total_disk || 0,
-                "MB"
+                'MB'
               )}`}
             </Tooltip>
           </div>
@@ -787,9 +802,9 @@ export default class Index extends PureComponent {
           </p>
           <div
             style={{
-              wordBreak: "break-all",
-              wordWrap: "break-word",
-              color: "rgba(0,0,0,.85)"
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
+              color: 'rgba(0,0,0,.85)'
             }}
           >
             {index.overviewInfo.share_app_num || 0}
@@ -809,17 +824,17 @@ export default class Index extends PureComponent {
       <PageHeaderLayout>
         {loadingOverview && <Spin tip="Loading..." />}
         {!loadingOverview && index.overviewInfo.region_health && (
-          <div style={{ margin: "0px -24px 0" }}>
+          <div style={{ margin: '0px -24px 0' }}>
             <Modal
               title={
                 configureGlobal.rainbondTextShow && (
                   <h1
                     style={{
-                      color: "#1890FF",
-                      textAlign: "center",
-                      border: "none",
-                      marginBottom: "0px",
-                      marginTop: "10px"
+                      color: '#1890FF',
+                      textAlign: 'center',
+                      border: 'none',
+                      marginBottom: '0px',
+                      marginTop: '10px'
                     }}
                   >
                     欢迎使用云应用操作系统
@@ -834,7 +849,7 @@ export default class Index extends PureComponent {
               className={styles.modals}
               maskClosable={false}
             >
-              <p style={{ fontSize: "17px" }}>
+              <p style={{ fontSize: '17px' }}>
                 是以企业云原生应用开发、架构、运维、共享、交付为核心的Kubernetes多云赋能平台。为了便于你使用和理解平台项目，我们特意为你准备了
                 平台 基础功能流程的新手任务
               </p>
@@ -858,31 +873,31 @@ export default class Index extends PureComponent {
                           style={{
                             marginLeft:
                               index == 0
-                                ? "53px"
+                                ? '53px'
                                 : index == 1
-                                ? "80px"
+                                ? '80px'
                                 : index == 2
-                                ? "100px"
+                                ? '100px'
                                 : index == 3
-                                ? "72px"
+                                ? '72px'
                                 : index == 4
-                                ? "82px"
+                                ? '82px'
                                 : index == 5
-                                ? "77px"
-                                : "53px",
+                                ? '77px'
+                                : '53px',
                             width:
                               index == 1
-                                ? "86%"
+                                ? '86%'
                                 : index == 2
-                                ? "60%"
+                                ? '60%'
                                 : index == 3
-                                ? "86%"
+                                ? '86%'
                                 : index == 4
-                                ? "78%"
+                                ? '78%'
                                 : index == 5
-                                ? "77%"
-                                : "100%",
-                            display: index == 6 ? "none" : ""
+                                ? '77%'
+                                : '100%',
+                            display: index == 6 ? 'none' : ''
                           }}
                         />
                         <div
@@ -920,13 +935,13 @@ export default class Index extends PureComponent {
                   })}
                 </div>
               </p>
-              <p style={{ textAlign: "center" }}>
+              <p style={{ textAlign: 'center' }}>
                 <Link
                   to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/guide`}
                   style={{
-                    wordBreak: "break-all",
-                    wordWrap: "break-word",
-                    color: "#1890ff"
+                    wordBreak: 'break-all',
+                    wordWrap: 'break-word',
+                    color: '#1890ff'
                   }}
                 >
                   <Button type="primary">查看详情</Button>
@@ -942,7 +957,7 @@ export default class Index extends PureComponent {
                   md={14}
                   lg={14}
                   xl={14}
-                  style={{ paddingRight: "10px" }}
+                  style={{ paddingRight: '10px' }}
                 >
                   {extraContent}
                   <Card
@@ -952,19 +967,25 @@ export default class Index extends PureComponent {
                     title={
                       <div
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between"
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
                         }}
                       >
                         <span>应用</span>
+                        <Search
+                          style={{ width: '350px' }}
+                          placeholder="请输入应用名称进行搜索"
+                          onSearch={this.handleSearchApp}
+                        />
                         {isCreate && (
                           <a
-                            style={{ fontSize: "14px", fontWeight: 400 }}
+                            style={{ fontSize: '14px', fontWeight: 400 }}
                             onClick={() => {
                               this.setState({ addApplication: true });
                             }}
                           >
-                            增加应用
+                            新建应用
                           </a>
                         )}
                       </div>
@@ -972,7 +993,7 @@ export default class Index extends PureComponent {
                     bordered={false}
                     bodyStyle={{
                       padding: 0,
-                      height: "100%"
+                      height: '100%'
                     }}
                   >
                     {teamAppList &&
@@ -989,20 +1010,20 @@ export default class Index extends PureComponent {
                         return (
                           <div
                             key={index}
-                            style={{ borderBottom: "1px solid #e8e8e8" }}
+                            style={{ borderBottom: '1px solid #e8e8e8' }}
                           >
-                            <div style={{ padding: "10px 20px" }}>
+                            <div style={{ padding: '10px 20px' }}>
                               <Link
                                 to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${
                                   item.group_id
                                 }`}
                                 style={{
-                                  wordBreak: "break-all",
-                                  wordWrap: "break-word",
-                                  color: "rgba(0,0,0,.85)"
+                                  wordBreak: 'break-all',
+                                  wordWrap: 'break-word',
+                                  color: 'rgba(0,0,0,.85)'
                                 }}
                               >
-                                <a style={{ fontSize: "16px" }}>{group_name}</a>
+                                <a style={{ fontSize: '16px' }}>{group_name}</a>
                               </Link>
 
                               <div className={styles.teamListStyle}>
@@ -1013,15 +1034,15 @@ export default class Index extends PureComponent {
                                       item.group_id
                                     }`}
                                     style={{
-                                      wordBreak: "break-all",
-                                      wordWrap: "break-word",
-                                      color: "rgba(0,0,0,.85)"
+                                      wordBreak: 'break-all',
+                                      wordWrap: 'break-word',
+                                      color: 'rgba(0,0,0,.85)'
                                     }}
                                   >
                                     <a>
                                       {run_service_num
                                         ? `${run_service_num}/`
-                                        : ""}
+                                        : ''}
                                       {services_num}
                                     </a>
                                   </Link>
@@ -1033,19 +1054,19 @@ export default class Index extends PureComponent {
                                       item.group_id
                                     }/backup`}
                                     style={{
-                                      wordBreak: "break-all",
-                                      wordWrap: "break-word",
-                                      color: "rgba(0,0,0,.85)"
+                                      wordBreak: 'break-all',
+                                      wordWrap: 'break-word',
+                                      color: 'rgba(0,0,0,.85)'
                                     }}
                                   >
-                                    <a style={{ fontSize: "16px" }}>
+                                    <a style={{ fontSize: '16px' }}>
                                       {backup_record_num}
                                     </a>
                                   </Link>
                                 </div>
                                 <div>
                                   <span>分享记录：</span>
-                                  <a style={{ color: "rgba(0, 0, 0, 0.65)" }}>
+                                  <a style={{ color: 'rgba(0, 0, 0, 0.65)' }}>
                                     {share_record_num}
                                   </a>
                                 </div>
@@ -1058,7 +1079,7 @@ export default class Index extends PureComponent {
                     {teamAppList &&
                     teamAppList.length > 0 &&
                     this.state.total > 0 ? (
-                      <div style={{ textAlign: "right", margin: "15px" }}>
+                      <div style={{ textAlign: 'right', margin: '15px' }}>
                         <Pagination
                           current={this.state.page}
                           pageSize={this.state.page_size}
@@ -1075,9 +1096,9 @@ export default class Index extends PureComponent {
                   <Card
                     style={{
                       marginBottom: 10,
-                      border: "none",
-                      height: "562px",
-                      overflow: "hidden"
+                      border: 'none',
+                      height: '562px',
+                      overflow: 'hidden'
                     }}
                     title="热门访问域名"
                     bordered={false}
@@ -1088,8 +1109,8 @@ export default class Index extends PureComponent {
                   >
                     <ChartCard
                       style={{
-                        marginTop: "-20px",
-                        border: "none"
+                        marginTop: '-20px',
+                        border: 'none'
                       }}
                     >
                       <NumberInfo
@@ -1105,13 +1126,13 @@ export default class Index extends PureComponent {
                           </span>
                         }
                         gap={8}
-                        total={numeral(this.state.num).format("0,0")}
+                        total={numeral(this.state.num).format('0,0')}
                       />
                       <MiniArea line height={45} data={this.state.visitData} />
                       <Table
-                        rowKey={record => record.index}
+                        rowKey={(record) => record.index}
                         size="small"
-                        style={{ marginTop: "15px", height: "300px" }}
+                        style={{ marginTop: '15px', height: '300px' }}
                         columns={columns}
                         dataSource={domainList}
                         pagination={{
@@ -1138,18 +1159,18 @@ export default class Index extends PureComponent {
                     <Col span={24}>
                       <ChartCard
                         style={{
-                          marginTop: "-20px",
-                          border: "none"
+                          marginTop: '-20px',
+                          border: 'none'
                         }}
                       >
                         <Table
                           className={styles.cancelMargin}
                           style={{
-                            height: "390px",
-                            marginTop: "-20px",
-                            overflow: "auto"
+                            height: '390px',
+                            marginTop: '-20px',
+                            overflow: 'auto'
                           }}
-                          rowKey={record => record.index}
+                          rowKey={(record) => record.index}
                           size="small"
                           columns={columnTwo}
                           dataSource={serviceList}
@@ -1162,7 +1183,7 @@ export default class Index extends PureComponent {
               </Row>
               {this.state.addApplication && (
                 <EditGroupName
-                  title="添加应用"
+                  title="新建应用"
                   onCancel={this.handleCancelApplication}
                   onOk={this.handleOkApplication}
                 />
