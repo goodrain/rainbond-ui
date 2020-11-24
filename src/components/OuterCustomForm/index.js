@@ -12,7 +12,7 @@ import {
   Col,
   Icon,
   Tooltip,
-  message,
+  message
 } from 'antd';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
@@ -30,11 +30,11 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 6,
+    span: 6
   },
   wrapperCol: {
-    span: 18,
-  },
+    span: 18
+  }
 };
 const regs = /^(?=^.{3,255}$)(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*$/;
 const rega = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/;
@@ -44,7 +44,7 @@ const rege = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]
   ({ user, global }) => ({
     currUser: user.currentUser,
     groups: global.groups,
-    rainbondInfo: global.rainbondInfo,
+    rainbondInfo: global.rainbondInfo
   }),
   null,
   null,
@@ -61,7 +61,7 @@ export default class Index extends PureComponent {
       serverType: 'git',
       endpointsType: 'static',
       visible: false,
-      staticList: [''],
+      staticList: ['']
     };
   }
   onAddGroup = () => {
@@ -71,39 +71,39 @@ export default class Index extends PureComponent {
   cancelAddGroup = () => {
     this.setState({ addGroup: false });
   };
-  handleAddGroup = vals => {
+  handleAddGroup = (vals) => {
     const { setFieldsValue } = this.props.form;
 
     this.props.dispatch({
-      type: 'groupControl/addGroup',
+      type: 'application/addGroup',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        ...vals,
+        ...vals
       },
-      callback: group => {
+      callback: (group) => {
         if (group) {
           // 获取群组
           this.props.dispatch({
             type: 'global/fetchGroups',
             payload: {
               team_name: globalUtil.getCurrTeamName(),
-              region_name: globalUtil.getCurrRegionName(),
+              region_name: globalUtil.getCurrRegionName()
             },
             callback: () => {
               setFieldsValue({ group_id: group.group_id });
               this.cancelAddGroup();
-            },
+            }
           });
         }
-      },
+      }
     });
   };
   handleChange = () => {
     this.setState({
-      visible: true,
+      visible: true
     });
   };
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -117,7 +117,7 @@ export default class Index extends PureComponent {
             fieldsValue.key == undefined)
         ) {
           this.setState({
-            visible: true,
+            visible: true
           });
         }
       }
@@ -126,41 +126,41 @@ export default class Index extends PureComponent {
       }
     });
   };
-  handleChangeEndpointsType = types => {
+  handleChangeEndpointsType = (types) => {
     this.props.form.setFieldsValue({
-      static: [''],
+      static: ['']
     });
     this.props.form.setFieldsValue({
-      endpoints_type: [''],
+      endpoints_type: ['']
     });
     this.setState({
       endpointsType: types.target.value,
-      staticList: [''],
+      staticList: ['']
     });
   };
 
   showModal = () => {
     this.props.form.validateFields(['type'], { force: true });
     this.setState({
-      visible: !!this.props.form.getFieldValue('type'),
+      visible: !!this.props.form.getFieldValue('type')
     });
   };
 
-  handleCancel = e => {
+  handleCancel = (e) => {
     this.setState({
-      visible: false,
+      visible: false
     });
   };
 
-  add = typeName => {
+  add = (typeName) => {
     const staticList = this.state.staticList;
     this.setState({ staticList: staticList.concat('') });
     this.props.form.setFieldsValue({
-      [typeName]: staticList.concat(''),
+      [typeName]: staticList.concat('')
     });
   };
 
-  remove = index => {
+  remove = (index) => {
     const staticList = this.state.staticList;
     staticList.splice(index, 1);
     this.setValues(staticList);
@@ -173,7 +173,7 @@ export default class Index extends PureComponent {
     }
     this.setState({ staticList: arr }, () => {
       this.props.form.setFieldsValue({
-        [typeName]: arr,
+        [typeName]: arr
       });
     });
   };
@@ -190,7 +190,7 @@ export default class Index extends PureComponent {
       return;
     }
     if (typeof value === 'object') {
-      value.map(item => {
+      value.map((item) => {
         if (item == '') {
           callback('请输入组件地址');
           return;
@@ -208,17 +208,14 @@ export default class Index extends PureComponent {
     }
     if (
       value && typeof value === 'object'
-        ? value.join().search('127.0.0.1') != -1
-        : value.search('127.0.0.1') != -1
+        ? value.join().search('127.0.0.1') !== -1 ||
+          value.join().search('1.1.1.1') !== -1 ||
+          value.join().search('localhost') !== -1
+        : value.search('127.0.0.1') !== -1 ||
+          value.search('1.1.1.1') !== -1 ||
+          value.search('localhost') !== -1
     ) {
-      callback('不支持127.0.0.1环回接口地址');
-    }
-    if (
-      value && typeof value === 'object'
-        ? value.join().search('localhost') != -1
-        : value.search('localhost') != -1
-    ) {
-      callback('不支持localhost环回接口地址');
+      callback(`不支持${value}${value == '1.1.1.1' ? '地址' : '环回接口地址'}`);
     }
     callback();
   };
@@ -229,7 +226,7 @@ export default class Index extends PureComponent {
       showUsernameAndPass,
       showKey,
       endpointsType,
-      staticList,
+      staticList
     } = this.state;
     const gitUrl = getFieldValue('git_url');
     let isHttp = /^(http:\/\/|https:\/\/)/.test(gitUrl || '');
@@ -250,7 +247,7 @@ export default class Index extends PureComponent {
           <Form.Item {...formItemLayout} label="组件名称">
             {getFieldDecorator('service_cname', {
               initialValue: data.service_cname || '',
-              rules: [{ required: true, message: '请输入组件名称' }],
+              rules: [{ required: true, message: '请输入组件名称' }]
             })(
               <Input
                 placeholder="请输入组件名称"
@@ -260,7 +257,7 @@ export default class Index extends PureComponent {
                     this.props.handleType && this.props.handleType === 'Service'
                       ? 350
                       : 277,
-                  marginRight: 15,
+                  marginRight: 15
                 }}
               />
             )}
@@ -272,7 +269,7 @@ export default class Index extends PureComponent {
                 this.props.handleType && this.props.handleType === 'Service'
                   ? Number(this.props.groupId)
                   : data.group_id,
-              rules: [{ required: true, message: '请选择' }],
+              rules: [{ required: true, message: '请选择' }]
             })(
               <Select
                 placeholder="请选择要所属应用"
@@ -282,7 +279,7 @@ export default class Index extends PureComponent {
                     this.props.handleType && this.props.handleType === 'Service'
                       ? 350
                       : 277,
-                  marginRight: 15,
+                  marginRight: 15
                 }}
                 disabled={
                   !!(
@@ -290,7 +287,7 @@ export default class Index extends PureComponent {
                   )
                 }
               >
-                {(groups || []).map(group => (
+                {(groups || []).map((group) => (
                   <Option key={group.group_id} value={group.group_id}>
                     {group.group_name}
                   </Option>
@@ -306,7 +303,7 @@ export default class Index extends PureComponent {
           <FormItem {...formItemLayout} label="组件注册方式">
             {getFieldDecorator('endpoints_type', {
               rules: [{ required: true, message: '请选择endpoints类型!' }],
-              initialValue: this.state.endpointsType,
+              initialValue: this.state.endpointsType
             })(
               <RadioGroup
                 onChange={this.handleChangeEndpointsType}
@@ -346,7 +343,7 @@ export default class Index extends PureComponent {
             >
               {getFieldDecorator('static', {
                 rules: [{ validator: this.validAttrName }],
-                initialValue: '',
+                initialValue: ''
               })(
                 <div>
                   {staticList.map((item, index) => {
@@ -402,7 +399,7 @@ export default class Index extends PureComponent {
               >
                 {getFieldDecorator('type', {
                   rules: [{ required: true, message: '请选择动态注册类型' }],
-                  initialValue: '',
+                  initialValue: ''
                 })(
                   <Select
                     onChange={this.handleChange}
@@ -410,7 +407,7 @@ export default class Index extends PureComponent {
                     style={{
                       display: 'inline-block',
                       width: 265,
-                      marginRight: 15,
+                      marginRight: 15
                     }}
                   >
                     {['Etcd'].map((port, index) => {
@@ -458,9 +455,9 @@ export default class Index extends PureComponent {
                   {getFieldDecorator('servers', {
                     rules: [
                       { required: true },
-                      { validator: this.validAttrName },
+                      { validator: this.validAttrName }
                     ],
-                    initialValue: '',
+                    initialValue: ''
                   })(
                     <div>
                       {staticList.map((item, index) => {
@@ -511,7 +508,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('key', {
                     rules: [{ required: true, message: '请输入key!' }],
-                    initialValue: undefined,
+                    initialValue: undefined
                   })(<Input placeholder="请输入key" />)}
                 </FormItem>
                 <FormItem
@@ -521,7 +518,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('username', {
                     rules: [{ required: false, message: '请输入用户名!' }],
-                    initialValue: undefined,
+                    initialValue: undefined
                   })(<Input placeholder="请输入用户名" />)}
                 </FormItem>
                 <FormItem
@@ -531,7 +528,7 @@ export default class Index extends PureComponent {
                 >
                   {getFieldDecorator('password', {
                     rules: [{ required: false, message: '请输入密码!' }],
-                    initialValue: undefined,
+                    initialValue: undefined
                   })(<Input placeholder="请输入密码" />)}
                 </FormItem>
               </Modal>
@@ -544,8 +541,8 @@ export default class Index extends PureComponent {
                 xs: { span: 24, offset: 0 },
                 sm: {
                   span: formItemLayout.wrapperCol.span,
-                  offset: formItemLayout.labelCol.span,
-                },
+                  offset: formItemLayout.labelCol.span
+                }
               }}
               label=""
             >
@@ -553,25 +550,25 @@ export default class Index extends PureComponent {
               this.props.handleType === 'Service' &&
               this.props.ButtonGroupState
                 ? this.props.handleServiceBotton(
-                  <Button onClick={this.handleSubmit} type="primary">
+                    <Button onClick={this.handleSubmit} type="primary">
                       新建组件
                     </Button>,
                     false
                   )
                 : !this.props.handleType && (
-                <div
+                    <div
                       style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent:
-                          endpointsType == 'api' ? 'space-evenly' : 'start',
+                          endpointsType == 'api' ? 'space-evenly' : 'start'
                       }}
                     >
                       <Button onClick={this.handleSubmit} type="primary">
-                    确认创建
+                        确认创建
                       </Button>
                       {endpointsType == 'api' && (
-                  <Alert
+                        <Alert
                           message="API地址在组件创建后获取"
                           type="warning"
                           showIcon
