@@ -319,11 +319,11 @@ export default class customMonitor extends PureComponent {
                 <div
                   style={{
                     display: 'inline-block',
-                    width: 'calc(100% - 68px)'
+                    width: 'calc(100% - 598px)',
+                    lineHeight: '40px'
                   }}
                 >
                   <Button
-                    icon="plus"
                     style={{ marginLeft: '5px' }}
                     onClick={this.handleCustomMonitoring}
                   >
