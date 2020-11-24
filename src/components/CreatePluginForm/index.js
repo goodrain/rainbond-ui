@@ -177,6 +177,7 @@ export default class Index extends PureComponent {
               <Option value="analyst-plugin:perf">性能分析</Option>
               <Option value="init-plugin">初始化类型</Option>
               <Option value="general-plugin">一般类型</Option>
+              <Option value="exporter-plugin">监控</Option>
             </Select>
           )}
         </Form.Item>
