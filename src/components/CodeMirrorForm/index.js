@@ -1,22 +1,22 @@
+import { Upload } from 'antd';
 import React, { PureComponent } from 'react';
 import CodeMirror from 'react-codemirror';
-import { Upload } from 'antd';
-import cookie from '../../utils/cookie';
 import apiconfig from '../../../config/api.config';
+import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 
-require('react-codemirror/node_modules/codemirror/lib/codemirror.css');
+require('codemirror/lib/codemirror.css');
 
-require('react-codemirror/node_modules/codemirror/theme/seti.css');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen.css');
+require('codemirror/theme/seti.css');
+require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
 
-require('react-codemirror/node_modules/codemirror/addon/display/panel');
-require('react-codemirror/node_modules/codemirror/mode/xml/xml');
-require('react-codemirror/node_modules/codemirror/mode/javascript/javascript');
-require('react-codemirror/node_modules/codemirror/mode/yaml/yaml');
-require('react-codemirror/node_modules/codemirror/addon/display/fullscreen');
-require('react-codemirror/node_modules/codemirror/addon/edit/matchbrackets');
+require('codemirror/addon/display/panel');
+require('codemirror/mode/xml/xml');
+require('codemirror/mode/javascript/javascript');
+require('codemirror/mode/yaml/yaml');
+require('codemirror/addon/display/fullscreen');
+require('codemirror/addon/edit/matchbrackets');
 
 // eslint-disable-next-line react/no-redundant-should-component-update
 class CodeMirrorForm extends PureComponent {
