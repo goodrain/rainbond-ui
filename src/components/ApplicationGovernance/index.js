@@ -72,7 +72,7 @@ export default class ApplicationGovernance extends PureComponent {
       },
       callback: (res) => {
         if (res && res._code === 200) {
-          notification.success({ message: '更新成功' });
+          this.handleNotification();
           onCancel();
         }
       }
@@ -105,12 +105,9 @@ export default class ApplicationGovernance extends PureComponent {
         governance_mode: value.governance_mode
       },
       callback: () => {
-        notification.success({
-          message: '切换成功',
-          duration: '3'
-        });
         onOk();
         if (value.governance_mode === 'BUILD_IN_SERVICE_MESH') {
+          this.handleNotification();
           onCancel();
         } else {
           this.fetchServiceNameList();
@@ -118,7 +115,12 @@ export default class ApplicationGovernance extends PureComponent {
       }
     });
   };
-
+  handleNotification = () => {
+    notification.success({
+      message: '切换成功、更新组件后生效',
+      duration: '3'
+    });
+  };
   fetchServiceNameList = () => {
     const { dispatch, appID } = this.props;
     dispatch({
@@ -182,6 +184,13 @@ export default class ApplicationGovernance extends PureComponent {
     callback(); // +
   };
   rowKey = (record, index) => index;
+  handleOnCancel = () => {
+    const { onCancel } = this.props;
+    if(this.state.step){
+      this.handleNotification();
+    }
+    onCancel();
+  };
 
   render() {
     const list = [
@@ -207,10 +216,10 @@ export default class ApplicationGovernance extends PureComponent {
         visible
         confirmLoading={loading || checkK8sLoading || governanceLoading}
         onOk={this.handleSubmit}
-        onCancel={onCancel}
+        onCancel={this.handleOnCancel}
         width={800}
         footer={[
-          <Button onClick={onCancel}> 取消 </Button>,
+          <Button onClick={this.handleOnCancel}> 取消 </Button>,
           <Button
             type="primary"
             loading={loading || checkK8sLoading || governanceLoading}
