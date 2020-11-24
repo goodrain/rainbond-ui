@@ -20,7 +20,7 @@ class MarketPlugin extends PureComponent {
     this.state = {
       list: null,
       showMarketPluginDetail: false,
-      showPlugin: {},
+      showPlugin: {}
     };
   }
   componentDidMount() {
@@ -31,34 +31,34 @@ class MarketPlugin extends PureComponent {
       type: 'plugin/getUnInstalledPlugin',
       payload: {
         page: 1,
-        limit: 1000,
+        limit: 1000
       },
-      callback: data => {
+      callback: (data) => {
         this.setState({
-          list: (data && data.list) || [],
+          list: (data && data.list) || []
         });
-      },
+      }
     });
   };
-  handleInstall = data => {
+  handleInstall = (data) => {
     this.props.dispatch({
       type: 'plugin/installMarketPlugin',
       payload: {
-        plugin_id: data.id,
+        plugin_id: data.id
       },
-      callback: data => {
+      callback: (data) => {
         notification.success({
-          message: '安装成功',
+          message: '安装成功'
         });
         this.fetchPlugins();
         this.props.onInstallSuccess && this.props.onInstallSuccess();
-      },
+      }
     });
   };
   hideMarketPluginDetail = () => {
     this.setState({ showMarketPluginDetail: false, showPlugin: {} });
   };
-  showMarketPluginDetail = plugin => {
+  showMarketPluginDetail = (plugin) => {
     this.setState({ showMarketPluginDetail: true, showPlugin: plugin });
   };
   renderTmp = () => {
@@ -71,7 +71,7 @@ class MarketPlugin extends PureComponent {
       );
     }
 
-    list = list.filter(item => {
+    list = list.filter((item) => {
       return !item.is_installed && item.is_complete;
     });
 
@@ -83,10 +83,10 @@ class MarketPlugin extends PureComponent {
           lg: 3,
           md: 2,
           sm: 1,
-          xs: 1,
+          xs: 1
         }}
         dataSource={list}
-        renderItem={item => (
+        renderItem={(item) => (
           <List.Item key={item.id}>
             <Card
               className={styles.card}
@@ -97,7 +97,7 @@ class MarketPlugin extends PureComponent {
                   }}
                 >
                   安装
-                </span>,
+                </span>
               ]}
             >
               <Card.Meta
@@ -128,7 +128,7 @@ class MarketPlugin extends PureComponent {
                       style={{
                         display: 'block',
                         color: 'rgb(220, 220, 220)',
-                        marginBottom: 8,
+                        marginBottom: 8
                       }}
                     >
                       {' '}
@@ -168,7 +168,7 @@ class MarketPlugin extends PureComponent {
 @connect(({ teamControl, enterprise }) => ({
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
-  currentEnterprise: enterprise.currentEnterprise,
+  currentEnterprise: enterprise.currentEnterprise
 }))
 class PluginList extends PureComponent {
   constructor(arg) {
@@ -176,7 +176,7 @@ class PluginList extends PureComponent {
     this.state = {
       defaultList: [],
       list: [],
-      deletePlugin: null,
+      deletePlugin: null
     };
     this.timer = null;
   }
@@ -184,19 +184,19 @@ class PluginList extends PureComponent {
     this.fetchDefaultPlugin();
   }
 
-  onDeletePlugin = plugin => {
+  onDeletePlugin = (plugin) => {
     this.setState({ deletePlugin: plugin });
   };
-  onInstallPlugin = item => {
+  onInstallPlugin = (item) => {
     this.props.dispatch({
       type: 'plugin/installDefaultPlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_type: item.category,
+        plugin_type: item.category
       },
-      callback: data => {
+      callback: (data) => {
         this.fetchDefaultPlugin();
-      },
+      }
     });
   };
 
@@ -235,21 +235,20 @@ class PluginList extends PureComponent {
           }}
         >
           安装
-        </span>,
+        </span>
       ];
     }
     return [];
   };
-  getItemTitle = item => {
-    if (item.hasInstall !== false) {
+  getItemTitle = (item) => {
+    if (item.has_install) {
       return (
         <Link
           to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/myplugns/${
             item.plugin_id
           }`}
         >
-          {' '}
-          {item.plugin_alias}{' '}
+          {item.plugin_alias}
         </Link>
       );
     }
@@ -260,20 +259,20 @@ class PluginList extends PureComponent {
     this.props.dispatch({
       type: 'plugin/getDefaultPlugin',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
-      callback: data => {
+      callback: (data) => {
         if (data && data.bean) {
           this.setState(
             {
-              defaultList: data.list,
+              defaultList: data.list
             },
             () => {
               this.fetchPlugins();
             }
           );
         }
-      },
+      }
     });
   };
   fetchPlugins = () => {
@@ -281,19 +280,26 @@ class PluginList extends PureComponent {
     this.props.dispatch({
       type: 'plugin/getMyPlugins',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: globalUtil.getCurrTeamName()
       },
-      callback: data => {
+      callback: (data) => {
         if (data) {
-          const arr = defaultList.filter(item => {
+          const arr = defaultList.filter((item) => {
             return !item.has_install;
           });
-          const list = [...arr, ...data.list] || [];
+          let installList = [];
+          if (data.list && data.list.length > 0) {
+            data.list.map((item) => {
+              item.has_install = true;
+              installList.push(item);
+            });
+          }
+          const list = [...arr, ...installList] || [];
           this.setState({
-            list,
+            list
           });
         }
-      },
+      }
     });
   };
   handleCreate = () => {
@@ -308,12 +314,12 @@ class PluginList extends PureComponent {
       type: 'plugin/deletePlugin',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        plugin_id: this.state.deletePlugin.plugin_id,
+        plugin_id: this.state.deletePlugin.plugin_id
       },
-      callback: data => {
+      callback: (data) => {
         this.fetchPlugins();
         this.cancelDeletePlugin();
-      },
+      }
     });
   };
 
@@ -325,7 +331,7 @@ class PluginList extends PureComponent {
       currentEnterprise,
       currentTeam,
       currentRegionName,
-      operationPermissions,
+      operationPermissions
     } = this.props;
     const { list } = this.state;
     const content = (
@@ -333,7 +339,6 @@ class PluginList extends PureComponent {
         <p>应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序</p>
       </div>
     );
-
     const extraContent = <div className={styles.extraImg} />;
     let breadcrumbList = [];
     breadcrumbList = createTeam(
@@ -357,10 +362,10 @@ class PluginList extends PureComponent {
               lg: 3,
               md: 2,
               sm: 1,
-              xs: 1,
+              xs: 1
             }}
             dataSource={['', ...list]}
-            renderItem={item =>
+            renderItem={(item) =>
               // eslint-disable-next-line no-nested-ternary
               item ? (
                 <List.Item key={item.id}>
@@ -383,7 +388,7 @@ class PluginList extends PureComponent {
                             style={{
                               display: 'block',
                               color: 'rgb(220, 220, 220)',
-                              marginBottom: 8,
+                              marginBottom: 8
                             }}
                           >
                             {' '}
@@ -434,26 +439,26 @@ class PluginList extends PureComponent {
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      operationPermissions: this.handlePermissions('queryPluginInfo'),
+      operationPermissions: this.handlePermissions('queryPluginInfo')
     };
   }
   componentWillMount() {
     const { dispatch } = this.props;
     const {
-      operationPermissions: { isAccess },
+      operationPermissions: { isAccess }
     } = this.state;
     if (!isAccess) {
       globalUtil.withoutPermission(dispatch);
     }
   }
 
-  handlePermissions = type => {
+  handlePermissions = (type) => {
     const { currentTeamPermissionsInfo } = this.props;
     return roleUtil.querySpecifiedPermissionsInfo(
       currentTeamPermissionsInfo,
