@@ -611,7 +611,7 @@ export default class Index extends PureComponent {
         this.hideEditAlias();
         this.props.appDetail && this.props.appDetail.is_third
           ? ''
-          : notification.success({ message: '操作成功' });
+          : notification.success({ message: '操作成功、需要更新才能生效' });
         this.props.onshowRestartTips(true);
       }
     });

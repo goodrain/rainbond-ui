@@ -794,7 +794,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="应用版本管理"
+              title="版本管理"
               bordered={false}
               bodyStyle={{
                 padding: 0
@@ -933,7 +933,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="应用详情"
+              title="详情介绍"
               bordered={false}
               extra={
                 <div>
