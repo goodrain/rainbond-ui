@@ -121,7 +121,7 @@ export async function userDetail(
 export async function moveTeam(
   body = {
     team_name,
-    user_name
+    user_id
   }
 ) {
   return request(
@@ -129,7 +129,7 @@ export async function moveTeam(
     {
       method: "post",
       data: {
-        user_name: body.user_name
+        user_id: body.user_id
       }
     }
   );
