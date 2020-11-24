@@ -5,6 +5,7 @@ const categoryMap = {
   'analyst-plugin:perf': '性能分析',
   'init-plugin': '初始化类型',
   'general-plugin': '一般类型',
+  'exporter-plugin': '监控',
   downstream_net_plugin: '网络治理',
   perf_analyze_plugin: '性能分析',
   inandout_net_plugin: '出口入口共治网络',
