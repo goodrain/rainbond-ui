@@ -541,13 +541,13 @@ export default class Main extends PureComponent {
                                 message: '请输入名称'
                               },
                               {
-                                max: 64,
-                                message: '最大长度64位'
+                                max: 32,
+                                message: '最大长度32位'
                               }
                             ]
                           })(<Input placeholder="请输入名称" />)}
                           <div className={styles.conformDesc}>
-                            请输入应用模版名称，最多64字.
+                            请输入应用模版名称，最多32字.
                           </div>
                         </div>
                       </FormItem>
@@ -794,7 +794,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="应用版本管理"
+              title="版本管理"
               bordered={false}
               bodyStyle={{
                 padding: 0
@@ -933,7 +933,7 @@ export default class Main extends PureComponent {
               style={{
                 marginBottom: 24
               }}
-              title="应用详情"
+              title="详情介绍"
               bordered={false}
               extra={
                 <div>

@@ -6,11 +6,9 @@ import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 
 require('codemirror/lib/codemirror.css');
-
 require('codemirror/theme/seti.css');
 require('codemirror/addon/display/fullscreen.css');
 require('../../styles/codemirror.less');
-
 require('codemirror/addon/display/panel');
 require('codemirror/mode/xml/xml');
 require('codemirror/mode/javascript/javascript');
@@ -27,11 +25,11 @@ class CodeMirrorForm extends PureComponent {
     };
     this.CodeMirrorRef = '';
   }
-  saveRef = ref => {
+  saveRef = (ref) => {
     this.CodeMirrorRef = ref;
   };
 
-  handleChangeUpload = info => {
+  handleChangeUpload = (info) => {
     const { beforeUpload } = this.props;
     if (beforeUpload) {
       if (beforeUpload(info.file, false)) {
@@ -42,7 +40,7 @@ class CodeMirrorForm extends PureComponent {
 
     return this.handleFile(info);
   };
-  handleFile = info => {
+  handleFile = (info) => {
     let fileList = [...info.fileList];
     if (fileList.length > 0) {
       fileList = fileList.slice(-1);
@@ -50,7 +48,7 @@ class CodeMirrorForm extends PureComponent {
     }
   };
 
-  readFileContents = fileList => {
+  readFileContents = (fileList) => {
     let fileString = '';
     const { CodeMirrorRef } = this;
     const { name, setFieldsValue } = this.props;
@@ -58,7 +56,7 @@ class CodeMirrorForm extends PureComponent {
       const reader = new FileReader(); // 新建一个FileReader
       reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
       // eslint-disable-next-line no-loop-func
-      reader.onload = evt => {
+      reader.onload = (evt) => {
         // 读取完文件之后会回来这里
         fileString += evt.target.result; // 读取文件内容
         setFieldsValue({

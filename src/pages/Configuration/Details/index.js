@@ -196,10 +196,6 @@ export default class ConfigurationDetails extends PureComponent {
         serviceIds && serviceIds.length > 0 ? serviceIds.join(',') : ''
     }).then((data) => {
       if (data) {
-        notification.success({
-          message: '更新成功',
-          duration: '3'
-        });
         this.onCancel();
       }
     });
